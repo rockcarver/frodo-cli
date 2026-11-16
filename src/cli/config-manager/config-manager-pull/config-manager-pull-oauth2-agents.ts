@@ -27,6 +27,14 @@ export default function setup() {
         '{\n' +
         '  "/": {},\n' +
         '  "alpha": {\n' +
+        '    "2.2_Agent": [\n' +
+        '      {\n' +
+        '        "id": "my-policy-agent",\n' +
+        '        "overrides": {\n' +
+        '          "userpassword": "\\${MY_POLICY_AGENT_PASSWORD}"\n' +
+        '        }\n' +
+        '      }\n' +
+        '    ],\n' +
         '    "IdentityGatewayAgent": [\n' +
         '      {\n' +
         '        "id": "my-ig-agent",\n' +
@@ -46,6 +54,14 @@ export default function setup() {
         '    "RemoteConsentAgent": [\n' +
         '      {\n' +
         '        "id": "my-rcs"\n' +
+        '      }\n' +
+        '    ],\n' +
+        '    "SharedAgent": [\n' +
+        '      {\n' +
+        '        "id": "my-shared-agent",\n' +
+        '        "overrides": {\n' +
+        '          "userpassword": "\\${MY_SHARED_AGENT_PASSWORD}"\n' +
+        '        }\n' +
         '      }\n' +
         '    ],\n' +
         '    "SoftwarePublisher": [\n' +
@@ -79,6 +95,11 @@ export default function setup() {
         '  "bravo": {}\n' +
         '}\n' +
         '* -------------------------------------------------------------------------------------------- \n'
+    )
+    .addHelpText(
+      'after',
+      '\nAgent types: IdentityGatewayAgent, J2EEAgent, WebAgent, 2.2_Agent and SharedAgent (these have a password: use an override with a placeholder, as in the example), OAuth2Client, RemoteConsentAgent and SoftwarePublisher.\n' +
+        'The agent types CIMDProfile and TrustedJwtIssuer have a kind of their own: "frodo config-manager pull oauth-cimd-profiles" and "frodo config-manager pull oauth-issuers". An entry of either type in this file is skipped here with a warning and its overrides are not applied; the file is not changed. Move the entry to the overrides file of that command (--config-file).\n'
     )
     .addHelpText('after', ownedObjectsHelp('OAuth2 clients'))
     .multiOp()

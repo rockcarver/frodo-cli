@@ -9,6 +9,11 @@ export default function setup() {
 
   program
     .description('Import Oauth2 agents.')
+    .addHelpText(
+      'after',
+      '\nThe folders of these agent types are pushed: IdentityGatewayAgent, J2EEAgent, WebAgent, 2.2_Agent, SharedAgent, OAuth2Client, RemoteConsentAgent and SoftwarePublisher, as realms/<realm>/realm-config/agents/<type>/<id>.json.\n' +
+        'The agent types CIMDProfile and TrustedJwtIssuer have a kind of their own: "frodo config-manager push oauth-cimd-profiles" and "frodo config-manager push oauth-issuers". The folders of those types are skipped here with a warning; no file in them is read or changed.\n'
+    )
     .addHelpText('after', ownedObjectsPushHelp('OAuth2 clients'))
     .multiOp()
     .action(async (host, realm, user, password, options, command) => {
