@@ -48,6 +48,10 @@ describe('frodo config-manager pull all', () => {
   // and the 4 snapshots of the SoftwarePublisher/test software publisher.json files were removed from the snapshot file (they
   // would be reported as obsolete, which fails CI). The requests of the generic route stay in the recording; they come back
   // when the test is recorded again (frodo-cli#1102).
+  // The oauth-cimd-profiles step (frodo-cli#1250) fails in this replay too: the recording predates it, so the request for
+  // the CIMD profiles of the realm is missing ("Network error"), the step writes no file and is named in the summary of
+  // failed steps. The kind has recordings of its own (config-manager-push, -pull and -delete-cimd-profiles, frodo-cli#1252);
+  // the step is exercised here when the test is recorded again (frodo-cli#1102).
   // Opted in to missing recordings until the recording is made again (frodo-cli#1102): the oauth2-agents step now
   // tries every agent of the config file after one failed (decision record 0040), and the recording holds the
   // request of the first agent of the bravo realm only (a recorded 404), so the replay asks for requests that are
@@ -68,6 +72,8 @@ describe('frodo config-manager pull all', () => {
   // applications, so 23 snapshots of their files (the OAuth2 client of the root, alpha and bravo realms, the SAML
   // providers of alpha, the connectors and the mappings) were removed from the snapshot file until it is recorded
   // again. The other agents of the realms are still written and compared.
+  // The oauth-cimd-profiles step (frodo-cli#1250) is among the failed steps here as well: the recording predates it, so
+  // its requests are missing, and it writes no file. The kind has recordings of its own (frodo-cli#1252).
   // Opted in to missing recordings until the recording is made again (frodo-cli#1102): the org-privileges step now
   // tries every realm after the root realm failed (decision record 0040), and the recording holds the requests up to
   // that failure only, so the replay asks for requests that are not in it (alphaOrgPrivileges, bravoOrgPrivileges).
