@@ -37,6 +37,12 @@ describe('frodo config-manager pull all', () => {
   // still matched in order. The pull oauth2-agents, saml, connector-definitions and connector-mappings replays
   // still compare those files.
   // They come back when the test is recorded again (frodo-cli#1102).
+  // The oauth2-agents step leaves the agent type TrustedJwtIssuer (testJWT, listed in oauth2-agents.json) to the
+  // oauth-issuers step (frodo-cli#1259). The recording predates that step: it holds the requests of the generic route
+  // (one GET by type and id per realm), not the list that the step makes, so the replay writes no issuer file and the 4
+  // snapshots of the testJWT.json files were removed from the snapshot file (they would be reported as obsolete, which
+  // fails CI). The unused requests stay in the recording; recordings are made against the real environment, not
+  // edited. They come back when the test is recorded again (frodo-cli#1102).
   // Opted in to missing recordings until the recording is made again (frodo-cli#1102): the oauth2-agents step now
   // tries every agent of the config file after one failed (decision record 0040), and the recording holds the
   // request of the first agent of the bravo realm only (a recorded 404), so the replay asks for requests that are

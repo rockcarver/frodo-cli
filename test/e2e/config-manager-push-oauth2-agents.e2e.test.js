@@ -60,6 +60,10 @@ const forgeopsEnv = getEnv(fc);
 const allDirectory = "test/e2e/exports/fr-config-manager/forgeops";
 
 describe('frodo config-manager push oauth2-agents', () => {
+    // The tree holds a TrustedJwtIssuer folder (testJWT) in /, alpha and bravo. Since frodo-cli#1259 the command leaves
+    // it to `config-manager push oauth-issuers`: it neither reads nor imports the files and says so in one warning per
+    // realm, which is what the three added lines of the snapshot are. The recording still holds the PUT of each issuer;
+    // the replay does not send them, and recordings are made against the real environment, not edited.
     test(`"frodo config-manager push oauth2-agents --env-file test/e2e/env/configManager1.env -D ${allDirectory} -m forgeops": should import all oauth2-agents into forgeops"`, async () => {
         const CMD = `frodo config-manager push oauth2-agents --env-file test/e2e/env/configManager1.env -D ${allDirectory} -m forgeops`;
         await testSuccess(CMD, forgeopsEnv);
