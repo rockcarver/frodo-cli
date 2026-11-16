@@ -87,7 +87,31 @@ function readJsonFile(file, resolvePlaceholders = true) {
 
 const isAvailable = jest.fn();
 const readCIMDProfiles = jest.fn();
+const readAgentByTypeAndId = jest.fn();
 const importCIMDProfiles = jest.fn();
+
+/**
+ * A profile as a read by its id answers it: the members of the groups wrapped as `{ inherited, value }`,
+ * except the members of `overrideOAuth2ClientConfig`, which the server leaves plain.
+ */
+const wrapped = (item) =>
+  Object.fromEntries(
+    Object.entries(structuredClone(item)).map(([key, value]) => [
+      key,
+      value &&
+      typeof value === 'object' &&
+      !Array.isArray(value) &&
+      key.endsWith('Config') &&
+      key !== 'overrideOAuth2ClientConfig'
+        ? Object.fromEntries(
+            Object.entries(value).map(([member, memberValue]) => [
+              member,
+              { inherited: false, value: memberValue },
+            ])
+          )
+        : value,
+    ])
+  );
 
 jest.unstable_mockModule('@rockcarver/frodo-lib', () => ({
   FrodoError,
@@ -126,6 +150,7 @@ jest.unstable_mockModule('@rockcarver/frodo-lib', () => ({
     realm: {
       readRealms: jest.fn(async () => world.realms.map((name) => ({ name }))),
     },
+    agent: { readAgentByTypeAndId },
     oauth2oidc: {
       cimd: {
         isCIMDProfileAvailable: isAvailable,
@@ -196,6 +221,15 @@ beforeEach(() => {
   });
   readCIMDProfiles.mockReset().mockImplementation(async () => {
     return structuredClone(world.profiles[currentRealm] ?? []);
+  });
+  readAgentByTypeAndId.mockReset().mockImplementation(async (type, id) => {
+    const found = (world.profiles[currentRealm] ?? []).find(
+      (item) => item._id.toLowerCase() === id.toLowerCase()
+    );
+    if (type !== 'CIMDProfile' || !found) {
+      throw new FrodoError(`${id} of type ${type} not found`);
+    }
+    return wrapped(found);
   });
   importCIMDProfiles
     .mockReset()
@@ -337,8 +371,15 @@ describe('the files of the tree', () => {
       true
     );
 
-    const { _id, _rev, ...expected } = world.profiles.alpha[0];
+    // the file a pull writes is the wrapped shape of the read by id; the push sends it on as it is
+    const { _id, _rev, ...expected } = wrapped(world.profiles.alpha[0]);
     expect(importedIn('alpha')[0]['zion-agents']).toEqual(expected);
+    expect(
+      importedIn('alpha')[0]['zion-agents'].cimdConfig.cimdClientIdUrlPatterns
+    ).toEqual({ inherited: false, value: ['https://agents.example.com/*'] });
+    expect(
+      importedIn('alpha')[0]['zion-agents'].advancedOAuth2ClientConfig.clientUri
+    ).toEqual({ inherited: false, value: 'https://${HOST}/' });
   });
 
   test('a realm folder without CIMD profiles is nothing; a tree without any CIMD profile folder is an info line and a success', async () => {

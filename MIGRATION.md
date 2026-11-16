@@ -827,11 +827,14 @@ that identify themselves with a Client ID Metadata Document), and
 the OAuth2 trusted JWT issuers (the agent type `TrustedJwtIssuer`). `pull all`
 includes both. They write the files where `oauth2-agents` wrote them
 (`realms/<realm>/realm-config/agents/CIMDProfile/<name>.json` and
-`realms/<realm>/realm-config/agents/TrustedJwtIssuer/<name>.json`), so an
-existing tree is still valid: an issuer file is byte for byte the same, and the
-first `pull oauth-cimd-profiles` over a file that `pull oauth2-agents` wrote
-rewrites it in the plain form (without the `{ "inherited": false, "value": ...
-}` wrappers). To give each object one writer, `pull oauth2-agents` and `push
+`realms/<realm>/realm-config/agents/TrustedJwtIssuer/<name>.json`), in the
+shape that `oauth2-agents` wrote (every property is `{ "inherited": false,
+"value": ... }`), so an existing tree is still valid and a pull writes the same
+bytes. A tree that was pulled with `pull oauth-cimd-profiles` of an earlier
+5.0.0 prerelease holds its CIMD profile files in the plain form (the values
+without the wrappers); the next pull writes them in the wrapped shape, like
+every other file under `agents/`, and a push accepts both shapes. To give each
+object one writer, `pull oauth2-agents` and `push
 oauth2-agents` no longer handle these two types: an entry of type `CIMDProfile`
 or `TrustedJwtIssuer` in `oauth2-agents.json`, and the folder `CIMDProfile` or
 `TrustedJwtIssuer` of a tree, are skipped with one warning per realm and type
@@ -843,7 +846,13 @@ or `push oauth-issuers`. The `overrides` of such an entry are not applied by
 `pull oauth2-agents` any more; move them to the overrides file of `pull
 oauth-cimd-profiles` or `pull oauth-issuers` (`--config-file`, for example
 `oauth-issuers.json`), where the entries of a realm are a list without the type
-level: `"alpha": [ { "id": "zion-issuer", "overrides": { ... } } ]`. In a tree
+level: `"alpha": [ { "id": "zion-issuer", "overrides": { ... } } ]`. The
+overrides are merged into the file as it is written, so a value is given in the
+form of the file: `"cimdClientIdUrlPatterns": { "value": ["https://${HOST}/*"] }`.
+An overrides file for `pull oauth-cimd-profiles` that was written for the plain
+files of an earlier 5.0.0 prerelease (`"cimdClientIdUrlPatterns": ["..."]`) has
+to be changed: an array given that way is not merged into `value` but added next
+to `inherited` and `value` of the property. In a tree
 that uses one folder per application, a realm that has only entries of these two
 types in `oauth2-agents.json` no longer makes the command read the applications
 of the realm. See
