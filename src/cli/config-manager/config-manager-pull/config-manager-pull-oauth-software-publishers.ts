@@ -52,14 +52,14 @@ export default function setup() {
     )
     .addHelpText(
       'after',
-      `\nOverrides file example (${s.softwarePublishersOverridesFile}): for each realm a list of publishers and the values to replace, in the form of the file (every property is wrapped as inherited and value). The properties that usually differ between environments are issuer, jwksUri and jwkSet.\n` +
+      `\nOverrides file example (${s.softwarePublishersOverridesFile}): for each realm a list of publishers and the values to replace, in the form of the file (a property that is set is its value; a value written as { "value": ... } of the first 5.0.0 prereleases still works). The properties that usually differ between environments are issuer, jwksUri and jwkSet.\n` +
         '{\n' +
         '  "alpha": [\n' +
         '    {\n' +
         `      "id": "${s.softwarePublisherId}",\n` +
         '      "overrides": {\n' +
-        '        "issuer": { "value": "${ZION_PUBLISHER_ISSUER}" },\n' +
-        '        "jwksUri": { "value": "${ZION_PUBLISHER_JWKS_URI}" }\n' +
+        '        "issuer": "${ZION_PUBLISHER_ISSUER}",\n' +
+        '        "jwksUri": "${ZION_PUBLISHER_JWKS_URI}"\n' +
         '      }\n' +
         '    }\n' +
         '  ]\n' +
