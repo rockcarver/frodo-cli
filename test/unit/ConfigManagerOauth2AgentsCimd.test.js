@@ -586,3 +586,57 @@ describe('push oauth2-agents with CIMD profile files in the tree (rows 9 to 12, 
     expect(importAgent).not.toHaveBeenCalled();
   });
 });
+
+/**
+ * The same rows for the agent type `TrustedJwtIssuer` (frodo-cli#1259, step 1:
+ * characterise first). The committed file of the e2e tree is the content of
+ * the object as `pull oauth2-agents` writes it today; these cases pass on the
+ * code before the skip and are changed by the commit that adds it.
+ */
+const ISSUER_FIXTURE = JSON.parse(
+  fs.readFileSync(
+    path.resolve(
+      root,
+      'test/e2e/exports/fr-config-manager/forgeops/realms/alpha/realm-config/agents/TrustedJwtIssuer/testJWT.json'
+    ),
+    'utf8'
+  )
+);
+
+const ISSUER_PATH = (id, realm = 'alpha') =>
+  `realms/${realm}/realm-config/agents/TrustedJwtIssuer/${id}.json`;
+
+describe('the agent type TrustedJwtIssuer in the generic kind today (frodo-cli#1259)', () => {
+  test('pull: an entry is read by type and id and written as the committed testJWT.json, without _rev', async () => {
+    readAgentByTypeAndId.mockResolvedValue({ ...ISSUER_FIXTURE, _rev: '-77' });
+    const file = configFile({
+      alpha: { TrustedJwtIssuer: [{ id: 'testJWT' }] },
+    });
+
+    expect(await configManagerExportOAuth2Agents(file)).toBe(true);
+
+    expect(readAgentByTypeAndId).toHaveBeenCalledTimes(1);
+    expect(readAgentByTypeAndId).toHaveBeenCalledWith(
+      'TrustedJwtIssuer',
+      'testJWT'
+    );
+    expect(read(ISSUER_PATH('testJWT'))).toEqual(ISSUER_FIXTURE);
+  });
+
+  test('push: a file of the folder is imported with the object minus _id and _rev, and the type travels in _type', async () => {
+    write(ISSUER_PATH('testJWT'), { ...ISSUER_FIXTURE, _rev: '-77' });
+
+    expect(await configManagerImportAgents()).toBe(true);
+
+    expect(importAgent).toHaveBeenCalledTimes(1);
+    const [id, data, flag] = importAgent.mock.calls[0];
+    expect(id).toBe('testJWT');
+    expect(flag).toBe(false);
+    expect(Object.keys(data.agent)).toEqual(['testJWT']);
+    const pushed = data.agent.testJWT;
+    expect(pushed).not.toHaveProperty('_id');
+    expect(pushed).not.toHaveProperty('_rev');
+    expect(pushed._type._id).toBe('TrustedJwtIssuer');
+    expect(pushed.issuer).toEqual(ISSUER_FIXTURE.issuer);
+  });
+});
