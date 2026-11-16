@@ -19,11 +19,12 @@
  *   property that is set on the object as its value; nothing for one that is unset or inherited),
  *   the same file that `pull oauth2-agents` writes for the types it handles;
  * - a publisher holds no secret property, but its `jwkSet` is a key set: one that holds private or
- *   secret key material is written (the user asked for the publisher) with a warning that never
- *   prints the key, and a push says what it replaces and never deletes.
+ *   secret key material is not written (record 0055): the file has `${<ID>_JWKSET}` in its place,
+ *   a warning says so and never prints the key, and a push fills the variable and says what it
+ *   replaces and never deletes.
  */
 import { frodo, type AgentExportInterface } from '@rockcarver/frodo-lib';
-import { printError, printMessage } from '../utils/Console';
+import { printError } from '../utils/Console';
 import { causeOf } from '../utils/ErrorCause';
 import {
   agentKindFilePath,
@@ -35,7 +36,6 @@ import {
   type DeleteHooks,
   type PulledItem,
 } from './ConfigManagerAgentKind';
-import { holdsSecretKeyMaterial } from './OAuth2TrustedJwtIssuerConfigOps';
 
 /** The agent type of a software publisher, which names the folder of its files. */
 export const SOFTWARE_PUBLISHER_AGENT_TYPE = 'SoftwarePublisher';
@@ -105,7 +105,8 @@ async function listSoftwarePublishers(): Promise<{ _id: string }[]> {
  * are still pulled. A named publisher that does not exist, a name without a single realm and an
  * overrides file that cannot be read fail the command whatever `--allow-failures` says. A realm
  * that does not offer the type has nothing to export, which is not a failure. A `jwkSet` with
- * private or secret key material is a warning, not a failure, and the key is never printed.
+ * private or secret key material is replaced by a placeholder and a warning, not a failure, and
+ * the key is never printed (record 0055).
  * @param {string} name optional name: pull only that publisher (needs a single realm)
  * @param {string} realm optional realm: pull only from that realm. Default: every realm
  * @param {boolean} quiet true for the step of `pull all`: say nothing when there is nothing to export
@@ -136,14 +137,6 @@ export async function configManagerExportSoftwarePublishers(
               id
             )) as unknown as Record<string, unknown>,
         }));
-      },
-      inspect: (currentRealm, id, object) => {
-        if (holdsSecretKeyMaterial(object.jwkSet)) {
-          printMessage(
-            `Software publisher '${id}' of realm '${currentRealm}' stores private or secret key material in jwkSet; the file contains it. Replace it with a placeholder in the overrides file.`,
-            'warn'
-          );
-        }
       },
     },
     { name, realm, quiet, allowFailures, overridesFile }

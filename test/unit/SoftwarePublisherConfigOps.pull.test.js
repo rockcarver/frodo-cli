@@ -135,8 +135,6 @@ jest.unstable_mockModule('@rockcarver/frodo-lib', () => ({
       deleteAgent: jest.fn(),
     },
     app: { readApplicationOwnership, getApplicationOwners: jest.fn() },
-    // the issuer module that the kind takes its key set check from reads this at import
-    oauth2oidc: { issuer: {} },
   },
 }));
 
@@ -538,48 +536,54 @@ describe('the overrides file', () => {
   );
 });
 
-describe('private and secret key material in the key set', () => {
+describe('private and secret key material in the key set (record 0055)', () => {
   const jwk = (members) =>
     JSON.stringify({ keys: [{ kty: 'RSA', ...members }] });
+  const VARIABLE = '${ZION_PUBLISHER_JWKSET}';
+  const withKeySet = (value) => [
+    publisherObject('zion-publisher', { jwkSet: { inherited: false, value } }),
+  ];
 
   test.each([
     ['a private key (d)', { d: 'private-part' }],
-    ['a symmetric key (k)', { kty: 'oct', k: 'symmetric-part' }],
+    ['a symmetric key (k)', { kty: 'oct', k: 'private-part' }],
   ])(
-    '%s is a warning that names the publisher and never prints the key',
+    '%s is not written: the file has the placeholder, the warning names publisher, property and variable, and the key is nowhere',
     async (_what, members) => {
-      world.publishers.alpha = [
-        publisherObject('zion-publisher', {
-          jwkSet: { inherited: false, value: jwk(members) },
-        }),
-      ];
+      world.publishers.alpha = withKeySet(jwk(members));
 
       expect(await configManagerExportSoftwarePublishers()).toBe(true);
 
       expect(output()).toContain(
-        "WARN Software publisher 'zion-publisher' of realm 'alpha' stores private or secret key material in jwkSet; the file contains it. Replace it with a placeholder in the overrides file."
+        "WARN Software publisher 'zion-publisher' of realm 'alpha' holds private or secret key material in jwkSet: it is not written. The file has ${ZION_PUBLISHER_JWKSET} in its place; set that variable to the key set when you push."
       );
-      for (const secret of ['private-part', 'symmetric-part']) {
-        expect(output()).not.toContain(secret);
-      }
-      // the publisher is still written: the user asked for it
-      expect(exists(P('zion-publisher'))).toBe(true);
+      expect(output()).not.toContain('private-part');
+      expect(readRaw(P('zion-publisher'))).toContain(`"jwkSet": "${VARIABLE}"`);
+      expect(readRaw(P('zion-publisher'))).not.toContain('private-part');
+      expect(read(P('zion-publisher')).issuer).toBe(
+        'https://zion-publisher.example.com'
+      );
     }
   );
 
-  test('public members only are silent', async () => {
-    world.publishers.alpha = [
-      publisherObject('zion-publisher', {
-        jwkSet: {
-          inherited: false,
-          value: jwk({ n: 'modulus', e: 'AQAB', kid: 'k1', use: 'sig' }),
-        },
-      }),
-    ];
+  test('public members only: nothing is said and the key set is written as it is', async () => {
+    const value = jwk({ n: 'modulus', e: 'AQAB', kid: 'k1', use: 'sig' });
+    world.publishers.alpha = withKeySet(value);
 
     expect(await configManagerExportSoftwarePublishers()).toBe(true);
 
     expect(output()).toBe('');
+    expect(read(P('zion-publisher')).jwkSet).toBe(value);
+  });
+
+  test('a second pull writes the same file', async () => {
+    world.publishers.alpha = withKeySet(jwk({ d: 'private-part' }));
+    await configManagerExportSoftwarePublishers();
+    const first = readRaw(P('zion-publisher'));
+
+    await configManagerExportSoftwarePublishers();
+
+    expect(readRaw(P('zion-publisher'))).toBe(first);
   });
 });
 

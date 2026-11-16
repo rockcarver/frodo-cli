@@ -23,6 +23,11 @@ import {
 } from '../utils/FrConfig';
 import { OperationRun } from '../utils/OperationRun';
 import { leftOutMessage, plainOverrides, toPlainShape } from './AgentFileShape';
+import {
+  readAgentFile,
+  redactedKeySetMessage,
+  redactKeySets,
+} from './AgentKeySets';
 
 /**
  * The function that every writer of agent files uses: a property that is set on the object is
@@ -293,7 +298,7 @@ export interface PullHooks {
    * asked for: none if the realm has no such object. A failure is the failure of the realm.
    */
   items: (name?: string) => Promise<PulledItem[]>;
-  /** Called with each object before it is written, after placeholders are escaped and overrides merged, to warn about its content. */
+  /** Called with each object before it is written, after placeholders are escaped, overrides merged and key sets with private key material replaced, to warn about its content. */
   inspect?: (
     realm: string,
     id: string,
@@ -488,6 +493,18 @@ export async function pullAgentKind(
                 string,
                 unknown
               >;
+            }
+            // a key set with private or secret key material is never written (record 0055)
+            for (const redacted of redactKeySets(config, item.id)) {
+              printMessage(
+                redactedKeySetMessage(
+                  kind.label,
+                  item.id,
+                  currentRealm,
+                  redacted
+                ),
+                'warn'
+              );
             }
             hooks.inspect?.(currentRealm, item.id, config);
             saveJsonToFile(
@@ -701,7 +718,12 @@ export async function pushAgentKind(
         const label = `${realmDir}/${file}`;
         let object: unknown;
         try {
-          object = readJsonFile(`${dir}/${file}`);
+          // a key set that a pull replaced by a variable is filled from it as JSON text (record 0055)
+          object = readAgentFile(
+            `${dir}/${file}`,
+            (path) => readJsonFile(path),
+            state
+          );
           if (
             typeof object !== 'object' ||
             object === null ||

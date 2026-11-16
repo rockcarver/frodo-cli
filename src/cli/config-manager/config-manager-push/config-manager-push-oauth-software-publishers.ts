@@ -5,7 +5,10 @@ import { configManagerImportSoftwarePublishers } from '../../../ops/SoftwarePubl
 import c from '../../../utils/ColorTheme';
 import { verboseMessage } from '../../../utils/Console';
 import { realmOfRun } from '../../../utils/interactive/PositionalArgs';
-import { PLACEHOLDER_VALUES_SENTENCE } from '../../../utils/PlaceholderValues';
+import {
+  KEY_SET_PUSH_SENTENCE,
+  PLACEHOLDER_VALUES_SENTENCE,
+} from '../../../utils/PlaceholderValues';
 import { FrodoCommand } from '../../FrodoCommand';
 
 export default function setup() {
@@ -18,6 +21,7 @@ export default function setup() {
     .description(
       'Import OAuth2 software publishers from the files realms/<realm>/realm-config/agents/SoftwarePublisher/<name>.json that "pull oauth-software-publishers" and "pull oauth2-agents" write, from the working directory (-D). A publisher that does not exist is created and one that does is replaced by the file. A realm that does not offer the agent type is skipped with a warning. ' +
         `${PLACEHOLDER_VALUES_SENTENCE} ` +
+        `${KEY_SET_PUSH_SENTENCE} ` +
         'No publisher is ever deleted. A software publisher is a trust anchor: a software statement it signs is accepted when a client registers itself, so read the files before you push them.'
     )
     .addOption(

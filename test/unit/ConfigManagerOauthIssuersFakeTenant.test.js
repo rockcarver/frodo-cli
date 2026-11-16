@@ -56,12 +56,13 @@ suite('config-manager oauth-issuers against a fake tenant', () => {
       recordPath: record,
       ...options,
     });
-    return (args) =>
+    return (args, extraEnvironment = {}) =>
       new Promise((resolve, reject) => {
         const child = cp.spawn(binaryPath, args, {
           cwd: work,
           env: {
             ...process.env,
+            ...extraEnvironment,
             HOME: home,
             USERPROFILE: home,
             FRODO_HOST: `http://127.0.0.1:${fakeAm.port}/am`,
@@ -621,6 +622,125 @@ suite('config-manager oauth-issuers against a fake tenant', () => {
         expect(missing.output).toContain(
           "Trusted JWT issuer 'zion-issuer' not found in realm 'alpha'."
         );
+      },
+      TIMEOUT
+    );
+  });
+
+  describe('a key set with private key material (record 0055, core record 0013)', () => {
+    // the real library fills a placeholder into the text of the file: what the unit tests with the library
+    // stubbed cannot show is that a key set (JSON text) in a variable still gives a file that can be read
+    const keySet = JSON.stringify({
+      keys: [
+        {
+          kty: 'RSA',
+          kid: 'zion-key',
+          n: 'modulus',
+          e: 'AQAB',
+          d: 'private-"part"',
+        },
+      ],
+    });
+    const holder = () => ({
+      _id: 'zion-issuer',
+      _rev: '1',
+      _type: {
+        _id: 'TrustedJwtIssuer',
+        name: 'OAuth2 Trusted JWT Issuer',
+        collection: true,
+      },
+      issuer: 'https://zion-issuer.example.com',
+      allowedSubjects: [],
+      jwkSet: keySet,
+      jwksUri: null,
+    });
+    const file = () => path.join(issuersOf('alpha'), 'zion-issuer.json');
+    const puts = () => requests().filter((r) => r.method === 'PUT');
+    const pullIt = (run) =>
+      run(['config-manager', 'pull', 'oauth-issuers', ...target()]);
+    const pushIt = (run, extra = [], environment = {}) =>
+      run(
+        ['config-manager', 'push', 'oauth-issuers', ...extra, ...target()],
+        environment
+      );
+
+    it(
+      'is not written by a pull: the file has the placeholder, the warning names the variable, and the key is in neither',
+      async () => {
+        const run = await tenant({ trustedIssuers: [holder()] });
+
+        const { code, output } = await pullIt(run);
+
+        expect(code).toBe(0);
+        expect(output).toContain(
+          "Trusted JWT issuer 'zion-issuer' of realm 'alpha' holds private or secret key material in jwkSet: it is not written. The file has ${ZION_ISSUER_JWKSET} in its place; set that variable to the key set when you push."
+        );
+        expect(output).not.toContain('private-');
+        const text = fs.readFileSync(file(), 'utf8');
+        expect(JSON.parse(text).jwkSet).toBe('${ZION_ISSUER_JWKSET}');
+        expect(text).not.toContain('private-');
+        expect(text).not.toContain('modulus');
+      },
+      TIMEOUT
+    );
+
+    it(
+      'is filled by a push from the variable of the process, as the key set that the tenant holds, and a second pull writes the same file',
+      async () => {
+        const run = await tenant({ trustedIssuers: [holder()] });
+        await pullIt(run);
+        const written = fs.readFileSync(file(), 'utf8');
+
+        const { code, output } = await pushIt(run, [], {
+          ZION_ISSUER_JWKSET: keySet,
+        });
+
+        expect(output).not.toMatch(/Error|failed/);
+        expect(code).toBe(0);
+        expect(puts()).toHaveLength(1);
+        expect(JSON.parse(puts()[0].body).jwkSet).toBe(keySet);
+        // the tenant holds the same key set as before the round trip: a pull writes the same file
+        fs.rmSync(file());
+        await pullIt(run);
+        expect(fs.readFileSync(file(), 'utf8')).toBe(written);
+      },
+      TIMEOUT
+    );
+
+    it(
+      'is filled by a push from -E as well',
+      async () => {
+        const run = await tenant({ trustedIssuers: [holder()] });
+        await pullIt(run);
+
+        const { code, output } = await pushIt(run, [
+          '-E',
+          `ZION_ISSUER_JWKSET=${keySet}`,
+        ]);
+
+        expect(output).not.toMatch(/Error|failed/);
+        expect(code).toBe(0);
+        expect(JSON.parse(puts()[0].body).jwkSet).toBe(keySet);
+      },
+      TIMEOUT
+    );
+
+    it(
+      'is refused by a push without the variable: the issuer is named, nothing is sent, and the placeholder is never stored',
+      async () => {
+        const run = await tenant({ trustedIssuers: [holder()] });
+        await pullIt(run);
+
+        const { code, output } = await pushIt(run);
+
+        expect(code).toBe(1);
+        expect(output).toContain(
+          'No value found for placeholder "ZION_ISSUER_JWKSET"'
+        );
+        expect(output).toContain(
+          '- alpha/zion-issuer.json: No value found for placeholder "ZION_ISSUER_JWKSET"'
+        );
+        expect(puts()).toEqual([]);
       },
       TIMEOUT
     );

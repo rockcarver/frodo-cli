@@ -151,11 +151,8 @@ jest.unstable_mockModule(src('utils/SettingsStore'), () => ({
   getConfigManagerApplicationLayout: () => 'kind-paths',
 }));
 
-const {
-  configManagerExportTrustedJwtIssuers,
-  holdsSecretKeyMaterial,
-  trustedJwtIssuerFilePath,
-} = await import(src('ops/OAuth2TrustedJwtIssuerConfigOps.ts'));
+const { configManagerExportTrustedJwtIssuers, trustedJwtIssuerFilePath } =
+  await import(src('ops/OAuth2TrustedJwtIssuerConfigOps.ts'));
 const { configManagerExportOAuth2Agents } = await import(
   src('configManagerOps/FrConfigOauth2AgentOps.ts')
 );
@@ -544,72 +541,153 @@ describe('the overrides file', () => {
   });
 });
 
-describe('private and secret key material in the key set', () => {
+describe('private and secret key material in the key set (record 0055)', () => {
   const jwk = (members) =>
     JSON.stringify({ keys: [{ kty: 'RSA', ...members }] });
+  const VARIABLE = '${ZION_ISSUER_JWKSET}';
+  const withKeySet = (value) => [
+    issuerObject('zion-issuer', { jwkSet: { inherited: false, value } }),
+  ];
 
   test.each([
     ['a private key (d)', { d: 'private-part' }],
     [
       'a private key (p, q, dp, dq, qi)',
-      { p: 'x', q: 'y', dp: 'a', dq: 'b', qi: 'c' },
+      { p: 'private-part', q: 'y', dp: 'a', dq: 'b', qi: 'c' },
     ],
-    ['a symmetric key (k)', { kty: 'oct', k: 'symmetric-part' }],
+    ['a multi-prime key (oth)', { oth: [{ r: 'private-part' }] }],
+    ['a symmetric key (k)', { kty: 'oct', k: 'private-part' }],
   ])(
-    '%s is a warning that names the issuer and never prints the key',
+    '%s is not written: the file has the placeholder, the warning names issuer, property and variable, and the key is nowhere',
     async (_what, members) => {
-      world.issuers.alpha = [
-        issuerObject('zion-issuer', {
-          jwkSet: { inherited: false, value: jwk(members) },
-        }),
-      ];
+      world.issuers.alpha = withKeySet(jwk(members));
 
       expect(await configManagerExportTrustedJwtIssuers()).toBe(true);
 
       expect(output()).toContain(
-        "WARN Trusted JWT issuer 'zion-issuer' of realm 'alpha' stores private or secret key material in jwkSet; the file contains it. Replace it with a placeholder in the overrides file."
+        "WARN Trusted JWT issuer 'zion-issuer' of realm 'alpha' holds private or secret key material in jwkSet: it is not written. The file has ${ZION_ISSUER_JWKSET} in its place; set that variable to the key set when you push."
       );
-      for (const secret of ['private-part', 'symmetric-part']) {
-        expect(output()).not.toContain(secret);
-      }
-      // the issuer is still written: the user asked for it
-      expect(exists(P('zion-issuer'))).toBe(true);
+      expect(output()).not.toContain('private-part');
+      // the placeholder is not escaped: a push fills it
+      expect(readRaw(P('zion-issuer'))).toContain(`"jwkSet": "${VARIABLE}"`);
+      expect(readRaw(P('zion-issuer'))).not.toContain('private-part');
+      expect(readRaw(P('zion-issuer'))).not.toContain('\\\\${ZION');
+      // the rest of the issuer is written as it was
+      expect(read(P('zion-issuer')).issuer).toBe(
+        'https://zion-issuer.example.com'
+      );
     }
   );
 
-  test('public members only are silent', async () => {
+  test('a set with one private key among public ones is replaced as a whole', async () => {
+    world.issuers.alpha = withKeySet(
+      JSON.stringify({
+        keys: [
+          { kty: 'RSA', kid: 'public-one', n: 'modulus', e: 'AQAB' },
+          { kty: 'oct', k: 'private-part' },
+        ],
+      })
+    );
+
+    expect(await configManagerExportTrustedJwtIssuers()).toBe(true);
+
+    expect(read(P('zion-issuer')).jwkSet).toBe(VARIABLE);
+    expect(readRaw(P('zion-issuer'))).not.toContain('public-one');
+  });
+
+  test('public members only: nothing is said and the key set is written as it is', async () => {
+    const value = jwk({ n: 'modulus', e: 'AQAB', kid: 'k1', use: 'sig' });
+    world.issuers.alpha = withKeySet(value);
+
+    expect(await configManagerExportTrustedJwtIssuers()).toBe(true);
+
+    expect(output()).toBe('');
+    expect(read(P('zion-issuer')).jwkSet).toBe(value);
+  });
+
+  test('an unset key set is not in the file and is silent', async () => {
+    world.issuers.alpha = [issuerObject('zion-issuer')];
+
+    expect(await configManagerExportTrustedJwtIssuers()).toBe(true);
+
+    expect(output()).toBe('');
+    expect(read(P('zion-issuer'))).not.toHaveProperty('jwkSet');
+  });
+
+  test('a variable of the overrides file replaces the key set before it is looked at: nothing to say', async () => {
+    world.issuers.alpha = withKeySet(jwk({ d: 'private-part' }));
+    const overrides = writeFile('overrides.json', {
+      alpha: [
+        { id: 'zion-issuer', overrides: { jwkSet: '${MY_OWN_VARIABLE}' } },
+      ],
+    });
+
+    expect(
+      await configManagerExportTrustedJwtIssuers(
+        undefined,
+        undefined,
+        false,
+        false,
+        overrides
+      )
+    ).toBe(true);
+
+    expect(output()).toBe('');
+    expect(read(P('zion-issuer')).jwkSet).toBe('${MY_OWN_VARIABLE}');
+    expect(readRaw(P('zion-issuer'))).not.toContain('private-part');
+  });
+
+  test('a private key in the overrides file is replaced as well: the key is never written, whatever the source', async () => {
+    world.issuers.alpha = withKeySet(jwk({ n: 'x' }));
+    const overrides = writeFile('overrides.json', {
+      alpha: [
+        {
+          id: 'zion-issuer',
+          overrides: { jwkSet: jwk({ d: 'private-part' }) },
+        },
+      ],
+    });
+
+    expect(
+      await configManagerExportTrustedJwtIssuers(
+        undefined,
+        undefined,
+        false,
+        false,
+        overrides
+      )
+    ).toBe(true);
+
+    expect(read(P('zion-issuer')).jwkSet).toBe(VARIABLE);
+    expect(readRaw(P('zion-issuer'))).not.toContain('private-part');
+    expect(output()).not.toContain('private-part');
+  });
+
+  test('a second pull writes the same file: the pull is stable', async () => {
+    world.issuers.alpha = withKeySet(jwk({ d: 'private-part' }));
+    await configManagerExportTrustedJwtIssuers();
+    const first = readRaw(P('zion-issuer'));
+
+    await configManagerExportTrustedJwtIssuers();
+
+    expect(readRaw(P('zion-issuer'))).toBe(first);
+  });
+
+  test('is silent about an issuer without private material and names only the one that has it', async () => {
     world.issuers.alpha = [
       issuerObject('zion-issuer', {
-        jwkSet: {
-          inherited: false,
-          value: jwk({ n: 'modulus', e: 'AQAB', kid: 'k1', use: 'sig' }),
-        },
+        jwkSet: { inherited: false, value: jwk({ d: 'private-part' }) },
+      }),
+      issuerObject('zion-other', {
+        jwkSet: { inherited: false, value: jwk({ n: 'x', e: 'AQAB' }) },
       }),
     ];
 
     expect(await configManagerExportTrustedJwtIssuers()).toBe(true);
 
-    expect(output()).toBe('');
-  });
-
-  test('an unset or unparseable key set is silent', () => {
-    expect(holdsSecretKeyMaterial(undefined)).toBe(false);
-    expect(holdsSecretKeyMaterial({ inherited: false })).toBe(false);
-    expect(
-      holdsSecretKeyMaterial({ inherited: false, value: 'not json' })
-    ).toBe(false);
-    expect(holdsSecretKeyMaterial({ inherited: false, value: '"text"' })).toBe(
-      false
-    );
-  });
-
-  test('is found in a plain value and in a single JWK that is not a set', () => {
-    expect(holdsSecretKeyMaterial(JSON.stringify({ kty: 'oct', k: 'x' }))).toBe(
-      true
-    );
-    expect(holdsSecretKeyMaterial({ keys: [{ kty: 'RSA', d: 'x' }] })).toBe(
-      true
-    );
+    expect(printed.filter((line) => line.startsWith('WARN'))).toHaveLength(1);
+    expect(output()).toContain("'zion-issuer'");
+    expect(output()).not.toContain("'zion-other'");
   });
 });
 

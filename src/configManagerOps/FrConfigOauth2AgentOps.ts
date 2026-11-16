@@ -12,6 +12,11 @@ import {
   toPlainShape,
 } from '../ops/AgentFileShape';
 import {
+  readAgentFile,
+  redactedKeySetMessage,
+  redactKeySets,
+} from '../ops/AgentKeySets';
+import {
   objectNameInFile,
   ownedObjectMessage,
   OwnedObjects,
@@ -141,6 +146,16 @@ export async function configManagerExportOAuth2Agents(
               // an overrides file written for the wrapped files of the first 5.0.0 prereleases still works
               if (agent.overrides) {
                 config = mergeDeep(config, plainOverrides(agent.overrides));
+              }
+              // a key set with private or secret key material is never written (record 0055)
+              for (const redacted of redactKeySets(
+                config as Record<string, unknown>,
+                agent.id
+              )) {
+                printMessage(
+                  redactedKeySetMessage(agentType, agent.id, realm, redacted),
+                  'warn'
+                );
               }
               saveJsonToFile(
                 config,
@@ -310,8 +325,11 @@ export async function configManagerImportAgents(
             continue;
           }
           await run.run(`${realmDir}/${agentType}/${file}`, async () => {
-            const agent = readJsonFile(
-              path.join(agentTypeDir, file)
+            // a key set that a pull replaced by a variable is filled from it as JSON text (record 0055)
+            const agent = readAgentFile(
+              path.join(agentTypeDir, file),
+              (agentFile) => readJsonFile(agentFile),
+              state
             ) as IdObjectSkeletonInterface;
             const agentId = agent._id;
             clearOperationalAttributes(agent);

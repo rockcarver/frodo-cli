@@ -5,6 +5,7 @@ import { configManagerExportTrustedJwtIssuers } from '../../../ops/OAuth2Trusted
 import c from '../../../utils/ColorTheme';
 import { verboseMessage } from '../../../utils/Console';
 import { realmOfRun } from '../../../utils/interactive/PositionalArgs';
+import { KEY_SET_PULL_SENTENCE } from '../../../utils/PlaceholderValues';
 import { FrodoCommand } from '../../FrodoCommand';
 
 export default function setup() {
@@ -13,7 +14,9 @@ export default function setup() {
   program
     .summary('Export trusted JWT issuers, one file per issuer.')
     .description(
-      'Export the OAuth2 trusted JWT issuers (the issuers whose signed JWTs an OAuth 2.0 provider accepts as grants) of all realms or of one realm to realms/<realm>/realm-config/agents/TrustedJwtIssuer/<name>.json, one file for each. The file is the one that "pull oauth2-agents" writes for the same issuer, at the same path. A warning says when the key set of an issuer holds a private or secret key. Trusted JWT issuers are dynamic configuration: they are part of "pull all" and not of "pull all-static".'
+      'Export the OAuth2 trusted JWT issuers (the issuers whose signed JWTs an OAuth 2.0 provider accepts as grants) of all realms or of one realm to realms/<realm>/realm-config/agents/TrustedJwtIssuer/<name>.json, one file for each. The file is the one that "pull oauth2-agents" writes for the same issuer, at the same path. ' +
+        `${KEY_SET_PULL_SENTENCE} ` +
+        'Trusted JWT issuers are dynamic configuration: they are part of "pull all" and not of "pull all-static".'
     )
     .addOption(
       new Option(

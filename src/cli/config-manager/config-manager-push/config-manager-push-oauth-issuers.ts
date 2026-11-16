@@ -5,6 +5,7 @@ import { configManagerImportTrustedJwtIssuers } from '../../../ops/OAuth2Trusted
 import c from '../../../utils/ColorTheme';
 import { verboseMessage } from '../../../utils/Console';
 import { realmOfRun } from '../../../utils/interactive/PositionalArgs';
+import { KEY_SET_PUSH_SENTENCE } from '../../../utils/PlaceholderValues';
 import { FrodoCommand } from '../../FrodoCommand';
 
 export default function setup() {
@@ -13,7 +14,9 @@ export default function setup() {
   program
     .summary('Import trusted JWT issuers from the files written by pull.')
     .description(
-      'Import OAuth2 trusted JWT issuers from the files realms/<realm>/realm-config/agents/TrustedJwtIssuer/<name>.json that "pull oauth-issuers" and "pull oauth2-agents" write, from the working directory (-D). An issuer that does not exist is created and one that does is replaced by the file. When the server refuses an attribute of a file (it does not know the attribute), the issuer stays stored without it, nothing is rolled back, the push names the attributes and fails with exit code 1 unless --allow-failures is given. Each ${NAME} in a file is filled from -E/--env NAME=value, else from --env-file, else from the environment variable NAME of the process (a file that names a variable copies its value into what is pushed). No issuer is ever deleted. A trusted JWT issuer is a trust anchor: a JWT signed by it is accepted as a grant, so read the files before you push them.'
+      'Import OAuth2 trusted JWT issuers from the files realms/<realm>/realm-config/agents/TrustedJwtIssuer/<name>.json that "pull oauth-issuers" and "pull oauth2-agents" write, from the working directory (-D). An issuer that does not exist is created and one that does is replaced by the file. When the server refuses an attribute of a file (it does not know the attribute), the issuer stays stored without it, nothing is rolled back, the push names the attributes and fails with exit code 1 unless --allow-failures is given. Each ${NAME} in a file is filled from -E/--env NAME=value, else from --env-file, else from the environment variable NAME of the process (a file that names a variable copies its value into what is pushed). ' +
+        `${KEY_SET_PUSH_SENTENCE} ` +
+        'No issuer is ever deleted. A trusted JWT issuer is a trust anchor: a JWT signed by it is accepted as a grant, so read the files before you push them.'
     )
     .addOption(
       new Option(

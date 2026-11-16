@@ -7,9 +7,10 @@ exports[`CLI help interface for 'config-manager pull oauth-issuers' should be ex
 JWTs an OAuth 2.0 provider accepts as grants) of all realms or of one realm to
 realms/<realm>/realm-config/agents/TrustedJwtIssuer/<name>.json, one file for
 each. The file is the one that "pull oauth2-agents" writes for the same issuer,
-at the same path. A warning says when the key set of an issuer holds a private
-or secret key. Trusted JWT issuers are dynamic configuration: they are part of
-"pull all" and not of "pull all-static".
+at the same path. A key set that holds a private or secret key is not written:
+the file has \${<ID>_JWKSET} in its place (the id of the object in upper case)
+and a warning says so. Trusted JWT issuers are dynamic configuration: they are
+part of "pull all" and not of "pull all-static".
 
 Arguments:
   host                  AM base URL, e.g.: https://cdk.iam.example.com/am. To

@@ -880,6 +880,21 @@ profile pull makes one request for a realm and none per profile, because the
 list answer, with its `null` for what is not set, gives the same file. See
 [a config-manager object has one writer and agent files are written in the plain shape](https://github.com/rockcarver/frodo-cli/blob/main/docs/decisions/0054-a-config-manager-object-has-one-writer-and-agent-files-are-written-in-the-plain-shape.md).
 
+**A pull no longer writes a key set that holds a private or secret key
+(experimental)**: `config-manager pull oauth2-agents` (remote consent agents and
+OAuth2 clients, whose key set is the `jwkSet` of the agent and the one in its
+signing and encryption settings), `pull oauth-issuers` and `pull
+oauth-software-publishers` replace a `jwkSet` that holds a private or a symmetric
+key (a member `d`, `p`, `q`, `dp`, `dq`, `qi`, `oth` or `k`) with the placeholder
+`${<ID>_JWKSET}`, the id of the object in upper case, and say so in one warning
+that never prints the key. Before, the key was written to the file with a warning.
+A key set with public keys only is written as before. A `push` of such a file
+fills the placeholder from the variable (`-E`, `--env-file` or the environment of
+the process), which holds the key set as JSON text; without the variable that file
+fails and names it, and nothing is sent for it. A script that relied on the key in
+the file now sets the variable instead. See
+[a pull never writes private or secret key material into an agent file](https://github.com/rockcarver/frodo-cli/blob/main/docs/decisions/0055-a-pull-never-writes-private-or-secret-key-material-into-an-agent-file.md).
+
 **Header overrides are stored encrypted**: a connection profile kept the values
 of `--authentication-header-overrides` and `--configuration-header-overrides`
 in `Connections.json` in the clear. Now both maps are encrypted with the master

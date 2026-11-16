@@ -5,7 +5,10 @@ import { configManagerExportSoftwarePublishers } from '../../../ops/SoftwarePubl
 import c from '../../../utils/ColorTheme';
 import { verboseMessage } from '../../../utils/Console';
 import { realmOfRun } from '../../../utils/interactive/PositionalArgs';
-import { PLACEHOLDER_VALUES_SENTENCE } from '../../../utils/PlaceholderValues';
+import {
+  KEY_SET_PULL_SENTENCE,
+  PLACEHOLDER_VALUES_SENTENCE,
+} from '../../../utils/PlaceholderValues';
 import { FrodoCommand } from '../../FrodoCommand';
 
 export default function setup() {
@@ -16,7 +19,9 @@ export default function setup() {
   program
     .summary('Export software publishers, one file per publisher.')
     .description(
-      'Export the OAuth2 software publishers (the publishers whose signed software statements an OAuth 2.0 provider accepts when a client registers itself dynamically) of all realms or of one realm to realms/<realm>/realm-config/agents/SoftwarePublisher/<name>.json, one file for each. The file is the one that "pull oauth2-agents" wrote for the same publisher, at the same path. A warning says when the key set of a publisher holds a private or secret key. A realm that does not offer the agent type has nothing to export. Software publishers are dynamic configuration: they are part of "pull all" and not of "pull all-static".'
+      'Export the OAuth2 software publishers (the publishers whose signed software statements an OAuth 2.0 provider accepts when a client registers itself dynamically) of all realms or of one realm to realms/<realm>/realm-config/agents/SoftwarePublisher/<name>.json, one file for each. The file is the one that "pull oauth2-agents" wrote for the same publisher, at the same path. ' +
+        `${KEY_SET_PULL_SENTENCE} ` +
+        'A realm that does not offer the agent type has nothing to export. Software publishers are dynamic configuration: they are part of "pull all" and not of "pull all-static".'
     )
     .addOption(
       new Option(
