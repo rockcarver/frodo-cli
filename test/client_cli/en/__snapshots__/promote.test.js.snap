@@ -3,7 +3,8 @@
 exports[`CLI help interface for 'app' should be expected english 1`] = `
 "Usage: frodo promote [options] [host] [realm] [username] [password]
 
-Prepares a tenant to be promoted
+[Deprecated] Deprecated: this command does not run a platform promotion; use
+frodo config-manager promote run-promotion. Will be removed in 5.0.0.
 
 Arguments:
   host                                AM base URL, e.g.:
