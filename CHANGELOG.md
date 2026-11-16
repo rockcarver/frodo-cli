@@ -7,6 +7,34 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+## [v5.0.0-28] - 2026-11-16
+
+### Added
+- Introduced `frodo config-manager pull|push|delete oauth-software-publishers` commands, allowing management of OAuth2 software publishers. This includes a step in `pull all` for handling OAuth2 software publishers, enhancing the management of signed software statements for OAuth 2.0 providers. (#1354)
+- Added `--raw` option to `idm export` and `idm import` commands, allowing the import and export of IDM configuration objects without the `idm` wrapper. This ensures that `idm import` refuses files without the wrapper, providing a clearer error message. (#1327)
+- Enhanced `frodo feature validate` with a `--repair` option to diagnose and repair the AI agents feature, ensuring that repairs leave features installed and restore customizations only upon request. (#1325, #1335)
+- Implemented interactive login enhancements to inform users about session capabilities, providing clear access profiles for `--browser` and `--device` logins. (#1324)
+
+### Changed
+- `frodo config-manager pull oauth-cimd-profiles` now writes the wrapped shape for each property, aligning with other agent kinds for consistent file structure. (#1353)
+- `pull oauth2-agents` and `push oauth2-agents` now exclude CIMD profiles and trusted JWT issuers, delegating them to their respective kinds for better organization. (#1348)
+- Updated `frodo feature validate` to improve output order and provide clearer messages for unknown feature IDs and missing elements during repair. (#1328)
+- `frodo config-manager push` now fills placeholders from the process environment, improving configuration management. (#1341)
+
+### Deprecated
+- Deprecated the root `frodo promote` command, which will be removed in version 5.0.0. Users should transition to `frodo config-manager promote` for promotion tasks. (#1347)
+
+### Removed
+- Removed unused options: `esv secret version list -l/--long`, `esv variable delete --no-deep`, `oauth client delete --no-deep`, and `promote --target`. These options were not being utilized by any commands. (#1329)
+
+### Fixed
+- Fixed `frodo config-manager push secrets --prune` to prompt users before deleting old secret versions, aligning with bulk-delete guidelines. (#1330)
+- Resolved issues in `conn save` to ensure it exits with code 1 and saves nothing when a service account key is invalid. Also, improved version check handling to prevent silent failures. (#1331)
+- Corrected `feature install` behavior to prevent reinstallation when feature definitions differ from the original in the tenant. (#1333)
+
+### Security
+- Updated to `frodo-lib` version 5.0.0-47, incorporating security and functionality enhancements from the library. (#1341)
+
 ## [v5.0.0-27] - 2026-11-14
 
 ### Added
@@ -3282,6 +3310,7 @@ Frodo CLI 2.x automatically refreshes session and access tokens before they expi
 - Fixed problem with adding connection profiles
 - Miscellaneous bug fixes
 
+[v5.0.0-28]: https://github.com/rockcarver/frodo-cli/compare/v5.0.0-27...v5.0.0-28
 [v5.0.0-27]: https://github.com/rockcarver/frodo-cli/compare/v5.0.0-26...v5.0.0-27
 [v5.0.0-26]: https://github.com/rockcarver/frodo-cli/compare/v5.0.0-25...v5.0.0-26
 [v5.0.0-25]: https://github.com/rockcarver/frodo-cli/compare/v5.0.0-24...v5.0.0-25
