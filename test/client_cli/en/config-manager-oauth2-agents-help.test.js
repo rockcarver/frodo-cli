@@ -20,6 +20,9 @@ const HANDLED = [
   'SoftwarePublisher',
 ];
 
+/** Named in the help although the example config has no entry for them: they exist only on some deployments. */
+const NAMED_ONLY = ['SoapSTSAgent', 'OAuth2Thing'];
+
 describe.each(['pull', 'push'])(
   "'config-manager %s oauth2-agents' full help",
   (verb) => {
@@ -31,8 +34,28 @@ describe.each(['pull', 'push'])(
       text = stdout.replace(/\s+/g, ' ');
     });
 
-    test.each(HANDLED)('names the agent type %s', (agentType) => {
-      expect(text).toContain(agentType);
+    test.each([...HANDLED, ...NAMED_ONLY])(
+      'names the agent type %s',
+      (agentType) => {
+        expect(text).toContain(agentType);
+      }
+    );
+
+    test('has a Usage Examples block with the command, a config directory and --allow-failures', () => {
+      expect(text).toContain('Usage Examples:');
+      expect(text).toContain(`$ frodo config-manager ${verb} oauth2-agents`);
+      expect(text).toContain('-D ./config');
+      expect(text).toContain('--allow-failures');
+    });
+
+    test('says that an entry or file of a type the deployment cannot serve is a request that fails, and how the CIMD kind differs', () => {
+      expect(text).toContain(
+        verb === 'pull'
+          ? 'An entry you write is a request'
+          : 'A file you push is a request'
+      );
+      expect(text).toContain('unless --allow-failures is given');
+      expect(text).toContain('The kind for CIMD profiles is different');
     });
 
     test('names the two types that have a kind of their own and the command of each', () => {
