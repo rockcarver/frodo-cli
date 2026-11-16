@@ -15,9 +15,9 @@
  *   list fails the realm);
  * - a realm offers the type when its list of agent types names it; a realm that does not has
  *   nothing to pull, push or delete, which is not a failure (with a name it is);
- * - the file is the object that `pull oauth2-agents` wrote before it left the type to this kind,
- *   byte for byte, so that no existing tree changes: the single read of the publisher (every
- *   property wrapped as `{ inherited, value }`), not the list read;
+ * - the file is the single read of the publisher in the plain shape (record 0054, rule 6: a
+ *   property that is set on the object as its value; nothing for one that is unset or inherited),
+ *   the same file that `pull oauth2-agents` writes for the types it handles;
  * - a publisher holds no secret property, but its `jwkSet` is a key set: one that holds private or
  *   secret key material is written (the user asked for the publisher) with a warning that never
  *   prints the key, and a push says what it replaces and never deletes.

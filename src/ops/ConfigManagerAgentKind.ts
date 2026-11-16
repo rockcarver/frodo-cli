@@ -22,6 +22,15 @@ import {
   safeFileName,
 } from '../utils/FrConfig';
 import { OperationRun } from '../utils/OperationRun';
+import { leftOutMessage, plainOverrides, toPlainShape } from './AgentFileShape';
+
+/**
+ * The function that every writer of agent files uses: a property that is set on the object is
+ * written as its plain value, an unset, an inherited and a null property are left out (record
+ * 0054, rule 6). It lives in its own module without imports, so that the generic kind of the
+ * deprecated `src/configManagerOps/` layer can use it without the library.
+ */
+export { leftOutMessage, plainOverrides, toPlainShape } from './AgentFileShape';
 
 const { DEFAULT_REALM_KEY, CLOUD_DEPLOYMENT_TYPE_KEY } = frodo.utils.constants;
 const {
@@ -385,6 +394,9 @@ export async function pullAgentKind(
     let namedFailed = false;
     let found = 0;
     let realmsRead = 0;
+    // what the files do not hold: the properties that are not set on their objects
+    let leftOut = 0;
+    let written = 0;
 
     for (const currentRealm of realms) {
       state.setRealm(currentRealm);
@@ -463,12 +475,20 @@ export async function pullAgentKind(
           run,
           `${realmDir}/${item.id}`,
           async () => {
-            let config = escapePlaceholders(await item.read()) as Record<
+            // the plain shape, before placeholders are escaped and overrides are merged (record 0054)
+            const plain = toPlainShape(await item.read());
+            let config = escapePlaceholders(plain.value) as Record<
               string,
               unknown
             >;
             const own = overridesOf(overrides, currentRealm, item.id, matched);
-            if (own) config = mergeDeep(config, own) as Record<string, unknown>;
+            // an overrides file written for the wrapped files of the first 5.0.0 prereleases still works
+            if (own) {
+              config = mergeDeep(config, plainOverrides(own)) as Record<
+                string,
+                unknown
+              >;
+            }
             hooks.inspect?.(currentRealm, item.id, config);
             saveJsonToFile(
               config,
@@ -480,6 +500,8 @@ export async function pullAgentKind(
               false,
               true
             );
+            leftOut += plain.leftOut;
+            written++;
           }
         );
         if (name && !succeeded) namedFailed = true;
@@ -495,6 +517,9 @@ export async function pullAgentKind(
         `The overrides file names ${kind.label} '${id}' in realm '${entryRealm}', which does not exist; its overrides were not applied.`,
         'warn'
       );
+    }
+    if (leftOut > 0) {
+      verboseMessage(leftOutMessage(leftOut, written, kind.label, kind.plural));
     }
     // a realm that does not offer the type has said so already
     if (found === 0 && realmsRead > 0 && !namedFailed && !quiet) {

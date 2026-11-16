@@ -7,6 +7,11 @@ import {
   type IdObjectSkeletonInterface,
 } from '@rockcarver/frodo-lib';
 import {
+  leftOutMessage,
+  plainOverrides,
+  toPlainShape,
+} from '../ops/AgentFileShape';
+import {
   objectNameInFile,
   ownedObjectMessage,
   OwnedObjects,
@@ -22,6 +27,7 @@ import {
   printError,
   printMessage,
   stopProgressIndicator,
+  verboseMessage,
 } from '../utils/Console';
 import { causeOf } from '../utils/ErrorCause';
 import { clearOperationalAttributes } from '../utils/FrConfig';
@@ -66,6 +72,9 @@ export async function configManagerExportOAuth2Agents(
     const configFileData = readJsonFile(configFile, false);
     const run = new OperationRun({ unit: 'agent', allowFailures });
     const owned = skipsOwnedObjects(layout) ? new OwnedObjects() : undefined;
+    // what the files do not hold: the properties that are not set on their agents
+    let leftOut = 0;
+    let written = 0;
     for (const realm of Object.keys(configFileData)) {
       if (
         realm === '/' &&
@@ -124,8 +133,15 @@ export async function configManagerExportOAuth2Agents(
                 agentType as AgentType,
                 agent.id
               );
-              let config = escapePlaceholders(agentResponse);
-              if (agent.overrides) config = mergeDeep(config, agent.overrides);
+              // the plain shape, before placeholders are escaped and overrides are merged (record 0054)
+              const plain = toPlainShape(
+                agentResponse as unknown as Record<string, unknown>
+              );
+              let config = escapePlaceholders(plain.value);
+              // an overrides file written for the wrapped files of the first 5.0.0 prereleases still works
+              if (agent.overrides) {
+                config = mergeDeep(config, plainOverrides(agent.overrides));
+              }
               saveJsonToFile(
                 config,
                 getFilePath(
@@ -136,10 +152,15 @@ export async function configManagerExportOAuth2Agents(
                 false,
                 true
               );
+              leftOut += plain.leftOut;
+              written++;
             }
           );
         }
       }
+    }
+    if (leftOut > 0) {
+      verboseMessage(leftOutMessage(leftOut, written, 'agent', 'agents'));
     }
     return run.finish();
   } catch (error) {

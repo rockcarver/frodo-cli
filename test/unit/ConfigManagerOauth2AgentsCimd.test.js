@@ -159,6 +159,7 @@ jest.unstable_mockModule('@rockcarver/frodo-lib', () => ({
   },
 }));
 
+const verboseMessage = jest.fn();
 jest.unstable_mockModule(src('utils/Console'), () => ({
   printError: jest.fn((error, message) => {
     printed.push(`ERROR ${message ? `${message}: ` : ''}${error.message}`);
@@ -166,7 +167,7 @@ jest.unstable_mockModule(src('utils/Console'), () => ({
   printMessage: jest.fn((message, type) => {
     printed.push(`${(type ?? 'text').toUpperCase()} ${message}`);
   }),
-  verboseMessage: jest.fn(),
+  verboseMessage,
   createProgressIndicator: jest.fn(() => 'indicator'),
   stopProgressIndicator: jest.fn(),
 }));
@@ -217,6 +218,7 @@ beforeEach(() => {
   printed = [];
   savedFiles.length = 0;
   tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'cm-oauth2-agents-cimd-'));
+  verboseMessage.mockReset();
   readAgentByTypeAndId.mockReset();
   importAgent.mockReset().mockResolvedValue({});
   readApplicationOwnership.mockReset().mockResolvedValue({ entries: [] });
@@ -482,6 +484,99 @@ describe.each(SKIPPED)(
 );
 
 describe('pull oauth2-agents still handles the other types as before', () => {
+  test('writes every type in the plain shape and says in the verbose output, once, how many properties it left out of how many agents (record 0054)', async () => {
+    // the single read of each agent: one property not set, one inherited, one set
+    readAgentByTypeAndId.mockImplementation(async (type, id) => ({
+      _id: id,
+      _rev: '-1',
+      _type: { _id: type, name: type, collection: true },
+      description: { inherited: false, value: `a ${type}` },
+      notSet: { inherited: false },
+      fromGroup: { inherited: true, value: 'x' },
+    }));
+    const file = configFile({
+      alpha: {
+        WebAgent: [{ id: 'web-a' }, { id: 'web-b' }],
+        J2EEAgent: [{ id: 'java-a' }],
+      },
+    });
+
+    expect(await configManagerExportOAuth2Agents(file)).toBe(true);
+
+    for (const [type, id] of [
+      ['WebAgent', 'web-a'],
+      ['WebAgent', 'web-b'],
+      ['J2EEAgent', 'java-a'],
+    ]) {
+      const written = JSON.parse(
+        fs.readFileSync(path.join(tmp, AGENT_PATH(type, id)), 'utf8')
+      );
+      expect(written.description).toBe(`a ${type}`);
+      expect(JSON.stringify(written)).not.toContain('inherited');
+    }
+    expect(verboseMessage).toHaveBeenCalledTimes(1);
+    expect(verboseMessage).toHaveBeenCalledWith(
+      'Left 6 unset or inherited properties out of 3 agents written: a file holds only what is set on the object.'
+    );
+  });
+
+  test('pulling twice gives the same bytes, and a pull over a file in the old wrapped shape rewrites it in the plain one', async () => {
+    readAgentByTypeAndId.mockImplementation(async (type, id) => ({
+      _id: id,
+      _type: { _id: type, name: type, collection: true },
+      description: { inherited: false, value: `a ${type}` },
+      notSet: { inherited: false },
+    }));
+    const file = configFile({ alpha: { WebAgent: [{ id: 'web-a' }] } });
+    const target = path.join(tmp, AGENT_PATH('WebAgent', 'web-a'));
+    // a tree pulled with a 5.0.0 prerelease holds the wrapped shape
+    fs.mkdirSync(path.dirname(target), { recursive: true });
+    fs.writeFileSync(
+      target,
+      JSON.stringify({
+        _id: 'web-a',
+        description: { inherited: false, value: 'a WebAgent' },
+        notSet: { inherited: false },
+      })
+    );
+
+    expect(await configManagerExportOAuth2Agents(file)).toBe(true);
+    const first = fs.readFileSync(target, 'utf8');
+    expect(await configManagerExportOAuth2Agents(file)).toBe(true);
+
+    expect(fs.readFileSync(target, 'utf8')).toBe(first);
+    expect(JSON.parse(first).description).toBe('a WebAgent');
+    expect(first).not.toContain('inherited');
+  });
+
+  test('an override written for the wrapped files of the first 5.0.0 prereleases still works', async () => {
+    readAgentByTypeAndId.mockImplementation(async (type, id) => ({
+      _id: id,
+      _type: { _id: type, name: type, collection: true },
+      jwksUri: { inherited: false },
+    }));
+    const file = configFile({
+      alpha: {
+        WebAgent: [
+          {
+            id: 'web-a',
+            overrides: { jwksUri: { inherited: false, value: '${WEB_JWKS}' } },
+          },
+          { id: 'web-b', overrides: { jwksUri: '${WEB_JWKS}' } },
+        ],
+      },
+    });
+
+    expect(await configManagerExportOAuth2Agents(file)).toBe(true);
+
+    for (const id of ['web-a', 'web-b']) {
+      const written = JSON.parse(
+        fs.readFileSync(path.join(tmp, AGENT_PATH('WebAgent', id)), 'utf8')
+      );
+      expect(written.jwksUri).toBe('${WEB_JWKS}');
+    }
+  });
+
   test('every other type is read by type and id and written, with the overrides merged in and a ${ escaped', async () => {
     readAgentByTypeAndId.mockImplementation(async (type, id) => ({
       ...OTHER_AGENT(id, type),
@@ -963,7 +1058,10 @@ const placeholdersOf = (agentType) => [
   ),
 ];
 
-/** What the single read returns for an agent: no password (AM never returns one), operational attributes included. */
+/**
+ * What the single read returns for an agent: the writable shape, no password (AM never returns
+ * one), operational attributes included, a property that is not set and one that is inherited.
+ */
 const agentAsRead = (type, id) => ({
   _id: id,
   _rev: '-1234',
@@ -973,6 +1071,8 @@ const agentAsRead = (type, id) => ({
   lastModifiedBy: 'id=amadmin,ou=user,ou=am-config',
   lastModifiedDate: 1700000001000,
   description: { inherited: false, value: `a ${type}` },
+  notSetOnTheAgent: { inherited: false },
+  fromTheGroup: { inherited: true, value: 'the group value' },
 });
 
 test('the e2e input still lists the seven handled types and the two that have a kind of their own, in the three realms', () => {
@@ -1016,8 +1116,12 @@ describe.each(HANDLED_TYPES)(
           for (const [key, value] of Object.entries(entry.overrides ?? {})) {
             expect(written[key]).toEqual(value);
           }
-          // what the library returned and the input does not override is kept
-          expect(written.description.value).toBe(`a ${agentType}`);
+          // what the library returned and the input does not override is kept, in the plain shape
+          // of record 0054: a property that is set is its value; one that is not set on the agent
+          // and one that is inherited are not in the file
+          expect(written.description).toBe(`a ${agentType}`);
+          expect(written).not.toHaveProperty('notSetOnTheAgent');
+          expect(written).not.toHaveProperty('fromTheGroup');
         }
       }
       expect(readAgentByTypeAndId.mock.calls).toEqual(expectedCalls);

@@ -12,36 +12,12 @@ exports[`frodo config-manager pull oauth-issuers "frodo config-manager pull oaut
     "collection": true,
     "name": "OAuth2 Trusted JWT Issuer",
   },
-  "allowedSubjects": {
-    "inherited": false,
-    "value": [],
-  },
-  "consentedScopesClaim": {
-    "inherited": false,
-    "value": "scope",
-  },
-  "issuer": {
-    "inherited": false,
-    "value": "https://zz-e2e-issuer.example.com",
-  },
-  "jwkSet": {
-    "inherited": false,
-  },
-  "jwkStoreCacheMissCacheTime": {
-    "inherited": false,
-    "value": 60000,
-  },
-  "jwksCacheTimeout": {
-    "inherited": false,
-    "value": 3600000,
-  },
-  "jwksUri": {
-    "inherited": false,
-    "value": "https://zz-e2e-issuer.example.com/.well-known/jwks.json",
-  },
-  "resourceOwnerIdentityClaim": {
-    "inherited": false,
-    "value": "sub",
-  },
+  "allowedSubjects": [],
+  "consentedScopesClaim": "scope",
+  "issuer": "https://zz-e2e-issuer.example.com",
+  "jwkStoreCacheMissCacheTime": 60000,
+  "jwksCacheTimeout": 3600000,
+  "jwksUri": "https://zz-e2e-issuer.example.com/.well-known/jwks.json",
+  "resourceOwnerIdentityClaim": "sub",
 }
 `;

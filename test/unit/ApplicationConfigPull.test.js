@@ -299,6 +299,45 @@ describe('one folder per application', () => {
     ).toEqual(['application.json', 'oauth2-client.json']);
   });
 
+  test('the OAuth2 client file is in the plain shape of record 0054: what is set as its value, nothing for what is unset or inherited', async () => {
+    const portal = app('Zion Portal');
+    world.apps.alpha = [portal];
+    refs(portal, [owned('oauth2Client', 'zion-portal', 'ssoEntities.oidcId')]);
+    // the single read of the client: AM's writable shape
+    world.agents['zion-portal'] = {
+      _id: 'zion-portal',
+      userpassword: null,
+      coreOAuth2ClientConfig: {
+        clientType: { inherited: false, value: 'Confidential' },
+        clientName: { inherited: false, value: ['Zion Portal'] },
+        loopbackInterfaceRedirection: { inherited: false },
+        defaultScopes: { inherited: true, value: ['openid'] },
+      },
+      advancedOAuth2ClientConfig: {
+        sectorIdentifierUri: { inherited: false },
+      },
+    };
+
+    expect(await configManagerExportApplications(undefined, 'alpha')).toBe(
+      true
+    );
+
+    const client = read(`${APPS('alpha')}/Zion Portal/oauth2-client.json`);
+    expect(client.coreOAuth2ClientConfig).toEqual({
+      clientType: 'Confidential',
+      clientName: ['Zion Portal'],
+    });
+    // a group whose members were all left out stays as an empty object
+    expect(client.advancedOAuth2ClientConfig).toEqual({});
+    expect(JSON.stringify(client)).not.toContain('inherited');
+    // the secret is still a placeholder: the client was read as a confidential one, wrapped
+    expect(client.userpassword).toBe('${APP_ZION_PORTAL_CLIENT_SECRET}');
+    // the verbose output counts what was left out: the null password, the unset members and the inherited one
+    expect(console_.verboseMessage).toHaveBeenCalledWith(
+      'Left 4 unset or inherited properties out of 1 OAuth2 client written: a file holds only what is set on the object.'
+    );
+  });
+
   test('a public client gets no secret placeholder', async () => {
     const native = app('Native', { templateName: 'native' });
     world.apps.alpha = [native];

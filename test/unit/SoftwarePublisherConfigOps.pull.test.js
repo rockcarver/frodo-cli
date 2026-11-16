@@ -266,7 +266,7 @@ describe('the file of a software publisher', () => {
 });
 
 describe('Cloud: realms alpha and bravo', () => {
-  test('lists the agents of each realm once, keeps the publishers, reads each one by type and id, and writes the single read without _rev and with ${ escaped', async () => {
+  test('lists the agents of each realm once, keeps the publishers, reads each one by type and id, and writes the single read in the plain shape without _rev and with ${ escaped', async () => {
     world.publishers.alpha = [
       publisherObject('zion-publisher', {
         jwksUri: { inherited: false, value: 'https://${HOST}/jwks' },
@@ -282,11 +282,11 @@ describe('Cloud: realms alpha and bravo', () => {
     expect(await configManagerExportSoftwarePublishers()).toBe(true);
 
     const written = read(P('zion-publisher'));
-    // the wrapped form of the single read, kept as it is
-    expect(written.issuer).toEqual({
-      inherited: false,
-      value: 'https://zion-publisher.example.com',
-    });
+    // the plain shape (record 0054): a property that is set is its value, one that is not set is not there
+    expect(written.issuer).toBe('https://zion-publisher.example.com');
+    expect(written.publicKeyLocation).toBe('jwks_uri');
+    expect(written).not.toHaveProperty('jwkSet');
+    expect(readRaw(P('zion-other'))).not.toContain('inherited');
     expect(written).not.toHaveProperty('_rev');
     expect(readRaw(P('zion-publisher'))).toContain('https://\\\\${HOST}/jwks');
     expect(exists(P('zion-other'))).toBe(true);
@@ -497,34 +497,45 @@ describe('failures', () => {
 });
 
 describe('the overrides file', () => {
-  test('replaces the values it names with its placeholders, in the wrapped form of the file', async () => {
-    world.publishers.alpha = [publisherObject('zion-publisher')];
-    const overrides = writeFile('config/oauth-software-publishers.json', {
-      alpha: [
-        {
-          id: 'zion-publisher',
-          overrides: {
-            jwksUri: { value: '${ZION_PUBLISHER_JWKS_URI}' },
+  test.each([
+    ['plain', (value) => value],
+    [
+      '{ value } (the help of the first 5.0.0 prereleases)',
+      (value) => ({ value }),
+    ],
+    ['{ inherited: false, value }', (value) => ({ inherited: false, value })],
+  ])(
+    'replaces the values it names with its placeholders, in the plain shape of the file, whether an override is written as %s',
+    async (_form, as) => {
+      world.publishers.alpha = [publisherObject('zion-publisher')];
+      const overrides = writeFile('config/oauth-software-publishers.json', {
+        alpha: [
+          {
+            id: 'zion-publisher',
+            overrides: {
+              jwksUri: as('${ZION_PUBLISHER_JWKS_URI}'),
+            },
           },
-        },
-      ],
-    });
+        ],
+      });
 
-    expect(
-      await configManagerExportSoftwarePublishers(
-        undefined,
-        undefined,
-        false,
-        false,
-        overrides
-      )
-    ).toBe(true);
+      expect(
+        await configManagerExportSoftwarePublishers(
+          undefined,
+          undefined,
+          false,
+          false,
+          overrides
+        )
+      ).toBe(true);
 
-    const written = read(P('zion-publisher'));
-    expect(written.jwksUri.value).toBe('${ZION_PUBLISHER_JWKS_URI}');
-    // what the overrides do not name is the read
-    expect(written.issuer.value).toBe('https://zion-publisher.example.com');
-  });
+      const written = read(P('zion-publisher'));
+      expect(written.jwksUri).toBe('${ZION_PUBLISHER_JWKS_URI}');
+      // what the overrides do not name is the read
+      expect(written.issuer).toBe('https://zion-publisher.example.com');
+      expect(readRaw(P('zion-publisher'))).not.toContain('inherited');
+    }
+  );
 });
 
 describe('private and secret key material in the key set', () => {
@@ -572,10 +583,10 @@ describe('private and secret key material in the key set', () => {
   });
 });
 
-describe('the no-movement guarantee: the file is what pull oauth2-agents wrote before it left software publishers to this kind (frodo-cli#1343)', () => {
+describe('the no-movement guarantee: the file is at the path where pull oauth2-agents wrote it before it left software publishers to this kind (frodo-cli#1343), in the plain shape of record 0054', () => {
   // The content that the committed e2e snapshot of `pull oauth2-agents` holds for the publisher of the recorded tenant
   // (test/e2e/__snapshots__/config-manager-pull-oauth2-agents.e2e.test.js.snap, entry "test software publisher"), the
-  // single read of the type: every property wrapped, `_rev` not written.
+  // single read of the type: every property wrapped (the answer the pull reads; the file it writes is plain).
   const committed = {
     _id: 'test software publisher',
     _type: TYPE,
@@ -604,9 +615,15 @@ describe('the no-movement guarantee: the file is what pull oauth2-agents wrote b
       await configManagerExportSoftwarePublishers(undefined, 'alpha')
     ).toBe(true);
 
-    expect(JSON.parse(readRaw(P('test software publisher')))).toEqual(
-      committed
-    );
+    // what is set on the publisher as its value, and nothing for the three properties that are not set
+    expect(JSON.parse(readRaw(P('test software publisher')))).toEqual({
+      _id: 'test software publisher',
+      _type: TYPE,
+      jwkStoreCacheMissCacheTime: 60000,
+      jwksCacheTimeout: 3600000,
+      publicKeyLocation: 'jwks_uri',
+      softwareStatementSigningAlgorithm: 'RS256',
+    });
     // a name with a space is a file name of its own, as the generic route wrote it
     expect(P('test software publisher')).toBe(
       'realms/alpha/realm-config/agents/SoftwarePublisher/test software publisher.json'

@@ -26,6 +26,7 @@ import {
   writeTreeMarker,
   type ApplicationLayoutDecision,
 } from '../utils/TreeLayout';
+import { leftOutMessage, toPlainShape } from './AgentFileShape';
 
 const {
   getFilePath,
@@ -89,19 +90,25 @@ export function isConfidentialClient(client: any): boolean {
 
 /**
  * The OAuth2 client of an application as it is written to `oauth2-client.json`:
- * the format of the `oauth2-agents` kind, with literal `${` escaped, and for a
- * confidential client the secret as a placeholder (the library masks it on
- * reads, and a secret is never written in the clear: core record 0013).
+ * the format of the `oauth2-agents` kind (the plain shape of record 0054, rule 6),
+ * with literal `${` escaped, and for a confidential client the secret as a
+ * placeholder (the library masks it on reads, and a secret is never written in
+ * the clear: core record 0013).
  * @param {any} client the OAuth2 client as the library reads it
  * @param {string} applicationName the name of the application
- * @returns {object} the content of the file
+ * @returns {{ file: object; leftOut: number }} the content of the file and how many
+ * properties were left out of it (unset, inherited or null)
  */
-function clientFile(client: any, applicationName: string): object {
-  const file: any = escapePlaceholders(client);
+function clientFile(
+  client: any,
+  applicationName: string
+): { file: object; leftOut: number } {
+  const plain = toPlainShape(client);
+  const file: any = escapePlaceholders(plain.value);
   if (isConfidentialClient(client)) {
     file.userpassword = `\${${clientSecretVariable(applicationName)}}`;
   }
-  return file;
+  return { file, leftOut: plain.leftOut };
 }
 
 /** The text that names a reference that could not be followed, for the summary. */
@@ -355,13 +362,19 @@ export async function pullApplication(
           `The secret of the OAuth2 client of application '${application.name}' is written as \${${clientSecretVariable(application.name)}}; set that variable when you push.`
         );
       }
+      const { file, leftOut } = clientFile(agent, application.name);
       saveJsonToFile(
-        clientFile(agent, application.name),
+        file,
         getFilePath(`${folder}/oauth2-client.json`, true),
         false,
         false,
         true
       );
+      if (leftOut > 0) {
+        verboseMessage(
+          leftOutMessage(leftOut, 1, 'OAuth2 client', 'OAuth2 clients')
+        );
+      }
     });
   }
 

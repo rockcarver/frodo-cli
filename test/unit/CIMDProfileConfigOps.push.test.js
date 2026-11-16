@@ -222,14 +222,9 @@ beforeEach(() => {
   readCIMDProfiles.mockReset().mockImplementation(async () => {
     return structuredClone(world.profiles[currentRealm] ?? []);
   });
-  readAgentByTypeAndId.mockReset().mockImplementation(async (type, id) => {
-    const found = (world.profiles[currentRealm] ?? []).find(
-      (item) => item._id.toLowerCase() === id.toLowerCase()
-    );
-    if (type !== 'CIMDProfile' || !found) {
-      throw new FrodoError(`${id} of type ${type} not found`);
-    }
-    return wrapped(found);
+  // the pull reads no profile by its id: the list item is the profile (frodo-cli#1355)
+  readAgentByTypeAndId.mockReset().mockImplementation(async () => {
+    throw new Error('a CIMD profile must not be read by its id');
   });
   importCIMDProfiles
     .mockReset()
@@ -371,15 +366,41 @@ describe('the files of the tree', () => {
       true
     );
 
-    // the file a pull writes is the wrapped shape of the read by id; the push sends it on as it is
-    const { _id, _rev, ...expected } = wrapped(world.profiles.alpha[0]);
+    // the file a pull writes is the plain shape of the list item; the push sends it on as it is
+    const { _id, _rev, ...expected } = world.profiles.alpha[0];
     expect(importedIn('alpha')[0]['zion-agents']).toEqual(expected);
     expect(
       importedIn('alpha')[0]['zion-agents'].cimdConfig.cimdClientIdUrlPatterns
-    ).toEqual({ inherited: false, value: ['https://agents.example.com/*'] });
+    ).toEqual(['https://agents.example.com/*']);
     expect(
       importedIn('alpha')[0]['zion-agents'].advancedOAuth2ClientConfig.clientUri
-    ).toEqual({ inherited: false, value: 'https://${HOST}/' });
+    ).toBe('https://${HOST}/');
+  });
+
+  test('a file in the old wrapped shape (pulled with a 5.0.0 prerelease) is pushed exactly as it is: the push does not change the shape', async () => {
+    const old = wrapped(profile('zion-agents'));
+    const { _id, ...body } = old;
+    write(P('zion-agents'), old);
+
+    expect(await configManagerImportCIMDProfiles(undefined, 'alpha')).toBe(
+      true
+    );
+
+    expect(importedIn('alpha')[0]['zion-agents']).toEqual(body);
+    expect(
+      importedIn('alpha')[0]['zion-agents'].cimdConfig.cimdClientIdUrlPatterns
+    ).toEqual({ inherited: false, value: ['https://agents.example.com/*'] });
+  });
+
+  test('a file in the plain shape is pushed exactly as it is', async () => {
+    writeProfile('zion-agents');
+
+    expect(await configManagerImportCIMDProfiles(undefined, 'alpha')).toBe(
+      true
+    );
+
+    const { _id, ...body } = profile('zion-agents');
+    expect(importedIn('alpha')[0]['zion-agents']).toEqual(body);
   });
 
   test('a realm folder without CIMD profiles is nothing; a tree without any CIMD profile folder is an info line and a success', async () => {
