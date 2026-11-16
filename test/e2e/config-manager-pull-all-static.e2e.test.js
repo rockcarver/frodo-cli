@@ -21,6 +21,10 @@ const env = getEnv(c);
 const forgeopsEnv = getEnv(fc);
 
 describe('frodo config-manager pull all-static', () => {
+  // The agent kinds with a command of their own, oauth-cimd-profiles, oauth-issuers and oauth-software-publishers, are
+  // dynamic configuration: they are steps of pull all and NOT steps of pull all-static (frodo-cli#1250, #1257,
+  // #1343), so none of these replays runs them and no file of an agent kind is written or compared here. A live check
+  // against a development tenant (frodo-cli#1260) confirmed it: a pull all-static wrote no agents folder at all.
   test('"frodo config-manager pull all-static -D allStaticDir1": should export the all-static in fr-config-manager style"', async () => {
     const dirName = 'allStaticDir1';
     const CMD = `frodo config-manager pull all-static -D ${dirName}`;
