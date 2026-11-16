@@ -56,6 +56,7 @@ export const trustedJwtIssuerId = 'zion-issuer';
 export const trustedJwtIssuersOverridesFile = 'oauth-issuers.json';
 export const softwarePublisherId = 'zion-publisher';
 export const softwarePublishersOverridesFile = 'oauth-software-publishers.json';
+export const oauth2AgentsConfigFile = 'oauth2-agents.json';
 export const trustedIssuerId = 'zion-trusted-issuer';
 export const trustedIssuer = 'https://zion.example.com';
 export const trustedIssuerFile = 'zion-trusted-issuer.oauth2.issuer.json';

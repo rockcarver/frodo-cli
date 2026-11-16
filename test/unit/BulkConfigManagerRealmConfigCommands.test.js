@@ -89,6 +89,11 @@ jest.unstable_mockModule('../../src/utils/Console', () => ({
   printMessage: jest.fn(),
   verboseMessage: jest.fn(),
 }));
+// the help of some commands colours its usage examples (src/utils/ColorTheme.ts reads the
+// library's terminal theme when it is imported, which this test's library mock does not have)
+jest.unstable_mockModule('../../src/utils/ColorTheme', () => ({
+  default: { command: (text) => text },
+}));
 
 /**
  * `options`: what the user gave. `args(allowFailures)`: what the ops function

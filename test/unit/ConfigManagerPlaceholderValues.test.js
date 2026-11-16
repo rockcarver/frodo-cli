@@ -49,6 +49,8 @@ const FROM_FLAG = 'https://from-flag.example.com';
 describe('the help says where the values come from', () => {
   // eslint-disable-next-line no-control-regex -- strips colour codes from rendered help
   const ANSI = /\x1b\[[0-9;]*m/g;
+  // the push commands whose files hold ${NAME} placeholders say where the values come from
+  // (push oauth2-agents: the passwords of the agents that have one, frodo-cli#1342)
   const KINDS = [
     'frodo config-manager pull oauth-issuers',
     'frodo config-manager push oauth-issuers',
@@ -56,6 +58,7 @@ describe('the help says where the values come from', () => {
     'frodo config-manager push oauth-cimd-profiles',
     'frodo config-manager pull oauth-software-publishers',
     'frodo config-manager push oauth-software-publishers',
+    'frodo config-manager push oauth2-agents',
   ];
   const originalArgv = process.argv;
   const helps = new Map();
@@ -79,7 +82,7 @@ describe('the help says where the values come from', () => {
     }
   });
 
-  it('finds the six commands', () => {
+  it('finds the commands', () => {
     expect([...helps.keys()].sort()).toEqual([...KINDS].sort());
   });
 

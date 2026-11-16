@@ -913,3 +913,195 @@ describe('push oauth2-agents still handles the other types as before', () => {
     expect(importAgent).not.toHaveBeenCalled();
   });
 });
+
+/**
+ * The agent types of the e2e input of `pull oauth2-agents`
+ * (test/e2e/fr-config-manager-pull-config/oauth2-agents.json), one test per
+ * type, with the real ids and overrides of that file (frodo-cli#1342). What
+ * `pull` writes and what `push` sends for each type is pinned here without a
+ * tenant and without a recording, so that a change to the generic kind that
+ * touches one type shows up as that type's test. The type that has a kind of
+ * its own (`TrustedJwtIssuer`) is only asserted to be left alone: the skip is
+ * tested above.
+ */
+const E2E_INPUT = JSON.parse(
+  fs.readFileSync(
+    path.resolve(
+      root,
+      'test/e2e/fr-config-manager-pull-config/oauth2-agents.json'
+    ),
+    'utf8'
+  )
+);
+const HANDLED_TYPES = [
+  '2.2_Agent',
+  'IdentityGatewayAgent',
+  'J2EEAgent',
+  'OAuth2Client',
+  'RemoteConsentAgent',
+  'SharedAgent',
+  'SoftwarePublisher',
+  'WebAgent',
+];
+const E2E_REALMS = Object.keys(E2E_INPUT); // '/', 'alpha', 'bravo'
+const realmFolder = (realm) => (realm === '/' ? 'root' : realm);
+
+/** The input of the e2e test restricted to one agent type: every realm, the entries of that type. */
+const inputOf = (agentType) =>
+  Object.fromEntries(
+    E2E_REALMS.map((realm) => [
+      realm,
+      { [agentType]: E2E_INPUT[realm][agentType] },
+    ])
+  );
+
+/** The names of the placeholders in the overrides of the entries of one type. */
+const placeholdersOf = (agentType) => [
+  ...new Set(
+    JSON.stringify(inputOf(agentType)).match(/(?<=\$\{)[^}]+(?=\})/g) ?? []
+  ),
+];
+
+/** What the single read returns for an agent: no password (AM never returns one), operational attributes included. */
+const agentAsRead = (type, id) => ({
+  _id: id,
+  _rev: '-1234',
+  _type: { _id: type, name: type, collection: true },
+  createdBy: 'id=amadmin,ou=user,ou=am-config',
+  creationDate: 1700000000000,
+  lastModifiedBy: 'id=amadmin,ou=user,ou=am-config',
+  lastModifiedDate: 1700000001000,
+  description: { inherited: false, value: `a ${type}` },
+});
+
+test('the e2e input still lists the eight handled types and the one that has a kind of its own, in the three realms', () => {
+  expect(E2E_REALMS).toEqual(['/', 'alpha', 'bravo']);
+  for (const realm of E2E_REALMS) {
+    expect(Object.keys(E2E_INPUT[realm]).sort()).toEqual(
+      [...HANDLED_TYPES, 'TrustedJwtIssuer'].sort()
+    );
+  }
+});
+
+describe.each(HANDLED_TYPES)(
+  'the type %s as the e2e input lists it',
+  (agentType) => {
+    test('pull reads each entry by type and id in every realm, writes it to realms/<realm|root>/realm-config/agents/<type>/<id>.json without _rev, applies the overrides and leaves a placeholder a placeholder', async () => {
+      deployment = 'forgeops';
+      readAgentByTypeAndId.mockImplementation(async (type, id) =>
+        agentAsRead(type, id)
+      );
+      const file = configFile(inputOf(agentType));
+
+      expect(await configManagerExportOAuth2Agents(file)).toBe(true);
+
+      const expectedCalls = [];
+      for (const realm of E2E_REALMS) {
+        for (const entry of E2E_INPUT[realm][agentType]) {
+          expectedCalls.push([agentType, entry.id]);
+          const written = JSON.parse(
+            fs.readFileSync(
+              path.join(
+                tmp,
+                AGENT_PATH(agentType, entry.id, realmFolder(realm))
+              ),
+              'utf8'
+            )
+          );
+          expect(written._id).toBe(entry.id);
+          expect(written).not.toHaveProperty('_rev');
+          expect(written._type._id).toBe(agentType);
+          // the override is merged in as the input holds it: a ${NAME} is not resolved by a pull
+          for (const [key, value] of Object.entries(entry.overrides ?? {})) {
+            expect(written[key]).toEqual(value);
+          }
+          // what the library returned and the input does not override is kept
+          expect(written.description.value).toBe(`a ${agentType}`);
+        }
+      }
+      expect(readAgentByTypeAndId.mock.calls).toEqual(expectedCalls);
+      expect(warnings()).toEqual([]);
+    });
+
+    test('push of the files that pull wrote sends each one with importAgent(id, {agent: {id: object}}, false), without _id, _rev and the other operational attributes, and with each ${NAME} filled from the environment', async () => {
+      deployment = 'forgeops';
+      readAgentByTypeAndId.mockImplementation(async (type, id) =>
+        agentAsRead(type, id)
+      );
+      expect(
+        await configManagerExportOAuth2Agents(configFile(inputOf(agentType)))
+      ).toBe(true);
+      const names = placeholdersOf(agentType);
+      environment = Object.fromEntries(
+        names.map((name) => [name, `value-of-${name}`])
+      );
+
+      expect(await configManagerImportAgents()).toBe(true);
+
+      const expectedIds = E2E_REALMS.flatMap((realm) =>
+        E2E_INPUT[realm][agentType].map((entry) => entry.id)
+      ).sort();
+      expect(importAgent.mock.calls.map(([id]) => id).sort()).toEqual(
+        expectedIds
+      );
+      for (const [id, data, flag] of importAgent.mock.calls) {
+        expect(flag).toBe(false);
+        expect(Object.keys(data)).toEqual(['agent']);
+        expect(Object.keys(data.agent)).toEqual([id]);
+        const sent = data.agent[id];
+        for (const attribute of [
+          '_id',
+          '_rev',
+          'createdBy',
+          'creationDate',
+          'lastModifiedBy',
+          'lastModifiedDate',
+        ]) {
+          expect(sent).not.toHaveProperty(attribute);
+        }
+        expect(sent._type._id).toBe(agentType);
+        expect(JSON.stringify(sent)).not.toContain('${');
+      }
+      // a password override arrives with the value of its variable
+      for (const name of names) {
+        const withIt = importAgent.mock.calls.filter(([, data]) =>
+          JSON.stringify(data).includes(`value-of-${name}`)
+        );
+        expect(withIt.length).toBeGreaterThan(0);
+      }
+      expect(warnings()).toEqual([]);
+    });
+
+    test('push fails the file, by name, when the variable of its placeholder is not set, and sends nothing for it', async () => {
+      const names = placeholdersOf(agentType);
+      if (names.length === 0) return; // an entry without an override has no placeholder to miss
+      deployment = 'forgeops';
+      readAgentByTypeAndId.mockImplementation(async (type, id) =>
+        agentAsRead(type, id)
+      );
+      expect(
+        await configManagerExportOAuth2Agents(configFile(inputOf(agentType)))
+      ).toBe(true);
+      environment = {};
+
+      expect(await configManagerImportAgents()).toBe(false);
+
+      expect(importAgent).not.toHaveBeenCalled();
+      expect(output()).toContain(
+        `No value found for placeholder "${names[0]}"`
+      );
+    });
+  }
+);
+
+test('the one type of the e2e input that has a kind of its own is read and written by no one here: one warning per realm of the input', async () => {
+  deployment = 'forgeops';
+  const file = configFile(inputOf('TrustedJwtIssuer'));
+
+  expect(await configManagerExportOAuth2Agents(file)).toBe(true);
+
+  expect(readAgentByTypeAndId).not.toHaveBeenCalled();
+  expect(savedFiles).toEqual([]);
+  expect(warnings()).toHaveLength(E2E_REALMS.length);
+  for (const line of warnings()) expect(line).toContain('oauth-issuers');
+});
