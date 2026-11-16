@@ -95,11 +95,12 @@ function walk(item: unknown, context: Walk): unknown {
   }
   if (!isObject(item)) return item;
   if (isWrapper(item, context.lenient)) {
-    if (item.inherited === true || !('value' in item)) {
-      context.leftOut++;
-      return LEFT_OUT;
-    }
-    if (item.value === null || item.value === undefined) {
+    // inherited (the value is not this object's), unset (no value) or a null value: not written
+    if (
+      item.inherited === true ||
+      item.value === null ||
+      item.value === undefined
+    ) {
       context.leftOut++;
       return LEFT_OUT;
     }
