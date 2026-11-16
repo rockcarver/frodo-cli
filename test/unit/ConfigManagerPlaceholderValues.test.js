@@ -49,11 +49,13 @@ const FROM_FLAG = 'https://from-flag.example.com';
 describe('the help says where the values come from', () => {
   // eslint-disable-next-line no-control-regex -- strips colour codes from rendered help
   const ANSI = /\x1b\[[0-9;]*m/g;
-  const FOUR = [
+  const KINDS = [
     'frodo config-manager pull oauth-issuers',
     'frodo config-manager push oauth-issuers',
     'frodo config-manager pull oauth-cimd-profiles',
     'frodo config-manager push oauth-cimd-profiles',
+    'frodo config-manager pull oauth-software-publishers',
+    'frodo config-manager push oauth-software-publishers',
   ];
   const originalArgv = process.argv;
   const helps = new Map();
@@ -64,7 +66,7 @@ describe('the help says where the values come from', () => {
     try {
       const { leaves } = await loadCommandTree();
       for (const leaf of leaves) {
-        if (FOUR.includes(fullName(leaf))) {
+        if (KINDS.includes(fullName(leaf))) {
           // the help wraps lines: compare the words
           helps.set(
             fullName(leaf),
@@ -77,11 +79,11 @@ describe('the help says where the values come from', () => {
     }
   });
 
-  it('finds the four commands', () => {
-    expect([...helps.keys()].sort()).toEqual([...FOUR].sort());
+  it('finds the six commands', () => {
+    expect([...helps.keys()].sort()).toEqual([...KINDS].sort());
   });
 
-  it.each(FOUR)('%s says it with one shared rule', (name) => {
+  it.each(KINDS)('%s says it with one shared rule', (name) => {
     const help = helps.get(name);
     expect(help).toContain(PLACEHOLDER_VALUES_RULE);
     // the wording that read like the process environment is gone

@@ -7,76 +7,81 @@ exports[`CLI help interface for 'config-manager push' should be expected english
 compatible with fr-config-manager).
 
 Options:
-  -h, --help             Help
-  -hh, --help-more       Help with all options.
-  -hhh, --help-all       Help with all options, environment variables, and usage
-                         examples.
+  -h, --help                 Help
+  -hh, --help-more           Help with all options.
+  -hhh, --help-all           Help with all options, environment variables, and
+                             usage examples.
 
 Runtime Options:
-  --no-prompt            Never prompt interactively (same as setting
-                         FRODO_NO_PROMPT).
+  --no-prompt                Never prompt interactively (same as setting
+                             FRODO_NO_PROMPT).
 
 Commands:
-  access-config          [Experimental] Import access configuration.
-  applications           [Experimental] Import applications, one folder per
-                         application with the objects it owns.
-  audit                  [Experimental] Import audit configuration.
-  authentication         [Experimental] Import authentication objects.
-  authz-policies         [Experimental] Import authorization policies.
-  config-metadata        [Experimental] Import metadata.
-  connector-definitions  [Experimental] Import connector definitions.
-  connector-mappings     [Experimental] Import connector mappings.
-  cookie-domains         [Experimental] [Cloud-only] Import cookie domains.
-  cors                   [Experimental] Import CORS configuration.
-  csp                    [Experimental] [Cloud-only] Import content security
-                         policy.
-  custom-nodes           [Experimental] Import custom nodes.
-  direct-control-abort   [Experimental] [Cloud-only] Aborts the current direct
-                         configuration session.
-  direct-control-apply   [Experimental] [Cloud-only] Apply changes made during a
-                         direct configuration session.
-  direct-control-init    [Experimental] [Cloud-only] Initialize a new direct
-                         configuration session.
-  direct-control-state   [Experimental] [Cloud-only] Read the current direct
-                         configuration session state.
-  email-provider         [Experimental] Import email provider configuration.
-  email-templates        [Experimental] Import email template objects.
-  endpoints              [Experimental] Import custom endpoints objects.
-  idm-authentication     [Experimental] Import idm authentication.
-  iga-workflows          [Experimental] [Cloud-only] Import iga-workflows.
-  internal-roles         [Experimental] Import internal roles.
-  journeys               [Experimental] Import journeys.
-  kba                    [Experimental] Import kba configuration.
-  locales                [Experimental] Import custom locales objects.
-  managed-objects        [Experimental] Import managed objects.
-  oauth-cimd-profiles    [Experimental] Import CIMD profiles from the files
-                         written by pull.
-  oauth-issuers          [Experimental] Import trusted JWT issuers from the
-                         files written by pull.
-  oauth2-agents          [Experimental] Import Oauth2 agents.
-  org-privileges         [Experimental] Import organization privileges config.
-  password-policy        [Experimental] Import password-policy objects.
-  raw                    [Experimental] Import raw configurations.
-  remote-proxies         [Experimental] [Cloud-only] Import IDM remote proxies
-                         from the files remote-proxies/<name>.json.
-  remote-servers         [Experimental] Import RCS config.
-  restart                [Experimental] [Cloud-only] Restart the environment.
-  saml                   [Experimental] Import saml configuration.
-  schedules              [Experimental] Import schedules.
-  scripts                [Experimental] Import scripts.
-  secret-mappings        [Experimental] [Cloud-only] Import secret mappings.
-  secrets                [Experimental] [Cloud-only] Import secrets.
-  service-objects        [Experimental] Import service objects.
-  services               [Experimental] Import AM authentication services.
-  telemetry              [Experimental] [Cloud-only] Import telemetry exporters.
-  terms-and-conditions   [Experimental] Import terms and conditions.
-  test                   [Experimental] Test connection and authentication.
-  themes                 [Experimental] Import themes.
-  ui-config              [Experimental] Import UI configuration.
-  variables              [Experimental] [Cloud-only] Import variables.
+  access-config              [Experimental] Import access configuration.
+  applications               [Experimental] Import applications, one folder per
+                             application with the objects it owns.
+  audit                      [Experimental] Import audit configuration.
+  authentication             [Experimental] Import authentication objects.
+  authz-policies             [Experimental] Import authorization policies.
+  config-metadata            [Experimental] Import metadata.
+  connector-definitions      [Experimental] Import connector definitions.
+  connector-mappings         [Experimental] Import connector mappings.
+  cookie-domains             [Experimental] [Cloud-only] Import cookie domains.
+  cors                       [Experimental] Import CORS configuration.
+  csp                        [Experimental] [Cloud-only] Import content security
+                             policy.
+  custom-nodes               [Experimental] Import custom nodes.
+  direct-control-abort       [Experimental] [Cloud-only] Aborts the current
+                             direct configuration session.
+  direct-control-apply       [Experimental] [Cloud-only] Apply changes made
+                             during a direct configuration session.
+  direct-control-init        [Experimental] [Cloud-only] Initialize a new direct
+                             configuration session.
+  direct-control-state       [Experimental] [Cloud-only] Read the current direct
+                             configuration session state.
+  email-provider             [Experimental] Import email provider configuration.
+  email-templates            [Experimental] Import email template objects.
+  endpoints                  [Experimental] Import custom endpoints objects.
+  idm-authentication         [Experimental] Import idm authentication.
+  iga-workflows              [Experimental] [Cloud-only] Import iga-workflows.
+  internal-roles             [Experimental] Import internal roles.
+  journeys                   [Experimental] Import journeys.
+  kba                        [Experimental] Import kba configuration.
+  locales                    [Experimental] Import custom locales objects.
+  managed-objects            [Experimental] Import managed objects.
+  oauth-cimd-profiles        [Experimental] Import CIMD profiles from the files
+                             written by pull.
+  oauth-issuers              [Experimental] Import trusted JWT issuers from the
+                             files written by pull.
+  oauth-software-publishers  [Experimental] Import software publishers from the
+                             files written by pull.
+  oauth2-agents              [Experimental] Import Oauth2 agents.
+  org-privileges             [Experimental] Import organization privileges
+                             config.
+  password-policy            [Experimental] Import password-policy objects.
+  raw                        [Experimental] Import raw configurations.
+  remote-proxies             [Experimental] [Cloud-only] Import IDM remote
+                             proxies from the files remote-proxies/<name>.json.
+  remote-servers             [Experimental] Import RCS config.
+  restart                    [Experimental] [Cloud-only] Restart the
+                             environment.
+  saml                       [Experimental] Import saml configuration.
+  schedules                  [Experimental] Import schedules.
+  scripts                    [Experimental] Import scripts.
+  secret-mappings            [Experimental] [Cloud-only] Import secret mappings.
+  secrets                    [Experimental] [Cloud-only] Import secrets.
+  service-objects            [Experimental] Import service objects.
+  services                   [Experimental] Import AM authentication services.
+  telemetry                  [Experimental] [Cloud-only] Import telemetry
+                             exporters.
+  terms-and-conditions       [Experimental] Import terms and conditions.
+  test                       [Experimental] Test connection and authentication.
+  themes                     [Experimental] Import themes.
+  ui-config                  [Experimental] Import UI configuration.
+  variables                  [Experimental] [Cloud-only] Import variables.
 
 Utilities:
-  help                   display help for command
+  help                       display help for command
 
 
 Run without a sub-command to enter interactive mode."

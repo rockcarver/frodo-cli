@@ -20,6 +20,10 @@ describe('frodo config-manager pull oauth2-agents', () => {
     // nor writes an issuer, so the 3 snapshots of the testJWT.json files were removed from the snapshot file (they would
     // be reported as obsolete, which fails CI). The recording still holds the GET of each issuer; the replay does not
     // ask for them, and recordings are made against the real environment, not edited.
+    // The config file also lists the agent type SoftwarePublisher (test software publisher) for /, alpha and bravo, which
+    // the command leaves to `config-manager pull oauth-software-publishers` since frodo-cli#1343: the 3 snapshots of the
+    // SoftwarePublisher/test software publisher.json files were removed from the snapshot file in the same way, and the
+    // GET of each publisher stays in the recording unused.
     test(`"frodo config-manager pull oauth2-agents -D configManagerExportOauth2AgentsDir0 -f ${configFile} -m forgeops": should export all agents from all realms in fr-config manager style.`, async () => {
         const dirName = 'configManagerExportOauth2AgentsDir0';
         const CMD = `frodo config-manager pull oauth2-agents -D ${dirName} -f ${configFile} -m forgeops`;

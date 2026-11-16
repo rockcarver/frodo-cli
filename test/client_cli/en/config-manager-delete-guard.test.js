@@ -38,6 +38,7 @@ describe('a delete of more than one object without a terminal and without --yes'
     'frodo config-manager delete secrets',
     'frodo config-manager delete terms-and-conditions',
     'frodo config-manager delete oauth-issuers',
+    'frodo config-manager delete oauth-software-publishers',
     'frodo config-manager delete variables',
     'frodo config-manager delete schedules',
     'frodo config-manager delete secret-mappings',
@@ -118,6 +119,12 @@ describe('a delete of more than one object without a terminal and without --yes'
     expect(stderr).toContain('all trusted JWT issuers in the selected realms');
   });
 
+  test('the refusal of software publishers says what would have been deleted', async () => {
+    const { stderr } = await run('frodo config-manager delete oauth-software-publishers');
+
+    expect(stderr).toContain('all software publishers in the selected realms');
+  });
+
   test('the refusal of applications says that the objects they own go too', async () => {
     const { stderr } = await run('frodo config-manager delete applications');
 
@@ -130,6 +137,7 @@ describe('what is not refused', () => {
     'frodo config-manager delete applications -n Example',
     'frodo config-manager delete oauth-cimd-profiles -n Example',
     'frodo config-manager delete oauth-issuers -n Example',
+    'frodo config-manager delete oauth-software-publishers -n Example',
     'frodo config-manager delete custom-nodes -n Example',
     'frodo config-manager delete endpoints -n Example',
     'frodo config-manager delete scripts -n Example',
@@ -147,6 +155,9 @@ describe('what is not refused', () => {
     'frodo config-manager delete oauth-issuers --dry-run',
     'frodo config-manager delete oauth-issuers -n Example --dry-run',
     'frodo config-manager delete oauth-issuers -y',
+    'frodo config-manager delete oauth-software-publishers --dry-run',
+    'frodo config-manager delete oauth-software-publishers -n Example --dry-run',
+    'frodo config-manager delete oauth-software-publishers -y',
     'frodo config-manager delete applications -d',
     'frodo config-manager delete applications -n Example -d',
     'frodo config-manager delete custom-nodes -d',
@@ -211,6 +222,8 @@ describe('the preview option of the oauth kinds and of schedules has no short fo
     'frodo config-manager delete oauth-cimd-profiles -n Example -d',
     'frodo config-manager delete oauth-issuers -d',
     'frodo config-manager delete oauth-issuers -n Example -d',
+    'frodo config-manager delete oauth-software-publishers -d',
+    'frodo config-manager delete oauth-software-publishers -n Example -d',
     'frodo config-manager delete schedules -d',
     'frodo config-manager delete schedules -n Example -d',
   ])('"%s" is rejected as an unknown option before anything else', async (command) => {
@@ -251,6 +264,22 @@ describe('an empty trusted JWT issuer name', () => {
 
     expect(code).toBe(1);
     expect(stderr).toContain('The trusted JWT issuer name must not be empty');
+    expect(stderr).not.toContain('Refusing to delete');
+    expect(stderr).not.toMatch(/ECONNREFUSED|connect/i);
+  });
+});
+
+describe('an empty software publisher name', () => {
+  test.each([
+    "frodo config-manager delete oauth-software-publishers -n ''",
+    "frodo config-manager delete oauth-software-publishers -n '' -y",
+    "frodo config-manager delete oauth-software-publishers -n '' --dry-run",
+    'frodo config-manager delete oauth-software-publishers --name=',
+  ])('"%s" is an error before the login, not a delete of all software publishers', async (command) => {
+    const { code, stderr } = await run(command);
+
+    expect(code).toBe(1);
+    expect(stderr).toContain('The software publisher name must not be empty');
     expect(stderr).not.toContain('Refusing to delete');
     expect(stderr).not.toMatch(/ECONNREFUSED|connect/i);
   });

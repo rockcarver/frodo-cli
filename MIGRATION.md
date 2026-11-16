@@ -818,35 +818,43 @@ after the migration; one that never migrates is not affected. See
 [config-manager keeps everything an application owns in one folder](https://github.com/rockcarver/frodo-cli/blob/main/docs/decisions/0042-config-manager-keeps-everything-an-application-owns-in-one-folder.md).
 
 **`config-manager pull oauth2-agents` and `push oauth2-agents` leave CIMD
-profiles and trusted JWT issuers to their own kinds (experimental)**:
+profiles, trusted JWT issuers and software publishers to their own kinds
+(experimental)**:
 `config-manager pull oauth-cimd-profiles`, `push oauth-cimd-profiles` and `delete
 oauth-cimd-profiles` work with the CIMD profiles of a tenant (the agent type
 `CIMDProfile`: the allow-list of client ID URL patterns for OAuth 2.0 clients
-that identify themselves with a Client ID Metadata Document), and
+that identify themselves with a Client ID Metadata Document),
 `pull oauth-issuers`, `push oauth-issuers` and `delete oauth-issuers` work with
-the OAuth2 trusted JWT issuers (the agent type `TrustedJwtIssuer`). `pull all`
-includes both. They write the files where `oauth2-agents` wrote them
-(`realms/<realm>/realm-config/agents/CIMDProfile/<name>.json` and
-`realms/<realm>/realm-config/agents/TrustedJwtIssuer/<name>.json`), so an
-existing tree is still valid: an issuer file is byte for byte the same, and the
-first `pull oauth-cimd-profiles` over a file that `pull oauth2-agents` wrote
-rewrites it in the plain form (without the `{ "inherited": false, "value": ...
-}` wrappers). To give each object one writer, `pull oauth2-agents` and `push
-oauth2-agents` no longer handle these two types: an entry of type `CIMDProfile`
-or `TrustedJwtIssuer` in `oauth2-agents.json`, and the folder `CIMDProfile` or
-`TrustedJwtIssuer` of a tree, are skipped with one warning per realm and type
+the OAuth2 trusted JWT issuers (the agent type `TrustedJwtIssuer`), and
+`pull oauth-software-publishers`, `push oauth-software-publishers` and `delete
+oauth-software-publishers` work with the OAuth2 software publishers (the agent
+type `SoftwarePublisher`: the publishers whose signed software statements an
+OAuth 2.0 provider accepts when a client registers itself). `pull all` includes
+all three. They write the files where `oauth2-agents` wrote them
+(`realms/<realm>/realm-config/agents/CIMDProfile/<name>.json`,
+`realms/<realm>/realm-config/agents/TrustedJwtIssuer/<name>.json` and
+`realms/<realm>/realm-config/agents/SoftwarePublisher/<name>.json`), so an
+existing tree is still valid: an issuer file and a publisher file are byte for
+byte the same, and the first `pull oauth-cimd-profiles` over a file that `pull
+oauth2-agents` wrote rewrites it in the plain form (without the `{ "inherited":
+false, "value": ... }` wrappers). To give each object one writer, `pull
+oauth2-agents` and `push oauth2-agents` no longer handle these three types: an
+entry of type `CIMDProfile`, `TrustedJwtIssuer` or `SoftwarePublisher` in
+`oauth2-agents.json`, and the folder `CIMDProfile`, `TrustedJwtIssuer` or
+`SoftwarePublisher` of a tree, are skipped with one warning per realm and type
 that names the new command. Your config files are inputs and are never edited,
 nothing in the skipped folder is read or changed, and the exit code does not
-change: a pipeline that pushed profiles or issuers with `push oauth2-agents`
-keeps exiting 0 and no longer pushes them, so it adds `push oauth-cimd-profiles`
-or `push oauth-issuers`. The `overrides` of such an entry are not applied by
-`pull oauth2-agents` any more; move them to the overrides file of `pull
-oauth-cimd-profiles` or `pull oauth-issuers` (`--config-file`, for example
+change: a pipeline that pushed profiles, issuers or publishers with `push
+oauth2-agents` keeps exiting 0 and no longer pushes them, so it adds `push
+oauth-cimd-profiles`, `push oauth-issuers` or `push oauth-software-publishers`.
+The `overrides` of such an entry are not applied by `pull oauth2-agents` any
+more; move them to the overrides file of `pull oauth-cimd-profiles`, `pull
+oauth-issuers` or `pull oauth-software-publishers` (`--config-file`, for example
 `oauth-issuers.json`), where the entries of a realm are a list without the type
 level: `"alpha": [ { "id": "zion-issuer", "overrides": { ... } } ]`. In a tree
-that uses one folder per application, a realm that has only entries of these two
-types in `oauth2-agents.json` no longer makes the command read the applications
-of the realm. See
+that uses one folder per application, a realm that has only entries of these
+three types in `oauth2-agents.json` no longer makes the command read the
+applications of the realm. See
 [config-manager keeps everything an application owns in one folder](https://github.com/rockcarver/frodo-cli/blob/main/docs/decisions/0042-config-manager-keeps-everything-an-application-owns-in-one-folder.md)
 for the rule that an object has one writer in a tree.
 

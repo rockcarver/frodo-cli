@@ -43,6 +43,11 @@ describe('frodo config-manager pull all', () => {
   // snapshots of the testJWT.json files were removed from the snapshot file (they would be reported as obsolete, which
   // fails CI). The unused requests stay in the recording; recordings are made against the real environment, not
   // edited. They come back when the test is recorded again (frodo-cli#1102).
+  // The same holds for the agent type SoftwarePublisher (test software publisher, listed in oauth2-agents.json), which the
+  // oauth2-agents step leaves to the oauth-software-publishers step (frodo-cli#1343): the replay writes no publisher file
+  // and the 4 snapshots of the SoftwarePublisher/test software publisher.json files were removed from the snapshot file (they
+  // would be reported as obsolete, which fails CI). The requests of the generic route stay in the recording; they come back
+  // when the test is recorded again (frodo-cli#1102).
   // Opted in to missing recordings until the recording is made again (frodo-cli#1102): the oauth2-agents step now
   // tries every agent of the config file after one failed (decision record 0040), and the recording holds the
   // request of the first agent of the bravo realm only (a recorded 404), so the replay asks for requests that are

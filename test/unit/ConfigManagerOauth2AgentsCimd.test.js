@@ -239,7 +239,7 @@ const ISSUER_FIXTURE = JSON.parse(
   )
 );
 
-/** The two agent types that have a kind of their own, with an object of each as the single read returns it. */
+/** The agent types that have a kind of their own, with an object of each as the single read returns it. */
 const SKIPPED = [
   {
     agentType: 'CIMDProfile',
@@ -255,6 +255,23 @@ const SKIPPED = [
       ...ISSUER_FIXTURE,
       _id: id,
       _rev: '-77',
+      ...extra,
+    }),
+  },
+  {
+    agentType: 'SoftwarePublisher',
+    plural: 'software publishers',
+    kind: 'oauth-software-publishers',
+    make: (id, extra = {}) => ({
+      _id: id,
+      _rev: '-77',
+      _type: {
+        _id: 'SoftwarePublisher',
+        collection: true,
+        name: 'OAuth2 Software Publisher',
+      },
+      issuer: { inherited: false },
+      jwksUri: { inherited: false },
       ...extra,
     }),
   },
@@ -472,7 +489,6 @@ describe('pull oauth2-agents still handles the other types as before', () => {
     }));
     const types = [
       'OAuth2Client',
-      'SoftwarePublisher',
       'IdentityGatewayAgent',
       'J2EEAgent',
       'WebAgent',
@@ -743,11 +759,40 @@ describe.each(SKIPPED)(
   }
 );
 
+describe('push oauth2-agents with the folders of several skipped types', () => {
+  test('warns in the order of the type names, whatever order the file system lists the folders in', async () => {
+    for (const { agentType, make } of SKIPPED) {
+      write(AGENT_PATH(agentType, 'zion-one'), make('zion-one'));
+    }
+    // a file system may list the folders in any order (ext4 does, by hash): list them in reverse
+    const real = fs.readdirSync;
+    const spy = jest
+      .spyOn(fs, 'readdirSync')
+      .mockImplementation((dir, ...rest) => {
+        const result = real(dir, ...rest);
+        return String(dir).endsWith(
+          path.join('alpha', 'realm-config', 'agents')
+        )
+          ? [...result].reverse()
+          : result;
+      });
+    try {
+      expect(await configManagerImportAgents()).toBe(true);
+    } finally {
+      spy.mockRestore();
+    }
+
+    expect(
+      warnings().map((line) => line.match(/Skipping the 1 (\w+) file/)[1])
+    ).toEqual(['CIMDProfile', 'SoftwarePublisher', 'TrustedJwtIssuer']);
+  });
+});
+
 describe('push oauth2-agents still handles the other types as before', () => {
   test('every file of every other type folder is pushed with importAgent(id, {agent: {id: object}}, false) and without _id and _rev', async () => {
     const types = [
       'OAuth2Client',
-      'SoftwarePublisher',
+      'SharedAgent',
       'WebAgent',
       'RemoteConsentAgent',
     ];

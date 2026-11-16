@@ -28,6 +28,7 @@ import Locales from './config-manager-push-locales';
 import ManagedObjects from './config-manager-push-managed-objects';
 import OauthCimdProfiles from './config-manager-push-oauth-cimd-profiles';
 import OauthIssuers from './config-manager-push-oauth-issuers';
+import OauthSoftwarePublishers from './config-manager-push-oauth-software-publishers';
 import OAuth2Agents from './config-manager-push-oauth2-agents';
 import OrgPrivileges from './config-manager-push-org-privileges';
 import PasswordPolicy from './config-manager-push-password-policy';
@@ -85,6 +86,9 @@ export default function setup() {
   program.addCommand(DirectControlState().name('direct-control-state'));
   program.addCommand(OauthCimdProfiles().name('oauth-cimd-profiles'));
   program.addCommand(OauthIssuers().name('oauth-issuers'));
+  program.addCommand(
+    OauthSoftwarePublishers().name('oauth-software-publishers')
+  );
   program.addCommand(RemoteProxies().name('remote-proxies'));
   program.addCommand(RemoteServers().name('remote-servers'));
   program.addCommand(SecretMappings().name('secret-mappings'));

@@ -224,6 +224,17 @@ export async function configManagerImportAgents(
 
       const agentTypes = fs.readdirSync(agentDir);
 
+      // The order of a directory listing depends on the file system, and the output of a run must not: the
+      // warnings of the folders that are left to a kind of their own come in the order of the type names.
+      for (const agentType of agentTypes
+        .filter((type) => skippedForDedicatedKind(type))
+        .sort()) {
+        const count = countJsonFiles(path.join(agentDir, agentType));
+        if (count > 0) {
+          printMessage(skippedFilesMessage(realm, agentType, count), 'warn');
+        }
+      }
+
       let ownershipKnown = true;
       // The application folders of a realm matter for the types this command handles, not for the
       // ones it leaves to a kind of their own.
@@ -244,13 +255,7 @@ export async function configManagerImportAgents(
       }
 
       for (const agentType of agentTypes) {
-        if (skippedForDedicatedKind(agentType)) {
-          const count = countJsonFiles(path.join(agentDir, agentType));
-          if (count > 0) {
-            printMessage(skippedFilesMessage(realm, agentType, count), 'warn');
-          }
-          continue;
-        }
+        if (skippedForDedicatedKind(agentType)) continue;
         // Only an OAuth2 client can be owned, so only its push depends on the answer.
         if (!ownershipKnown && agentType === 'OAuth2Client') continue;
         const agentTypeDir = path.join(agentDir, agentType);

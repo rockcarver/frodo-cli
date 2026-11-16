@@ -5,8 +5,8 @@ const exec = promisify(cp.exec);
 
 /**
  * The generic `config-manager pull|push oauth2-agents` say, in their full help
- * (-hhh), which agent types they handle and which two they leave to a kind of
- * their own (frodo-cli#1249, frodo-cli#1259). A user who finds an entry or a
+ * (-hhh), which agent types they handle and which three they leave to a kind of
+ * their own (frodo-cli#1249, frodo-cli#1259, frodo-cli#1343). A user who finds an entry or a
  * folder skipped, or who wonders why a type is missing, reads it here.
  */
 const HANDLED = [
@@ -17,7 +17,6 @@ const HANDLED = [
   'SharedAgent',
   'OAuth2Client',
   'RemoteConsentAgent',
-  'SoftwarePublisher',
 ];
 
 describe.each(['pull', 'push'])(
@@ -35,10 +34,10 @@ describe.each(['pull', 'push'])(
       expect(text).toContain(agentType);
     });
 
-    test('names the two types that have a kind of their own and the command of each', () => {
+    test('names the three types that have a kind of their own and the command of each', () => {
       expect(text).toContain(
-        'The agent types CIMDProfile and TrustedJwtIssuer have a kind of their own: ' +
-          `"frodo config-manager ${verb} oauth-cimd-profiles" and "frodo config-manager ${verb} oauth-issuers".`
+        'The agent types CIMDProfile, TrustedJwtIssuer and SoftwarePublisher have a kind of their own: ' +
+          `"frodo config-manager ${verb} oauth-cimd-profiles", "frodo config-manager ${verb} oauth-issuers" and "frodo config-manager ${verb} oauth-software-publishers".`
       );
       expect(text).toContain('skipped here with a warning');
     });
@@ -50,7 +49,8 @@ test("'config-manager pull oauth2-agents' full help lists an entry for every typ
   for (const agentType of HANDLED) {
     expect(stdout).toContain(`"${agentType}": [`);
   }
-  // the two types with a kind of their own are not in the example config
+  // the three types with a kind of their own are not in the example config
   expect(stdout).not.toContain('"CIMDProfile": [');
   expect(stdout).not.toContain('"TrustedJwtIssuer": [');
+  expect(stdout).not.toContain('"SoftwarePublisher": [');
 });

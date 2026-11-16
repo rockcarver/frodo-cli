@@ -64,17 +64,6 @@ export default function setup() {
         '        }\n' +
         '      }\n' +
         '    ],\n' +
-        '    "SoftwarePublisher": [\n' +
-        '      {\n' +
-        '        "id": "My Publisher",\n' +
-        '        "overrides": {\n' +
-        '          "jwksUri": {\n' +
-        '            "inherited": false,\n' +
-        '            "value": "\\${MY_PUBLISHER_JWKS_URI}"\n' +
-        '          }\n' +
-        '        }\n' +
-        '      }\n' +
-        '    ],\n' +
         '    "J2EEAgent": [\n' +
         '      {\n' +
         '        "id": "my-java-agent",\n' +
@@ -98,8 +87,8 @@ export default function setup() {
     )
     .addHelpText(
       'after',
-      '\nAgent types: IdentityGatewayAgent, J2EEAgent, WebAgent, 2.2_Agent and SharedAgent (these have a password: use an override with a placeholder, as in the example), OAuth2Client, RemoteConsentAgent and SoftwarePublisher.\n' +
-        'The agent types CIMDProfile and TrustedJwtIssuer have a kind of their own: "frodo config-manager pull oauth-cimd-profiles" and "frodo config-manager pull oauth-issuers". An entry of either type in this file is skipped here with a warning and its overrides are not applied; the file is not changed. Move the entry to the overrides file of that command (--config-file).\n'
+      '\nAgent types: IdentityGatewayAgent, J2EEAgent, WebAgent, 2.2_Agent and SharedAgent (these have a password: use an override with a placeholder, as in the example), OAuth2Client and RemoteConsentAgent.\n' +
+        'The agent types CIMDProfile, TrustedJwtIssuer and SoftwarePublisher have a kind of their own: "frodo config-manager pull oauth-cimd-profiles", "frodo config-manager pull oauth-issuers" and "frodo config-manager pull oauth-software-publishers". An entry of one of these types in this file is skipped here with a warning and its overrides are not applied; the file is not changed. Move the entry to the overrides file of that command (--config-file).\n'
     )
     .addHelpText('after', ownedObjectsHelp('OAuth2 clients'))
     .multiOp()

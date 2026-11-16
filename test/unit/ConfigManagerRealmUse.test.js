@@ -34,6 +34,7 @@ const USES_REALM = [
   'frodo config-manager delete secret-mappings',
   'frodo config-manager delete themes',
   'frodo config-manager delete oauth-issuers',
+  'frodo config-manager delete oauth-software-publishers',
   'frodo config-manager migrate applications',
   'frodo config-manager pull all',
   'frodo config-manager pull all-static',
@@ -48,6 +49,7 @@ const USES_REALM = [
   'frodo config-manager pull services',
   'frodo config-manager pull themes',
   'frodo config-manager pull oauth-issuers',
+  'frodo config-manager pull oauth-software-publishers',
   'frodo config-manager push applications',
   'frodo config-manager push authentication',
   'frodo config-manager push oauth-cimd-profiles',
@@ -59,6 +61,7 @@ const USES_REALM = [
   'frodo config-manager push services',
   'frodo config-manager push themes',
   'frodo config-manager push oauth-issuers',
+  'frodo config-manager push oauth-software-publishers',
 ];
 
 /** The commands that also cover configuration of the tenant, which no realm limits. */
