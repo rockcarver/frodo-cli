@@ -946,6 +946,25 @@ code 1, before the command connects. Drop the option from the script:
 | `--no-deep` of `frodo oauth client delete`      | The command has no deep delete: it deleted the same with or without the option.                                                                                                                      |
 | `--target <host url>` of `frodo promote`        | The option was copied from the export commands, where it encrypts secret values for another environment. `promote` never read it, so a script that passed it got no encryption for that environment. |
 
+**`frodo promote` is deprecated and will be removed in 5.0.0** (cli#1263): the
+command never ran a promotion of Advanced Identity Cloud. It compares two local
+directories of a frodo export (a master export and a current export) and runs
+the ordinary import and delete for the files that differ; the platform's
+promotion (lock, dry run, promote, status, reports, rollback, unlock) is
+`frodo config-manager promote`, which exists since 5.0.0-19. In the 5.x
+prereleases `frodo promote` keeps working as it did and prints a deprecation
+notice; it gets no new options and no new kinds. To replace it:
+
+| What you used it for                                | Use instead                                                                                                                      |
+| --------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
+| Run the promotion of the platform                   | `frodo config-manager promote run-promotion <connection>` (and `run-dryrun-promotion`, `rollback`, `check-promotion-status`, ...) |
+| Bring a tenant to a tree of files                   | `frodo config import -A -D <master> <connection>` (add `--static` for what a promotion carries), or the `frodo config-manager push` commands |
+| Delete what was removed from a tree                 | `frodo config-manager delete <kind> -n <name>`                                                                                   |
+
+There is no replacement yet for the automatic delete of the files that
+disappeared from the tree, and for the report of the differences (see
+[the restructuring of the config-manager commands](https://github.com/rockcarver/frodo-cli/issues/1264)).
+
 ### Node.js version matrix changes in 5.x
 
 - 5.x is tested on Node.js 26 only, and building frodo from source (the npm

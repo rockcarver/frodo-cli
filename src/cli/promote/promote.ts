@@ -13,16 +13,48 @@ const deploymentTypes = [
   FORGEOPS_DEPLOYMENT_TYPE_KEY,
 ];
 
+/**
+ * The notice a run prints (`Deprecated feature in use: 'frodo promote'. ...`): what the
+ * command is and is not, and the replacements. The names are checked against the
+ * command tree by test/unit/PromoteDeprecation.test.js, so a rename of one of
+ * them fails there.
+ */
+export const PROMOTE_DEPRECATION_MESSAGE =
+  'This command does not run a platform promotion and will be removed in 5.0.0. ' +
+  "For the platform's promotion use 'frodo config-manager promote run-promotion'; " +
+  "to bring a tenant to a tree of files use 'frodo config import -A -D <master> <connection>' " +
+  "(add --static for what a promotion carries) or the 'frodo config-manager push' commands; " +
+  "to delete what was removed from a tree use 'frodo config-manager delete <kind> -n <name>'.";
+
+/**
+ * `frodo promote` is deprecated and frozen (cli#1263): it compares two local
+ * directories of a frodo split export and runs the ordinary import and delete
+ * functions for the files that differ. It never calls the platform promotion
+ * API, which is `frodo config-manager promote`. It keeps working as it did in
+ * 4.x until it is removed in 5.0.0 (decision record 0048: a major release may
+ * remove a command); no new options, no new kinds.
+ */
 export default function setup() {
   const program = new FrodoCommand('promote', [], deploymentTypes);
 
   program
-    .description('Prepares a tenant to be promoted')
+    .description(
+      'Deprecated: this command does not run a platform promotion; use frodo config-manager promote run-promotion. Will be removed in 5.0.0.'
+    )
+    .withStability('deprecated', undefined, PROMOTE_DEPRECATION_MESSAGE)
     .addHelpText(
       'after',
-      'This is used to compare two directories and automatically import and delete' +
-        'configurations so the tenant can be promoted. It will compare a master export to a current export' +
-        'and make the changes based off that diff. A file will be generated to show what has changed. \n' +
+      'Deprecated: this command compares two local directories of a frodo export (a master export and a current export), ' +
+        'imports and deletes the configuration that differs, and can write a file that shows what has changed. ' +
+        'It does not run a promotion of Advanced Identity Cloud (lock, dry run, promote, status, reports, rollback, unlock): ' +
+        'that is frodo config-manager promote. It will be removed in 5.0.0.\n' +
+        '\n' +
+        'Replacements:\n' +
+        '  the platform promotion:            frodo config-manager promote run-promotion\n' +
+        '  bring a tenant to a tree of files: frodo config import -A -D <master> <connection> (add --static for what a promotion carries), or the frodo config-manager push commands\n' +
+        '  delete what left the tree:         frodo config-manager delete <kind> -n <name>\n' +
+        'No replacement yet: the automatic delete of the files that disappeared from the tree, and the report of the differences.\n' +
+        '\n' +
         `Usage Examples:\n` +
         '\n' +
         'frodo promote -M ./master -E ./export [testTenant]\n' +

@@ -70,6 +70,10 @@ jest.unstable_mockModule('../../src/cli/FrodoCommand', () => ({
       this.multiOpCalled = true;
       return this;
     }
+    // promote is deprecated (cli#1263): the stability level does not matter here
+    withStability() {
+      return this;
+    }
   },
 }));
 jest.unstable_mockModule('../../src/ops/AuthenticateOps', () => ({
