@@ -270,6 +270,31 @@ describe('Cloud: realms alpha and bravo', () => {
     expect(sentIn('alpha')).toHaveLength(1);
   });
 
+  test.each(['My Publisher', 'MY PUBLISHER', 'my publisher'])(
+    'a file for %p replaces the existing publisher "My Publisher" (capitals and a space in the stored id) with exactly one write',
+    async (fileId) => {
+      writePublisher(fileId);
+      world.publishers.alpha = ['My Publisher'];
+
+      expect(await configManagerImportSoftwarePublishers()).toBe(true);
+
+      expect(sentIn('alpha')).toHaveLength(1);
+      expect(sentIn('alpha')[0].id).toBe(fileId);
+    }
+  );
+
+  test('a new publisher whose id has capitals and a space still gets two writes, next to an existing one that gets one', async () => {
+    writePublisher('My Publisher');
+    writePublisher('Zion New');
+    world.publishers.alpha = ['My Publisher'];
+
+    expect(await configManagerImportSoftwarePublishers()).toBe(true);
+
+    const ids = sentIn('alpha').map((sent) => sent.id);
+    expect(ids.filter((id) => id === 'My Publisher')).toHaveLength(1);
+    expect(ids.filter((id) => id === 'Zion New')).toHaveLength(2);
+  });
+
   test('writes a publisher that did not exist a second time, with the same body, so that the tenant equals the file', async () => {
     writePublisher('zion-publisher');
     world.publishers.alpha = [];

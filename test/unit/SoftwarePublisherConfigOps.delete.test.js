@@ -187,6 +187,16 @@ describe('deleting all software publishers', () => {
     expect(deleteAgent).not.toHaveBeenCalledWith('zion-gateway');
   });
 
+  test('a publisher whose id has capitals and a space is deleted with exactly the id the list returned, once', async () => {
+    world.publishers.alpha = ['My Publisher'];
+
+    expect(await configManagerDeleteSoftwarePublishers()).toBe(true);
+
+    expect(deleteAgent).toHaveBeenCalledTimes(1);
+    expect(deleteAgent).toHaveBeenCalledWith('My Publisher');
+    expect(deleted).toEqual(['alpha/My Publisher']);
+  });
+
   test('a dry run deletes nothing and says what would be deleted', async () => {
     world.publishers.alpha = ['zion-a', 'zion-b'];
 
@@ -265,6 +275,21 @@ describe('deleting one named software publisher', () => {
 
     expect(deleted).toEqual(['alpha/zion-b']);
   });
+
+  test.each(['My Publisher', 'my publisher', 'MY PUBLISHER'])(
+    'a name typed as %p deletes the stored id "My Publisher", once, and not the name that was typed',
+    async (typed) => {
+      world.publishers.alpha = ['My Publisher', 'zion-a'];
+
+      expect(await configManagerDeleteSoftwarePublishers(typed, 'alpha')).toBe(
+        true
+      );
+
+      expect(deleteAgent).toHaveBeenCalledTimes(1);
+      expect(deleteAgent).toHaveBeenCalledWith('My Publisher');
+      expect(deleted).toEqual(['alpha/My Publisher']);
+    }
+  );
 
   test('does not delete an agent of another type that has the name, and says there is no such publisher', async () => {
     world.publishers.alpha = ['zion-a'];
