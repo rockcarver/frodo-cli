@@ -228,15 +228,17 @@ suite('config-manager oauth-issuers against a fake tenant', () => {
     );
 
     it(
-      'pulls the same file as pull oauth2-agents for the same issuer',
+      'is the only writer of the file: pull oauth2-agents leaves the issuer to it, with a warning, and writes nothing',
       async () => {
         const run = await tenant({ oauthIssuers: ['zion-issuer'] });
+        const configFile = path.join(work, 'oauth2-agents.json');
         fs.writeFileSync(
-          path.join(work, 'oauth2-agents.json'),
+          configFile,
           JSON.stringify({
             alpha: { TrustedJwtIssuer: [{ id: 'zion-issuer' }] },
           })
         );
+        const before = fs.readFileSync(configFile);
 
         const generic = await run([
           'config-manager',
@@ -246,11 +248,15 @@ suite('config-manager oauth-issuers against a fake tenant', () => {
           'oauth2-agents.json',
           ...target(),
         ]);
-        expect(generic.code).toBe(0);
-        const file = path.join(issuersOf('alpha'), 'zion-issuer.json');
-        const viaGeneric = fs.readFileSync(file, 'utf8');
-        fs.rmSync(path.join(work, 'realms'), { recursive: true });
 
+        expect(generic.code).toBe(0);
+        expect(generic.output).toContain(
+          `Skipping 1 TrustedJwtIssuer entry of realm 'alpha' (zion-issuer): trusted JWT issuers are pulled by "frodo config-manager pull oauth-issuers".`
+        );
+        expect(fs.existsSync(path.join(work, 'realms'))).toBe(false);
+        expect(fs.readFileSync(configFile).equals(before)).toBe(true);
+
+        // the dedicated kind writes the file where the generic kind used to write it
         const dedicated = await run([
           'config-manager',
           'pull',
@@ -258,10 +264,14 @@ suite('config-manager oauth-issuers against a fake tenant', () => {
           ...target(),
         ]);
         expect(dedicated.code).toBe(0);
-
-        // the generic kind reads with the agent API (protocol 2.1), the dedicated one with the
-        // issuer module (protocol 2.0): the fake answers both alike, a live check compares them
-        expect(fs.readFileSync(file, 'utf8')).toBe(viaGeneric);
+        expect(
+          JSON.parse(
+            fs.readFileSync(
+              path.join(issuersOf('alpha'), 'zion-issuer.json'),
+              'utf8'
+            )
+          )._id
+        ).toBe('zion-issuer');
       },
       TIMEOUT
     );

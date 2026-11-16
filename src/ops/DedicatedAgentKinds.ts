@@ -69,7 +69,7 @@ export function skippedEntriesMessage(
     `"frodo config-manager pull ${kind}".`;
   return entries.some((entry) => entry?.overrides)
     ? `${message} ${entries.length === 1 ? 'Its' : 'Their'} overrides are not applied here: ` +
-        `move them to the overrides file of that command (-f).`
+        `move them to the overrides file of that command (--config-file).`
     : message;
 }
 

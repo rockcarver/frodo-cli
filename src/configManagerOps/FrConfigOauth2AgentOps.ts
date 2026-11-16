@@ -13,6 +13,11 @@ import {
   skipsOwnedObjects,
 } from '../ops/ApplicationOwnedObjects';
 import {
+  skippedEntriesMessage,
+  skippedFilesMessage,
+  skippedForDedicatedKind,
+} from '../ops/DedicatedAgentKinds';
+import {
   createProgressIndicator,
   printError,
   printMessage,
@@ -41,6 +46,12 @@ const { readAgentByTypeAndId, importAgent } = frodo.agent;
  * application. It is named and skipped, which is not a failure, and the config file is not
  * changed. A realm whose applications cannot be read is one failed operation, and its OAuth2 clients
  * are not exported (the other agents of the realm are).
+ * An agent type that has a config-manager kind of its own (`CIMDProfile`: `oauth-cimd-profiles`,
+ * `TrustedJwtIssuer`: `oauth-issuers`) is not exported here either: its entries are named in one
+ * warning per realm and type that names the command, and nothing is read or written for them. A
+ * skip is not an operation, so it changes neither the result nor what `allowFailures` does, and the
+ * config file is never changed; the applications of a realm are not read for the sake of such
+ * entries alone.
  * @param {string} configFile The path to the file
  * @param {boolean} allowFailures True to succeed although some agents could not be exported (the failures are still summarised)
  * @param {ApplicationLayoutDecision} layout The layout of the tree, when `pull all` has decided it before its first step; default: read from the marker of the tree
@@ -62,8 +73,11 @@ export async function configManagerExportOAuth2Agents(
       )
         continue;
       state.setRealm(realm);
+      const agentTypes = Object.keys(configFileData[realm]);
       let ownershipKnown = true;
-      if (owned) {
+      // The ownership of a realm matters for the types this command handles, not for the ones it
+      // leaves to a kind of their own.
+      if (owned && agentTypes.some((type) => !skippedForDedicatedKind(type))) {
         try {
           await owned.loadCurrentRealm();
         } catch (error) {
@@ -78,7 +92,17 @@ export async function configManagerExportOAuth2Agents(
           ownershipKnown = false;
         }
       }
-      for (const agentType of Object.keys(configFileData[realm])) {
+      for (const agentType of agentTypes) {
+        if (skippedForDedicatedKind(agentType)) {
+          const entries = configFileData[realm][agentType];
+          if (Array.isArray(entries) && entries.length > 0) {
+            printMessage(
+              skippedEntriesMessage(realm, agentType, entries),
+              'warn'
+            );
+          }
+          continue;
+        }
         // Only an OAuth2 client can be owned, so only its pull depends on the answer.
         if (!ownershipKnown && agentType === 'OAuth2Client') continue;
         for (const agent of configFileData[realm][agentType]) {
@@ -124,6 +148,21 @@ export async function configManagerExportOAuth2Agents(
   }
 }
 /**
+ * The number of `.json` files in a folder, for the message about a folder that is skipped.
+ * @param {string} folder the folder of an agent type
+ * @returns {number} the number of files, 0 when the path is not a readable directory (a stray file
+ * where a type folder would be is not a new failure here)
+ */
+function countJsonFiles(folder: string): number {
+  try {
+    return fs.readdirSync(folder).filter((f) => path.extname(f) === '.json')
+      .length;
+  } catch {
+    return 0;
+  }
+}
+
+/**
  * Import all agent configurations.
  * In a tree that uses the application layout (decision record 0042) an OAuth2 client that an
  * application owns is not imported here: `push applications` imports it from the folder of the
@@ -131,6 +170,13 @@ export async function configManagerExportOAuth2Agents(
  * file that one of them owns is named and skipped, which is not a failure, and no file of the tree
  * is changed. A realm whose application folders cannot be read is one failed operation, and its
  * OAuth2 clients are not imported (the other agents of the realm are).
+ * The folder of an agent type that has a config-manager kind of its own (`CIMDProfile`:
+ * `oauth-cimd-profiles`, `TrustedJwtIssuer`: `oauth-issuers`) is not imported here either: it is
+ * named in one warning per realm and type that counts its files and names the command, and nothing
+ * in it is read or imported (the folder is only listed to count the files). A skip is not an
+ * operation, so it changes neither the result nor what `allowFailures` does; a folder that is not
+ * a directory counts no file; the application folders of a realm are not read for the sake of such
+ * folders alone.
  * @param {boolean} allowFailures True to succeed although some agents could not be imported (the failures are still summarised)
  * @returns {Promise<boolean>} False if the realms folder is missing or an agent cannot be imported (unless failures are allowed), true otherwise
  */
@@ -176,8 +222,12 @@ export async function configManagerImportAgents(
 
       if (!fs.existsSync(agentDir)) continue;
 
+      const agentTypes = fs.readdirSync(agentDir);
+
       let ownershipKnown = true;
-      if (owned) {
+      // The application folders of a realm matter for the types this command handles, not for the
+      // ones it leaves to a kind of their own.
+      if (owned && agentTypes.some((type) => !skippedForDedicatedKind(type))) {
         try {
           owned.loadRealmOfTree(getWorkingDirectory(), realm);
         } catch (error) {
@@ -193,9 +243,14 @@ export async function configManagerImportAgents(
         }
       }
 
-      const agentTypes = fs.readdirSync(agentDir);
-
       for (const agentType of agentTypes) {
+        if (skippedForDedicatedKind(agentType)) {
+          const count = countJsonFiles(path.join(agentDir, agentType));
+          if (count > 0) {
+            printMessage(skippedFilesMessage(realm, agentType, count), 'warn');
+          }
+          continue;
+        }
         // Only an OAuth2 client can be owned, so only its push depends on the answer.
         if (!ownershipKnown && agentType === 'OAuth2Client') continue;
         const agentTypeDir = path.join(agentDir, agentType);

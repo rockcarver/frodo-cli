@@ -607,7 +607,7 @@ describe('private and secret key material in the key set', () => {
   });
 });
 
-describe('the no-movement guarantee: the file is what pull oauth2-agents writes', () => {
+describe('the no-movement guarantee: the file is what pull oauth2-agents wrote before it left issuers to this kind (frodo-cli#1259)', () => {
   const fixture = JSON.parse(
     fs.readFileSync(
       path.join(
@@ -618,25 +618,23 @@ describe('the no-movement guarantee: the file is what pull oauth2-agents writes'
     )
   );
 
-  test('both commands write the same bytes to the same path for the committed fixture issuer', async () => {
+  test('the dedicated kind writes the committed fixture issuer to the same path, and the generic route no longer writes it', async () => {
     const answer = { ...fixture, _rev: '-77' };
     world.issuers.alpha = [answer];
 
-    // the generic route, which reads by type and id
+    // the generic route skips the type: nothing is read, nothing is written
     const configFile = writeFile('config/oauth2-agents.json', {
       alpha: { TrustedJwtIssuer: [{ id: 'testJWT' }] },
     });
     expect(await configManagerExportOAuth2Agents(configFile)).toBe(true);
-    const generic = readRaw(P('testJWT'));
-    fs.rmSync(path.join(tmp, 'realms'), { recursive: true });
+    expect(fs.existsSync(path.join(tmp, P('testJWT')))).toBe(false);
 
-    // the dedicated kind
+    // the dedicated kind writes the file where the generic route used to write it
     expect(await configManagerExportTrustedJwtIssuers(undefined, 'alpha')).toBe(
       true
     );
 
-    expect(readRaw(P('testJWT'))).toBe(generic);
-    // and both are the committed file, apart from the formatting of the writer
-    expect(JSON.parse(generic)).toEqual(fixture);
+    // and it is the committed file, apart from the formatting of the writer
+    expect(JSON.parse(readRaw(P('testJWT')))).toEqual(fixture);
   });
 });

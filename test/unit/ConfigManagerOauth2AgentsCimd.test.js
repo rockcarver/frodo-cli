@@ -12,24 +12,24 @@ import {
 } from '@jest/globals';
 
 /**
- * How the generic `config-manager pull|push oauth2-agents` kind treats a CIMD
- * profile (agent type `CIMDProfile`) today, pinned row by row (frodo-cli#1246).
+ * How the generic `config-manager pull|push oauth2-agents` kind treats an agent
+ * type that has a config-manager kind of its own: `CIMDProfile`
+ * (`oauth-cimd-profiles`, frodo-cli#1249) and `TrustedJwtIssuer`
+ * (`oauth-issuers`, frodo-cli#1259).
  *
- * The generic kind works with any agent type by name and nothing in it knows the
- * type, so a CIMD profile listed in `oauth2-agents.json` is pulled and every
- * `realm-config/agents/CIMDProfile/*.json` file of a tree is pushed. These tests
- * pin that behaviour so that a change to it is deliberate and visible in a review:
- * they describe what IS, not what should be. The dedicated kind `oauth-cimd-profiles`
- * (pull, push and delete) is separate and has its own tests; the generic kind is
- * deliberately left as it is for now, because the library's agent type blacklist
- * only filters the type list and not the explicit calls by type and id that this
- * kind makes, so existing `oauth2-agents.json` entries keep working.
+ * The generic kind works with any agent type by name. Before the skip it read
+ * and wrote these two like every other type (frodo-cli#1246 pinned that row by
+ * row, and the first commit of #1259 pinned it for issuers); now it leaves them
+ * to their own kind: one warning per realm and type, no read, no write, no
+ * import, not a failure and not an operation of the run, the config file never
+ * changed. Everything else, the types the generic kind does handle, behaves as
+ * it did, and the cases that pin that stay here.
  *
- * Rows that are quirks of the generic kind for every agent type (the ownership
- * read of row 6, a stray file in a type folder, a sparse file that the server
- * completes on creation) are pinned as they are and are not CIMD-specific.
+ * Rows that are quirks of the generic kind for every agent type (a stray file
+ * in the agents folder) are pinned as they are and are not specific to the
+ * two types.
  *
- * The rows 7 and 8 of the issue (`pull all` runs the step `oauth2-agents`, `pull
+ * The rows 7 and 8 of #1246 (`pull all` runs the step `oauth2-agents`, `pull
  * all-static` has no agent step) are tests of `pull all` and live in the tests of
  * the `pull all` steps.
  *
@@ -194,8 +194,6 @@ const write = (relative, content) => {
 /** Writes the config file of `pull oauth2-agents` and returns its path. */
 const configFile = (config) => write('config/oauth2-agents.json', config);
 
-const read = (relative) =>
-  JSON.parse(fs.readFileSync(path.join(tmp, relative), 'utf8'));
 const exists = (relative) => fs.existsSync(path.join(tmp, relative));
 
 /** A CIMD profile as the single read returns it: wrapped, with `_rev`. */
@@ -212,9 +210,6 @@ const cimdProfile = (id, extra = {}) => ({
   ...extra,
 });
 
-const PROFILE_PATH = (id, realm = 'alpha') =>
-  `realms/${realm}/realm-config/agents/CIMDProfile/${id}.json`;
-
 beforeEach(() => {
   deployment = 'cloud';
   currentRealm = undefined;
@@ -230,115 +225,294 @@ beforeEach(() => {
 afterEach(() => {
   fs.rmSync(tmp, { recursive: true, force: true });
 });
+/**
+ * The committed content of an issuer in the e2e tree: the object as the single
+ * read returns it and as `pull oauth2-agents` used to write it.
+ */
+const ISSUER_FIXTURE = JSON.parse(
+  fs.readFileSync(
+    path.resolve(
+      root,
+      'test/e2e/exports/fr-config-manager/forgeops/realms/alpha/realm-config/agents/TrustedJwtIssuer/testJWT.json'
+    ),
+    'utf8'
+  )
+);
 
-describe('pull oauth2-agents with a CIMD profile in the config file (rows 1 to 6)', () => {
-  test('row 1: reads the profile by type and id and writes the object as the single read returns it, without _rev', async () => {
-    readAgentByTypeAndId.mockResolvedValue(cimdProfile('zion-agents'));
-    const file = configFile({
-      alpha: { CIMDProfile: [{ id: 'zion-agents' }] },
+/** The two agent types that have a kind of their own, with an object of each as the single read returns it. */
+const SKIPPED = [
+  {
+    agentType: 'CIMDProfile',
+    plural: 'CIMD profiles',
+    kind: 'oauth-cimd-profiles',
+    make: (id, extra = {}) => cimdProfile(id, extra),
+  },
+  {
+    agentType: 'TrustedJwtIssuer',
+    plural: 'trusted JWT issuers',
+    kind: 'oauth-issuers',
+    make: (id, extra = {}) => ({
+      ...ISSUER_FIXTURE,
+      _id: id,
+      _rev: '-77',
+      ...extra,
+    }),
+  },
+];
+
+const AGENT_PATH = (agentType, id, realm = 'alpha') =>
+  `realms/${realm}/realm-config/agents/${agentType}/${id}.json`;
+
+const warnings = () => printed.filter((line) => line.startsWith('WARN '));
+
+const OTHER_AGENT = (id, type = 'RemoteConsentAgent') => ({
+  _id: id,
+  _type: { _id: type },
+});
+
+describe.each(SKIPPED)(
+  'pull oauth2-agents leaves $agentType to $kind',
+  ({ agentType, plural, kind, make }) => {
+    const command = `"frodo config-manager pull ${kind}"`;
+
+    test('an entry is neither read nor written, and one warning names the realm, the id and the command', async () => {
+      readAgentByTypeAndId.mockResolvedValue(make('zion-agents'));
+      const file = configFile({
+        alpha: { [agentType]: [{ id: 'zion-agents' }] },
+      });
+
+      expect(await configManagerExportOAuth2Agents(file)).toBe(true);
+
+      expect(readAgentByTypeAndId).not.toHaveBeenCalled();
+      expect(savedFiles).toEqual([]);
+      expect(exists('realms')).toBe(false);
+      expect(warnings()).toEqual([
+        `WARN Skipping 1 ${agentType} entry of realm 'alpha' (zion-agents): ${plural} are pulled by ${command}.`,
+      ]);
     });
 
-    const outcome = await configManagerExportOAuth2Agents(file);
-
-    expect(outcome).toBe(true);
-    expect(readAgentByTypeAndId).toHaveBeenCalledTimes(1);
-    expect(readAgentByTypeAndId).toHaveBeenCalledWith(
-      'CIMDProfile',
-      'zion-agents'
-    );
-    const written = read(PROFILE_PATH('zion-agents'));
-    // the wrapped form of the single read, kept as it is
-    expect(written.cimdConfig.cimdClientIdUrlPatterns).toEqual({
-      inherited: false,
-      value: ['https://agents.example.com/*'],
-    });
-    expect(written._id).toBe('zion-agents');
-    expect(written._type._id).toBe('CIMDProfile');
-    expect(written).not.toHaveProperty('_rev');
-    expect(savedFiles).toEqual([
-      {
-        filename: path.join(tmp, PROFILE_PATH('zion-agents')),
-        includeMeta: false,
-        keepRev: false,
-        keepModifiedProperties: true,
-      },
-    ]);
-  });
-
-  test('row 1: a ${ in a value is written escaped, and the overrides are merged in', async () => {
-    readAgentByTypeAndId.mockResolvedValue(
-      cimdProfile('zion-agents', {
-        advancedOAuth2ClientConfig: {
-          clientUri: { value: 'https://${HOST}/' },
+    test('one warning per realm and type, not per entry, and the entries of other types in the same file are still pulled', async () => {
+      readAgentByTypeAndId.mockImplementation(async (type, id) =>
+        OTHER_AGENT(id, type)
+      );
+      const file = configFile({
+        alpha: {
+          [agentType]: [{ id: 'zion-one' }, { id: 'zion-two' }],
+          RemoteConsentAgent: [{ id: 'zion-consent' }],
         },
-      })
-    );
-    const file = configFile({
-      alpha: {
-        CIMDProfile: [
-          {
-            id: 'zion-agents',
-            overrides: {
-              coreOAuth2ClientConfig: { clientName: { value: 'Zion' } },
-            },
+        bravo: { [agentType]: [{ id: 'matrix-one' }] },
+      });
+
+      expect(await configManagerExportOAuth2Agents(file)).toBe(true);
+
+      expect(warnings()).toEqual([
+        `WARN Skipping 2 ${agentType} entries of realm 'alpha' (zion-one, zion-two): ${plural} are pulled by ${command}.`,
+        `WARN Skipping 1 ${agentType} entry of realm 'bravo' (matrix-one): ${plural} are pulled by ${command}.`,
+      ]);
+      expect(readAgentByTypeAndId.mock.calls).toEqual([
+        ['RemoteConsentAgent', 'zion-consent'],
+      ]);
+      expect(exists(AGENT_PATH('RemoteConsentAgent', 'zion-consent'))).toBe(
+        true
+      );
+      expect(exists(AGENT_PATH(agentType, 'zion-one'))).toBe(false);
+    });
+
+    test('an entry with overrides gets the extra sentence, one without does not, and the overrides are not applied', async () => {
+      const file = configFile({
+        alpha: {
+          [agentType]: [
+            { id: 'zion-one', overrides: { cimdConfig: { x: 1 } } },
+            { id: 'zion-two' },
+          ],
+        },
+        bravo: { [agentType]: [{ id: 'matrix-one' }] },
+      });
+
+      expect(await configManagerExportOAuth2Agents(file)).toBe(true);
+
+      expect(warnings()).toEqual([
+        `WARN Skipping 2 ${agentType} entries of realm 'alpha' (zion-one, zion-two): ${plural} are pulled by ${command}. Their overrides are not applied here: move them to the overrides file of that command (--config-file).`,
+        `WARN Skipping 1 ${agentType} entry of realm 'bravo' (matrix-one): ${plural} are pulled by ${command}.`,
+      ]);
+      expect(readAgentByTypeAndId).not.toHaveBeenCalled();
+    });
+
+    test('a skip is not an operation: the result is true, a read that would fail is never tried, --allow-failures makes no difference, and the failures of other types are counted without it', async () => {
+      readAgentByTypeAndId.mockImplementation(async (type, id) => {
+        throw new FrodoError(`cannot read ${type} ${id}`);
+      });
+      const only = configFile({ alpha: { [agentType]: [{ id: 'zion-one' }] } });
+
+      expect(await configManagerExportOAuth2Agents(only)).toBe(true);
+      const withoutFlag = output();
+      printed = [];
+      expect(await configManagerExportOAuth2Agents(only, true)).toBe(true);
+      expect(output()).toBe(withoutFlag);
+      expect(readAgentByTypeAndId).not.toHaveBeenCalled();
+      expect(withoutFlag).not.toContain('failed');
+
+      printed = [];
+      const mixed = configFile({
+        alpha: {
+          [agentType]: [{ id: 'zion-one' }, { id: 'zion-two' }],
+          RemoteConsentAgent: [{ id: 'zion-consent' }],
+        },
+      });
+      expect(await configManagerExportOAuth2Agents(mixed)).toBe(false);
+      // the two skipped entries are not in the count
+      expect(output()).toContain('1 of 1 agent failed');
+      expect(output()).toContain('alpha/RemoteConsentAgent/zion-consent');
+      expect(output()).not.toContain(`alpha/${agentType}`);
+      printed = [];
+      expect(await configManagerExportOAuth2Agents(mixed, true)).toBe(true);
+    });
+
+    test('the config file is never changed', async () => {
+      const file = configFile({
+        alpha: {
+          [agentType]: [{ id: 'zion-one', overrides: { a: '${B}' } }],
+        },
+      });
+      const before = fs.readFileSync(file);
+
+      expect(await configManagerExportOAuth2Agents(file)).toBe(true);
+
+      expect(fs.readFileSync(file).equals(before)).toBe(true);
+    });
+
+    test.each([
+      ['an empty list', []],
+      ['a value that is not a list', { id: 'zion-one' }],
+    ])('%s says nothing and reads nothing', async (_name, entries) => {
+      const file = configFile({ alpha: { [agentType]: entries } });
+
+      expect(await configManagerExportOAuth2Agents(file)).toBe(true);
+
+      expect(warnings()).toEqual([]);
+      expect(readAgentByTypeAndId).not.toHaveBeenCalled();
+    });
+
+    test('the skip does not depend on the deployment: Cloud, ForgeOps and classic skip a realm; ForgeOps and classic name the root realm "/"; the root realm of a Cloud tenant is left alone as before', async () => {
+      for (const shape of ['cloud', 'forgeops', 'classic']) {
+        deployment = shape;
+        printed = [];
+        const file = configFile({
+          '/': { [agentType]: [{ id: 'zion-root' }] },
+          alpha: { [agentType]: [{ id: 'zion-one' }] },
+        });
+
+        expect(await configManagerExportOAuth2Agents(file)).toBe(true);
+
+        expect(readAgentByTypeAndId).not.toHaveBeenCalled();
+        expect(exists('realms')).toBe(false);
+        const expected = [
+          `WARN Skipping 1 ${agentType} entry of realm 'alpha' (zion-one): ${plural} are pulled by ${command}.`,
+        ];
+        if (shape !== 'cloud') {
+          expected.unshift(
+            `WARN Skipping 1 ${agentType} entry of realm '/' (zion-root): ${plural} are pulled by ${command}.`
+          );
+        }
+        expect(warnings()).toEqual(expected);
+      }
+    });
+
+    describe('a tree that uses the application layout (folders)', () => {
+      beforeEach(() => {
+        write('frodo-config-manager.json', {
+          applications: 'folders',
+          formatVersion: 1,
+        });
+      });
+
+      test('the ownership of a realm is not read for these entries alone, and a failure to read it would not fail the command', async () => {
+        readApplicationOwnership.mockRejectedValue(
+          new FrodoError('cannot read the applications')
+        );
+        const file = configFile({
+          alpha: { [agentType]: [{ id: 'zion-agents' }] },
+        });
+
+        expect(await configManagerExportOAuth2Agents(file)).toBe(true);
+
+        expect(readApplicationOwnership).not.toHaveBeenCalled();
+        expect(output()).not.toContain('ownership of realm');
+        expect(warnings()).toHaveLength(1);
+      });
+
+      test('a realm that also has other types still reads the ownership once, and a client is still asked about its owner', async () => {
+        readAgentByTypeAndId.mockImplementation(async (type, id) =>
+          OTHER_AGENT(id, type)
+        );
+        const file = configFile({
+          alpha: {
+            [agentType]: [{ id: 'zion-agents' }],
+            OAuth2Client: [{ id: 'zion-client' }],
           },
-        ],
-      },
+        });
+
+        expect(await configManagerExportOAuth2Agents(file)).toBe(true);
+
+        expect(readApplicationOwnership).toHaveBeenCalledTimes(1);
+        expect(getApplicationOwners).toHaveBeenCalledTimes(1);
+        expect(readAgentByTypeAndId.mock.calls).toEqual([
+          ['OAuth2Client', 'zion-client'],
+        ]);
+      });
+    });
+  }
+);
+
+describe('pull oauth2-agents still handles the other types as before', () => {
+  test('every other type is read by type and id and written, with the overrides merged in and a ${ escaped', async () => {
+    readAgentByTypeAndId.mockImplementation(async (type, id) => ({
+      ...OTHER_AGENT(id, type),
+      note: 'https://${HOST}/',
+    }));
+    const types = [
+      'OAuth2Client',
+      'SoftwarePublisher',
+      'IdentityGatewayAgent',
+      'J2EEAgent',
+      'WebAgent',
+      '2.2_Agent',
+      'SharedAgent',
+      'RemoteConsentAgent',
+    ];
+    const file = configFile({
+      alpha: Object.fromEntries(
+        types.map((type) => [
+          type,
+          [{ id: 'zion', overrides: { extra: type } }],
+        ])
+      ),
     });
 
     expect(await configManagerExportOAuth2Agents(file)).toBe(true);
 
-    const raw = fs.readFileSync(
-      path.join(tmp, PROFILE_PATH('zion-agents')),
-      'utf8'
+    expect(readAgentByTypeAndId.mock.calls).toEqual(
+      types.map((type) => [type, 'zion'])
     );
-    expect(raw).toContain('\\\\${HOST}');
-    expect(JSON.parse(raw).coreOAuth2ClientConfig.clientName.value).toBe(
-      'Zion'
-    );
+    for (const type of types) {
+      const raw = fs.readFileSync(
+        path.join(tmp, AGENT_PATH(type, 'zion')),
+        'utf8'
+      );
+      expect(raw).toContain('\\\\${HOST}');
+      expect(JSON.parse(raw).extra).toBe(type);
+    }
+    expect(warnings()).toEqual([]);
   });
 
-  test('row 2: an override with an array replaces the profile array element by element, so one element changes only the first pattern', async () => {
-    readAgentByTypeAndId.mockResolvedValue({
-      ...cimdProfile('zion-agents'),
-      cimdConfig: {
-        cimdClientIdUrlPatterns: [
-          'https://agents.example.com/*',
-          'https://second.example.com/*',
-        ],
-      },
-    });
-    const file = configFile({
-      alpha: {
-        CIMDProfile: [
-          {
-            id: 'zion-agents',
-            overrides: {
-              cimdConfig: {
-                cimdClientIdUrlPatterns: ['https://${AGENT_HOST}/*'],
-              },
-            },
-          },
-        ],
-      },
-    });
-
-    expect(await configManagerExportOAuth2Agents(file)).toBe(true);
-
-    // documented behaviour of the overrides of every kind: the second pattern stays
-    expect(
-      read(PROFILE_PATH('zion-agents')).cimdConfig.cimdClientIdUrlPatterns
-    ).toEqual(['https://${AGENT_HOST}/*', 'https://second.example.com/*']);
-  });
-
-  test('row 3: a profile that cannot be read is one failed operation, the other agents are still pulled, and --allow-failures keeps the exit code at 0', async () => {
+  test('a type that cannot be read is one failed operation, the others are still pulled, and --allow-failures keeps the exit code at 0', async () => {
     readAgentByTypeAndId.mockImplementation(async (type, id) => {
-      if (type === 'CIMDProfile') throw new FrodoError(`cannot read ${id}`);
-      return { _id: id, _type: { _id: type } };
+      if (type === 'WebAgent') throw new FrodoError(`cannot read ${id}`);
+      return OTHER_AGENT(id, type);
     });
     const config = {
       alpha: {
-        CIMDProfile: [{ id: 'zion-agents' }],
+        WebAgent: [{ id: 'zion-web' }],
         RemoteConsentAgent: [{ id: 'zion-consent' }],
       },
     };
@@ -347,66 +521,19 @@ describe('pull oauth2-agents with a CIMD profile in the config file (rows 1 to 6
       false
     );
 
-    expect(exists(PROFILE_PATH('zion-agents'))).toBe(false);
-    expect(
-      exists(
-        'realms/alpha/realm-config/agents/RemoteConsentAgent/zion-consent.json'
-      )
-    ).toBe(true);
+    expect(exists(AGENT_PATH('WebAgent', 'zion-web'))).toBe(false);
+    expect(exists(AGENT_PATH('RemoteConsentAgent', 'zion-consent'))).toBe(true);
     expect(output()).toContain('1 of 2 agents failed');
-    expect(output()).toContain('alpha/CIMDProfile/zion-agents');
 
     printed = [];
     expect(
       await configManagerExportOAuth2Agents(configFile(config), true)
     ).toBe(true);
-    expect(output()).toContain('1 of 2 agents failed');
     expect(output()).toContain('The exit code stays 0');
   });
 
-  test.each(['cloud', 'forgeops', 'classic'])(
-    'row 4: a deployment that does not offer the type answers the read with a 404 and it is the same failed operation (%s)',
-    async (shape) => {
-      deployment = shape;
-      readAgentByTypeAndId.mockRejectedValue(
-        new FrodoError(
-          'Error reading agent zion-agents',
-          Object.assign(new Error("Resource 'CIMDProfile' not found"), {
-            httpStatus: 404,
-          })
-        )
-      );
-      // no check of the type list: the call is by type and id
-      const file = configFile({
-        alpha: { CIMDProfile: [{ id: 'zion-agents' }] },
-      });
-
-      expect(await configManagerExportOAuth2Agents(file)).toBe(false);
-
-      expect(readAgentByTypeAndId).toHaveBeenCalledTimes(1);
-      expect(output()).toContain('1 of 1 agent failed');
-      expect(output()).toContain('alpha/CIMDProfile/zion-agents');
-    }
-  );
-
-  test.each(['forgeops', 'classic'])(
-    'row 12 (pull): the root realm of %s is pulled into the folder root',
-    async (shape) => {
-      deployment = shape;
-      readAgentByTypeAndId.mockResolvedValue(cimdProfile('zion-agents'));
-      const file = configFile({
-        '/': { CIMDProfile: [{ id: 'zion-agents' }] },
-      });
-
-      expect(await configManagerExportOAuth2Agents(file)).toBe(true);
-
-      expect(currentRealm).toBe('/');
-      expect(exists(PROFILE_PATH('zion-agents', 'root'))).toBe(true);
-    }
-  );
-
-  test('row 5: the root realm of a Cloud tenant is skipped, nothing is read', async () => {
-    const file = configFile({ '/': { CIMDProfile: [{ id: 'zion-agents' }] } });
+  test('the root realm of a Cloud tenant is skipped, nothing is read', async () => {
+    const file = configFile({ '/': { WebAgent: [{ id: 'zion-web' }] } });
 
     expect(await configManagerExportOAuth2Agents(file)).toBe(true);
 
@@ -414,7 +541,23 @@ describe('pull oauth2-agents with a CIMD profile in the config file (rows 1 to 6
     expect(exists('realms/root')).toBe(false);
   });
 
-  describe('row 6: a tree that uses the application layout (folders)', () => {
+  test.each(['forgeops', 'classic'])(
+    'the root realm of %s is pulled into the folder root',
+    async (shape) => {
+      deployment = shape;
+      readAgentByTypeAndId.mockResolvedValue(
+        OTHER_AGENT('zion-web', 'WebAgent')
+      );
+      const file = configFile({ '/': { WebAgent: [{ id: 'zion-web' }] } });
+
+      expect(await configManagerExportOAuth2Agents(file)).toBe(true);
+
+      expect(currentRealm).toBe('/');
+      expect(exists(AGENT_PATH('WebAgent', 'zion-web', 'root'))).toBe(true);
+    }
+  );
+
+  describe('in a tree that uses the application layout (folders)', () => {
     beforeEach(() => {
       write('frodo-config-manager.json', {
         applications: 'folders',
@@ -422,100 +565,249 @@ describe('pull oauth2-agents with a CIMD profile in the config file (rows 1 to 6
       });
     });
 
-    test('the ownership of the realm is read once, even when every entry is a CIMD profile, and a profile is never asked about an owner', async () => {
-      readAgentByTypeAndId.mockResolvedValue(cimdProfile('zion-agents'));
-      const file = configFile({
-        alpha: {
-          CIMDProfile: [{ id: 'zion-agents' }, { id: 'zion-other' }],
-        },
-      });
-
-      expect(await configManagerExportOAuth2Agents(file)).toBe(true);
-
-      expect(readApplicationOwnership).toHaveBeenCalledTimes(1);
-      // only an OAuth2 client can be owned
-      expect(getApplicationOwners).not.toHaveBeenCalled();
-      expect(exists(PROFILE_PATH('zion-agents'))).toBe(true);
-      expect(exists(PROFILE_PATH('zion-other'))).toBe(true);
-    });
-
-    test('a failure to read the ownership is recorded as a failed operation and fails the command, although a profile can never be owned (an existing quirk, pinned, not CIMD-specific)', async () => {
+    test('a failure to read the ownership is recorded as a failed operation and fails the command, although another type is pulled (an existing quirk, pinned)', async () => {
       readApplicationOwnership.mockRejectedValue(
         new FrodoError('cannot read the applications')
       );
-      readAgentByTypeAndId.mockResolvedValue(cimdProfile('zion-agents'));
+      readAgentByTypeAndId.mockResolvedValue(
+        OTHER_AGENT('zion-consent', 'RemoteConsentAgent')
+      );
       const file = configFile({
-        alpha: { CIMDProfile: [{ id: 'zion-agents' }] },
+        alpha: { RemoteConsentAgent: [{ id: 'zion-consent' }] },
       });
 
       expect(await configManagerExportOAuth2Agents(file)).toBe(false);
 
       expect(output()).toContain('ownership of realm alpha');
-      // the profile itself was still pulled
-      expect(exists(PROFILE_PATH('zion-agents'))).toBe(true);
+      expect(exists(AGENT_PATH('RemoteConsentAgent', 'zion-consent'))).toBe(
+        true
+      );
     });
   });
 });
 
-describe('push oauth2-agents with CIMD profile files in the tree (rows 9 to 12, 16, 17)', () => {
-  test('row 9: every file of every type folder is pushed, a CIMD profile with importAgent(id, {agent: {id: object}}, false) and without _id and _rev', async () => {
-    write(PROFILE_PATH('zion-agents'), cimdProfile('zion-agents'));
-    write('realms/alpha/realm-config/agents/OAuth2Client/zion-client.json', {
-      _id: 'zion-client',
-      _type: { _id: 'OAuth2Client' },
+describe.each(SKIPPED)(
+  'push oauth2-agents leaves $agentType to $kind',
+  ({ agentType, kind, make }) => {
+    const command = `"frodo config-manager push ${kind}"`;
+
+    test('the files of the folder are not imported, and one warning counts them and names the command', async () => {
+      write(AGENT_PATH(agentType, 'zion-one'), make('zion-one'));
+      write(AGENT_PATH(agentType, 'zion-two'), make('zion-two'));
+      write(`realms/alpha/realm-config/agents/${agentType}/notes.txt`, 'x');
+
+      expect(await configManagerImportAgents()).toBe(true);
+
+      expect(importAgent).not.toHaveBeenCalled();
+      expect(warnings()).toEqual([
+        `WARN Skipping the 2 ${agentType} file(s) of realm 'alpha': they are pushed by ${command}.`,
+      ]);
     });
+
+    test('the files of other types in the same realm are still imported, and one warning per realm and type', async () => {
+      write(AGENT_PATH(agentType, 'zion-one'), make('zion-one'));
+      write(AGENT_PATH(agentType, 'matrix-one', 'bravo'), make('matrix-one'));
+      write(
+        AGENT_PATH('OAuth2Client', 'zion-client'),
+        OTHER_AGENT('zion-client', 'OAuth2Client')
+      );
+
+      expect(await configManagerImportAgents()).toBe(true);
+
+      expect(importAgent).toHaveBeenCalledTimes(1);
+      expect(importAgent.mock.calls[0][0]).toBe('zion-client');
+      expect(warnings().sort()).toEqual([
+        `WARN Skipping the 1 ${agentType} file(s) of realm 'alpha': they are pushed by ${command}.`,
+        `WARN Skipping the 1 ${agentType} file(s) of realm 'bravo': they are pushed by ${command}.`,
+      ]);
+    });
+
+    test('nothing in the folder is read: a file that cannot be parsed and one with a placeholder without a value fail nothing', async () => {
+      write(AGENT_PATH(agentType, 'broken'), '{ not json');
+      write(
+        AGENT_PATH(agentType, 'placeholder'),
+        make('placeholder', { note: 'https://${NOT_SET}/' })
+      );
+
+      expect(await configManagerImportAgents()).toBe(true);
+      expect(await configManagerImportAgents(true)).toBe(true);
+
+      expect(importAgent).not.toHaveBeenCalled();
+      expect(output()).not.toContain('NOT_SET');
+      expect(output()).not.toContain('failed');
+    });
+
+    test('a skip is not an operation: failures of other types are counted without it, and --allow-failures makes no difference to the skip', async () => {
+      write(AGENT_PATH(agentType, 'zion-one'), make('zion-one'));
+      write(AGENT_PATH(agentType, 'zion-two'), make('zion-two'));
+      write(
+        AGENT_PATH('OAuth2Client', 'zion-client'),
+        OTHER_AGENT('zion-client', 'OAuth2Client')
+      );
+      importAgent.mockRejectedValue(new FrodoError('cannot import'));
+
+      expect(await configManagerImportAgents()).toBe(false);
+      expect(output()).toContain('1 of 1 agent failed');
+      expect(output()).toContain(`alpha/OAuth2Client/zion-client.json`);
+      expect(output()).not.toContain(`alpha/${agentType}`);
+
+      printed = [];
+      expect(await configManagerImportAgents(true)).toBe(true);
+      expect(importAgent).toHaveBeenCalledTimes(2);
+    });
+
+    test('an empty folder, and a stray file where the folder would be, say nothing and add no failure', async () => {
+      fs.mkdirSync(
+        path.join(tmp, `realms/alpha/realm-config/agents/${agentType}`),
+        {
+          recursive: true,
+        }
+      );
+      write(
+        `realms/bravo/realm-config/agents/${agentType}`,
+        'a file, not a folder'
+      );
+
+      expect(await configManagerImportAgents()).toBe(true);
+
+      expect(warnings()).toEqual([]);
+      expect(importAgent).not.toHaveBeenCalled();
+    });
+
+    test('the skip does not depend on the deployment: the root realm of a Cloud tenant is left alone as before, ForgeOps and classic name it "/"', async () => {
+      for (const shape of ['cloud', 'forgeops', 'classic']) {
+        deployment = shape;
+        printed = [];
+        write(AGENT_PATH(agentType, 'zion-root', 'root'), make('zion-root'));
+        write(AGENT_PATH(agentType, 'zion-one'), make('zion-one'));
+
+        expect(await configManagerImportAgents()).toBe(true);
+
+        expect(importAgent).not.toHaveBeenCalled();
+        const expected = [
+          `WARN Skipping the 1 ${agentType} file(s) of realm 'alpha': they are pushed by ${command}.`,
+        ];
+        if (shape !== 'cloud') {
+          expected.push(
+            `WARN Skipping the 1 ${agentType} file(s) of realm '/': they are pushed by ${command}.`
+          );
+        }
+        expect(warnings().sort()).toEqual(expected.sort());
+      }
+    });
+
+    test('no file of the tree is changed', async () => {
+      const target = write(AGENT_PATH(agentType, 'zion-one'), make('zion-one'));
+      const before = fs.readFileSync(target);
+
+      expect(await configManagerImportAgents()).toBe(true);
+
+      expect(fs.readFileSync(target).equals(before)).toBe(true);
+    });
+
+    describe('a tree that uses the application layout (folders)', () => {
+      beforeEach(() => {
+        write('frodo-config-manager.json', {
+          applications: 'folders',
+          formatVersion: 1,
+        });
+        // an application folder that cannot be read: it fails the client files of its realm
+        write(
+          'realms/alpha/applications/Broken/application.json',
+          '{ not json'
+        );
+      });
+
+      test('the application folders are not read for these files alone, so a broken one fails nothing', async () => {
+        write(AGENT_PATH(agentType, 'zion-one'), make('zion-one'));
+
+        expect(await configManagerImportAgents()).toBe(true);
+
+        expect(output()).not.toContain('application folders of realm');
+        expect(warnings()).toHaveLength(1);
+      });
+
+      test('a realm that also has other types still reads them, and the broken folder fails the clients as before', async () => {
+        write(AGENT_PATH(agentType, 'zion-one'), make('zion-one'));
+        write(
+          AGENT_PATH('OAuth2Client', 'zion-client'),
+          OTHER_AGENT('zion-client', 'OAuth2Client')
+        );
+
+        expect(await configManagerImportAgents()).toBe(false);
+
+        expect(output()).toContain('application folders of realm alpha');
+        expect(importAgent).not.toHaveBeenCalled();
+      });
+    });
+  }
+);
+
+describe('push oauth2-agents still handles the other types as before', () => {
+  test('every file of every other type folder is pushed with importAgent(id, {agent: {id: object}}, false) and without _id and _rev', async () => {
+    const types = [
+      'OAuth2Client',
+      'SoftwarePublisher',
+      'WebAgent',
+      'RemoteConsentAgent',
+    ];
+    for (const type of types) {
+      write(AGENT_PATH(type, `zion-${type}`), {
+        ...OTHER_AGENT(`zion-${type}`, type),
+        _rev: '-1',
+      });
+    }
 
     expect(await configManagerImportAgents()).toBe(true);
 
-    expect(importAgent).toHaveBeenCalledTimes(2);
-    const call = importAgent.mock.calls.find(([id]) => id === 'zion-agents');
-    expect(call[2]).toBe(false);
-    expect(Object.keys(call[1].agent)).toEqual(['zion-agents']);
-    const pushed = call[1].agent['zion-agents'];
-    expect(pushed).not.toHaveProperty('_id');
-    expect(pushed).not.toHaveProperty('_rev');
-    // the type travels in the object: the library routes by `_type._id`
-    expect(pushed._type._id).toBe('CIMDProfile');
-    expect(pushed.cimdConfig).toEqual(cimdProfile('x').cimdConfig);
-    expect(importAgent.mock.calls.some(([id]) => id === 'zion-client')).toBe(
-      true
-    );
+    expect(importAgent).toHaveBeenCalledTimes(types.length);
+    for (const type of types) {
+      const call = importAgent.mock.calls.find(([id]) => id === `zion-${type}`);
+      expect(call[2]).toBe(false);
+      expect(Object.keys(call[1].agent)).toEqual([`zion-${type}`]);
+      expect(call[1].agent[`zion-${type}`]).not.toHaveProperty('_id');
+      expect(call[1].agent[`zion-${type}`]).not.toHaveProperty('_rev');
+      expect(call[1].agent[`zion-${type}`]._type._id).toBe(type);
+    }
+    expect(warnings()).toEqual([]);
   });
 
-  test('row 11: a ${NAME} without an environment variable fails that file by name and nothing is sent for it; the other files are still pushed', async () => {
+  test('a ${NAME} without an environment variable fails that file by name and nothing is sent for it; the other files are still pushed', async () => {
+    write(AGENT_PATH('WebAgent', 'zion-web'), {
+      ...OTHER_AGENT('zion-web', 'WebAgent'),
+      note: 'https://${NAME}/',
+    });
     write(
-      PROFILE_PATH('zion-agents'),
-      cimdProfile('zion-agents', {
-        advancedOAuth2ClientConfig: { clientUri: 'https://${NAME}/' },
-      })
+      AGENT_PATH('WebAgent', 'zion-other'),
+      OTHER_AGENT('zion-other', 'WebAgent')
     );
-    write(PROFILE_PATH('zion-other'), cimdProfile('zion-other'));
 
     expect(await configManagerImportAgents()).toBe(false);
 
     expect(importAgent).toHaveBeenCalledTimes(1);
     expect(importAgent.mock.calls[0][0]).toBe('zion-other');
     expect(output()).toContain('No value found for placeholder "NAME"');
-    expect(output()).toContain('alpha/CIMDProfile/zion-agents.json');
+    expect(output()).toContain('alpha/WebAgent/zion-web.json');
 
-    // with the variable set the same file is pushed with the value filled in
     importAgent.mockClear();
     printed = [];
     environment.NAME = 'agents.example.com';
     expect(await configManagerImportAgents()).toBe(true);
-    const pushed = importAgent.mock.calls.find(
-      ([id]) => id === 'zion-agents'
-    )[1].agent['zion-agents'];
-    expect(pushed.advancedOAuth2ClientConfig.clientUri).toBe(
-      'https://agents.example.com/'
-    );
+    expect(
+      importAgent.mock.calls.find(([id]) => id === 'zion-web')[1].agent[
+        'zion-web'
+      ].note
+    ).toBe('https://agents.example.com/');
   });
 
-  test('row 10: a file without _type cannot be routed by the library; the item is a named failure and the others still run', async () => {
-    const withoutType = cimdProfile('zion-agents');
+  test('a file without _type cannot be routed by the library; the item is a named failure and the others still run', async () => {
+    const withoutType = OTHER_AGENT('zion-web', 'WebAgent');
     delete withoutType._type;
-    write(PROFILE_PATH('zion-agents'), withoutType);
-    write(PROFILE_PATH('zion-other'), cimdProfile('zion-other'));
+    write(AGENT_PATH('WebAgent', 'zion-web'), withoutType);
+    write(
+      AGENT_PATH('WebAgent', 'zion-other'),
+      OTHER_AGENT('zion-other', 'WebAgent')
+    );
     importAgent.mockImplementation(async (id, data) => {
       // the library reads `importData.agent[agentId]?._type._id`
       if (!data.agent[id]._type) {
@@ -528,30 +820,14 @@ describe('push oauth2-agents with CIMD profile files in the tree (rows 9 to 12, 
 
     expect(importAgent).toHaveBeenCalledTimes(2);
     expect(output()).toContain('1 of 2 agents failed');
-    expect(output()).toContain('alpha/CIMDProfile/zion-agents.json');
+    expect(output()).toContain('alpha/WebAgent/zion-web.json');
   });
 
-  test('rows 16 and 17: a sparse file is pushed with one importAgent call that is not repaired afterwards, and the id is passed as it is, not encoded', async () => {
-    // comment-documented characterisation: the server completes a profile it creates (201),
-    // and the generic kind never sends the file a second time
-    write(PROFILE_PATH('Zion (Agents)'), {
-      _id: 'Zion (Agents)',
-      _type: { _id: 'CIMDProfile' },
-      cimdConfig: { cimdClientIdUrlPatterns: ['https://agents.example.com/*'] },
-    });
-    importAgent.mockResolvedValue({ status: 201 });
-
-    expect(await configManagerImportAgents()).toBe(true);
-
-    expect(importAgent).toHaveBeenCalledTimes(1);
-    expect(importAgent.mock.calls[0][0]).toBe('Zion (Agents)');
-    expect(Object.keys(importAgent.mock.calls[0][1].agent)).toEqual([
-      'Zion (Agents)',
-    ]);
-  });
-
-  test('row 12: the root realm folder of a Cloud tenant is skipped', async () => {
-    write(PROFILE_PATH('zion-agents', 'root'), cimdProfile('zion-agents'));
+  test('the root realm folder of a Cloud tenant is skipped', async () => {
+    write(
+      AGENT_PATH('WebAgent', 'zion-web', 'root'),
+      OTHER_AGENT('zion-web', 'WebAgent')
+    );
 
     expect(await configManagerImportAgents()).toBe(true);
 
@@ -559,10 +835,13 @@ describe('push oauth2-agents with CIMD profile files in the tree (rows 9 to 12, 
   });
 
   test.each(['forgeops', 'classic'])(
-    'row 12: the root realm folder of %s is pushed as the realm /',
+    'the root realm folder of %s is pushed as the realm /',
     async (shape) => {
       deployment = shape;
-      write(PROFILE_PATH('zion-agents', 'root'), cimdProfile('zion-agents'));
+      write(
+        AGENT_PATH('WebAgent', 'zion-web', 'root'),
+        OTHER_AGENT('zion-web', 'WebAgent')
+      );
 
       expect(await configManagerImportAgents()).toBe(true);
 
@@ -571,8 +850,11 @@ describe('push oauth2-agents with CIMD profile files in the tree (rows 9 to 12, 
     }
   );
 
-  test('a stray file where a type folder would be fails the whole run, not just that file (an existing quirk of the generic kind, pinned, not CIMD-specific)', async () => {
-    write(PROFILE_PATH('zion-agents'), cimdProfile('zion-agents'));
+  test('a stray file where a type folder would be fails the whole run, not just that file (an existing quirk of the generic kind, pinned)', async () => {
+    write(
+      AGENT_PATH('WebAgent', 'zion-web'),
+      OTHER_AGENT('zion-web', 'WebAgent')
+    );
     write('realms/alpha/realm-config/agents/notes.json', {});
 
     expect(await configManagerImportAgents()).toBe(false);
@@ -584,59 +866,5 @@ describe('push oauth2-agents with CIMD profile files in the tree (rows 9 to 12, 
     expect(await configManagerImportAgents()).toBe(false);
     expect(output()).toContain('No realms folder found');
     expect(importAgent).not.toHaveBeenCalled();
-  });
-});
-
-/**
- * The same rows for the agent type `TrustedJwtIssuer` (frodo-cli#1259, step 1:
- * characterise first). The committed file of the e2e tree is the content of
- * the object as `pull oauth2-agents` writes it today; these cases pass on the
- * code before the skip and are changed by the commit that adds it.
- */
-const ISSUER_FIXTURE = JSON.parse(
-  fs.readFileSync(
-    path.resolve(
-      root,
-      'test/e2e/exports/fr-config-manager/forgeops/realms/alpha/realm-config/agents/TrustedJwtIssuer/testJWT.json'
-    ),
-    'utf8'
-  )
-);
-
-const ISSUER_PATH = (id, realm = 'alpha') =>
-  `realms/${realm}/realm-config/agents/TrustedJwtIssuer/${id}.json`;
-
-describe('the agent type TrustedJwtIssuer in the generic kind today (frodo-cli#1259)', () => {
-  test('pull: an entry is read by type and id and written as the committed testJWT.json, without _rev', async () => {
-    readAgentByTypeAndId.mockResolvedValue({ ...ISSUER_FIXTURE, _rev: '-77' });
-    const file = configFile({
-      alpha: { TrustedJwtIssuer: [{ id: 'testJWT' }] },
-    });
-
-    expect(await configManagerExportOAuth2Agents(file)).toBe(true);
-
-    expect(readAgentByTypeAndId).toHaveBeenCalledTimes(1);
-    expect(readAgentByTypeAndId).toHaveBeenCalledWith(
-      'TrustedJwtIssuer',
-      'testJWT'
-    );
-    expect(read(ISSUER_PATH('testJWT'))).toEqual(ISSUER_FIXTURE);
-  });
-
-  test('push: a file of the folder is imported with the object minus _id and _rev, and the type travels in _type', async () => {
-    write(ISSUER_PATH('testJWT'), { ...ISSUER_FIXTURE, _rev: '-77' });
-
-    expect(await configManagerImportAgents()).toBe(true);
-
-    expect(importAgent).toHaveBeenCalledTimes(1);
-    const [id, data, flag] = importAgent.mock.calls[0];
-    expect(id).toBe('testJWT');
-    expect(flag).toBe(false);
-    expect(Object.keys(data.agent)).toEqual(['testJWT']);
-    const pushed = data.agent.testJWT;
-    expect(pushed).not.toHaveProperty('_id');
-    expect(pushed).not.toHaveProperty('_rev');
-    expect(pushed._type._id).toBe('TrustedJwtIssuer');
-    expect(pushed.issuer).toEqual(ISSUER_FIXTURE.issuer);
   });
 });

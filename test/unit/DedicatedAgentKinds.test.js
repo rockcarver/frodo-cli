@@ -118,7 +118,7 @@ describe('the messages', () => {
     ]);
     expect(without).not.toContain('overrides');
     expect(withOverrides).toBe(
-      `${without} Their overrides are not applied here: move them to the overrides file of that command (-f).`
+      `${without} Their overrides are not applied here: move them to the overrides file of that command (--config-file).`
     );
     expect(
       skippedEntriesMessage('alpha', 'CIMDProfile', [
