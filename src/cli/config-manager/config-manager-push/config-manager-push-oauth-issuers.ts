@@ -13,7 +13,7 @@ export default function setup() {
   program
     .summary('Import trusted JWT issuers from the files written by pull.')
     .description(
-      'Import OAuth2 trusted JWT issuers from the files realms/<realm>/realm-config/agents/TrustedJwtIssuer/<name>.json that "pull oauth-issuers" and "pull oauth2-agents" write, from the working directory (-D). An issuer that does not exist is created and one that does is replaced by the file. Each ${NAME} in a file is filled from -E/--env NAME=value or from --env-file (-E wins); the environment variables of the process are not read. No issuer is ever deleted. A trusted JWT issuer is a trust anchor: a JWT signed by it is accepted as a grant, so read the files before you push them.'
+      'Import OAuth2 trusted JWT issuers from the files realms/<realm>/realm-config/agents/TrustedJwtIssuer/<name>.json that "pull oauth-issuers" and "pull oauth2-agents" write, from the working directory (-D). An issuer that does not exist is created and one that does is replaced by the file. Each ${NAME} in a file is filled from -E/--env NAME=value, else from --env-file, else from the environment variable NAME of the process (a file that names a variable copies its value into what is pushed). No issuer is ever deleted. A trusted JWT issuer is a trust anchor: a JWT signed by it is accepted as a grant, so read the files before you push them.'
     )
     .addOption(
       new Option(
