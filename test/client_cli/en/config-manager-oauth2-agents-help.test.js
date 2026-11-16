@@ -41,6 +41,27 @@ describe.each(['pull', 'push'])(
       );
       expect(text).toContain('skipped here with a warning');
     });
+
+    test('does not list a type that has a kind of its own among the types it handles', () => {
+      // the sentence that lists the handled types ends where the sentence about the three types begins
+      const start = text.indexOf(
+        verb === 'pull'
+          ? 'Agent types:'
+          : 'The folders of these agent types are pushed:'
+      );
+      const end = text.indexOf('The agent types CIMDProfile');
+      expect(start).toBeGreaterThanOrEqual(0);
+      expect(end).toBeGreaterThan(start);
+      const handled = text.slice(start, end);
+      expect(handled).toContain('RemoteConsentAgent');
+      for (const agentType of [
+        'CIMDProfile',
+        'TrustedJwtIssuer',
+        'SoftwarePublisher',
+      ]) {
+        expect(handled).not.toContain(agentType);
+      }
+    });
   }
 );
 
