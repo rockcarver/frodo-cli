@@ -81,17 +81,6 @@ export default function setup() {
         '        }\n' +
         '      }\n' +
         '    ],\n' +
-        '    "SoftwarePublisher": [\n' +
-        '      {\n' +
-        '        "id": "My Publisher",\n' +
-        '        "overrides": {\n' +
-        '          "jwksUri": {\n' +
-        '            "inherited": false,\n' +
-        '            "value": "\\${MY_PUBLISHER_JWKS_URI}"\n' +
-        '          }\n' +
-        '        }\n' +
-        '      }\n' +
-        '    ],\n' +
         '    "J2EEAgent": [\n' +
         '      {\n' +
         '        "id": "my-java-agent",\n' +
@@ -115,8 +104,8 @@ export default function setup() {
     )
     .addHelpText(
       'after',
-      '\nAgent types: IdentityGatewayAgent, J2EEAgent, WebAgent, 2.2_Agent and SharedAgent (these have a password: use an override with a placeholder, as in the example), OAuth2Client, RemoteConsentAgent, SoftwarePublisher, SoapSTSAgent (it exists only in classic deployments) and OAuth2Thing (it exists only where the deployment has enabled it).\n' +
-        'The agent types CIMDProfile and TrustedJwtIssuer have a kind of their own: "frodo config-manager pull oauth-cimd-profiles" and "frodo config-manager pull oauth-issuers". An entry of either type in this file is skipped here with a warning and its overrides are not applied; the file is not changed. Move the entry to the overrides file of that command (--config-file).\n' +
+      '\nAgent types: IdentityGatewayAgent, J2EEAgent, WebAgent, 2.2_Agent and SharedAgent (these have a password: use an override with a placeholder, as in the example), OAuth2Client, RemoteConsentAgent, SoapSTSAgent (it exists only in classic deployments) and OAuth2Thing (it exists only where the deployment has enabled it).\n' +
+        'The agent types CIMDProfile, TrustedJwtIssuer and SoftwarePublisher have a kind of their own: "frodo config-manager pull oauth-cimd-profiles", "frodo config-manager pull oauth-issuers" and "frodo config-manager pull oauth-software-publishers". An entry of one of these types in this file is skipped here with a warning and its overrides are not applied; the file is not changed. Move the entry to the overrides file of that command (--config-file).\n' +
         'An entry you write is a request: if the deployment cannot serve its type (for example OAuth2Thing where it is not enabled), that entry fails with the text of the server, the other entries are still pulled, and the command exits with 1 unless --allow-failures is given. The kind for CIMD profiles is different: a deployment that does not have them is nothing to do (a note, exit code 0) unless a name is given.\n'
     )
     .addHelpText('after', ownedObjectsHelp('OAuth2 clients'))

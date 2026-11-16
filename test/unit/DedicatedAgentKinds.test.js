@@ -23,13 +23,19 @@ const {
   OAUTH_ISSUERS_KIND,
   TRUSTED_JWT_ISSUER_KIND,
 } = await import('../../src/ops/OAuth2TrustedJwtIssuerConfigOps.ts');
+const {
+  SOFTWARE_PUBLISHER_AGENT_TYPE,
+  OAUTH_SOFTWARE_PUBLISHERS_KIND,
+  SOFTWARE_PUBLISHER_KIND,
+} = await import('../../src/ops/SoftwarePublisherConfigOps.ts');
 
 const commandNames = new Set(leaves.map(fullName));
 
 describe('the table of agent types with a kind of their own', () => {
-  it('has the two types that have a kind today, and no other', () => {
+  it('has the three types that have a kind today, and no other', () => {
     expect(Object.keys(DEDICATED_AGENT_KINDS).sort()).toEqual([
       'CIMDProfile',
+      'SoftwarePublisher',
       'TrustedJwtIssuer',
     ]);
   });
@@ -55,6 +61,12 @@ describe('the table of agent types with a kind of their own', () => {
     expect(DEDICATED_AGENT_KINDS[TRUSTED_JWT_ISSUER_AGENT_TYPE].plural).toBe(
       TRUSTED_JWT_ISSUER_KIND.plural
     );
+    expect(DEDICATED_AGENT_KINDS[SOFTWARE_PUBLISHER_AGENT_TYPE].kind).toBe(
+      OAUTH_SOFTWARE_PUBLISHERS_KIND
+    );
+    expect(DEDICATED_AGENT_KINDS[SOFTWARE_PUBLISHER_AGENT_TYPE].plural).toBe(
+      SOFTWARE_PUBLISHER_KIND.plural
+    );
   });
 
   it('is not a table of prototype members: toString and constructor have no kind', () => {
@@ -65,7 +77,6 @@ describe('the table of agent types with a kind of their own', () => {
 
   it.each([
     'OAuth2Client',
-    'SoftwarePublisher',
     'IdentityGatewayAgent',
     'J2EEAgent',
     'WebAgent',
@@ -81,6 +92,9 @@ describe('the table of agent types with a kind of their own', () => {
   it('answers with the name of the kind', () => {
     expect(skippedForDedicatedKind('CIMDProfile')).toBe('oauth-cimd-profiles');
     expect(skippedForDedicatedKind('TrustedJwtIssuer')).toBe('oauth-issuers');
+    expect(skippedForDedicatedKind('SoftwarePublisher')).toBe(
+      'oauth-software-publishers'
+    );
   });
 });
 
@@ -125,6 +139,21 @@ describe('the messages', () => {
         { id: 'a', overrides: { x: 1 } },
       ])
     ).toContain(' Its overrides are not applied here');
+  });
+
+  it('names the software publishers and their pull command', () => {
+    expect(
+      skippedEntriesMessage('alpha', 'SoftwarePublisher', [
+        { id: 'zion-publisher' },
+      ])
+    ).toBe(
+      `Skipping 1 SoftwarePublisher entry of realm 'alpha' (zion-publisher): ` +
+        `software publishers are pulled by "frodo config-manager pull oauth-software-publishers".`
+    );
+    expect(skippedFilesMessage('bravo', 'SoftwarePublisher', 2)).toBe(
+      `Skipping the 2 SoftwarePublisher file(s) of realm 'bravo': ` +
+        `they are pushed by "frodo config-manager push oauth-software-publishers".`
+    );
   });
 
   it('counts the files and names the push command', () => {

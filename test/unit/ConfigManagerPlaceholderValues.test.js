@@ -51,11 +51,13 @@ describe('the help says where the values come from', () => {
   const ANSI = /\x1b\[[0-9;]*m/g;
   // the push commands whose files hold ${NAME} placeholders say where the values come from
   // (push oauth2-agents: the passwords of the agents that have one, frodo-cli#1342)
-  const FOUR = [
+  const KINDS = [
     'frodo config-manager pull oauth-issuers',
     'frodo config-manager push oauth-issuers',
     'frodo config-manager pull oauth-cimd-profiles',
     'frodo config-manager push oauth-cimd-profiles',
+    'frodo config-manager pull oauth-software-publishers',
+    'frodo config-manager push oauth-software-publishers',
     'frodo config-manager push oauth2-agents',
   ];
   const originalArgv = process.argv;
@@ -67,7 +69,7 @@ describe('the help says where the values come from', () => {
     try {
       const { leaves } = await loadCommandTree();
       for (const leaf of leaves) {
-        if (FOUR.includes(fullName(leaf))) {
+        if (KINDS.includes(fullName(leaf))) {
           // the help wraps lines: compare the words
           helps.set(
             fullName(leaf),
@@ -81,10 +83,10 @@ describe('the help says where the values come from', () => {
   });
 
   it('finds the commands', () => {
-    expect([...helps.keys()].sort()).toEqual([...FOUR].sort());
+    expect([...helps.keys()].sort()).toEqual([...KINDS].sort());
   });
 
-  it.each(FOUR)('%s says it with one shared rule', (name) => {
+  it.each(KINDS)('%s says it with one shared rule', (name) => {
     const help = helps.get(name);
     expect(help).toContain(PLACEHOLDER_VALUES_RULE);
     // the wording that read like the process environment is gone

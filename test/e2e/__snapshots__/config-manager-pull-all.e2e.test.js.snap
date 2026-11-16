@@ -25671,42 +25671,6 @@ exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2
 }
 `;
 
-exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2e/fr-config-manager-pull-config -D allDir1": should export all config in alpha realm in fr-config-manager style": allDir1/realms/alpha/realm-config/agents/SoftwarePublisher/test software publisher.json 1`] = `
-{
-  "_id": "test software publisher",
-  "_type": {
-    "_id": "SoftwarePublisher",
-    "collection": true,
-    "name": "OAuth2 Software Publisher",
-  },
-  "issuer": {
-    "inherited": false,
-  },
-  "jwkSet": {
-    "inherited": false,
-  },
-  "jwkStoreCacheMissCacheTime": {
-    "inherited": false,
-    "value": 60000,
-  },
-  "jwksCacheTimeout": {
-    "inherited": false,
-    "value": 3600000,
-  },
-  "jwksUri": {
-    "inherited": false,
-  },
-  "publicKeyLocation": {
-    "inherited": false,
-    "value": "jwks_uri",
-  },
-  "softwareStatementSigningAlgorithm": {
-    "inherited": false,
-    "value": "RS256",
-  },
-}
-`;
-
 exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2e/fr-config-manager-pull-config -D allDir1": should export all config in alpha realm in fr-config-manager style": allDir1/realms/alpha/realm-config/agents/WebAgent/frodo-test-web-agent.json 1`] = `
 {
   "_id": "frodo-test-web-agent",
@@ -47800,42 +47764,6 @@ exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2
 }
 `;
 
-exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2e/fr-config-manager-pull-config -D allDir2 -m forgeops": should export all config in fr-config-manager style": allDir2/realms/alpha/realm-config/agents/SoftwarePublisher/test software publisher.json 1`] = `
-{
-  "_id": "test software publisher",
-  "_type": {
-    "_id": "SoftwarePublisher",
-    "collection": true,
-    "name": "OAuth2 Software Publisher",
-  },
-  "issuer": {
-    "inherited": false,
-  },
-  "jwkSet": {
-    "inherited": false,
-  },
-  "jwkStoreCacheMissCacheTime": {
-    "inherited": false,
-    "value": 60000,
-  },
-  "jwksCacheTimeout": {
-    "inherited": false,
-    "value": 3600000,
-  },
-  "jwksUri": {
-    "inherited": false,
-  },
-  "publicKeyLocation": {
-    "inherited": false,
-    "value": "jwks_uri",
-  },
-  "softwareStatementSigningAlgorithm": {
-    "inherited": false,
-    "value": "RS256",
-  },
-}
-`;
-
 exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2e/fr-config-manager-pull-config -D allDir2 -m forgeops": should export all config in fr-config-manager style": allDir2/realms/alpha/realm-config/agents/WebAgent/frodo-test-web-agent.json 1`] = `
 {
   "_id": "frodo-test-web-agent",
@@ -55948,42 +55876,6 @@ exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2
     "value": "Active",
   },
   "userpassword": "\${SHARED_AGENT_PASSWORD}",
-}
-`;
-
-exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2e/fr-config-manager-pull-config -D allDir2 -m forgeops": should export all config in fr-config-manager style": allDir2/realms/bravo/realm-config/agents/SoftwarePublisher/test software publisher.json 1`] = `
-{
-  "_id": "test software publisher",
-  "_type": {
-    "_id": "SoftwarePublisher",
-    "collection": true,
-    "name": "OAuth2 Software Publisher",
-  },
-  "issuer": {
-    "inherited": false,
-  },
-  "jwkSet": {
-    "inherited": false,
-  },
-  "jwkStoreCacheMissCacheTime": {
-    "inherited": false,
-    "value": 60000,
-  },
-  "jwksCacheTimeout": {
-    "inherited": false,
-    "value": 3600000,
-  },
-  "jwksUri": {
-    "inherited": false,
-  },
-  "publicKeyLocation": {
-    "inherited": false,
-    "value": "jwks_uri",
-  },
-  "softwareStatementSigningAlgorithm": {
-    "inherited": false,
-    "value": "RS256",
-  },
 }
 `;
 
@@ -64692,42 +64584,6 @@ exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2
     "value": "Active",
   },
   "userpassword": "\${SHARED_AGENT_PASSWORD}",
-}
-`;
-
-exports[`frodo config-manager pull all "frodo config-manager pull all -C test/e2e/fr-config-manager-pull-config -D allDir2 -m forgeops": should export all config in fr-config-manager style": allDir2/realms/root/realm-config/agents/SoftwarePublisher/test software publisher.json 1`] = `
-{
-  "_id": "test software publisher",
-  "_type": {
-    "_id": "SoftwarePublisher",
-    "collection": true,
-    "name": "OAuth2 Software Publisher",
-  },
-  "issuer": {
-    "inherited": false,
-  },
-  "jwkSet": {
-    "inherited": false,
-  },
-  "jwkStoreCacheMissCacheTime": {
-    "inherited": false,
-    "value": 60000,
-  },
-  "jwksCacheTimeout": {
-    "inherited": false,
-    "value": 3600000,
-  },
-  "jwksUri": {
-    "inherited": false,
-  },
-  "publicKeyLocation": {
-    "inherited": false,
-    "value": "jwks_uri",
-  },
-  "softwareStatementSigningAlgorithm": {
-    "inherited": false,
-    "value": "RS256",
-  },
 }
 `;
 

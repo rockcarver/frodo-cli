@@ -28,8 +28,8 @@ export default function setup() {
     )
     .addHelpText(
       'after',
-      '\nThe folders of these agent types are pushed: IdentityGatewayAgent, J2EEAgent, WebAgent, 2.2_Agent, SharedAgent, OAuth2Client, RemoteConsentAgent, SoftwarePublisher, SoapSTSAgent (it exists only in classic deployments) and OAuth2Thing (it exists only where the deployment has enabled it), as realms/<realm>/realm-config/agents/<type>/<id>.json.\n' +
-        'The agent types CIMDProfile and TrustedJwtIssuer have a kind of their own: "frodo config-manager push oauth-cimd-profiles" and "frodo config-manager push oauth-issuers". The folders of those types are skipped here with a warning; no file in them is read or changed.\n' +
+      '\nThe folders of these agent types are pushed: IdentityGatewayAgent, J2EEAgent, WebAgent, 2.2_Agent, SharedAgent, OAuth2Client, RemoteConsentAgent, SoapSTSAgent (it exists only in classic deployments) and OAuth2Thing (it exists only where the deployment has enabled it), as realms/<realm>/realm-config/agents/<type>/<id>.json.\n' +
+        'The agent types CIMDProfile, TrustedJwtIssuer and SoftwarePublisher have a kind of their own: "frodo config-manager push oauth-cimd-profiles", "frodo config-manager push oauth-issuers" and "frodo config-manager push oauth-software-publishers". The folders of those types are skipped here with a warning; no file in them is read or changed.\n' +
         `Each \${NAME} in a file ${PLACEHOLDER_VALUES_RULE} The agents with a password (IdentityGatewayAgent, J2EEAgent, WebAgent, 2.2_Agent, SharedAgent and the OAuth2 client secret) are pulled with an override that holds such a placeholder.\n` +
         'A file you push is a request: if the deployment cannot serve its type (SoapSTSAgent outside a classic deployment, OAuth2Thing where it is not enabled), that file fails with the text of the library or of the server, the other files are still pushed, and the command exits with 1 unless --allow-failures is given. The kind for CIMD profiles is different: a deployment that does not have them is skipped with a note unless a name is given.\n'
     )

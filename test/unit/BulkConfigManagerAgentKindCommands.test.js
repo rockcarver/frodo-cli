@@ -2,8 +2,8 @@ import { jest } from '@jest/globals';
 import { Command, Option } from 'commander';
 
 /**
- * The `pull` and `push` commands of the kinds `oauth-cimd-profiles` and
- * `oauth-issuers` as record 0040 asks of a command that runs several
+ * The `pull` and `push` commands of the kinds `oauth-cimd-profiles`,
+ * `oauth-issuers` and `oauth-software-publishers` as record 0040 asks of a command that runs several
  * operations: each one adds the shared `--allow-failures` option (`.multiOp()`),
  * hands its value on to its ops function, and exits 1 when the ops function
  * reports a failure or when the login fails. The commands name no deployment type:
@@ -20,6 +20,10 @@ const OPS = {
   OAuth2TrustedJwtIssuerConfigOps: [
     'configManagerExportTrustedJwtIssuers',
     'configManagerImportTrustedJwtIssuers',
+  ],
+  SoftwarePublisherConfigOps: [
+    'configManagerExportSoftwarePublishers',
+    'configManagerImportSoftwarePublishers',
   ],
 };
 const ops = {};
@@ -124,6 +128,30 @@ const COMMANDS = [
     fn: 'configManagerImportTrustedJwtIssuers',
     options: { name: 'zion-issuer' },
     args: (allowFailures) => ['zion-issuer', 'alpha', allowFailures],
+  },
+  {
+    name: 'config-manager pull oauth-software-publishers',
+    file: 'config-manager-pull/config-manager-pull-oauth-software-publishers',
+    fn: 'configManagerExportSoftwarePublishers',
+    options: {
+      name: 'zion-publisher',
+      configFile: 'oauth-software-publishers.json',
+    },
+    overridesFile: true,
+    args: (allowFailures) => [
+      'zion-publisher',
+      'alpha',
+      false,
+      allowFailures,
+      'oauth-software-publishers.json',
+    ],
+  },
+  {
+    name: 'config-manager push oauth-software-publishers',
+    file: 'config-manager-push/config-manager-push-oauth-software-publishers',
+    fn: 'configManagerImportSoftwarePublishers',
+    options: { name: 'zion-publisher' },
+    args: (allowFailures) => ['zion-publisher', 'alpha', allowFailures],
   },
 ];
 

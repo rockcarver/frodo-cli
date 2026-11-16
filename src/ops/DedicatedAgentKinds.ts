@@ -4,7 +4,7 @@
  *
  * `config-manager pull|push oauth2-agents` works with any agent type by name and used to write
  * every type it was given. A type that has a kind of its own (`oauth-cimd-profiles`,
- * `oauth-issuers`) gets one writer in a tree, as record 0042 gives an application-owned object one:
+ * `oauth-issuers`, `oauth-software-publishers`) gets one writer in a tree, as record 0042 gives an application-owned object one:
  * the generic kind skips the type, says so once per realm and type, and changes nothing else. The
  * skip is not a failure and not an operation of an `OperationRun` (decision record 0040: a thing
  * that does not apply is not a thing that failed), so exit codes and `--allow-failures` are not
@@ -34,6 +34,10 @@ export const DEDICATED_AGENT_KINDS: Readonly<
 > = {
   CIMDProfile: { kind: 'oauth-cimd-profiles', plural: 'CIMD profiles' },
   TrustedJwtIssuer: { kind: 'oauth-issuers', plural: 'trusted JWT issuers' },
+  SoftwarePublisher: {
+    kind: 'oauth-software-publishers',
+    plural: 'software publishers',
+  },
 };
 
 /**

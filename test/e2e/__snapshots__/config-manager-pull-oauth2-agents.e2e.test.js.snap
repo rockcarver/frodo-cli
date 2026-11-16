@@ -1177,42 +1177,6 @@ exports[`frodo config-manager pull oauth2-agents "frodo config-manager pull oaut
 }
 `;
 
-exports[`frodo config-manager pull oauth2-agents "frodo config-manager pull oauth2-agents -D configManagerExportOauth2AgentsDir0 -f test/e2e/fr-config-manager-pull-config/oauth2-agents.json -m forgeops": should export all agents from all realms in fr-config manager style.: configManagerExportOauth2AgentsDir0/realms/alpha/realm-config/agents/SoftwarePublisher/test software publisher.json 1`] = `
-{
-  "_id": "test software publisher",
-  "_type": {
-    "_id": "SoftwarePublisher",
-    "collection": true,
-    "name": "OAuth2 Software Publisher",
-  },
-  "issuer": {
-    "inherited": false,
-  },
-  "jwkSet": {
-    "inherited": false,
-  },
-  "jwkStoreCacheMissCacheTime": {
-    "inherited": false,
-    "value": 60000,
-  },
-  "jwksCacheTimeout": {
-    "inherited": false,
-    "value": 3600000,
-  },
-  "jwksUri": {
-    "inherited": false,
-  },
-  "publicKeyLocation": {
-    "inherited": false,
-    "value": "jwks_uri",
-  },
-  "softwareStatementSigningAlgorithm": {
-    "inherited": false,
-    "value": "RS256",
-  },
-}
-`;
-
 exports[`frodo config-manager pull oauth2-agents "frodo config-manager pull oauth2-agents -D configManagerExportOauth2AgentsDir0 -f test/e2e/fr-config-manager-pull-config/oauth2-agents.json -m forgeops": should export all agents from all realms in fr-config manager style.: configManagerExportOauth2AgentsDir0/realms/alpha/realm-config/agents/WebAgent/frodo-test-web-agent.json 1`] = `
 {
   "_id": "frodo-test-web-agent",
@@ -2872,42 +2836,6 @@ exports[`frodo config-manager pull oauth2-agents "frodo config-manager pull oaut
 }
 `;
 
-exports[`frodo config-manager pull oauth2-agents "frodo config-manager pull oauth2-agents -D configManagerExportOauth2AgentsDir0 -f test/e2e/fr-config-manager-pull-config/oauth2-agents.json -m forgeops": should export all agents from all realms in fr-config manager style.: configManagerExportOauth2AgentsDir0/realms/bravo/realm-config/agents/SoftwarePublisher/test software publisher.json 1`] = `
-{
-  "_id": "test software publisher",
-  "_type": {
-    "_id": "SoftwarePublisher",
-    "collection": true,
-    "name": "OAuth2 Software Publisher",
-  },
-  "issuer": {
-    "inherited": false,
-  },
-  "jwkSet": {
-    "inherited": false,
-  },
-  "jwkStoreCacheMissCacheTime": {
-    "inherited": false,
-    "value": 60000,
-  },
-  "jwksCacheTimeout": {
-    "inherited": false,
-    "value": 3600000,
-  },
-  "jwksUri": {
-    "inherited": false,
-  },
-  "publicKeyLocation": {
-    "inherited": false,
-    "value": "jwks_uri",
-  },
-  "softwareStatementSigningAlgorithm": {
-    "inherited": false,
-    "value": "RS256",
-  },
-}
-`;
-
 exports[`frodo config-manager pull oauth2-agents "frodo config-manager pull oauth2-agents -D configManagerExportOauth2AgentsDir0 -f test/e2e/fr-config-manager-pull-config/oauth2-agents.json -m forgeops": should export all agents from all realms in fr-config manager style.: configManagerExportOauth2AgentsDir0/realms/bravo/realm-config/agents/WebAgent/frodo-test-web-agent.json 1`] = `
 {
   "_id": "frodo-test-web-agent",
@@ -4558,42 +4486,6 @@ exports[`frodo config-manager pull oauth2-agents "frodo config-manager pull oaut
     "value": "Active",
   },
   "userpassword": "\${SHARED_AGENT_PASSWORD}",
-}
-`;
-
-exports[`frodo config-manager pull oauth2-agents "frodo config-manager pull oauth2-agents -D configManagerExportOauth2AgentsDir0 -f test/e2e/fr-config-manager-pull-config/oauth2-agents.json -m forgeops": should export all agents from all realms in fr-config manager style.: configManagerExportOauth2AgentsDir0/realms/root/realm-config/agents/SoftwarePublisher/test software publisher.json 1`] = `
-{
-  "_id": "test software publisher",
-  "_type": {
-    "_id": "SoftwarePublisher",
-    "collection": true,
-    "name": "OAuth2 Software Publisher",
-  },
-  "issuer": {
-    "inherited": false,
-  },
-  "jwkSet": {
-    "inherited": false,
-  },
-  "jwkStoreCacheMissCacheTime": {
-    "inherited": false,
-    "value": 60000,
-  },
-  "jwksCacheTimeout": {
-    "inherited": false,
-    "value": 3600000,
-  },
-  "jwksUri": {
-    "inherited": false,
-  },
-  "publicKeyLocation": {
-    "inherited": false,
-    "value": "jwks_uri",
-  },
-  "softwareStatementSigningAlgorithm": {
-    "inherited": false,
-    "value": "RS256",
-  },
 }
 `;
 
