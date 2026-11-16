@@ -76,7 +76,9 @@
  * have the type) and hold CIMD profiles of those ids (an empty value: none). The
  * profiles are the same in every realm and live as long as the fake: the list
  * (`.../agents/CIMDProfile?_queryFilter=true`) answers with them in the plain
- * shape, a `PUT` stores the body (`201` for a new id, which the server completes
+ * shape, a `GET` of one id (`.../agents/CIMDProfile/<id>`, ignoring case, as AM
+ * does; `404` when missing) answers in the wrapped shape (`{ inherited, value }`
+ * per property, as AM answers a read by id), a `PUT` stores the body (`201` for a new id, which the server completes
  * with a default group the body lacks, `200` for an existing one, which stores
  * exactly the body; ids are matched ignoring case, as AM does) and refuses a `_rev` in it with `400
  * Invalid attribute specified`, and a `DELETE` removes one (`404` when missing).
@@ -275,6 +277,16 @@ const CLOUD_NOT_AVAILABLE = {
     'This operation is not available in PingOne Advanced Identity Cloud.',
 };
 
+/** A property that is wrapped already (a file that a pull wrote and a push sent back stays as it is). */
+function isWrappedMember(value) {
+  return (
+    value !== null &&
+    typeof value === 'object' &&
+    !Array.isArray(value) &&
+    'inherited' in value
+  );
+}
+
 /** The CIMD profile the way a read by id answers it: the members of the groups wrapped. */
 function wrapCimdProfile(profile) {
   const wrapped = {};
@@ -291,7 +303,9 @@ function wrapCimdProfile(profile) {
           member,
           memberValue === null
             ? { inherited: false }
-            : { inherited: false, value: memberValue },
+            : isWrappedMember(memberValue)
+              ? memberValue
+              : { inherited: false, value: memberValue },
         ])
       );
     } else {
@@ -703,6 +717,16 @@ const server = http.createServer((req, res) => {
           };
           cimdProfiles.set(key, stored);
           return send(created ? 201 : 200, stored);
+        }
+        if (req.method === 'GET') {
+          const stored = cimdProfiles.get(key);
+          return stored
+            ? send(200, wrapCimdProfile(stored))
+            : send(404, {
+                code: 404,
+                reason: 'Not Found',
+                message: 'Not Found',
+              });
         }
         if (req.method === 'DELETE') {
           const stored = cimdProfiles.get(key);

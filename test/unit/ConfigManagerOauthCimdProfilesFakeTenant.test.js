@@ -98,6 +98,11 @@ suite('config-manager oauth-cimd-profiles against a fake tenant', () => {
     requests().filter(
       (r) => r.method === 'GET' && r.url.includes('/agents/CIMDProfile?')
     );
+  /** The reads of one profile by its id (the file of a pull is what these answer). */
+  const readsById = () =>
+    requests().filter(
+      (r) => r.method === 'GET' && r.url.includes('/agents/CIMDProfile/')
+    );
 
   describe('pull', () => {
     it(
@@ -159,6 +164,138 @@ suite('config-manager oauth-cimd-profiles against a fake tenant', () => {
         expect(written._id).toBe('zion-agents');
         expect(written).not.toHaveProperty('_rev');
         expect(reads()).toHaveLength(2);
+      },
+      TIMEOUT
+    );
+
+    it(
+      'writes the wrapped shape that the server answers for a profile by its id, and reads each profile once by its stored id after one list per realm',
+      async () => {
+        const run = await tenant({
+          oauthCimdProfiles: ['Zion-Agents', 'zion-tools'],
+        });
+
+        const { code, output } = await run([
+          'config-manager',
+          'pull',
+          'oauth-cimd-profiles',
+          `http://127.0.0.1:${fakeAm.port}/am`,
+          'alpha',
+        ]);
+
+        expect(output).not.toMatch(/Error|failed/);
+        expect(code).toBe(0);
+        const written = JSON.parse(
+          fs.readFileSync(path.join(profilesOf('alpha'), 'Zion-Agents.json'))
+        );
+        // every property of a group is { inherited, value }, as the server answers a read by id
+        expect(written.cimdConfig).toEqual({
+          cimdClientIdUrlPatterns: {
+            inherited: false,
+            value: ['https://Zion-Agents.example.com/*'],
+          },
+          cimdSsrfProtectionEnabled: { inherited: false, value: true },
+        });
+        expect(written).not.toHaveProperty('_rev');
+        // one list (the realm), then one read per profile by the id the list gave
+        expect(reads()).toHaveLength(1);
+        expect(
+          readsById()
+            .map((r) => decodeURIComponent(r.url.split('/').pop()))
+            .sort()
+        ).toEqual(['Zion-Agents', 'zion-tools']);
+      },
+      TIMEOUT
+    );
+
+    it(
+      'takes the overrides file of its own help as it is: the property keeps its wrapper and the placeholder reaches the file',
+      async () => {
+        const run = await tenant({ oauthCimdProfiles: ['zion-agents'] });
+
+        // the example of the full help is the document: no copy of it is kept in this test
+        const help = await run([
+          'config-manager',
+          'pull',
+          'oauth-cimd-profiles',
+          '-hhh',
+        ]);
+        const after = help.output.slice(
+          help.output.indexOf('Overrides file example')
+        );
+        const example = JSON.parse(
+          after.slice(
+            after.indexOf('\n{'),
+            after.indexOf('When the files are pushed')
+          )
+        );
+        example.alpha[0].id = 'zion-agents';
+        fs.writeFileSync(
+          path.join(work, 'overrides.json'),
+          JSON.stringify(example)
+        );
+
+        const { code, output } = await run([
+          'config-manager',
+          'pull',
+          'oauth-cimd-profiles',
+          '--config-file',
+          'overrides.json',
+          `http://127.0.0.1:${fakeAm.port}/am`,
+          'alpha',
+        ]);
+
+        expect(output).not.toMatch(/Error|failed|not applied/);
+        expect(code).toBe(0);
+        const written = JSON.parse(
+          fs.readFileSync(path.join(profilesOf('alpha'), 'zion-agents.json'))
+        );
+        expect(written.cimdConfig.cimdClientIdUrlPatterns).toEqual({
+          inherited: false,
+          value: ['${ZION_AGENTS_URL_PATTERN}'],
+        });
+        // nothing was put next to the wrapper (a plain array merged into it would add "0")
+        expect(Object.keys(written.cimdConfig.cimdClientIdUrlPatterns)).toEqual(
+          ['inherited', 'value']
+        );
+        expect(written.cimdConfig.cimdSsrfProtectionEnabled).toEqual({
+          inherited: false,
+          value: true,
+        });
+      },
+      TIMEOUT
+    );
+
+    it(
+      'pulls the same bytes again, and a push of what it wrote followed by a pull changes no byte (round trip)',
+      async () => {
+        const run = await tenant({ oauthCimdProfiles: ['zion-agents'] });
+        const args = (verb) => [
+          'config-manager',
+          verb,
+          'oauth-cimd-profiles',
+          `http://127.0.0.1:${fakeAm.port}/am`,
+          'alpha',
+        ];
+        const file = path.join(profilesOf('alpha'), 'zion-agents.json');
+
+        expect((await run(args('pull'))).code).toBe(0);
+        const first = fs.readFileSync(file, 'utf8');
+        const push = await run(args('push'));
+        expect(push.output).not.toMatch(/Error|failed/);
+        expect(push.code).toBe(0);
+        // the wrapped file is sent as it is: the members keep their wrappers
+        const sent = JSON.parse(
+          requests().filter((r) => r.method === 'PUT')[0].body
+        );
+        expect(sent.cimdConfig.cimdClientIdUrlPatterns).toEqual({
+          inherited: false,
+          value: ['https://zion-agents.example.com/*'],
+        });
+        fs.rmSync(path.join(work, 'realms'), { recursive: true });
+        expect((await run(args('pull'))).code).toBe(0);
+
+        expect(fs.readFileSync(file, 'utf8')).toBe(first);
       },
       TIMEOUT
     );
@@ -311,7 +448,13 @@ suite('config-manager oauth-cimd-profiles against a fake tenant', () => {
           fs.readFileSync(path.join(profilesOf('alpha'), 'zion-new.json'))
         );
         expect(pulled.coreOAuth2ClientConfig).toBeUndefined();
-        expect(pulled.cimdConfig).toEqual(sparse('zion-new').cimdConfig);
+        // what the file said, as the server answers a read by id (wrapped)
+        expect(pulled.cimdConfig).toEqual({
+          cimdClientIdUrlPatterns: {
+            inherited: false,
+            value: sparse('zion-new').cimdConfig.cimdClientIdUrlPatterns,
+          },
+        });
       },
       TIMEOUT
     );
