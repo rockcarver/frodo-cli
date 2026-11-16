@@ -475,8 +475,8 @@ const CASES = [
 
 // every relative import of the modules under test becomes spies, except the
 // run tracker, the cause helper, the function that writes an agent in the plain
-// shape (all pure: the modules under test need their results) and the modules
-// under test themselves
+// shape and the one that replaces a key set with private key material (all pure:
+// the modules under test need their results) and the modules under test themselves
 const modulesUnderTest = new Set(
   CASES.map((c) => path.resolve(root, c.file).replace(/\.ts$/, ''))
 );
@@ -492,7 +492,8 @@ for (const file of new Set(CASES.map((c) => c.file))) {
       modulesUnderTest.has(target) ||
       target.endsWith('/utils/OperationRun') ||
       target.endsWith('/utils/ErrorCause') ||
-      target.endsWith('/ops/AgentFileShape')
+      target.endsWith('/ops/AgentFileShape') ||
+      target.endsWith('/ops/AgentKeySets')
     ) {
       continue;
     }
