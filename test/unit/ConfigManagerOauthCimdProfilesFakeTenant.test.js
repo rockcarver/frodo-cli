@@ -169,7 +169,7 @@ suite('config-manager oauth-cimd-profiles against a fake tenant', () => {
     );
 
     it(
-      'writes the wrapped shape that the server answers for a profile by its id, and reads each profile once by its stored id after one list per realm',
+      'writes the plain shape of the list item, with one list request per realm and no request by id',
       async () => {
         const run = await tenant({
           oauthCimdProfiles: ['Zion-Agents', 'zion-tools'],
@@ -188,28 +188,22 @@ suite('config-manager oauth-cimd-profiles against a fake tenant', () => {
         const written = JSON.parse(
           fs.readFileSync(path.join(profilesOf('alpha'), 'Zion-Agents.json'))
         );
-        // every property of a group is { inherited, value }, as the server answers a read by id
+        // the plain shape (record 0054): a property that is set is its value
         expect(written.cimdConfig).toEqual({
-          cimdClientIdUrlPatterns: {
-            inherited: false,
-            value: ['https://Zion-Agents.example.com/*'],
-          },
-          cimdSsrfProtectionEnabled: { inherited: false, value: true },
+          cimdClientIdUrlPatterns: ['https://Zion-Agents.example.com/*'],
+          cimdSsrfProtectionEnabled: true,
         });
+        expect(JSON.stringify(written)).not.toContain('inherited');
         expect(written).not.toHaveProperty('_rev');
-        // one list (the realm), then one read per profile by the id the list gave
+        // one list for the realm, and no request by id however many profiles it holds
         expect(reads()).toHaveLength(1);
-        expect(
-          readsById()
-            .map((r) => decodeURIComponent(r.url.split('/').pop()))
-            .sort()
-        ).toEqual(['Zion-Agents', 'zion-tools']);
+        expect(readsById()).toEqual([]);
       },
       TIMEOUT
     );
 
     it(
-      'takes the overrides file of its own help as it is: the property keeps its wrapper and the placeholder reaches the file',
+      'takes the overrides file of its own help as it is: the placeholder reaches the file in the plain shape',
       async () => {
         const run = await tenant({ oauthCimdProfiles: ['zion-agents'] });
 
@@ -250,18 +244,10 @@ suite('config-manager oauth-cimd-profiles against a fake tenant', () => {
         const written = JSON.parse(
           fs.readFileSync(path.join(profilesOf('alpha'), 'zion-agents.json'))
         );
-        expect(written.cimdConfig.cimdClientIdUrlPatterns).toEqual({
-          inherited: false,
-          value: ['${ZION_AGENTS_URL_PATTERN}'],
-        });
-        // nothing was put next to the wrapper (a plain array merged into it would add "0")
-        expect(Object.keys(written.cimdConfig.cimdClientIdUrlPatterns)).toEqual(
-          ['inherited', 'value']
-        );
-        expect(written.cimdConfig.cimdSsrfProtectionEnabled).toEqual({
-          inherited: false,
-          value: true,
-        });
+        expect(written.cimdConfig.cimdClientIdUrlPatterns).toEqual([
+          '${ZION_AGENTS_URL_PATTERN}',
+        ]);
+        expect(written.cimdConfig.cimdSsrfProtectionEnabled).toBe(true);
       },
       TIMEOUT
     );
@@ -284,14 +270,13 @@ suite('config-manager oauth-cimd-profiles against a fake tenant', () => {
         const push = await run(args('push'));
         expect(push.output).not.toMatch(/Error|failed/);
         expect(push.code).toBe(0);
-        // the wrapped file is sent as it is: the members keep their wrappers
+        // the plain file is sent as it is
         const sent = JSON.parse(
           requests().filter((r) => r.method === 'PUT')[0].body
         );
-        expect(sent.cimdConfig.cimdClientIdUrlPatterns).toEqual({
-          inherited: false,
-          value: ['https://zion-agents.example.com/*'],
-        });
+        expect(sent.cimdConfig.cimdClientIdUrlPatterns).toEqual([
+          'https://zion-agents.example.com/*',
+        ]);
         fs.rmSync(path.join(work, 'realms'), { recursive: true });
         expect((await run(args('pull'))).code).toBe(0);
 
@@ -448,12 +433,10 @@ suite('config-manager oauth-cimd-profiles against a fake tenant', () => {
           fs.readFileSync(path.join(profilesOf('alpha'), 'zion-new.json'))
         );
         expect(pulled.coreOAuth2ClientConfig).toBeUndefined();
-        // what the file said, as the server answers a read by id (wrapped)
+        // what the file said, as the list answers it (plain)
         expect(pulled.cimdConfig).toEqual({
-          cimdClientIdUrlPatterns: {
-            inherited: false,
-            value: sparse('zion-new').cimdConfig.cimdClientIdUrlPatterns,
-          },
+          cimdClientIdUrlPatterns:
+            sparse('zion-new').cimdConfig.cimdClientIdUrlPatterns,
         });
       },
       TIMEOUT

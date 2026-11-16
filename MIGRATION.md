@@ -833,14 +833,9 @@ OAuth 2.0 provider accepts when a client registers itself). `pull all` includes
 all three. They write the files where `oauth2-agents` wrote them
 (`realms/<realm>/realm-config/agents/CIMDProfile/<name>.json`,
 `realms/<realm>/realm-config/agents/TrustedJwtIssuer/<name>.json` and
-`realms/<realm>/realm-config/agents/SoftwarePublisher/<name>.json`), in the
-shape that `oauth2-agents` wrote (every property is `{ "inherited": false,
-"value": ... }`), so an existing tree is still valid and a pull writes the same
-bytes. A tree that was pulled with `pull oauth-cimd-profiles` of an earlier
-5.0.0 prerelease holds its CIMD profile files in the plain form (the values
-without the wrappers); the next pull writes them in the wrapped shape, like
-every other file under `agents/`, and a push accepts both shapes. To give each
-object one writer, `pull oauth2-agents` and `push oauth2-agents` no longer
+`realms/<realm>/realm-config/agents/SoftwarePublisher/<name>.json`), so an
+existing tree is still valid; the files are written in the plain shape that the
+next entry describes. To give each object one writer, `pull oauth2-agents` and `push oauth2-agents` no longer
 handle these three types: an entry of type `CIMDProfile`, `TrustedJwtIssuer` or
 `SoftwarePublisher` in `oauth2-agents.json`, and the folder `CIMDProfile`,
 `TrustedJwtIssuer` or `SoftwarePublisher` of a tree, are skipped with one
@@ -855,17 +850,35 @@ more; move them to the overrides file of `pull oauth-cimd-profiles`, `pull
 oauth-issuers` or `pull oauth-software-publishers` (`--config-file`, for example
 `oauth-issuers.json`), where the entries of a realm are a list without the type
 level: `"alpha": [ { "id": "zion-issuer", "overrides": { ... } } ]`. The
-overrides are merged into the file as it is written, so a value is given in the
-form of the file: `"cimdClientIdUrlPatterns": { "value": ["https://${HOST}/*"] }`.
-An overrides file for `pull oauth-cimd-profiles` that was written for the plain
-files of an earlier 5.0.0 prerelease (`"cimdClientIdUrlPatterns": ["..."]`) has
-to be changed: an array given that way is not merged into `value` but added next
-to `inherited` and `value` of the property. In a tree
+overrides are merged into the file as it is written, so a value is given as it
+is in the file: `"cimdClientIdUrlPatterns": ["https://${HOST}/*"]`. In a tree
 that uses one folder per application, a realm that has only entries of these
 three types in `oauth2-agents.json` no longer makes the command read the
 applications of the realm. See
 [config-manager keeps everything an application owns in one folder](https://github.com/rockcarver/frodo-cli/blob/main/docs/decisions/0042-config-manager-keeps-everything-an-application-owns-in-one-folder.md)
 for the rule that an object has one writer in a tree.
+
+**Agent files are written without the `{ inherited, value }` wrapper
+(experimental)**: `config-manager pull oauth2-agents` (every agent type it
+handles, OAuth2 clients included), `pull oauth-cimd-profiles`,
+`pull oauth-issuers`, `pull oauth-software-publishers` and the OAuth2 client file
+of `pull applications` (`oauth2-client.json` in the application folder) write
+each file with the plain value of every property that is set on the object, and
+nothing for a property that is unset, inherited from an agent group or a default,
+or `null`. Before, they wrote what AM answers a read of one object with: every
+property as `{ "inherited": false, "value": ... }`, and `{ "inherited": false }`
+for one that is not set. The files get about 60 percent shorter (the committed
+examples go from 4331 to 1748 lines), and a version-control diff shows what is
+set on the object and no longer what a group or a default changes. The first
+`pull` over a tree that was written before this change shows that difference
+once, in every agent file. A `push` is not changed and accepts both shapes, so an
+older tree still pushes as it is. An overrides file written for the wrapped
+files (a value given as `{ "value": ... }` or as `{ "inherited": false, "value":
+... }`) still works: an override in that form is read as its value. A group
+whose members are all left out stays in the file as an empty object. The CIMD
+profile pull makes one request for a realm and none per profile, because the
+list answer, with its `null` for what is not set, gives the same file. See
+[a config-manager object has one writer and agent files are written in the plain shape](https://github.com/rockcarver/frodo-cli/blob/main/docs/decisions/0054-a-config-manager-object-has-one-writer-and-agent-files-are-written-in-the-plain-shape.md).
 
 **Header overrides are stored encrypted**: a connection profile kept the values
 of `--authentication-header-overrides` and `--configuration-header-overrides`

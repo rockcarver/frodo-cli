@@ -10,12 +10,12 @@
  * - the type exists on Cloud today and on self-hosted deployments with PingAM 9.0, so every
  *   deployment advertises it in its agent type list and a realm without it is a non-event, not a
  *   failure;
- * - a profile holds no secret: the file is what a read of the profile by its id answers, without
- *   `_rev`: the wrapped shape (`{ "inherited": false, "value": ... }` for each property), the one
- *   `pull oauth2-agents` wrote for this type and `pull oauth-issuers` writes for trusted JWT issuers,
- *   so that every file under `realms/<realm>/realm-config/agents/**` has one shape. The library's
- *   list answers the plain shape, so the list only tells which profiles a realm holds; each profile
- *   is then read once more by its id.
+ * - a profile holds no secret: the file is the profile in the plain shape (record 0054, rule 6: a
+ *   property that is set on the object as its value; nothing for one that is unset, inherited or
+ *   null), without `_rev`, like every file under `realms/<realm>/realm-config/agents/**`. The
+ *   library's list answers plain values and `null` for what is not set, and the writer
+ *   (`toPlainShape`) leaves those out, which gives the file that the read of one profile by its id
+ *   gives (checked on the library's recordings): the one list request of a realm is all a pull needs.
  */
 import {
   frodo,
@@ -64,9 +64,8 @@ export const cimdProfileFilePath = (realm: string, fileName: string): string =>
  * Export the CIMD profiles of every realm (or one realm, or one profile) as one file per profile.
  * The profiles are listed once per realm, also for a named one, so that a pull with and without
  * `-n` writes the same bytes and an id the server holds ignoring case (or with a character outside
- * the basic multilingual plane) is found; the stored id names the file. The list answers the plain
- * shape and the file holds the wrapped one, so each profile is then read by its stored id, with
- * the generic read of an agent of a type (one request more per profile).
+ * the basic multilingual plane) is found; the stored id names the file. The list item is the
+ * profile: one request per realm, and no request by id.
  *
  * A realm or a deployment that does not offer CIMD profiles has nothing to export: it is
  * success, no profile is requested, and (unless `quiet`) one line says so. With a name it fails.
@@ -99,13 +98,7 @@ export async function configManagerExportCIMDProfiles(
           : profiles;
         return selected.map((profile) => ({
           id: profile._id,
-          // what the server answers for the profile by its id (the wrapped shape); the list item
-          // is the plain shape (frodo-cli#1349)
-          read: async () =>
-            (await frodo.agent.readAgentByTypeAndId(
-              CIMD_PROFILE_AGENT_TYPE,
-              profile._id
-            )) as unknown as Record<string, unknown>,
+          read: async () => profile as unknown as Record<string, unknown>,
         }));
       },
     },

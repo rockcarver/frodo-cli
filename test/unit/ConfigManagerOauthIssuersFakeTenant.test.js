@@ -138,7 +138,7 @@ suite('config-manager oauth-issuers against a fake tenant', () => {
     );
 
     it(
-      'writes one file per issuer of every realm, in the wrapped form of the single read',
+      'writes one file per issuer of every realm, in the plain shape of the single read',
       async () => {
         const run = await tenant({
           realms: ['alpha', 'bravo'],
@@ -164,10 +164,9 @@ suite('config-manager oauth-issuers against a fake tenant', () => {
         );
         expect(written._id).toBe('zion-issuer');
         expect(written).not.toHaveProperty('_rev');
-        expect(written.issuer).toEqual({
-          inherited: false,
-          value: 'https://zion-issuer.example.com',
-        });
+        // the plain shape (record 0054): a property that is set is its value
+        expect(written.issuer).toBe('https://zion-issuer.example.com');
+        expect(JSON.stringify(written)).not.toContain('inherited');
         // one list per realm, one single read per issuer
         expect(
           reads().filter((r) => r.url.includes('?_queryFilter'))
@@ -353,7 +352,8 @@ suite('config-manager oauth-issuers against a fake tenant', () => {
           fs.readFileSync(path.join(issuersOf('alpha'), 'zion-new.json'))
         );
         expect(back.jwksCacheTimeout).toBeUndefined();
-        expect(back.issuer).toEqual(sparse('zion-new').issuer);
+        // the file said the wrapped shape, the pull writes the plain one: the same issuer
+        expect(back.issuer).toBe('https://zion-new.example.com');
       },
       TIMEOUT
     );
@@ -477,7 +477,7 @@ suite('config-manager oauth-issuers against a fake tenant', () => {
           fs.readFileSync(path.join(issuersOf('alpha'), 'zion-old.json'))
         );
         expect(back).not.toHaveProperty('zzUnknown');
-        expect(back.issuer).toEqual(sparse('zion-old').issuer);
+        expect(back.issuer).toBe('https://zion-old.example.com');
       },
       TIMEOUT
     );

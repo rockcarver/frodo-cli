@@ -47,14 +47,14 @@ export default function setup() {
     )
     .addHelpText(
       'after',
-      `\nOverrides file example (${s.trustedJwtIssuersOverridesFile}): for each realm a list of issuers and the values to replace, in the form of the file (every property is wrapped as inherited and value). The properties that usually differ between environments are issuer, jwksUri, jwkSet and allowedSubjects.\n` +
+      `\nOverrides file example (${s.trustedJwtIssuersOverridesFile}): for each realm a list of issuers and the values to replace, in the form of the file (a property that is set is its value; a value written as { "value": ... } of the first 5.0.0 prereleases still works). The properties that usually differ between environments are issuer, jwksUri, jwkSet and allowedSubjects.\n` +
         '{\n' +
         '  "alpha": [\n' +
         '    {\n' +
         `      "id": "${s.trustedJwtIssuerId}",\n` +
         '      "overrides": {\n' +
-        '        "issuer": { "value": "${ZION_ISSUER_URL}" },\n' +
-        '        "jwksUri": { "value": "${ZION_JWKS_URI}" }\n' +
+        '        "issuer": "${ZION_ISSUER_URL}",\n' +
+        '        "jwksUri": "${ZION_JWKS_URI}"\n' +
         '      }\n' +
         '    }\n' +
         '  ]\n' +

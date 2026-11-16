@@ -51,14 +51,14 @@ export default function setup() {
     )
     .addHelpText(
       'after',
-      `\nOverrides file example (${s.cimdOverridesFile}): for each realm a list of profiles and the values to replace, in the form of the file (every property is wrapped as inherited and value). An array is replaced element by element, so list every element that should change.\n` +
+      `\nOverrides file example (${s.cimdOverridesFile}): for each realm a list of profiles and the values to replace, in the form of the file (a property that is set is its value; a value written as { "value": ... } of the first 5.0.0 prereleases still works). An array is replaced element by element, so list every element that should change.\n` +
         '{\n' +
         '  "alpha": [\n' +
         '    {\n' +
         `      "id": "${s.cimdProfileId}",\n` +
         '      "overrides": {\n' +
         '        "cimdConfig": {\n' +
-        '          "cimdClientIdUrlPatterns": { "value": ["${ZION_AGENTS_URL_PATTERN}"] }\n' +
+        '          "cimdClientIdUrlPatterns": ["${ZION_AGENTS_URL_PATTERN}"]\n' +
         '        }\n' +
         '      }\n' +
         '    }\n' +

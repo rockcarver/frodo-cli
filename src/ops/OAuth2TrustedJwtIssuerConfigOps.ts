@@ -9,9 +9,9 @@
  * the family follows are in that module; what is specific to issuers is here:
  * - the type exists on every deployment, so there is no availability check: a realm that cannot be
  *   read is a failed realm;
- * - the file is the object that `pull oauth2-agents` writes today, byte for byte, so that no
- *   existing tree changes: the single read of the issuer (every property wrapped as
- *   `{ inherited, value }`), not the list read;
+ * - the file is the single read of the issuer in the plain shape (record 0054, rule 6: a property
+ *   that is set on the object as its value; nothing for one that is unset or inherited), the same
+ *   file that `pull oauth2-agents` writes for the types it handles;
  * - an issuer is a trust anchor: a `jwkSet` that holds private or secret key material is written
  *   (the user asked for the issuer) with a warning that never prints the key, and a push says what
  *   it replaces and never deletes.

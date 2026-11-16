@@ -398,6 +398,7 @@ suite('push and pull oauth-issuers against a fake tenant', () => {
             alpha: [
               {
                 id: 'zion-old',
+                // an override in the wrapped form of the first 5.0.0 prereleases: it still works
                 overrides: { issuer: { value: `\${${NAME}}` } },
               },
             ],
@@ -422,7 +423,8 @@ suite('push and pull oauth-issuers against a fake tenant', () => {
           path.join(issuersOf('alpha'), 'zion-old.json'),
           'utf8'
         );
-        expect(JSON.parse(text).issuer.value).toBe(`\${${NAME}}`);
+        // the file is plain (record 0054): the placeholder is the value of the property
+        expect(JSON.parse(text).issuer).toBe(`\${${NAME}}`);
         expect(text).not.toContain(FROM_ENV);
       },
       TIMEOUT

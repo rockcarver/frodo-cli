@@ -251,7 +251,7 @@ describe('the file of a trusted JWT issuer', () => {
 });
 
 describe('Cloud: realms alpha and bravo', () => {
-  test('lists the issuers of each realm once, reads each one, and writes the single read without _rev and with ${ escaped', async () => {
+  test('lists the issuers of each realm once, reads each one, and writes the single read in the plain shape without _rev and with ${ escaped', async () => {
     world.issuers.alpha = [
       issuerObject('zion-issuer', {
         jwksUri: { inherited: false, value: 'https://${HOST}/jwks' },
@@ -262,11 +262,11 @@ describe('Cloud: realms alpha and bravo', () => {
     expect(await configManagerExportTrustedJwtIssuers()).toBe(true);
 
     const written = read(P('zion-issuer'));
-    // the wrapped form of the single read, kept as it is
-    expect(written.issuer).toEqual({
-      inherited: false,
-      value: 'https://zion-issuer.example.com',
-    });
+    // the plain shape (record 0054): a property that is set is its value, one that is not set is not there
+    expect(written.issuer).toBe('https://zion-issuer.example.com');
+    expect(written.allowedSubjects).toEqual([]);
+    expect(read(P('zion-other'))).not.toHaveProperty('jwksUri');
+    expect(readRaw(P('zion-other'))).not.toContain('inherited');
     expect(written).not.toHaveProperty('_rev');
     expect(readRaw(P('zion-issuer'))).toContain('https://\\\\${HOST}/jwks');
     expect(exists(P('zion-other'))).toBe(true);
@@ -449,46 +449,52 @@ describe('the names of the files', () => {
 describe('the overrides file', () => {
   const overridesFile = (content) => writeFile('oauth-issuers.json', content);
 
-  test('is merged into the issuer of its entry, in the wrapped form of the file', async () => {
-    world.issuers.alpha = [
-      issuerObject('zion-issuer'),
-      issuerObject('zion-other'),
-    ];
-    const file = overridesFile({
-      alpha: [
-        {
-          id: 'zion-issuer',
-          overrides: {
-            issuer: { value: '${ZION_ISSUER_URL}' },
-            jwksUri: { value: '${ZION_JWKS_URI}' },
+  test.each([
+    ['plain', (value) => value],
+    [
+      '{ value } (the help of the first 5.0.0 prereleases)',
+      (value) => ({ value }),
+    ],
+    ['{ inherited: false, value }', (value) => ({ inherited: false, value })],
+  ])(
+    'is merged into the issuer of its entry, in the plain shape of the file, whether an override is written as %s',
+    async (_form, as) => {
+      world.issuers.alpha = [
+        issuerObject('zion-issuer'),
+        issuerObject('zion-other'),
+      ];
+      const file = overridesFile({
+        alpha: [
+          {
+            id: 'zion-issuer',
+            overrides: {
+              issuer: as('${ZION_ISSUER_URL}'),
+              jwksUri: as('${ZION_JWKS_URI}'),
+            },
           },
-        },
-      ],
-    });
+        ],
+      });
 
-    expect(
-      await configManagerExportTrustedJwtIssuers(
-        undefined,
-        undefined,
-        false,
-        false,
-        file
-      )
-    ).toBe(true);
+      expect(
+        await configManagerExportTrustedJwtIssuers(
+          undefined,
+          undefined,
+          false,
+          false,
+          file
+        )
+      ).toBe(true);
 
-    const written = read(P('zion-issuer'));
-    expect(written.issuer).toEqual({
-      inherited: false,
-      value: '${ZION_ISSUER_URL}',
-    });
-    expect(written.jwksUri).toEqual({
-      inherited: false,
-      value: '${ZION_JWKS_URI}',
-    });
-    expect(read(P('zion-other')).issuer.value).toBe(
-      'https://zion-other.example.com'
-    );
-  });
+      const written = read(P('zion-issuer'));
+      expect(written.issuer).toBe('${ZION_ISSUER_URL}');
+      // the property was not set on the issuer: the override sets it, as a plain value
+      expect(written.jwksUri).toBe('${ZION_JWKS_URI}');
+      expect(readRaw(P('zion-issuer'))).not.toContain('inherited');
+      expect(read(P('zion-other')).issuer).toBe(
+        'https://zion-other.example.com'
+      );
+    }
+  );
 
   test('warns about an entry without an issuer, and the pull still succeeds', async () => {
     world.issuers.alpha = [issuerObject('zion-issuer')];
@@ -607,7 +613,7 @@ describe('private and secret key material in the key set', () => {
   });
 });
 
-describe('the no-movement guarantee: the file is what pull oauth2-agents wrote before it left issuers to this kind (frodo-cli#1259)', () => {
+describe('the no-movement guarantee: the file is at the path where pull oauth2-agents wrote it before it left issuers to this kind (frodo-cli#1259), in the plain shape of record 0054', () => {
   const fixture = JSON.parse(
     fs.readFileSync(
       path.join(
@@ -634,7 +640,22 @@ describe('the no-movement guarantee: the file is what pull oauth2-agents wrote b
       true
     );
 
-    // and it is the committed file, apart from the formatting of the writer
-    expect(JSON.parse(readRaw(P('testJWT')))).toEqual(fixture);
+    // the committed file is the single read of the issuer in the wrapped shape (an input of the
+    // push, which accepts both shapes); the file the pull writes is the same issuer in the plain
+    // shape: what is set on it as its value, nothing for the two properties that are not set
+    expect(JSON.parse(readRaw(P('testJWT')))).toEqual({
+      _id: 'testJWT',
+      _type: {
+        _id: 'TrustedJwtIssuer',
+        collection: true,
+        name: 'OAuth2 Trusted JWT Issuer',
+      },
+      allowedSubjects: [],
+      consentedScopesClaim: 'scope',
+      issuer: 'test',
+      jwkStoreCacheMissCacheTime: 60000,
+      jwksCacheTimeout: 3600000,
+      resourceOwnerIdentityClaim: 'sub',
+    });
   });
 });

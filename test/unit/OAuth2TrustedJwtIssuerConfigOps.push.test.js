@@ -375,8 +375,43 @@ describe('the files of the tree', () => {
       true
     );
 
-    const { _id, _rev, ...expected } = stored;
-    expect(importedIn('alpha')[0]['zion-issuer']).toEqual(expected);
+    // the file a pull writes is the plain shape (record 0054: what is set on the object as its
+    // value); the push sends the file on as it is
+    expect(importedIn('alpha')[0]['zion-issuer']).toEqual({
+      _type: {
+        _id: 'TrustedJwtIssuer',
+        collection: true,
+        name: 'OAuth2 Trusted JWT Issuer',
+      },
+      allowedSubjects: [],
+      issuer: 'https://zion-issuer.example.com',
+      jwksUri: 'https://${HOST}/jwks',
+    });
+  });
+
+  test('a file in the plain shape and a file in the old wrapped shape are both pushed exactly as they are: the push does not change the shape', async () => {
+    write(P('zion-plain'), {
+      _id: 'zion-plain',
+      issuer: 'https://zion-plain.example.com',
+      allowedSubjects: ['a'],
+    });
+    writeIssuer('zion-wrapped');
+
+    expect(await configManagerImportTrustedJwtIssuers(undefined, 'alpha')).toBe(
+      true
+    );
+
+    const sent = Object.assign({}, ...importedIn('alpha'));
+    expect(sent['zion-plain']).toEqual({
+      issuer: 'https://zion-plain.example.com',
+      allowedSubjects: ['a'],
+    });
+    const { _id, ...wrappedBody } = issuerObject('zion-wrapped');
+    expect(sent['zion-wrapped']).toEqual(wrappedBody);
+    expect(sent['zion-wrapped'].issuer).toEqual({
+      inherited: false,
+      value: 'https://zion-wrapped.example.com',
+    });
   });
 
   test('a realm folder without issuers is nothing; a tree without any issuer folder is an info line and a success', async () => {
