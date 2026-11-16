@@ -61,8 +61,6 @@ type PathSegment = { name: string; bracketed: boolean };
  */
 function parsePath(token: string): PathSegment[] {
   const segments: PathSegment[] = [];
-  // Dotted hops up to a bracket or the end.
-  const dottedRe = /[A-Za-z_$][\w$]*|\d+/g;
   let rest = token;
   // Leading root name.
   const rootMatch = rest.match(/^[A-Za-z_$][\w$]*/);

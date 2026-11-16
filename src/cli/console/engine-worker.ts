@@ -99,10 +99,17 @@ function sessionInfo(): {
 async function connectToHost(host: string): Promise<boolean> {
   const { loadConnectionProfileByHost } = frodo.conn;
   try {
-    await loadConnectionProfileByHost({ host, state });
-  } catch {
-    // No profile (or unreadable): keep the host change so the tab's info
-    // line reflects the attempt, then let getTokens report the failure.
+    await loadConnectionProfileByHost(host);
+  } catch (error) {
+    // No matching profile (or an unreadable one). Say so before the sign-in
+    // attempt: a bare auth error downstream would hide the real cause.
+    emit({
+      log: `Could not load the saved profile for ${host}: ${
+        error instanceof Error ? error.message : String(error)
+      }`,
+    });
+    // Keep the host change so the tab's info line reflects the attempt,
+    // then let getTokens report the outcome.
     state.setHost(host);
   }
   return getTokens();
@@ -128,6 +135,7 @@ const sessions = createInterface({ input: process.stdin });
 // Watchdog: a closed stdin pipe means the parent is gone (crashed, killed,
 // terminal lost). Exit instead of lingering as an orphan holding this tab's
 // frodo-lib state. The clean path is the dispose op; this catches the rest.
+// eslint-disable-next-line no-restricted-syntax -- fatal-condition handler: the parent is gone, no cleanup can reach it (record 0033)
 process.stdin.once('end', () => process.exit(0));
 // Ops run one at a time, in arrival order: a connect must not interleave
 // with an eval (the script would read half-switched credentials).

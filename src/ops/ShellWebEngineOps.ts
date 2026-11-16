@@ -621,8 +621,15 @@ export function createWebEngine(options: {
     // installConsoleContext, so they go back on by hand.
     reset() {
       const next = queue.then(() => {
-        if (typeof server.resetContext === 'function') {
-          server.resetContext();
+        // resetContext() exists on every runtime REPLServer but is missing
+        // from @types/node's REPLServer interface; the cast keeps the method
+        // call (its `this` must stay the server) while the guard keeps a
+        // future Node without it working.
+        const serverWithReset = server as unknown as {
+          resetContext?: () => void;
+        };
+        if (typeof serverWithReset.resetContext === 'function') {
+          serverWithReset.resetContext();
           installConsoleContext(server.context, bindings, {
             write: log,
             colors: false,
