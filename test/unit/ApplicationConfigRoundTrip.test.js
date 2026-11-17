@@ -528,6 +528,78 @@ describe('pull applications, then push applications', () => {
     });
   });
 
+  test('a private key set of the OAuth2 client: no key in the tree, the variable in its place, and the same key set in what the push sends (record 0055)', async () => {
+    const keySet = JSON.stringify({
+      keys: [
+        {
+          kty: 'RSA',
+          kid: 'portal',
+          n: 'zion-modulus',
+          e: 'AQAB',
+          d: 'zion-private-exponent-d',
+        },
+      ],
+    });
+    world.agents['zion-portal-client'].signEncOAuth2ClientConfig = {
+      jwkSet: { inherited: false, value: keySet },
+    };
+    // the library fills a placeholder from the values in its state first, then from the process
+    const values = {};
+    state.getEnv.mockImplementation((key) => values[key]);
+    state.getEnvs.mockImplementation(() => values);
+    state.setEnv.mockImplementation((key, value) => {
+      values[key] = value;
+    });
+    state.setEnvs.mockImplementation((next, clear) => {
+      if (clear) for (const key of Object.keys(values)) delete values[key];
+      Object.assign(values, next);
+    });
+    state.getUseProcessEnvironmentForPlaceholders.mockReturnValue(true);
+    frodo.utils.readJsonFile.mockImplementation((file) => {
+      let content = fs.readFileSync(file, 'utf8');
+      for (const placeholder of (content.match(/\\*?\${.*?}/g) ?? []).filter(
+        (p) => !p.startsWith('\\\\')
+      )) {
+        const variable = placeholder.replace(/\${(.*)}/, '$1');
+        const value = values[variable] ?? process.env[variable];
+        if (value === undefined) {
+          throw new Error(`No value found for placeholder "${variable}"`);
+        }
+        content = content.replaceAll(placeholder, value);
+      }
+      return JSON.parse(content.replace(/\\\\\${/g, '${'));
+    });
+    process.env.APP_ZION_PORTAL_JWKSET = keySet;
+    try {
+      await pullThenPush();
+    } finally {
+      delete process.env.APP_ZION_PORTAL_JWKSET;
+      for (const mock of [
+        state.getEnv,
+        state.getEnvs,
+        state.setEnv,
+        state.setEnvs,
+        state.getUseProcessEnvironmentForPlaceholders,
+      ]) {
+        mock.mockReset();
+      }
+    }
+
+    const folder = `realms/alpha/applications/${fs
+      .readdirSync(`${tmp}/realms/alpha/applications`)
+      .find((name) => /portal/i.test(name))}`;
+    const text = fs.readFileSync(`${tmp}/${folder}/oauth2-client.json`, 'utf8');
+    expect(JSON.parse(text).signEncOAuth2ClientConfig.jwkSet).toBe(
+      '${APP_ZION_PORTAL_JWKSET}'
+    );
+    expect(text).not.toMatch(/zion-private-exponent-d|zion-modulus/);
+
+    const [clientId, data] = sent('agent:zion-portal-client');
+    expect(data.agent[clientId].signEncOAuth2ClientConfig.jwkSet).toBe(keySet);
+    // the state of the library is as it was
+    expect(values).toEqual({});
+  });
+
   test('a SAML application: scripts, providers with their metadata, and the members of the circle of trust come back as the library gave them', async () => {
     await pullThenPush();
 

@@ -39,6 +39,7 @@ let world;
 let calls;
 let bodies;
 let userLayout;
+let libEnv;
 
 function dir(rel) {
   const target = path.join(tmp, rel);
@@ -61,6 +62,17 @@ jest.unstable_mockModule('@rockcarver/frodo-lib', () => {
       setRealm: (realm) => {
         currentRealm = realm;
       },
+      // the values that -E/--env and --env-file put into the state of the library, and the switch that
+      // lets a push fill a placeholder from the environment of the process as well
+      getEnv: (key) => libEnv[key],
+      getEnvs: () => libEnv,
+      setEnv: (key, value) => {
+        libEnv[key] = value;
+      },
+      setEnvs: (env, clear) => {
+        libEnv = clear ? { ...env } : { ...libEnv, ...env };
+      },
+      getUseProcessEnvironmentForPlaceholders: () => true,
     },
     frodo: {
       utils: {
@@ -84,7 +96,7 @@ jest.unstable_mockModule('@rockcarver/frodo-lib', () => {
             (p) => !p.startsWith('\\\\')
           )) {
             const variable = placeholder.replace(/\${(.*)}/, '$1');
-            const value = process.env[variable];
+            const value = libEnv[variable] ?? process.env[variable];
             if (value === undefined) {
               throw new FrodoError(
                 `No value found for placeholder "${variable}"`
@@ -364,6 +376,7 @@ beforeEach(() => {
   deployment = 'cloud';
   currentRealm = undefined;
   userLayout = 'folders';
+  libEnv = {};
   calls = [];
   bodies = {};
   world = {
@@ -375,12 +388,14 @@ beforeEach(() => {
   delete process.env.APP_ZION_PORTAL_CLIENT_SECRET;
   delete process.env.APP_SVC_CLIENT_SECRET;
   delete process.env.APP_OTHER_CLIENT_SECRET;
+  delete process.env.APP_ZION_PORTAL_JWKSET;
 });
 afterEach(() => {
   fs.rmSync(tmp, { recursive: true, force: true });
   delete process.env.APP_ZION_PORTAL_CLIENT_SECRET;
   delete process.env.APP_SVC_CLIENT_SECRET;
   delete process.env.APP_OTHER_CLIENT_SECRET;
+  delete process.env.APP_ZION_PORTAL_JWKSET;
 });
 
 // ---- the order of the steps ------------------------------------------------
@@ -675,6 +690,126 @@ describe('the record is matched by name', () => {
     expect(calls).toEqual([]);
     expect(summary()).toMatch(/1 of 1 application failed/);
     expect(summary()).toMatch(/realm alpha/);
+  });
+});
+
+// ---- a key set that a pull replaced by a variable (record 0055) -------------------
+
+describe('the key set of the OAuth2 client, filled from a variable', () => {
+  // a key set is JSON text: it has quotes, so the push has to put it into the string of the file as it is
+  const keySet = JSON.stringify({
+    keys: [
+      {
+        kty: 'RSA',
+        kid: 'portal',
+        n: 'zion-modulus',
+        e: 'AQAB',
+        d: 'zion-private-exponent-d',
+      },
+    ],
+  });
+  const withKeySet = (extra = {}) =>
+    writeApp('alpha', 'Zion Portal', {
+      record: webRecord('Zion Portal', 'zion-portal'),
+      client: client('zion-portal', {
+        userpassword: '${APP_ZION_PORTAL_CLIENT_SECRET}',
+        signEncOAuth2ClientConfig: { jwkSet: '${APP_ZION_PORTAL_JWKSET}' },
+        ...extra,
+      }),
+    });
+  const sentKeySet = () =>
+    bodies.agent.data.agent['zion-portal'].signEncOAuth2ClientConfig.jwkSet;
+
+  test('the key set comes from the environment of the process as JSON text, with its quotes, and goes into the client as it is', async () => {
+    withKeySet();
+    process.env.APP_ZION_PORTAL_CLIENT_SECRET = 's3cret';
+    process.env.APP_ZION_PORTAL_JWKSET = keySet;
+
+    expect(await configManagerImportApplications(undefined, 'alpha')).toBe(
+      true
+    );
+
+    expect(sentKeySet()).toBe(keySet);
+    expect(bodies.agent.data.agent['zion-portal'].userpassword).toBe('s3cret');
+    expect(calls.map((c) => c.replace(UUID, '<id>'))).toEqual([
+      'agent:zion-portal',
+      'app:create:<id>',
+    ]);
+  });
+
+  test('the key set comes from -E too, and the values of the library are as they were afterwards', async () => {
+    withKeySet();
+    process.env.APP_ZION_PORTAL_CLIENT_SECRET = 's3cret';
+    libEnv.APP_ZION_PORTAL_JWKSET = keySet;
+
+    expect(await configManagerImportApplications(undefined, 'alpha')).toBe(
+      true
+    );
+
+    expect(sentKeySet()).toBe(keySet);
+    // the escaped copy that the push put into the state for the read is gone
+    expect(libEnv).toEqual({ APP_ZION_PORTAL_JWKSET: keySet });
+  });
+
+  test('a value that somebody escaped by hand still works', async () => {
+    withKeySet();
+    process.env.APP_ZION_PORTAL_CLIENT_SECRET = 's3cret';
+    process.env.APP_ZION_PORTAL_JWKSET = JSON.stringify(keySet).slice(1, -1);
+
+    expect(await configManagerImportApplications(undefined, 'alpha')).toBe(
+      true
+    );
+
+    expect(sentKeySet()).toBe(keySet);
+  });
+
+  test('a variable without a value fails that application, names the variable and sends nothing for it; the placeholder is never stored', async () => {
+    withKeySet();
+    process.env.APP_ZION_PORTAL_CLIENT_SECRET = 's3cret';
+    writeApp('alpha', 'Other', {
+      record: webRecord('Other', 'other'),
+      client: client('other'),
+    });
+
+    expect(await configManagerImportApplications(undefined, 'alpha')).toBe(
+      false
+    );
+
+    expect(summary()).toMatch(/1 of 2 applications failed/);
+    expect(summary()).toMatch(/alpha\/Zion Portal/);
+    expect(summary()).toMatch(/APP_ZION_PORTAL_JWKSET/);
+    // only the other application was pushed
+    expect(calls.map((c) => c.replace(UUID, '<id>'))).toEqual([
+      'agent:other',
+      'app:create:<id>',
+    ]);
+    expect(JSON.stringify(bodies)).not.toContain('APP_ZION_PORTAL_JWKSET');
+  });
+
+  test('a key set with public keys only is in the file as it is and is pushed as it is', async () => {
+    const publicOnly = JSON.stringify({
+      keys: [{ kty: 'RSA', kid: 'portal', n: 'zion-modulus', e: 'AQAB' }],
+    });
+    withKeySet({ signEncOAuth2ClientConfig: { jwkSet: publicOnly } });
+    process.env.APP_ZION_PORTAL_CLIENT_SECRET = 's3cret';
+
+    expect(await configManagerImportApplications(undefined, 'alpha')).toBe(
+      true
+    );
+
+    expect(sentKeySet()).toBe(publicOnly);
+  });
+
+  test('a variable that is not a JSON object is filled as it is, as before', async () => {
+    withKeySet();
+    process.env.APP_ZION_PORTAL_CLIENT_SECRET = 's3cret';
+    process.env.APP_ZION_PORTAL_JWKSET = 'not-a-key-set';
+
+    expect(await configManagerImportApplications(undefined, 'alpha')).toBe(
+      true
+    );
+
+    expect(sentKeySet()).toBe('not-a-key-set');
   });
 });
 

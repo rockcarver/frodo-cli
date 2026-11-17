@@ -188,9 +188,11 @@ jest.unstable_mockModule(
   })
 );
 
-const { configManagerExportApplications, clientSecretVariable } = await import(
-  src('ops/ApplicationConfigOps.ts')
-);
+const {
+  configManagerExportApplications,
+  clientSecretVariable,
+  clientKeySetVariable,
+} = await import(src('ops/ApplicationConfigOps.ts'));
 const { frodo } = await import('@rockcarver/frodo-lib');
 
 // ---- builders -------------------------------------------------------------
@@ -830,6 +832,232 @@ describe('the layout of the tree decides', () => {
     );
     expect(console_.printError).toHaveBeenCalled();
     expect(exists(`${APPS('alpha')}`)).toBe(false);
+  });
+});
+
+// ---- a key set with private or secret key material (record 0055) ------------------------
+
+describe('a key set of the OAuth2 client that holds private or secret key material', () => {
+  const PRIVATE_D = 'zion-private-exponent-d';
+  const PRIVATE_P = 'zion-private-prime-p';
+  const SECRET_K = 'zion-symmetric-key-k';
+  // AM stores the key set as a string of JSON
+  const rsaPrivate = JSON.stringify({
+    keys: [
+      {
+        kty: 'RSA',
+        kid: 'portal',
+        n: 'zion-modulus',
+        e: 'AQAB',
+        d: PRIVATE_D,
+        p: PRIVATE_P,
+      },
+    ],
+  });
+  const rsaPublic = JSON.stringify({
+    keys: [{ kty: 'RSA', kid: 'portal', n: 'zion-modulus', e: 'AQAB' }],
+  });
+  const oct = JSON.stringify({
+    keys: [{ kty: 'oct', kid: 'portal', k: SECRET_K }],
+  });
+  const mixed = JSON.stringify({
+    keys: [
+      { kty: 'RSA', kid: 'one', n: 'zion-modulus', e: 'AQAB' },
+      {
+        kty: 'RSA',
+        kid: 'two',
+        n: 'zion-modulus-two',
+        e: 'AQAB',
+        d: PRIVATE_D,
+      },
+    ],
+  });
+
+  /** One web application with one OAuth2 client, whose signing and encryption group is the given one. */
+  function portal(name, signEnc, clientType = 'Confidential') {
+    const application = app(name);
+    world.apps.alpha = [application];
+    refs(application, [
+      owned('oauth2Client', 'portal-client', 'ssoEntities.oidcId'),
+    ]);
+    world.agents['portal-client'] = {
+      _id: 'portal-client',
+      userpassword: null,
+      coreOAuth2ClientConfig: {
+        clientType: { inherited: false, value: clientType },
+      },
+      ...(signEnc ? { signEncOAuth2ClientConfig: signEnc } : {}),
+    };
+    return `${APPS('alpha')}/${name}/oauth2-client.json`;
+  }
+  const warnings = () =>
+    console_.printMessage.mock.calls
+      .filter(([, level]) => level === 'warn')
+      .map(([text]) => String(text));
+
+  test('a private RSA key set is replaced by ${APP_<NAME>_JWKSET}, with one warning that names the application, realm, property and variable', async () => {
+    const file = portal('Zion Portal', {
+      jwkSet: { inherited: false, value: rsaPrivate },
+    });
+
+    expect(await configManagerExportApplications(undefined, 'alpha')).toBe(
+      true
+    );
+
+    const client = read(file);
+    expect(client.signEncOAuth2ClientConfig.jwkSet).toBe(
+      '${APP_ZION_PORTAL_JWKSET}'
+    );
+    // the secret of the client keeps its own variable
+    expect(client.userpassword).toBe('${APP_ZION_PORTAL_CLIENT_SECRET}');
+    expect(warnings()).toEqual([
+      "OAuth2 client of application 'Zion Portal' of realm 'alpha' holds private or secret key material in signEncOAuth2ClientConfig.jwkSet: it is not written. The file has ${APP_ZION_PORTAL_JWKSET} in its place; set that variable to the key set when you push.",
+    ]);
+  });
+
+  test('no part of the key is in the file or in anything that was printed', async () => {
+    const file = portal('Zion Portal', { jwkSet: rsaPrivate });
+
+    await configManagerExportApplications(undefined, 'alpha');
+
+    const everything = [
+      fs.readFileSync(path.join(tmp, file), 'utf8'),
+      messages(),
+      console_.verboseMessage.mock.calls
+        .map(([text]) => String(text))
+        .join('\n'),
+      console_.printError.mock.calls.map((call) => call.join(' ')).join('\n'),
+    ].join('\n');
+    for (const part of [PRIVATE_D, PRIVATE_P, 'zion-modulus']) {
+      expect(everything).not.toContain(part);
+    }
+  });
+
+  test('a symmetric key set is replaced too', async () => {
+    const file = portal('Zion Portal', { jwkSet: oct });
+
+    await configManagerExportApplications(undefined, 'alpha');
+
+    expect(read(file).signEncOAuth2ClientConfig.jwkSet).toBe(
+      '${APP_ZION_PORTAL_JWKSET}'
+    );
+    expect(JSON.stringify(read(file))).not.toContain(SECRET_K);
+  });
+
+  test('a key set with public keys only is written as it is, without a warning', async () => {
+    const file = portal('Zion Portal', { jwkSet: rsaPublic });
+
+    expect(await configManagerExportApplications(undefined, 'alpha')).toBe(
+      true
+    );
+
+    expect(read(file).signEncOAuth2ClientConfig.jwkSet).toBe(rsaPublic);
+    expect(warnings()).toEqual([]);
+  });
+
+  test('one private key among public ones replaces the whole key set', async () => {
+    const file = portal('Zion Portal', { jwkSet: mixed });
+
+    await configManagerExportApplications(undefined, 'alpha');
+
+    expect(read(file).signEncOAuth2ClientConfig.jwkSet).toBe(
+      '${APP_ZION_PORTAL_JWKSET}'
+    );
+    expect(fs.readFileSync(path.join(tmp, file), 'utf8')).not.toContain(
+      'zion-modulus-two'
+    );
+  });
+
+  test('a client without a key set gets no placeholder and no warning', async () => {
+    const file = portal('Zion Portal', undefined);
+
+    await configManagerExportApplications(undefined, 'alpha');
+
+    expect(read(file)).not.toHaveProperty('signEncOAuth2ClientConfig');
+    expect(JSON.stringify(read(file))).not.toContain('JWKSET');
+    expect(warnings()).toEqual([]);
+  });
+
+  test('a key set that is null or unset is left out like any other and gets no placeholder', async () => {
+    const file = portal('Zion Portal', {
+      jwkSet: null,
+      jwksUri: 'https://openam-matrix.example.com/jwks',
+    });
+
+    await configManagerExportApplications(undefined, 'alpha');
+
+    expect(read(file).signEncOAuth2ClientConfig).toEqual({
+      jwksUri: 'https://openam-matrix.example.com/jwks',
+    });
+    expect(warnings()).toEqual([]);
+  });
+
+  test('a public client has the rule too: it does not depend on the secret of the client', async () => {
+    const file = portal('Native', { jwkSet: rsaPrivate }, 'Public');
+
+    await configManagerExportApplications(undefined, 'alpha');
+
+    const client = read(file);
+    expect(client.signEncOAuth2ClientConfig.jwkSet).toBe(
+      '${APP_NATIVE_JWKSET}'
+    );
+    expect(client).not.toHaveProperty('userpassword');
+  });
+
+  test('the name of the application makes the variable, the way it makes the one of the secret', async () => {
+    const file = portal('my-app.v2', { jwkSet: rsaPrivate });
+
+    await configManagerExportApplications(undefined, 'alpha');
+
+    expect(read(file).signEncOAuth2ClientConfig.jwkSet).toBe(
+      '${APP_MY_APP_V2_JWKSET}'
+    );
+    expect(read(file).userpassword).toBe('${APP_MY_APP_V2_CLIENT_SECRET}');
+  });
+
+  test('the key set is not counted as a left-out property: the written key set is replaced, not left out', async () => {
+    portal('Zion Portal', { jwkSet: rsaPrivate });
+
+    await configManagerExportApplications(undefined, 'alpha');
+
+    // only the null password was left out
+    expect(console_.verboseMessage).toHaveBeenCalledWith(
+      'Left 1 unset or inherited property out of 1 OAuth2 client written: a file holds only what is set on the object.'
+    );
+  });
+
+  test('a second pull writes the same file', async () => {
+    const file = portal('Zion Portal', { jwkSet: rsaPrivate });
+
+    await configManagerExportApplications(undefined, 'alpha');
+    const first = fs.readFileSync(path.join(tmp, file), 'utf8');
+    await configManagerExportApplications(undefined, 'alpha');
+
+    expect(fs.readFileSync(path.join(tmp, file), 'utf8')).toBe(first);
+  });
+});
+
+describe('the name of the key set variable', () => {
+  test.each([
+    ['Zion Portal', 'APP_ZION_PORTAL_JWKSET'],
+    ['my-app.v2', 'APP_MY_APP_V2_JWKSET'],
+    ['  Edge  Case!! ', 'APP_EDGE_CASE_JWKSET'],
+    ['Already_Snake', 'APP_ALREADY_SNAKE_JWKSET'],
+  ])('%s -> %s', (name, variable) => {
+    expect(clientKeySetVariable(name)).toBe(variable);
+  });
+
+  test('is the variable of the secret with the other ending', () => {
+    for (const name of [
+      'Zion Portal',
+      'my-app.v2',
+      '  Edge  Case!! ',
+      'Already_Snake',
+    ]) {
+      expect(clientKeySetVariable(name).replace(/_JWKSET$/, '')).toBe(
+        clientSecretVariable(name).replace(/_CLIENT_SECRET$/, '')
+      );
+    }
   });
 });
 

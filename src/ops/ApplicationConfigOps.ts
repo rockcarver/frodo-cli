@@ -27,6 +27,12 @@ import {
   type ApplicationLayoutDecision,
 } from '../utils/TreeLayout';
 import { leftOutMessage, toPlainShape } from './AgentFileShape';
+import {
+  readAgentFile,
+  redactedKeySetMessage,
+  redactKeySets,
+  type RedactedKeySet,
+} from './AgentKeySets';
 
 const {
   getFilePath,
@@ -60,6 +66,20 @@ const RECORD_FIELDS_NOT_PULLED = [
 const KINDS_LEFT_OUT = ['glossarySchema', 'requestForm', 'requestType'];
 
 /**
+ * The name of an application as a part of the name of an environment variable:
+ * in upper case, every run of characters other than letters and digits as one
+ * underscore.
+ * @param {string} applicationName the name of the application
+ * @returns {string} the part of the name, e.g. `ZION_PORTAL`
+ */
+function variablePartOf(applicationName: string): string {
+  return applicationName
+    .toUpperCase()
+    .replace(/[^A-Z0-9]+/g, '_')
+    .replace(/^_+|_+$/g, '');
+}
+
+/**
  * The name of the environment variable that holds the secret of the OAuth2
  * client of an application, which the pulled file refers to as a placeholder:
  * `APP_<NAME>_CLIENT_SECRET`, with the name in upper case and every run of
@@ -68,11 +88,20 @@ const KINDS_LEFT_OUT = ['glossarySchema', 'requestForm', 'requestType'];
  * @returns {string} the name of the variable
  */
 export function clientSecretVariable(applicationName: string): string {
-  const name = applicationName
-    .toUpperCase()
-    .replace(/[^A-Z0-9]+/g, '_')
-    .replace(/^_+|_+$/g, '');
-  return `APP_${name}_CLIENT_SECRET`;
+  return `APP_${variablePartOf(applicationName)}_CLIENT_SECRET`;
+}
+
+/**
+ * The name of the environment variable that holds the key set of the OAuth2
+ * client of an application when that key set holds private or secret key
+ * material, which the pulled file refers to as a placeholder (decision record
+ * 0055): `APP_<NAME>_JWKSET`, with the name made as in
+ * {@link clientSecretVariable}.
+ * @param {string} applicationName the name of the application
+ * @returns {string} the name of the variable
+ */
+export function clientKeySetVariable(applicationName: string): string {
+  return `APP_${variablePartOf(applicationName)}_JWKSET`;
 }
 
 /**
@@ -91,24 +120,31 @@ export function isConfidentialClient(client: any): boolean {
 /**
  * The OAuth2 client of an application as it is written to `oauth2-client.json`:
  * the format of the `oauth2-agents` kind (the plain shape of record 0054, rule 6),
- * with literal `${` escaped, and for a confidential client the secret as a
+ * with literal `${` escaped, for a confidential client the secret as a
  * placeholder (the library masks it on reads, and a secret is never written in
- * the clear: core record 0013).
+ * the clear: core record 0013), and a key set that holds private or secret key
+ * material as a placeholder too (decision record 0055).
  * @param {any} client the OAuth2 client as the library reads it
  * @param {string} applicationName the name of the application
- * @returns {{ file: object; leftOut: number }} the content of the file and how many
- * properties were left out of it (unset, inherited or null)
+ * @returns {{ file: object; leftOut: number; redacted: RedactedKeySet[] }} the content of the
+ * file, how many properties were left out of it (unset, inherited or null), and the key sets
+ * that were replaced by a placeholder
  */
 function clientFile(
   client: any,
   applicationName: string
-): { file: object; leftOut: number } {
+): { file: object; leftOut: number; redacted: RedactedKeySet[] } {
   const plain = toPlainShape(client);
   const file: any = escapePlaceholders(plain.value);
   if (isConfidentialClient(client)) {
     file.userpassword = `\${${clientSecretVariable(applicationName)}}`;
   }
-  return { file, leftOut: plain.leftOut };
+  const redacted = redactKeySets(
+    file,
+    applicationName,
+    clientKeySetVariable(applicationName)
+  );
+  return { file, leftOut: plain.leftOut, redacted };
 }
 
 /** The text that names a reference that could not be followed, for the summary. */
@@ -362,7 +398,18 @@ export async function pullApplication(
           `The secret of the OAuth2 client of application '${application.name}' is written as \${${clientSecretVariable(application.name)}}; set that variable when you push.`
         );
       }
-      const { file, leftOut } = clientFile(agent, application.name);
+      const { file, leftOut, redacted } = clientFile(agent, application.name);
+      for (const keySet of redacted) {
+        printMessage(
+          redactedKeySetMessage(
+            'OAuth2 client of application',
+            application.name,
+            realm,
+            keySet
+          ),
+          'warn'
+        );
+      }
       saveJsonToFile(
         file,
         getFilePath(`${folder}/oauth2-client.json`, true),
@@ -518,7 +565,12 @@ function readApplicationFolder(
 
   if (owned.some((reference) => reference.kind === 'oauth2Client')) {
     if (need('oauth2-client.json')) {
-      files.client = readJsonFile(`${folder}/oauth2-client.json`);
+      // a key set that a pull replaced by a variable is filled from it as JSON text (record 0055)
+      files.client = readAgentFile(
+        `${folder}/oauth2-client.json`,
+        (file) => readJsonFile(file),
+        state
+      );
       if (!files.client?._id) {
         throw new Error(`oauth2-client.json has no _id`);
       }

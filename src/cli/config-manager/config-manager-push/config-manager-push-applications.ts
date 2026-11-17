@@ -6,6 +6,7 @@ import { getTokens } from '../../../ops/AuthenticateOps';
 import c from '../../../utils/ColorTheme';
 import { verboseMessage } from '../../../utils/Console';
 import { realmOfRun } from '../../../utils/interactive/PositionalArgs';
+import { APPLICATION_KEY_SET_PUSH_SENTENCE } from '../../../utils/PlaceholderValues';
 import { FrodoCommand } from '../../FrodoCommand';
 
 const { CLOUD_DEPLOYMENT_TYPE_KEY, FORGEOPS_DEPLOYMENT_TYPE_KEY } =
@@ -28,7 +29,9 @@ export default function setup() {
       'Import applications, one folder per application with the objects it owns.'
     )
     .description(
-      'Import applications from the folders realms/<realm>/applications/<name>/ that "pull applications" writes. For each application the scripts it uses, its connector and mappings, its OAuth2 client and its SAML providers are imported first, then the circles of trust the providers are members of, and the application itself last. An application is matched by its name: the tenant\'s application of that name is updated in place, and a new one is created if there is none. The secret of an OAuth2 client is read from the environment variable named in its file (APP_<NAME>_CLIENT_SECRET); an application whose variable is not set is not imported. Members, owners and roles of an application, and the glossary values and request forms of Identity Governance tenants, are never changed.'
+      'Import applications from the folders realms/<realm>/applications/<name>/ that "pull applications" writes. For each application the scripts it uses, its connector and mappings, its OAuth2 client and its SAML providers are imported first, then the circles of trust the providers are members of, and the application itself last. An application is matched by its name: the tenant\'s application of that name is updated in place, and a new one is created if there is none. The secret of an OAuth2 client is read from the environment variable named in its file (APP_<NAME>_CLIENT_SECRET); an application whose variable is not set is not imported. ' +
+        APPLICATION_KEY_SET_PUSH_SENTENCE +
+        ' Members, owners and roles of an application, and the glossary values and request forms of Identity Governance tenants, are never changed.'
     )
     .addOption(
       new Option(

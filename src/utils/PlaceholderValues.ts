@@ -24,3 +24,15 @@ export const KEY_SET_PULL_SENTENCE =
 /** What a push does with that placeholder, for the help of the push commands of the same kinds. */
 export const KEY_SET_PUSH_SENTENCE =
   'A file that has ${<ID>_JWKSET} as its key set (a pull writes it for a key set with a private or secret key) is filled from that variable, which holds the key set as JSON text.';
+
+/**
+ * What `pull applications` does with a key set of the OAuth2 client of an application that holds a
+ * private or secret key (decision record 0055): the variable follows the convention of the
+ * application folder, as the one of the client secret does.
+ */
+export const APPLICATION_KEY_SET_PULL_SENTENCE =
+  'A key set of the OAuth2 client that holds a private or secret key is not written: oauth2-client.json has ${APP_<NAME>_JWKSET} in its place (the name of the application in upper case, as in APP_<NAME>_CLIENT_SECRET) and a warning says so.';
+
+/** What `push applications` does with that placeholder. */
+export const APPLICATION_KEY_SET_PUSH_SENTENCE =
+  'A key set that a pull replaced by ${APP_<NAME>_JWKSET} is filled from that variable, which holds the key set as JSON text.';
