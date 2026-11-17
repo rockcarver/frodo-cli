@@ -4,6 +4,7 @@ import { getEnv, testSuccess } from './utils/TestUtils';
 import { iga_connection as ic } from './utils/TestConfig';
 
 process.env['FRODO_MOCK'] ||= '1';
+// FRODO_TEST_NAME pins the recording identity of a command: the id its recording was made under.
 const igaEnv = getEnv(ic);
 
 // TODO(iga-ccb-ai-recording): every sub-test below needs a custom workflow
@@ -21,31 +22,31 @@ const igaEnv = getEnv(ic);
 describe('frodo iga workflow delete', () => {
   test.skip(`"frodo iga workflow delete -di <id>": should delete a draft workflow`, async () => {
     const CMD = `frodo iga workflow delete -di testWorkflow1`;
-    await testSuccess(CMD, igaEnv);
+    await testSuccess(CMD, { ...igaEnv, env: { ...igaEnv.env, FRODO_TEST_NAME: '0_di' } });
   });
 
   test.skip(`"frodo iga workflow delete -fpi <id>": should delete a published workflow`, async () => {
     const CMD = `frodo iga workflow delete -fpi testWorkflow9`;
-    await testSuccess(CMD, igaEnv);
+    await testSuccess(CMD, { ...igaEnv, env: { ...igaEnv.env, FRODO_TEST_NAME: '0_fpi' } });
   });
 
   test.skip(`"frodo iga workflow delete --workflow-id <id> --force": should delete both draft and published forms`, async () => {
     const CMD = `frodo iga workflow delete --workflow-id testWorkflow4 --force`;
-    await testSuccess(CMD, igaEnv);
+    await testSuccess(CMD, { ...igaEnv, env: { ...igaEnv.env, FRODO_TEST_NAME: '0_workflow-id_force' } });
   });
 
   test.skip(`"frodo iga workflow delete --draft-only -a -y": should delete all draft workflows`, async () => {
     const CMD = `frodo iga workflow delete --draft-only -a -y`;
-    await testSuccess(CMD, igaEnv);
+    await testSuccess(CMD, { ...igaEnv, env: { ...igaEnv.env, FRODO_TEST_NAME: '0_draft-only_a_y' } });
   });
 
   test.skip(`"frodo iga workflow delete --published-only -fa -y": should fail (protected OOTB workflows)`, async () => {
     const CMD = `frodo iga workflow delete --published-only -fa -y`;
-    await testSuccess(CMD, igaEnv);
+    await testSuccess(CMD, { ...igaEnv, env: { ...igaEnv.env, FRODO_TEST_NAME: '0_published-only_fa_y' } });
   });
 
   test.skip(`"frodo iga workflow delete -fdp --all -y": should fail (protected OOTB workflows)`, async () => {
     const CMD = `frodo iga workflow delete -fdp --all -y`;
-    await testSuccess(CMD, igaEnv);
+    await testSuccess(CMD, { ...igaEnv, env: { ...igaEnv.env, FRODO_TEST_NAME: '0_fdp_all_y' } });
   });
 });

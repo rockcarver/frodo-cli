@@ -23,6 +23,7 @@ import { connection as c } from './utils/TestConfig';
 
 
 process.env['FRODO_MOCK'] ||= '1';
+// FRODO_TEST_NAME pins the recording identity of a command: the id its recording was made under.
 const env = getEnv(c);
 
 const allDirectory = 'test/e2e/exports/all';
@@ -36,26 +37,26 @@ const allSeparateGlobalServicesDirectory = `test/e2e/exports/all-separate/cloud/
 describe('frodo service import', () => {
   test(`"frodo service import -i SocialIdentityProviders -f ${allAlphaServicesExport}": should import the service with the id "SocialIdentityProviders" from the file "${allAlphaServicesExport}"`, async () => {
     const CMD = `frodo service import -i SocialIdentityProviders -f ${allAlphaServicesExport}`;
-    const { stdout } = await exec(CMD, env);
+    const { stdout } = await exec(CMD, { ...env, env: { ...env.env, FRODO_TEST_NAME: '0_i_f' } });
     expect(normalizeSnapshotText(stdout)).toMatchSnapshot()
   });
 
   test(`"frodo service import -Cri baseurl -f ${allAlphaServicesExport}": should import the service with the id "baseurl" from the file "${allAlphaServicesExport}", and clean the old one`, async () => {
     const CMD = `frodo service import -Cri baseurl -f ${allAlphaServicesExport}`;
-    const { stdout } = await exec(CMD, env);
+    const { stdout } = await exec(CMD, { ...env, env: { ...env.env, FRODO_TEST_NAME: '0_Cri_f' } });
     expect(normalizeSnapshotText(stdout)).toMatchSnapshot()
   });
 
   test(`"frodo service import --service-id dashboard --global --file ${allGlobalServicesExport}": should import the global service with the id "CorsService" from the file "${allGlobalServicesExport}"`, async () => {
     const CMD = `frodo service import --service-id dashboard --global --file ${allGlobalServicesExport}`;
-    const { stdout } = await exec(CMD, env);
+    const { stdout } = await exec(CMD, { ...env, env: { ...env.env, FRODO_TEST_NAME: '0_service-id_global_file' } });
     expect(normalizeSnapshotText(stdout)).toMatchSnapshot()
   });
 
   test(`"frodo service import --clean -g --service-id dashboard --file ${allGlobalServicesExport}": should fail because global singleton services cannot be deleted (--clean option).`, async () => {
     const CMD = `frodo service import --clean -g --service-id dashboard --file ${allGlobalServicesExport}`;
     try {
-      await exec(CMD, env);
+      await exec(CMD, { ...env, env: { ...env.env, FRODO_TEST_NAME: '0_clean_g_service-id_file' } });
       fail("Command should've failed");
     } catch (e) {
       expect(normalizeSnapshotText(e.stderr)).toMatchSnapshot();
@@ -64,26 +65,26 @@ describe('frodo service import', () => {
 
   test(`"frodo service import -f ${allAlphaServicesExport}": should import the first service from the file "${allAlphaServicesExport}"`, async () => {
     const CMD = `frodo service import -f ${allAlphaServicesExport}`;
-    const { stdout } = await exec(CMD, env);
+    const { stdout } = await exec(CMD, { ...env, env: { ...env.env, FRODO_TEST_NAME: '0_f' } });
     expect(normalizeSnapshotText(stdout)).toMatchSnapshot()
   });
 
   test(`"frodo service import -Crf ${allAlphaServicesExport}": should import the first service from the file "${allAlphaServicesExport}", and clean the old one`, async () => {
     const CMD = `frodo service import -Crf ${allAlphaServicesExport}`;
-    const { stdout } = await exec(CMD, env);
+    const { stdout } = await exec(CMD, { ...env, env: { ...env.env, FRODO_TEST_NAME: '0_Crf' } });
     expect(normalizeSnapshotText(stdout)).toMatchSnapshot()
   });
 
   test(`"frodo service import --global --file ${allGlobalServicesExport}": should import the first global service from the file "${allGlobalServicesExport}"`, async () => {
     const CMD = `frodo service import --global --file ${allGlobalServicesExport}`;
-    const { stdout } = await exec(CMD, env);
+    const { stdout } = await exec(CMD, { ...env, env: { ...env.env, FRODO_TEST_NAME: '0_global_file' } });
     expect(normalizeSnapshotText(stdout)).toMatchSnapshot()
   });
 
   test(`"frodo service import --clean --global --file ${allGlobalServicesExport}": should fail because global singleton services cannot be deleted (--clean option).`, async () => {
     const CMD = `frodo service import --clean --global --file ${allGlobalServicesExport}`;
     try {
-      await exec(CMD, env);
+      await exec(CMD, { ...env, env: { ...env.env, FRODO_TEST_NAME: '0_clean_global_file' } });
       fail("Command should've failed");
     } catch (e) {
       expect(normalizeSnapshotText(e.stderr)).toMatchSnapshot();
@@ -92,19 +93,19 @@ describe('frodo service import', () => {
 
   test(`"frodo service import -af ${allAlphaServicesExport}": should import all services from the file "${allAlphaServicesExport}"`, async () => {
     const CMD = `frodo service import -af ${allAlphaServicesExport}`;
-    const { stdout } = await exec(CMD, env);
+    const { stdout } = await exec(CMD, { ...env, env: { ...env.env, FRODO_TEST_NAME: '0_af' } });
     expect(normalizeSnapshotText(stdout)).toMatchSnapshot()
   });
 
   test(`"frodo service import --current-realm -Caf ${allAlphaServicesExport}": should import all services from the file "${allAlphaServicesExport}", and clean the old ones`, async () => {
     const CMD = `frodo service import --current-realm -Caf ${allAlphaServicesExport}`;
-    const { stdout } = await exec(CMD, env);
+    const { stdout } = await exec(CMD, { ...env, env: { ...env.env, FRODO_TEST_NAME: '0_current-realm_Caf' } });
     expect(normalizeSnapshotText(stdout)).toMatchSnapshot()
   });
 
   test(`"frodo service import --all --global --file ${allGlobalServicesExport}": should import all global services from the file "${allGlobalServicesExport}"`, async () => {
     const CMD = `frodo service import --all --global --file ${allGlobalServicesExport}`;
-    const { stdout } = await exec(CMD, env);
+    const { stdout } = await exec(CMD, { ...env, env: { ...env.env, FRODO_TEST_NAME: '0_all_global_file' } });
     expect(normalizeSnapshotText(stdout)).toMatchSnapshot()
   });
 
@@ -113,7 +114,7 @@ describe('frodo service import', () => {
   test(`"frodo service import --clean --global --all --file ${allGlobalServicesExport}": should fail because global singleton services cannot be deleted (--clean option).`, async () => {
     const CMD = `frodo service import --clean --global --all --file ${allGlobalServicesExport}`;
     try {
-      await exec(CMD, env);
+      await exec(CMD, { ...env, env: { ...env.env, FRODO_TEST_NAME: '0_clean_global_all_file' } });
       fail("Command should've failed");
     } catch (e) {
       expect(normalizeSnapshotText(e.stderr)).toMatchSnapshot();
@@ -122,7 +123,7 @@ describe('frodo service import', () => {
 
   test(`"frodo service import -AD ${allSeparateAlphaServicesDirectory}": should import all services from the directory "${allSeparateAlphaServicesDirectory}"`, async () => {
     const CMD = `frodo service import -AD ${allSeparateAlphaServicesDirectory}`;
-    const { stdout } = await exec(CMD, env);
+    const { stdout } = await exec(CMD, { ...env, env: { ...env.env, FRODO_TEST_NAME: '0_AD' } });
     expect(normalizeSnapshotText(stdout)).toMatchSnapshot()
   });
 
@@ -134,7 +135,7 @@ describe('frodo service import', () => {
     const CMD = `frodo service import -ACrD ${allSeparateAlphaServicesDirectory}`;
     let failure;
     try {
-      await exec(CMD, env);
+      await exec(CMD, { ...env, env: { ...env.env, FRODO_TEST_NAME: '0_ACrD' } });
     } catch (e) {
       failure = e;
     }
@@ -150,7 +151,7 @@ describe('frodo service import', () => {
     const CMD = `frodo service import --global --all-separate --directory ${allSeparateGlobalServicesDirectory}`;
     let failure;
     try {
-      await exec(CMD, env);
+      await exec(CMD, { ...env, env: { ...env.env, FRODO_TEST_NAME: '0_global_all-separate_directory' } });
     } catch (e) {
       failure = e;
     }
@@ -166,7 +167,7 @@ describe('frodo service import', () => {
     const CMD = `frodo service import --clean --global --all-separate --directory ${allSeparateGlobalServicesDirectory}`;
     let failure;
     try {
-      await exec(CMD, env);
+      await exec(CMD, { ...env, env: { ...env.env, FRODO_TEST_NAME: '0_clean_global_all-separate_directory' } });
     } catch (e) {
       failure = e;
     }
