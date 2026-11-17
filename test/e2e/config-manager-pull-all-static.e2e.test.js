@@ -2,13 +2,13 @@
 
 /*
 // Cloud
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_REALM=alpha FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo config-manager pull all-static -D allStaticDir1
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_REALM=alpha FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_TEST_NAME=0_D frodo config-manager pull all-static -D allStaticDir1
 
 // Cloud, all realms (no realm given, so nothing is filtered)
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_TEST_NAME=allRealms FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo config-manager pull all-static -D allStaticDir3
 
 // ForgeOps
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://nightly.gcp.forgeops.com/am frodo config-manager pull all-static -D allStaticDir2 -m forgeops
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://nightly.gcp.forgeops.com/am FRODO_TEST_NAME=0_D_m frodo config-manager pull all-static -D allStaticDir2 -m forgeops
 */
 
 import { getEnv, testExport } from './utils/TestUtils';

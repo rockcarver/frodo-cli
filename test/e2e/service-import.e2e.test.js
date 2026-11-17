@@ -1,22 +1,22 @@
 /** See test/e2e/README.md for how to write and record e2e tests. */
 
 /*
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo service import -i SocialIdentityProviders -f test/e2e/exports/all/allAlphaServices.service.json
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo service import -Cri baseurl -f test/e2e/exports/all/allAlphaServices.service.json
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo service import --service-id dashboard --global --file test/e2e/exports/all/allGlobalServices.service.json
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo service import --clean -g --service-id dashboard --file test/e2e/exports/all/allGlobalServices.service.json
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo service import -f test/e2e/exports/all/allAlphaServices.service.json
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo service import -Crf test/e2e/exports/all/allAlphaServices.service.json
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo service import --global --file test/e2e/exports/all/allGlobalServices.service.json
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo service import --clean --global --file test/e2e/exports/all/allGlobalServices.service.json
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo service import -af test/e2e/exports/all/allAlphaServices.service.json
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo service import --current-realm -Caf test/e2e/exports/all/allAlphaServices.service.json
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo service import --all --global --file test/e2e/exports/all/allGlobalServices.service.json
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo service import --clean --global --all --file test/e2e/exports/all/allGlobalServices.service.json
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo service import -AD test/e2e/exports/all-separate/cloud/realm/root-alpha/service
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo service import -ACrD test/e2e/exports/all-separate/cloud/realm/root-alpha/service
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo service import --global --all-separate --directory test/e2e/exports/all-separate/cloud/global/service
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo service import --clean --global --all-separate --directory test/e2e/exports/all-separate/cloud/global/service
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_TEST_NAME=0_i_f frodo service import -i SocialIdentityProviders -f test/e2e/exports/all/allAlphaServices.service.json
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_TEST_NAME=0_Cri_f frodo service import -Cri baseurl -f test/e2e/exports/all/allAlphaServices.service.json
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_TEST_NAME=0_service-id_global_file frodo service import --service-id dashboard --global --file test/e2e/exports/all/allGlobalServices.service.json
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_TEST_NAME=0_clean_g_service-id_file frodo service import --clean -g --service-id dashboard --file test/e2e/exports/all/allGlobalServices.service.json
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_TEST_NAME=0_f frodo service import -f test/e2e/exports/all/allAlphaServices.service.json
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_TEST_NAME=0_Crf frodo service import -Crf test/e2e/exports/all/allAlphaServices.service.json
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_TEST_NAME=0_global_file frodo service import --global --file test/e2e/exports/all/allGlobalServices.service.json
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_TEST_NAME=0_clean_global_file frodo service import --clean --global --file test/e2e/exports/all/allGlobalServices.service.json
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_TEST_NAME=0_af frodo service import -af test/e2e/exports/all/allAlphaServices.service.json
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_TEST_NAME=0_current-realm_Caf frodo service import --current-realm -Caf test/e2e/exports/all/allAlphaServices.service.json
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_TEST_NAME=0_all_global_file frodo service import --all --global --file test/e2e/exports/all/allGlobalServices.service.json
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_TEST_NAME=0_clean_global_all_file frodo service import --clean --global --all --file test/e2e/exports/all/allGlobalServices.service.json
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_TEST_NAME=0_AD frodo service import -AD test/e2e/exports/all-separate/cloud/realm/root-alpha/service
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_TEST_NAME=0_ACrD frodo service import -ACrD test/e2e/exports/all-separate/cloud/realm/root-alpha/service
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_TEST_NAME=0_global_all-separate_directory frodo service import --global --all-separate --directory test/e2e/exports/all-separate/cloud/global/service
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_TEST_NAME=0_clean_global_all-separate_directory frodo service import --clean --global --all-separate --directory test/e2e/exports/all-separate/cloud/global/service
 */
 import { getEnv, normalizeSnapshotText, exec } from './utils/TestUtils';
 import { connection as c } from './utils/TestConfig';

@@ -1,8 +1,8 @@
 /** See test/e2e/README.md for how to write and record e2e tests. */
 
 /*
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo config-manager pull connector-definitions -D configManagerExportConnectorDefinitionsDir0
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo config-manager pull connector-definitions -D configManagerExportConnectorDefinitionsDir1 -n Azure
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_TEST_NAME=0_D frodo config-manager pull connector-definitions -D configManagerExportConnectorDefinitionsDir0
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_TEST_NAME=0_D_n frodo config-manager pull connector-definitions -D configManagerExportConnectorDefinitionsDir1 -n Azure
 */
 import { getEnv, testExport } from './utils/TestUtils';
 import { connection as c } from './utils/TestConfig';

@@ -2,10 +2,10 @@
 
 /*
 // Cloud
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo config-manager push variables -F -E ESV_FR_VAR_TEST_2="20" -E ESV_FR_VAR_TEST='this is a test' -D test/e2e/exports/fr-config-manager/cloud
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo config-manager push variables --env-file test/e2e/env/configManager2.env --env-file test/e2e/env/configManager1.env -D test/e2e/exports/fr-config-manager/cloud 
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo config-manager push variables --force-update -n esv-fr-var-test-2 --env ESV_FR_VAR_TEST_2=20 -D test/e2e/exports/fr-config-manager/cloud
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo config-manager push variables --name esv-fr-var-test --env ESV_FR_VAR_TEST="test2" --env-file test/e2e/env/configManager1.env -D test/e2e/exports/fr-config-manager/cloud
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_TEST_NAME=0_F_E_E_D frodo config-manager push variables -F -E ESV_FR_VAR_TEST_2="20" -E ESV_FR_VAR_TEST='this is a test' -D test/e2e/exports/fr-config-manager/cloud
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_TEST_NAME=0_env-file_env-file_D frodo config-manager push variables --env-file test/e2e/env/configManager2.env --env-file test/e2e/env/configManager1.env -D test/e2e/exports/fr-config-manager/cloud
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_TEST_NAME=0_force-update_n_env_D frodo config-manager push variables --force-update -n esv-fr-var-test-2 --env ESV_FR_VAR_TEST_2=20 -D test/e2e/exports/fr-config-manager/cloud
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_TEST_NAME=0_name_env_env-file_D frodo config-manager push variables --name esv-fr-var-test --env ESV_FR_VAR_TEST="test2" --env-file test/e2e/env/configManager1.env -D test/e2e/exports/fr-config-manager/cloud
 */
 
 import { getEnv, testSuccess } from './utils/TestUtils';

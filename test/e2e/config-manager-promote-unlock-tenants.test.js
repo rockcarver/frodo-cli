@@ -2,7 +2,7 @@
 
 /*
 // Cloud
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo config-manager promote unlock-tenants -i bb757dc6-0646-47d7-b63c-c7c6b5668ad7
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_TEST_NAME=0_i frodo config-manager promote unlock-tenants -i bb757dc6-0646-47d7-b63c-c7c6b5668ad7
 */
 
 import { getEnv, testSuccess } from './utils/TestUtils';

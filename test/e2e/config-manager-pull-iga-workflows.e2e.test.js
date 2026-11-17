@@ -13,7 +13,7 @@ test_workflow_4 is not an out-of-the-box workflow, so it must exist before
 recording. The beforeAll below stages it automatically during a recording
 run; this is only for reference / manual mock-mode probing (step #1 above):
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-ccb-ai.forgeblocks.com/am frodo iga workflow import --workflow-id test_workflow_4 --file test/e2e/exports/all/allWorkflows.workflow.json --no-deps
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-ccb-ai.forgeblocks.com/am frodo iga workflow delete --workflow-id test_workflow_4 --force
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-ccb-ai.forgeblocks.com/am FRODO_TEST_NAME=0_workflow-id_force frodo iga workflow delete --workflow-id test_workflow_4 --force
 */
 
 import { getEnv, testExport, testFail } from './utils/TestUtils';

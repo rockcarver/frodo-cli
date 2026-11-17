@@ -2,8 +2,8 @@
 
 /*
 // Forgeops
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://nightly.gcp.forgeops.com/am frodo config-manager push config-metadata --metadata.pushedAt 2023-09-10T10:21:46Z --metadata.versionInfo.version 1.0 --metadata.versionInfo.stable true --metadata.versionInfo.rev 0675342640420f7ff6635d6a63d2c9c81b6feca7 -m forgeops
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://nightly.gcp.forgeops.com/am frodo config-manager push config-metadata -M.two 2 -M.true true -M.true2 -M.true3 -M.true3 three -M.obj.one 1 -M.obj.two -M.obj2.obj3.msg hello -m forgeops
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://nightly.gcp.forgeops.com/am FRODO_TEST_NAME=0_metadata.pushedAt_metadata.versionInfo.version_metadata.versionInfo.stable_metadata.versionInfo.rev_m frodo config-manager push config-metadata --metadata.pushedAt 2023-09-10T10:21:46Z --metadata.versionInfo.version 1.0 --metadata.versionInfo.stable true --metadata.versionInfo.rev 0675342640420f7ff6635d6a63d2c9c81b6feca7 -m forgeops
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://nightly.gcp.forgeops.com/am FRODO_TEST_NAME=0_M.two_M.true_M.true2_M.true3_M.true3_M.obj.one_M.obj.two_M.obj2.obj3.msg_m frodo config-manager push config-metadata -M.two 2 -M.true true -M.true2 -M.true3 -M.true3 three -M.obj.one 1 -M.obj.two -M.obj2.obj3.msg hello -m forgeops
 */
 
 import { getEnv, testSuccess } from './utils/TestUtils';

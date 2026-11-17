@@ -3,10 +3,10 @@
 // NAME, ID, PREFIX, REALM, ALL
 /*
 // ForgeOps
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://nightly.gcp.forgeops.com/am FRODO_REALM=/alpha frodo config-manager delete scripts -n FrodoDeleteByName -m forgeops
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://nightly.gcp.forgeops.com/am FRODO_REALM=/alpha frodo config-manager delete scripts -p FrodoDeletePrefix -y -m forgeops
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://nightly.gcp.forgeops.com/am FRODO_REALM=/alpha frodo config-manager delete scripts -d -n FrodoDeleteByName -m forgeops
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://nightly.gcp.forgeops.com/am frodo config-manager delete scripts --dry-run -m forgeops
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://nightly.gcp.forgeops.com/am FRODO_REALM=/alpha FRODO_TEST_NAME=0_n_m frodo config-manager delete scripts -n FrodoDeleteByName -m forgeops
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://nightly.gcp.forgeops.com/am FRODO_REALM=/alpha FRODO_TEST_NAME=0_p_y_m frodo config-manager delete scripts -p FrodoDeletePrefix -y -m forgeops
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://nightly.gcp.forgeops.com/am FRODO_REALM=/alpha FRODO_TEST_NAME=0_d_n_m frodo config-manager delete scripts -d -n FrodoDeleteByName -m forgeops
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://nightly.gcp.forgeops.com/am FRODO_TEST_NAME=0_dry-run_m frodo config-manager delete scripts --dry-run -m forgeops
 */
 
 import { getEnv, testSuccess } from './utils/TestUtils';

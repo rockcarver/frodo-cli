@@ -2,7 +2,7 @@
 
 /*
 // Cloud. Record after the push test has created the proxy zz-e2e-proxy, before it is deleted again.
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo config-manager pull remote-proxies -n zz-e2e-proxy -D testDir25
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_TEST_NAME=0_n_D frodo config-manager pull remote-proxies -n zz-e2e-proxy -D testDir25
 */
 
 import { getEnv, testExport } from './utils/TestUtils';

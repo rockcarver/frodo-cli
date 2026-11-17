@@ -2,8 +2,8 @@
 
 /*
 // ForgeOps
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://nightly.gcp.forgeops.com/am frodo config-manager pull saml -f test/e2e/fr-config-manager-pull-config/saml.json -D testDir22 -m forgeops
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_REALM=alpha FRODO_HOST=https://nightly.gcp.forgeops.com/am frodo config-manager pull saml -f test/e2e/fr-config-manager-pull-config/saml.json -D testDir23 --type forgeops
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://nightly.gcp.forgeops.com/am FRODO_TEST_NAME=0_f_D_m frodo config-manager pull saml -f test/e2e/fr-config-manager-pull-config/saml.json -D testDir22 -m forgeops
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_REALM=alpha FRODO_HOST=https://nightly.gcp.forgeops.com/am FRODO_TEST_NAME=0_f_D_type frodo config-manager pull saml -f test/e2e/fr-config-manager-pull-config/saml.json -D testDir23 --type forgeops
 */
 
 import { getEnv, testExport } from './utils/TestUtils';

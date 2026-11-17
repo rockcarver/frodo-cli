@@ -2,10 +2,10 @@
 
 /*
 // Cloud
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_REALM=alpha FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo config-manager pull all -C test/e2e/fr-config-manager-pull-config -D allDir1
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_REALM=alpha FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_TEST_NAME=0_C_D frodo config-manager pull all -C test/e2e/fr-config-manager-pull-config -D allDir1
 
 // ForgeOps
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://nightly.gcp.forgeops.com/am frodo config-manager pull all -C test/e2e/fr-config-manager-pull-config -D allDir2 -m forgeops
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://nightly.gcp.forgeops.com/am FRODO_TEST_NAME=0_C_D_m frodo config-manager pull all -C test/e2e/fr-config-manager-pull-config -D allDir2 -m forgeops
 */
 
 

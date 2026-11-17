@@ -2,10 +2,10 @@
 
 /*
 // Forgeops
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://nightly.gcp.forgeops.com/am frodo config-manager pull scripts -D configManagerExportScriptsDir0 -m forgeops
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://nightly.gcp.forgeops.com/am frodo config-manager pull scripts -D configManagerExportScriptsDir1 -p Scripted -p Library -m forgeops
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_REALM=alpha FRODO_HOST=https://nightly.gcp.forgeops.com/am frodo config-manager pull scripts -D configManagerExportScriptsDir2 --prefix OAUTH2 --prefix SAML -m forgeops
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_REALM=bravo FRODO_HOST=https://nightly.gcp.forgeops.com/am frodo config-manager pull scripts -D configManagerExportScriptsDir3 -n 'Library Script' -m forgeops
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://nightly.gcp.forgeops.com/am FRODO_TEST_NAME=0_D_m frodo config-manager pull scripts -D configManagerExportScriptsDir0 -m forgeops
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://nightly.gcp.forgeops.com/am FRODO_TEST_NAME=0_D_p_p_m frodo config-manager pull scripts -D configManagerExportScriptsDir1 -p Scripted -p Library -m forgeops
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_REALM=alpha FRODO_HOST=https://nightly.gcp.forgeops.com/am FRODO_TEST_NAME=0_D_prefix_prefix_m frodo config-manager pull scripts -D configManagerExportScriptsDir2 --prefix OAUTH2 --prefix SAML -m forgeops
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_REALM=bravo FRODO_HOST=https://nightly.gcp.forgeops.com/am FRODO_TEST_NAME=0_D_n_m frodo config-manager pull scripts -D configManagerExportScriptsDir3 -n 'Library Script' -m forgeops
 */
 
 import { getEnv, testExport } from './utils/TestUtils';

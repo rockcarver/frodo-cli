@@ -2,7 +2,7 @@
 
 /*
 // Forgeops
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://nightly.gcp.forgeops.com/am frodo config-manager pull authz-policies -f test/e2e/fr-config-manager-pull-config/authz-policies.json -D configManagerPullAuthzPoliciesDir -m forgeops
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://nightly.gcp.forgeops.com/am FRODO_TEST_NAME=0_f_D_m frodo config-manager pull authz-policies -f test/e2e/fr-config-manager-pull-config/authz-policies.json -D configManagerPullAuthzPoliciesDir -m forgeops
 */
 
 import { getEnv, testExport } from './utils/TestUtils';
