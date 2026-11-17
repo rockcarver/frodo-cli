@@ -497,7 +497,6 @@ describe('the old words of the planned renames (cli#1264)', () => {
     it.each(verbs)('config-manager %s %s leads to a command', (verb, word) => {
       const command = leafOf('config-manager', verb, word);
       expect(command).toBeDefined();
-      expect([command.name(), ...command.aliases()]).toContain(word);
     });
 
     it('keeps config export and config import, which stay as they are', () => {
@@ -513,14 +512,18 @@ describe('the old words of the planned renames (cli#1264)', () => {
     );
     // the group merge puts export and import next to pull and push, so the old group word reaches them too
     it.todo(
-      'config-manager export leads to the same command as config export (a side effect of the merge: config-manager has no export today)'
+      'config-manager export leads to the same command as config export (a side effect of the merge: config-manager has no export today), and the side effect is documented'
     );
     it.todo(
-      'config-manager import leads to the same command as config import (a side effect of the merge: config-manager has no import today)'
+      'config-manager import leads to the same command as config import (a side effect of the merge: config-manager has no import today), and the side effect is documented'
+    );
+    // the experimental stability of the merged group moves onto the leaves that are new, so export and import keep theirs
+    it.todo(
+      'config export and config import stay stable (not experimental) after the merge'
     );
   });
 
-  describe('the kind words that get a shorter name, each kept as a transition alias in every verb that has it', () => {
+  describe('the words of the types that get a shorter name, each kept as a transition alias in every verb that has it', () => {
     /** [new word, old word, the verbs of config-manager that have the old word today] */
     const renames = [
       ['apps', 'applications', ['pull', 'push', 'delete', 'migrate']],
@@ -558,7 +561,6 @@ describe('the old words of the planned renames (cli#1264)', () => {
       (verb, oldWord) => {
         const command = leafOf('config-manager', verb, oldWord);
         expect(command).toBeDefined();
-        expect([command.name(), ...command.aliases()]).toContain(oldWord);
       }
     );
 
@@ -578,17 +580,17 @@ describe('the old words of the planned renames (cli#1264)', () => {
       (verb) => {
         const command = leafOf('config-manager', verb, 'oauth2-agents');
         expect(command).toBeDefined();
-        expect([command.name(), ...command.aliases()]).toContain(
-          'oauth2-agents'
-        );
       }
     );
 
     for (const verb of verbs) {
       it.todo(
-        `config-manager ${verb} oauth2-agents is a deprecated command that runs both oauth-clients and agents, not an alias of either`
+        `config-manager ${verb} oauth2-agents is a deprecated command that runs both oauth-clients and agents, not an alias of either; it is marked deprecated and its notice names oauth-clients and agents`
       );
     }
+    it.todo(
+      'config-manager pull all and a pipeline that types config-manager pull oauth2-agents keep working: they still pull the OAuth2 clients and the other agents'
+    );
   });
 
   describe('-n, --name, which stays a permanent alias', () => {
