@@ -150,8 +150,10 @@ export function findBestDoc(
 export function buildMethodScaffold(
   moduleSegments: string[],
   methodName: string,
-  docsByMethod: Map<string, MethodHelpDoc[]>
+  docsByMethod: Map<string, MethodHelpDoc[]>,
+  parensOnly = false
 ): string {
+  if (parensOnly) return '()';
   const doc = findBestDoc(methodName, moduleSegments, docsByMethod);
   if (!doc) return '()';
   const paramNames = (doc.params ?? [])
@@ -206,7 +208,17 @@ export function createFrodoCompleter(
    * defined (vars, functions, imports) completes too. Static rootBindings
    * stay first so their doc scaffolding wins; the context fills the rest.
    */
-  liveContext?: () => Record<string, unknown> | undefined
+  liveContext?: () => Record<string, unknown> | undefined,
+  /**
+   * Terminal mode: complete a method to `name(`, never to a param
+   * scaffold. Readline has no cursor placement, so a scaffold lands on
+   * the line looking runnable, and Enter submits placeholder params (the
+   * names, not values) to the call. A bare `(` is inert: Enter on it
+   * gives the continuation prompt. The signature still shows, in the
+   * hint line above the prompt. The web page completes to the full
+   * scaffold by design (it places the cursor inside the parens).
+   */
+  terminalParensOnly?: boolean
 ): (line: string) => [string[], string] {
   // One lookup for both root-name and dotted-path completion: static roots
   // win, the live context fills in what they lack (user variables).
@@ -237,7 +249,8 @@ export function createFrodoCompleter(
       const completion = `${fullPath}${buildMethodScaffold(
         parentSegments,
         methodName,
-        docsByMethod
+        docsByMethod,
+        terminalParensOnly
       )}`;
 
       if (onMethodHint) {
@@ -328,7 +341,8 @@ export function createFrodoCompleter(
             `${prefix}${buildMethodScaffold(
               segments2.slice(1).map((s) => s.name),
               k,
-              docsByMethod
+              docsByMethod,
+              terminalParensOnly
             )}`
           );
         }

@@ -246,7 +246,11 @@ async function startConsole(host?: string): Promise<void> {
       printHintAbovePrompt(replServer, hint);
     },
     // The live context: what the user defined completes too.
-    () => replServer?.context as Record<string, unknown> | undefined
+    () => replServer?.context as Record<string, unknown> | undefined,
+    // Terminal: complete methods to `name(` only. The full scaffold on
+    // the line looks runnable, and Enter submits the placeholder param
+    // names to the call; the signature shows in the hint line instead.
+    true
   );
 
   const started = repl.start({
@@ -414,10 +418,12 @@ async function startConsole(host?: string): Promise<void> {
       const lines = () => (started as unknown as { history: string[] }).history;
 
       if (!sub) {
-        // Print history oldest-first, one row per entry: index, when it
-        // ran (date for anything not today, time for today), where, then
-        // the command. Entries without metadata (from an older file) get
-        // blank columns, so the commands still line up.
+        // Print history oldest-first: index, the command, and a dim
+        // suffix saying when it ran and against which environment. The
+        // metadata trails the command (the web search rows do the same)
+        // rather than sitting in fixed columns before it: entries without
+        // metadata (old files) would otherwise reserve blank columns and
+        // push every command far right.
         const entries = [...shellHistory.getEntries()].reverse();
         if (entries.length === 0) {
           console.log('No history yet.');
@@ -434,16 +440,34 @@ async function startConsole(host?: string): Promise<void> {
               ? d.toTimeString().slice(0, 5)
               : d.toISOString().slice(0, 10);
           };
-          const widest = Math.max(...entries.map((e) => when(e.ts).length), 1);
+          const hostOf = (host?: string): string => {
+            if (!host) return '';
+            // Keep just the hostname of a URL; aliases pass through.
+            return host.replace(/^https?:\/\//, '').replace(/\/.*$/, '');
+          };
+          const width = process.stdout.columns ?? 80;
+          const room = Math.max(width - 8 - 2, 20);
           entries.forEach((e, i) => {
-            const w = when(e.ts).padEnd(widest);
-            const h = e.host ? `  ${e.host}` : '';
-            const first = e.text.split('\n')[0];
-            const more = e.text.includes('\n')
-              ? DIM_HINT + '  …' + RESET_HINT
-              : '';
+            const full = e.text.split('\n')[0];
+            const more = e.text.includes('\n');
+            const meta: string[] = [];
+            const w = when(e.ts);
+            if (w) meta.push(w);
+            const h = hostOf(e.host);
+            if (h) meta.push(h);
+            const metaText =
+              meta.length > 0
+                ? `${DIM_HINT}  · ${meta.join(' · ')}${RESET_HINT}`
+                : '';
+            // The visible cost of a row is the command plus the metadata;
+            // trim the command so the row fits the terminal.
+            const budget =
+              room - (meta.length > 0 ? meta.join(' · ').length + 4 : 0);
+            const max = Math.max(more ? budget - 3 : budget, 12);
+            const first =
+              full.length > max ? `${full.slice(0, max - 1)}…` : full;
             console.log(
-              `  ${String(i + 1).padStart(4)}  ${DIM_HINT}${w}${h}${RESET_HINT}  ${first}${more}`
+              `  ${String(i + 1).padStart(4)}  ${first}${more ? `${DIM_HINT}  …${RESET_HINT}` : ''}${metaText}`
             );
           });
         }
