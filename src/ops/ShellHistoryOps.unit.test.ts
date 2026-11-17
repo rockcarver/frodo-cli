@@ -212,7 +212,10 @@ describe('ShellHistory entry metadata (ts, host)', () => {
 
   it('stores and reloads ts and host with the text', () => {
     const history = new ShellHistory('https://tenant.example.com/am');
-    history.addLine('with meta', { ts: 1_700_000_000_000, host: 'tenant.example.com' });
+    history.addLine('with meta', {
+      ts: 1_700_000_000_000,
+      host: 'tenant.example.com',
+    });
     history.addLine('without meta');
     const reloaded = new ShellHistory('https://tenant.example.com/am');
     expect(reloaded.getEntries()).toEqual([
@@ -258,9 +261,7 @@ describe('ShellHistory entry metadata (ts, host)', () => {
     const history = new ShellHistory('https://tenant.example.com/am');
     history.addLine('cmd', { ts: 111, host: 'h' });
     history.addLine('cmd');
-    expect(history.getEntries()).toEqual([
-      { text: 'cmd', ts: 111, host: 'h' },
-    ]);
+    expect(history.getEntries()).toEqual([{ text: 'cmd', ts: 111, host: 'h' }]);
   });
 
   it('reads a file of bare lines into metadata-less entries', () => {
