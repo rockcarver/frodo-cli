@@ -16,7 +16,7 @@ import {
 import { createRemoteRegistry } from './ShellWebSerializeOps';
 
 /**
- * The local web server behind `frodo console --web`.
+ * The local web server behind `frodo shell --web`.
  *
  * Whoever can send this server a request can run code with the connected
  * environment's credentials, exactly as if they typed it in the terminal. A
@@ -182,7 +182,7 @@ function savedProfileSummaries(): ProfileSummary[] {
 }
 
 /**
- * The worker entry inside the bundle; tsdown emits it under cli/console.
+ * The worker entry inside the bundle; tsdown emits it under cli/shell.
  * Tests point the env var at a stub so the real spawn path (protocol,
  * stderr forwarding) runs without the bundle present.
  */
@@ -191,8 +191,8 @@ function workerScriptPath(): string {
     return process.env.FRODO_TEST_WORKER_SCRIPT;
   }
   // src/ops/ShellWebServerOps.ts compiles into dist/ (flat), while the
-  // worker entry keeps its source layout: dist/cli/console/.
-  return path.join(__dirname, 'cli', 'console', 'engine-worker.cjs');
+  // worker entry keeps its source layout: dist/cli/shell/.
+  return path.join(__dirname, 'cli', 'shell', 'engine-worker.cjs');
 }
 
 /** Spawn one engine child and wrap its JSON-line protocol. */

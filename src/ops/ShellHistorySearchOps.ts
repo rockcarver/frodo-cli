@@ -4,7 +4,7 @@ import { StringDecoder } from 'node:string_decoder';
 import fuzzysort from 'fuzzysort';
 
 /**
- * fzf-style fuzzy reverse search for the frodo console (`frodo console`),
+ * fzf-style fuzzy reverse search for the frodo shell (`frodo shell`),
  * bound to Ctrl+R.
  *
  * Node's readline owns Ctrl+R for its built-in incremental reverse search

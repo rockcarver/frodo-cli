@@ -3,7 +3,7 @@ status: accepted
 date: 2026-11-11
 decision-makers: maintainers
 applies-to:
-  - src/cli/console/**
+  - src/cli/shell/**
   - src/ops/ShellWebServerOps.ts
   - src/ops/ShellWebEngineOps.ts
   - src/ops/ShellWebPage.ts
@@ -14,7 +14,7 @@ applies-to:
 
 ## Context and problem statement
 
-`frodo console` runs JavaScript against the connected environment with its credentials. `--web` serves the same console as a local page, so the scripts no longer run in a terminal but on request from a browser. Whoever can send that server a request can run code with the environment's credentials, exactly as if they had typed it in the terminal; a listening port is therefore a privileged one (compare the MCP server, record 0021). The browser model differs from the MCP server's in one important way: the client is a page the server itself renders, so the server can bind the session to that page instead of asking the user to manage a token.
+`frodo shell` runs JavaScript against the connected environment with its credentials. `--web` serves the same console as a local page, so the scripts no longer run in a terminal but on request from a browser. Whoever can send that server a request can run code with the environment's credentials, exactly as if they had typed it in the terminal; a listening port is therefore a privileged one (compare the MCP server, record 0021). The browser model differs from the MCP server's in one important way: the client is a page the server itself renders, so the server can bind the session to that page instead of asking the user to manage a token.
 
 ## Decision
 
@@ -26,7 +26,7 @@ applies-to:
 - Secrets are compared in constant time, are never logged, and internal failures are never described to the caller (a 500 says "Internal error").
 - Each browser tab gets its own engine as a child process of the server: a frodo-lib `state` is process-wide, so two environments cannot share one process without scripts reading each other's credentials. The tab keeps its engine id in its sessionStorage and carries it on every request; the session cookie stays shared, the engines are not. An engine runs its operations one at a time in arrival order, and dies with the server.
 - A console started without a host can connect from the page: a picker lists the saved connection profiles (hosts and aliases only; profile secrets never reach the browser), and connecting posts one host through the same write path as every other API call. The login itself runs in Node with the profile's saved credentials, exactly as the command line would. Only a host that names a saved profile can be picked. A profile whose saved preference is a browser login (and which holds no service account) is marked in the picker, so the click that opens a browser is explained before it happens; the engine child's stderr, where the login progress is printed, joins the tab's log stream for the same reason.
-- The terminal console stays the default; `--web` only changes where it runs. Both share the same engine and the same `$` facade. Command history is the person's, not the tenant's: every web tab writes one shared file, so all tabs and all connections see the same history (the terminal keeps its per-host files). A tab refreshes its snapshot when it regains focus.
+- The terminal console stays the default; `--web` only changes where it runs (2026-11-17: the two commands merged into one, `frodo shell`, after the web console briefly shipped as a separate `frodo console` command; web mode never prompts on the command line, the worker signs in from the named or picked profile). Both share the same engine and the same `$` facade. Command history is the person's, not the tenant's: every web tab writes one shared file, so all tabs and all connections see the same history (the terminal keeps its per-host files). A tab refreshes its snapshot when it regains focus.
 - The page may load an editor from a CDN, but only pinned: each file is named by one exact URL with its content hash in an `integrity` attribute, the same URLs are the only external entries in the CSP, and the page keeps its plain textarea when the files do not arrive. A new URL or hash is a change to this record's spirit: recompute the hash and review what the file does.
 
 ## Consequences
@@ -34,7 +34,7 @@ applies-to:
 - The checks live in one place (the route guard of `ShellWebServerOps.ts`); a new route inherits them by construction. A test suite covers each check individually (Host, Origin, one-time link, cookie/header split, JSON-only writes, caps, CSP, no CORS, no secret leakage).
 - Anyone widening the bind, relaxing a check, or loading a new external resource needs a new record: the CSP names exact URLs so a CDN's other files never become part of this page's trust.
 - The engine holds a real REPL in Node; its domain-based error routing (an undocumented REPL option) is asserted at startup so a Node change fails loudly instead of silently losing errors.
-- The console's credentials outlive the page (a working day): closing the tab does not revoke them. The server's lifetime is the `frodo console --web` process; stopping it ends everything.
+- The console's credentials outlive the page (a working day): closing the tab does not revoke them. The server's lifetime is the `frodo shell --web` process; stopping it ends everything.
 
 ## Alternatives considered
 

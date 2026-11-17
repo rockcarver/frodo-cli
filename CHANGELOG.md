@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+### Added
+- `frodo shell --web` serves the JS console as a local web page: a one-time sign-in link is printed, and the console (the `$` REST facade, object explorer, fuzzy history search, tab completion) runs in the browser with per-tab engines. No username or password is needed for web mode; the worker signs in from the named or picked connection profile.
+
+### Changed
+- `frodo shell` is now the full JS console (formerly the separate `frodo console` command, which is removed before its first release): browser-console-style collapsed results, `$` REST calls with authentication attached, `state` and lodash in context, the Ctrl+O object explorer, Ctrl+R fuzzy history search, and top-level await and persistent `let`/`const` by default. The `--allow-await` option is gone (await always works).
+
 ## [v5.0.0-25] - 2026-11-10
 
 ### Added
@@ -1549,7 +1555,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 |  import                                     |  1.0.0  | Import AM services.                                                    |
 |  list                                       |  1.0.0  | List AM services.                                                      |
 |                                             |         |                                                                        |
-| frodo shell                                 | `2.0.0` | Launch the frodo interactive shell.                                    |
+| frodo shell                                 | `2.0.0` | Launch the frodo JS console.                                           |
 |                                             |         |                                                                        |
 | frodo theme                                 |  1.0.0  | Manage themes.                                                         |
 |  delete                                     |  1.0.0  | Delete themes.                                                         |

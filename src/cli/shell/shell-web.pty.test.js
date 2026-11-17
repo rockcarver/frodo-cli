@@ -185,7 +185,7 @@ async function withPage(port, url, run) {
 function startConsoleWeb(homeDir) {
   const child = cp.spawn(
     process.execPath,
-    [path.join(repoRoot, 'dist', 'launch.cjs'), 'console', '--web'],
+    [path.join(repoRoot, 'dist', 'launch.cjs'), 'shell', '--web'],
     {
       cwd: repoRoot,
       env: {
@@ -217,7 +217,7 @@ function stopConsoleWeb(child, home) {
   fs.rmSync(home, { recursive: true, force: true });
 }
 
-describe('frodo console --web in a real browser', () => {
+describe('frodo shell --web in a real browser', () => {
   let port;
   let web;
   let home;

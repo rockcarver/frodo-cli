@@ -17,7 +17,6 @@ import configManager from './cli/config-manager/config-manager';
 import config from './cli/config/config';
 import conn from './cli/conn/conn';
 import connector from './cli/connector/connector';
-import consoleCmd from './cli/console/console';
 import directConfigSession from './cli/dcc/dcc';
 import debug from './cli/debug/debug';
 import email from './cli/email/email';
@@ -141,7 +140,6 @@ process.argv = normalizeExpandedHelpArgv(process.argv);
     program.addCommand(session().helpGroup(utilitiesCommandsHeading));
     program.addCommand(settings().helpGroup(utilitiesCommandsHeading));
     program.addCommand(shell().helpGroup(utilitiesCommandsHeading));
-    program.addCommand(consoleCmd().helpGroup(utilitiesCommandsHeading));
     program.addCommand(theme());
     // enable sample command template.
     // program.addCommand(something());

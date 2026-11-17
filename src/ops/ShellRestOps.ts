@@ -3,7 +3,7 @@ import { frodo, state } from '@rockcarver/frodo-lib';
 import axios, { AxiosInstance, AxiosResponse } from 'axios';
 
 /*
- * jQuery-style REST facade for the frodo JS console (`frodo console`).
+ * jQuery-style REST facade for the frodo JS console (`frodo shell`).
  *
  * Exposes the jQuery API surface ($.ajax, $.get, $.post, $.put, $.patch,
  * $.delete, $.head) over frodo-lib's own credential model, so scripts typed
@@ -33,7 +33,7 @@ export type ShellRestResult = {
 let lastResult: ShellRestResult | undefined;
 
 const timeoutMs = 30000;
-const userAgent = `@rockcarver/frodo-cli (frodo console)`;
+const userAgent = `@rockcarver/frodo-cli (frodo shell)`;
 const transactionId = `frodo-console-${Date.now()}`;
 
 const { AVAILABLE_SCOPES, TOKEN_FRESHNESS_BUFFER_MS } = frodo.utils.constants;

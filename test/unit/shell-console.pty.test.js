@@ -4,12 +4,12 @@ import {
   runShellScenario,
 } from '../utils/ShellPty.js';
 
-describe('frodo console PTY', () => {
+describe('frodo shell PTY (console mode)', () => {
   test('evaluates expressions with top-level await, lodash, and the $ facade', async () => {
     const homeDir = createShellTestHome();
     try {
       const result = runShellScenario({
-        args: ['console'],
+        args: ['shell'],
         homeDir,
         actions: [
           // wait_prompt matches '>\s$' which the REPL's one-time
@@ -59,7 +59,7 @@ describe('frodo console PTY', () => {
       const homeDir = createShellTestHome();
       try {
         const result = runShellScenario({
-          args: ['console'],
+          args: ['shell'],
           homeDir,
           actions: [
             { type: 'wait_plain', regex: 'frodo>' },
@@ -106,7 +106,7 @@ describe('frodo console PTY', () => {
     const homeDir = createShellTestHome();
     try {
       const result = runShellScenario({
-        args: ['console'],
+        args: ['shell'],
         homeDir,
         actions: [
           { type: 'wait_plain', regex: 'frodo>' },

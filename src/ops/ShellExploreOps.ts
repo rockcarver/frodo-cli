@@ -2,7 +2,7 @@ import util from 'node:util';
 
 /**
  * Interactive, collapsible object explorer for the frodo JS console
- * (`frodo console`).
+ * (`frodo shell`).
  *
  * The browser console renders results as collapsed objects that expand on
  * click. A terminal has no clickable disclosure triangles, so this module
