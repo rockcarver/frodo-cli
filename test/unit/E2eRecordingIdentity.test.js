@@ -68,6 +68,16 @@ const LIB_IDENTITY = {
 /** Fewer files or commands than this means the collector found too little. */
 const FLOOR = { files: 100, commands: 280 };
 
+/**
+ * The files of the heritage tests the check must read. Dropping one of them
+ * from PINNED_FILE would pass the floor above, so each is named here.
+ */
+const HERITAGE_FILES = [
+  'service-import.e2e.test.js',
+  'config-import.e2e.test.js',
+  'iga-workflow-delete.e2e.test.js',
+];
+
 const run = promisify(execFile);
 
 function expectNoProblems(problems, intro) {
@@ -535,6 +545,52 @@ describe('derivation', () => {
       );
     });
 
+    describe('a command whose words before the first flag were renamed', () => {
+      // The words are part of the directory. A renamed command that keeps its
+      // pin replays the directory of its new words, so that is the one to look
+      // for; the id of a RENAMED command is the one of the command as recorded.
+      const oldDirectory = guidForRecording(
+        'config-manager/pull/oauth2-agents/0_D'
+      );
+      const newDirectory = guidForRecording('config-manager/pull/agents/0_D');
+      const only = (directory) => (candidate) => candidate === directory;
+
+      it('looks under the new words when the flags were renamed too, and takes the id from the old command', () => {
+        const was = 'frodo config-manager pull oauth2-agents -D d';
+        const cmd = 'frodo config-manager pull agents --directory d';
+        const renamed = [{ file: FILE, cmd, was, pin: '0_D', why: 'x' }];
+        const moved = findPinProblems(
+          [row(cmd, '0_D')],
+          context({ renamed, recordingExists: only(oldDirectory) })
+        );
+        expect(moved.pins).toEqual([]);
+        expect(moved.recordings).toHaveLength(1);
+        expect(moved.recordings[0]).toContain(
+          ` :: ${newDirectory} :: no recording`
+        );
+        const done = findPinProblems(
+          [row(cmd, '0_D')],
+          context({ renamed, recordingExists: only(newDirectory) })
+        );
+        expect(all(done)).toEqual([]);
+      });
+
+      it('needs no entry when the id is unchanged, and looks under the new words', () => {
+        const cmd = 'frodo config-manager pull agents -D d';
+        const moved = findPinProblems(
+          [row(cmd, '0_D')],
+          context({ recordingExists: only(oldDirectory) })
+        );
+        expect(moved.pins).toEqual([]);
+        expect(moved.recordings).toHaveLength(1);
+        const done = findPinProblems(
+          [row(cmd, '0_D')],
+          context({ recordingExists: only(newDirectory) })
+        );
+        expect(all(done)).toEqual([]);
+      });
+    });
+
     it('lets a label stand for a pin that is not the derived id, and only then', () => {
       const labels = [{ file: FILE, cmd: CMD, pin: 'cors', why: 'x' }];
       const present2 = new Set([
@@ -707,6 +763,28 @@ describe('derivation', () => {
       });
     });
 
+    it('reads the record lines of service import and iga workflow delete too', () => {
+      const other = [
+        { cmd: 'frodo service import -f x', pin: '0_f' },
+        { cmd: 'frodo iga workflow delete -di x', pin: '0_di' },
+      ];
+      const without = [
+        record('frodo service import -f x'),
+        record('frodo iga workflow delete -di x'),
+      ].join('\n');
+      expect(findHeaderProblems(without, other).map((p) => p.advice)).toEqual([
+        'the record line has no FRODO_TEST_NAME=0_f',
+        'the record line has no FRODO_TEST_NAME=0_di',
+      ]);
+      const wrong = record('FRODO_TEST_NAME=0_x frodo service import -f x');
+      expect(findHeaderProblems(wrong, other)).toHaveLength(1);
+      const right = [
+        record('FRODO_TEST_NAME=0_f frodo service import -f x'),
+        record('FRODO_TEST_NAME=0_di frodo iga workflow delete -di x'),
+      ].join('\n');
+      expect(findHeaderProblems(right, other)).toEqual([]);
+    });
+
     it('leaves lines alone that no test runs or that are not a recording of a pinned command', () => {
       const text = [
         record('frodo config-manager pull cors -D d -m forgeops'),
@@ -819,13 +897,20 @@ describe('pins', () => {
     const problems = [];
     if (files.length < FLOOR.files) {
       problems.push(
-        `only ${files.length} test files match, fewer than ${FLOOR.files}: the pattern PINNED_FILE or the directory test/e2e changed`
+        `only ${files.length} test files match, fewer than ${FLOOR.files}: PINNED_FILE in test/unit/E2eRecordingIdentity.test.js no longer matches the test files, or test/e2e moved; fix the pattern, and lower the floor only for a reason a reviewer can read`
       );
     }
     if (rows.length < FLOOR.commands) {
       problems.push(
-        `only ${rows.length} commands were collected, fewer than ${FLOOR.commands}: the collector no longer sees every test`
+        `only ${rows.length} commands were collected, fewer than ${FLOOR.commands}: the collector no longer sees every test; read the other lines of this failure, run the collector by hand (see test/utils/RecordingIdentityCollector/jest.config.mjs), and lower the floor only for a reason a reviewer can read`
       );
+    }
+    for (const name of HERITAGE_FILES) {
+      if (!rows.some((row) => row.file === name)) {
+        problems.push(
+          `${name} :: this file is not read by the check (not in PINNED_FILE, or no command was collected): the tests of its command carry pins that are checked here; keep it in PINNED_FILE, or move the name in HERITAGE_FILES together with the file`
+        );
+      }
     }
     const withRows = new Set(rows.map((row) => row.file));
     const ran = new Map(
