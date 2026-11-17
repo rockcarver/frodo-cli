@@ -7,13 +7,13 @@ import fs from 'node:fs';
 
 const OUT = process.env.COLLECT_OUT;
 
-function record(kind, command, envWrapper) {
+function record(helper, command, envWrapper) {
   if (!OUT) throw new Error('COLLECT_OUT is not set');
   const state = globalThis.expect?.getState?.() ?? {};
   fs.appendFileSync(
     OUT,
     JSON.stringify({
-      kind,
+      helper,
       cmd: command,
       skipped: !!globalThis.__skipped,
       pin: envWrapper?.env?.FRODO_TEST_NAME ?? null,

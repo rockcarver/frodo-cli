@@ -11,7 +11,9 @@ import {
   findHeaderProblems,
   findPinProblems,
   guidForRecording,
+  hasRecording,
   libIdentityHash,
+  sortCommands,
   splitCommand,
 } from '../utils/RecordingIdentity.js';
 import {
@@ -155,6 +157,17 @@ describe('derivation', () => {
       }
     );
 
+    it('takes a # inside a word literally; only a word that starts with # is a comment', () => {
+      expect(splitCommand('frodo x -n a#b -f c#')).toEqual([
+        'frodo',
+        'x',
+        '-n',
+        'a#b',
+        '-f',
+        'c#',
+      ]);
+    });
+
     it('takes a dollar sign, a glob character and a pipe inside single quotes literally', () => {
       expect(splitCommand("frodo x -n '$a*|b;'")).toEqual([
         'frodo',
@@ -198,6 +211,29 @@ describe('derivation', () => {
     ])('names the recording of %s %s', (command, name) => {
       expect(deriveRecordingName(command)).toBe(name);
       expect(deriveArgsId(command)).toBe(name.split('/').pop());
+    });
+
+    it.each([
+      'export',
+      'pull',
+      'push',
+      'import',
+      'list',
+      'delete',
+      'count',
+      'describe',
+      'enable',
+      'disable',
+    ])('gives the verb %s a path segment of its own', (verb) => {
+      expect(deriveRecordingName(`frodo x ${verb} y -a`)).toBe(
+        `x/${verb}/y/0_a`
+      );
+    });
+
+    it('keeps a word that is not a verb in the words before the first flag', () => {
+      expect(deriveRecordingName('frodo x restart y -a')).toBe(
+        'x/restart-y/0_a'
+      );
     });
 
     it('puts the pin of the test in place of the derived id and nothing else', () => {
@@ -310,6 +346,76 @@ describe('derivation', () => {
     });
   });
 
+  describe('hasRecording', () => {
+    const dir = (name) => ({ name, isDirectory: true });
+    const file = (name) => ({ name, isDirectory: false });
+    const tree = {
+      a: [dir('am'), file('notes.txt')],
+      'a/am': [file('recording.har')],
+      b: [file('notes.txt'), dir('am')],
+      'b/am': [file('other.har')],
+      c: [dir('am')],
+      'c/am': [],
+    };
+    const read = (directory) => {
+      if (!(directory in tree)) throw new Error(`ENOENT: ${directory}`);
+      return tree[directory];
+    };
+
+    it('is true for a directory with a recording.har in a folder below it', () => {
+      expect(hasRecording('a', read)).toBe(true);
+      expect(hasRecording('a/am', read)).toBe(true);
+    });
+
+    it('is false for a directory without a recording.har, an empty one and one that does not exist', () => {
+      expect(hasRecording('b', read)).toBe(false);
+      expect(hasRecording('c', read)).toBe(false);
+      expect(hasRecording('missing', read)).toBe(false);
+    });
+  });
+
+  describe('sortCommands', () => {
+    const row = (cmd, helper, extra = {}) => ({
+      file: 'x.e2e.test.js',
+      cmd,
+      pin: null,
+      helper,
+      test: 't',
+      ...extra,
+    });
+
+    it('reads a command that starts with frodo', () => {
+      const rows = [row('frodo x -a', 'testSuccess'), row('frodo y', 'exec')];
+      expect(sortCommands(rows)).toEqual({ commands: rows, problems: [] });
+    });
+
+    it('leaves alone a plain exec of a command that does not mention frodo', () => {
+      expect(sortCommands([row('rm -rf out', 'exec')])).toEqual({
+        commands: [],
+        problems: [],
+      });
+    });
+
+    it.each([
+      ['a leading blank', ' frodo x -a', 'testSuccess'],
+      ['a leading blank in an exec', ' frodo x -a', 'exec'],
+      ['an environment prefix', 'FRODO_X=1 frodo x -a', 'exec'],
+      ['a pipe in front of frodo', 'cat a.json | frodo x -i', 'exec'],
+      [
+        'a command that is not frodo, run by a test helper',
+        'ls',
+        'testSuccess',
+      ],
+    ])('reports %s instead of dropping the command', (_name, cmd, helper) => {
+      const { commands, problems } = sortCommands([row(cmd, helper)]);
+      expect(commands).toEqual([]);
+      expect(problems).toHaveLength(1);
+      expect(problems[0]).toMatch(
+        /^x\.e2e\.test\.js :: .* :: \(no pin\) :: frodo \.\.\. :: the command does not start with "frodo "/
+      );
+    });
+  });
+
   describe('findPinProblems', () => {
     const FILE = 'config-manager-pull-cors.e2e.test.js';
     const CMD = 'frodo config-manager pull cors -D d';
@@ -318,7 +424,7 @@ describe('derivation', () => {
       cmd,
       pin,
       skipped: false,
-      kind: 'testExport',
+      helper: 'testExport',
       ...extra,
     });
     const present = new Set([
@@ -330,7 +436,7 @@ describe('derivation', () => {
       labels: [],
       noRecording: [],
       renamed: [],
-      hasRecording: (directory) => present.has(directory),
+      recordingExists: (directory) => present.has(directory),
       ...extra,
     });
     const all = (problems) => [
@@ -341,6 +447,16 @@ describe('derivation', () => {
 
     it('accepts a pin that is the derived id of a command with a recording', () => {
       expect(all(findPinProblems([row(CMD, '0_D')], context()))).toEqual([]);
+    });
+
+    it('matches an exceptions entry on the command without the blanks around it', () => {
+      const present2 = new Set([
+        guidForRecording('config-manager/pull/cors/cors'),
+      ]);
+      const labels = [{ file: FILE, cmd: CMD, pin: 'cors', why: 'x' }];
+      const ctx = context({ labels, recordingExists: (d) => present2.has(d) });
+      expect(all(findPinProblems([row(`${CMD}  `, 'cors')], ctx))).toEqual([]);
+      expect(all(findPinProblems([row(` ${CMD}`, 'cors')], ctx))).toEqual([]);
     });
 
     it('reports a command without a pin, with the id to pass', () => {
@@ -424,7 +540,7 @@ describe('derivation', () => {
       const present2 = new Set([
         guidForRecording('config-manager/pull/cors/cors'),
       ]);
-      const ctx = context({ labels, hasRecording: (d) => present2.has(d) });
+      const ctx = context({ labels, recordingExists: (d) => present2.has(d) });
       expect(all(findPinProblems([row(CMD, 'cors')], ctx))).toEqual([]);
       const stale = findPinProblems(
         [row(CMD, '0_D')],
@@ -444,7 +560,7 @@ describe('derivation', () => {
       );
       expect(all(skipped)).toEqual([]);
       const fails = findPinProblems(
-        [row(cmd, '0_n', { kind: 'testFail' })],
+        [row(cmd, '0_n', { helper: 'testFail' })],
         context({ noRecording })
       );
       expect(all(fails)).toEqual([]);
@@ -509,11 +625,6 @@ describe('derivation', () => {
       { cmd: 'frodo config-manager pull cors -D d', pin: '0_D' },
       { cmd: 'frodo config-manager pull variables -r', pin: 'report' },
       { cmd: 'frodo config import -AD d --no-validate', pin: '0_AD' },
-      {
-        cmd: 'frodo config-manager pull cors --directory d',
-        was: 'frodo config-manager pull cors -D d',
-        pin: '0_D',
-      },
     ];
     const record = (rest) =>
       `FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-matrix.example.com/am ${rest}`;
@@ -557,14 +668,43 @@ describe('derivation', () => {
       );
     });
 
-    it('reads a line of a renamed command by the command as it was recorded and as it is', () => {
-      const text = [
-        record('frodo config-manager pull cors --directory d'),
-        record('frodo config-manager pull cors -D d'),
-      ].join('\n');
-      expect(findHeaderProblems(text, tests).map((p) => p.line)).toEqual([
-        1, 2,
-      ]);
+    describe('a command that was renamed after it was recorded', () => {
+      // Only the renamed test: nothing else supplies the name of the old spelling.
+      const renamed = [
+        {
+          cmd: 'frodo config-manager pull cors --directory d',
+          was: 'frodo config-manager pull cors -D d',
+          pin: '0_D',
+        },
+      ];
+
+      it('reports its header line in the old spelling when it lacks the pin', () => {
+        const problems = findHeaderProblems(
+          record('frodo config-manager pull cors -D d'),
+          renamed
+        );
+        expect(problems.map((p) => [p.line, p.advice])).toEqual([
+          [1, 'the record line has no FRODO_TEST_NAME=0_D'],
+        ]);
+      });
+
+      it('accepts its header line in the old spelling and in the new one with the pin', () => {
+        const text = [
+          record('FRODO_TEST_NAME=0_D frodo config-manager pull cors -D d'),
+          record(
+            'FRODO_TEST_NAME=0_D frodo config-manager pull cors --directory d'
+          ),
+        ].join('\n');
+        expect(findHeaderProblems(text, renamed)).toEqual([]);
+      });
+
+      it('reports its header line in the new spelling when it lacks the pin', () => {
+        const problems = findHeaderProblems(
+          record('frodo config-manager pull cors --directory d'),
+          renamed
+        );
+        expect(problems).toHaveLength(1);
+      });
     });
 
     it('leaves lines alone that no test runs or that are not a recording of a pinned command', () => {
@@ -590,28 +730,27 @@ describe('derivation', () => {
 
 describe('pins', () => {
   let tmp;
+  let collected;
   let rows;
+  let rowProblems;
   let results;
   let files;
   const recordingCache = new Map();
 
-  /** Is there a recording.har in the directory, or below it? */
-  function hasRecording(directory) {
+  /** Is there a recording.har in the directory of test/e2e/mocks, or below it? */
+  function hasRecordingOnDisk(directory) {
     if (!recordingCache.has(directory)) {
-      const hasHar = (dir) => {
-        let entries;
-        try {
-          entries = fs.readdirSync(dir, { withFileTypes: true });
-        } catch {
-          return false;
-        }
-        return entries.some((entry) =>
-          entry.isDirectory()
-            ? hasHar(path.join(dir, entry.name))
-            : entry.name === 'recording.har'
-        );
-      };
-      recordingCache.set(directory, hasHar(path.join(MOCKS, directory)));
+      recordingCache.set(
+        directory,
+        hasRecording(directory, (dir) =>
+          fs
+            .readdirSync(path.join(MOCKS, dir), { withFileTypes: true })
+            .map((entry) => ({
+              name: entry.name,
+              isDirectory: entry.isDirectory(),
+            }))
+        )
+      );
     }
     return recordingCache.get(directory);
   }
@@ -664,13 +803,12 @@ describe('pins', () => {
       }
     }
     results = JSON.parse(fs.readFileSync(json, 'utf8')).testResults;
-    rows = fs
+    collected = fs
       .readFileSync(out, 'utf8')
       .split('\n')
       .filter(Boolean)
-      .map((line) => JSON.parse(line))
-      // A command that is not frodo (a cat, an rm) records nothing.
-      .filter((row) => row.cmd.startsWith('frodo '));
+      .map((line) => JSON.parse(line));
+    ({ commands: rows, problems: rowProblems } = sortCommands(collected));
   }, 120000);
 
   afterAll(() => {
@@ -703,7 +841,10 @@ describe('pins', () => {
         );
       }
     }
-    const tests = new Set(rows.map((row) => `${row.file}\u0000${row.test}`));
+    problems.push(...rowProblems);
+    const tests = new Set(
+      collected.map((row) => `${row.file}\u0000${row.test}`)
+    );
     for (const result of results) {
       for (const assertion of result.assertionResults) {
         const key = `${path.basename(result.name)}\u0000${assertion.fullName}`;
@@ -747,7 +888,7 @@ describe('pins', () => {
         labels: LABELS,
         noRecording: NO_RECORDING,
         renamed: RENAMED,
-        hasRecording,
+        recordingExists: hasRecordingOnDisk,
       });
     });
 

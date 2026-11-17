@@ -313,6 +313,63 @@ export function libIdentityHash(bundleSource) {
     .digest('hex');
 }
 
+/**
+ * Does a directory hold a recording? A recording is a `recording.har` in the
+ * directory or in a folder below it (one per area: `am`, `openidm`, ...). A
+ * directory that exists without one, for example what a failed recording pass
+ * leaves behind, is not a recording.
+ * @param {string} directory the directory below `test/e2e/mocks`, `/` separated
+ * @param {(directory: string) => {name: string, isDirectory: boolean}[]} readDirectory
+ * lists a directory below `test/e2e/mocks`; it throws when there is none
+ * @returns {boolean} whether the directory holds a `recording.har`
+ */
+export function hasRecording(directory, readDirectory) {
+  let entries;
+  try {
+    entries = readDirectory(directory);
+  } catch {
+    return false;
+  }
+  return entries.some((entry) =>
+    entry.isDirectory
+      ? hasRecording(`${directory}/${entry.name}`, readDirectory)
+      : entry.name === 'recording.har'
+  );
+}
+
+/**
+ * Tells the commands this check reads from the ones it leaves alone. It reads
+ * a command that starts with `frodo `. It leaves alone a plain `exec` of a
+ * command that does not mention frodo (a `cat`, an `rm`). Any other command is
+ * reported, so that a leading blank, an environment prefix or a pipe in front
+ * of `frodo` cannot hide a command from the check.
+ * @param {{file: string, cmd: string, pin: string|null, helper: string, test: string}[]} rows
+ * everything the tests ran through the stub
+ * @returns {{commands: object[], problems: string[]}} the rows to check, and
+ * one line per row that cannot be sorted
+ */
+export function sortCommands(rows) {
+  const commands = [];
+  const problems = [];
+  for (const row of rows) {
+    const cmd = String(row.cmd);
+    if (cmd.startsWith('frodo ')) {
+      commands.push(row);
+    } else if (row.helper !== 'exec' || /\bfrodo\b/.test(cmd)) {
+      problems.push(
+        [
+          row.file,
+          cmd.trim(),
+          row.pin || '(no pin)',
+          'frodo ...',
+          `the command does not start with "frodo " and is not a plain exec of a command without frodo (${row.helper}): the check cannot read it; run it as "frodo ..." and pass the variables in the env of the call`,
+        ].join(' :: ')
+      );
+    }
+  }
+  return { commands, problems };
+}
+
 /** The key by which an exceptions entry finds its command: file, command, pin. */
 const keyOf = (file, cmd, pin) => [file, cmd.trim(), pin ?? ''].join('\u0000');
 
@@ -339,9 +396,9 @@ function problemLine(row, expected, advice) {
  *   it must be a skipped test (or a test that expects a failure before any
  *   request) whose recording does not exist;
  * - every entry matches a command, has a reason, and is still needed.
- * @param {{file: string, cmd: string, pin: string|null, skipped: boolean, kind: string}[]} rows
+ * @param {{file: string, cmd: string, pin: string|null, skipped: boolean, helper: string}[]} rows
  * the commands the tests run, with the pin each one carries
- * @param {{labels: object[], noRecording: object[], renamed: object[], hasRecording: (directory: string) => boolean}} context
+ * @param {{labels: object[], noRecording: object[], renamed: object[], recordingExists: (directory: string) => boolean}} context
  * the exceptions (`{ file, cmd, pin, why }`, `renamed` also `was`) and a test
  * for a recording directory below `test/e2e/mocks`
  * @returns {{pins: string[], recordings: string[], entries: string[]}} one
@@ -350,7 +407,7 @@ function problemLine(row, expected, advice) {
  */
 export function findPinProblems(
   rows,
-  { labels, noRecording, renamed, hasRecording }
+  { labels, noRecording, renamed, recordingExists }
 ) {
   const problems = { pins: [], recordings: [], entries: [] };
   const lists = { LABELS: labels, NO_RECORDING: noRecording, RENAMED: renamed };
@@ -433,7 +490,7 @@ export function findPinProblems(
     }
 
     // The directory is the one a replay of the command as it is now looks in.
-    const exists = hasRecording(directory);
+    const exists = recordingExists(directory);
     if (noRec) {
       if (exists) {
         problems.entries.push(
@@ -443,7 +500,7 @@ export function findPinProblems(
             'a recording exists: remove its NO_RECORDING entry'
           )
         );
-      } else if (!row.skipped && row.kind !== 'testFail') {
+      } else if (!row.skipped && row.helper !== 'testFail') {
         problems.recordings.push(
           problemLine(
             row,
