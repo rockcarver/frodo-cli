@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+## [v5.0.0-29] - 2026-11-17
+
+### Changed
+- Agent files are now written in a plain shape, aligning with the new configuration management rules. This change standardizes the format and simplifies file handling. (#1358)
+
+### Security
+- `config-manager pull` now replaces key sets containing private key material with placeholders, preventing sensitive data from being written to files intended for version control. This change enhances security by ensuring that private or symmetric keys are not inadvertently exposed. (#1362)
+
 ## [v5.0.0-28] - 2026-11-16
 
 ### Added
@@ -3310,6 +3318,7 @@ Frodo CLI 2.x automatically refreshes session and access tokens before they expi
 - Fixed problem with adding connection profiles
 - Miscellaneous bug fixes
 
+[v5.0.0-29]: https://github.com/rockcarver/frodo-cli/compare/v5.0.0-28...v5.0.0-29
 [v5.0.0-28]: https://github.com/rockcarver/frodo-cli/compare/v5.0.0-27...v5.0.0-28
 [v5.0.0-27]: https://github.com/rockcarver/frodo-cli/compare/v5.0.0-26...v5.0.0-27
 [v5.0.0-26]: https://github.com/rockcarver/frodo-cli/compare/v5.0.0-25...v5.0.0-26
