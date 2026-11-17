@@ -14,16 +14,17 @@ process.env['FRODO_CONNECTION_PROFILES_PATH'] =
   './test/e2e/env/Connections.json';
 const env = getEnv(c);
 
+// Each FRODO_TEST_NAME is the recording's identity (the args id frodo-lib derives from the command): a changed flag does not move the recording.
 describe('frodo config-manager pull internal-roles', () => {
   test('"frodo config-manager pull internal-roles -D testDir9": should export the internal-role in fr-config-manager style"', async () => {
     const dirName = 'testDir9';
     const CMD = `frodo config-manager pull internal-roles -D ${dirName}`;
-    await testExport(CMD, env, undefined, undefined, dirName, false);
+    await testExport(CMD, { ...env, env: { ...env.env, FRODO_TEST_NAME: '0_D' } }, undefined, undefined, dirName, false);
   });
 
   test('"frodo config-manager pull internal-roles -n test-internal-role -D testDir10": should export the internal-role with name test-internal-role in fr-config-manager style"', async () => {
     const dirName = 'testDir10';
     const CMD = `frodo config-manager pull internal-roles -n test-internal-role -D ${dirName}`;
-    await testExport(CMD, env, undefined, undefined, dirName, false);
+    await testExport(CMD, { ...env, env: { ...env.env, FRODO_TEST_NAME: '0_n_D' } }, undefined, undefined, dirName, false);
   });
 });

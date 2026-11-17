@@ -15,15 +15,16 @@ const env = getEnv(c);
 
 const configFile = 'test/e2e/fr-config-manager-pull-config/csp-overrides.json';
 
+// Each FRODO_TEST_NAME is the recording's identity (the args id frodo-lib derives from the command): a changed flag does not move the recording.
 describe('frodo config-manager pull csp', () => {
     test('"frodo config-manager pull csp -D configManagerExportCspDir0": should export the content security policy in fr-config manager style.', async () => {
         const dirName = 'configManagerExportCspDir0';
         const CMD = `frodo config-manager pull csp -D ${dirName}`;
-        await testExport(CMD, env, undefined, undefined, dirName, false);
+        await testExport(CMD, { ...env, env: { ...env.env, FRODO_TEST_NAME: '0_D' } }, undefined, undefined, dirName, false);
     });
     test(`"frodo config-manager pull csp --directory configManagerExportCspDir1 -f ${configFile}": should export the content security policy with overrides defined in the config file.`, async () => {
         const dirName = 'configManagerExportCspDir1';
         const CMD = `frodo config-manager pull csp --directory ${dirName} -f ${configFile}`;
-        await testExport(CMD, env, undefined, undefined, dirName, false);
+        await testExport(CMD, { ...env, env: { ...env.env, FRODO_TEST_NAME: '0_directory_f' } }, undefined, undefined, dirName, false);
     });
 });

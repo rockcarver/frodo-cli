@@ -14,6 +14,7 @@ process.env['FRODO_CONNECTION_PROFILES_PATH'] = './test/e2e/env/Connections.json
 const env = getEnv(fc);
 const configFile = 'test/e2e/fr-config-manager-pull-config/oauth2-agents.json';
 
+// Each FRODO_TEST_NAME is the recording's identity (the args id frodo-lib derives from the command): a changed flag does not move the recording.
 describe('frodo config-manager pull oauth2-agents', () => {
     // The config file lists the agent type TrustedJwtIssuer (testJWT) for /, alpha and bravo. Since frodo-cli#1259 the
     // command leaves it to `config-manager pull oauth-issuers`: it skips the entries with a warning and neither reads
@@ -27,6 +28,6 @@ describe('frodo config-manager pull oauth2-agents', () => {
     test(`"frodo config-manager pull oauth2-agents -D configManagerExportOauth2AgentsDir0 -f ${configFile} -m forgeops": should export all agents from all realms in fr-config manager style.`, async () => {
         const dirName = 'configManagerExportOauth2AgentsDir0';
         const CMD = `frodo config-manager pull oauth2-agents -D ${dirName} -f ${configFile} -m forgeops`;
-        await testExport(CMD, env, undefined, undefined, dirName, false);
+        await testExport(CMD, { ...env, env: { ...env.env, FRODO_TEST_NAME: '0_D_f_m' } }, undefined, undefined, dirName, false);
     });
 });

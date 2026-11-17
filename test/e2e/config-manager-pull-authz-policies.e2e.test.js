@@ -13,10 +13,11 @@ process.env['FRODO_CONNECTION_PROFILES_PATH'] =
   './test/e2e/env/Connections.json';
 const env = getEnv(fc);
 
+// Each FRODO_TEST_NAME is the recording's identity (the args id frodo-lib derives from the command): a changed flag does not move the recording.
 describe('frodo config-manager pull authz-policies', () => {
     test('"frodo config-manager pull authz-policies -f test/e2e/fr-config-manager-pull-config/authz-policies.json -D configManagerPullAuthzPoliciesDir -m forgeops": should export policies, policy-sets, and resource-types from all realms in fr-config manager style.', async () => {
         const dirName = 'configManagerPullAuthzPoliciesDir';
         const CMD = `frodo config-manager pull authz-policies -f test/e2e/fr-config-manager-pull-config/authz-policies.json -D ${dirName} -m forgeops`;
-        await testExport(CMD, env, undefined, undefined, dirName, false);
+        await testExport(CMD, { ...env, env: { ...env.env, FRODO_TEST_NAME: '0_f_D_m' } }, undefined, undefined, dirName, false);
     });
 });

@@ -16,34 +16,35 @@ process.env['FRODO_CONNECTION_PROFILES_PATH'] =
   './test/e2e/env/Connections.json';
 const env = getEnv(c);
 
+// Each FRODO_TEST_NAME is the recording's identity (the args id frodo-lib derives from the command): a changed flag does not move the recording.
 describe('frodo config-manager pull telemetry', () => {
   test('"frodo config-manager pull telemetry": should export telemetry in fr-config-manager style"', async () => {
     const dirName = 'telemetryTestDir';
     const CMD = `frodo config-manager pull telemetry -D ${dirName}`;
-    await testExport(CMD, env, undefined, undefined, dirName, false);
+    await testExport(CMD, { ...env, env: { ...env.env, FRODO_TEST_NAME: '0_D' } }, undefined, undefined, dirName, false);
   });
 
   test('"frodo config-manager pull telemetry --category splunk": should export only splunk exporters', async () => {
     const dirName = 'telemetryTestDir2';
     const CMD = `frodo config-manager pull telemetry --category splunk -D ${dirName}`;
-    await testExport(CMD, env, undefined, undefined, dirName, false);
+    await testExport(CMD, { ...env, env: { ...env.env, FRODO_TEST_NAME: '0_category_D' } }, undefined, undefined, dirName, false);
   });
  
   test('"frodo config-manager pull telemetry -c otlp -n test-otlp": should export a single named exporter', async () => {
     const dirName = 'telemetryTestDir3';
     const CMD = `frodo config-manager pull telemetry -c otlp -n test-otlp -D ${dirName}`;
-    await testExport(CMD, env, undefined, undefined, dirName, false);
+    await testExport(CMD, { ...env, env: { ...env.env, FRODO_TEST_NAME: '0_c_n_D' } }, undefined, undefined, dirName, false);
   });
 
   test('"frodo config-manager pull telemetry -n test-otlp": should export a single named exporter', async () => {
     const dirName = 'telemetryTestDir4';
     const CMD = `frodo config-manager pull telemetry -n test-otlp -D ${dirName}`;
-    await testExport(CMD, env, undefined, undefined, dirName, false);
+    await testExport(CMD, { ...env, env: { ...env.env, FRODO_TEST_NAME: '0_n_D' } }, undefined, undefined, dirName, false);
   });
 
   test('"frodo config-manager pull telemetry -c otlp": should export only the otlp exporter', async () => {
     const dirName = 'telemetryTestDir5';
     const CMD = `frodo config-manager pull telemetry -c otlp -D ${dirName}`;
-    await testExport(CMD, env, undefined, undefined, dirName, false);
+    await testExport(CMD, { ...env, env: { ...env.env, FRODO_TEST_NAME: '0_c_D' } }, undefined, undefined, dirName, false);
   });
 });
