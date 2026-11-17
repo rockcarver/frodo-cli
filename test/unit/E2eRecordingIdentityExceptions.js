@@ -2,7 +2,8 @@
  * Exceptions of test/unit/E2eRecordingIdentity.test.js: the commands whose pin
  * is not the args id frodo-lib derives from the command, and the commands that
  * have no recording. An entry is `{ file, cmd, pin, why }`: `file` is the test
- * file below test/e2e, `cmd` the command line exactly as the test runs it,
+ * file below test/e2e, `cmd` the command line as the test runs it (blanks
+ * around it do not matter),
  * `pin` its FRODO_TEST_NAME, `why` one line for the reader. The check fails
  * when an entry matches no command, when it is no longer needed, and when an
  * entry has no reason, so the lists cannot go stale.
@@ -189,25 +190,25 @@ export const NO_RECORDING = [
     file: 'iga-workflow-delete.e2e.test.js',
     cmd: 'frodo iga workflow delete -fpi testWorkflow9',
     pin: '0_fpi',
-    why: 'skipped test with no recording on disk (TODO(iga-ccb-ai-recording) at the top of the test file)',
+    why: 'skipped test with no recording on disk (the TODO at the top of the test file)',
   },
   {
     file: 'iga-workflow-delete.e2e.test.js',
     cmd: 'frodo iga workflow delete --draft-only -a -y',
     pin: '0_draft-only_a_y',
-    why: 'skipped test with no recording on disk (TODO(iga-ccb-ai-recording) at the top of the test file)',
+    why: 'skipped test with no recording on disk (the TODO at the top of the test file)',
   },
   {
     file: 'iga-workflow-delete.e2e.test.js',
     cmd: 'frodo iga workflow delete --published-only -fa -y',
     pin: '0_published-only_fa_y',
-    why: 'skipped test with no recording on disk (TODO(iga-ccb-ai-recording) at the top of the test file)',
+    why: 'skipped test with no recording on disk (the TODO at the top of the test file)',
   },
   {
     file: 'iga-workflow-delete.e2e.test.js',
     cmd: 'frodo iga workflow delete -fdp --all -y',
     pin: '0_fdp_all_y',
-    why: 'skipped test with no recording on disk (TODO(iga-ccb-ai-recording) at the top of the test file)',
+    why: 'skipped test with no recording on disk (the TODO at the top of the test file)',
   },
 ];
 
