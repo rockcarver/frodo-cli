@@ -1,7 +1,7 @@
 /** See test/e2e/README.md for how to write and record e2e tests. */
 
 /*
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo config-manager pull schedules -D configManagerPullSchedulesDir0
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo config-manager pull schedules -D testDir23
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo config-manager pull schedules -n TestSchedule -D testDir24
 */
 
