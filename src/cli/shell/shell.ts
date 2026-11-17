@@ -287,6 +287,11 @@ async function startConsole(host?: string): Promise<void> {
     getLine: () => started.line,
     setLine: (line: string) => {
       (started as unknown as { line: string }).line = line;
+      // The search's renders and the Tab-accept both replace the whole
+      // line; the cursor must ride to its end, or the next typed char
+      // lands mid-line (or at 0) instead of appending where the user
+      // expects.
+      (started as unknown as { cursor: number }).cursor = line.length;
     },
     refresh: () => {
       const refreshLine = (

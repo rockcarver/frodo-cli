@@ -273,13 +273,6 @@ export function createConsoleInput(
     }
   }
 
-  function nextMatch(): void {
-    if (matches.length > 1) {
-      matchCursor = (matchCursor + 1) % matches.length;
-      render();
-    }
-  }
-
   /**
    * Interpret one chunk of input while the search is active. Everything is
    * swallowed; bytes after the search closes (the Enter that accepts, and
@@ -317,8 +310,18 @@ export function createConsoleInput(
           // Nothing selected: cancel and restore the draft, no execution.
           closeSearch(true);
         }
-      } else if (byte === CTRL_R || byte === TAB) {
-        nextMatch();
+      } else if (byte === TAB) {
+        // Tab accepts the selection onto the line WITHOUT running it, so
+        // it can be edited first (the web popup's paste-for-editing). The
+        // selection closes the search; readline redraws the line.
+        const selection = currentSelection();
+        if (selection !== null) {
+          closeSearch(false);
+          hooks?.setLine(selection.text);
+          hooks?.refresh();
+        } else {
+          closeSearch(true);
+        }
       } else if (byte === ESC) {
         // An arrow key arrives as ESC [ A/B: what the user means is
         // navigation, not "cancel". Peek at the next bytes: a known
@@ -334,16 +337,6 @@ export function createConsoleInput(
               ? Math.max(0, matchCursor - 1)
               : Math.min(matches.length - 1, matchCursor + 1);
           if (matchCursor !== previous) render();
-          i += 2;
-        } else if (next === 0x5b && after === 0x43) {
-          // Right (0x43): drop the selection on the line for editing, as
-          // the web console's popup does.
-          const selection = currentSelection();
-          if (selection !== null) {
-            closeSearch(false);
-            hooks?.setLine(selection.text);
-            hooks?.refresh();
-          }
           i += 2;
         } else {
           closeSearch(true);
