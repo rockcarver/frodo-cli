@@ -190,17 +190,17 @@ function pairKey(a, b) {
  * cannot go stale.
  * @param {ReturnType<typeof collectExportCalls>} calls the calls of all files
  * @param {{files: [string, string], reason: string}[]} [allowed] pairs of test files that are known to collide, each with the reason
- * @returns {{kind: 'directory' | 'file' | 'overlap' | 'stale' | 'allowlist', files: string[], name: string | undefined, message: string}[]}
+ * @returns {{problem: 'directory' | 'file' | 'overlap' | 'stale' | 'allowlist', files: string[], name: string | undefined, message: string}[]}
  *   empty when nothing collides
  */
 export function findCollisions(calls, allowed = []) {
   const problems = [];
   const seen = new Set();
-  const add = (kind, a, b, name, message) => {
-    const key = `${kind} ${pairKey(a.file, b.file)}`;
+  const add = (problem, a, b, name, message) => {
+    const key = `${problem} ${pairKey(a.file, b.file)}`;
     if (seen.has(key)) return;
     seen.add(key);
-    problems.push({ kind, files: [a.file, b.file].sort(), name, message });
+    problems.push({ problem, files: [a.file, b.file].sort(), name, message });
   };
   const at = (call) => `${call.file}:${call.line}`;
 
@@ -278,7 +278,7 @@ export function findCollisions(calls, allowed = []) {
       entry.reason.trim() === ''
     ) {
       problems.push({
-        kind: 'allowlist',
+        problem: 'allowlist',
         files: Array.isArray(files) ? files : [],
         name: undefined,
         message: `an allowed pair needs two different test files and a reason: ${JSON.stringify(entry)}`,
@@ -288,9 +288,9 @@ export function findCollisions(calls, allowed = []) {
     known.add(pairKey(files[0], files[1]));
     listed.push(entry);
   }
-  const remaining = problems.filter((problem) => {
-    if (problem.kind === 'allowlist') return true;
-    const key = pairKey(problem.files[0], problem.files[1]);
+  const remaining = problems.filter((found) => {
+    if (found.problem === 'allowlist') return true;
+    const key = pairKey(found.files[0], found.files[1]);
     if (!known.has(key)) return true;
     used.add(key);
     return false;
@@ -298,7 +298,7 @@ export function findCollisions(calls, allowed = []) {
   for (const entry of listed) {
     if (!used.has(pairKey(entry.files[0], entry.files[1]))) {
       remaining.push({
-        kind: 'stale',
+        problem: 'stale',
         files: [...entry.files].sort(),
         name: undefined,
         message: `${entry.files[0]} and ${entry.files[1]} are allowed to collide but no longer do: remove the entry from the allowed pairs.`,

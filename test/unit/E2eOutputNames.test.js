@@ -1,12 +1,8 @@
-import { describe, expect, it } from '@jest/globals';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
-
-import {
-  collectExportCalls,
-  findCollisions,
-} from '../utils/E2eOutputNames.js';
+import { describe, expect, it } from '@jest/globals';
+import { collectExportCalls, findCollisions } from '../utils/E2eOutputNames.js';
 
 /**
  * No two e2e test files may write to the same place.
@@ -35,7 +31,7 @@ const ALLOWED = [
   {
     files: ['saml-cot-export.e2e.test.js', 'saml-export.e2e.test.js'],
     reason:
-      'saml-export "-A" reads every ".saml.json" of the working directory, which includes the five "*.cot.saml.json" of saml-cot-export. Not seen to fail (0 of 9 forced starts). Fixing it means "-AD" in saml-export, a pin of its recording id and the edit of 11 snapshot keys that carry a developer name; left to a follow-up.',
+      'The saml export and saml cot export tests share the working directory: saml-export "-A" reads every ".saml.json" there, which includes the five "*.cot.saml.json" of saml-cot-export. A known open case, not seen to fail in forced starts. Fixing it means "-AD" in saml-export, a pin of its recording id and the edit of 11 snapshot keys that carry a developer name.',
   },
 ];
 
@@ -137,7 +133,9 @@ describe('collectExportCalls', () => {
     // a let can be reassigned: not a name the scan can trust
     expect(() =>
       collectExportCalls(
-        file(`  let dirName = 'a';\n  testExport(CMD, env, 'x', undefined, dirName);`),
+        file(
+          `  let dirName = 'a';\n  testExport(CMD, env, 'x', undefined, dirName);`
+        ),
         'bad.test.js'
       )
     ).toThrow(/bad\.test\.js:3: cannot tell what the directory argument/);
@@ -161,7 +159,7 @@ describe('findCollisions', () => {
     ]);
     expect(problems).toHaveLength(1);
     expect(problems[0]).toMatchObject({
-      kind: 'directory',
+      problem: 'directory',
       files: ['a.test.js', 'b.test.js'],
       name: 'testDir1',
     });
@@ -199,7 +197,7 @@ describe('findCollisions', () => {
     ]);
     expect(problems).toHaveLength(1);
     expect(problems[0]).toMatchObject({
-      kind: 'file',
+      problem: 'file',
       files: ['a.test.js', 'b.test.js'],
       name: 'one.agent.json',
     });
@@ -219,7 +217,7 @@ describe('findCollisions', () => {
     ).toEqual([]);
   });
 
-  it('reports a type-wide export whose pattern reads another file\'s name, and the reverse', () => {
+  it("reports a type-wide export whose pattern reads another file's name, and the reverse", () => {
     // reader first
     const first = findCollisions([
       call('type-wide.test.js', 1, 'saml', null, null),
@@ -227,7 +225,7 @@ describe('findCollisions', () => {
     ]);
     expect(first).toHaveLength(1);
     expect(first[0]).toMatchObject({
-      kind: 'overlap',
+      problem: 'overlap',
       files: ['one-name.test.js', 'type-wide.test.js'],
     });
     expect(first[0].message).toContain('type-wide.test.js:1');
@@ -238,22 +236,34 @@ describe('findCollisions', () => {
       call('z-type-wide.test.js', 1, 'saml', null, null),
     ]);
     expect(second).toHaveLength(1);
-    expect(second[0].kind).toBe('overlap');
+    expect(second[0].problem).toBe('overlap');
     expect(second[0].message).toContain('z-type-wide.test.js:1');
   });
 
-  it('reports a pattern that is a substring of another file\'s name, and a type that is the end of another type', () => {
+  it("reports a pattern that is a substring of another file's name, and a type that is the end of another type", () => {
     expect(
       findCollisions([
-        call('a.test.js', 1, 'agent', 'frodo-test-java-agent.java.agent.json', null),
-        call('b.test.js', 1, 'java.agent', 'my-frodo-test-java-agent.java.agent.json', null),
-      ]).map((p) => p.kind)
+        call(
+          'a.test.js',
+          1,
+          'agent',
+          'frodo-test-java-agent.java.agent.json',
+          null
+        ),
+        call(
+          'b.test.js',
+          1,
+          'java.agent',
+          'my-frodo-test-java-agent.java.agent.json',
+          null
+        ),
+      ]).map((p) => p.problem)
     ).toEqual(['overlap']);
     expect(
       findCollisions([
         call('a.test.js', 1, 'agent', null, null),
         call('b.test.js', 1, 'java.agent', null, null),
-      ]).map((p) => p.kind)
+      ]).map((p) => p.problem)
     ).toEqual(['overlap']);
   });
 
@@ -264,11 +274,11 @@ describe('findCollisions', () => {
         call('b.test.js', 1, 'idm', 'b.idm.json', null),
         call('c.test.js', 1, 'idm', null, null),
         call('d.test.js', 1, 'agent', null, 'dirD'),
-      ]).map((p) => `${p.kind} ${p.files.join(' ')}`)
+      ]).map((p) => `${p.problem} ${p.files.join(' ')}`)
     ).toEqual(['overlap b.test.js c.test.js']);
   });
 
-  it('lets a pair that is on the allowed list pass, whatever kind of collision it is', () => {
+  it('lets a pair that is on the allowed list pass, whatever the collision is', () => {
     const calls = [
       call('a.test.js', 1, 'saml', null, null),
       call('b.test.js', 1, 'saml', 'x.cot.saml.json', null),
@@ -300,28 +310,34 @@ describe('findCollisions', () => {
 
   it('fails an allowed pair that no longer collides (stale), naming both files', () => {
     const problems = findCollisions(
-      [call('a.test.js', 1, null, null, 'dirA'), call('b.test.js', 1, null, null, 'dirB')],
+      [
+        call('a.test.js', 1, null, null, 'dirA'),
+        call('b.test.js', 1, null, null, 'dirB'),
+      ],
       [{ files: ['a.test.js', 'b.test.js'], reason: 'known' }]
     );
     expect(problems).toHaveLength(1);
     expect(problems[0]).toMatchObject({
-      kind: 'stale',
+      problem: 'stale',
       files: ['a.test.js', 'b.test.js'],
     });
     expect(problems[0].message).toContain('no longer');
   });
 
   it('fails an allowed pair without a reason or with one file only', () => {
-    const calls = [call('a.test.js', 1, null, null, 'testDir9'), call('b.test.js', 1, null, null, 'testDir9')];
+    const calls = [
+      call('a.test.js', 1, null, null, 'testDir9'),
+      call('b.test.js', 1, null, null, 'testDir9'),
+    ];
     expect(
-      findCollisions(calls, [{ files: ['a.test.js', 'b.test.js'], reason: ' ' }]).map(
-        (p) => p.kind
-      )
+      findCollisions(calls, [
+        { files: ['a.test.js', 'b.test.js'], reason: ' ' },
+      ]).map((p) => p.problem)
     ).toEqual(['directory', 'allowlist']);
     expect(
-      findCollisions(calls, [{ files: ['a.test.js', 'a.test.js'], reason: 'x' }]).map(
-        (p) => p.kind
-      )
+      findCollisions(calls, [
+        { files: ['a.test.js', 'a.test.js'], reason: 'x' },
+      ]).map((p) => p.problem)
     ).toEqual(['directory', 'allowlist']);
   });
 });
