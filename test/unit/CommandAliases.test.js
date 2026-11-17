@@ -11,7 +11,11 @@ import {
   FrodoStubCommand,
   getAliasKind,
 } from '../../src/cli/FrodoCommand.ts';
-import { fullName, loadCommandTree } from '../utils/CommandExamples.js';
+import {
+  fullName,
+  loadCommandTree,
+  resolveCommand,
+} from '../utils/CommandExamples.js';
 
 /**
  * The help names a command by its preferred name only. An alias is written at
@@ -439,5 +443,264 @@ describe('a transition alias in a nested tree', () => {
 
     expect(ran).toEqual(['save']);
     expect(errors).toEqual([]);
+  });
+});
+
+/**
+ * The old words of the renames planned in cli#1264. None of the aliases exists
+ * yet: the words below are still the real names. Each row says what has to stay
+ * true when the rename lands, in two parts:
+ *
+ * - a real test, green now and green after the rename, that the old word still
+ *   leads to a command (`resolveCommand` finds a command by name or by alias).
+ *   It fails if a rename drops the word, the property the recorded e2e tests
+ *   rely on because they type the old spelling;
+ * - an `it.todo` for the transition contract, which the step that adds the alias
+ *   turns into a test: `getAliasKind` is `transition`, the help ends
+ *   `(formerly: old)`, the first use prints one notice on stderr, and the help is
+ *   the one of the new name.
+ *
+ * The notice and help of a transition alias are proven on a small tree above, so
+ * the rows here only need the real tree. An alias is named in the description
+ * and the old name of a renamed command stays as a transition alias:
+ * https://github.com/rockcarver/frodo-cli/blob/main/docs/decisions/0049-an-alias-is-named-in-the-description-and-the-old-name-of-a-renamed-command-stays-as-a-transition-alias.md
+ */
+describe('the old words of the planned renames (cli#1264)', () => {
+  let groups;
+
+  beforeAll(async () => {
+    ({ groups } = await loadCommandTree());
+  });
+
+  /** The command the words lead to (the leaf, not a group), or undefined. */
+  const leafOf = (...words) => {
+    const found = resolveCommand(groups, ['frodo', ...words])?.command;
+    return found && found.commands.length === 0 ? found : undefined;
+  };
+
+  it('finds a command by the word it has today, so the rows below cannot silently run over nothing', () => {
+    expect(leafOf('config-manager', 'pull', 'cors')).toBeDefined();
+    expect(leafOf('config-manager', 'pull', 'no-such-word')).toBeUndefined();
+    expect(leafOf('no-such-group', 'pull', 'cors')).toBeUndefined();
+  });
+
+  describe('the group word config-manager, which becomes a transition alias of config', () => {
+    // one command of every verb of the group
+    const verbs = [
+      ['pull', 'cors'],
+      ['push', 'cors'],
+      ['delete', 'scripts'],
+      ['migrate', 'applications'],
+      ['promote', 'run-promotion'],
+    ];
+
+    it.each(verbs)('config-manager %s %s leads to a command', (verb, word) => {
+      const command = leafOf('config-manager', verb, word);
+      expect(command).toBeDefined();
+      expect([command.name(), ...command.aliases()]).toContain(word);
+    });
+
+    it('keeps config export and config import, which stay as they are', () => {
+      expect(leafOf('config', 'export')).toBeDefined();
+      expect(leafOf('config', 'import')).toBeDefined();
+    });
+
+    it.todo(
+      'config-manager is a transition alias of config (getAliasKind), the help of frodo ends the config row with (formerly: config-manager), and config-manager -h shows the help of config'
+    );
+    it.todo(
+      'typing config-manager before any verb prints one notice on stderr, once per process, and then runs the command of that verb; typing config prints none'
+    );
+    // the group merge puts export and import next to pull and push, so the old group word reaches them too
+    it.todo(
+      'config-manager export leads to the same command as config export (a side effect of the merge: config-manager has no export today)'
+    );
+    it.todo(
+      'config-manager import leads to the same command as config import (a side effect of the merge: config-manager has no import today)'
+    );
+  });
+
+  describe('the kind words that get a shorter name, each kept as a transition alias in every verb that has it', () => {
+    /** [new word, old word, the verbs of config-manager that have the old word today] */
+    const renames = [
+      ['apps', 'applications', ['pull', 'push', 'delete', 'migrate']],
+      ['authn', 'authentication', ['pull', 'push']],
+      ['nodes', 'custom-nodes', ['pull', 'push', 'delete']],
+      ['connectors', 'connector-definitions', ['pull', 'push']],
+      ['secretstore-mappings', 'secret-mappings', ['pull', 'push', 'delete']],
+    ];
+    const rows = renames.flatMap(([newWord, oldWord, verbs]) =>
+      verbs.map((verb) => [verb, oldWord, newWord])
+    );
+
+    it('has a row for every verb that has the old word today (14 rows)', () => {
+      expect(rows.length).toBe(14);
+      // the rows cover all of them: no other config-manager command carries an old word
+      const olds = new Set(renames.map(([, oldWord]) => oldWord));
+      const covered = new Set(
+        rows.map(([verb, oldWord]) => `${verb} ${oldWord}`)
+      );
+      const group = groups.find((g) =>
+        [g.name(), ...g.aliases()].includes('config-manager')
+      );
+      const present = group.commands.flatMap((verb) =>
+        verb.commands.flatMap((leaf) =>
+          [leaf.name(), ...leaf.aliases()]
+            .filter((word) => olds.has(word))
+            .map((word) => `${verb.name()} ${word}`)
+        )
+      );
+      expect(present.sort()).toEqual([...covered].sort());
+    });
+
+    it.each(rows)(
+      'config-manager %s %s leads to a command',
+      (verb, oldWord) => {
+        const command = leafOf('config-manager', verb, oldWord);
+        expect(command).toBeDefined();
+        expect([command.name(), ...command.aliases()]).toContain(oldWord);
+      }
+    );
+
+    for (const [verb, oldWord, newWord] of rows) {
+      it.todo(
+        `config-manager ${verb} ${oldWord}: ${oldWord} is a transition alias of ${newWord} (getAliasKind), help ends (formerly: ${oldWord}), one stderr notice, same help as ${newWord}`
+      );
+    }
+  });
+
+  describe('oauth2-agents, which splits into oauth-clients and agents and stays as a deprecated command that runs both', () => {
+    // not an alias of either new command: pipelines and pull all keep working
+    const verbs = ['pull', 'push'];
+
+    it.each(verbs)(
+      'config-manager %s oauth2-agents leads to a command',
+      (verb) => {
+        const command = leafOf('config-manager', verb, 'oauth2-agents');
+        expect(command).toBeDefined();
+        expect([command.name(), ...command.aliases()]).toContain(
+          'oauth2-agents'
+        );
+      }
+    );
+
+    for (const verb of verbs) {
+      it.todo(
+        `config-manager ${verb} oauth2-agents is a deprecated command that runs both oauth-clients and agents, not an alias of either`
+      );
+    }
+  });
+
+  describe('-n, --name, which stays a permanent alias', () => {
+    // the 61 commands of config-manager that take -n today (the decision of cli#1264 counts the same)
+    const withName = {
+      delete: [
+        'applications',
+        'custom-nodes',
+        'email-templates',
+        'endpoints',
+        'locales',
+        'oauth-cimd-profiles',
+        'oauth-issuers',
+        'oauth-software-publishers',
+        'schedules',
+        'scripts',
+        'secret-mappings',
+        'secrets',
+        'telemetry',
+        'terms-and-conditions',
+        'themes',
+        'variables',
+      ],
+      pull: [
+        'applications',
+        'connector-definitions',
+        'custom-nodes',
+        'email-templates',
+        'endpoints',
+        'iga-workflows',
+        'internal-roles',
+        'journeys',
+        'locales',
+        'managed-objects',
+        'oauth-cimd-profiles',
+        'oauth-issuers',
+        'oauth-software-publishers',
+        'org-privileges',
+        'remote-proxies',
+        'schedules',
+        'secret-mappings',
+        'services',
+        'telemetry',
+      ],
+      push: [
+        'applications',
+        'connector-definitions',
+        'connector-mappings',
+        'csp',
+        'custom-nodes',
+        'email-templates',
+        'endpoints',
+        'iga-workflows',
+        'internal-roles',
+        'journeys',
+        'locales',
+        'managed-objects',
+        'oauth-cimd-profiles',
+        'oauth-issuers',
+        'oauth-software-publishers',
+        'org-privileges',
+        'remote-proxies',
+        'saml',
+        'schedules',
+        'scripts',
+        'secret-mappings',
+        'secrets',
+        'services',
+        'telemetry',
+        'variables',
+      ],
+    };
+    // the one command that takes -n with another long name today: -n, --script-name
+    const withScriptName = [['pull', 'scripts']];
+    const named = Object.entries(withName).flatMap(([verb, words]) =>
+      words.map((word) => [verb, word])
+    );
+
+    // an option of the command by its short or long flag; if the permanent alias is not an
+    // option of the command in the end, this is the one place to change
+    const takes = (command, flag) =>
+      command.options.some(
+        (option) => option.short === flag || option.long === flag
+      );
+
+    it('lists 60 commands with -n, --name and 1 with -n, --script-name', () => {
+      expect(named.length).toBe(60);
+      expect(withScriptName.length).toBe(1);
+    });
+
+    it('still takes -n on every command that takes it today', () => {
+      const missing = [...named, ...withScriptName].flatMap(([verb, word]) => {
+        const command = leafOf('config-manager', verb, word);
+        return command && takes(command, '-n')
+          ? []
+          : [`config-manager ${verb} ${word}`];
+      });
+      expect(missing).toEqual([]);
+    });
+
+    it('still takes --name on every command that takes -n, --name today', () => {
+      const missing = named.flatMap(([verb, word]) => {
+        const command = leafOf('config-manager', verb, word);
+        return command && takes(command, '--name')
+          ? []
+          : [`config-manager ${verb} ${word}`];
+      });
+      expect(missing).toEqual([]);
+    });
+
+    it.todo(
+      '-n, --name is a permanent alias on every command that takes it: it is accepted, prints no notice and is documented in the help (the option alias is designed in cli#1264)'
+    );
   });
 });
