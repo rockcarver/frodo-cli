@@ -23,6 +23,7 @@ const igaEnv = getEnv(ic);
 
 const allDirectory = "test/e2e/exports/fr-config-manager/cloud";
 
+// FRODO_TEST_NAME pins the recording's identity (the last segment of its path): the id stays when flags are renamed.
 // TODO(iga-ccb-ai-recording): both sub-tests below push a workflow WITHOUT
 // --draft, which (config-manager push iga-workflows' underlying
 // configManagerImportIgaWorkflows -> frodo-lib's updateWorkflow) routes
@@ -42,14 +43,14 @@ const allDirectory = "test/e2e/exports/fr-config-manager/cloud";
 describe('frodo config-manager push iga-workflows', () => {
     test.skip(`"frodo config-manager push iga-workflows -D ${allDirectory} ": should import the iga workflows into cloud tenant"`, async () => {
         const CMD = `frodo config-manager push iga-workflows -D ${allDirectory} `;
-        await testSuccess(CMD, igaEnv);
+        await testSuccess(CMD, { ...igaEnv, env: { ...igaEnv.env, FRODO_TEST_NAME: '0_D' } });
     });
     test(`"frodo config-manager push iga-workflows --draft -D ${allDirectory} ": should import the iga workflows into cloud tenant as draft workflows"`, async () => {
         const CMD = `frodo config-manager push iga-workflows --draft -D ${allDirectory} `;
-        await testSuccess(CMD, igaEnv);
+        await testSuccess(CMD, { ...igaEnv, env: { ...igaEnv.env, FRODO_TEST_NAME: '0_draft_D' } });
     });
     test.skip(`"frodo config-manager push iga-workflows -n test-BasicApplicationGrant -D ${allDirectory} ": should import a specific iga workflows by name into cloud tenant"`, async () => {
         const CMD = `frodo config-manager push iga-workflows -n test-BasicApplicationGrant -D ${allDirectory} `;
-        await testSuccess(CMD, igaEnv);
+        await testSuccess(CMD, { ...igaEnv, env: { ...igaEnv.env, FRODO_TEST_NAME: '0_n_D' } });
     });
 });

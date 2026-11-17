@@ -13,9 +13,10 @@ const forgeopsEnv = getEnv(fc);
 
 const allDirectory = "test/e2e/exports/fr-config-manager/forgeops";
 
+// FRODO_TEST_NAME pins the recording's identity (the last segment of its path): the id stays when flags are renamed.
 describe('frodo config-manager push service-objects', () => {
     test(`"frodo config-manager push service-objects -E SERVICE_OBJECT_GIVEN_NAME=testName -D ${allDirectory} -m forgeops": should import the service objects into forgeops"`, async () => {
         const CMD = `frodo config-manager push service-objects -E SERVICE_OBJECT_GIVEN_NAME=testName -D ${allDirectory} -m forgeops`;
-        await testSuccess(CMD, forgeopsEnv);
+        await testSuccess(CMD, { ...forgeopsEnv, env: { ...forgeopsEnv.env, FRODO_TEST_NAME: '0_E_D_m' } });
     });
 });

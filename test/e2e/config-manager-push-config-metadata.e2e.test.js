@@ -29,13 +29,14 @@ const dotNotationArgs = [
   '-M.obj2.obj3.msg hello',
 ].join(' ');
 
+// FRODO_TEST_NAME pins the recording's identity (the last segment of its path): the id stays when flags are renamed.
 describe('frodo config-manager push config-metadata', () => {
     test(`"frodo config-manager push config-metadata ${metadataArgs} -m forgeops": should import config-metadata into forgeops"`, async () => {
         const CMD = `frodo config-manager push config-metadata ${metadataArgs} -m forgeops `;
-        await testSuccess(CMD, forgeopsEnv);
+        await testSuccess(CMD, { ...forgeopsEnv, env: { ...forgeopsEnv.env, FRODO_TEST_NAME: '0_metadata.pushedAt_metadata.versionInfo.version_metadata.versionInfo.stable_metadata.versionInfo.rev_m' } });
     });
     test(`"frodo config-manager push config-metadata ${dotNotationArgs} -m forgeops": should correctly parse dot-notation options (string values, boolean defaults, duplicate-path arrays, and nested objects) and import config-metadata into forgeops"`, async () => {
         const CMD = `frodo config-manager push config-metadata ${dotNotationArgs} -m forgeops `;
-        await testSuccess(CMD, forgeopsEnv);
+        await testSuccess(CMD, { ...forgeopsEnv, env: { ...forgeopsEnv.env, FRODO_TEST_NAME: '0_M.two_M.true_M.true2_M.true3_M.true3_M.obj.one_M.obj.two_M.obj2.obj3.msg_m' } });
   });
 });

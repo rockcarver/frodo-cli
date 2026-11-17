@@ -10,9 +10,10 @@ import { connection as c } from './utils/TestConfig';
 process.env['FRODO_MOCK'] ||= '1';
 const env = getEnv(c);
 
+// FRODO_TEST_NAME pins the recording's identity (the last segment of its path): the id stays when flags are renamed.
 describe('frodo config-manager push direct-control-init', () => {
     test('"frodo config-manager push direct-control-init": should initialize a new direct configuration session', async () => {
         const CMD = `frodo config-manager push direct-control-init`;
-        await testSuccess(CMD, env);
+        await testSuccess(CMD, { ...env, env: { ...env.env, FRODO_TEST_NAME: '0' } });
     });
 });

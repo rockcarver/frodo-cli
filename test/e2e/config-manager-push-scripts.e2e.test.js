@@ -15,16 +15,18 @@ const env = getEnv(c);
 
 const allDirectory = "test/e2e/exports/fr-config-manager/forgeops";
 
+// FRODO_TEST_NAME pins the recording's identity (the last segment of its path): the id stays when flags are renamed.
 describe('frodo config-manager push scripts', () => {
     test(`"frodo config-manager push scripts -FD ${allDirectory}": should import the scripts`, async () => {
         const CMD = `frodo config-manager push scripts -FD ${allDirectory}`;
-        await testSuccess(CMD, env);
+        await testSuccess(CMD, { ...env, env: { ...env.env, FRODO_TEST_NAME: '0_FD' } });
     });
     test(`"frodo config-manager push scripts --directory ${allDirectory}": should not import the scripts when no changes made`, async () => {
         const CMD = `frodo config-manager push scripts --directory ${allDirectory}`;
         await testSuccess(CMD, {
             env: {
                 ...env.env,
+                FRODO_TEST_NAME: '0_directory',
                 FRODO_REALM: '/'
             }
         });
@@ -34,6 +36,7 @@ describe('frodo config-manager push scripts', () => {
         await testSuccess(CMD, {
             env: {
                 ...env.env,
+                FRODO_TEST_NAME: '0_force-update_name_D',
                 FRODO_REALM: 'alpha'
             }
         });
@@ -43,6 +46,7 @@ describe('frodo config-manager push scripts', () => {
         await testSuccess(CMD, {
             env: {
                 ...env.env,
+                FRODO_TEST_NAME: '0_Ff_D',
                 FRODO_REALM: '/'
             }
         });

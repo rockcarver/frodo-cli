@@ -14,10 +14,11 @@ const cloudEnv = getEnv(c);
 
 const allDirectory = "test/e2e/exports/fr-config-manager/cloud";
 
+// FRODO_TEST_NAME pins the recording's identity (the last segment of its path): the id stays when flags are renamed.
 describe('frodo config-manager push secret-mappings', () => {
     test(`"frodo config-manager push secret-mappings -D ${allDirectory} ": should import the secret mapping into cloud"`, async () => {
         const CMD = `frodo config-manager push secret-mappings -D ${allDirectory} `;
-        await testSuccess(CMD, cloudEnv);
+        await testSuccess(CMD, { ...cloudEnv, env: { ...cloudEnv.env, FRODO_TEST_NAME: '0_D' } });
     });
 
     test(`"frodo config-manager push secret-mappings -n am.services.iot.cert.verification -D ${allDirectory}": should import a specific secret mapping by name into cloud"`, async () => {
@@ -25,6 +26,7 @@ describe('frodo config-manager push secret-mappings', () => {
         await testSuccess(CMD, {
             env: {
                 ...cloudEnv.env,
+                FRODO_TEST_NAME: '0_n_D',
                 FRODO_REALM: 'alpha'
             }
         }

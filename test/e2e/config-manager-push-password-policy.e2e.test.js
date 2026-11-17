@@ -20,28 +20,29 @@ const forgeopsEnv = getEnv(fc);
 const cloudAllDirectory = "test/e2e/exports/fr-config-manager/cloud";
 const forgeopsAllDirectory = "test/e2e/exports/fr-config-manager/forgeops";
 
+// FRODO_TEST_NAME pins the recording's identity (the last segment of its path): the id stays when flags are renamed.
 describe('frodo config-manager push password-policy', () => {
     describe('Cloud', () => {
         test(`"frodo config-manager push password-policy -D ${cloudAllDirectory} -m cloud": should import the password policy into AIC"`, async () => {
             const CMD = `frodo config-manager push password-policy -D ${cloudAllDirectory} -m cloud`;
-            await testSuccess(CMD, cloudEnv);
+            await testSuccess(CMD, { ...cloudEnv, env: { ...cloudEnv.env, FRODO_TEST_NAME: '0_D_m' } });
         });
 
         test(`"FRODO_REALM=alpha frodo config-manager push password-policy -D ${cloudAllDirectory} -m cloud": should import a specific password policy by name into AIC"`, async () => {
             const CMD = `frodo config-manager push password-policy -D ${cloudAllDirectory} -m cloud`;
-            await testSuccess(CMD, { ...cloudEnv, env: { ...cloudEnv.env, FRODO_REALM: 'alpha' } });
+            await testSuccess(CMD, { ...cloudEnv, env: { ...cloudEnv.env, FRODO_TEST_NAME: '0_D_m', FRODO_REALM: 'alpha' } });
         });
     });
 
     describe.skip('ForgeOps', () => {
         test(`"frodo config-manager push password-policy -D ${forgeopsAllDirectory} -m forgeops": should import the password policy into forgeops"`, async () => {
             const CMD = `frodo config-manager push password-policy -D ${forgeopsAllDirectory} -m forgeops`;
-            await testSuccess(CMD, forgeopsEnv);
+            await testSuccess(CMD, { ...forgeopsEnv, env: { ...forgeopsEnv.env, FRODO_TEST_NAME: '0_D_m' } });
         });
 
         test(`"FRODO_REALM=alpha frodo config-manager push password-policy -D ${forgeopsAllDirectory} -m forgeops": should import a specific password policy by name into forgeops"`, async () => {
             const CMD = `frodo config-manager push password-policy -D ${forgeopsAllDirectory} -m forgeops`;
-            await testSuccess(CMD, { ...forgeopsEnv, env: { ...forgeopsEnv.env, FRODO_REALM: 'alpha' } });
+            await testSuccess(CMD, { ...forgeopsEnv, env: { ...forgeopsEnv.env, FRODO_TEST_NAME: '0_D_m', FRODO_REALM: 'alpha' } });
         });
     });
 });

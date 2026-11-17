@@ -13,9 +13,10 @@ const forgeopsEnv = getEnv(fc);
 
 const forgeopsDirectory = "test/e2e/exports/fr-config-manager/forgeops/";
 
+// FRODO_TEST_NAME pins the recording's identity (the last segment of its path): the id stays when flags are renamed.
 describe('frodo config-manager push idm-authentication', () => {
     test(`"frodo config-manager push idm-authentication -D ${forgeopsDirectory} -m forgeops": should import idm authentication into forgeops"`, async () => {
         const CMD = `frodo config-manager push idm-authentication -D ${forgeopsDirectory} -m forgeops`;
-        await testSuccess(CMD, forgeopsEnv);
+        await testSuccess(CMD, { ...forgeopsEnv, env: { ...forgeopsEnv.env, FRODO_TEST_NAME: '0_D_m' } });
     });
 });
