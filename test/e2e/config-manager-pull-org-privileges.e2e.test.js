@@ -12,7 +12,7 @@ process.env['FRODO_CONNECTION_PROFILES_PATH'] =
     './test/e2e/env/Connections.json';
 const env = getEnv(c);
 
-// Each FRODO_TEST_NAME is the recording's identity (the args id frodo-lib derives from the command): a changed flag does not move the recording.
+// Each FRODO_TEST_NAME below pins the recording identity of its command (the args id it was recorded under, or a fixed label); test/unit/E2eRecordingIdentity.test.js checks every pin.
 describe('frodo config-manager pull org-privileges', () => {
     test('"frodo config-manager pull org-privileges -D configManagerExportOrgPrivilegesDir0": should export all the realms organizations privileges in fr-config manager style.', async () => {
         const dirName = 'configManagerExportOrgPrivilegesDir0';

@@ -11,7 +11,7 @@ process.env['FRODO_CONNECTION_PROFILES_PATH'] =
     './test/e2e/env/Connections.json';
 const env = getEnv(c);
 
-// Each FRODO_TEST_NAME is the recording's identity (the args id frodo-lib derives from the command): a changed flag does not move the recording.
+// Each FRODO_TEST_NAME below pins the recording identity of its command (the args id it was recorded under, or a fixed label); test/unit/E2eRecordingIdentity.test.js checks every pin.
 describe('frodo config-manager pull email-provider', () => {
     test('"frodo config-manager pull email-provider -D configManagerExportEmailProviderDir0": should export email provider configuration in fr-config manager style.', async () => {
         const dirName = 'configManagerExportEmailProviderDir0';

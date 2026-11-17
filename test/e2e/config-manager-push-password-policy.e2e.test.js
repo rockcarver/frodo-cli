@@ -20,7 +20,7 @@ const forgeopsEnv = getEnv(fc);
 const cloudAllDirectory = "test/e2e/exports/fr-config-manager/cloud";
 const forgeopsAllDirectory = "test/e2e/exports/fr-config-manager/forgeops";
 
-// FRODO_TEST_NAME pins the recording's identity (the last segment of its path): the id stays when flags are renamed.
+// Each FRODO_TEST_NAME below pins the recording identity of its command (the args id it was recorded under, or a fixed label); test/unit/E2eRecordingIdentity.test.js checks every pin.
 describe('frodo config-manager push password-policy', () => {
     describe('Cloud', () => {
         test(`"frodo config-manager push password-policy -D ${cloudAllDirectory} -m cloud": should import the password policy into AIC"`, async () => {

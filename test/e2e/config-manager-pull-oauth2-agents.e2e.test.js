@@ -14,7 +14,7 @@ process.env['FRODO_CONNECTION_PROFILES_PATH'] = './test/e2e/env/Connections.json
 const env = getEnv(fc);
 const configFile = 'test/e2e/fr-config-manager-pull-config/oauth2-agents.json';
 
-// Each FRODO_TEST_NAME is the recording's identity (the args id frodo-lib derives from the command): a changed flag does not move the recording.
+// Each FRODO_TEST_NAME below pins the recording identity of its command (the args id it was recorded under, or a fixed label); test/unit/E2eRecordingIdentity.test.js checks every pin.
 describe('frodo config-manager pull oauth2-agents', () => {
     // The config file lists the agent type TrustedJwtIssuer (testJWT) for /, alpha and bravo. Since frodo-cli#1259 the
     // command leaves it to `config-manager pull oauth-issuers`: it skips the entries with a warning and neither reads

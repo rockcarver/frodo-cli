@@ -18,7 +18,7 @@ const allDirectory = "test/e2e/exports/fr-config-manager/cloud";
 const envDir1 = "test/e2e/env/configManager1.env"
 const envDir2 = "test/e2e/env/configManager2.env"
 
-// FRODO_TEST_NAME pins the recording's identity (the last segment of its path): the id stays when flags are renamed.
+// Each FRODO_TEST_NAME below pins the recording identity of its command (the args id it was recorded under, or a fixed label); test/unit/E2eRecordingIdentity.test.js checks every pin.
 describe('Should import variables into cloud', () => {
     test(`"frodo config-manager push variables -F -E ESV_FR_VAR_TEST_2="20" -E ESV_FR_VAR_TEST='this is a test' -D ${allDirectory} ": should import two variables into cloud"`, async () => {
         const CMD = `frodo config-manager push variables -F -E ESV_FR_VAR_TEST_2="20" -E ESV_FR_VAR_TEST='this is a test' -D ${allDirectory} `;

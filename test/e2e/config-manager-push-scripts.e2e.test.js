@@ -15,7 +15,7 @@ const env = getEnv(c);
 
 const allDirectory = "test/e2e/exports/fr-config-manager/forgeops";
 
-// FRODO_TEST_NAME pins the recording's identity (the last segment of its path): the id stays when flags are renamed.
+// Each FRODO_TEST_NAME below pins the recording identity of its command (the args id it was recorded under, or a fixed label); test/unit/E2eRecordingIdentity.test.js checks every pin.
 describe('frodo config-manager push scripts', () => {
     test(`"frodo config-manager push scripts -FD ${allDirectory}": should import the scripts`, async () => {
         const CMD = `frodo config-manager push scripts -FD ${allDirectory}`;

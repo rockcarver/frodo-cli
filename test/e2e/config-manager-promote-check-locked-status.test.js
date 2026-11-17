@@ -10,7 +10,7 @@ import { getEnv, testSuccess } from './utils/TestUtils';
 import { connection as c } from './utils/TestConfig';
 
 process.env['FRODO_MOCK'] ||= '1';
-// FRODO_TEST_NAME pins the recording identity of a command: the id its recording was made under.
+// Each FRODO_TEST_NAME below pins the recording identity of its command (the args id it was recorded under, or a fixed label); test/unit/E2eRecordingIdentity.test.js checks every pin.
 const cloudEnv = getEnv(c);
 
 describe('frodo config-manager promote check-locked-status', () => {

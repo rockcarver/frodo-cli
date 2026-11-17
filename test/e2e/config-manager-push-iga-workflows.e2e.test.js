@@ -23,7 +23,7 @@ const igaEnv = getEnv(ic);
 
 const allDirectory = "test/e2e/exports/fr-config-manager/cloud";
 
-// FRODO_TEST_NAME pins the recording's identity (the last segment of its path): the id stays when flags are renamed.
+// Each FRODO_TEST_NAME below pins the recording identity of its command (the args id it was recorded under, or a fixed label); test/unit/E2eRecordingIdentity.test.js checks every pin.
 // TODO(iga-ccb-ai-recording): both sub-tests below push a workflow WITHOUT
 // --draft, which (config-manager push iga-workflows' underlying
 // configManagerImportIgaWorkflows -> frodo-lib's updateWorkflow) routes

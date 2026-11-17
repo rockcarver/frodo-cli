@@ -18,7 +18,7 @@ const cloudEnv = getEnv(c);
 const allDirectory = "test/e2e/exports/fr-config-manager/cloud";
 const envDir = "test/e2e/env/configManager1.env"
 
-// FRODO_TEST_NAME pins the recording's identity (the last segment of its path): the id stays when flags are renamed.
+// Each FRODO_TEST_NAME below pins the recording identity of its command (the args id it was recorded under, or a fixed label); test/unit/E2eRecordingIdentity.test.js checks every pin.
 describe('frodo config-manager push secrets', () => {
     // This replay fails: the env file has no value for ESV_PRUNE_SECRETS, so the file of esv-prune-secrets cannot be read
     // (the recording holds no request for it). The other secrets are imported, a summary names esv-prune-secrets and
