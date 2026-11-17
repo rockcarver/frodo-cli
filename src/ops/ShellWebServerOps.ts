@@ -6,6 +6,7 @@ import { AddressInfo } from 'node:net';
 import path from 'node:path';
 import { createInterface } from 'node:readline';
 import { frodo } from '@rockcarver/frodo-lib';
+import { HistoryEntry } from './ShellHistoryOps';
 import { WebEngine } from './ShellWebEngineOps';
 import {
   buildContentSecurityPolicy,
@@ -76,7 +77,7 @@ export type TabEngine = {
   children(id: number, offset: number, limit: number): Promise<unknown | null>;
   json(id: number): Promise<unknown | null>;
   complete(line: string): Promise<[string[], string]>;
-  history(): Promise<string[]>;
+  history(): Promise<HistoryEntry[]>;
   connect(host: string): Promise<{ ok: boolean; info: SessionInfo }>;
   /** The connection as this engine's own process sees it. */
   info(): Promise<SessionInfo>;

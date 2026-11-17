@@ -170,6 +170,10 @@ async function startConsole(host?: string): Promise<void> {
   const bindings = createConsoleBindings();
   const { shellRest, rootBindings, docsByMethod } = bindings;
 
+  // Persistent history per connection profile/host. Declared first: the
+  // input filter below closes over it, and the REPL is started later.
+  const shellHistory = new ShellHistory(host);
+
   // The interactive object explorer (Ctrl+O / explore()): a full-screen
   // collapsible tree over the last result or any value. Its io routes bytes
   // through the console's input filter, so the REPL never sees viewer
@@ -212,26 +216,23 @@ async function startConsole(host?: string): Promise<void> {
   // The console's input stream: sits between process.stdin and the REPL so
   // Ctrl+R opens the fuzzy history search instead of readline's built-in
   // reverse search (which cannot be unbound), and Ctrl+O opens the explorer.
-  const consoleInput = createConsoleInput(
-    () => (replServer as unknown as { history: string[] }).history,
-    {
-      wantsInput: () => viewerActive,
-      handle: (chunk: Buffer) => viewerChunkSink?.(chunk),
-      openLast: () => {
-        const candidate = pickLastExplorable();
-        if (candidate === undefined) {
-          printHintAbovePrompt(
-            replServer,
-            `${DIM_HINT}Nothing to explore yet: run an expression that returns an object or array first.${RESET_HINT}`
-          );
-          return;
-        }
-        // The prompt is on screen above the region: draw below it and put
-        // the prompt back when the viewer closes.
-        void viewer.explore(candidate, { atPrompt: true });
-      },
-    }
-  );
+  const consoleInput = createConsoleInput(() => shellHistory.getEntries(), {
+    wantsInput: () => viewerActive,
+    handle: (chunk: Buffer) => viewerChunkSink?.(chunk),
+    openLast: () => {
+      const candidate = pickLastExplorable();
+      if (candidate === undefined) {
+        printHintAbovePrompt(
+          replServer,
+          `${DIM_HINT}Nothing to explore yet: run an expression that returns an object or array first.${RESET_HINT}`
+        );
+        return;
+      }
+      // The prompt is on screen above the region: draw below it and put
+      // the prompt back when the viewer closes.
+      void viewer.explore(candidate, { atPrompt: true });
+    },
+  });
 
   // Forward reference: replServer is assigned below, but the completer's
   // hint callback fires via setImmediate so it is always defined by the time
@@ -371,16 +372,17 @@ async function startConsole(host?: string): Promise<void> {
     printHintAbovePrompt(started, hint);
   });
 
-  // Persistent history per connection profile/host.
-  const shellHistory = new ShellHistory(host);
   (started as unknown as { history: string[] }).history = shellHistory.getLines(
     { singleLineOnly: true }
   );
 
-  // Persist executed lines.
+  // Persist executed lines, stamped with when and (once known) where.
   started.on('line', (line: string) => {
     if (line.trim().length > 0) {
-      shellHistory.addLine(line);
+      shellHistory.addLine(line, {
+        ts: Date.now(),
+        host: state.getHost() || undefined,
+      });
     }
   });
 
@@ -391,7 +393,8 @@ async function startConsole(host?: string): Promise<void> {
 
   // Register .history dot-command to print, clear, or trim command history.
   // Subcommands are passed as the text argument after the dot-command name:
-  //   .history           -> print full history (oldest first)
+  //   .history           -> print full history (oldest first), with when
+  //                         and against which environment each entry ran
   //   .history clear     -> delete all history
   //   .history trim <n>  -> keep only the last n commands
   started.defineCommand('history', {
@@ -402,14 +405,38 @@ async function startConsole(host?: string): Promise<void> {
       const lines = () => (started as unknown as { history: string[] }).history;
 
       if (!sub) {
-        // Print history oldest-first
-        const hist = [...lines()].reverse();
-        if (hist.length === 0) {
+        // Print history oldest-first, one row per entry: index, when it
+        // ran (date for anything not today, time for today), where, then
+        // the command. Entries without metadata (from an older file) get
+        // blank columns, so the commands still line up.
+        const entries = [...shellHistory.getEntries()].reverse();
+        if (entries.length === 0) {
           console.log('No history yet.');
         } else {
-          hist.forEach((line: string, i: number) =>
-            console.log(`  ${String(i + 1).padStart(4)}  ${line}`)
-          );
+          const when = (ts?: number): string => {
+            if (ts === undefined) return '';
+            const d = new Date(ts);
+            const today = new Date();
+            const sameDay =
+              d.getFullYear() === today.getFullYear() &&
+              d.getMonth() === today.getMonth() &&
+              d.getDate() === today.getDate();
+            return sameDay
+              ? d.toTimeString().slice(0, 5)
+              : d.toISOString().slice(0, 10);
+          };
+          const widest = Math.max(...entries.map((e) => when(e.ts).length), 1);
+          entries.forEach((e, i) => {
+            const w = when(e.ts).padEnd(widest);
+            const h = e.host ? `  ${e.host}` : '';
+            const first = e.text.split('\n')[0];
+            const more = e.text.includes('\n')
+              ? DIM_HINT + '  …' + RESET_HINT
+              : '';
+            console.log(
+              `  ${String(i + 1).padStart(4)}  ${DIM_HINT}${w}${h}${RESET_HINT}  ${first}${more}`
+            );
+          });
         }
       } else if (sub === 'clear') {
         (started as unknown as { history: string[] }).history = [];

@@ -1,6 +1,7 @@
 import repl from 'node:repl';
 import { PassThrough, Writable } from 'node:stream';
 import vm from 'node:vm';
+import { state } from '@rockcarver/frodo-lib';
 import * as acorn from 'acorn';
 import * as walk from 'acorn-walk';
 import { createFrodoCompleter } from './ShellAutoCompleteOps';
@@ -8,7 +9,7 @@ import {
   createConsoleBindings,
   installConsoleContext,
 } from './ShellContextOps';
-import { ShellHistory } from './ShellHistoryOps';
+import { HistoryEntry, ShellHistory } from './ShellHistoryOps';
 
 /**
  * The evaluation engine behind the web console: a REPL with no terminal.
@@ -54,8 +55,8 @@ export type WebEngine = {
   evaluate(code: string): Promise<EvalOutcome>;
   /** Completions for the text before the cursor: [candidates, replaced text]. */
   complete(line: string): [string[], string];
-  /** Persistent history for this host, newest first. */
-  history(): string[];
+  /** Persistent history for this host, newest first, with metadata. */
+  history(): HistoryEntry[];
   /**
    * Discard everything the user defined: a fresh context with the console
    * names reinstalled. The connection and history survive; only the JS
@@ -605,7 +606,13 @@ export function createWebEngine(options: {
       return next.then((outcome) => {
         // Unfinished input is not an entry yet; the user is still typing it.
         if (outcome.status !== 'incomplete') {
-          history.addLine(code);
+          history.addLine(code, {
+            ts: Date.now(),
+            // The host the input ran against, from this engine's own state
+            // (an engine is one environment; the parent's state never
+            // connects). An entry typed before any connect carries none.
+            host: state.getHost() || undefined,
+          });
           // A successful input's top-level let/const/class/function names
           // now exist in the lexical scope: remember them for completion.
           if (outcome.status === 'ok') harvestLexicalNames(code);
@@ -614,7 +621,7 @@ export function createWebEngine(options: {
       });
     },
     complete: (line) => completer(line),
-    history: () => history.getLines(),
+    history: () => history.getEntries(),
     // Queued like an eval, so it cannot interleave with one: the context
     // never vanishes under a script that is running. resetContext() swaps
     // in an empty context; the console names (frodo, $, help, ...) live in

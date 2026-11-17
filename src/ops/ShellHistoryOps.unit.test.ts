@@ -191,3 +191,109 @@ describe('ShellHistory.shared (the web console)', () => {
     ]);
   });
 });
+
+describe('ShellHistory entry metadata (ts, host)', () => {
+  let home: string;
+
+  beforeEach(() => {
+    home = fs.mkdtempSync(path.join(os.tmpdir(), 'frodo-history-'));
+    jest.spyOn(os, 'homedir').mockReturnValue(home);
+    if (frodo.utils.getFrodoHome() !== path.join(home, '.frodo')) {
+      throw new Error(
+        `History tests are not isolated: frodo home is ${frodo.utils.getFrodoHome()}`
+      );
+    }
+  });
+
+  afterEach(() => {
+    jest.restoreAllMocks();
+    fs.rmSync(home, { recursive: true, force: true });
+  });
+
+  it('stores and reloads ts and host with the text', () => {
+    const history = new ShellHistory('https://tenant.example.com/am');
+    history.addLine('with meta', { ts: 1_700_000_000_000, host: 'tenant.example.com' });
+    history.addLine('without meta');
+    const reloaded = new ShellHistory('https://tenant.example.com/am');
+    expect(reloaded.getEntries()).toEqual([
+      { text: 'without meta' },
+      { text: 'with meta', ts: 1_700_000_000_000, host: 'tenant.example.com' },
+    ]);
+    // getLines is unchanged for the REPL: just the texts.
+    expect(reloaded.getLines()).toEqual(['without meta', 'with meta']);
+  });
+
+  it('writes rich entries as #h: lines and plain entries bare', () => {
+    const history = new ShellHistory('https://tenant.example.com/am');
+    history.addLine('plain one');
+    history.addLine('rich one', { ts: 123, host: 'h' });
+    const raw = fs.readFileSync(history.getHistoryPath(), 'utf-8');
+    const lines = raw.split('\n').filter((l) => l.length > 0);
+    expect(lines[0]).toBe('plain one');
+    expect(lines[1]).toBe(
+      `#h:${JSON.stringify({ text: 'rich one', ts: 123, host: 'h' })}`
+    );
+  });
+
+  it('a repeat moves the entry and refreshes its metadata', () => {
+    const history = new ShellHistory('https://tenant.example.com/am');
+    history.addLine('cmd', { ts: 111, host: 'old.example.com' });
+    history.addLine('other');
+    history.addLine('cmd', { ts: 222, host: 'new.example.com' });
+    // Newest first: the moved repeat is the newest entry.
+    expect(history.getEntries()).toEqual([
+      { text: 'cmd', ts: 222, host: 'new.example.com' },
+      { text: 'other' },
+    ]);
+    // The repeat survives a reload with the refreshed metadata.
+    const reloaded = new ShellHistory('https://tenant.example.com/am');
+    expect(reloaded.getEntries()[0]).toEqual({
+      text: 'cmd',
+      ts: 222,
+      host: 'new.example.com',
+    });
+  });
+
+  it('a repeat without metadata keeps the metadata it had', () => {
+    const history = new ShellHistory('https://tenant.example.com/am');
+    history.addLine('cmd', { ts: 111, host: 'h' });
+    history.addLine('cmd');
+    expect(history.getEntries()).toEqual([
+      { text: 'cmd', ts: 111, host: 'h' },
+    ]);
+  });
+
+  it('reads a file of bare lines into metadata-less entries', () => {
+    const history = new ShellHistory('https://tenant.example.com/am');
+    fs.writeFileSync(history.getHistoryPath(), 'old one\nold two\n', 'utf-8');
+    const reloaded = new ShellHistory('https://tenant.example.com/am');
+    expect(reloaded.getEntries()).toEqual([
+      { text: 'old two' },
+      { text: 'old one' },
+    ]);
+  });
+
+  it('ignores a malformed #h: line, keeping its raw text', () => {
+    const history = new ShellHistory('https://tenant.example.com/am');
+    fs.writeFileSync(history.getHistoryPath(), '#h:{broken\n', 'utf-8');
+    const reloaded = new ShellHistory('https://tenant.example.com/am');
+    expect(reloaded.getEntries()).toEqual([{ text: '#h:{broken' }]);
+  });
+
+  it('a folded per-host entry keeps its file as its host', () => {
+    const dir = path.join(home, '.frodo', 'shell-history');
+    fs.mkdirSync(dir, { recursive: true });
+    fs.writeFileSync(path.join(dir, 'yyc_dev.txt'), 'yyc command\n', 'utf-8');
+    const shared = ShellHistory.shared();
+    expect(shared.getEntries()).toEqual([
+      { text: 'yyc command', host: 'yyc.dev' },
+    ]);
+    // And it persists stamped, so the fold is one-time.
+    shared.addLine('next', { ts: 5, host: 'other' });
+    const again = ShellHistory.shared();
+    expect(again.getEntries()).toEqual([
+      { text: 'next', ts: 5, host: 'other' },
+      { text: 'yyc command', host: 'yyc.dev' },
+    ]);
+  });
+});

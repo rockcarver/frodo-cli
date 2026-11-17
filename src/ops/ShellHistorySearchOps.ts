@@ -2,6 +2,7 @@ import readline from 'node:readline';
 import { PassThrough, Transform } from 'node:stream';
 import { StringDecoder } from 'node:string_decoder';
 import fuzzysort from 'fuzzysort';
+import { HistoryEntry } from './ShellHistoryOps';
 
 /**
  * fzf-style fuzzy reverse search for the frodo shell (`frodo shell`),
@@ -77,11 +78,11 @@ export type InputOverlay = {
 /**
  * Create the console's input stream with Ctrl+R fuzzy history search.
  *
- * @param getHistory newest-first history array to search; read live on every
- *   keystroke, so entries added during the session are found too
+ * @param getHistory newest-first history entries to search; read live on
+ *   every keystroke, so entries added during the session are found too
  */
 export function createConsoleInput(
-  getHistory: () => string[],
+  getHistory: () => HistoryEntry[],
   overlay?: InputOverlay
 ): {
   /** Pass to repl.start({ input }). */
@@ -107,7 +108,7 @@ export function createConsoleInput(
   // split over two reads still decodes as one character.
   const decoder = new StringDecoder('utf8');
 
-  function currentSelection(): string | null {
+  function currentSelection(): HistoryEntry | null {
     const history = getHistory();
     const index = matches[matchCursor];
     return matches.length > 0 && index < history.length ? history[index] : null;
@@ -120,14 +121,14 @@ export function createConsoleInput(
       return;
     }
     const history = getHistory();
-    // Search newest-first (the REPL history array is newest-first): the
+    // Search newest-first (the history entries are newest-first): the
     // entries the user most likely wants first. Keyed search carries each
     // entry's position through, so duplicate entries match individually.
     // fuzzysort can throw on pathological targets; empty results then.
     try {
       const results = fuzzysort.go(
         query,
-        history.map((line, idx) => ({ line, idx })),
+        history.map((entry, idx) => ({ line: entry.text, idx })),
         { key: 'line', limit: 50 }
       );
       matches = results.map((r) => r.obj.idx);
@@ -161,7 +162,29 @@ export function createConsoleInput(
     readline.clearLine(process.stdout, 0);
     process.stdout.write(`${statusLine}\n`);
     const selection = currentSelection();
-    hooks.setLine(selection ?? query);
+    // The selection lands on the line for editing; when it carries
+    // metadata, a dim suffix under the status line says when and where it
+    // ran. Kept short: it must fit on one terminal row next to the query.
+    if (selection && (selection.ts !== undefined || selection.host)) {
+      const parts: string[] = [];
+      if (typeof selection.ts === 'number') {
+        const secs = Math.max(0, (Date.now() - selection.ts) / 1000);
+        parts.push(
+          secs < 90
+            ? 'just now'
+            : secs < 3600
+              ? `${Math.round(secs / 60)}m ago`
+              : secs < 86400
+                ? `${Math.round(secs / 3600)}h ago`
+                : `${Math.round(secs / 86400)}d ago`
+        );
+      }
+      if (selection.host) parts.push(selection.host);
+      if (parts.length > 0) {
+        process.stdout.write(`${DIM}${parts.join(' · ')}${RESET}\n`);
+      }
+    }
+    hooks.setLine(selection?.text ?? query);
     hooks.refresh();
   }
 
@@ -216,7 +239,7 @@ export function createConsoleInput(
           // Accept: put the selection on the line and let the Enter
           // (already accounted for below) submit it.
           closeSearch(false);
-          hooks?.setLine(selection);
+          hooks?.setLine(selection.text);
           hooks?.refresh();
           passthrough.push(CR);
         } else {

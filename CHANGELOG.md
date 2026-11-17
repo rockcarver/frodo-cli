@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - `frodo shell --web` serves the JS console as a local web page: a one-time sign-in link is printed, and the console (the `$` REST facade, object explorer, fuzzy history search, tab completion) runs in the browser with per-tab engines. No username or password is needed for web mode; the worker signs in from the named or picked connection profile.
+- Console history entries now record when a command ran and against which environment. The Ctrl+R popups (terminal and web) show a dim `2h ago · https://tenant...` annotation on the selection, `.history` lists timestamp and host columns, and the web console's per-host history fold keeps each folded entry's environment. Old history files read back unchanged; new entries are additive lines.
 
 ### Changed
 - `frodo shell` is now the full JS console (formerly the separate `frodo console` command, which is removed before its first release): browser-console-style collapsed results, `$` REST calls with authentication attached, `state` and lodash in context, the Ctrl+O object explorer, Ctrl+R fuzzy history search, and top-level await and persistent `let`/`const` by default. The `--allow-await` option is gone (await always works).

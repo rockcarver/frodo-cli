@@ -86,7 +86,10 @@ function fakeEngine(): WebEngine & { evaluated: string[] } {
       return { status: 'ok', value: 42 };
     },
     complete: () => [['frodo.info', 'frodo.idm'], 'frodo.i'],
-    history: () => ['older', 'oldest'],
+    history: () => [
+      { text: 'older', ts: 1 },
+      { text: 'oldest', ts: 2 },
+    ],
     dispose: () => undefined,
   };
 }
@@ -574,7 +577,10 @@ describe('ShellWebServerOps security', () => {
       });
       expect(JSON.parse(info.body)).toEqual({
         info: { host: 'https://tenant.example.com/am' },
-        history: ['older', 'oldest'],
+        history: [
+          { text: 'older', ts: 1 },
+          { text: 'oldest', ts: 2 },
+        ],
       });
       const completed = JSON.parse(
         (await post(session, '/api/complete', { line: 'frodo.i' })).body

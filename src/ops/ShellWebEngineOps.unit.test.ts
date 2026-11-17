@@ -231,10 +231,14 @@ describe('ShellWebEngineOps', () => {
     await value('1 + 1');
     await engine.evaluate('function f() {');
     await engine.evaluate('throw new Error("recorded too")');
-    expect(engine.history()).toEqual([
+    // Entries carry metadata (ts set, host unset in tests: nothing
+    // connected); the texts must match exactly.
+    expect(engine.history().map((e) => e.text)).toEqual([
       'throw new Error("recorded too")',
       '1 + 1',
     ]);
+    expect(engine.history().every((e) => typeof e.ts === 'number')).toBe(true);
+    expect(engine.history().every((e) => e.host === undefined)).toBe(true);
   });
 
   it('completes let/const names and their paths (not just var)', async () => {
@@ -265,7 +269,7 @@ describe('ShellWebEngineOps', () => {
   it('stores a multi-line script as one history entry', async () => {
     const script = 'const a = 1;\nconst b = 2;\na + b';
     expect(await value(script)).toBe(3);
-    expect(engine.history()).toEqual([script]);
+    expect(engine.history().map((e) => e.text)).toEqual([script]);
   });
 
   it('completes frodo API names', () => {

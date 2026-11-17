@@ -150,6 +150,7 @@ main { flex: 1; overflow: auto; padding: 10px 14px 4px; }
 #search-row .count { color: var(--dim); margin-left: auto; white-space: nowrap; }
 #search-row .cand { white-space: pre-wrap; word-break: break-all; border-radius: 3px; padding: 0 4px; cursor: pointer; }
 #search-row .cand .match { color: var(--accent); font-weight: 700; }
+#search-row .cand .when { color: var(--dim); white-space: nowrap; }
 #search-row .cand.selected { background: var(--sel); }
 #search-row .none { color: var(--dim); }
 /* The completion popup: floats above the prompt, DevTools style. It owns
@@ -334,15 +335,29 @@ const SCRIPT = String.raw`
     }
     var hits = [];
     for (var i = 0; i < history.length; i++) {
-      var m = scoreMatch(query, history[i]);
+      var m = scoreMatch(query, history[i].text);
       if (m) hits.push({ idx: i, score: m.score });
     }
     hits.sort(function (a, b) { return b.score - a.score; });
     return hits.slice(0, 50).map(function (h) { return h.idx; });
   }
 
-  // One candidate row: the history line with matched characters bolded.
-  function renderCandidate(line, indexes, selected) {
+  // A short human age: "just now", "5m", "2h", "3d", or the date for
+  // anything older. Nothing longer fits a candidate row.
+  function shortAge(ts) {
+    if (typeof ts !== 'number') return '';
+    var s = Math.max(0, (Date.now() - ts) / 1000);
+    if (s < 90) return 'just now';
+    if (s < 3600) return Math.round(s / 60) + 'm';
+    if (s < 86400) return Math.round(s / 3600) + 'h';
+    if (s < 86400 * 30) return Math.round(s / 86400) + 'd';
+    return new Date(ts).toISOString().slice(0, 10);
+  }
+
+  // One candidate row: the history line with matched characters bolded,
+  // plus when and where it ran (dim, when the entry knows).
+  function renderCandidate(entry, indexes, selected) {
+    var line = entry.text;
     var row = el('div', 'cand' + (selected ? ' selected' : ''));
     var set = {};
     indexes.forEach(function (i) { set[i] = true; });
@@ -356,10 +371,19 @@ const SCRIPT = String.raw`
         row.appendChild(document.createTextNode(line[i]));
       }
     }
+    var age = shortAge(entry.ts);
+    if (age || entry.host) {
+      var parts = [];
+      if (age) parts.push(age);
+      if (entry.host) parts.push(entry.host);
+      var meta = el('span', 'when', '  ·  ' + parts.join(' · '));
+      if (entry.ts) meta.title = new Date(entry.ts).toLocaleString();
+      row.appendChild(meta);
+    }
     row.addEventListener('click', function () {
       if (!search) return;
       search.cursor = search.matches.indexOf(
-        search.matches.filter(function (idx) { return history[idx] === line; })[0]
+        search.matches.filter(function (idx) { return history[idx].text === line; })[0]
       );
       renderSearch();
     });
@@ -385,11 +409,11 @@ const SCRIPT = String.raw`
     var end = Math.min(start + SEARCH_VISIBLE, total);
     for (var i = start; i < end; i++) {
       var idx = search.matches[i];
-      var line = history[idx];
+      var entry = history[idx];
       // No query yet: nothing to highlight; the rows are just the recents.
-      var m = search.query ? scoreMatch(search.query, line) : null;
+      var m = search.query ? scoreMatch(search.query, entry.text) : null;
       searchCandsEl.appendChild(
-        renderCandidate(line, m ? m.indexes : [], i === search.cursor)
+        renderCandidate(entry, m ? m.indexes : [], i === search.cursor)
       );
     }
     var selected = searchCandsEl.querySelector('.cand.selected');
@@ -413,10 +437,10 @@ const SCRIPT = String.raw`
       if (!search) return; // closed while fetching
       var fetched = r.history || [];
       var have = {};
-      fetched.forEach(function (l) { have[l] = true; });
+      fetched.forEach(function (e) { have[e.text] = true; });
       var newer = [];
       for (var n = 0; n < history.length; n++) {
-        if (have[history[n]]) break; // reached the fetch's snapshot horizon
+        if (have[history[n].text]) break; // reached the fetch's snapshot horizon
         newer.push(history[n]);
       }
       if (fetched.length > history.length - newer.length || newer.length > 0) {
@@ -476,7 +500,7 @@ const SCRIPT = String.raw`
         return true;
       }
       // Paste the selection into the prompt for editing; nothing runs.
-      var fill = search.matches.length > 0 ? history[search.matches[search.cursor]] : null;
+      var fill = search.matches.length > 0 ? history[search.matches[search.cursor]].text : null;
       closeSearch();
       if (fill !== null) {
         input.setValue(fill);
@@ -488,7 +512,7 @@ const SCRIPT = String.raw`
     }
     if (e.key === 'Enter') {
       e.preventDefault();
-      var pick = search.matches.length > 0 ? history[search.matches[search.cursor]] : null;
+      var pick = search.matches.length > 0 ? history[search.matches[search.cursor]].text : null;
       closeSearch();
       submitWith(pick !== null ? pick : undefined);
       return true;
@@ -810,7 +834,7 @@ const SCRIPT = String.raw`
   }
 
   function remember(code) {
-    if (history[0] !== code) history.unshift(code);
+    if (!history.length || history[0].text !== code) history.unshift({ text: code, ts: Date.now() });
     histIndex = -1;
   }
 
@@ -852,11 +876,11 @@ const SCRIPT = String.raw`
       if (histIndex + 1 >= history.length) return;
       if (histIndex === -1) draft = input.value();
       histIndex += 1;
-      input.setValue(history[histIndex]);
+      input.setValue(history[histIndex].text);
     } else {
       if (histIndex === -1) return;
       histIndex -= 1;
-      input.setValue(histIndex === -1 ? draft : history[histIndex]);
+      input.setValue(histIndex === -1 ? draft : history[histIndex].text);
     }
     hideCompletePopup();
     autosize();
