@@ -12,9 +12,11 @@ attribute), the issuer stays stored without it, nothing is rolled back, the push
 names the attributes and fails with exit code 1 unless --allow-failures is
 given. Each \${NAME} in a file is filled from -E/--env NAME=value, else from
 --env-file, else from the environment variable NAME of the process (a file that
-names a variable copies its value into what is pushed). No issuer is ever
-deleted. A trusted JWT issuer is a trust anchor: a JWT signed by it is accepted
-as a grant, so read the files before you push them.
+names a variable copies its value into what is pushed). A file that has
+\${<ID>_JWKSET} as its key set (a pull writes it for a key set with a private or
+secret key) is filled from that variable, which holds the key set as JSON text.
+No issuer is ever deleted. A trusted JWT issuer is a trust anchor: a JWT signed
+by it is accepted as a grant, so read the files before you push them.
 
 Arguments:
   host               AM base URL, e.g.: https://cdk.iam.example.com/am. To use a

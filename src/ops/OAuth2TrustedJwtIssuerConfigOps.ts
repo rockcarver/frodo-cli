@@ -12,9 +12,9 @@
  * - the file is the single read of the issuer in the plain shape (record 0054, rule 6: a property
  *   that is set on the object as its value; nothing for one that is unset or inherited), the same
  *   file that `pull oauth2-agents` writes for the types it handles;
- * - an issuer is a trust anchor: a `jwkSet` that holds private or secret key material is written
- *   (the user asked for the issuer) with a warning that never prints the key, and a push says what
- *   it replaces and never deletes.
+ * - an issuer is a trust anchor: a `jwkSet` that holds private or secret key material is not
+ *   written (record 0055): the file has `${<ID>_JWKSET}` in its place, a warning says so and never
+ *   prints the key, and a push fills the variable and says what it replaces and never deletes.
  */
 import {
   frodo,
@@ -62,40 +62,6 @@ export const trustedJwtIssuerFilePath = (
   fileName: string
 ): string => agentKindFilePath(TRUSTED_JWT_ISSUER_AGENT_TYPE, realm, fileName);
 
-/** The members of a JWK that only a private or a symmetric key has. */
-const SECRET_JWK_MEMBERS = ['d', 'p', 'q', 'dp', 'dq', 'qi', 'k'];
-
-/**
- * Whether the `jwkSet` of an issuer holds private or secret key material: a JWK with a private or a
- * symmetric member. The value may be wrapped (`{ inherited, value }`), and is a string of JSON.
- * Nothing of the key is returned or printed.
- * @param {unknown} jwkSet the `jwkSet` property of the issuer
- * @returns {boolean} true if a key in it is private or symmetric
- */
-export function holdsSecretKeyMaterial(jwkSet: unknown): boolean {
-  let value: unknown = jwkSet;
-  if (value && typeof value === 'object' && 'value' in value) {
-    value = (value as { value: unknown }).value;
-  }
-  if (typeof value === 'string') {
-    try {
-      value = JSON.parse(value);
-    } catch {
-      return false;
-    }
-  }
-  if (!value || typeof value !== 'object') return false;
-  const keys = Array.isArray((value as { keys?: unknown }).keys)
-    ? ((value as { keys: unknown[] }).keys as unknown[])
-    : [value];
-  return keys.some(
-    (key) =>
-      key &&
-      typeof key === 'object' &&
-      SECRET_JWK_MEMBERS.some((member) => member in (key as object))
-  );
-}
-
 /**
  * Export the trusted JWT issuers of every realm (or one realm, or one issuer) as one file per
  * issuer. The content is the single read of the issuer, the object that `pull oauth2-agents`
@@ -107,7 +73,8 @@ export function holdsSecretKeyMaterial(jwkSet: unknown): boolean {
  * written, and a realm whose issuers cannot be listed, are named in one summary and the others are
  * still pulled. A named issuer that does not exist, a name without a single realm and an
  * overrides file that cannot be read fail the command whatever `--allow-failures` says. A `jwkSet`
- * with private or secret key material is a warning, not a failure, and the key is never printed.
+ * with private or secret key material is replaced by a placeholder and a warning, not a failure,
+ * and the key is never printed (record 0055).
  * @param {string} name optional name: pull only that issuer (needs a single realm)
  * @param {string} realm optional realm: pull only from that realm. Default: every realm (the root realm of a Cloud tenant has no trusted JWT issuers)
  * @param {boolean} quiet true for the step of `pull all`: say nothing when there is nothing to export
@@ -139,14 +106,6 @@ export async function configManagerExportTrustedJwtIssuers(
               unknown
             >,
         }));
-      },
-      inspect: (currentRealm, id, object) => {
-        if (holdsSecretKeyMaterial(object.jwkSet)) {
-          printMessage(
-            `Trusted JWT issuer '${id}' of realm '${currentRealm}' stores private or secret key material in jwkSet; the file contains it. Replace it with a placeholder in the overrides file.`,
-            'warn'
-          );
-        }
       },
     },
     { name, realm, quiet, allowFailures, overridesFile }
