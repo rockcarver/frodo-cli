@@ -12,11 +12,12 @@ process.env['FRODO_MOCK'] ||= '1';
 process.env['FRODO_CONNECTION_PROFILES_PATH'] =
   './test/e2e/env/Connections.json';
 
+// Each FRODO_TEST_NAME is the recording's identity (the args id frodo-lib derives from the command): a changed flag does not move the recording.
 describe('frodo config-manager pull test', () => {
   test('"frodo config-manager pull test": should receive access tokens"', async () => {
     const env = getEnv(c);
     const CMD = `frodo config-manager pull test`;
-    await testSuccess(CMD, env);
+    await testSuccess(CMD, { ...env, env: { ...env.env, FRODO_TEST_NAME: '0' } });
   });
   test('"frodo config-manager pull test": should fail connection with invalid credentials"', async () => {
     const CMD = `frodo config-manager pull test`;

@@ -18,6 +18,7 @@ process.env['FRODO_CONNECTION_PROFILES_PATH'] =
 const env = getEnv(c);
 const forgeopsEnv = getEnv(fc);
 
+// Each FRODO_TEST_NAME is the recording's identity (the args id frodo-lib derives from the command): a changed flag does not move the recording.
 describe('frodo config-manager pull all', () => {
   // This replay exits with code 1 and prints a summary of the steps that failed: oauth2-agents (an agent of the bravo realm).
   // The recording predates those steps, so their requests are missing ("Network error").
@@ -65,7 +66,7 @@ describe('frodo config-manager pull all', () => {
   test('"frodo config-manager pull all -C test/e2e/fr-config-manager-pull-config -D allDir1": should export all config in alpha realm in fr-config-manager style"', async () => {
     const dirName = 'allDir1';
     const CMD = `frodo config-manager pull all -C test/e2e/fr-config-manager-pull-config -D ${dirName}`;
-    await testExport(CMD, { env: {...env.env, FRODO_REALM: 'alpha' } }, undefined, undefined, dirName, false, false, true);
+    await testExport(CMD, { env: {...env.env, FRODO_REALM: 'alpha', FRODO_TEST_NAME: '0_C_D' } }, undefined, undefined, dirName, false, false, true);
   });
   // This replay exits with code 1 and prints a summary of the steps that failed: org-privileges, password-policy, raw and service-objects.
   // The recording predates those steps, so their requests are missing ("Network error").
@@ -89,6 +90,6 @@ describe('frodo config-manager pull all', () => {
   test('"frodo config-manager pull all -C test/e2e/fr-config-manager-pull-config -D allDir2 -m forgeops": should export all config in fr-config-manager style"', async () => {
     const dirName = 'allDir2';
     const CMD = `frodo config-manager pull all -C test/e2e/fr-config-manager-pull-config -D ${dirName} -m forgeops`;
-    await testExport(CMD, forgeopsEnv, undefined, undefined, dirName, false, false, true);
+    await testExport(CMD, { ...forgeopsEnv, env: { ...forgeopsEnv.env, FRODO_TEST_NAME: '0_C_D_m' } }, undefined, undefined, dirName, false, false, true);
   });
 });

@@ -15,11 +15,12 @@ process.env['FRODO_CONNECTION_PROFILES_PATH'] =
   './test/e2e/env/Connections.json';
 const env = getEnv(c);
 
+// Each FRODO_TEST_NAME is the recording's identity (the args id frodo-lib derives from the command): a changed flag does not move the recording.
 describe('frodo config-manager pull variables', () => {
   test('"frodo config-manager pull variables -D variableTestDir": should export the secrets in fr-config-manager style"', async () => {
     const dirName = 'variableTestDir';
     const CMD = `frodo config-manager pull variables -D ${dirName}`;
-    await testExport(CMD, env, undefined, undefined, dirName, false);
+    await testExport(CMD, { ...env, env: { ...env.env, FRODO_TEST_NAME: '0_D' } }, undefined, undefined, dirName, false);
   });
   test('"frodo config-manager pull variables -r": should report all variables as a csv table report in fr-config-manager style"', async () => {
     const CMD = `frodo config-manager pull variables -r`;
@@ -32,7 +33,7 @@ describe('frodo config-manager pull variables', () => {
     const dirName = 'variableDumpDir';
     const CMD = `frodo config-manager pull variables -u -D ${dirName}`;
     try {
-      await testSuccess(CMD, env);
+      await testSuccess(CMD, { ...env, env: { ...env.env, FRODO_TEST_NAME: '0_u_D' } });
     } finally {
       // the export also writes the variable files; leave nothing behind
       fs.rmSync(dirName, { recursive: true, force: true });

@@ -13,9 +13,10 @@ const forgeopsEnv = getEnv(fc);
 
 const dirName = "idmAuthDir";
 
+// Each FRODO_TEST_NAME is the recording's identity (the args id frodo-lib derives from the command): a changed flag does not move the recording.
 describe('frodo config-manager pull idm-authentication', () => {
     test(`"frodo config-manager pull idm-authentication -D ${dirName} -m forgeops": should export idm authentication from forgeops"`, async () => {
         const CMD = `frodo config-manager pull idm-authentication -D ${dirName} -m forgeops`;
-        await testExport(CMD, forgeopsEnv, undefined, undefined, dirName, false);
+        await testExport(CMD, { ...forgeopsEnv, env: { ...forgeopsEnv.env, FRODO_TEST_NAME: '0_D_m' } }, undefined, undefined, dirName, false);
     });
 });

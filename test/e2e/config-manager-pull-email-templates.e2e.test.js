@@ -14,16 +14,17 @@ process.env['FRODO_CONNECTION_PROFILES_PATH'] =
   './test/e2e/env/Connections.json';
 const env = getEnv(c);
 
+// Each FRODO_TEST_NAME is the recording's identity (the args id frodo-lib derives from the command): a changed flag does not move the recording.
 describe('frodo config-manager pull email-templates', () => {
   test('"frodo config-manager pull email-templates -D cmEmailTemplatesExportDir": should export the email-templates in fr-config-manager style"', async () => {
     const dirName = 'cmEmailTemplatesExportDir';
     const CMD = `frodo config-manager pull email-templates -D ${dirName}`;
-    await testExport(CMD, env, undefined, undefined, dirName, false);
+    await testExport(CMD, { ...env, env: { ...env.env, FRODO_TEST_NAME: '0_D' } }, undefined, undefined, dirName, false);
   });
 
   test('"frodo config-manager pull email-templates -n registration -D testDir6": should export the email-template with name registration in fr-config-manager style"', async () => {
     const dirName = 'testDir6';
     const CMD = `frodo config-manager pull email-templates -n registration -D ${dirName}`;
-    await testExport(CMD, env, undefined, undefined, dirName, false);
+    await testExport(CMD, { ...env, env: { ...env.env, FRODO_TEST_NAME: '0_n_D' } }, undefined, undefined, dirName, false);
   });
 });

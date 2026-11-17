@@ -20,6 +20,7 @@ process.env['FRODO_CONNECTION_PROFILES_PATH'] =
 const env = getEnv(c);
 const forgeopsEnv = getEnv(fc);
 
+// Each FRODO_TEST_NAME is the recording's identity (the args id frodo-lib derives from the command): a changed flag does not move the recording.
 describe('frodo config-manager pull all-static', () => {
   // The agent kinds with a command of their own, oauth-cimd-profiles, oauth-issuers and oauth-software-publishers, are
   // dynamic configuration: they are steps of pull all and NOT steps of pull all-static (frodo-cli#1250, #1257,
@@ -28,7 +29,7 @@ describe('frodo config-manager pull all-static', () => {
   test('"frodo config-manager pull all-static -D allStaticDir1": should export the all-static in fr-config-manager style"', async () => {
     const dirName = 'allStaticDir1';
     const CMD = `frodo config-manager pull all-static -D ${dirName}`;
-    await testExport(CMD, { env: {...env.env, FRODO_REALM: 'alpha' } }, undefined, undefined, dirName, false);
+    await testExport(CMD, { env: {...env.env, FRODO_REALM: 'alpha', FRODO_TEST_NAME: '0_D' } }, undefined, undefined, dirName, false);
   });
   test('"frodo config-manager pull all-static -D allStaticDir3": should export the all-static of all realms in fr-config-manager style"', async () => {
     const dirName = 'allStaticDir3';
@@ -47,6 +48,6 @@ describe('frodo config-manager pull all-static', () => {
   test('"frodo config-manager pull all-static -D allStaticDir2 -m forgeops": should export the all-static in fr-config-manager style"', async () => {
     const dirName = 'allStaticDir2';
     const CMD = `frodo config-manager pull all-static -D ${dirName} -m forgeops`;
-    await testExport(CMD, forgeopsEnv, undefined, undefined, dirName, false, false, true);
+    await testExport(CMD, { ...forgeopsEnv, env: { ...forgeopsEnv.env, FRODO_TEST_NAME: '0_D_m' } }, undefined, undefined, dirName, false, false, true);
   });
 });

@@ -17,15 +17,16 @@ process.env['FRODO_CONNECTION_PROFILES_PATH'] =
 const env = getEnv(c);
 const forgeopsEnv = getEnv(fc);
 
+// Each FRODO_TEST_NAME is the recording's identity (the args id frodo-lib derives from the command): a changed flag does not move the recording.
 describe('frodo config-manager pull password-policy', () => {
   test('"frodo config-manager pull password-policy -D testDir19": should export the password-policy in fr-config-manager style"', async () => {
     const dirName = 'testDir19';
     const CMD = `frodo config-manager pull password-policy -D ${dirName}`;
-    await testExport(CMD, env, undefined, undefined, dirName, false);
+    await testExport(CMD, { ...env, env: { ...env.env, FRODO_TEST_NAME: '0_D' } }, undefined, undefined, dirName, false);
   });
   test('"frodo config-manager pull password-policy -D testDir20 -m forgeops": should export the password-policy in alpha realm in fr-config-manager style"', async () => {
     const dirName = 'testDir20';
     const CMD = `frodo config-manager pull password-policy -D ${dirName} -m forgeops`;
-    await testExport(CMD, { env: {...forgeopsEnv.env, FRODO_REALM: 'alpha' } }, undefined, undefined, dirName, false);
+    await testExport(CMD, { env: {...forgeopsEnv.env, FRODO_REALM: 'alpha', FRODO_TEST_NAME: '0_D_m' } }, undefined, undefined, dirName, false);
   });
 });

@@ -20,25 +20,26 @@ process.env['FRODO_CONNECTION_PROFILES_PATH'] =
 const env = getEnv(c);
 const forgeopsEnv = getEnv(fc);
 
+// Each FRODO_TEST_NAME is the recording's identity (the args id frodo-lib derives from the command): a changed flag does not move the recording.
 describe('frodo config-manager pull journeys', () => {
   test('"frodo config-manager pull journeys -D ConfigJourneytestDir1": should export the journeys in fr-config-manager style"', async () => {
     const dirName = 'ConfigJourneytestDir1';
     const CMD = `frodo config-manager pull journeys -D ${dirName}`;
-    await testExport(CMD, env, undefined, undefined, dirName, false);
+    await testExport(CMD, { ...env, env: { ...env.env, FRODO_TEST_NAME: '0_D' } }, undefined, undefined, dirName, false);
   });
   test('"frodo config-manager pull journeys -D ConfigJourneyTestDir2 -m forgeops": should export the journeys in alpha realm in fr-config-manager style"', async () => {
     const dirName = 'ConfigJourneyTestDir2';
     const CMD = `frodo config-manager pull journeys -D ${dirName} -m forgeops`;
-    await testExport(CMD, { env: {...forgeopsEnv.env, FRODO_REALM: 'alpha' } }, undefined, undefined, dirName, false);
+    await testExport(CMD, { env: {...forgeopsEnv.env, FRODO_REALM: 'alpha', FRODO_TEST_NAME: '0_D_m' } }, undefined, undefined, dirName, false);
   });
   test('"frodo config-manager pull journeys -n BravoTestRegistration -D ConfigJourneytestDir3 -m forgeops": should export journey with name: BravoTestRegistration from bravo realm in fr-config-manager style"', async () => {
     const dirName = 'ConfigJourneytestDir3';
     const CMD = `frodo config-manager pull journeys -n BravoTestRegistration -D ${dirName} -m forgeops`;
-    await testExport(CMD, { env: {...forgeopsEnv.env, FRODO_REALM: 'bravo' } }, undefined, undefined, dirName, false);
+    await testExport(CMD, { env: {...forgeopsEnv.env, FRODO_REALM: 'bravo', FRODO_TEST_NAME: '0_n_D_m' } }, undefined, undefined, dirName, false);
   });
   test('"frodo config-manager pull journeys -cD ConfigJourneytestDir4 --pull-dependencies": should export the journeys in fr-config-manager style"', async () => {
     const dirName = 'ConfigJourneytestDir4';
     const CMD = `frodo config-manager pull journeys -cD ${dirName} --pull-dependencies`;
-    await testExport(CMD, env, undefined, undefined, dirName, false);
+    await testExport(CMD, { ...env, env: { ...env.env, FRODO_TEST_NAME: '0_cD_pull-dependencies' } }, undefined, undefined, dirName, false);
   });
 });

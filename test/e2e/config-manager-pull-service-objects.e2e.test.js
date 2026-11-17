@@ -12,10 +12,11 @@ process.env['FRODO_CONNECTION_PROFILES_PATH'] =
   './test/e2e/env/Connections.json';
 const env = getEnv(c);
 
+// Each FRODO_TEST_NAME is the recording's identity (the args id frodo-lib derives from the command): a changed flag does not move the recording.
 describe('frodo config-manager pull service-objects', () => {
   test('"frodo config-manager pull service-objects -f test/e2e/fr-config-manager-pull-config/service-objects.json -D objectTestDir": should export the service-objects based on service-objects.json config file in fr-config-manager style"', async () => {
     const dirName = 'objectTestDir';
     const CMD = `frodo config-manager pull service-objects -f test/e2e/fr-config-manager-pull-config/service-objects.json -D ${dirName}`;
-    await testExport(CMD, env, undefined, undefined, dirName, false);
+    await testExport(CMD, { ...env, env: { ...env.env, FRODO_TEST_NAME: '0_f_D' } }, undefined, undefined, dirName, false);
   });
 });

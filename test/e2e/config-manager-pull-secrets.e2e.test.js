@@ -14,16 +14,17 @@ process.env['FRODO_CONNECTION_PROFILES_PATH'] =
   './test/e2e/env/Connections.json';
 const env = getEnv(c);
 
+// Each FRODO_TEST_NAME is the recording's identity (the args id frodo-lib derives from the command): a changed flag does not move the recording.
 describe('frodo config-manager pull secrets', () => {
   test('"frodo config-manager pull secrets -D secretTestDir1": should export all secrets and their versions in fr-config-manager style"', async () => {
     const dirName = 'secretTestDir1';
     const CMD = `frodo config-manager pull secrets -D ${dirName}`;
-    await testExport(CMD, env, undefined, undefined, dirName, false);
+    await testExport(CMD, { ...env, env: { ...env.env, FRODO_TEST_NAME: '0_D' } }, undefined, undefined, dirName, false);
   });
   test('"frodo config-manager pull secrets -aD secretTestDir2": should export all the active only secrets in fr-config-manager style"', async () => {
     const dirName = 'secretTestDir2';
     const CMD = `frodo config-manager pull secrets -aD ${dirName}`;
-    await testExport(CMD, env, undefined, undefined, dirName, false);
+    await testExport(CMD, { ...env, env: { ...env.env, FRODO_TEST_NAME: '0_aD' } }, undefined, undefined, dirName, false);
   });
   test('"frodo config-manager pull secrets -r": should report all secrets as a csv table report in fr-config-manager style"', async () => {
     const CMD = `frodo config-manager pull secrets -r`;

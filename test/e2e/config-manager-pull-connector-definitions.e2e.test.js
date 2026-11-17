@@ -12,16 +12,17 @@ process.env['FRODO_CONNECTION_PROFILES_PATH'] =
     './test/e2e/env/Connections.json';
 const env = getEnv(c);
 
+// Each FRODO_TEST_NAME is the recording's identity (the args id frodo-lib derives from the command): a changed flag does not move the recording.
 describe('frodo config-manager pull connector-definitions', () => {
     test('"frodo config-manager pull connector-definitions -D configManagerExportConnectorDefinitionsDir0": should export all connector definitions in fr-config manager style.', async () => {
         const dirName = 'configManagerExportConnectorDefinitionsDir0';
         const CMD = `frodo config-manager pull connector-definitions -D ${dirName}`;
-        await testExport(CMD, env, undefined, undefined, dirName, false);
+        await testExport(CMD, { ...env, env: { ...env.env, FRODO_TEST_NAME: '0_D' } }, undefined, undefined, dirName, false);
     });
     test('"frodo config-manager pull connector-definitions -D configManagerExportConnectorDefinitionsDir1 -n Azure": should export only the Azure connector definition in fr-config manager style.', async () => {    
         const dirName = 'configManagerExportConnectorDefinitionsDir1';
         const connectorName = 'Azure';
         const CMD = `frodo config-manager pull connector-definitions -D ${dirName} -n ${connectorName}`;
-        await testExport(CMD, env, undefined, undefined, dirName, false);
+        await testExport(CMD, { ...env, env: { ...env.env, FRODO_TEST_NAME: '0_D_n' } }, undefined, undefined, dirName, false);
     });
 });

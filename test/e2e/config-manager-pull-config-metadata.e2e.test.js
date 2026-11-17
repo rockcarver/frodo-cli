@@ -13,9 +13,10 @@ process.env['FRODO_CONNECTION_PROFILES_PATH'] =
   './test/e2e/env/Connections.json';
 const env = getEnv(fc);
 
+// Each FRODO_TEST_NAME is the recording's identity (the args id frodo-lib derives from the command): a changed flag does not move the recording.
 describe('frodo config-manager pull config-metadata', () => {
   test('"frodo config-manager pull config-metadata -m forgeops ": should export the config-metadata in fr-config-manager style"', async () => {
     const CMD = `frodo config-manager pull config-metadata -m forgeops`;
-    await testSuccess(CMD, env);
+    await testSuccess(CMD, { ...env, env: { ...env.env, FRODO_TEST_NAME: '0_m' } });
   });
 });
