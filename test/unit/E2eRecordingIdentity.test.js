@@ -1,0 +1,815 @@
+import { execFile } from 'node:child_process';
+import fs from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { promisify } from 'node:util';
+import { afterAll, beforeAll, describe, expect, it } from '@jest/globals';
+import {
+  deriveArgsId,
+  deriveRecordingName,
+  findHeaderProblems,
+  findPinProblems,
+  guidForRecording,
+  libIdentityHash,
+  splitCommand,
+} from '../utils/RecordingIdentity.js';
+import {
+  LABELS,
+  NO_RECORDING,
+  RENAMED,
+} from './E2eRecordingIdentityExceptions.js';
+
+/**
+ * The recording a replay uses is named by frodo-lib from the command line, or
+ * by the FRODO_TEST_NAME of the test. A test that carries no pin, or a pin that
+ * is not what the command derives, replays the recording of another command or
+ * of none: a wrong pin copied from a sibling test can pass every replay,
+ * because the recordings of two siblings often hold the same requests, and a
+ * skipped test is never replayed at all. This check reads the pins instead of
+ * replaying them. It runs the real test files of the `config-manager` tests
+ * and of `service import`, `config import` and `iga workflow delete` with a
+ * stub in place of test/e2e/utils/TestUtils.js (so no `frodo` starts and
+ * nothing is replayed), collects every command with its pin, and compares
+ * each with the args id that frodo-lib derives and with the recordings on disk.
+ * It proves the identity of a recording, not that two recordings differ.
+ *
+ * test/e2e/README.md ("Writing a test") says what a pin is. Commands whose pin
+ * is a fixed label, that have no recording or that were renamed after they
+ * were recorded are listed with a reason in E2eRecordingIdentityExceptions.js.
+ */
+
+const ROOT = path.resolve(
+  path.dirname(fileURLToPath(import.meta.url)),
+  '../..'
+);
+const E2E = path.join(ROOT, 'test/e2e');
+const MOCKS = path.join(E2E, 'mocks');
+const COLLECTOR = path.join(ROOT, 'test/utils/RecordingIdentityCollector');
+const LIB = path.join(ROOT, 'node_modules/@rockcarver/frodo-lib');
+
+/** The e2e test files that carry a pin on every command they run. */
+const PINNED_FILE =
+  /^(config-manager-.+\.test\.js|service-import\.e2e\.test\.js|config-import\.e2e\.test\.js|iga-workflow-delete\.e2e\.test\.js)$/;
+
+/**
+ * The fingerprint of frodo-lib's identity code (see libIdentityHash), read from
+ * the version named here. When the installed library changes that code, the
+ * check below fails: read getFrodoArgsId and getFrodoCommand of the new
+ * library, adapt test/utils/RecordingIdentity.js to them, then update this.
+ */
+const LIB_IDENTITY = {
+  version: '5.0.0-47',
+  sha256: '25bf4b5d984578af2e982862b03b85ace15f541f49094a3e3aa965d373e1013b',
+};
+
+/** Fewer files or commands than this means the collector found too little. */
+const FLOOR = { files: 100, commands: 280 };
+
+const run = promisify(execFile);
+
+function expectNoProblems(problems, intro) {
+  if (problems.length > 0) {
+    throw new Error(
+      `${intro} (${problems.length}):\n${problems.map((p) => `  ${p}`).join('\n')}`
+    );
+  }
+}
+
+describe('derivation', () => {
+  describe('splitCommand', () => {
+    it('keeps a quoted part of a word and a quoted word as one word', () => {
+      expect(
+        splitCommand(
+          'frodo config-manager push raw -E ESV_VARIABLE_TEST="MSwyLDM=" -D dir'
+        )
+      ).toEqual([
+        'frodo',
+        'config-manager',
+        'push',
+        'raw',
+        '-E',
+        'ESV_VARIABLE_TEST=MSwyLDM=',
+        '-D',
+        'dir',
+      ]);
+      expect(
+        splitCommand(
+          "frodo config-manager promote rollback -ud 'provisional report' -t t"
+        )
+      ).toEqual([
+        'frodo',
+        'config-manager',
+        'promote',
+        'rollback',
+        '-ud',
+        'provisional report',
+        '-t',
+        't',
+      ]);
+    });
+
+    it('keeps an escaped character, an escaped quote and an empty word', () => {
+      expect(splitCommand('frodo x a\\ b "c \\" d" \'\' e')).toEqual([
+        'frodo',
+        'x',
+        'a b',
+        'c " d',
+        '',
+        'e',
+      ]);
+    });
+
+    it('allows a tilde, which changes a value and never the number of words', () => {
+      expect(splitCommand("frodo x -f ~Display -F 'a,~b'")).toEqual([
+        'frodo',
+        'x',
+        '-f',
+        '~Display',
+        '-F',
+        'a,~b',
+      ]);
+    });
+
+    it.each([
+      ['a variable', 'frodo x -n $NAME'],
+      ['a variable in double quotes', 'frodo x -n "$NAME"'],
+      ['a command substitution', 'frodo x -n `id`'],
+      ['a glob', 'frodo x -n *'],
+      ['a question mark', 'frodo x -n a?'],
+      ['a pipe', 'cat a | frodo x'],
+      ['a list', 'frodo x; frodo y'],
+      ['a background job', 'frodo x &'],
+      ['a redirection', 'frodo x > out'],
+      ['an input redirection', 'frodo x < in'],
+      ['a group', 'frodo x (a)'],
+      ['a brace expansion', 'frodo x {a,b}'],
+      ['a bracket glob', 'frodo x [ab]'],
+      ['a comment', 'frodo x #a'],
+      ['an unterminated quote', "frodo x 'a"],
+      ['a trailing backslash', 'frodo x a\\'],
+    ])(
+      'throws on %s, which the shell would not read as plain words',
+      (_name, command) => {
+        expect(() => splitCommand(command)).toThrow(/unsupported shell syntax/);
+      }
+    );
+
+    it('takes a dollar sign, a glob character and a pipe inside single quotes literally', () => {
+      expect(splitCommand("frodo x -n '$a*|b;'")).toEqual([
+        'frodo',
+        'x',
+        '-n',
+        '$a*|b;',
+      ]);
+    });
+  });
+
+  describe('deriveRecordingName and deriveArgsId', () => {
+    it.each([
+      ['frodo config-manager pull cors -D d', 'config-manager/pull/cors/0_D'],
+      [
+        'frodo config-manager promote rollback --wait --timeout 6',
+        'config-manager/promote-rollback/0_wait_timeout',
+      ],
+      [
+        "frodo config-manager promote rollback -p provisional-report -ud 'provisional report' -t ticket",
+        'config-manager/promote-rollback/0_p_ud_t',
+      ],
+      ['frodo service import -Cri baseurl -f x', 'service/import/0_Cri_f'],
+      [
+        'frodo config-manager delete locales -n fr -m forgeops',
+        'config-manager/delete/locales/0_n_m',
+      ],
+      ['frodo config-manager delete test', 'config-manager/delete/test/0'],
+      [
+        'frodo config-manager promote check-locked-status',
+        'config-manager/promote-check-locked-status/0',
+      ],
+      [
+        'frodo iga workflow delete -fpi testWorkflow9',
+        'iga/workflow-delete/0_fpi',
+      ],
+      ['frodo info https://openam-matrix.example.com/am -v', 'info/1_v'],
+      // A flag swallows the word after it, a word after that one is positional.
+      ['frodo x y -a b c', 'x/y/1_a'],
+      // Two flags in a row: both are names, only the word after the last one is a value.
+      ['frodo x y -a -b c', 'x/y/0_a_b'],
+    ])('names the recording of %s %s', (command, name) => {
+      expect(deriveRecordingName(command)).toBe(name);
+      expect(deriveArgsId(command)).toBe(name.split('/').pop());
+    });
+
+    it('puts the pin of the test in place of the derived id and nothing else', () => {
+      expect(
+        deriveRecordingName('frodo config-manager pull cors -D d', 'cors')
+      ).toBe('config-manager/pull/cors/cors');
+      expect(
+        deriveRecordingName('frodo config-manager pull cors -D d', '')
+      ).toBe('config-manager/pull/cors/0_D');
+    });
+
+    it('rejects a command that does not start with frodo', () => {
+      expect(() => deriveRecordingName('cat a.json')).toThrow(
+        /not a frodo command/
+      );
+      expect(() => deriveRecordingName('frodo')).toThrow(/not a frodo command/);
+    });
+  });
+
+  describe('guidForRecording', () => {
+    it('is the directory Polly makes of a recording name, one folder per segment', () => {
+      expect(guidForRecording('service/import/0_i_f')).toBe(
+        'service_1457512036/import_288002260/0_i_f_3126144190'
+      );
+      expect(guidForRecording('')).toBe('_2166136261');
+    });
+
+    it('cuts a long segment to 100 characters, hash included', () => {
+      const id = `0_${'a'.repeat(101)}`;
+      expect(id).toHaveLength(103);
+      const folder = guidForRecording(`config-manager/pull/x/${id}`)
+        .split('/')
+        .pop();
+      expect(folder).toHaveLength(100);
+      expect(folder).toMatch(/^0_a+_\d+$/);
+    });
+
+    it('turns what is not a word character into a dash and merges dashes', () => {
+      expect(guidForRecording('a b.c--d')).toMatch(/^a-b-c-d_\d+$/);
+      expect(guidForRecording('über')).toMatch(/^ber_\d+$/);
+    });
+  });
+
+  describe('libIdentityHash', () => {
+    const functions = ({
+      args = 'return `{${start}}`;',
+      guid = 'return a + b;',
+    } = {}) => `
+      function getFrodoArgsId({ start }) { ${args} }
+      function sanitize(address, url) { return address; }
+      function getFrodoCommand() { const s = "}{"; /* } */ return s; }
+      function fnv1a(string) { return 1; }
+      function sanitize(str) { return str; }
+      function guidFor(str) { ${guid} }
+      function guidForRecording(recording) { return guidFor(recording); }
+    `;
+
+    it('is the same for the same code with other white space, and another sha for other code', () => {
+      const reformatted = functions().replace(/ {2,}/g, '\n\t');
+      expect(libIdentityHash(reformatted)).toBe(libIdentityHash(functions()));
+      expect(libIdentityHash(functions({ guid: 'return a - b;' }))).not.toBe(
+        libIdentityHash(functions())
+      );
+    });
+
+    it('ignores code around the six functions', () => {
+      expect(
+        libIdentityHash(
+          `var x = {};\n${functions()}\nfunction other() { return 1; }`
+        )
+      ).toBe(libIdentityHash(functions()));
+    });
+
+    it('does not end a function at a brace inside a string, a template or a comment', () => {
+      // If the brace ended the function early, the text after it would not be
+      // hashed and the two bundles would have the same hash.
+      const differ = (a, b) =>
+        expect(libIdentityHash(functions(a))).not.toBe(
+          libIdentityHash(functions(b))
+        );
+      differ({ guid: 'return "}" + 1;' }, { guid: 'return "}" + 2;' });
+      differ({ guid: "return '}' + 1;" }, { guid: "return '}' + 2;" });
+      differ(
+        { guid: 'return 1; // }\n + 1;' },
+        { guid: 'return 1; // }\n + 2;' }
+      );
+      differ(
+        { guid: 'return 1; /* } */ + 1;' },
+        { guid: 'return 1; /* } */ + 2;' }
+      );
+      differ(
+        { args: 'return `{${start}}` + 1;' },
+        { args: 'return `{${start}}` + 2;' }
+      );
+      differ(
+        { args: 'return `${ { a: 1 }.a }}` + 1;' },
+        { args: 'return `${ { a: 1 }.a }}` + 2;' }
+      );
+    });
+
+    it('fails with "bundle layout changed" when an anchor is missing or found twice', () => {
+      expect(() =>
+        libIdentityHash(
+          functions().replace('function guidForRecording(', 'function renamed(')
+        )
+      ).toThrow(/bundle layout changed.*guidForRecording/);
+      expect(() =>
+        libIdentityHash(`${functions()}\nfunction fnv1a(x) { return 2; }`)
+      ).toThrow(/bundle layout changed.*fnv1a/);
+    });
+  });
+
+  describe('findPinProblems', () => {
+    const FILE = 'config-manager-pull-cors.e2e.test.js';
+    const CMD = 'frodo config-manager pull cors -D d';
+    const row = (cmd, pin, extra = {}) => ({
+      file: FILE,
+      cmd,
+      pin,
+      skipped: false,
+      kind: 'testExport',
+      ...extra,
+    });
+    const present = new Set([
+      guidForRecording('config-manager/pull/cors/0_D'),
+      guidForRecording('config-manager/pull/cors/0_n_D'),
+      guidForRecording('config-manager/pull/cors/0_di'),
+    ]);
+    const context = (extra = {}) => ({
+      labels: [],
+      noRecording: [],
+      renamed: [],
+      hasRecording: (directory) => present.has(directory),
+      ...extra,
+    });
+    const all = (problems) => [
+      ...problems.pins,
+      ...problems.recordings,
+      ...problems.entries,
+    ];
+
+    it('accepts a pin that is the derived id of a command with a recording', () => {
+      expect(all(findPinProblems([row(CMD, '0_D')], context()))).toEqual([]);
+    });
+
+    it('reports a command without a pin, with the id to pass', () => {
+      const { pins } = findPinProblems([row(CMD, null)], context());
+      expect(pins).toEqual([
+        `${FILE} :: ${CMD} :: (no pin) :: 0_D :: no pin: pass FRODO_TEST_NAME: '0_D' in the env of this command`,
+      ]);
+    });
+
+    it('reports the pin of a sibling test, which replays another recording', () => {
+      const { pins, recordings } = findPinProblems(
+        [row(CMD, '0_n_D')],
+        context()
+      );
+      expect(pins).toHaveLength(1);
+      expect(pins[0]).toMatch(
+        new RegExp(
+          `^${FILE} :: ${CMD} :: 0_n_D :: 0_D :: the pin is not the args id`
+        )
+      );
+      // The sibling's recording exists, so replay alone could not tell.
+      expect(recordings).toEqual([]);
+    });
+
+    it('reports a pin that names no recording', () => {
+      const { pins, recordings } = findPinProblems(
+        [row(CMD, '0_Dx')],
+        context()
+      );
+      expect(pins).toHaveLength(1);
+      expect(recordings).toHaveLength(1);
+      expect(recordings[0]).toMatch(/:: 0_Dx :: .*0_Dx_\d+ :: no recording/);
+    });
+
+    it('tells the step that renamed a flag to add a RENAMED entry, and accepts the entry', () => {
+      const renamed = 'frodo config-manager pull cors --directory d';
+      const { pins } = findPinProblems([row(renamed, '0_D')], context());
+      expect(pins).toHaveLength(1);
+      expect(pins[0]).toMatch(
+        /0_directory :: the pin is not the args id.*add a RENAMED entry/
+      );
+      const withEntry = context({
+        renamed: [
+          { file: FILE, cmd: renamed, was: CMD, pin: '0_D', why: 'renamed' },
+        ],
+      });
+      expect(all(findPinProblems([row(renamed, '0_D')], withEntry))).toEqual(
+        []
+      );
+    });
+
+    it('checks a renamed command against the command as it was recorded', () => {
+      const renamed = 'frodo config-manager pull cors --directory d';
+      const entry = (pin, was = CMD) => ({
+        file: FILE,
+        cmd: renamed,
+        was,
+        pin,
+        why: 'x',
+      });
+      const wrongPin = findPinProblems(
+        [row(renamed, '0_n_D')],
+        context({ renamed: [entry('0_n_D')] })
+      );
+      expect(wrongPin.pins[0]).toMatch(
+        /not the args id of the command as it was recorded/
+      );
+      const same = findPinProblems(
+        [row(CMD, '0_D')],
+        context({
+          renamed: [{ file: FILE, cmd: CMD, was: CMD, pin: '0_D', why: 'x' }],
+        })
+      );
+      expect(same.pins[0]).toMatch(
+        /named as recorded again: remove its RENAMED entry/
+      );
+    });
+
+    it('lets a label stand for a pin that is not the derived id, and only then', () => {
+      const labels = [{ file: FILE, cmd: CMD, pin: 'cors', why: 'x' }];
+      const present2 = new Set([
+        guidForRecording('config-manager/pull/cors/cors'),
+      ]);
+      const ctx = context({ labels, hasRecording: (d) => present2.has(d) });
+      expect(all(findPinProblems([row(CMD, 'cors')], ctx))).toEqual([]);
+      const stale = findPinProblems(
+        [row(CMD, '0_D')],
+        context({ labels: [{ file: FILE, cmd: CMD, pin: '0_D', why: 'x' }] })
+      );
+      expect(stale.pins[0]).toMatch(
+        /the label is not needed: remove its LABELS entry/
+      );
+    });
+
+    it('lets a skipped test, or one that fails before a request, go without a recording', () => {
+      const cmd = 'frodo config-manager pull cors -n x';
+      const noRecording = [{ file: FILE, cmd, pin: '0_n', why: 'x' }];
+      const skipped = findPinProblems(
+        [row(cmd, '0_n', { skipped: true })],
+        context({ noRecording })
+      );
+      expect(all(skipped)).toEqual([]);
+      const fails = findPinProblems(
+        [row(cmd, '0_n', { kind: 'testFail' })],
+        context({ noRecording })
+      );
+      expect(all(fails)).toEqual([]);
+      const runs = findPinProblems([row(cmd, '0_n')], context({ noRecording }));
+      expect(runs.recordings[0]).toMatch(/a test that runs needs a recording/);
+      const undeclared = findPinProblems(
+        [row(cmd, '0_n', { skipped: true })],
+        context()
+      );
+      expect(undeclared.recordings[0]).toMatch(
+        /no recording: .*NO_RECORDING entry/
+      );
+    });
+
+    it('reports an entry that has a recording after all, matches no command or has no reason', () => {
+      const stale = findPinProblems(
+        [row(CMD, '0_D')],
+        context({
+          noRecording: [{ file: FILE, cmd: CMD, pin: '0_D', why: 'x' }],
+        })
+      );
+      expect(stale.entries[0]).toMatch(
+        /a recording exists: remove its NO_RECORDING entry/
+      );
+      const orphan = findPinProblems(
+        [row(CMD, '0_D')],
+        context({
+          labels: [
+            {
+              file: FILE,
+              cmd: 'frodo config-manager pull cors',
+              pin: 'a',
+              why: 'x',
+            },
+          ],
+        })
+      );
+      expect(orphan.entries[0]).toMatch(
+        /^LABELS .* matches no command of a test/
+      );
+      const noWhy = findPinProblems(
+        [row(CMD, '0_D')],
+        context({
+          renamed: [{ file: FILE, cmd: CMD, pin: '0_D' }],
+        })
+      );
+      expect(noWhy.entries.join('\n')).toMatch(/entry without a why/);
+      expect(noWhy.entries.join('\n')).toMatch(/RENAMED entry without was/);
+    });
+
+    it('reports a command it cannot read instead of passing it', () => {
+      const { pins } = findPinProblems(
+        [row('frodo x $HOME', '0_a')],
+        context()
+      );
+      expect(pins[0]).toMatch(/unsupported shell syntax/);
+    });
+  });
+
+  describe('findHeaderProblems', () => {
+    const tests = [
+      { cmd: 'frodo config-manager pull cors -D d', pin: '0_D' },
+      { cmd: 'frodo config-manager pull variables -r', pin: 'report' },
+      { cmd: 'frodo config import -AD d --no-validate', pin: '0_AD' },
+      {
+        cmd: 'frodo config-manager pull cors --directory d',
+        was: 'frodo config-manager pull cors -D d',
+        pin: '0_D',
+      },
+    ];
+    const record = (rest) =>
+      `FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-matrix.example.com/am ${rest}`;
+
+    it('accepts a record line with the pin of its test, quoted or not, before or after the host', () => {
+      const text = [
+        record('FRODO_TEST_NAME=0_D frodo config-manager pull cors -D d'),
+        record(
+          "FRODO_TEST_NAME='report' frodo config-manager pull variables -r"
+        ),
+        `FRODO_TEST_NAME="0_AD" ${record('frodo config import -AD d --no-validate')}`,
+        record('FRODO_TEST_NAME=0_D frodo config-manager pull cors -D d;'),
+      ].join('\n');
+      expect(findHeaderProblems(text, tests)).toEqual([]);
+    });
+
+    it('reports a record line of a test without the variable', () => {
+      const text = [
+        '/*',
+        record('frodo config-manager pull cors -D d'),
+        '*/',
+      ].join('\n');
+      expect(findHeaderProblems(text, tests)).toEqual([
+        {
+          line: 2,
+          text: record('frodo config-manager pull cors -D d'),
+          advice: 'the record line has no FRODO_TEST_NAME=0_D',
+        },
+      ]);
+    });
+
+    it('reports a record line whose value is not the pin of the test that runs the command', () => {
+      const text = [
+        record('FRODO_TEST_NAME=0_n_D frodo config-manager pull cors -D d'),
+        record('FRODO_TEST_NAME=report frodo config-manager pull cors -D d'),
+      ].join('\n');
+      const problems = findHeaderProblems(text, tests);
+      expect(problems.map((p) => p.line)).toEqual([1, 2]);
+      expect(problems[0].advice).toBe(
+        'FRODO_TEST_NAME=0_n_D is not the pin of the test that runs this command (0_D)'
+      );
+    });
+
+    it('reads a line of a renamed command by the command as it was recorded and as it is', () => {
+      const text = [
+        record('frodo config-manager pull cors --directory d'),
+        record('frodo config-manager pull cors -D d'),
+      ].join('\n');
+      expect(findHeaderProblems(text, tests).map((p) => p.line)).toEqual([
+        1, 2,
+      ]);
+    });
+
+    it('leaves lines alone that no test runs or that are not a recording of a pinned command', () => {
+      const text = [
+        record('frodo config-manager pull cors -D d -m forgeops'),
+        record('frodo iga workflow delete --workflow-id x --force'),
+        record('npm run test:update -- config-manager-export-iga-workflows'),
+        record('direct-control-init'),
+        ' *    $ FRODO_MOCK=record frodo conn save https://openam-matrix.example.com/am',
+        'FRODO_MOCK=1 frodo config-manager pull cors -D d',
+      ].join('\n');
+      expect(findHeaderProblems(text, tests)).toEqual([]);
+    });
+
+    it('reports a record line it cannot read', () => {
+      const text = record('frodo config-manager pull cors -D $DIR');
+      expect(findHeaderProblems(text, tests)[0].advice).toMatch(
+        /unsupported shell syntax/
+      );
+    });
+  });
+});
+
+describe('pins', () => {
+  let tmp;
+  let rows;
+  let results;
+  let files;
+  const recordingCache = new Map();
+
+  /** Is there a recording.har in the directory, or below it? */
+  function hasRecording(directory) {
+    if (!recordingCache.has(directory)) {
+      const hasHar = (dir) => {
+        let entries;
+        try {
+          entries = fs.readdirSync(dir, { withFileTypes: true });
+        } catch {
+          return false;
+        }
+        return entries.some((entry) =>
+          entry.isDirectory()
+            ? hasHar(path.join(dir, entry.name))
+            : entry.name === 'recording.har'
+        );
+      };
+      recordingCache.set(directory, hasHar(path.join(MOCKS, directory)));
+    }
+    return recordingCache.get(directory);
+  }
+
+  beforeAll(async () => {
+    tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'frodo-recording-identity-'));
+    files = fs
+      .readdirSync(E2E)
+      .filter((name) => PINNED_FILE.test(name))
+      .sort();
+    const out = path.join(tmp, 'commands.jsonl');
+    const json = path.join(tmp, 'result.json');
+    fs.mkdirSync(path.join(tmp, 'home'));
+    fs.writeFileSync(out, '');
+    const env = {
+      ...process.env,
+      HOME: path.join(tmp, 'home'),
+      FRODO_MOCK: '1',
+      NODE_OPTIONS: '--no-warnings --experimental-vm-modules',
+      COLLECT_OUT: out,
+      COLLECT_SNAPSHOTS: path.join(tmp, 'snapshots'),
+      COLLECT_CACHE: path.join(tmp, 'cache'),
+    };
+    delete env.JEST_WORKER_ID;
+    // The run exits 1: the stub answers every command with empty output, so the
+    // few tests that compare that output fail. Their commands are collected all
+    // the same, and the completeness check below sees what did not run.
+    try {
+      await run(
+        process.execPath,
+        [
+          path.join(ROOT, 'node_modules/jest/bin/jest.js'),
+          '--ci',
+          '--silent',
+          '--maxWorkers=4',
+          '--json',
+          `--outputFile=${json}`,
+          '--config',
+          path.join(COLLECTOR, 'jest.config.mjs'),
+          '--runTestsByPath',
+          ...files.map((name) => path.join('test/e2e', name)),
+        ],
+        { cwd: ROOT, env, maxBuffer: 256 * 1024 * 1024, timeout: 100000 }
+      );
+    } catch (error) {
+      if (!fs.existsSync(json)) {
+        throw new Error(
+          `the collector produced no result (${error.killed ? 'timed out' : `exit ${error.code}`}): ${String(error.stderr ?? error.message).slice(-2000)}`
+        );
+      }
+    }
+    results = JSON.parse(fs.readFileSync(json, 'utf8')).testResults;
+    rows = fs
+      .readFileSync(out, 'utf8')
+      .split('\n')
+      .filter(Boolean)
+      .map((line) => JSON.parse(line))
+      // A command that is not frodo (a cat, an rm) records nothing.
+      .filter((row) => row.cmd.startsWith('frodo '));
+  }, 120000);
+
+  afterAll(() => {
+    if (tmp) fs.rmSync(tmp, { recursive: true, force: true });
+  });
+
+  it('collects every command of every test of the pinned files', async () => {
+    const problems = [];
+    if (files.length < FLOOR.files) {
+      problems.push(
+        `only ${files.length} test files match, fewer than ${FLOOR.files}: the pattern PINNED_FILE or the directory test/e2e changed`
+      );
+    }
+    if (rows.length < FLOOR.commands) {
+      problems.push(
+        `only ${rows.length} commands were collected, fewer than ${FLOOR.commands}: the collector no longer sees every test`
+      );
+    }
+    const withRows = new Set(rows.map((row) => row.file));
+    const ran = new Map(
+      results.map((result) => [path.basename(result.name), result])
+    );
+    for (const name of files) {
+      if (!ran.has(name)) {
+        problems.push(`${name} :: the collector did not run this file`);
+      } else if (!withRows.has(name)) {
+        const message = String(ran.get(name).message || '').split('\n')[0];
+        problems.push(
+          `${name} :: no command was collected from this file${message ? ` (${message})` : ''}: does it still import ./utils/TestUtils?`
+        );
+      }
+    }
+    const tests = new Set(rows.map((row) => `${row.file}\u0000${row.test}`));
+    for (const result of results) {
+      for (const assertion of result.assertionResults) {
+        const key = `${path.basename(result.name)}\u0000${assertion.fullName}`;
+        if (!tests.has(key)) {
+          problems.push(
+            `${path.basename(result.name)} :: "${assertion.fullName}" (${assertion.status}) :: this test ran no command through the stub: it has no pin to check; use testSuccess, testFail, testExport or exec, or extend RecordingIdentityCollector/TestUtilsStub.mjs`
+          );
+        }
+      }
+    }
+    const utils = fs.readFileSync(path.join(E2E, 'utils/TestUtils.js'), 'utf8');
+    const exported = [];
+    for (const line of utils
+      .split('\n')
+      .filter((l) => l.startsWith('export'))) {
+      const match = line.match(
+        /^export (?:async function|function|const) ([A-Za-z0-9_$]+)/
+      );
+      if (match) exported.push(match[1]);
+      else {
+        problems.push(
+          `test/e2e/utils/TestUtils.js :: "${line}" :: an export form this check does not read: teach the check, or use export const / export function`
+        );
+      }
+    }
+    const stub = await import(path.join(COLLECTOR, 'TestUtilsStub.mjs'));
+    for (const name of exported) {
+      if (!(name in stub)) {
+        problems.push(
+          `test/e2e/utils/TestUtils.js exports ${name}, which test/utils/RecordingIdentityCollector/TestUtilsStub.mjs does not: add it to the stub`
+        );
+      }
+    }
+    expectNoProblems(problems, 'the collector did not see every test');
+  });
+
+  describe('every command', () => {
+    let problems;
+    beforeAll(() => {
+      problems = findPinProblems(rows, {
+        labels: LABELS,
+        noRecording: NO_RECORDING,
+        renamed: RENAMED,
+        hasRecording,
+      });
+    });
+
+    it('carries a pin that is the args id frodo-lib derives from it, or an exception that says why not', () => {
+      expectNoProblems(
+        problems.pins,
+        'file :: command :: pin :: expected id :: what to do'
+      );
+    });
+
+    it('has a recording in test/e2e/mocks, unless a NO_RECORDING entry says why not', () => {
+      expectNoProblems(
+        problems.recordings,
+        'file :: command :: pin :: expected directory :: what to do'
+      );
+    });
+
+    it('is listed only by an exception that still matches a command, is still needed and has a reason', () => {
+      expectNoProblems(problems.entries, 'E2eRecordingIdentityExceptions.js');
+    });
+  });
+
+  it('has the pin in every record line of every header', () => {
+    const problems = [];
+    for (const name of files) {
+      const tests = rows.filter((row) => row.file === name);
+      const text = fs.readFileSync(path.join(E2E, name), 'utf8');
+      for (const problem of findHeaderProblems(text, tests)) {
+        problems.push(
+          `test/e2e/${name}:${problem.line} :: ${problem.text} :: ${problem.advice} (a header record line carries the pin of its test, as test/e2e/README.md says)`
+        );
+      }
+    }
+    expectNoProblems(problems, 'a header record line does not carry the pin');
+  });
+
+  it('runs no config-manager command from a test file this check does not read', () => {
+    const problems = fs
+      .readdirSync(E2E)
+      .filter((name) => name.endsWith('.test.js') && !PINNED_FILE.test(name))
+      .filter((name) =>
+        fs
+          .readFileSync(path.join(E2E, name), 'utf8')
+          .includes('frodo config-manager')
+      )
+      .map(
+        (name) =>
+          `test/e2e/${name} :: runs frodo config-manager: name the file config-manager-*.test.js, or extend PINNED_FILE in test/unit/E2eRecordingIdentity.test.js`
+      );
+    expectNoProblems(problems, 'a config-manager test is not checked');
+  });
+
+  it('runs on the frodo-lib whose identity code it was written for', () => {
+    const version = JSON.parse(
+      fs.readFileSync(path.join(LIB, 'package.json'), 'utf8')
+    ).version;
+    const bundle = fs.readFileSync(path.join(LIB, 'dist/index.js'), 'utf8');
+    const sha256 = libIdentityHash(bundle);
+    if (sha256 !== LIB_IDENTITY.sha256) {
+      throw new Error(
+        `frodo-lib ${version} changed its identity code (sha256 ${sha256}, checked with ${LIB_IDENTITY.version}: ${LIB_IDENTITY.sha256}): re-read getFrodoArgsId and getFrodoCommand in its dist/index.js, adapt test/utils/RecordingIdentity.js, then update LIB_IDENTITY in test/unit/E2eRecordingIdentity.test.js`
+      );
+    }
+  });
+});
