@@ -2,7 +2,7 @@
 
 /*
 // Cloud
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo config-manager pull password-policy -D testDir19
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo config-manager pull password-policy -D configManagerPullPasswordPolicyDir0
 
 // Forgeops
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_REALM=alpha FRODO_HOST=https://nightly.gcp.forgeops.com/am frodo config-manager pull password-policy -D testDir20 -m forgeops
@@ -19,8 +19,8 @@ const forgeopsEnv = getEnv(fc);
 
 // Each FRODO_TEST_NAME is the recording's identity (the args id frodo-lib derives from the command): a changed flag does not move the recording.
 describe('frodo config-manager pull password-policy', () => {
-  test('"frodo config-manager pull password-policy -D testDir19": should export the password-policy in fr-config-manager style"', async () => {
-    const dirName = 'testDir19';
+  test('"frodo config-manager pull password-policy -D configManagerPullPasswordPolicyDir0": should export the password-policy in fr-config-manager style"', async () => {
+    const dirName = 'configManagerPullPasswordPolicyDir0';
     const CMD = `frodo config-manager pull password-policy -D ${dirName}`;
     await testExport(CMD, { ...env, env: { ...env.env, FRODO_TEST_NAME: '0_D' } }, undefined, undefined, dirName, false);
   });
