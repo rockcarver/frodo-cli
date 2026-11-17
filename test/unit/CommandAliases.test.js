@@ -198,45 +198,67 @@ describe('the alias note', () => {
   });
 });
 
-describe('a transition alias on a leaf under nested groups', () => {
+/** The shape of config-manager: frodo > config-manager > pull > ui-config. */
+const UI_CONFIG = {
+  path: ['config-manager', 'pull', 'ui-config'],
+  description: 'Export IDM UI configuration objects.',
+};
+
+describe('a transition alias in a nested tree', () => {
   let errors;
   let outputs;
   let exitCode;
 
   /**
-   * frodo > config-manager > pull > ui-config, the shape the config-manager
-   * tree has, with `oldName` as the transition alias of the leaf. The leaf is a
-   * FrodoCommand, not a stub. Its action records that it ran.
+   * frodo > ...`path`, the shape the config-manager tree has. The last name of
+   * the path is the leaf (a FrodoCommand, not a stub, whose action records its
+   * name in `ran`), the names before it are stubs. `oldName` becomes the
+   * transition alias of the command at `aliasAt`: the leaf by default, or 0 for
+   * the group under the root stub. The notice fires once per process for each
+   * path typed, so every test types an old name no other test types.
    */
-  function buildTree(oldName, ran) {
+  function buildTree(
+    { path, description = 'Does it.' },
+    oldName,
+    ran,
+    aliasAt
+  ) {
+    const at = aliasAt ?? path.length - 1;
     const root = new FrodoStubCommand('frodo');
-    const group = new FrodoStubCommand('config-manager');
-    const pull = new FrodoStubCommand('pull').description('Export.');
-    const leaf = new FrodoCommand(
-      'frodo config-manager pull ui-config',
-      [],
-      undefined,
-      {
-        local: true,
-      }
-    )
-      .withAlias(oldName, 'transition')
-      .description('Export IDM UI configuration objects.')
-      .action(() => {
-        ran.push('ui-config');
-      });
-    pull.addCommand(leaf.name('ui-config'));
-    group.addCommand(pull);
-    root.addCommand(group);
+    const commands = [];
+    let child;
+    for (let depth = path.length - 1; depth >= 0; depth--) {
+      const name = path[depth];
+      const command =
+        depth === path.length - 1
+          ? new FrodoCommand(`frodo ${path.join(' ')}`, [], undefined, {
+              local: true,
+            })
+              .description(description)
+              .action(() => {
+                ran.push(name);
+              })
+          : new FrodoStubCommand(name).description(`Commands of ${name}.`);
+      if (depth === at) command.withAlias(oldName, 'transition');
+      if (child) command.addCommand(child);
+      command.name(name);
+      commands.unshift(command);
+      child = command;
+    }
+    root.addCommand(child);
     let help = '';
-    for (const command of [root, group, pull, leaf]) {
+    for (const command of [root, ...commands]) {
       command.exitOverride();
       command.configureOutput({
         writeOut: (chunk) => (help += chunk),
         writeErr: () => {},
       });
     }
-    return { root, leaf, helpText: () => help.replace(ANSI, '') };
+    return {
+      root,
+      leaf: commands[commands.length - 1],
+      helpText: () => help.replace(ANSI, ''),
+    };
   }
 
   beforeAll(() => {
@@ -263,12 +285,12 @@ describe('a transition alias on a leaf under nested groups', () => {
     });
   }
 
-  const notice = (oldName) =>
-    `'${oldName}' is now called 'ui-config'. The old name still works and will be removed in a future major release.`;
+  const notice = (oldName, newName) =>
+    `'${oldName}' is now called '${newName}'. The old name still works and will be removed in a future major release.`;
 
   it('runs the command and prints the notice once, on stderr', async () => {
     const ran = [];
-    const { root } = buildTree('uiConfigOnce', ran);
+    const { root } = buildTree(UI_CONFIG, 'uiConfigOnce', ran);
     spyOnOutput();
 
     await root.parseAsync(['config-manager', 'pull', 'uiConfigOnce'], {
@@ -280,7 +302,7 @@ describe('a transition alias on a leaf under nested groups', () => {
 
     expect(ran).toEqual(['ui-config', 'ui-config']);
     expect(errors.map((line) => line.replace(ANSI, ''))).toEqual([
-      notice('uiConfigOnce'),
+      notice('uiConfigOnce', 'ui-config'),
     ]);
     expect(outputs).toEqual([]);
     expect(process.exitCode).toBe(exitCode);
@@ -288,7 +310,7 @@ describe('a transition alias on a leaf under nested groups', () => {
 
   it('prints no notice for the new name', async () => {
     const ran = [];
-    const { root } = buildTree('uiConfigNew', ran);
+    const { root } = buildTree(UI_CONFIG, 'uiConfigNew', ran);
     spyOnOutput();
 
     await root.parseAsync(['config-manager', 'pull', 'ui-config'], {
@@ -301,8 +323,8 @@ describe('a transition alias on a leaf under nested groups', () => {
   });
 
   it('shows the same help for the old name as for the new name, and says formerly', async () => {
-    const asNew = buildTree('uiConfigHelp', []);
-    const asOld = buildTree('uiConfigHelp', []);
+    const asNew = buildTree(UI_CONFIG, 'uiConfigHelp', []);
+    const asOld = buildTree(UI_CONFIG, 'uiConfigHelp', []);
     spyOnOutput();
 
     await expect(
@@ -326,7 +348,7 @@ describe('a transition alias on a leaf under nested groups', () => {
   });
 
   it('names the new name and the old name in the list of the group', () => {
-    const { root } = buildTree('uiConfigList', []);
+    const { root } = buildTree(UI_CONFIG, 'uiConfigList', []);
     const pull = root.commands[0].commands[0];
     // the note can wrap onto a second line of the description column: read it joined
     const page = renderHelp(pull).replace(/\n {10,}(?=\S)/g, ' ');
@@ -334,6 +356,70 @@ describe('a transition alias on a leaf under nested groups', () => {
       /^ {2}ui-config {2,}Export IDM UI configuration objects\. \(formerly: uiConfigList\)$/m
     );
     expect(page).not.toMatch(/ui-config\|uiConfigList/);
+  });
+
+  describe('on the group under the root, as config-manager becomes config', () => {
+    const CONFIG = {
+      path: ['config', 'pull', 'cors'],
+      description: 'Export CORS configuration.',
+    };
+
+    it('runs the command under the old group name and prints the notice once, on stderr', async () => {
+      const ran = [];
+      const { root } = buildTree(CONFIG, 'configGroupOnce', ran, 0);
+      spyOnOutput();
+
+      await root.parseAsync(['configGroupOnce', 'pull', 'cors'], {
+        from: 'user',
+      });
+      await root.parseAsync(['configGroupOnce', 'pull', 'cors'], {
+        from: 'user',
+      });
+
+      expect(ran).toEqual(['cors', 'cors']);
+      expect(errors.map((line) => line.replace(ANSI, ''))).toEqual([
+        notice('configGroupOnce', 'config'),
+      ]);
+      expect(outputs).toEqual([]);
+      expect(process.exitCode).toBe(exitCode);
+    });
+
+    it('prints no notice for the new group name', async () => {
+      const ran = [];
+      const { root } = buildTree(CONFIG, 'configGroupNew', ran, 0);
+      spyOnOutput();
+
+      await root.parseAsync(['config', 'pull', 'cors'], { from: 'user' });
+
+      expect(ran).toEqual(['cors']);
+      expect(errors).toEqual([]);
+      expect(outputs).toEqual([]);
+    });
+
+    it('shows the same help for the old group name as for the new one, and names the old one in the list of the root', async () => {
+      const asNew = buildTree(CONFIG, 'configGroupHelp', [], 0);
+      const asOld = buildTree(CONFIG, 'configGroupHelp', [], 0);
+      spyOnOutput();
+
+      await expect(
+        asNew.root.parseAsync(['config', '-h'], { from: 'user' })
+      ).rejects.toMatchObject({ code: 'commander.helpDisplayed' });
+      await expect(
+        asOld.root.parseAsync(['configGroupHelp', '-h'], { from: 'user' })
+      ).rejects.toMatchObject({ code: 'commander.helpDisplayed' });
+
+      expect(asOld.helpText()).toBe(asNew.helpText());
+      expect(asNew.helpText()).toContain(
+        'Commands of config. (formerly: configGroupHelp)'
+      );
+      const list = renderHelp(buildTree(CONFIG, 'configGroupList', [], 0).root)
+        // the note can wrap onto a second line of the description column: read it joined
+        .replace(/\n {10,}(?=\S)/g, ' ');
+      expect(list).toMatch(
+        /^ {2}config {2,}Commands of config\. \(formerly: configGroupList\)$/m
+      );
+      expect(list).not.toMatch(/config\|configGroupList/);
+    });
   });
 
   it('prints no notice for a convenience alias', async () => {
