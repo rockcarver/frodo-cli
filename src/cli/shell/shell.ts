@@ -259,6 +259,14 @@ async function startConsole(host?: string): Promise<void> {
     useColors: true,
     completer,
     terminal: true,
+    // Node's completion preview paints the completer's common suffix dimly
+    // after the cursor ("a" shows as "atob") and, worse, INSERTS that
+    // preview into the line when Enter is pressed at the input end
+    // (node:internal/repl/utils), so an untouched suggestion "takes
+    // effect" on submit. The console shows suggestions itself (the
+    // Ctrl+R/Tab surfaces and the signature hint); the painted preview
+    // that quietly rewrites input is off.
+    preview: false,
     input: consoleInput.input,
     output: process.stdout,
     writer(output: unknown) {
