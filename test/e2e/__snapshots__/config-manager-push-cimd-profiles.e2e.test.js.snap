@@ -1,0 +1,8 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`frodo config-manager push oauth-cimd-profiles "frodo config-manager push oauth-cimd-profiles -n zz-e2e-cimd -D test/e2e/exports/fr-config-manager/cloud": should create the CIMD profile zz-e2e-cimd in the alpha realm 1`] = `""`;
+
+exports[`frodo config-manager push oauth-cimd-profiles "frodo config-manager push oauth-cimd-profiles -n zz-e2e-cimd -D test/e2e/exports/fr-config-manager/cloud": should create the CIMD profile zz-e2e-cimd in the alpha realm 2`] = `
+"Experimental feature in use: 'frodo config-manager push oauth-cimd-profiles'. This feature may change without notice.
+"
+`;
