@@ -23,23 +23,24 @@ import { getEnv, testSuccess, testFail } from './utils/TestUtils';
 import { connection as c } from './utils/TestConfig';
 
 process.env['FRODO_MOCK'] ||= '1';
+// FRODO_TEST_NAME pins the recording identity of a command: the id its recording was made under.
 const cloudEnv = getEnv(c);
 
 describe('frodo config-manager promote run-dryrun-promotion', () => {
     test(`"frodo config-manager promote run-dryrun-promotion": Will run promotion"`, async () => {
         const CMD = `frodo config-manager promote run-dryrun-promotion`;
-        await testSuccess(CMD, cloudEnv);
+        await testSuccess(CMD, { ...cloudEnv, env: { ...cloudEnv.env, FRODO_TEST_NAME: '0' } });
     });
     test(`"frodo config-manager promote run-dryrun-promotion -p provisional-report -uid 'provisional report' -t ticket": Will run dry-run promotion with promoter, description, ignoring encrpted secrets, unlocking after, and Zendesk ticket"`, async () => {
         const CMD = `frodo config-manager promote run-dryrun-promotion -p provisional-report -uid 'provisional report' -t ticket`;
-        await testSuccess(CMD, cloudEnv);
+        await testSuccess(CMD, { ...cloudEnv, env: { ...cloudEnv.env, FRODO_TEST_NAME: '0_p_uid_t' } });
     });
     test(`"frodo config-manager promote run-dryrun-promotion --wait": Should wait for dry-run promotion to complete`, async () => {
         const CMD = `frodo config-manager promote run-dryrun-promotion --wait`;
-        await testSuccess(CMD, cloudEnv);
+        await testSuccess(CMD, { ...cloudEnv, env: { ...cloudEnv.env, FRODO_TEST_NAME: '0_wait' } });
     });
     test(`"frodo config-manager promote run-dryrun-promotion --wait --timeout 6": Should time out waiting for dry-run promotion`, async () => {
         const CMD = `frodo config-manager promote run-dryrun-promotion --wait --timeout 6`;
-        await testFail(CMD, cloudEnv);
+        await testFail(CMD, { ...cloudEnv, env: { ...cloudEnv.env, FRODO_TEST_NAME: '0_wait_timeout' } });
     });
 });
