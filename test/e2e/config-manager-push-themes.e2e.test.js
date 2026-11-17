@@ -14,6 +14,7 @@ const forgeopsEnv = getEnv(fc);
 
 const allDirectory = "test/e2e/exports/fr-config-manager/forgeops";
 
+// FRODO_TEST_NAME pins the recording's identity (the last segment of its path): the id stays when flags are renamed.
 test(`"frodo config-manager push themes -D ${allDirectory} -m forgeops": should import the themes into forgeops"`, async () => {
     const CMD = `frodo config-manager push themes -D ${allDirectory} -m forgeops`;
     await testSuccess(CMD, {
@@ -29,6 +30,7 @@ test(`"frodo config-manager push themes -D ${allDirectory} -m forgeops": should 
     await testSuccess(CMD, {
         env: {
             ...forgeopsEnv.env,
+            FRODO_TEST_NAME: '0_D_m',
             FRODO_REALM: 'alpha'
         }
     });

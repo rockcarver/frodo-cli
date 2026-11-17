@@ -16,16 +16,18 @@ const forgeopsEnv = getEnv(fc);
 const allDirectory = "test/e2e/exports/fr-config-manager/forgeops";
 const envDir = "test/e2e/env/configManager1.env"
 
+// FRODO_TEST_NAME pins the recording's identity (the last segment of its path): the id stays when flags are renamed.
 describe('frodo config-manager push saml', () => {
     test(`"frodo config-manager push saml --env-file ${envDir} -D ${allDirectory} -m forgeops": should import the saml into forgeops"`, async () => {
         const CMD = `frodo config-manager push saml --env-file ${envDir} -D ${allDirectory} -m forgeops`;
-        await testSuccess(CMD, forgeopsEnv)
+        await testSuccess(CMD, { ...forgeopsEnv, env: { ...forgeopsEnv.env, FRODO_TEST_NAME: '0_env-file_D_m' } })
     });
     test(`"frodo config-manager push saml -n test-IDP -E IDP_URL_PLACEHOLDER=https://platform.dev.trivir.com/am/idpsaehandler/metaAlias/alpha/test6 -E HTTP_REDIRECT_PLACEHOLDER=urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect -D ${allDirectory} -m forgeops": should import a saml entity and update placeholders`, async () => {
         const CMD = `frodo config-manager push saml -n test-IDP -E IDP_URL_PLACEHOLDER=https://platform.dev.trivir.com/am/idpsaehandler/metaAlias/alpha/test -E HTTP_REDIRECT_PLACEHOLDER=urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect -D ${allDirectory} -m forgeops`;
         await testSuccess(CMD, {
             env: {
                 ...forgeopsEnv.env,
+                FRODO_TEST_NAME: '0_n_E_E_D_m',
                 FRODO_REALM: "alpha"
             }
         });
@@ -35,6 +37,7 @@ describe('frodo config-manager push saml', () => {
         await testSuccess(CMD, {
             env: {
                 ...forgeopsEnv.env,
+                FRODO_TEST_NAME: '0_env-file_directory_m',
                 FRODO_REALM: "alpha"
             }
         });

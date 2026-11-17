@@ -59,6 +59,7 @@ const forgeopsEnv = getEnv(fc);
 
 const allDirectory = "test/e2e/exports/fr-config-manager/forgeops";
 
+// FRODO_TEST_NAME pins the recording's identity (the last segment of its path): the id stays when flags are renamed.
 describe('frodo config-manager push oauth2-agents', () => {
     // The tree holds a TrustedJwtIssuer folder (testJWT) and a SoftwarePublisher folder (test software publisher) in /,
     // alpha and bravo. Since frodo-cli#1259 and frodo-cli#1343 the command leaves them to `config-manager push
@@ -68,6 +69,6 @@ describe('frodo config-manager push oauth2-agents', () => {
     // recordings are made against the real environment, not edited.
     test(`"frodo config-manager push oauth2-agents --env-file test/e2e/env/configManager1.env -D ${allDirectory} -m forgeops": should import all oauth2-agents into forgeops"`, async () => {
         const CMD = `frodo config-manager push oauth2-agents --env-file test/e2e/env/configManager1.env -D ${allDirectory} -m forgeops`;
-        await testSuccess(CMD, forgeopsEnv);
+        await testSuccess(CMD, { ...forgeopsEnv, env: { ...forgeopsEnv.env, FRODO_TEST_NAME: '0_env-file_D_m' } });
     });
 });

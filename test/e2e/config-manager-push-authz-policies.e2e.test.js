@@ -13,14 +13,15 @@ const env = getEnv(c);
 
 const allDirectory = "test/e2e/exports/fr-config-manager/forgeops";
 
+// FRODO_TEST_NAME pins the recording's identity (the last segment of its path): the id stays when flags are renamed.
 describe('frodo config-manager push authz-policies', () => {
     test(`"frodo config-manager push authz-policies -FD ${allDirectory}": should import the authz-policies"`, async () => {
         const CMD = `frodo config-manager push authz-policies -FD ${allDirectory}`;
-        await testSuccess(CMD, env);
+        await testSuccess(CMD, { ...env, env: { ...env.env, FRODO_TEST_NAME: '0_FD' } });
     });
 
     test(`"frodo config-manager push authz-policies -D ${allDirectory}": should not import the authz-policies when no changes are made"`, async () => {
         const CMD = `frodo config-manager push authz-policies -D ${allDirectory}`;
-        await testSuccess(CMD, env);
+        await testSuccess(CMD, { ...env, env: { ...env.env, FRODO_TEST_NAME: '0_D' } });
     });
 });

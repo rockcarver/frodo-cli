@@ -15,9 +15,10 @@ const cloudEnv = getEnv(c);
 
 const allDirectory = "test/e2e/exports/fr-config-manager/cloud";
 
+// FRODO_TEST_NAME pins the recording's identity (the last segment of its path): the id stays when flags are renamed.
 describe('frodo config-manager push remote-proxies', () => {
     test(`"frodo config-manager push remote-proxies -n zz-e2e-proxy -D ${allDirectory}": should import one remote proxy into cloud"`, async () => {
         const CMD = `frodo config-manager push remote-proxies -n zz-e2e-proxy -D ${allDirectory}`;
-        await testSuccess(CMD, cloudEnv);
+        await testSuccess(CMD, { ...cloudEnv, env: { ...cloudEnv.env, FRODO_TEST_NAME: '0_n_D' } });
     });
 });

@@ -29,33 +29,34 @@ async function resetTelemetry() {
   await exec(`node test/e2e/utils/deleteAllTelemetry.cjs ${c.host}`);
 }
 
+// FRODO_TEST_NAME pins the recording's identity (the last segment of its path): the id stays when flags are renamed.
 describe('frodo config-manager push telemetry', () => {
   beforeEach(resetTelemetry);
 
   test(`"frodo config-manager push telemetry -c otlp --env TELEMETRY_HEADER_OTLP_TEST_OTLP_API_KEY=test-value --env TELEMETRY_HEADER_OTLP_TEST_OTLP_API_SECRET=test-value -D ${telemetryDir}": should import otlp telemetry by category and update placeholder values`, async () => {
     const CMD = `frodo config-manager push telemetry -c otlp --env TELEMETRY_HEADER_OTLP_TEST_OTLP_API_KEY=test-value --env TELEMETRY_HEADER_OTLP_TEST_OTLP_API_SECRET=test-value  -D ${telemetryDir}`;
-    await testSuccess(CMD, env);
+    await testSuccess(CMD, { ...env, env: { ...env.env, FRODO_TEST_NAME: '0_c_env_env_D' } });
   });
 
   test(`"frodo config-manager push telemetry -c otlp -n test-otlp -E TELEMETRY_HEADER_OTLP_TEST_OTLP_API_KEY=test-value -E TELEMETRY_HEADER_OTLP_TEST_OTLP_API_SECRET=test-value -D ${telemetryDir}": should import otlp telemetry by name and update placeholder values`, async () => {
     const CMD = `frodo config-manager push telemetry -c otlp -n test-otlp -E TELEMETRY_HEADER_OTLP_TEST_OTLP_API_KEY=test-value -E TELEMETRY_HEADER_OTLP_TEST_OTLP_API_SECRET=test-value -D ${telemetryDir}`;
-    await testSuccess(CMD, env);
+    await testSuccess(CMD, { ...env, env: { ...env.env, FRODO_TEST_NAME: '0_c_n_E_E_D' } });
   });
 
   test(`"frodo config-manager push telemetry -c splunk --name test -D ${telemetryDir}": should import splunk telemetry by name`, async () => {
     const CMD = `frodo config-manager push telemetry -c splunk --name test -D ${telemetryDir}`;
-    await testSuccess(CMD, env);
+    await testSuccess(CMD, { ...env, env: { ...env.env, FRODO_TEST_NAME: '0_c_name_D' } });
   });
 
   test(`"frodo config-manager push telemetry -c splunk -D ${telemetryDir}": should import splunk telemetry by category`, async () => {
     const CMD = `frodo config-manager push telemetry -c splunk -D ${telemetryDir}`;
-    await testSuccess(CMD, env);
+    await testSuccess(CMD, { ...env, env: { ...env.env, FRODO_TEST_NAME: '0_c_D' } });
   });
   // The stderr snapshot of this test was edited by hand (not re-recorded): the exporter that cannot be imported is
   // named in the error as before, and the command now imports each exporter on its own and ends with the failure
   // summary (cli records 0040 and 0041).
   test(`"frodo config-manager push telemetry -E TELEMETRY_HEADER_OTLP_TEST_OTLP_API_KEY=all-test -E TELEMETRY_HEADER_OTLP_TEST_OTLP_API_SECRET=all-secret -D ${telemetryDir}": should fail to import all telemetry config`, async () => {
     const CMD = `frodo config-manager push telemetry -E TELEMETRY_HEADER_OTLP_TEST_OTLP_API_KEY=all-test -E TELEMETRY_HEADER_OTLP_TEST_OTLP_API_SECRET=all-secret -D ${telemetryDir}`;
-    await testFail(CMD, env);
+    await testFail(CMD, { ...env, env: { ...env.env, FRODO_TEST_NAME: '0_E_E_D' } });
   });
 });

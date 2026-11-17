@@ -43,28 +43,29 @@ async function expectNoMatchingPath(command, env) {
     expect(failure?.code).toBe(1);
 }
 
+// FRODO_TEST_NAME pins the recording's identity (the last segment of its path): the id stays when flags are renamed.
 describe('frodo config-manager push raw ', () => {
     //Forgeops
     test(`"frodo config-manager push raw -D ${forgeopsDirectory} -m forgeops": should import raw configuration into forgeops"`, async () => {
         const CMD = `frodo config-manager push raw -D ${forgeopsDirectory} -m forgeops`;
-        await testSuccess(CMD, forgeopsEnv);
+        await testSuccess(CMD, { ...forgeopsEnv, env: { ...forgeopsEnv.env, FRODO_TEST_NAME: '0_D_m' } });
     });
     test(`"frodo config-manager push raw -p /openidm/config/cluster -i -m forgeops": should import raw configuration into forgeops"`, async () => {
         const CMD = `frodo config-manager push raw -p /openidm/config/cluster -i -m forgeops`;
-        await testSuccess(CMD, forgeopsEnv, 0, readFileSync(stdinFile));
+        await testSuccess(CMD, { ...forgeopsEnv, env: { ...forgeopsEnv.env, FRODO_TEST_NAME: '0_p_i_m' } }, 0, readFileSync(stdinFile));
     });
     test(`"frodo config-manager push raw -p test/e2e/exports/fr-config-manager/forgeops/raw/openidm/config -m forgeops": should fail because the path matches no raw configuration"`, async () => {
         const CMD = `frodo config-manager push raw -p test/e2e/exports/fr-config-manager/forgeops/raw/openidm/config -D ${forgeopsDirectory} -m forgeops`;
-        await expectNoMatchingPath(CMD, forgeopsEnv);
+        await expectNoMatchingPath(CMD, { ...forgeopsEnv, env: { ...forgeopsEnv.env, FRODO_TEST_NAME: '0_p_D_m' } });
     });
 
     //Cloud
     test(`"frodo config-manager push raw -E ESV_VARIABLE_TEST="MSwyLDM=" -D ${cloudDirectory}: should import raw configuration into cloud"`, async () => {
         const CMD = `frodo config-manager push raw -E ESV_VARIABLE_TEST="MSwyLDM=" -D ${cloudDirectory} `;
-        await testSuccess(CMD, cloudEnv);
+        await testSuccess(CMD, { ...cloudEnv, env: { ...cloudEnv.env, FRODO_TEST_NAME: '0_E_D' } });
     });
     test(`"frodo config-manager push raw -E ESV_VARIABLE_TEST="MSwyLDM=" -p test/e2e/exports/fr-config-manager/cloud/raw/environment -D ${cloudDirectory}: should fail because the path matches no raw configuration"`, async () => {
         const CMD = `frodo config-manager push raw -E ESV_VARIABLE_TEST="MSwyLDM=" -p test/e2e/exports/fr-config-manager/cloud/raw/environment  -D ${cloudDirectory}`;
-        await expectNoMatchingPath(CMD, cloudEnv);
+        await expectNoMatchingPath(CMD, { ...cloudEnv, env: { ...cloudEnv.env, FRODO_TEST_NAME: '0_E_p_D' } });
     });
 });

@@ -14,13 +14,14 @@ const forgeopsEnv = getEnv(fc);
 
 const allDirectory = "test/e2e/exports/fr-config-manager/forgeops";
 
+// FRODO_TEST_NAME pins the recording's identity (the last segment of its path): the id stays when flags are renamed.
 describe('frodo config-manager push connector-definitions', () => {
     test(`"frodo config-manager push connector-definitions -D ${allDirectory} -m forgeops": should import the connector definitions into forgeops"`, async () => {
         const CMD = `frodo config-manager push connector-definitions -D ${allDirectory} -m forgeops`;
-        await testSuccess(CMD, forgeopsEnv);
+        await testSuccess(CMD, { ...forgeopsEnv, env: { ...forgeopsEnv.env, FRODO_TEST_NAME: '0_D_m' } });
     });
     test(`"frodo config-manager push connector-definitions -n csv -D ${allDirectory} -m forgeops": should import the csv connector definition into forgeops"`, async () => {
         const CMD = `frodo config-manager push connector-definitions -n csv -D ${allDirectory} -m forgeops`;
-        await testSuccess(CMD, forgeopsEnv);
+        await testSuccess(CMD, { ...forgeopsEnv, env: { ...forgeopsEnv.env, FRODO_TEST_NAME: '0_n_D_m' } });
     });
 });
