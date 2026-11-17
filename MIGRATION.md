@@ -895,6 +895,20 @@ fails and names it, and nothing is sent for it. A script that relied on the key 
 the file now sets the variable instead. See
 [a pull never writes private or secret key material into an agent file](https://github.com/rockcarver/frodo-cli/blob/main/docs/decisions/0055-a-pull-never-writes-private-or-secret-key-material-into-an-agent-file.md).
 
+**The OAuth2 client of an application no longer holds a private key set
+(experimental)**: `config-manager pull applications` (and `migrate applications`,
+which pulls the application again) replace the `jwkSet` in the signing and
+encryption settings of the OAuth2 client in `oauth2-client.json`, when it holds a
+private or a symmetric key, with the placeholder `${APP_<NAME>_JWKSET}`: the
+name of the application in upper case, every run of other characters as one
+underscore, the way `APP_<NAME>_CLIENT_SECRET` is named. One warning says so and
+never prints the key. A key set with public keys only is written as before. A
+`push applications` fills the placeholder from the variable (`-E`, `--env-file`
+or the environment of the process), which holds the key set as JSON text; an
+application whose variable is not set is not imported, and the push names the
+variable. Before, the key was written to the file. See
+[a pull never writes private or secret key material into an agent file](https://github.com/rockcarver/frodo-cli/blob/main/docs/decisions/0055-a-pull-never-writes-private-or-secret-key-material-into-an-agent-file.md).
+
 **Header overrides are stored encrypted**: a connection profile kept the values
 of `--authentication-header-overrides` and `--configuration-header-overrides`
 in `Connections.json` in the clear. Now both maps are encrypted with the master

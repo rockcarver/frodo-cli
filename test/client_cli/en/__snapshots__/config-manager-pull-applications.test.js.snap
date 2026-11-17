@@ -9,7 +9,10 @@ objects it owns (the OAuth2 client, the SAML providers, the connector and its
 mappings). The scripts and circles of trust that an application uses are
 exported where "pull scripts" and "pull saml" export them. Members, owners and
 roles of an application, and the glossary values and request forms of Identity
-Governance tenants, are not exported.
+Governance tenants, are not exported. A key set of the OAuth2 client that holds
+a private or secret key is not written: oauth2-client.json has
+\${APP_<NAME>_JWKSET} in its place (the name of the application in upper case, as
+in APP_<NAME>_CLIENT_SECRET) and a warning says so.
 
 Arguments:
   host               AM base URL, e.g.: https://cdk.iam.example.com/am. To use a

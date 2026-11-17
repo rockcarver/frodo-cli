@@ -94,11 +94,13 @@ const isRecord = (value: unknown): value is Record<string, unknown> =>
  * written either.
  * @param {Record<string, unknown>} config the object in the plain shape, after the overrides were merged; it is changed
  * @param {string} id the id of the object, which names the variable
+ * @param {string} [variable] the variable of the first key set, for a kind that has its own convention for the names of its variables (the application folder, `APP_<NAME>_JWKSET`); default: the one that the id names
  * @returns {RedactedKeySet[]} what was replaced, none if the object holds no private key material
  */
 export function redactKeySets(
   config: Record<string, unknown>,
-  id: string
+  id: string,
+  variable: string = keySetVariable(id)
 ): RedactedKeySet[] {
   const redacted: RedactedKeySet[] = [];
   for (const path of KEY_SET_FIELDS) {
@@ -109,12 +111,10 @@ export function redactKeySets(
     const field = path[path.length - 1];
     if (!isRecord(holder) || !holdsSecretKeyMaterial(holder[field])) continue;
     // an object has its key set in one place; a second one gets a variable of its own, never the same
-    const variable =
-      redacted.length === 0
-        ? keySetVariable(id)
-        : `${keySetVariable(id)}_${redacted.length + 1}`;
-    holder[field] = `\${${variable}}`;
-    redacted.push({ field: path.join('.'), variable });
+    const name =
+      redacted.length === 0 ? variable : `${variable}_${redacted.length + 1}`;
+    holder[field] = `\${${name}}`;
+    redacted.push({ field: path.join('.'), variable: name });
   }
   return redacted;
 }

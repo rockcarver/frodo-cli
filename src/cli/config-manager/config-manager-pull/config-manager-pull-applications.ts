@@ -6,6 +6,7 @@ import { getTokens } from '../../../ops/AuthenticateOps';
 import c from '../../../utils/ColorTheme';
 import { verboseMessage } from '../../../utils/Console';
 import { realmOfRun } from '../../../utils/interactive/PositionalArgs';
+import { APPLICATION_KEY_SET_PULL_SENTENCE } from '../../../utils/PlaceholderValues';
 import { FrodoCommand } from '../../FrodoCommand';
 
 const { CLOUD_DEPLOYMENT_TYPE_KEY, FORGEOPS_DEPLOYMENT_TYPE_KEY } =
@@ -28,7 +29,8 @@ export default function setup() {
       'Export applications, one folder per application with the objects it owns.'
     )
     .description(
-      'Export applications: one folder realms/<realm>/applications/<name>/ for each, with the application and the objects it owns (the OAuth2 client, the SAML providers, the connector and its mappings). The scripts and circles of trust that an application uses are exported where "pull scripts" and "pull saml" export them. Members, owners and roles of an application, and the glossary values and request forms of Identity Governance tenants, are not exported.'
+      'Export applications: one folder realms/<realm>/applications/<name>/ for each, with the application and the objects it owns (the OAuth2 client, the SAML providers, the connector and its mappings). The scripts and circles of trust that an application uses are exported where "pull scripts" and "pull saml" export them. Members, owners and roles of an application, and the glossary values and request forms of Identity Governance tenants, are not exported. ' +
+        APPLICATION_KEY_SET_PULL_SENTENCE
     )
     .addOption(
       new Option(

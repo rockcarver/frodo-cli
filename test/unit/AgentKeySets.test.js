@@ -169,6 +169,32 @@ describe('redactKeySets', () => {
     ]);
   });
 
+  it('uses the variable that a kind with its own naming asks for, and numbers a second key set from it', () => {
+    const config = {
+      jwkSet: secretSet,
+      signEncOAuth2ClientConfig: { jwkSet: secretSet },
+    };
+
+    const redacted = redactKeySets(config, 'zion', 'APP_ZION_PORTAL_JWKSET');
+
+    expect(redacted.map(({ variable }) => variable)).toEqual([
+      'APP_ZION_PORTAL_JWKSET',
+      'APP_ZION_PORTAL_JWKSET_2',
+    ]);
+    expect(config.jwkSet).toBe('${APP_ZION_PORTAL_JWKSET}');
+    expect(config.signEncOAuth2ClientConfig.jwkSet).toBe(
+      '${APP_ZION_PORTAL_JWKSET_2}'
+    );
+  });
+
+  it('names the variable after the id when no variable is asked for', () => {
+    const config = { jwkSet: secretSet };
+
+    expect(redactKeySets(config, 'zion-issuer')).toEqual([
+      { field: 'jwkSet', variable: 'ZION_ISSUER_JWKSET' },
+    ]);
+  });
+
   it('leaves a key set with public keys, an unset one and a placeholder alone', () => {
     for (const jwkSet of [
       jwks(publicRsa),

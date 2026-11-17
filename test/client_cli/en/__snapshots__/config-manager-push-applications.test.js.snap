@@ -11,9 +11,11 @@ providers are members of, and the application itself last. An application is
 matched by its name: the tenant's application of that name is updated in place,
 and a new one is created if there is none. The secret of an OAuth2 client is
 read from the environment variable named in its file (APP_<NAME>_CLIENT_SECRET);
-an application whose variable is not set is not imported. Members, owners and
-roles of an application, and the glossary values and request forms of Identity
-Governance tenants, are never changed.
+an application whose variable is not set is not imported. A key set that a pull
+replaced by \${APP_<NAME>_JWKSET} is filled from that variable, which holds the
+key set as JSON text. Members, owners and roles of an application, and the
+glossary values and request forms of Identity Governance tenants, are never
+changed.
 
 Arguments:
   host               AM base URL, e.g.: https://cdk.iam.example.com/am. To use a
