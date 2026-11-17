@@ -13,6 +13,7 @@ import { getEnv, testSuccess } from './utils/TestUtils';
 import { forgeops_connection as fc } from './utils/TestConfig';
 
 process.env['FRODO_MOCK'] ||= '1';
+// FRODO_TEST_NAME pins the recording identity of a command: the id its recording was made under.
 const forgeopsEnv = getEnv(fc);
 
 // Deleting all eligible scripts without a name or a prefix has no recorded case:
@@ -25,6 +26,7 @@ describe('frodo config-manager delete scripts', () => {
       env: {
         ...forgeopsEnv.env,
         FRODO_REALM: '/alpha',
+        FRODO_TEST_NAME: '0_n_m',
       },
     });
   });
@@ -34,6 +36,7 @@ describe('frodo config-manager delete scripts', () => {
       env: {
         ...forgeopsEnv.env,
         FRODO_REALM: '/alpha',
+        FRODO_TEST_NAME: '0_p_y_m',
       },
     });
   });
@@ -43,11 +46,12 @@ describe('frodo config-manager delete scripts', () => {
       env: {
         ...forgeopsEnv.env,
         FRODO_REALM: '/alpha',
+        FRODO_TEST_NAME: '0_d_n_m',
       },
     });
   });
   test('"frodo config-manager delete scripts --dry-run -m forgeops": should dry-run delete all eligible scripts across realms', async () => {
     const CMD = 'frodo config-manager delete scripts --dry-run -m forgeops';
-    await testSuccess(CMD, forgeopsEnv);
+    await testSuccess(CMD, { ...forgeopsEnv, env: { ...forgeopsEnv.env, FRODO_TEST_NAME: '0_dry-run_m' } });
   });
 });

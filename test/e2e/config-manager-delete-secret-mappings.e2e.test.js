@@ -12,6 +12,7 @@ import { getEnv, testSuccess } from './utils/TestUtils';
 import { connection as c } from './utils/TestConfig';
 
 process.env['FRODO_MOCK'] ||= '1';
+// FRODO_TEST_NAME pins the recording identity of a command: the id its recording was made under.
 const cloudEnv = getEnv(c);
 
 describe('frodo config-manager delete secret-mappings', () => {
@@ -21,6 +22,7 @@ describe('frodo config-manager delete secret-mappings', () => {
       env: {
         ...cloudEnv.env,
         FRODO_REALM: 'alpha',
+        FRODO_TEST_NAME: '0_dry-run_n',
       },
     });
   });
@@ -30,15 +32,16 @@ describe('frodo config-manager delete secret-mappings', () => {
       env: {
         ...cloudEnv.env,
         FRODO_REALM: 'alpha',
+        FRODO_TEST_NAME: '0_n',
       },
     });
   });
   test(`"frodo config-manager delete secret-mappings --dry-run": should print a dryrun message deleting every secret-mapping from cloud."`, async () => {
     const CMD = `frodo config-manager delete secret-mappings --dry-run`;
-    await testSuccess(CMD, cloudEnv)
+    await testSuccess(CMD, { ...cloudEnv, env: { ...cloudEnv.env, FRODO_TEST_NAME: '0_dry-run' } })
   });
   test(`"frodo config-manager delete secret-mappings -y": should delete every secret-mapping from cloud"`, async () => {
     const CMD = `frodo config-manager delete secret-mappings -y`;
-    await testSuccess(CMD, cloudEnv)
+    await testSuccess(CMD, { ...cloudEnv, env: { ...cloudEnv.env, FRODO_TEST_NAME: '0_y' } })
   });
 });

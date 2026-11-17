@@ -12,23 +12,24 @@ import { getEnv, testSuccess } from './utils/TestUtils';
 import { forgeops_connection as fc } from './utils/TestConfig';
 
 process.env['FRODO_MOCK'] ||= '1';
+// FRODO_TEST_NAME pins the recording identity of a command: the id its recording was made under.
 const forgeopsEnv = getEnv(fc);
 
 describe('frodo config-manager delete locales', () => {
     test(`"frodo config-manager delete locales -y -m forgeops": should delete all locales in forgeops"`, async () => {
         const CMD = `frodo config-manager delete locales -y -m forgeops`;
-        await testSuccess(CMD, forgeopsEnv);
+        await testSuccess(CMD, { ...forgeopsEnv, env: { ...forgeopsEnv.env, FRODO_TEST_NAME: '0_y_m' } });
     });
     test(`"frodo config-manager delete locales -n fr -m forgeops": should delete a specific locale by name in forgeops"`, async () => {
         const CMD = `frodo config-manager delete locales -n fr -m forgeops`;
-        await testSuccess(CMD, forgeopsEnv);
+        await testSuccess(CMD, { ...forgeopsEnv, env: { ...forgeopsEnv.env, FRODO_TEST_NAME: '0_n_m' } });
     });
     test(`"frodo config-manager delete locales --dry-run -m forgeops": should print a dryrun message listing all locales in forgeops"`, async () => {
         const CMD = `frodo config-manager delete locales --dry-run -m forgeops`;
-        await testSuccess(CMD, forgeopsEnv);
+        await testSuccess(CMD, { ...forgeopsEnv, env: { ...forgeopsEnv.env, FRODO_TEST_NAME: '0_dry-run_m' } });
     });
     test(`"frodo config-manager delete locales -d -n fr -m forgeops": should print a dryrun message for a specific locale by name in forgeops"`, async () => {
         const CMD = `frodo config-manager delete locales -d -n fr -m forgeops`;
-        await testSuccess(CMD, forgeopsEnv);
+        await testSuccess(CMD, { ...forgeopsEnv, env: { ...forgeopsEnv.env, FRODO_TEST_NAME: '0_d_n_m' } });
     });
 });

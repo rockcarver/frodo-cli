@@ -12,23 +12,24 @@ import { getEnv, testSuccess } from './utils/TestUtils';
 import { forgeops_connection as fc } from './utils/TestConfig';
 
 process.env['FRODO_MOCK'] ||= '1';
+// FRODO_TEST_NAME pins the recording identity of a command: the id its recording was made under.
 const forgeopsEnv = getEnv(fc);
 
 describe('frodo config-manager delete terms-and-conditions', () => {
     test(`"frodo config-manager delete terms-and-conditions -y -m forgeops": should delete all terms and conditions versions from forgeops`, async () => {
       const CMD = `frodo config-manager delete terms-and-conditions -y -m forgeops`;
-      await testSuccess(CMD, forgeopsEnv);
+      await testSuccess(CMD, { ...forgeopsEnv, env: { ...forgeopsEnv.env, FRODO_TEST_NAME: '0_y_m' } });
     });
     test(`"frodo config-manager delete terms-and-conditions -n 0.1 -m forgeops": should delete a specific terms and conditions version from forgeops`, async () => {
       const CMD = `frodo config-manager delete terms-and-conditions -n 0.1 -m forgeops`;
-      await testSuccess(CMD, forgeopsEnv);
+      await testSuccess(CMD, { ...forgeopsEnv, env: { ...forgeopsEnv.env, FRODO_TEST_NAME: '0_n_m' } });
     });
     test(`"frodo config-manager delete terms-and-conditions --dry-run -m forgeops": should preview deletion of all terms and conditions versions from forgeops`, async () => {
       const CMD = `frodo config-manager delete terms-and-conditions --dry-run -m forgeops`;
-      await testSuccess(CMD, forgeopsEnv);
+      await testSuccess(CMD, { ...forgeopsEnv, env: { ...forgeopsEnv.env, FRODO_TEST_NAME: '0_dry-run_m' } });
     });
     test(`"frodo config-manager delete terms-and-conditions -d -n 0.1 -m forgeops": should preview deletion of a specific terms and conditions version from forgeops`, async () => {
       const CMD = `frodo config-manager delete terms-and-conditions -d -n 0.1 -m forgeops`;
-      await testSuccess(CMD, forgeopsEnv);
+      await testSuccess(CMD, { ...forgeopsEnv, env: { ...forgeopsEnv.env, FRODO_TEST_NAME: '0_d_n_m' } });
     });
 });
