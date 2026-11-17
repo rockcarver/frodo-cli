@@ -302,6 +302,15 @@ async function startConsole(host?: string): Promise<void> {
   consoleInput.install();
 
   const context = started.context;
+  // Binding _ to lodash below trips the REPL's one-time notice ("Expression
+  // assignment to _ now disabled."), which prints right after the first
+  // prompt (repl.start draws it before we get here): a junk line on the
+  // fresh prompt. Marking the flag first silences only that notice; the
+  // notice's effect is the point and already holds (lodash owns `_`, the
+  // REPL never reassigns it). Same trade the web console makes by
+  // filtering the line out of its log stream.
+  (started as unknown as { underscoreAssigned: boolean }).underscoreAssigned =
+    true;
   // The names scripts use, and frodo-lib's debug/verbose/curlirize output,
   // land in the console (stdout): the Node.js REPL drives its terminal
   // through stdout via readline, so text written only to stderr may not be
