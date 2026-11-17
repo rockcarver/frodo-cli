@@ -104,6 +104,9 @@ export function createConsoleInput(
   let matchCursor = 0;
   // The REPL line when the search opened; restored on cancel.
   let savedDraft = '';
+  // Rows of the candidate list currently on screen (status line excluded).
+  // Tracked so each redraw can erase the previous frame exactly.
+  let drawnRows = 0;
   // Persists across chunks while active so a multi-byte UTF-8 character
   // split over two reads still decodes as one character.
   const decoder = new StringDecoder('utf8');
@@ -116,8 +119,13 @@ export function createConsoleInput(
 
   function recomputeMatches(): void {
     if (query.length === 0) {
-      matches = [];
-      matchCursor = 0;
+      // An empty query is not "no results": the window opens on the most
+      // recent entries, recency order, so Ctrl+R alone shows the history
+      // (the same behavior as the web console's popup).
+      matches = getHistory()
+        .slice(0, 50)
+        .map((_entry, idx) => idx);
+      matchCursor = Math.min(matchCursor, Math.max(matches.length - 1, 0));
       return;
     }
     const history = getHistory();
@@ -138,11 +146,30 @@ export function createConsoleInput(
     matchCursor = Math.min(matchCursor, Math.max(matches.length - 1, 0));
   }
 
-  function eraseStatusLine(): void {
-    // Remove the status line row and let the redraw happen on it.
-    readline.cursorTo(process.stdout, 0);
-    readline.moveCursor(process.stdout, 0, -1);
-    readline.clearLine(process.stdout, 0);
+  /**
+   * How many candidate rows the list shows at once. The list is redrawn
+   * in place (cursor up, clear to end), so a fixed height keeps the
+   * erasure arithmetic simple and the UI stable.
+   */
+  const LIST_ROWS = 8;
+
+  /**
+   * One line of the candidate list: the command, trimmed to the terminal
+   * width, with the selected row highlighted. Long commands truncate to
+   * the width available; the status line above the list already carries
+   * the query and the counter.
+   */
+  function listRowText(entry: HistoryEntry, selected: boolean): string {
+    const width = process.stdout.columns ?? 80;
+    const max = Math.max(width - 6, 16);
+    let text = entry.text.split('\n')[0];
+    if (entry.text.includes('\n')) {
+      text = text.length > max - 1 ? `${text.slice(0, max - 2)}…` : `${text} …`;
+      // max for multiline: leave room for the ellipsis marker
+    }
+    if (text.length > max) text = `${text.slice(0, max - 1)}…`;
+    const body = `  ${text}`;
+    return selected ? `${CYAN}${body}${RESET}` : `${DIM}${body}${RESET}`;
   }
 
   function render(): void {
@@ -151,20 +178,45 @@ export function createConsoleInput(
     const total = matches.length;
     const counter = total > 0 ? ` ${matchCursor + 1}/${total}` : '';
     let statusLine: string;
-    if (query.length === 0) {
-      statusLine = `${DIM}(fuzzy-search) type to search history${RESET}`;
-    } else if (total === 0) {
+    if (total === 0 && query.length > 0) {
       statusLine = `${DIM}(fuzzy-search) ${BOLD}no matches${RESET}`;
     } else {
       statusLine = `${DIM}(fuzzy-search)${RESET} ${CYAN}${query}${RESET}${DIM}${counter}${RESET}`;
     }
+    // Erase the previous frame (list + status line + annotation). The
+    // cursor is on the prompt row, below the annotation: move up over
+    // every drawn row plus the status line, then clear down through all
+    // of it, then draw the new frame top-down.
     readline.cursorTo(process.stdout, 0);
-    readline.clearLine(process.stdout, 0);
-    process.stdout.write(`${statusLine}\n`);
+    if (drawnRows > 0) {
+      readline.moveCursor(process.stdout, 0, -(drawnRows + 1));
+      readline.clearScreenDown(process.stdout);
+    } else {
+      readline.clearLine(process.stdout, 0);
+    }
+    drawnRows = 0;
     const selection = currentSelection();
-    // The selection lands on the line for editing; when it carries
-    // metadata, a dim suffix under the status line says when and where it
-    // ran. Kept short: it must fit on one terminal row next to the query.
+    // The list: with a query, the fuzzy matches; with none, the most
+    // recent entries (recency order), so Ctrl+R alone shows the history
+    // and Up/Down pick from it, like the web console's popup.
+    if (matches.length > 0) {
+      const visible = Math.min(LIST_ROWS, matches.length);
+      // A window slides with the cursor so the selection stays in view.
+      const start = Math.max(
+        0,
+        Math.min(matchCursor - visible + 1, matches.length - visible)
+      );
+      const end = Math.min(start + visible, matches.length);
+      const history = getHistory();
+      for (let i = start; i < end; i++) {
+        const entry = history[matches[i]];
+        process.stdout.write(`${listRowText(entry, i === matchCursor)}\n`);
+        drawnRows++;
+      }
+    }
+    process.stdout.write(`${statusLine}\n`);
+    // The selection's age and environment, under the list (or under the
+    // status line when it is hidden). One row, dim.
     if (selection && (selection.ts !== undefined || selection.host)) {
       const parts: string[] = [];
       if (typeof selection.ts === 'number') {
@@ -182,6 +234,7 @@ export function createConsoleInput(
       if (selection.host) parts.push(selection.host);
       if (parts.length > 0) {
         process.stdout.write(`${DIM}${parts.join(' · ')}${RESET}\n`);
+        drawnRows++;
       }
     }
     hooks.setLine(selection?.text ?? query);
@@ -203,7 +256,17 @@ export function createConsoleInput(
     if (!active) return;
     active = false;
     decoder.end();
-    eraseStatusLine();
+    // Erase the whole frame: the list, the annotation, and the status
+    // line. The cursor is on the prompt row below the annotation.
+    if (drawnRows > 0) {
+      readline.cursorTo(process.stdout, 0);
+      readline.moveCursor(process.stdout, 0, -(drawnRows + 1));
+      readline.clearScreenDown(process.stdout);
+    } else {
+      readline.cursorTo(process.stdout, 0);
+      readline.clearLine(process.stdout, 0);
+    }
+    drawnRows = 0;
     if (restoreDraft && hooks) {
       hooks.setLine(savedDraft);
       hooks.refresh();
@@ -228,7 +291,15 @@ export function createConsoleInput(
     let i = 0;
     while (i < chunk.length) {
       if (!active) {
-        // Closed mid-chunk (Enter): the rest belongs to the REPL again.
+        // Closed mid-chunk (Enter): the rest belongs to the REPL again —
+        // except another Ctrl+R, which opens a fresh search instead of
+        // reaching readline (whose native reverse search would then fight
+        // this module's guard for every later keypress).
+        if (chunk[i] === CTRL_R) {
+          openSearch();
+          i++;
+          continue;
+        }
         for (let j = i; j < chunk.length; j++) passthrough.push(chunk[j]);
         break;
       }
@@ -249,7 +320,34 @@ export function createConsoleInput(
       } else if (byte === CTRL_R || byte === TAB) {
         nextMatch();
       } else if (byte === ESC) {
-        closeSearch(true);
+        // An arrow key arrives as ESC [ A/B: what the user means is
+        // navigation, not "cancel". Peek at the next bytes: a known
+        // arrow sequence moves the selection instead of closing.
+        const next = chunk[i + 1];
+        const after = chunk[i + 2];
+        if (next === 0x5b && (after === 0x41 || after === 0x42)) {
+          // Up (0x41) or Down (0x42): move through the list. The consumed
+          // arrow is 3 bytes; the loop's i++ then needs a +2 hop.
+          const previous = matchCursor;
+          matchCursor =
+            after === 0x41
+              ? Math.max(0, matchCursor - 1)
+              : Math.min(matches.length - 1, matchCursor + 1);
+          if (matchCursor !== previous) render();
+          i += 2;
+        } else if (next === 0x5b && after === 0x43) {
+          // Right (0x43): drop the selection on the line for editing, as
+          // the web console's popup does.
+          const selection = currentSelection();
+          if (selection !== null) {
+            closeSearch(false);
+            hooks?.setLine(selection.text);
+            hooks?.refresh();
+          }
+          i += 2;
+        } else {
+          closeSearch(true);
+        }
       } else if (byte === CTRL_C) {
         // Cancel without passing the interrupt byte to readline.
         closeSearch(true);
