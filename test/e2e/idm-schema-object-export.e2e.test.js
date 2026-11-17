@@ -33,7 +33,8 @@ describe('frodo idm schema object export', () => {
 
   test('"frodo idm schema object export -a": should export all managed objects into a single file', async () => {
     const CMD = `frodo idm schema object export -a`;
-    await testExport(CMD, env, type, undefined, undefined, false);
+    // the file name keeps the pattern of testExport off the .idm.json files of other tests in this directory
+    await testExport(CMD, env, type, 'managed.idm.json', undefined, false);
   });
 
   test('"frodo idm schema object export -a -D idmSchemaObjectExportDir1": should export all managed objects into a single file in idmSchemaObjectExportDir1', async () => {
