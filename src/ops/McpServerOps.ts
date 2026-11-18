@@ -3547,6 +3547,10 @@ function getInlineResultLimitBytes(result: unknown): number {
  * When this transport replaces the data of a result, the page that these fields describe is no longer in
  * the response: it sets `truncated` and `returned` itself, keeps `total` and drops the pointers that
  * lead past that page.
+ *
+ * The library does not export these names, so this list repeats them. A field that the library adds in
+ * front of `data` is not dropped here and would keep describing a page that was not delivered: the
+ * end-to-end test of the library's fields against the fake tenant is what catches that drift.
  */
 const LIST_COMPLETENESS_FIELDS = new Set([
   'truncated',
@@ -3558,11 +3562,51 @@ const LIST_COMPLETENESS_FIELDS = new Set([
 ]);
 
 /**
+ * The entries of `metadata.pagination` that lead to a page of the result that was not delivered once this
+ * transport has replaced the data: the continuation, the flag that more follow, and the library's warning
+ * that names the continuation.
+ */
+const PAGINATION_CONTINUATION_FIELDS = new Set([
+  'hasMore',
+  'nextPageOffset',
+  'nextPageToken',
+  'warning',
+]);
+
+/**
+ * Brings the `metadata.pagination` of the library in line with a result whose data was replaced: it holds no
+ * item (`returnedCount: 0`), it is cut (`isPartial: true`), and nothing leads to a next page. The other
+ * entries (the total and what the caller requested) stay.
+ * @param {unknown} pagination the `metadata.pagination` of the library result, when there is one
+ * @returns {unknown} the pagination to send in its place
+ */
+function describeReplacedPagination(pagination: unknown): unknown {
+  if (
+    !pagination ||
+    typeof pagination !== 'object' ||
+    Array.isArray(pagination)
+  ) {
+    return pagination;
+  }
+  return {
+    ...Object.fromEntries(
+      Object.entries(pagination).filter(
+        ([key]) => !PAGINATION_CONTINUATION_FIELDS.has(key)
+      )
+    ),
+    isPartial: true,
+    returnedCount: 0,
+  };
+}
+
+/**
  * Replaces oversized inline payloads with a summary/truncation envelope.
  *
  * The replacement says so in the first fields of the result as well, in front of `data`: `truncated: true`,
  * `returned: 0` (no item of `data` is in the response), the `total` that the library reported (when it
- * did) and a `warning` that names what to do. The text of `data` and `metadata.result` is unchanged.
+ * did) and a `warning` that names what to do. `metadata.pagination` agrees: nothing returned, partial, no
+ * pointer to a next page. The text of `data` and `metadata.result` is unchanged, and every other field of
+ * the result keeps its place.
  * @param {unknown} result the result of the library, larger than the inline limit
  * @param {number} payloadSizeBytes the size of the indented JSON text of the result
  * @param {number} inlineLimitBytes the limit that applied to this result
@@ -3587,38 +3631,53 @@ function buildTruncatedSuccessPayload(
     metadataObject.result && typeof metadataObject.result === 'object'
       ? (metadataObject.result as Record<string, unknown>)
       : {};
-  const notComplete = `Result is not complete: it is larger than the inline response limit of ${formatByteSize(inlineLimitBytes)} (this one is ${formatByteSize(payloadSizeBytes)}), so data was replaced and holds none of the result. On a list or search, ask for fewer items with pageSize and read on with pageOffset; otherwise narrow the request.`;
-  const otherFields = Object.fromEntries(
-    Object.entries(resultObject).filter(
-      ([key]) =>
-        key !== 'data' &&
-        key !== 'metadata' &&
-        !LIST_COMPLETENESS_FIELDS.has(key)
-    )
-  );
-
-  return {
-    ...otherFields,
+  const replacedMetadata = {
+    ...metadataObject,
+    ...('pagination' in metadataObject && {
+      pagination: describeReplacedPagination(metadataObject.pagination),
+    }),
+    result: {
+      ...existingResultMetadata,
+      payloadSizeBytes,
+      payloadSizeHuman: formatByteSize(payloadSizeBytes),
+      isLarge: true,
+      isTruncated: true,
+      warning,
+    },
+  };
+  // What the result says in front of its data, where the library puts its own fields.
+  const completeness = {
     truncated: true,
     returned: 0,
     ...('total' in resultObject && { total: resultObject.total }),
-    warning: notComplete,
+    warning: `Result is not complete: it is larger than the inline response limit of ${inlineLimitBytes} bytes (this one is ${payloadSizeBytes} bytes), so data was replaced and holds none of the result. Repeat the same request with a smaller pageSize; if a single item is too large, read it with a more specific read that names it by id; otherwise narrow the request.`,
     data: {
       _truncated: true,
       message: warning,
     },
-    metadata: {
-      ...metadataObject,
-      result: {
-        ...existingResultMetadata,
-        payloadSizeBytes,
-        payloadSizeHuman: formatByteSize(payloadSizeBytes),
-        isLarge: true,
-        isTruncated: true,
-        warning,
-      },
-    },
   };
+
+  // The fields of the library keep their order; the ones that described its page are replaced in front of data.
+  const replaced: Record<string, unknown> = {};
+  for (const [key, value] of Object.entries(resultObject)) {
+    if (LIST_COMPLETENESS_FIELDS.has(key)) {
+      continue;
+    }
+    if (key === 'data') {
+      Object.assign(replaced, completeness);
+    } else if (key === 'metadata') {
+      replaced.metadata = replacedMetadata;
+    } else {
+      replaced[key] = value;
+    }
+  }
+  if (!('data' in replaced)) {
+    Object.assign(replaced, completeness);
+  }
+  if (!('metadata' in replaced)) {
+    replaced.metadata = replacedMetadata;
+  }
+  return replaced;
 }
 
 /**

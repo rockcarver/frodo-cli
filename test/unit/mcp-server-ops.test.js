@@ -4765,6 +4765,9 @@ describe('buildErrorResult: the error of a tool that failed, and the advice of t
 describe('buildSuccessResult: the inline limit of the transport and what a replaced result says', () => {
   const INLINE_LIMIT_BYTES = 256 * 1024;
   const DISCOVERY_LIMIT_BYTES = 2 * 1024 * 1024;
+  /** The text of `data.message` and `metadata.result.warning` of a replaced result, which did not change. */
+  const REPLACEMENT_NOTE =
+    'Result exceeded the inline response limit. Narrow the request using scope, deps=false, paging, or a more specific read/export.';
   /** What the library puts in front of `data` when a list was cut at its own size budget. */
   const LIBRARY_FIELDS = {
     truncated: true,
@@ -4774,23 +4777,53 @@ describe('buildSuccessResult: the inline limit of the transport and what a repla
     warning:
       'Result is not complete: data holds 28 of 195 items; pass pageOffset: 28 to read on.',
   };
+  /** The metadata of that list as the library builds it: the pagination names the page, the result its size. */
+  const LIBRARY_METADATA = {
+    scope: { appliedRealm: '/' },
+    pagination: {
+      isPartial: true,
+      returnedCount: 28,
+      totalCount: 195,
+      requestedPageSize: 50,
+      requestedPageOffset: 0,
+      includeTotalRequested: false,
+      hasMore: true,
+      nextPageOffset: 28,
+      warning: LIBRARY_FIELDS.warning,
+    },
+    result: {
+      topLevelType: 'array',
+      payloadSizeBytes: 64429,
+      payloadSizeHuman: '62.9 KiB',
+      isLarge: false,
+      itemCount: 28,
+    },
+  };
 
   /**
    * A result whose indented JSON text is exactly `bytes` long, padded with ASCII in `data`.
    * @param {number} bytes the size of `JSON.stringify(result, null, 2)` in bytes
-   * @param {{fields?: object, toolName?: string, data?: object}} [options] top-level fields in front of
-   * `data`, the tool, and the fixed part of `data`
+   * @param {{fields?: object, toolName?: string, data?: object, metadata?: object, after?: object}} [options]
+   * top-level fields in front of `data`, the tool, the fixed part of `data`, the metadata, and the fields
+   * that come after the metadata (the library puts `itemResults` and `partial` there)
    */
   function resultOfSize(
     bytes,
-    { fields = {}, toolName = 'frodo_dispatch_read_only', data = {} } = {}
+    {
+      fields = {},
+      toolName = 'frodo_dispatch_read_only',
+      data = {},
+      metadata = { pagination: { isPartial: false, returnedCount: 3 } },
+      after = {},
+    } = {}
   ) {
     const make = (padding) => ({
       toolName,
       descriptorId: 'authn.journey.readJourneys',
       ...fields,
       data: { ...data, padding: 'x'.repeat(padding) },
-      metadata: { pagination: { isPartial: false, returnedCount: 3 } },
+      metadata,
+      ...after,
     });
     const fixed = Buffer.byteLength(JSON.stringify(make(0), null, 2));
     const result = make(bytes - fixed);
@@ -4846,17 +4879,164 @@ describe('buildSuccessResult: the inline limit of the transport and what a repla
 
       expect(parsed.data).toEqual({
         _truncated: true,
-        message: expect.stringContaining('inline response limit'),
+        message: REPLACEMENT_NOTE,
       });
-      expect(parsed.metadata.pagination).toEqual(result.metadata.pagination);
-      expect(parsed.metadata.result).toMatchObject({
+      expect(parsed.metadata.result).toEqual({
         payloadSizeBytes: INLINE_LIMIT_BYTES + 1,
         payloadSizeHuman: '256.0 KiB',
         isLarge: true,
         isTruncated: true,
+        warning: REPLACEMENT_NOTE,
       });
       expect(parsed.toolName).toBe('frodo_dispatch_read_only');
       expect(parsed.descriptorId).toBe('authn.journey.readJourneys');
+    });
+
+    test('keeps what the library put in metadata.result, and the rest of the metadata, and says the size of the result it replaced', () => {
+      const parsed = JSON.parse(
+        textOf(
+          resultOfSize(300 * 1024, {
+            fields: LIBRARY_FIELDS,
+            metadata: LIBRARY_METADATA,
+          })
+        )
+      );
+
+      expect(parsed.metadata.scope).toEqual({ appliedRealm: '/' });
+      expect(parsed.metadata.result).toEqual({
+        topLevelType: 'array',
+        payloadSizeBytes: 300 * 1024,
+        payloadSizeHuman: '300.0 KiB',
+        isLarge: true,
+        isTruncated: true,
+        itemCount: 28,
+        warning: REPLACEMENT_NOTE,
+      });
+      expect(Object.keys(parsed.metadata)).toEqual([
+        'scope',
+        'pagination',
+        'result',
+      ]);
+    });
+
+    test('says in metadata.pagination, as in front of data, that nothing was returned and that it is cut, and leads to no next page', () => {
+      const text = textOf(
+        resultOfSize(300 * 1024, {
+          fields: LIBRARY_FIELDS,
+          metadata: LIBRARY_METADATA,
+        })
+      );
+
+      const { pagination } = JSON.parse(text).metadata;
+
+      expect(pagination).toEqual({
+        isPartial: true,
+        returnedCount: 0,
+        totalCount: 195,
+        requestedPageSize: 50,
+        requestedPageOffset: 0,
+        includeTotalRequested: false,
+      });
+      expect(Object.keys(pagination).slice(0, 2)).toEqual([
+        'isPartial',
+        'returnedCount',
+      ]);
+      expect(text).not.toContain('pageOffset: 28');
+      expect(text).not.toContain('nextPageOffset');
+      expect(text).not.toContain('hasMore');
+    });
+
+    test('does the same for a result that the platform pages, whose continuation is a token', () => {
+      const pagedMetadata = {
+        pagination: {
+          isPartial: true,
+          returnedCount: 10,
+          requestedPageSize: 10,
+          hasMore: true,
+          warning:
+            'Result is not complete: data.result holds 10 items and more exist. Do not count or search only this page. Pass nextPageToken as pageToken to read on, or use a count capability for the exact total.',
+        },
+      };
+      const text = textOf(
+        resultOfSize(300 * 1024, {
+          fields: {
+            truncated: true,
+            returned: 10,
+            total: null,
+            nextPageToken: 'cookie-1',
+            warning: pagedMetadata.pagination.warning,
+          },
+          metadata: pagedMetadata,
+        })
+      );
+
+      const parsed = JSON.parse(text);
+
+      expect(parsed.metadata.pagination).toEqual({
+        isPartial: true,
+        returnedCount: 0,
+        requestedPageSize: 10,
+      });
+      expect(parsed).toMatchObject({
+        truncated: true,
+        returned: 0,
+        total: null,
+      });
+      expect(text).not.toContain('cookie-1');
+      expect(text).not.toContain('Pass nextPageToken');
+    });
+
+    test('adds no pagination to a result that had none, as the read of one object has none', () => {
+      const parsed = JSON.parse(
+        textOf(
+          resultOfSize(INLINE_LIMIT_BYTES + 1, {
+            metadata: { scope: { appliedRealm: '/' } },
+          })
+        )
+      );
+      const withoutMetadata = JSON.parse(
+        textOf({
+          toolName: 'frodo_dispatch_read_only',
+          data: 'x'.repeat(INLINE_LIMIT_BYTES),
+        })
+      );
+
+      expect(parsed.metadata).not.toHaveProperty('pagination');
+      expect(parsed.metadata.scope).toEqual({ appliedRealm: '/' });
+      expect(withoutMetadata.metadata).not.toHaveProperty('pagination');
+      expect(Object.keys(withoutMetadata.metadata)).toEqual(['result']);
+    });
+
+    test('keeps every other field of the result, with its value and after the data where the library put it', () => {
+      const itemResults = {
+        successes: 2,
+        failures: [{ id: 'agent-two', error: 'not found' }],
+      };
+
+      const parsed = JSON.parse(
+        textOf(
+          resultOfSize(INLINE_LIMIT_BYTES + 1, {
+            fields: LIBRARY_FIELDS,
+            metadata: LIBRARY_METADATA,
+            after: { itemResults, partial: true },
+          })
+        )
+      );
+
+      expect(Object.keys(parsed)).toEqual([
+        'toolName',
+        'descriptorId',
+        'truncated',
+        'returned',
+        'total',
+        'warning',
+        'data',
+        'metadata',
+        'itemResults',
+        'partial',
+      ]);
+      expect(parsed.itemResults).toEqual(itemResults);
+      expect(parsed.partial).toBe(true);
     });
 
     test('is judged by the indented text, not by the compact one', () => {
@@ -4890,7 +5070,9 @@ describe('buildSuccessResult: the inline limit of the transport and what a repla
       const parsed = JSON.parse(textOf(exceeds));
       expect(parsed.data._truncated).toBe(true);
       expect(parsed.metadata.result.payloadSizeHuman).toBe('2.0 MiB');
-      expect(parsed.warning).toContain('inline response limit of 2.0 MiB');
+      expect(parsed.warning).toContain(
+        'inline response limit of 2097152 bytes (this one is 2097153 bytes)'
+      );
     });
 
     test('says at the top level, in front of data, that it is not complete and that none of it is in the response', () => {
@@ -4924,6 +5106,11 @@ describe('buildSuccessResult: the inline limit of the transport and what a repla
       expect(parsed.truncated).toBe(true);
       expect(parsed.returned).toBe(0);
       expect(parsed.total).toBe(1000);
+      // metadata.pagination agrees with it, although the library had called the result complete
+      expect(parsed.metadata.pagination).toEqual({
+        isPartial: true,
+        returnedCount: 0,
+      });
     });
 
     test('keeps a total that the library could not know as null', () => {
@@ -4950,10 +5137,26 @@ describe('buildSuccessResult: the inline limit of the transport and what a repla
       expect(parsed).not.toHaveProperty('nextPageOffset');
       expect(parsed).not.toHaveProperty('nextPageToken');
       expect(parsed.warning).not.toContain('28 of 195');
-      expect(parsed.warning).toContain('inline response limit of 256.0 KiB');
-      expect(parsed.warning).toContain('(this one is 300.0 KiB)');
-      expect(parsed.warning).toContain('pageSize');
-      expect(parsed.warning).toContain('pageOffset');
+      expect(parsed.warning).not.toContain('pass pageOffset: 28');
+    });
+
+    test('says what to do: repeat the request with a smaller pageSize, read one large item more specifically, or narrow the request, and gives the exact sizes', () => {
+      const { warning } = JSON.parse(
+        textOf(resultOfSize(INLINE_LIMIT_BYTES + 1))
+      );
+
+      expect(warning).toContain(
+        'larger than the inline response limit of 262144 bytes (this one is 262145 bytes)'
+      );
+      expect(warning).toContain(
+        'Repeat the same request with a smaller pageSize'
+      );
+      expect(warning).toContain(
+        'if a single item is too large, read it with a more specific read that names it by id'
+      );
+      expect(warning).toContain('otherwise narrow the request');
+      expect(warning).not.toContain('KiB');
+      expect(warning).not.toContain('pageOffset');
     });
 
     test('puts the fields in the order of a result of the library: before data, after the tool and the descriptor', () => {
@@ -5013,6 +5216,15 @@ describe('MCP_SERVER_DISCOVERY_INSTRUCTIONS: what a client is told to do with a 
     expect(sentence).toContain('unless execution.truncated is true');
     expect(sentence).toContain('read on with pageOffset or pageToken');
     expect(sentence).toContain('count capability');
+  });
+
+  test('says as the library does that a cut execution is no answer to a question about counts or missing items, and not more', () => {
+    expect(MCP_SERVER_DISCOVERY_INSTRUCTIONS).toContain(
+      'do not answer a question about counts or missing items from it'
+    );
+    expect(MCP_SERVER_DISCOVERY_INSTRUCTIONS).not.toContain(
+      'do not answer from the first page'
+    );
   });
 
   test('says in general that a list or search result is complete only when truncated is not true', () => {
