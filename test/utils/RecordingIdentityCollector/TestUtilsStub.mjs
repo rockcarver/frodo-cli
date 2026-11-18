@@ -55,8 +55,9 @@ export const maskUserAgentVersions = (text) => text;
 export const normalizeStackPaths = (text) => text;
 export const removeExpiryNoise = (text) => text;
 export const removeRecordModeNoise = (text) => text;
-// The collector runs every test, skipped or not.
-export const testif = () => test;
+// The collector runs every test, skipped or not: a test whose condition is
+// false is test.skip, which unskip.cjs runs and marks as skipped.
+export const testif = (condition) => (condition ? test : test.skip);
 export const stageFixture = async (command, env) => {
   record('stageFixture', command, env);
 };

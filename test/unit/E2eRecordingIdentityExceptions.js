@@ -13,11 +13,18 @@
  * - NO_RECORDING: a command with no recording on disk. It has to be a skipped
  *   test, or a test that expects a failure before any request. A test that
  *   runs and needs a recording gets the recording, not an entry.
- * - RENAMED: a command that was renamed after it was recorded, so that its
- *   pin is the args id of the old command line. An entry is
- *   `{ file, cmd, was, pin, why }`, `cmd` the command as it is now and `was`
- *   the command it was recorded as. The pin is then checked against `was`.
- *   The step that renames the command adds the entry in the same pull request.
+ * - RENAMED: a command that was renamed after it was recorded, a flag or the
+ *   words before the first flag. An entry is `{ file, cmd, was, pin, why }`,
+ *   `cmd` the command as it is now and `was` the command it was recorded as.
+ *   The pin is checked against `was`, so a renamed flag keeps its pin. The
+ *   directory is the one of the command as it is now: a step that renames the
+ *   words moves the recording directory in the same pull request. The header
+ *   lines of the test file are read for both spellings, so they still need the
+ *   pin while they keep the old words. A rename of the words alone keeps the
+ *   args id; its entry is needed only for those header lines (or update them
+ *   to the new words). An entry for a command whose name did not change is
+ *   reported as stale. The step that renames the command adds the entry in the
+ *   same pull request.
  */
 export const LABELS = [
   {

@@ -7,6 +7,18 @@
 // FRODO_TEST_NAME of its env, to the JSON lines file named by COLLECT_OUT.
 // COLLECT_SNAPSHOTS and COLLECT_CACHE name scratch directories, so the run
 // writes nothing into the repository.
+//
+// To run it by hand, from the root of the repository, with a scratch directory
+// of your own as HOME (never your real one):
+//   HOME=<scratch>/home FRODO_MOCK=1 COLLECT_OUT=<scratch>/commands.jsonl \
+//   COLLECT_SNAPSHOTS=<scratch>/snapshots COLLECT_CACHE=<scratch>/cache \
+//   NODE_OPTIONS='--no-warnings --experimental-vm-modules' \
+//   node node_modules/jest/bin/jest.js --ci --silent --maxWorkers=4 --json \
+//   --outputFile=<scratch>/result.json \
+//   --config test/utils/RecordingIdentityCollector/jest.config.mjs \
+//   --runTestsByPath test/e2e/<file>.test.js ...
+// Then read <scratch>/commands.jsonl (one JSON object per command) and
+// <scratch>/result.json (what Jest reported).
 import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';

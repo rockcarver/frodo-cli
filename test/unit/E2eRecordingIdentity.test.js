@@ -370,6 +370,7 @@ describe('derivation', () => {
       'b/am': [file('other.har')],
       c: [dir('am')],
       'c/am': [],
+      d: [file('recording.har.bak'), file('old-recording.har')],
     };
     const read = (directory) => {
       if (!(directory in tree)) throw new Error(`ENOENT: ${directory}`);
@@ -385,6 +386,10 @@ describe('derivation', () => {
       expect(hasRecording('b', read)).toBe(false);
       expect(hasRecording('c', read)).toBe(false);
       expect(hasRecording('missing', read)).toBe(false);
+    });
+
+    it('is false for a directory whose files only look like recording.har', () => {
+      expect(hasRecording('d', read)).toBe(false);
     });
   });
 
@@ -581,6 +586,19 @@ describe('derivation', () => {
         expect(all(done)).toEqual([]);
       });
 
+      it('accepts an entry for a rename of the words alone: it is not stale', () => {
+        const was = 'frodo config-manager pull oauth2-agents -D d';
+        const cmd = 'frodo config-manager pull agents -D d';
+        const done = findPinProblems(
+          [row(cmd, '0_D')],
+          context({
+            renamed: [{ file: FILE, cmd, was, pin: '0_D', why: 'x' }],
+            recordingExists: only(newDirectory),
+          })
+        );
+        expect(all(done)).toEqual([]);
+      });
+
       it('needs no entry when the id is unchanged, and looks under the new words', () => {
         const cmd = 'frodo config-manager pull agents -D d';
         const moved = findPinProblems(
@@ -769,26 +787,22 @@ describe('derivation', () => {
       });
     });
 
-    it('reads the record lines of service import and iga workflow delete too', () => {
-      const other = [
-        { cmd: 'frodo service import -f x', pin: '0_f' },
-        { cmd: 'frodo iga workflow delete -di x', pin: '0_di' },
-      ];
-      const without = [
-        record('frodo service import -f x'),
-        record('frodo iga workflow delete -di x'),
-      ].join('\n');
-      expect(findHeaderProblems(without, other).map((p) => p.advice)).toEqual([
-        'the record line has no FRODO_TEST_NAME=0_f',
-        'the record line has no FRODO_TEST_NAME=0_di',
-      ]);
-      const wrong = record('FRODO_TEST_NAME=0_x frodo service import -f x');
-      expect(findHeaderProblems(wrong, other)).toHaveLength(1);
-      const right = [
-        record('FRODO_TEST_NAME=0_f frodo service import -f x'),
-        record('FRODO_TEST_NAME=0_di frodo iga workflow delete -di x'),
-      ].join('\n');
-      expect(findHeaderProblems(right, other)).toEqual([]);
+    it.each([
+      ['config-manager', 'frodo config-manager pull cors -D d', '0_D'],
+      ['config import', 'frodo config import -AD x --no-validate', '0_AD'],
+      ['service import', 'frodo service import -f x', '0_f'],
+      ['iga workflow delete', 'frodo iga workflow delete -di x', '0_di'],
+    ])('reads the record lines of %s', (_family, command, pin) => {
+      const one = [{ cmd: command, pin }];
+      expect(
+        findHeaderProblems(record(command), one).map((p) => p.advice)
+      ).toEqual([`the record line has no FRODO_TEST_NAME=${pin}`]);
+      expect(
+        findHeaderProblems(record(`FRODO_TEST_NAME=0_x ${command}`), one)
+      ).toHaveLength(1);
+      expect(
+        findHeaderProblems(record(`FRODO_TEST_NAME=${pin} ${command}`), one)
+      ).toEqual([]);
     });
 
     it('leaves lines alone that no test runs or that are not a recording of a pinned command', () => {
@@ -1081,6 +1095,33 @@ describe('checkPins on a synthetic tree', () => {
         expect(all(run(exists(newDirectory)))).toEqual([]);
       });
 
+      it('reads the header lines of a rename of the words alone, in the old words and in the new ones', () => {
+        const words = [
+          {
+            file: FILE,
+            cmd: 'frodo config-manager pull agents -D d',
+            was: oldWords,
+            pin: '0_D',
+            why: 'x',
+          },
+        ];
+        const run = (line) =>
+          checkPins(
+            tree({
+              renamed: words,
+              collected: [ran('frodo config-manager pull agents -D d', '0_D')],
+              headers: { [FILE]: line },
+              recordingExists: exists(newDirectory),
+            })
+          );
+        expect(all(run(record(`FRODO_TEST_NAME=0_D ${oldWords}`)))).toEqual([]);
+        expect(run(record(oldWords)).headers).toHaveLength(1);
+        expect(run(record(oldWords)).pins).toEqual([]);
+        expect(
+          run(record('frodo config-manager pull agents -D d')).headers
+        ).toHaveLength(1);
+      });
+
       it('reads the header line in the old words and flags, and in the new ones', () => {
         const run = (line) =>
           checkPins(
@@ -1124,6 +1165,14 @@ describe('checkPins on a synthetic tree', () => {
         /no text for config-manager-pull-cors/
       );
     });
+  });
+});
+
+describe('the stub of the collector', () => {
+  it('runs a testif test whose condition is false as test.skip, so that its commands are marked skipped', async () => {
+    const { testif } = await import(path.join(COLLECTOR, 'TestUtilsStub.mjs'));
+    expect(testif(true)).toBe(globalThis.test);
+    expect(testif(false)).toBe(globalThis.test.skip);
   });
 });
 

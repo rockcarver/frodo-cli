@@ -430,11 +430,15 @@ export function findPinProblems(
     if (rename) used.RENAMED.add(rename);
 
     let expected;
-    let current;
+    let namedAsRecorded = false;
     let directory;
     try {
       expected = deriveArgsId(rename ? rename.was : row.cmd);
-      current = deriveArgsId(row.cmd);
+      // The words before the first flag are part of the recording's name: a
+      // command whose words changed was renamed even when its id did not.
+      namedAsRecorded =
+        !!rename &&
+        deriveRecordingName(row.cmd) === deriveRecordingName(rename.was);
       directory = guidForRecording(deriveRecordingName(row.cmd, row.pin));
     } catch (error) {
       problems.pins.push(problemLine(row, '?', error.message));
@@ -460,7 +464,7 @@ export function findPinProblems(
             'the pin is not the args id of the command as it was recorded (was): fix the pin, or the was of its RENAMED entry'
           )
         );
-      } else if (current === row.pin) {
+      } else if (namedAsRecorded) {
         problems.pins.push(
           problemLine(
             row,
@@ -708,7 +712,7 @@ export function findCollectionProblems(inputs) {
   }
   if (commands.length < floor.commands) {
     problems.push(
-      `only ${commands.length} commands were collected, fewer than ${floor.commands}: the collector no longer sees every test; read the other lines of this failure, run the collector by hand (see test/utils/RecordingIdentityCollector/jest.config.mjs), and lower the floor only for a reason a reviewer can read`
+      `only ${commands.length} commands were collected, fewer than ${floor.commands}: the collector no longer sees every test; read the other lines of this failure, run the collector by hand (the command is in the header of test/utils/RecordingIdentityCollector/jest.config.mjs), and lower the floor only for a reason a reviewer can read`
     );
   }
   for (const name of heritageFiles) {
