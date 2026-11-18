@@ -5159,6 +5159,51 @@ describe('buildSuccessResult: the inline limit of the transport and what a repla
       expect(warning).not.toContain('pageOffset');
     });
 
+    test('asks for a smaller limit when the tool is frodo_find_skills, and does not mention pageSize', () => {
+      const { warning } = JSON.parse(
+        textOf(
+          resultOfSize(INLINE_LIMIT_BYTES + 1, {
+            toolName: 'frodo_find_skills',
+            metadata: {},
+          })
+        )
+      );
+
+      expect(warning).toContain(
+        'Repeat the same request with a smaller limit; otherwise narrow the request.'
+      );
+      expect(warning).not.toContain('pageSize');
+      expect(warning).not.toContain('single item');
+    });
+
+    test('only says to narrow the request when the result is not a list or search and has no argument to ask for fewer items', () => {
+      const read = JSON.parse(
+        textOf(
+          resultOfSize(INLINE_LIMIT_BYTES + 1, {
+            metadata: { scope: { appliedRealm: '/' } },
+          })
+        )
+      );
+      const discovery = JSON.parse(
+        textOf(
+          resultOfSize(DISCOVERY_LIMIT_BYTES + 1, {
+            toolName: 'frodo_discover',
+            data: { operationDetailsByType: {} },
+            metadata: {},
+          })
+        )
+      );
+
+      for (const { warning } of [read, discovery]) {
+        expect(warning).toMatch(
+          /holds none of the result\. Narrow the request\.$/
+        );
+        expect(warning).not.toContain('pageSize');
+        expect(warning).not.toContain('limit;');
+        expect(warning).not.toContain('single item');
+      }
+    });
+
     test('puts the fields in the order of a result of the library: before data, after the tool and the descriptor', () => {
       const parsed = JSON.parse(
         textOf(

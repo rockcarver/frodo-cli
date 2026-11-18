@@ -1029,8 +1029,11 @@ group is experimental): the result of a list or search now has `truncated`,
 `returned` and `total` in front of `data`, and `nextPageOffset` or
 `nextPageToken` and `warning` when `truncated` is `true`. `data` is unchanged, so
 a client that ignores the new fields keeps working; a client that reads them can
-tell a cut list from a complete one. These fields come from frodo-lib: they
-appear with the library release that includes
+tell a cut list from a complete one. A capability that cannot tell whether it
+stopped at a limit of its own (a log search that removes duplicate events
+afterwards) gives `returned` and a `warning` but no `truncated` and no `total`;
+that is not a complete result, so read the `warning`. These fields come from
+frodo-lib: they appear with the library release that includes
 [frodo-lib#1117](https://github.com/rockcarver/frodo-lib/pull/1117), so a CLI
 release must pin that library first. A result larger than the inline limit of the
 server (256 KiB of indented JSON, 2 MiB for the catalog detail of

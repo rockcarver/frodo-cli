@@ -3600,6 +3600,29 @@ function describeReplacedPagination(pagination: unknown): unknown {
 }
 
 /**
+ * What to do next with a result that was replaced, in the words of the tool that produced it: the argument
+ * that asks for fewer items is `pageSize` on a list or search read (the library reports `metadata.pagination`
+ * for those and for no other result), `limit` for `frodo_find_skills`, and none for any other result.
+ * @param {Record<string, unknown>} resultObject the result of the library
+ * @param {Record<string, unknown>} metadataObject its `metadata`
+ * @returns {string} the advice, one or two sentences
+ */
+function describeWhatToDoAfterReplacement(
+  resultObject: Record<string, unknown>,
+  metadataObject: Record<string, unknown>
+): string {
+  if (resultObject.toolName === 'frodo_find_skills') {
+    return 'Repeat the same request with a smaller limit; otherwise narrow the request.';
+  }
+  const isListOrSearch =
+    typeof metadataObject.pagination === 'object' &&
+    metadataObject.pagination !== null;
+  return isListOrSearch
+    ? 'Repeat the same request with a smaller pageSize; if a single item is too large, read it with a more specific read that names it by id; otherwise narrow the request.'
+    : 'Narrow the request.';
+}
+
+/**
  * Replaces oversized inline payloads with a summary/truncation envelope.
  *
  * The replacement says so in the first fields of the result as well, in front of `data`: `truncated: true`,
@@ -3650,7 +3673,7 @@ function buildTruncatedSuccessPayload(
     truncated: true,
     returned: 0,
     ...('total' in resultObject && { total: resultObject.total }),
-    warning: `Result is not complete: it is larger than the inline response limit of ${inlineLimitBytes} bytes (this one is ${payloadSizeBytes} bytes), so data was replaced and holds none of the result. Repeat the same request with a smaller pageSize; if a single item is too large, read it with a more specific read that names it by id; otherwise narrow the request.`,
+    warning: `Result is not complete: it is larger than the inline response limit of ${inlineLimitBytes} bytes (this one is ${payloadSizeBytes} bytes), so data was replaced and holds none of the result. ${describeWhatToDoAfterReplacement(resultObject, metadataObject)}`,
     data: {
       _truncated: true,
       message: warning,

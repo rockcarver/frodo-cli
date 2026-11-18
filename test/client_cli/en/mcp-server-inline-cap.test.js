@@ -43,8 +43,9 @@ const agent = (id, padding) => ({
  * Starts the fake tenant and a real server against it, runs `body` with the connected client and stops both.
  * @param {object[]} aiAgents the AI agents of the fake tenant
  * @param {(connected: Client) => Promise<void>} body what to do with the server
+ * @param {string} [policy] the policy of the server (`--policy`)
  */
-async function withServer(aiAgents, body) {
+async function withServer(aiAgents, body, policy = 'read-only') {
   fakeAm = await startFakeAm({
     recordPath: path.join(testDirectory, 'requests.jsonl'),
     journey: 'password',
@@ -68,7 +69,7 @@ async function withServer(aiAgents, body) {
       '--type',
       'classic',
       '--policy',
-      'read-only',
+      policy,
       '--profile',
       'all',
     ],
@@ -174,9 +175,11 @@ test('the inline limit is exact on the real path: a result of 262144 bytes passe
       expect(overResult.warning).toContain(
         'larger than the inline response limit of 262144 bytes (this one is 262145 bytes)'
       );
-      expect(overResult.warning).toContain(
-        'Repeat the same request with a smaller pageSize'
+      // a read of one object has no pageSize to ask for fewer items with
+      expect(overResult.warning).toMatch(
+        /holds none of the result\. Narrow the request\.$/
       );
+      expect(overResult.warning).not.toContain('pageSize');
       expect(keys.slice(0, 5)).toEqual([
         'toolName',
         'descriptorId',
@@ -218,7 +221,46 @@ test('a list whose first item alone is too large is replaced, and nothing in it 
       expect(result.metadata.pagination).not.toHaveProperty('nextPageOffset');
       expect(result.metadata.pagination).not.toHaveProperty('warning');
       expect(text).not.toContain('Pass pageOffset');
+      expect(result.warning).toContain(
+        'Repeat the same request with a smaller pageSize; if a single item is too large, read it with a more specific read that names it by id; otherwise narrow the request.'
+      );
     }
+  );
+}, 180000);
+
+test('the result of frodo_find_skills is replaced too, and asks for a smaller limit, not a smaller pageSize', async () => {
+  await withServer(
+    [agent(SMALL_ID, 10)],
+    async (c) => {
+      // the limit of the call is not bounded: the whole catalog of an admin server is more than the inline limit
+      const answer = await c.callTool({
+        name: 'frodo_find_skills',
+        arguments: { limit: 100000, executeRecommended: false },
+      });
+      expect(answer.isError).not.toBe(true);
+      const text = answer.content[0].text;
+
+      expect(Buffer.byteLength(text)).toBeLessThan(4096);
+      const result = JSON.parse(text);
+      const keys = Object.keys(result);
+      expect(result).toMatchObject({
+        toolName: 'frodo_find_skills',
+        truncated: true,
+        returned: 0,
+        data: { _truncated: true },
+      });
+      expect(keys.indexOf('truncated')).toBeLessThan(keys.indexOf('returned'));
+      expect(keys.indexOf('warning')).toBeLessThan(keys.indexOf('data'));
+      expect(result.metadata.result.isTruncated).toBe(true);
+      expect(result.metadata.result.payloadSizeBytes).toBeGreaterThan(
+        INLINE_LIMIT_BYTES
+      );
+      expect(result.warning).toContain(
+        'Repeat the same request with a smaller limit; otherwise narrow the request.'
+      );
+      expect(result.warning).not.toContain('pageSize');
+    },
+    'admin'
   );
 }, 180000);
 
