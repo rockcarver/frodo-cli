@@ -125,6 +125,8 @@ const {
   verifyMcpBearerAuthorization,
   verifyMcpOAuthBearerToken,
 } = await import('../../src/ops/McpServerOps.ts');
+const { MCP_SERVER_DISCOVERY_INSTRUCTIONS } =
+  await import('../../src/ops/McpServerMetadata.ts');
 
 describe('resolveFrodoForMcpRequest', () => {
   test('uses the singleton facade to resolve a different request realm', async () => {
@@ -4993,5 +4995,29 @@ describe('buildSuccessResult: the inline limit of the transport and what a repla
         data: { _truncated: true },
       });
     });
+  });
+});
+
+describe('MCP_SERVER_DISCOVERY_INSTRUCTIONS: what a client is told to do with a result that was cut', () => {
+  test('no longer tells a client to answer from the executed recommendation whatever it holds', () => {
+    expect(MCP_SERVER_DISCOVERY_INSTRUCTIONS).not.toContain(
+      'answer from execution.data and make no further discovery calls'
+    );
+  });
+
+  test('says to answer from execution.data unless execution.truncated is true, and what to do then', () => {
+    const sentence = MCP_SERVER_DISCOVERY_INSTRUCTIONS.split('. ').find(
+      (candidate) => candidate.includes('when execution is returned')
+    );
+
+    expect(sentence).toContain('unless execution.truncated is true');
+    expect(sentence).toContain('read on with pageOffset or pageToken');
+    expect(sentence).toContain('count capability');
+  });
+
+  test('says in general that a list or search result is complete only when truncated is not true', () => {
+    expect(MCP_SERVER_DISCOVERY_INSTRUCTIONS).toContain(
+      'A list or search result says whether it is complete (truncated, returned, total): when truncated is true, read on with pageOffset or pageToken or use a count capability'
+    );
   });
 });
