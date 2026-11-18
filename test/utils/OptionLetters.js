@@ -92,7 +92,7 @@ function entryProblems(name, entries, fields) {
 }
 
 /** One meaning per letter, and the shared letters mean one thing everywhere. */
-function checkLetters(groupLeaves, sameMeaning, problems) {
+function checkLetters(groupLeaves, sameMeaning, problems, checked) {
   for (const leaf of groupLeaves) {
     for (const option of leaf.options) {
       const shared = SHARED_LETTERS[option.short];
@@ -122,6 +122,7 @@ function checkLetters(groupLeaves, sameMeaning, problems) {
       `${letter} :: ${names.length} meanings: ${meanings} :: give the options one letter each; if they are one meaning under two names, add a SAME_MEANING entry { letter, longs, why, until }`
     );
   }
+  checked.sameMeaning = usedEntries.size;
   problems.entries.push(
     ...entryProblems('SAME_MEANING', sameMeaning, ['why', 'until'])
   );
@@ -134,11 +135,23 @@ function checkLetters(groupLeaves, sameMeaning, problems) {
   }
 }
 
-/** Every row of the expected short forms is what the command declares. */
-function checkShortForms(leaves, expected, problems) {
+/**
+ * Every row of the expected short forms is what the command declares, and no
+ * row stands twice. `rows` counts the different rows (command and option),
+ * `rowsMatched` those whose command, option and letter the tree has.
+ */
+function checkShortForms(leaves, expected, problems, checked) {
   const byName = new Map(leaves.map((leaf) => [leaf.name, leaf]));
+  const seen = new Set();
+  const matched = new Set();
   for (const row of expected) {
     const where = `${row.command} :: ${row.long}`;
+    if (seen.has(where)) {
+      problems.shortForms.push(
+        `${where} :: this row stands twice in the expected short forms: one row for each option`
+      );
+    }
+    seen.add(where);
     const leaf = byName.get(row.command);
     if (!leaf) {
       problems.shortForms.push(`${where} :: the command does not exist`);
@@ -153,14 +166,20 @@ function checkShortForms(leaves, expected, problems) {
           ? `${where} :: has the short form ${option.short}, where none is expected (a long form only)`
           : `${where} :: has ${option.short ?? 'no short form'}, expected ${row.short}`
       );
+    } else {
+      matched.add(where);
     }
   }
+  checked.rows = seen.size;
+  checked.rowsMatched = matched.size;
 }
 
 /** `-d, --dry-run` on every command of the group that has a dry run. */
-function checkDryRun(groupLeaves, problems) {
+function checkDryRun(groupLeaves, problems, checked) {
+  checked.dryRunLeaves = 0;
   for (const leaf of groupLeaves) {
     const option = leaf.options.find((o) => o.long === '--dry-run');
+    if (option) checked.dryRunLeaves += 1;
     if (option && option.short !== '-d') {
       problems.dryRun.push(
         `${leaf.name} :: --dry-run has ${option.short ?? 'no short form'}, expected -d`
@@ -170,7 +189,13 @@ function checkDryRun(groupLeaves, problems) {
 }
 
 /** A heritage command takes a letter of the group for another option only with a reason. */
-function checkHeritage(groupLeaves, heritageLeaves, overlaps, problems) {
+function checkHeritage(
+  groupLeaves,
+  heritageLeaves,
+  overlaps,
+  problems,
+  checked
+) {
   const letters = lettersOf(groupLeaves);
   const used = new Map();
   for (const leaf of heritageLeaves) {
@@ -196,6 +221,7 @@ function checkHeritage(groupLeaves, heritageLeaves, overlaps, problems) {
       );
     }
   }
+  checked.heritageOverlaps = used.size;
   problems.entries.push(
     ...entryProblems('HERITAGE_OVERLAPS', overlaps, ['why'])
   );
@@ -211,8 +237,9 @@ function checkHeritage(groupLeaves, heritageLeaves, overlaps, problems) {
 }
 
 /** A description names only the letters that its command declares. */
-function checkDescriptions(leaves, allowed, problems) {
+function checkDescriptions(leaves, allowed, problems, checked) {
   const usedAllowed = new Set();
+  checked.descriptionLeaves = leaves.length;
   for (const leaf of leaves) {
     const declared = new Set([
       ...Object.keys(SHARED_LETTERS),
@@ -241,6 +268,7 @@ function checkDescriptions(leaves, allowed, problems) {
       }
     }
   }
+  checked.descriptionLetters = usedAllowed.size;
   problems.entries.push(
     ...entryProblems('DESCRIPTION_LETTERS', allowed, ['why'])
   );
@@ -253,12 +281,21 @@ function checkDescriptions(leaves, allowed, problems) {
   }
 }
 
-/** MIGRATION.md lists every removed spelling, and the dry runs that got `-d`. */
-function checkMigration(text, expected, problems) {
+/**
+ * MIGRATION.md lists every removed spelling on a line of its own, with its
+ * command, and announces the dry runs that got `-d` in the paragraph that holds
+ * `-d, --dry-run` (a command that is named in another entry does not count).
+ */
+function checkMigration(text, expected, problems, checked) {
   const lines = text.split('\n');
-  const flat = text.replace(/\s+/g, ' ');
+  const announcements = text
+    .split(/\n\s*\n/)
+    .filter((paragraph) => paragraph.includes('`-d, --dry-run`'))
+    .map((paragraph) => paragraph.replace(/\s+/g, ' '));
   const commandWords = (command) =>
     command.replace(/^frodo (?:config-manager )?/, '');
+  checked.spellings = 0;
+  checked.dryRunAdded = 0;
   for (const row of expected) {
     const words = commandWords(row.command);
     if (row.was) {
@@ -266,15 +303,20 @@ function checkMigration(text, expected, problems) {
       const found = lines.some(
         (line) => line.includes(spelling) && line.includes(`\`${words}\``)
       );
-      if (!found) {
+      if (found) checked.spellings += 1;
+      else {
         problems.migration.push(
           `${row.command} :: ${row.long} :: MIGRATION.md has no line with ${spelling} and \`${words}\` for the spelling that was removed`
         );
       }
     } else if (row.short === '-d') {
-      if (!flat.includes('`-d, --dry-run`') || !flat.includes(`\`${words}\``)) {
+      if (
+        announcements.some((paragraph) => paragraph.includes(`\`${words}\``))
+      ) {
+        checked.dryRunAdded += 1;
+      } else {
         problems.migration.push(
-          `${row.command} :: --dry-run :: MIGRATION.md does not say that \`-d, --dry-run\` is new on \`${words}\``
+          `${row.command} :: --dry-run :: the paragraph of MIGRATION.md that holds \`-d, --dry-run\` does not name \`${words}\`: say that \`-d\` is new on it`
         );
       }
     }
@@ -282,15 +324,51 @@ function checkMigration(text, expected, problems) {
 }
 
 /**
+ * The inputs of `findLetterProblems`, all of them required: a call that loses
+ * one must fail, not run a check on nothing. The lists may be empty (a letter
+ * can lose its last `SAME_MEANING` entry), except `expected` and `migration`,
+ * which are what the check compares the commands with.
+ */
+function requireInputs(input) {
+  const lists = [
+    'groupLeaves',
+    'heritageLeaves',
+    'sameMeaning',
+    'heritageOverlaps',
+    'descriptionLetters',
+  ];
+  for (const name of lists) {
+    if (!Array.isArray(input[name])) {
+      throw new TypeError(
+        `findLetterProblems: the input "${name}" is missing: pass the list (it may be empty)`
+      );
+    }
+  }
+  if (!Array.isArray(input.expected) || input.expected.length === 0) {
+    throw new TypeError(
+      'findLetterProblems: the input "expected" is missing or empty: the rows of the short forms are what the commands are compared with'
+    );
+  }
+  if (typeof input.migration !== 'string' || input.migration.trim() === '') {
+    throw new TypeError(
+      'findLetterProblems: the input "migration" is missing or empty: pass the text of MIGRATION.md'
+    );
+  }
+}
+
+/**
  * The checks of the option letters. Pure: the caller reads the command tree and
- * MIGRATION.md.
+ * MIGRATION.md. Every input is required (see `requireInputs`), and the result
+ * says how much each input made the check look at, so that a call that passes
+ * a list the check cannot use is noticed (`checked`).
  *
  * - `letters`: one meaning per letter among the leaves of the group, and the
  *   shared letters mean one thing everywhere; a letter that has two long names
  *   needs a `sameMeaning` entry `{ letter, longs, why, until }` (the names are
  *   one meaning, `until` says when the entry goes);
  * - `shortForms`: every row `{ command, long, short, was }` of `expected` is
- *   what the command declares (`short` null: a long form only);
+ *   what the command declares (`short` null: a long form only), and no row
+ *   stands twice;
  * - `dryRun`: `--dry-run` has `-d` on every leaf of the group;
  * - `heritage`: a heritage leaf that takes a letter of the group for an option
  *   with another long name needs a `heritageOverlaps` entry `{ letter, longs,
@@ -298,8 +376,9 @@ function checkMigration(text, expected, problems) {
  * - `descriptions`: a description names only letters its command declares,
  *   unless a `descriptionLetters` entry `{ command, letter, why }` says it is
  *   not an option;
- * - `migration`: when `migration` (the text of MIGRATION.md) is given, it lists
- *   each removed spelling (`was`) with its command and long name;
+ * - `migration`: the text of MIGRATION.md lists each removed spelling (`was`)
+ *   with its command and long name, and names each command that got `-d` in
+ *   the paragraph that holds `-d, --dry-run`;
  * - `entries`: every entry has its reasons and is still needed.
  * @param {object} input the data of the checks
  * @param {object[]} input.groupLeaves the leaves of the group
@@ -309,19 +388,27 @@ function checkMigration(text, expected, problems) {
  * @param {object[]} input.expected rows of the short forms the record decided
  * @param {object[]} input.heritageOverlaps entries of the heritage letters
  * @param {object[]} input.descriptionLetters entries of letters in a text
- * @param {string} [input.migration] the text of MIGRATION.md
- * @returns {Object<string, string[]>} one line per problem, by check; all
- * empty when all is well
+ * @param {string} input.migration the text of MIGRATION.md
+ * @returns {{problems: Object<string, string[]>, checked: Object<string, number>}}
+ * `problems`: one line per problem, by check, all empty when all is well;
+ * `checked`: what the check looked at (`groupLeaves`, `heritageLeaves`,
+ * `rows` of the expected short forms, `sameMeaning` entries used, `dryRunLeaves`,
+ * `heritageOverlaps` names used, `descriptionLeaves` read, `descriptionLetters`
+ * entries used, `spellings` found in MIGRATION.md and `dryRunAdded` announced)
+ * @throws {TypeError} when an input is missing, or `expected` or `migration`
+ * is empty
  */
-export function findLetterProblems({
-  groupLeaves,
-  heritageLeaves,
-  sameMeaning,
-  expected,
-  heritageOverlaps,
-  descriptionLetters,
-  migration,
-}) {
+export function findLetterProblems(input) {
+  requireInputs(input);
+  const {
+    groupLeaves,
+    heritageLeaves,
+    sameMeaning,
+    expected,
+    heritageOverlaps,
+    descriptionLetters,
+    migration,
+  } = input;
   const problems = {
     letters: [],
     shortForms: [],
@@ -331,18 +418,32 @@ export function findLetterProblems({
     migration: [],
     entries: [],
   };
-  checkLetters(groupLeaves, sameMeaning, problems);
-  checkShortForms([...groupLeaves, ...heritageLeaves], expected, problems);
-  checkDryRun(groupLeaves, problems);
-  checkHeritage(groupLeaves, heritageLeaves, heritageOverlaps, problems);
+  const checked = {
+    groupLeaves: groupLeaves.length,
+    heritageLeaves: heritageLeaves.length,
+  };
+  checkLetters(groupLeaves, sameMeaning, problems, checked);
+  checkShortForms(
+    [...groupLeaves, ...heritageLeaves],
+    expected,
+    problems,
+    checked
+  );
+  checkDryRun(groupLeaves, problems, checked);
+  checkHeritage(
+    groupLeaves,
+    heritageLeaves,
+    heritageOverlaps,
+    problems,
+    checked
+  );
   const named = new Set(expected.map((row) => row.command));
   checkDescriptions(
     [...groupLeaves, ...heritageLeaves.filter((leaf) => named.has(leaf.name))],
     descriptionLetters,
-    problems
+    problems,
+    checked
   );
-  if (typeof migration === 'string') {
-    checkMigration(migration, expected, problems);
-  }
-  return problems;
+  checkMigration(migration, expected, problems, checked);
+  return { problems, checked };
 }

@@ -47,16 +47,37 @@ function leaf(name, options, description = '') {
   };
 }
 
-const NONE = {
-  groupLeaves: [],
-  heritageLeaves: [],
-  sameMeaning: [],
-  expected: [],
-  heritageOverlaps: [],
-  descriptionLetters: [],
+// The check refuses an empty `expected` and an empty `migration`, so a case
+// that is not about them carries one row about a command of its own and one
+// line of text.
+const PLACEHOLDER = {
+  leaf: leaf('frodo config-manager pull placeholder', [
+    [null, '--placeholder'],
+  ]),
+  row: {
+    command: 'frodo config-manager pull placeholder',
+    long: '--placeholder',
+    short: null,
+    was: null,
+  },
+  migration: 'a text',
 };
 
-const find = (input) => findLetterProblems({ ...NONE, ...input });
+/** The check on hand-built commands: `{ problems, checked }`. */
+const run = (input) =>
+  findLetterProblems({
+    groupLeaves: [],
+    heritageLeaves: [],
+    sameMeaning: [],
+    heritageOverlaps: [],
+    descriptionLetters: [],
+    ...input,
+    // after the input, so that the placeholders are always there
+    expected: [...(input.expected ?? []), PLACEHOLDER.row],
+    groupLeaves: [...(input.groupLeaves ?? []), PLACEHOLDER.leaf],
+    migration: input.migration ?? PLACEHOLDER.migration,
+  });
+const find = (input) => run(input).problems;
 const all = (problems) => Object.values(problems).flat();
 
 describe('isGroupLeaf', () => {
@@ -309,6 +330,48 @@ describe('findLetterProblems on hand-built commands', () => {
     });
   });
 
+  describe('the expected rows', () => {
+    const groupLeaves = [
+      leaf('frodo config-manager pull a', [
+        ['-I', '--ignore-encrypted-secrets'],
+        [null, '--clean'],
+      ]),
+    ];
+    const row = (changes) => ({
+      command: 'frodo config-manager pull a',
+      long: '--ignore-encrypted-secrets',
+      short: '-I',
+      was: '-i',
+      ...changes,
+    });
+
+    it('fails a row that stands twice, and counts it once', () => {
+      const { problems, checked } = run({
+        groupLeaves,
+        expected: [row(), row()],
+      });
+
+      expect(problems.shortForms).toEqual([
+        'frodo config-manager pull a :: --ignore-encrypted-secrets :: this row stands twice in the expected short forms: one row for each option',
+      ]);
+      // the placeholder row is the second row
+      expect(checked.rows).toBe(2);
+    });
+
+    it('counts the rows that the commands match by command, option and letter', () => {
+      const { problems, checked } = run({
+        groupLeaves,
+        expected: [row(), row({ long: '--clean', short: null, was: '-c' })],
+      });
+
+      expect(problems.shortForms).toEqual([]);
+      expect(checked).toMatchObject({ rows: 3, rowsMatched: 3 });
+      expect(
+        run({ groupLeaves, expected: [row({ short: '-i' })] }).checked
+      ).toMatchObject({ rows: 2, rowsMatched: 1 });
+    });
+  });
+
   describe('the dry run', () => {
     it('fails a --dry-run without -d on a command of the group', () => {
       const { dryRun } = find({
@@ -449,6 +512,24 @@ describe('findLetterProblems on hand-built commands', () => {
       expect(descriptions[0]).toContain('the description of --list names -r');
     });
 
+    it('reads an uppercase letter as a letter too (-I, -L, -P and -C are letters of the record)', () => {
+      const { descriptions } = find({
+        groupLeaves: groupLeaves('Cannot be used with -P.'),
+      });
+
+      expect(descriptions).toHaveLength(1);
+      expect(descriptions[0]).toContain('names -P');
+      expect(
+        find({
+          groupLeaves: [
+            leaf('frodo config-manager pull a', [
+              ['-P', '--promoter', 'Cannot be used with -P.'],
+            ]),
+          ],
+        }).descriptions
+      ).toEqual([]);
+    });
+
     it('reads the description of the command too', () => {
       const { descriptions } = find({
         groupLeaves: [leaf('frodo config-manager pull a', [], 'Use -p.')],
@@ -515,6 +596,122 @@ describe('findLetterProblems on hand-built commands', () => {
     });
   });
 
+  describe('the inputs of the check', () => {
+    const complete = () => ({
+      groupLeaves: [PLACEHOLDER.leaf],
+      heritageLeaves: [],
+      sameMeaning: [],
+      expected: [PLACEHOLDER.row],
+      heritageOverlaps: [],
+      descriptionLetters: [],
+      migration: PLACEHOLDER.migration,
+    });
+
+    it('accepts a complete input, with the lists of entries empty', () => {
+      expect(() => findLetterProblems(complete())).not.toThrow();
+    });
+
+    it.each([
+      'groupLeaves',
+      'heritageLeaves',
+      'sameMeaning',
+      'expected',
+      'heritageOverlaps',
+      'descriptionLetters',
+      'migration',
+    ])('throws, naming "%s", when it is missing', (name) => {
+      const input = complete();
+      delete input[name];
+
+      expect(() => findLetterProblems(input)).toThrow(TypeError);
+      expect(() => findLetterProblems(input)).toThrow(`"${name}"`);
+    });
+
+    it('throws when there are no expected rows to compare the commands with', () => {
+      expect(() => findLetterProblems({ ...complete(), expected: [] })).toThrow(
+        /"expected" is missing or empty/
+      );
+    });
+
+    it.each(['', '  \n', 42, null])(
+      'throws when the text of MIGRATION.md is %j',
+      (migration) => {
+        expect(() => findLetterProblems({ ...complete(), migration })).toThrow(
+          /"migration" is missing or empty/
+        );
+      }
+    );
+
+    it('says what each input made it look at', () => {
+      const a = leaf('frodo config-manager push a', [
+        ['-d', '--dry-run'],
+        ['-n', '--name'],
+        [null, '--stdin', 'Use date -u.'],
+      ]);
+      const b = leaf('frodo config-manager pull b', [['-n', '--script-name']]);
+      const h = leaf('frodo service import', [
+        ['-n', '--service-name'],
+        [null, '--clean'],
+      ]);
+      const input = {
+        groupLeaves: [a, b],
+        heritageLeaves: [h],
+        sameMeaning: [
+          {
+            letter: '-n',
+            longs: ['--name', '--script-name'],
+            why: 'one meaning',
+            until: 'never',
+          },
+        ],
+        heritageOverlaps: [
+          { letter: '-n', longs: [/^--[a-z]+-name$/], why: 'a reason' },
+        ],
+        descriptionLetters: [
+          { command: a.name, letter: '-u', why: 'an option of date' },
+        ],
+        expected: [
+          { command: a.name, long: '--dry-run', short: '-d', was: null },
+          { command: h.name, long: '--clean', short: null, was: '-C' },
+        ],
+        migration: [
+          '| `-C, --clean` | `service import` | `--clean` |',
+          '',
+          '`-d, --dry-run` is new on `push a`.',
+        ].join('\n'),
+      };
+
+      const { problems, checked } = findLetterProblems(input);
+
+      expect(Object.values(problems).flat()).toEqual([]);
+      expect(checked).toEqual({
+        groupLeaves: 2,
+        heritageLeaves: 1,
+        sameMeaning: 1,
+        rows: 2,
+        rowsMatched: 2,
+        dryRunLeaves: 1,
+        heritageOverlaps: 1,
+        descriptionLeaves: 3,
+        descriptionLetters: 1,
+        spellings: 1,
+        dryRunAdded: 1,
+      });
+      // each input that is dropped shows in what the check looked at
+      expect(
+        findLetterProblems({ ...input, sameMeaning: [] }).checked.sameMeaning
+      ).toBe(0);
+      expect(
+        findLetterProblems({ ...input, heritageOverlaps: [] }).checked
+          .heritageOverlaps
+      ).toBe(0);
+      expect(
+        findLetterProblems({ ...input, descriptionLetters: [] }).checked
+          .descriptionLetters
+      ).toBe(0);
+    });
+  });
+
   describe('MIGRATION.md', () => {
     const expected = [
       {
@@ -536,11 +733,12 @@ describe('findLetterProblems on hand-built commands', () => {
         was: '-C',
       },
     ];
-    const text = [
+    const table = [
       '| `-i, --stdin` | `push raw` | `--stdin` |',
       '| `-C, --clean` | `service import` | `--clean` |',
-      '`-d, --dry-run` is new on `push secrets`, where only',
     ].join('\n');
+    const paragraph = '`-d, --dry-run` is new on `push secrets`, where only';
+    const text = `${table}\n\n${paragraph}`;
 
     it('accepts a text that lists each removed spelling and the new dry run', () => {
       expect(find({ expected, migration: text }).migration).toEqual([]);
@@ -573,13 +771,32 @@ describe('findLetterProblems on hand-built commands', () => {
       });
 
       expect(migration).toHaveLength(1);
-      expect(migration[0]).toContain(
-        '`-d, --dry-run` is new on `push secrets`'
-      );
+      expect(migration[0]).toContain('does not name `push secrets`');
     });
 
-    it('is not read when the text is not given', () => {
-      expect(find({ expected }).migration).toEqual([]);
+    it('fails a command that another entry names but the paragraph of the dry run does not', () => {
+      // `push secrets` stands in a table row of another entry
+      const { migration, checked } = (() => {
+        const result = run({
+          expected,
+          migration: `${table}\n| \`push secrets\` | another entry |\n\n\`-d, --dry-run\` is new on \`delete schedules\`.`,
+        });
+        return {
+          migration: result.problems.migration,
+          checked: result.checked,
+        };
+      })();
+
+      expect(migration).toHaveLength(1);
+      expect(migration[0]).toContain('does not name `push secrets`');
+      expect(checked.dryRunAdded).toBe(0);
+    });
+
+    it('counts the spellings it found and the dry runs it saw announced', () => {
+      expect(run({ expected, migration: text }).checked).toMatchObject({
+        spellings: 2,
+        dryRunAdded: 1,
+      });
     });
   });
 });
@@ -588,6 +805,7 @@ describe('the options of the configuration commands', () => {
   let groupLeaves;
   let heritageLeaves;
   let problems;
+  let checked;
   let migration;
 
   beforeAll(async () => {
@@ -601,7 +819,10 @@ describe('the options of the configuration commands', () => {
     groupLeaves = data.filter((l) => isGroupLeaf(l.name));
     heritageLeaves = data.filter((l) => !isGroupLeaf(l.name));
     migration = fs.readFileSync(migrationPath, 'utf8');
-    problems = findLetterProblems({
+    // Every input of the check is passed here, and the assertions below read
+    // what the check looked at (`checked`), not the constants it was given: a
+    // call that loses an input makes the check throw or look at less.
+    ({ problems, checked } = findLetterProblems({
       groupLeaves,
       heritageLeaves,
       sameMeaning: SAME_MEANING,
@@ -609,13 +830,15 @@ describe('the options of the configuration commands', () => {
       heritageOverlaps: HERITAGE_OVERLAPS,
       descriptionLetters: DESCRIPTION_LETTERS,
       migration,
-    });
+    }));
   }, 120000);
 
   it('reads the real command tree', () => {
     // a floor, so that a tree that failed to load cannot pass by being empty
-    expect(groupLeaves.length).toBeGreaterThanOrEqual(100);
-    expect(heritageLeaves.length).toBeGreaterThanOrEqual(200);
+    expect(checked.groupLeaves).toBe(groupLeaves.length);
+    expect(checked.heritageLeaves).toBe(heritageLeaves.length);
+    expect(checked.groupLeaves).toBeGreaterThanOrEqual(100);
+    expect(checked.heritageLeaves).toBeGreaterThanOrEqual(200);
     expect(
       groupLeaves.filter((l) =>
         l.name.startsWith('frodo config-manager promote ')
@@ -629,13 +852,16 @@ describe('the options of the configuration commands', () => {
 
   it('keeps exactly the three letters that two long names share, each with a reason and an end', () => {
     expect(SAME_MEANING.map((e) => e.letter)).toEqual(['-f', '-i', '-n']);
+    expect(checked.sameMeaning).toBe(3);
     expect(
       problems.entries.filter((e) => e.startsWith('SAME_MEANING'))
     ).toEqual([]);
   });
 
   it('declares the short forms that the record decided', () => {
-    expect(EXPECTED_SHORT_FORMS).toHaveLength(34);
+    // 34 different rows, and every one of them is what the tree declares
+    expect(checked.rows).toBe(34);
+    expect(checked.rowsMatched).toBe(34);
     expect(problems.shortForms).toEqual([]);
   });
 
@@ -645,10 +871,16 @@ describe('the options of the configuration commands', () => {
     );
 
     expect(withDryRun.length).toBeGreaterThanOrEqual(18);
+    expect(checked.dryRunLeaves).toBe(withDryRun.length);
     expect(problems.dryRun).toEqual([]);
   });
 
   it('does not let a heritage command take a letter of the group without a reason', () => {
+    // every name of every entry was met on a heritage command
+    expect(checked.heritageOverlaps).toBe(
+      HERITAGE_OVERLAPS.flatMap((entry) => entry.longs).length
+    );
+    expect(checked.heritageOverlaps).toBeGreaterThanOrEqual(30);
     expect(problems.heritage).toEqual([]);
     expect(
       problems.entries.filter((e) => e.startsWith('HERITAGE_OVERLAPS'))
@@ -669,6 +901,9 @@ describe('the options of the configuration commands', () => {
   });
 
   it('names only letters in a description that the command declares', () => {
+    // the group, and the three heritage commands that a row of the record names
+    expect(checked.descriptionLeaves).toBe(groupLeaves.length + 3);
+    expect(checked.descriptionLetters).toBe(1);
     expect(problems.descriptions).toEqual([]);
     expect(
       problems.entries.filter((e) => e.startsWith('DESCRIPTION_LETTERS'))
@@ -676,7 +911,10 @@ describe('the options of the configuration commands', () => {
   });
 
   it('lists every removed spelling in MIGRATION.md', () => {
-    expect(EXPECTED_SHORT_FORMS.filter((row) => row.was)).toHaveLength(28);
+    // 28 removed spellings found on a line with their command, and the 6 dry
+    // runs that got -d named in the paragraph that announces them
+    expect(checked.spellings).toBe(28);
+    expect(checked.dryRunAdded).toBe(6);
     expect(problems.migration).toEqual([]);
   });
 
