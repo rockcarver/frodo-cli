@@ -3500,7 +3500,8 @@ export function buildSuccessResult(result: unknown): {
 
   const truncatedPayload = buildTruncatedSuccessPayload(
     result,
-    payloadSizeBytes
+    payloadSizeBytes,
+    inlineLimitBytes
   );
   return {
     content: [
@@ -3536,11 +3537,35 @@ function getInlineResultLimitBytes(result: unknown): number {
 }
 
 /**
+ * The fields in front of `data` with which the library says whether a list or search result is complete.
+ * When this transport replaces the data of a result, the page that these fields describe is no longer in
+ * the response: it sets `truncated` and `returned` itself, keeps `total` and drops the pointers that
+ * lead past that page.
+ */
+const LIST_COMPLETENESS_FIELDS = new Set([
+  'truncated',
+  'returned',
+  'total',
+  'nextPageOffset',
+  'nextPageToken',
+  'warning',
+]);
+
+/**
  * Replaces oversized inline payloads with a summary/truncation envelope.
+ *
+ * The replacement says so in the first fields of the result as well, in front of `data`: `truncated: true`,
+ * `returned: 0` (no item of `data` is in the response), the `total` that the library reported (when it
+ * did) and a `warning` that names what to do. The text of `data` and `metadata.result` is unchanged.
+ * @param {unknown} result the result of the library, larger than the inline limit
+ * @param {number} payloadSizeBytes the size of the indented JSON text of the result
+ * @param {number} inlineLimitBytes the limit that applied to this result
+ * @returns {unknown} the result to send in its place
  */
 function buildTruncatedSuccessPayload(
   result: unknown,
-  payloadSizeBytes: number
+  payloadSizeBytes: number,
+  inlineLimitBytes: number
 ): unknown {
   const warning =
     'Result exceeded the inline response limit. Narrow the request using scope, deps=false, paging, or a more specific read/export.';
@@ -3556,9 +3581,22 @@ function buildTruncatedSuccessPayload(
     metadataObject.result && typeof metadataObject.result === 'object'
       ? (metadataObject.result as Record<string, unknown>)
       : {};
+  const notComplete = `Result is not complete: it is larger than the inline response limit of ${formatByteSize(inlineLimitBytes)} (this one is ${formatByteSize(payloadSizeBytes)}), so data was replaced and holds none of the result. On a list or search, ask for fewer items with pageSize and read on with pageOffset; otherwise narrow the request.`;
+  const otherFields = Object.fromEntries(
+    Object.entries(resultObject).filter(
+      ([key]) =>
+        key !== 'data' &&
+        key !== 'metadata' &&
+        !LIST_COMPLETENESS_FIELDS.has(key)
+    )
+  );
 
   return {
-    ...resultObject,
+    ...otherFields,
+    truncated: true,
+    returned: 0,
+    ...('total' in resultObject && { total: resultObject.total }),
+    warning: notComplete,
     data: {
       _truncated: true,
       message: warning,

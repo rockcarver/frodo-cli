@@ -4888,6 +4888,110 @@ describe('buildSuccessResult: the inline limit of the transport and what a repla
       const parsed = JSON.parse(textOf(exceeds));
       expect(parsed.data._truncated).toBe(true);
       expect(parsed.metadata.result.payloadSizeHuman).toBe('2.0 MiB');
+      expect(parsed.warning).toContain('inline response limit of 2.0 MiB');
+    });
+
+    test('says at the top level, in front of data, that it is not complete and that none of it is in the response', () => {
+      const parsed = JSON.parse(textOf(resultOfSize(INLINE_LIMIT_BYTES + 1)));
+
+      expect(parsed.truncated).toBe(true);
+      expect(parsed.returned).toBe(0);
+      expect(parsed.warning).toEqual(expect.any(String));
+      expect(parsed).not.toHaveProperty('total');
+      const keys = Object.keys(parsed);
+      for (const field of ['truncated', 'returned', 'warning']) {
+        expect(keys.indexOf(field)).toBeGreaterThan(-1);
+        expect(keys.indexOf(field)).toBeLessThan(keys.indexOf('data'));
+      }
+      expect(keys.at(-1)).toBe('metadata');
+    });
+
+    test('contradicts the library when it had called the result complete, and keeps the total', () => {
+      const parsed = JSON.parse(
+        textOf(
+          resultOfSize(INLINE_LIMIT_BYTES + 1, {
+            fields: {
+              truncated: false,
+              returned: 1000,
+              total: 1000,
+            },
+          })
+        )
+      );
+
+      expect(parsed.truncated).toBe(true);
+      expect(parsed.returned).toBe(0);
+      expect(parsed.total).toBe(1000);
+    });
+
+    test('keeps a total that the library could not know as null', () => {
+      const parsed = JSON.parse(
+        textOf(
+          resultOfSize(INLINE_LIMIT_BYTES + 1, {
+            fields: { truncated: true, returned: 10, total: null },
+          })
+        )
+      );
+
+      expect(parsed).toHaveProperty('total', null);
+    });
+
+    test('does not point past a page that was never delivered, and replaces the warning of the library', () => {
+      const parsed = JSON.parse(
+        textOf(
+          resultOfSize(300 * 1024, {
+            fields: { ...LIBRARY_FIELDS, nextPageToken: 'cookie-1' },
+          })
+        )
+      );
+
+      expect(parsed).not.toHaveProperty('nextPageOffset');
+      expect(parsed).not.toHaveProperty('nextPageToken');
+      expect(parsed.warning).not.toContain('28 of 195');
+      expect(parsed.warning).toContain('inline response limit of 256.0 KiB');
+      expect(parsed.warning).toContain('(this one is 300.0 KiB)');
+      expect(parsed.warning).toContain('pageSize');
+      expect(parsed.warning).toContain('pageOffset');
+    });
+
+    test('puts the fields in the order of a result of the library: before data, after the tool and the descriptor', () => {
+      const parsed = JSON.parse(
+        textOf(
+          resultOfSize(INLINE_LIMIT_BYTES + 1, {
+            fields: { ...LIBRARY_FIELDS },
+          })
+        )
+      );
+
+      expect(Object.keys(parsed)).toEqual([
+        'toolName',
+        'descriptorId',
+        'truncated',
+        'returned',
+        'total',
+        'warning',
+        'data',
+        'metadata',
+      ]);
+    });
+
+    test('is marked also when it is not a list, and also the result of the discovery tool', () => {
+      const discovery = JSON.parse(
+        textOf(
+          resultOfSize(DISCOVERY_LIMIT_BYTES + 1, {
+            toolName: 'frodo_discover',
+            data: { operationDetailsByType: {} },
+          })
+        )
+      );
+      const bareValue = JSON.parse(textOf('x'.repeat(INLINE_LIMIT_BYTES)));
+
+      expect(discovery).toMatchObject({ truncated: true, returned: 0 });
+      expect(bareValue).toMatchObject({
+        truncated: true,
+        returned: 0,
+        data: { _truncated: true },
+      });
     });
   });
 });
