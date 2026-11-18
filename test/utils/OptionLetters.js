@@ -11,8 +11,15 @@
  * Everything here is pure: no file system, no state, no output, no commander.
  * The test reads the command tree and MIGRATION.md and passes plain data in.
  * A leaf is `{ name, description, options }` where `name` is the full command
- * (`frodo config-manager pull cors`) and an option has `short`, `long` and
- * `description` (a commander Option has all three).
+ * (`frodo config-manager pull cors`) and an option has `short`, `long`,
+ * `description` and, for an option that answers to extra spellings, `aliases`
+ * (the spellings `-n` and `--name` of `-i, --journey-id`; see
+ * src/cli/OptionAlias.ts).
+ *
+ * The selectors of the group are one meaning per letter: `-i, --<type>-id`
+ * names an object by its identifier and `-n, --<type>-name` by a name that can
+ * change, whatever the type is, and `-n, --name` is the permanent alias
+ * (`selectorMeaning`, the `selectorLetters` input).
  */
 
 /**
@@ -44,23 +51,71 @@ export function isGroupLeaf(name) {
 }
 
 /**
+ * The short letter that a spelling is, or null for a long spelling.
+ * @param {string} spelling `-n` or `--name`
+ * @returns {string|null} the letter
+ */
+const letterOfSpelling = (spelling) =>
+  /^-[A-Za-z]$/.test(spelling) ? spelling : null;
+
+/**
+ * The letters an option answers to, each with the long name it means: its own
+ * short form with its long name, and the letters of its alias spellings. An
+ * alias letter means the alias long name when the option has one (`-n` with
+ * `--name`), otherwise the long name of the option.
+ * @param {{short?: string, long?: string, aliases?: string[]}} option
+ * @returns {[string, string][]} pairs of letter and long name
+ */
+function letterMeanings(option) {
+  const pairs = [];
+  if (option.short) pairs.push([option.short, option.long]);
+  const aliases = option.aliases ?? [];
+  const aliasLong = aliases.find((a) => a.startsWith('--')) ?? option.long;
+  for (const spelling of aliases) {
+    const letter = letterOfSpelling(spelling);
+    if (letter) pairs.push([letter, aliasLong]);
+  }
+  return pairs;
+}
+
+/**
  * The letters the leaves declare, and what each one means: letter, then long
  * name, then the commands that declare that pair. A long-only option has no
- * letter, and a shared letter with its shared long name is left out.
- * @param {{name: string, options: {short?: string, long?: string}[]}[]} leaves
+ * letter, and a shared letter with its shared long name is left out. The
+ * letters of an alias count (`-n` of `-i, --journey-id` with the alias `-n,
+ * --name` means `--name`).
+ * @param {{name: string, options: {short?: string, long?: string, aliases?: string[]}[]}[]} leaves
  * @returns {Object<string, Object<string, string[]>>} the letters
  */
 export function lettersOf(leaves) {
   const letters = {};
   for (const leaf of leaves) {
     for (const option of leaf.options) {
-      if (!option.short) continue;
-      if (SHARED_LETTERS[option.short] === option.long) continue;
-      const longs = (letters[option.short] ??= {});
-      (longs[option.long] ??= []).push(leaf.name);
+      for (const [letter, long] of letterMeanings(option)) {
+        if (SHARED_LETTERS[letter] === long) continue;
+        const longs = (letters[letter] ??= {});
+        const commands = (longs[long] ??= []);
+        if (!commands.includes(leaf.name)) commands.push(leaf.name);
+      }
     }
   }
   return letters;
+}
+
+/**
+ * Do a letter and a long name mean the selector of the group? `-i` with
+ * `--id`, `--report-id` or `--<type>-id` names an object by its identifier;
+ * `-n` with `--name` or `--<type>-name` names an object by a name. A
+ * `selectorLetters` entry is `{ letter, pattern, why }`.
+ * @param {string} letter `-i`
+ * @param {string} long `--journey-id`
+ * @param {{letter: string, pattern: RegExp}[]} selectorLetters
+ * @returns {boolean} true when the pair is the selector of its letter
+ */
+export function selectorMeaning(letter, long, selectorLetters) {
+  return selectorLetters.some(
+    (entry) => entry.letter === letter && entry.pattern.test(long ?? '')
+  );
 }
 
 const sorted = (values) => [...values].sort();
@@ -91,8 +146,17 @@ function entryProblems(name, entries, fields) {
   return problems;
 }
 
+/** The one meaning that every selector long name of a letter counts as. */
+const SELECTOR = '<selector>';
+
 /** One meaning per letter, and the shared letters mean one thing everywhere. */
-function checkLetters(groupLeaves, sameMeaning, problems, checked) {
+function checkLetters(
+  groupLeaves,
+  sameMeaning,
+  selectorLetters,
+  problems,
+  checked
+) {
   for (const leaf of groupLeaves) {
     for (const option of leaf.options) {
       const shared = SHARED_LETTERS[option.short];
@@ -105,8 +169,21 @@ function checkLetters(groupLeaves, sameMeaning, problems, checked) {
   }
   const letters = lettersOf(groupLeaves);
   const usedEntries = new Set();
+  const usedSelectors = new Set();
   for (const [letter, longs] of Object.entries(letters)) {
-    const names = Object.keys(longs);
+    // the selector long names of a letter are one meaning
+    const selectorLongs = Object.keys(longs).filter((long) =>
+      selectorMeaning(letter, long, selectorLetters)
+    );
+    if (selectorLongs.length > 1) {
+      for (const entry of selectorLetters) {
+        if (entry.letter === letter) usedSelectors.add(entry);
+      }
+    }
+    const names = [
+      ...Object.keys(longs).filter((long) => !selectorLongs.includes(long)),
+      ...(selectorLongs.length > 0 ? [SELECTOR] : []),
+    ];
     if (names.length < 2) continue;
     const entry = sameMeaning.find(
       (e) => e.letter === letter && same(e.longs ?? [], names)
@@ -116,13 +193,21 @@ function checkLetters(groupLeaves, sameMeaning, problems, checked) {
       continue;
     }
     const meanings = names
-      .map((long) => `${long} (${commandsText(longs[long])})`)
+      .map((name) => {
+        const commands =
+          name === SELECTOR
+            ? selectorLongs.flatMap((long) => longs[long])
+            : longs[name];
+        const label = name === SELECTOR ? `${selectorLongs.join('/')}` : name;
+        return `${label} (${commandsText(commands)})`;
+      })
       .join(' and ');
     problems.letters.push(
       `${letter} :: ${names.length} meanings: ${meanings} :: give the options one letter each; if they are one meaning under two names, add a SAME_MEANING entry { letter, longs, why, until }`
     );
   }
   checked.sameMeaning = usedEntries.size;
+  checked.selectorLetters = usedSelectors.size;
   problems.entries.push(
     ...entryProblems('SAME_MEANING', sameMeaning, ['why', 'until'])
   );
@@ -130,6 +215,20 @@ function checkLetters(groupLeaves, sameMeaning, problems, checked) {
     if (!usedEntries.has(entry)) {
       problems.entries.push(
         `SAME_MEANING ${entry.letter} :: no letter ${entry.letter} has exactly the long names ${(entry.longs ?? []).join(' and ')} any more (until: ${entry.until}) :: remove the entry`
+      );
+    }
+  }
+  problems.entries.push(
+    ...entryProblems('SELECTOR_LETTERS', selectorLetters, ['why'])
+  );
+  for (const entry of selectorLetters) {
+    if (!(entry.pattern instanceof RegExp)) {
+      problems.entries.push(
+        `SELECTOR_LETTERS ${entry.letter ?? '?'} :: entry without a pattern`
+      );
+    } else if (!usedSelectors.has(entry)) {
+      problems.entries.push(
+        `SELECTOR_LETTERS ${entry.letter} :: no letter ${entry.letter} has two long names that ${entry.pattern} joins any more :: remove the entry`
       );
     }
   }
@@ -243,7 +342,7 @@ function checkDescriptions(leaves, allowed, problems, checked) {
   for (const leaf of leaves) {
     const declared = new Set([
       ...Object.keys(SHARED_LETTERS),
-      ...leaf.options.map((o) => o.short).filter(Boolean),
+      ...leaf.options.flatMap((o) => letterMeanings(o).map(([l]) => l)),
     ]);
     const texts = [
       ['the description of the command', leaf.description],
@@ -334,6 +433,7 @@ function requireInputs(input) {
     'groupLeaves',
     'heritageLeaves',
     'sameMeaning',
+    'selectorLetters',
     'heritageOverlaps',
     'descriptionLetters',
   ];
@@ -365,7 +465,11 @@ function requireInputs(input) {
  * - `letters`: one meaning per letter among the leaves of the group, and the
  *   shared letters mean one thing everywhere; a letter that has two long names
  *   needs a `sameMeaning` entry `{ letter, longs, why, until }` (the names are
- *   one meaning, `until` says when the entry goes);
+ *   one meaning, `until` says when the entry goes), unless the names are the
+ *   selector of the letter: a `selectorLetters` entry `{ letter, pattern, why }`
+ *   makes every long name that the pattern matches one meaning (`-i` with
+ *   `--<type>-id`, `-n` with `--<type>-name`), and the entry fails when no letter
+ *   has two such names;
  * - `shortForms`: every row `{ command, long, short, was }` of `expected` is
  *   what the command declares (`short` null: a long form only), and no row
  *   stands twice;
@@ -385,6 +489,7 @@ function requireInputs(input) {
  * @param {object[]} input.heritageLeaves the leaves outside the group (the
  * commands whose definitions the record changes, and the ones it compares with)
  * @param {object[]} input.sameMeaning entries of letters with two long names
+ * @param {object[]} input.selectorLetters entries of the selector letters
  * @param {object[]} input.expected rows of the short forms the record decided
  * @param {object[]} input.heritageOverlaps entries of the heritage letters
  * @param {object[]} input.descriptionLetters entries of letters in a text
@@ -392,7 +497,8 @@ function requireInputs(input) {
  * @returns {{problems: Object<string, string[]>, checked: Object<string, number>}}
  * `problems`: one line per problem, by check, all empty when all is well;
  * `checked`: what the check looked at (`groupLeaves`, `heritageLeaves`,
- * `rows` of the expected short forms, `sameMeaning` entries used, `dryRunLeaves`,
+ * `rows` of the expected short forms, `sameMeaning` entries used,
+ * `selectorLetters` entries used, `dryRunLeaves`,
  * `heritageOverlaps` names used, `descriptionLeaves` read, `descriptionLetters`
  * entries used, `spellings` found in MIGRATION.md and `dryRunAdded` announced)
  * @throws {TypeError} when an input is missing, or `expected` or `migration`
@@ -404,6 +510,7 @@ export function findLetterProblems(input) {
     groupLeaves,
     heritageLeaves,
     sameMeaning,
+    selectorLetters,
     expected,
     heritageOverlaps,
     descriptionLetters,
@@ -422,7 +529,7 @@ export function findLetterProblems(input) {
     groupLeaves: groupLeaves.length,
     heritageLeaves: heritageLeaves.length,
   };
-  checkLetters(groupLeaves, sameMeaning, problems, checked);
+  checkLetters(groupLeaves, sameMeaning, selectorLetters, problems, checked);
   checkShortForms(
     [...groupLeaves, ...heritageLeaves],
     expected,
