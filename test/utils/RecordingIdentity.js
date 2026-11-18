@@ -601,3 +601,194 @@ export function findHeaderProblems(text, tests) {
   });
   return problems;
 }
+
+/** The inputs a function needs: a missing one is a bug of the caller, not an empty list. */
+function requireInputs(name, inputs, names) {
+  for (const key of names) {
+    if (inputs?.[key] === undefined) {
+      throw new Error(`${name}: the input "${key}" is missing`);
+    }
+  }
+}
+
+/**
+ * The whole pin check of the commands the tests ran, as one pure function of
+ * its inputs: the real test collects them from the files on disk, the unit
+ * tests build them by hand. Every input is required, so that a caller that
+ * forgets one fails instead of checking less: a `renamed` entry that is not
+ * passed would leave the header line of a renamed command unchecked.
+ *
+ * - the commands (`collected`) go through `sortCommands`, then `findPinProblems`
+ *   with the three exception lists and `recordingExists`;
+ * - the header text of each file goes through `findHeaderProblems` with the
+ *   tests of that file; a test that a `renamed` entry names carries the
+ *   command as it was recorded (`was`), because its header line is still
+ *   spelled as recorded.
+ * @param {object} inputs
+ * @param {string[]} inputs.files the test files the check reads
+ * @param {object[]} inputs.collected everything the tests ran through the stub
+ * @param {Object<string, string>} inputs.headers the text of each file
+ * @param {object[]} inputs.labels the `LABELS` exceptions
+ * @param {object[]} inputs.noRecording the `NO_RECORDING` exceptions
+ * @param {object[]} inputs.renamed the `RENAMED` exceptions
+ * @param {(directory: string) => boolean} inputs.recordingExists whether a
+ * recording directory holds a recording
+ * @returns {{unreadable: string[], pins: string[], recordings: string[], entries: string[], headers: string[]}}
+ * one line per problem, all empty when all is well
+ */
+export function checkPins(inputs) {
+  requireInputs('checkPins', inputs, [
+    'files',
+    'collected',
+    'headers',
+    'labels',
+    'noRecording',
+    'renamed',
+    'recordingExists',
+  ]);
+  const { files, collected, headers, labels, noRecording, renamed } = inputs;
+  const { commands, problems: unreadable } = sortCommands(collected);
+  const found = findPinProblems(commands, {
+    labels,
+    noRecording,
+    renamed,
+    recordingExists: inputs.recordingExists,
+  });
+  const headerProblems = [];
+  for (const file of files) {
+    if (typeof headers[file] !== 'string') {
+      throw new Error(`checkPins: the input "headers" has no text for ${file}`);
+    }
+    const tests = commands
+      .filter((row) => row.file === file)
+      .map((row) => {
+        const entry = renamed.find(
+          (e) =>
+            keyOf(e.file, e.cmd, e.pin) === keyOf(row.file, row.cmd, row.pin)
+        );
+        return entry ? { ...row, was: entry.was } : row;
+      });
+    for (const problem of findHeaderProblems(headers[file], tests)) {
+      headerProblems.push(
+        `test/e2e/${file}:${problem.line} :: ${problem.text} :: ${problem.advice} (a header record line carries the pin of its test, as test/e2e/README.md says)`
+      );
+    }
+  }
+  return { unreadable, ...found, headers: headerProblems };
+}
+
+/**
+ * Did the collector see every test? Pure: the real test passes what the child
+ * Jest reported and what the stub collected.
+ * @param {object} inputs
+ * @param {string[]} inputs.files the test files the check reads
+ * @param {object[]} inputs.collected everything the tests ran through the stub
+ * @param {{name: string, message?: string, assertionResults: {fullName: string, status: string}[]}[]} inputs.results
+ * the `testResults` of the child Jest's JSON report
+ * @param {{files: number, commands: number}} inputs.floor fewer files or
+ * commands than this means the collector found too little
+ * @param {string[]} inputs.heritageFiles files that must be among the files read
+ * @returns {string[]} one line per problem
+ */
+export function findCollectionProblems(inputs) {
+  requireInputs('findCollectionProblems', inputs, [
+    'files',
+    'collected',
+    'results',
+    'floor',
+    'heritageFiles',
+  ]);
+  const { files, collected, results, floor, heritageFiles } = inputs;
+  const { commands, problems: unreadable } = sortCommands(collected);
+  const problems = [];
+  if (files.length < floor.files) {
+    problems.push(
+      `only ${files.length} test files match, fewer than ${floor.files}: PINNED_FILE in test/unit/E2eRecordingIdentity.test.js no longer matches the test files, or test/e2e moved; fix the pattern, and lower the floor only for a reason a reviewer can read`
+    );
+  }
+  if (commands.length < floor.commands) {
+    problems.push(
+      `only ${commands.length} commands were collected, fewer than ${floor.commands}: the collector no longer sees every test; read the other lines of this failure, run the collector by hand (see test/utils/RecordingIdentityCollector/jest.config.mjs), and lower the floor only for a reason a reviewer can read`
+    );
+  }
+  for (const name of heritageFiles) {
+    if (!commands.some((row) => row.file === name)) {
+      problems.push(
+        `${name} :: this file is not read by the check (not in PINNED_FILE, or no command was collected): the tests of its command carry pins that are checked here; keep it in PINNED_FILE, or move the name in HERITAGE_FILES together with the file`
+      );
+    }
+  }
+  const baseName = (result) => result.name.split('/').pop();
+  const withRows = new Set(collected.map((row) => row.file));
+  const ran = new Map(results.map((result) => [baseName(result), result]));
+  for (const name of files) {
+    if (!ran.has(name)) {
+      problems.push(`${name} :: the collector did not run this file`);
+    } else if (!withRows.has(name)) {
+      const message = String(ran.get(name).message || '').split('\n')[0];
+      problems.push(
+        `${name} :: no command was collected from this file${message ? ` (${message})` : ''}: does it still import ./utils/TestUtils?`
+      );
+    }
+  }
+  problems.push(...unreadable);
+  const tests = new Set(collected.map((row) => `${row.file}\u0000${row.test}`));
+  for (const result of results) {
+    for (const assertion of result.assertionResults) {
+      const key = `${baseName(result)}\u0000${assertion.fullName}`;
+      if (!tests.has(key)) {
+        problems.push(
+          `${baseName(result)} :: "${assertion.fullName}" (${assertion.status}) :: this test ran no command through the stub: it has no pin to check; use testSuccess, testFail, testExport or exec, or extend RecordingIdentityCollector/TestUtilsStub.mjs`
+        );
+      }
+    }
+  }
+  return problems;
+}
+
+/**
+ * Does the stub offer everything `test/e2e/utils/TestUtils.js` exports?
+ * @param {string} utilsSource the text of `TestUtils.js`
+ * @param {string[]} stubExports the names the stub exports
+ * @returns {string[]} one line per problem
+ */
+export function findStubProblems(utilsSource, stubExports) {
+  const problems = [];
+  const exported = [];
+  for (const line of utilsSource
+    .split('\n')
+    .filter((l) => l.startsWith('export'))) {
+    const match = line.match(
+      /^export (?:async function|function|const) ([A-Za-z0-9_$]+)/
+    );
+    if (match) exported.push(match[1]);
+    else {
+      problems.push(
+        `test/e2e/utils/TestUtils.js :: "${line}" :: an export form this check does not read: teach the check, or use export const / export function`
+      );
+    }
+  }
+  for (const name of exported) {
+    if (!stubExports.includes(name)) {
+      problems.push(
+        `test/e2e/utils/TestUtils.js exports ${name}, which test/utils/RecordingIdentityCollector/TestUtilsStub.mjs does not: add it to the stub`
+      );
+    }
+  }
+  return problems;
+}
+
+/**
+ * Do test files the check does not read run `frodo config-manager`?
+ * @param {Object<string, string>} unreadFiles name to text of the e2e test
+ * files that are not in the pattern of the check
+ * @returns {string[]} one line per file that runs it
+ */
+export function findUnreadFiles(unreadFiles) {
+  return Object.entries(unreadFiles)
+    .filter(([, text]) => text.includes('frodo config-manager'))
+    .map(
+      ([name]) =>
+        `test/e2e/${name} :: runs frodo config-manager: name the file config-manager-*.test.js, or extend PINNED_FILE in test/unit/E2eRecordingIdentity.test.js`
+    );
+}

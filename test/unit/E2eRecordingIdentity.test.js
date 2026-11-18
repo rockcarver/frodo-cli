@@ -6,10 +6,14 @@ import { fileURLToPath } from 'node:url';
 import { promisify } from 'node:util';
 import { afterAll, beforeAll, describe, expect, it } from '@jest/globals';
 import {
+  checkPins,
   deriveArgsId,
   deriveRecordingName,
+  findCollectionProblems,
   findHeaderProblems,
   findPinProblems,
+  findStubProblems,
+  findUnreadFiles,
   guidForRecording,
   hasRecording,
   libIdentityHash,
@@ -408,6 +412,8 @@ describe('derivation', () => {
 
     it.each([
       ['a leading blank', ' frodo x -a', 'testSuccess'],
+      ['a word that only starts with frodo', 'frodox x -a', 'testSuccess'],
+      ['frodo alone', 'frodo', 'testSuccess'],
       ['a leading blank in an exec', ' frodo x -a', 'exec'],
       ['an environment prefix', 'FRODO_X=1 frodo x -a', 'exec'],
       ['a pipe in front of frodo', 'cat a.json | frodo x -i', 'exec'],
@@ -806,13 +812,479 @@ describe('derivation', () => {
   });
 });
 
+describe('checkPins on a synthetic tree', () => {
+  const FILE = 'config-manager-pull-cors.e2e.test.js';
+  const CMD = 'frodo config-manager pull cors -D d';
+  const record = (rest) =>
+    `FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-matrix.example.com/am ${rest}`;
+  const ran = (cmd, pin, extra = {}) => ({
+    file: FILE,
+    cmd,
+    pin,
+    helper: 'testExport',
+    skipped: false,
+    test: `t ${cmd}`,
+    ...extra,
+  });
+  const exists = (...names) => {
+    const directories = new Set(names.map((name) => guidForRecording(name)));
+    return (directory) => directories.has(directory);
+  };
+  // Every input the check needs; a case overrides what it is about.
+  const tree = (over = {}) => ({
+    files: [FILE],
+    collected: [],
+    headers: { [FILE]: '' },
+    labels: [],
+    noRecording: [],
+    renamed: [],
+    recordingExists: () => true,
+    ...over,
+  });
+  const all = (result) => Object.values(result).flat();
+
+  it('passes a command with its pin, its recording and a header line that carries the pin', () => {
+    const result = checkPins(
+      tree({
+        collected: [ran(CMD, '0_D')],
+        headers: { [FILE]: record(`FRODO_TEST_NAME=0_D ${CMD}`) },
+        recordingExists: exists('config-manager/pull/cors/0_D'),
+      })
+    );
+    expect(all(result)).toEqual([]);
+  });
+
+  it('reports a header line without the pin, a wrong pin and a missing recording, each in its own list', () => {
+    const result = checkPins(
+      tree({
+        collected: [ran(CMD, '0_D')],
+        headers: { [FILE]: record(CMD) },
+        recordingExists: () => false,
+      })
+    );
+    expect(result.headers).toHaveLength(1);
+    expect(result.recordings).toHaveLength(1);
+    expect(result.pins).toEqual([]);
+    const wrong = checkPins(
+      tree({ collected: [ran(CMD, '0_n_D')], recordingExists: () => true })
+    );
+    expect(wrong.pins).toHaveLength(1);
+  });
+
+  it('reports a command that is not frodo ... in unreadable', () => {
+    const result = checkPins(tree({ collected: [ran(' frodo x -a', null)] }));
+    expect(result.unreadable).toHaveLength(1);
+  });
+
+  describe('LABELS', () => {
+    const labels = [{ file: FILE, cmd: CMD, pin: 'cors', why: 'x' }];
+    const cors = exists('config-manager/pull/cors/cors');
+
+    it('lets a fixed label stand for the pin, in the test and in the header line', () => {
+      const result = checkPins(
+        tree({
+          labels,
+          collected: [ran(CMD, 'cors')],
+          headers: { [FILE]: record(`FRODO_TEST_NAME=cors ${CMD}`) },
+          recordingExists: cors,
+        })
+      );
+      expect(all(result)).toEqual([]);
+    });
+
+    it('reports the same pin without its entry', () => {
+      const result = checkPins(
+        tree({ collected: [ran(CMD, 'cors')], recordingExists: cors })
+      );
+      expect(result.pins).toHaveLength(1);
+      expect(result.pins[0]).toContain(':: cors :: 0_D ::');
+    });
+
+    it('reports a header line that does not carry the label', () => {
+      const result = checkPins(
+        tree({
+          labels,
+          collected: [ran(CMD, 'cors')],
+          headers: { [FILE]: record(`FRODO_TEST_NAME=0_D ${CMD}`) },
+          recordingExists: cors,
+        })
+      );
+      expect(result.headers).toHaveLength(1);
+      expect(result.headers[0]).toContain('is not the pin of the test');
+    });
+
+    it('reports an entry that matches no command, and an entry for a pin that is the derived id', () => {
+      const orphan = checkPins(tree({ labels, collected: [ran(CMD, '0_D')] }));
+      expect(orphan.entries).toHaveLength(1);
+      expect(orphan.entries[0]).toMatch(/^LABELS .* matches no command/);
+      const stale = checkPins(
+        tree({
+          labels: [{ file: FILE, cmd: CMD, pin: '0_D', why: 'x' }],
+          collected: [ran(CMD, '0_D')],
+        })
+      );
+      expect(stale.pins).toHaveLength(1);
+      expect(stale.pins[0]).toContain('remove its LABELS entry');
+    });
+  });
+
+  describe('NO_RECORDING', () => {
+    const noRecording = [{ file: FILE, cmd: CMD, pin: '0_D', why: 'x' }];
+
+    it('lets a skipped test, or one that expects a failure before any request, go without a recording', () => {
+      for (const extra of [{ skipped: true }, { helper: 'testFail' }]) {
+        const result = checkPins(
+          tree({
+            noRecording,
+            collected: [ran(CMD, '0_D', extra)],
+            recordingExists: () => false,
+          })
+        );
+        expect(all(result)).toEqual([]);
+      }
+    });
+
+    it('reports the same command without its entry', () => {
+      const result = checkPins(
+        tree({
+          collected: [ran(CMD, '0_D', { skipped: true })],
+          recordingExists: () => false,
+        })
+      );
+      expect(result.recordings).toHaveLength(1);
+      expect(result.recordings[0]).toContain('no recording');
+    });
+
+    it('reports a test that runs and has an entry, and an entry for a command that has a recording', () => {
+      const runs = checkPins(
+        tree({
+          noRecording,
+          collected: [ran(CMD, '0_D')],
+          recordingExists: () => false,
+        })
+      );
+      expect(runs.recordings).toHaveLength(1);
+      expect(runs.recordings[0]).toContain(
+        'a test that runs needs a recording'
+      );
+      const stale = checkPins(
+        tree({
+          noRecording,
+          collected: [ran(CMD, '0_D', { skipped: true })],
+          recordingExists: () => true,
+        })
+      );
+      expect(stale.entries).toHaveLength(1);
+      expect(stale.entries[0]).toContain('remove its NO_RECORDING entry');
+    });
+  });
+
+  describe('RENAMED', () => {
+    const was = CMD;
+    const cmd = 'frodo config-manager pull cors --directory d';
+    const renamed = [{ file: FILE, cmd, was, pin: '0_D', why: 'x' }];
+    const base = exists('config-manager/pull/cors/0_D');
+
+    it('keeps a renamed command green: the pin of the old command, its recording, its header line as recorded', () => {
+      const result = checkPins(
+        tree({
+          renamed,
+          collected: [ran(cmd, '0_D')],
+          headers: { [FILE]: record(`FRODO_TEST_NAME=0_D ${was}`) },
+          recordingExists: base,
+        })
+      );
+      expect(all(result)).toEqual([]);
+    });
+
+    it('reports the header line as recorded when it lacks the pin', () => {
+      const result = checkPins(
+        tree({
+          renamed,
+          collected: [ran(cmd, '0_D')],
+          headers: { [FILE]: record(was) },
+          recordingExists: base,
+        })
+      );
+      expect(result.pins).toEqual([]);
+      expect(result.headers).toHaveLength(1);
+      expect(result.headers[0]).toContain('has no FRODO_TEST_NAME=0_D');
+    });
+
+    it('reports the header line in the new spelling when it lacks the pin', () => {
+      const result = checkPins(
+        tree({
+          renamed,
+          collected: [ran(cmd, '0_D')],
+          headers: { [FILE]: record(cmd) },
+          recordingExists: base,
+        })
+      );
+      expect(result.headers).toHaveLength(1);
+    });
+
+    it('reports the renamed command without its entry, with the wrong command as recorded, and an entry that matches nothing', () => {
+      const without = checkPins(
+        tree({ collected: [ran(cmd, '0_D')], recordingExists: base })
+      );
+      expect(without.pins).toHaveLength(1);
+      expect(without.pins[0]).toContain('add a RENAMED entry');
+      const wrongWas = checkPins(
+        tree({
+          renamed: [
+            { ...renamed[0], was: 'frodo config-manager pull cors -n x' },
+          ],
+          collected: [ran(cmd, '0_D')],
+          recordingExists: base,
+        })
+      );
+      expect(wrongWas.pins).toHaveLength(1);
+      const orphan = checkPins(tree({ renamed, collected: [ran(CMD, '0_D')] }));
+      expect(orphan.entries.join('\n')).toMatch(
+        /^RENAMED .* matches no command/
+      );
+    });
+
+    it('reports an entry for a command that is named as recorded again', () => {
+      const result = checkPins(
+        tree({
+          renamed: [{ file: FILE, cmd: CMD, was: CMD, pin: '0_D', why: 'x' }],
+          collected: [ran(CMD, '0_D')],
+        })
+      );
+      expect(result.pins).toHaveLength(1);
+      expect(result.pins[0]).toContain('remove its RENAMED entry');
+    });
+
+    describe('when the words and the flags were renamed', () => {
+      const oldWords = 'frodo config-manager pull oauth2-agents -D d';
+      const newWords = 'frodo config-manager pull agents --directory d';
+      const entries = [
+        { file: FILE, cmd: newWords, was: oldWords, pin: '0_D', why: 'x' },
+      ];
+      const oldDirectory = 'config-manager/pull/oauth2-agents/0_D';
+      const newDirectory = 'config-manager/pull/agents/0_D';
+
+      it('looks for the recording under the new words', () => {
+        const run = (recordingExists) =>
+          checkPins(
+            tree({
+              renamed: entries,
+              collected: [ran(newWords, '0_D')],
+              headers: { [FILE]: record(`FRODO_TEST_NAME=0_D ${oldWords}`) },
+              recordingExists,
+            })
+          );
+        const moved = run(exists(oldDirectory));
+        expect(moved.recordings).toHaveLength(1);
+        expect(moved.recordings[0]).toContain(guidForRecording(newDirectory));
+        expect(all(run(exists(newDirectory)))).toEqual([]);
+      });
+
+      it('reads the header line in the old words and flags, and in the new ones', () => {
+        const run = (line) =>
+          checkPins(
+            tree({
+              renamed: entries,
+              collected: [ran(newWords, '0_D')],
+              headers: { [FILE]: line },
+              recordingExists: exists(newDirectory),
+            })
+          ).headers;
+        expect(run(record(oldWords))).toHaveLength(1);
+        expect(run(record(newWords))).toHaveLength(1);
+        expect(run(record(`FRODO_TEST_NAME=0_D ${oldWords}`))).toEqual([]);
+        expect(run(record(`FRODO_TEST_NAME=0_D ${newWords}`))).toEqual([]);
+      });
+    });
+  });
+
+  describe('the inputs', () => {
+    it.each([
+      'files',
+      'collected',
+      'headers',
+      'labels',
+      'noRecording',
+      'renamed',
+      'recordingExists',
+    ])(
+      'throws when %s is not passed, so that a caller cannot check less by forgetting it',
+      (name) => {
+        const inputs = tree();
+        delete inputs[name];
+        expect(() => checkPins(inputs)).toThrow(
+          `the input "${name}" is missing`
+        );
+      }
+    );
+
+    it('throws when a file has no header text', () => {
+      expect(() => checkPins(tree({ headers: {} }))).toThrow(
+        /no text for config-manager-pull-cors/
+      );
+    });
+  });
+});
+
+describe('findCollectionProblems', () => {
+  const FILE = 'config-manager-pull-cors.e2e.test.js';
+  const row = (cmd, extra = {}) => ({
+    file: FILE,
+    cmd,
+    pin: '0_D',
+    helper: 'testSuccess',
+    skipped: false,
+    test: 'a test',
+    ...extra,
+  });
+  const result = (extra = {}) => ({
+    name: `/repo/test/e2e/${FILE}`,
+    assertionResults: [{ fullName: 'a test', status: 'passed' }],
+    ...extra,
+  });
+  const inputs = (over = {}) => ({
+    files: [FILE],
+    collected: [row('frodo x -D d')],
+    results: [result()],
+    floor: { files: 1, commands: 1 },
+    heritageFiles: [],
+    ...over,
+  });
+
+  it('finds nothing wrong with a collector that saw every file and every test', () => {
+    expect(findCollectionProblems(inputs())).toEqual([]);
+  });
+
+  it('reports fewer files or commands than the floor, with what to do', () => {
+    const files = findCollectionProblems(
+      inputs({ floor: { files: 2, commands: 1 } })
+    );
+    expect(files).toHaveLength(1);
+    expect(files[0]).toContain('only 1 test files match, fewer than 2');
+    const commands = findCollectionProblems(
+      inputs({ floor: { files: 1, commands: 2 } })
+    );
+    expect(commands).toHaveLength(1);
+    expect(commands[0]).toContain(
+      'only 1 commands were collected, fewer than 2'
+    );
+    expect(commands[0]).toContain('lower the floor only for a reason');
+  });
+
+  it('reports a heritage file that has no command among the files read', () => {
+    const problems = findCollectionProblems(
+      inputs({ heritageFiles: ['service-import.e2e.test.js'] })
+    );
+    expect(problems).toHaveLength(1);
+    expect(problems[0]).toContain(
+      'service-import.e2e.test.js :: this file is not read'
+    );
+  });
+
+  it('reports a file that did not run, and a file that ran and produced no command', () => {
+    const notRun = findCollectionProblems(inputs({ results: [] }));
+    expect(notRun).toEqual([`${FILE} :: the collector did not run this file`]);
+    const silent = findCollectionProblems(
+      inputs({
+        collected: [],
+        floor: { files: 1, commands: 0 },
+        results: [
+          result({ message: 'Cannot find module', assertionResults: [] }),
+        ],
+      })
+    );
+    expect(silent).toHaveLength(1);
+    expect(silent[0]).toContain(
+      'no command was collected from this file (Cannot find module)'
+    );
+  });
+
+  it('does not say that no command was collected when the commands were collected and cannot be read', () => {
+    const problems = findCollectionProblems(
+      inputs({
+        collected: [row(' frodo x -D d', { helper: 'exec' })],
+        floor: { files: 1, commands: 0 },
+      })
+    );
+    expect(problems).toHaveLength(1);
+    expect(problems[0]).toContain('the command does not start with "frodo "');
+    expect(problems.join('\n')).not.toContain('no command was collected');
+  });
+
+  it('reports a test that ran no command through the stub', () => {
+    const problems = findCollectionProblems(
+      inputs({
+        results: [
+          result({
+            assertionResults: [
+              { fullName: 'a test', status: 'passed' },
+              { fullName: 'a test with no command', status: 'pending' },
+            ],
+          }),
+        ],
+      })
+    );
+    expect(problems).toHaveLength(1);
+    expect(problems[0]).toContain('"a test with no command" (pending)');
+  });
+
+  it('throws when an input is missing', () => {
+    const missing = inputs();
+    delete missing.heritageFiles;
+    expect(() => findCollectionProblems(missing)).toThrow(
+      'the input "heritageFiles" is missing'
+    );
+  });
+});
+
+describe('findStubProblems', () => {
+  const source = [
+    'export const exec = () => 1;',
+    'export async function testExport() {}',
+    'export function getEnv() {}',
+    'const hidden = 1;',
+  ].join('\n');
+
+  it('finds nothing wrong with a stub that has every export', () => {
+    expect(findStubProblems(source, ['exec', 'testExport', 'getEnv'])).toEqual(
+      []
+    );
+  });
+
+  it('reports an export the stub lacks, and an export form it cannot read', () => {
+    const missing = findStubProblems(source, ['exec', 'getEnv']);
+    expect(missing).toHaveLength(1);
+    expect(missing[0]).toContain('exports testExport');
+    const odd = findStubProblems(`${source}\nexport { a, b };`, [
+      'exec',
+      'testExport',
+      'getEnv',
+    ]);
+    expect(odd).toHaveLength(1);
+    expect(odd[0]).toContain('an export form this check does not read');
+  });
+});
+
+describe('findUnreadFiles', () => {
+  it('reports a file that runs frodo config-manager and leaves the others alone', () => {
+    const problems = findUnreadFiles({
+      'a.e2e.test.js': 'const CMD = `frodo config-manager list`;',
+      'b.e2e.test.js': 'const CMD = `frodo service list`;',
+    });
+    expect(problems).toHaveLength(1);
+    expect(problems[0]).toContain(
+      'test/e2e/a.e2e.test.js :: runs frodo config-manager'
+    );
+  });
+});
+
 describe('pins', () => {
   let tmp;
   let collected;
-  let rows;
-  let rowProblems;
   let results;
   let files;
+  let checked;
   const recordingCache = new Map();
 
   /** Is there a recording.har in the directory of test/e2e/mocks, or below it? */
@@ -886,7 +1358,18 @@ describe('pins', () => {
       .split('\n')
       .filter(Boolean)
       .map((line) => JSON.parse(line));
-    ({ commands: rows, problems: rowProblems } = sortCommands(collected));
+    const headers = Object.fromEntries(
+      files.map((name) => [name, fs.readFileSync(path.join(E2E, name), 'utf8')])
+    );
+    checked = checkPins({
+      files,
+      collected,
+      headers,
+      labels: LABELS,
+      noRecording: NO_RECORDING,
+      renamed: RENAMED,
+      recordingExists: hasRecordingOnDisk,
+    });
   }, 120000);
 
   afterAll(() => {
@@ -894,136 +1377,65 @@ describe('pins', () => {
   });
 
   it('collects every command of every test of the pinned files', async () => {
-    const problems = [];
-    if (files.length < FLOOR.files) {
-      problems.push(
-        `only ${files.length} test files match, fewer than ${FLOOR.files}: PINNED_FILE in test/unit/E2eRecordingIdentity.test.js no longer matches the test files, or test/e2e moved; fix the pattern, and lower the floor only for a reason a reviewer can read`
-      );
-    }
-    if (rows.length < FLOOR.commands) {
-      problems.push(
-        `only ${rows.length} commands were collected, fewer than ${FLOOR.commands}: the collector no longer sees every test; read the other lines of this failure, run the collector by hand (see test/utils/RecordingIdentityCollector/jest.config.mjs), and lower the floor only for a reason a reviewer can read`
-      );
-    }
-    for (const name of HERITAGE_FILES) {
-      if (!rows.some((row) => row.file === name)) {
-        problems.push(
-          `${name} :: this file is not read by the check (not in PINNED_FILE, or no command was collected): the tests of its command carry pins that are checked here; keep it in PINNED_FILE, or move the name in HERITAGE_FILES together with the file`
-        );
-      }
-    }
-    const withRows = new Set(rows.map((row) => row.file));
-    const ran = new Map(
-      results.map((result) => [path.basename(result.name), result])
-    );
-    for (const name of files) {
-      if (!ran.has(name)) {
-        problems.push(`${name} :: the collector did not run this file`);
-      } else if (!withRows.has(name)) {
-        const message = String(ran.get(name).message || '').split('\n')[0];
-        problems.push(
-          `${name} :: no command was collected from this file${message ? ` (${message})` : ''}: does it still import ./utils/TestUtils?`
-        );
-      }
-    }
-    problems.push(...rowProblems);
-    const tests = new Set(
-      collected.map((row) => `${row.file}\u0000${row.test}`)
-    );
-    for (const result of results) {
-      for (const assertion of result.assertionResults) {
-        const key = `${path.basename(result.name)}\u0000${assertion.fullName}`;
-        if (!tests.has(key)) {
-          problems.push(
-            `${path.basename(result.name)} :: "${assertion.fullName}" (${assertion.status}) :: this test ran no command through the stub: it has no pin to check; use testSuccess, testFail, testExport or exec, or extend RecordingIdentityCollector/TestUtilsStub.mjs`
-          );
-        }
-      }
-    }
-    const utils = fs.readFileSync(path.join(E2E, 'utils/TestUtils.js'), 'utf8');
-    const exported = [];
-    for (const line of utils
-      .split('\n')
-      .filter((l) => l.startsWith('export'))) {
-      const match = line.match(
-        /^export (?:async function|function|const) ([A-Za-z0-9_$]+)/
-      );
-      if (match) exported.push(match[1]);
-      else {
-        problems.push(
-          `test/e2e/utils/TestUtils.js :: "${line}" :: an export form this check does not read: teach the check, or use export const / export function`
-        );
-      }
-    }
     const stub = await import(path.join(COLLECTOR, 'TestUtilsStub.mjs'));
-    for (const name of exported) {
-      if (!(name in stub)) {
-        problems.push(
-          `test/e2e/utils/TestUtils.js exports ${name}, which test/utils/RecordingIdentityCollector/TestUtilsStub.mjs does not: add it to the stub`
-        );
-      }
-    }
-    expectNoProblems(problems, 'the collector did not see every test');
+    const utils = fs.readFileSync(path.join(E2E, 'utils/TestUtils.js'), 'utf8');
+    expectNoProblems(
+      [
+        ...findCollectionProblems({
+          files,
+          collected,
+          results,
+          floor: FLOOR,
+          heritageFiles: HERITAGE_FILES,
+        }),
+        ...findStubProblems(utils, Object.keys(stub)),
+      ],
+      'the collector did not see every test'
+    );
   });
 
   describe('every command', () => {
-    let problems;
-    beforeAll(() => {
-      problems = findPinProblems(rows, {
-        labels: LABELS,
-        noRecording: NO_RECORDING,
-        renamed: RENAMED,
-        recordingExists: hasRecordingOnDisk,
-      });
-    });
-
     it('carries a pin that is the args id frodo-lib derives from it, or an exception that says why not', () => {
       expectNoProblems(
-        problems.pins,
+        checked.pins,
         'file :: command :: pin :: expected id :: what to do'
       );
     });
 
     it('has a recording in test/e2e/mocks, unless a NO_RECORDING entry says why not', () => {
       expectNoProblems(
-        problems.recordings,
+        checked.recordings,
         'file :: command :: pin :: expected directory :: what to do'
       );
     });
 
     it('is listed only by an exception that still matches a command, is still needed and has a reason', () => {
-      expectNoProblems(problems.entries, 'E2eRecordingIdentityExceptions.js');
+      expectNoProblems(checked.entries, 'E2eRecordingIdentityExceptions.js');
     });
   });
 
   it('has the pin in every record line of every header', () => {
-    const problems = [];
-    for (const name of files) {
-      const tests = rows.filter((row) => row.file === name);
-      const text = fs.readFileSync(path.join(E2E, name), 'utf8');
-      for (const problem of findHeaderProblems(text, tests)) {
-        problems.push(
-          `test/e2e/${name}:${problem.line} :: ${problem.text} :: ${problem.advice} (a header record line carries the pin of its test, as test/e2e/README.md says)`
-        );
-      }
-    }
-    expectNoProblems(problems, 'a header record line does not carry the pin');
+    expectNoProblems(
+      checked.headers,
+      'a header record line does not carry the pin'
+    );
   });
 
   it('runs no config-manager command from a test file this check does not read', () => {
-    const problems = fs
+    const unread = fs
       .readdirSync(E2E)
-      .filter((name) => name.endsWith('.test.js') && !PINNED_FILE.test(name))
-      .filter((name) =>
-        fs
-          .readFileSync(path.join(E2E, name), 'utf8')
-          .includes('frodo config-manager')
-      )
-      .map(
-        (name) =>
-          `test/e2e/${name} :: runs frodo config-manager: name the file config-manager-*.test.js, or extend PINNED_FILE in test/unit/E2eRecordingIdentity.test.js`
-      );
-    expectNoProblems(problems, 'a config-manager test is not checked');
+      .filter((name) => name.endsWith('.test.js') && !PINNED_FILE.test(name));
+    expectNoProblems(
+      findUnreadFiles(
+        Object.fromEntries(
+          unread.map((name) => [
+            name,
+            fs.readFileSync(path.join(E2E, name), 'utf8'),
+          ])
+        )
+      ),
+      'a config-manager test is not checked'
+    );
   });
 
   it('runs on the frodo-lib whose identity code it was written for', () => {
