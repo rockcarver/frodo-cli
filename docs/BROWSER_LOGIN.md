@@ -128,7 +128,7 @@ Notes that apply to both flows:
 - **The library adapts the login to the tenant.** A device login does not ask for the Access Management scope (a device login that asks for it fails after the approval on the tenants where this was measured), so the choice of flow succeeds and the notice says what is missing. A browser login asks for every scope the client offers. The notice lists any adaptation.
 - **A saved connection profile does not change this.** If a command needs an area the login cannot reach, use a service account (`frodo conn save` saves one with the connection profile); for Access Management with a device login, use a browser login.
 
-The commands that always need an area no interactive login reaches say so in their help, at the end: `frodo iga`, `frodo promote`, `frodo dcc`, `frodo admin federation`, and the `frodo config-manager` commands for promotion, governance workflows, cookie domains, content security policy, telemetry and direct control. A command that touches many sections, such as `frodo config export`, reports a section that the login cannot reach by name and goes on with the others.
+The commands that always need an area no interactive login reaches say so in their help, at the end: `frodo iga`, `frodo promote`, `frodo dcc`, `frodo admin federation`, and the `frodo config-manager` commands for promotion, governance workflows, cookie domains, content security policy and telemetry. A command that touches many sections, such as `frodo config export`, reports a section that the login cannot reach by name and goes on with the others.
 
 ## Login journey configuration
 

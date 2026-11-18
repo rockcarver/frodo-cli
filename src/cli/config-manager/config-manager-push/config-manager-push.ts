@@ -11,10 +11,6 @@ import CookieDomains from './config-manager-push-cookie-domains';
 import Cors from './config-manager-push-cors';
 import CSP from './config-manager-push-csp';
 import CustomNodes from './config-manager-push-custom-nodes';
-import DirectControlAbort from './config-manager-push-direct-control-abort';
-import DirectControlApply from './config-manager-push-direct-control-apply';
-import DirectControlInit from './config-manager-push-direct-control-init';
-import DirectControlState from './config-manager-push-direct-control-state';
 import EmailProvider from './config-manager-push-email-provider';
 import EmailTemplates from './config-manager-push-email-templates';
 import Endpoints from './config-manager-push-endpoints';
@@ -79,10 +75,6 @@ export default function setup() {
   program.addCommand(ConnectorDefinitions().name('connector-definitions'));
   program.addCommand(ConnectorMappings().name('connector-mappings'));
   program.addCommand(Cors().name('cors'));
-  program.addCommand(DirectControlAbort().name('direct-control-abort'));
-  program.addCommand(DirectControlApply().name('direct-control-apply'));
-  program.addCommand(DirectControlInit().name('direct-control-init'));
-  program.addCommand(DirectControlState().name('direct-control-state'));
   program.addCommand(OauthCimdProfiles().name('oauth-cimd-profiles'));
   program.addCommand(OauthIssuers().name('oauth-issuers'));
   program.addCommand(

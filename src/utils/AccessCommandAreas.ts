@@ -75,7 +75,7 @@ export type CommandNeeds = AccessAreaId[] | 'general' | 'local';
 
 /**
  * What each command needs, by the path of the command or of its group without
- * `frodo` (`iga workflow`, `config-manager push direct-control-state`). The longest
+ * `frodo` (`iga workflow`, `config-manager push csp`). The longest
  * prefix that matches a command wins, so an entry for a group covers its commands
  * unless a longer entry names one of them.
  */
@@ -92,10 +92,6 @@ export const COMMAND_AREAS: Record<string, CommandNeeds> = {
   'config-manager push cookie-domains': ['cookie-domains'],
   'config-manager pull csp': ['content-security-policy'],
   'config-manager push csp': ['content-security-policy'],
-  'config-manager push direct-control-abort': ['direct-configuration'],
-  'config-manager push direct-control-apply': ['direct-configuration'],
-  'config-manager push direct-control-init': ['direct-configuration'],
-  'config-manager push direct-control-state': ['direct-configuration'],
   'config-manager pull telemetry': ['telemetry'],
   'config-manager push telemetry': ['telemetry'],
   'config-manager delete telemetry': ['telemetry'],

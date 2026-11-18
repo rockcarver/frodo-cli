@@ -111,6 +111,11 @@ own, `frodo aiagent`, with the same commands and options (`import` needs `-f` or
 prints a notice that names the new command; its removal is proposed for 6.0.0.
 See the [Migration Guide](../MIGRATION.md).
 
+**5.0.0 removes `frodo config-manager push direct-control-init`, `-apply`,
+`-abort` and `-state`**: direct control has one implementation, `frodo dcc
+session init|apply|abort|state`, which gains `-w, --wait` and prints the state
+on stdout only with `--json`. See the [Migration Guide](../MIGRATION.md).
+
 ### New in 4.x (carried forward)
 
 #### `frodo config-manager`
