@@ -46,13 +46,19 @@ type FrConfigSecret = SecretSkeleton & {
  * @param {boolean} activeOnly true to export only active secret versions, false to export all secrets versions
  * @param {boolean} report true to report in csv format
  * @param {boolean} allowFailures true to succeed although some secrets could not be exported (the failures are still summarised)
+ * @param {string} id optional id of the one secret to export or report (the report holds that secret only). The id is looked for in the list of all secrets that the export reads, so no other request is made. An empty id is refused, it never means all secrets; an id that no secret has fails the command.
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
 export async function configManagerExportSecrets(
   activeOnly?: boolean,
   report?: boolean,
-  allowFailures: boolean = false
+  allowFailures: boolean = false,
+  id?: string
 ): Promise<boolean> {
+  if (id === '') {
+    printMessage('The secret id must not be empty.', 'error');
+    return false;
+  }
   let secrets: FrConfigSecret[];
   const spinnerId = createProgressIndicator(
     'indeterminate',
@@ -61,6 +67,13 @@ export async function configManagerExportSecrets(
   );
   try {
     secrets = (await readSecrets()) as FrConfigSecret[];
+    if (id !== undefined) {
+      secrets = secrets.filter((secret) => secret._id === id);
+      if (secrets.length === 0) {
+        stopProgressIndicator(spinnerId, `Secret '${id}' not found.`, 'fail');
+        return false;
+      }
+    }
     secrets.sort((a, b) => a._id.localeCompare(b._id));
     stopProgressIndicator(
       spinnerId,

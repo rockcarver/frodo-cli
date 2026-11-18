@@ -5,6 +5,7 @@ import { getTokens } from '../../../ops/AuthenticateOps';
 import { verboseMessage } from '../../../utils/Console';
 import { realmOfRun } from '../../../utils/interactive/PositionalArgs';
 import { FrodoCommand } from '../../FrodoCommand';
+import { withOptionAlias } from '../../OptionAlias';
 
 const { CLOUD_DEPLOYMENT_TYPE_KEY } = frodo.utils.constants;
 
@@ -20,9 +21,12 @@ export default function setup() {
   program
     .description('Export secret mappings.')
     .addOption(
-      new Option(
-        '-n, --name <name>',
-        'Name of the secret mapping, If specified, only exports the secret mapping with the specified name.'
+      withOptionAlias(
+        new Option(
+          '-i, --secret-mapping-id <id>',
+          'Id of the secret mapping. If specified, only exports the secret mapping with the specified id.'
+        ),
+        ['-n', '--name']
       )
     )
     .multiOp()
@@ -40,7 +44,7 @@ export default function setup() {
       if (await getTokens(false, true, deploymentTypes)) {
         verboseMessage('Exporting secret mappings...');
         const outcome = await configManagerExportSecretMappings(
-          options.name,
+          options.secretMappingId,
           realmOfRun(command, realm),
           options.allowFailures
         );

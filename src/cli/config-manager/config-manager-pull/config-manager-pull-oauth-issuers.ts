@@ -7,6 +7,7 @@ import { verboseMessage } from '../../../utils/Console';
 import { realmOfRun } from '../../../utils/interactive/PositionalArgs';
 import { KEY_SET_PULL_SENTENCE } from '../../../utils/PlaceholderValues';
 import { FrodoCommand } from '../../FrodoCommand';
+import { withOptionAlias } from '../../OptionAlias';
 
 export default function setup() {
   const program = new FrodoCommand('frodo config-manager pull oauth-issuers');
@@ -19,9 +20,12 @@ export default function setup() {
         'Trusted JWT issuers are dynamic configuration: they are part of "pull all" and not of "pull all-static".'
     )
     .addOption(
-      new Option(
-        '-n, --name <name>',
-        'Trusted JWT issuer name, the name of the object and not its iss URL. If specified, pulls only that issuer. Needs a single realm.'
+      withOptionAlias(
+        new Option(
+          '-i, --issuer-id <id>',
+          'Trusted JWT issuer id, the id of the object and not its iss URL. If specified, pulls only that issuer. Needs a single realm.'
+        ),
+        ['-n', '--name']
       )
     )
     .addOption(
@@ -41,7 +45,7 @@ export default function setup() {
         ) +
         `  Pull one trusted JWT issuer of a realm:\n` +
         c.command(
-          `  $ frodo config-manager pull oauth-issuers -n ${s.trustedJwtIssuerId} ${s.connId} ${s.realm}\n`
+          `  $ frodo config-manager pull oauth-issuers -i ${s.trustedJwtIssuerId} ${s.connId} ${s.realm}\n`
         ) +
         `  Replace values that differ between environments with placeholders from a file:\n` +
         c.command(
@@ -78,12 +82,12 @@ export default function setup() {
 
       if (await getTokens()) {
         verboseMessage(
-          options.name
-            ? `Exporting trusted JWT issuer "${options.name}".`
+          options.issuerId
+            ? `Exporting trusted JWT issuer "${options.issuerId}".`
             : 'Exporting trusted JWT issuers.'
         );
         const outcome = await configManagerExportTrustedJwtIssuers(
-          options.name,
+          options.issuerId,
           realmOfRun(command, realm),
           false,
           options.allowFailures,

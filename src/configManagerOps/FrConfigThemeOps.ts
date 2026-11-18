@@ -39,11 +39,24 @@ const THEME_HTML_FIELDS = [
 /**
  * Exports the themes of one realm to the config folder.
  * @param {string} realm The realm to export from
+ * @param {string} id Optional id (`_id`) of the one theme to export
+ * @param {string} name Optional name of the one theme to export
+ * @returns {Promise<number>} how many themes were exported
  */
-async function exportThemesOfRealm(realm: string): Promise<void> {
+async function exportThemesOfRealm(
+  realm: string,
+  id?: string,
+  name?: string
+): Promise<number> {
   state.setRealm(realm);
   const realmDir = realm === '/' ? 'root' : realm;
-  const themes = await readThemes();
+  const themes = (await readThemes()).filter((theme) =>
+    id !== undefined
+      ? theme._id === id
+      : name !== undefined
+        ? theme.name === name
+        : true
+  );
   for (const theme of themes) {
     const themeDir = `realms/${realmDir}/themes/${theme.name}`;
     for (const field of THEME_HTML_FIELDS) {
@@ -86,24 +99,50 @@ async function exportThemesOfRealm(realm: string): Promise<void> {
       false
     );
   }
+  return themes.length;
 }
 
 /**
  * Exports realms in fr-config-manager format. Every realm is its own operation:
  * a realm that cannot be exported is reported and does not stop the others, and
  * one summary names the realms that failed.
+ * A theme can be selected by its id or by its name; the theme is looked for in
+ * the list that an export of all themes reads, so no other request is made.
+ * Like a named script, a selected theme needs a single realm, an empty id or
+ * name is refused (it never means all themes), and a theme that the realm does
+ * not have fails the command whatever `allowFailures` says.
  * @param {string} realm The realm to export from
  * @param {boolean} allowFailures True to succeed although some realms could not be exported (the failures are still summarised)
- * @returns {Promise<boolean>} a promise that evaluates to false if the realms cannot be listed or a realm could not be exported (unless failures are allowed), true otherwise
+ * @param {string} id Optional id (`_id`) of the one theme to export
+ * @param {string} name Optional name of the one theme to export
+ * @returns {Promise<boolean>} a promise that evaluates to false if the realms cannot be listed or a realm could not be exported (unless failures are allowed), or a selected theme does not exist, true otherwise
  */
 export async function configManagerExportThemes(
   realm?: string,
-  allowFailures: boolean = false
+  allowFailures: boolean = false,
+  id?: string,
+  name?: string
 ): Promise<boolean> {
+  if (id === '' || name === '') {
+    printMessage(
+      `The theme ${id === '' ? 'id' : 'name'} must not be empty.`,
+      'error'
+    );
+    return false;
+  }
+  const selected = id ?? name;
   try {
     const realmNames =
       realm && realm !== DEFAULT_REALM_KEY ? [realm] : await realmList();
+    if (selected !== undefined && realmNames.length !== 1) {
+      printMessage(
+        'Error: for a selected theme, specify a single realm',
+        'error'
+      );
+      return false;
+    }
     const run = new OperationRun({ unit: 'realm', allowFailures });
+    let selectedNotFound = false;
     for (const currentRealm of realmNames) {
       if (
         currentRealm === '/' &&
@@ -111,14 +150,22 @@ export async function configManagerExportThemes(
       )
         continue;
       try {
-        await exportThemesOfRealm(currentRealm);
+        const exported = await exportThemesOfRealm(currentRealm, id, name);
+        if (selected !== undefined && exported === 0) {
+          // the one theme that was asked for: nothing for the flag to allow
+          printMessage(
+            `Theme ${id !== undefined ? 'with id' : 'named'} '${selected}' not found in realm '${currentRealm}'.`,
+            'error'
+          );
+          selectedNotFound = true;
+        }
         run.recordSuccess();
       } catch (error) {
         printError(error, `Error exporting themes of realm '${currentRealm}'`);
         run.recordFailure(currentRealm, causeOf(error));
       }
     }
-    return run.finish();
+    return run.finish() && !selectedNotFound;
   } catch (error) {
     printError(error);
     return false;

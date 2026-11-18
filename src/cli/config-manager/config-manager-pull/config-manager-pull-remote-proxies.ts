@@ -6,6 +6,7 @@ import { configManagerExportRemoteProxies } from '../../../ops/RemoteProxyOps';
 import c from '../../../utils/ColorTheme';
 import { verboseMessage } from '../../../utils/Console';
 import { FrodoCommand } from '../../FrodoCommand';
+import { withOptionAlias } from '../../OptionAlias';
 
 const { CLOUD_DEPLOYMENT_TYPE_KEY } = frodo.utils.constants;
 
@@ -23,9 +24,12 @@ export default function setup() {
       'Export IDM remote proxies: one file remote-proxies/<name>.json for each.'
     )
     .addOption(
-      new Option(
-        '-n, --name <name>',
-        'Remote proxy name. If specified, pulls only the remote proxy with the given name.'
+      withOptionAlias(
+        new Option(
+          '-i, --proxy-id <id>',
+          'Remote proxy id. If specified, pulls only the remote proxy with the given id.'
+        ),
+        ['-n', '--name']
       )
     )
     .addHelpText(
@@ -37,7 +41,7 @@ export default function setup() {
         ) +
         `  Pull one remote proxy:\n` +
         c.command(
-          `  $ frodo config-manager pull remote-proxies -n ${s.remoteProxyId} ${s.connId}\n`
+          `  $ frodo config-manager pull remote-proxies -i ${s.remoteProxyId} ${s.connId}\n`
         )
     )
     .multiOp()
@@ -54,7 +58,7 @@ export default function setup() {
       if (await getTokens(false, true, deploymentTypes)) {
         verboseMessage('Exporting remote proxies.');
         const outcome = await configManagerExportRemoteProxies(
-          options.name,
+          options.proxyId,
           false,
           options.allowFailures
         );

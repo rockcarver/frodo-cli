@@ -20,6 +20,12 @@ export default function setup() {
     .description('Export variables.')
     .addOption(
       new Option(
+        '-i, --variable-id <id>',
+        'Variable id. If specified, only exports the variable with the specified id (and reports or dumps only that variable).'
+      )
+    )
+    .addOption(
+      new Option(
         '-r, --report',
         'Output variables as a CSV report. Cannot be used with --dump.'
       ).conflicts(['dump'])
@@ -42,11 +48,16 @@ export default function setup() {
       );
 
       if (await getTokens(false, true, deploymentTypes)) {
-        verboseMessage('Exporting variables...');
+        verboseMessage(
+          options.variableId !== undefined
+            ? `Exporting variable "${options.variableId}"...`
+            : 'Exporting variables...'
+        );
         const outcome = await configManagerExportVariables(
           options.report,
           options.dump,
-          options.allowFailures
+          options.allowFailures,
+          options.variableId
         );
         if (!outcome) process.exitCode = 1;
       } else {

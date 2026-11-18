@@ -20,6 +20,12 @@ export default function setup() {
     .description('Export content security policy.')
     .addOption(
       new Option(
+        '-i, --csp-id <id>',
+        'Policy id: enforced or report-only. If specified, the file holds only that policy.'
+      )
+    )
+    .addOption(
+      new Option(
         '-f, --file <file>',
         'The CSP_OVERRIDES json file. ex: "/home/trivir/Documents/csp-overrides.json", or "csp-overrides.json"'
       )
@@ -52,8 +58,15 @@ export default function setup() {
       );
 
       if (await getTokens(false, true, deploymentTypes)) {
-        verboseMessage('Exporting content security policy');
-        const outcome = await configManagerExportCsp(options.file);
+        verboseMessage(
+          options.cspId !== undefined
+            ? `Exporting content security policy "${options.cspId}"`
+            : 'Exporting content security policy'
+        );
+        const outcome = await configManagerExportCsp(
+          options.file,
+          options.cspId
+        );
         if (!outcome) process.exitCode = 1;
       } else {
         // getTokens() failed (any option combination is valid here).

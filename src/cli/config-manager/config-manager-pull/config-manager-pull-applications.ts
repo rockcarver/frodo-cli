@@ -8,6 +8,7 @@ import { verboseMessage } from '../../../utils/Console';
 import { realmOfRun } from '../../../utils/interactive/PositionalArgs';
 import { APPLICATION_KEY_SET_PULL_SENTENCE } from '../../../utils/PlaceholderValues';
 import { FrodoCommand } from '../../FrodoCommand';
+import { withOptionAlias } from '../../OptionAlias';
 
 const { CLOUD_DEPLOYMENT_TYPE_KEY, FORGEOPS_DEPLOYMENT_TYPE_KEY } =
   frodo.utils.constants;
@@ -34,8 +35,17 @@ export default function setup() {
     )
     .addOption(
       new Option(
-        '-n, --name <name>',
-        'Application name. If specified, pulls only the application with the given name. Needs a single realm.'
+        '-i, --app-id <id>',
+        'Application id. If specified, pulls only the application with the given id. Needs a single realm. Cannot be used with -n.'
+      ).conflicts(['appName'])
+    )
+    .addOption(
+      withOptionAlias(
+        new Option(
+          '-n, --app-name <name>',
+          'Application name. If specified, pulls only the application with the given name. Needs a single realm. Cannot be used with -i.'
+        ).conflicts(['appId']),
+        ['--name']
       )
     )
     .addHelpText(
@@ -65,16 +75,19 @@ export default function setup() {
       );
 
       if (await getTokens(false, true, deploymentTypes)) {
+        const selected = options.appId ?? options.appName;
         verboseMessage(
-          options.name
-            ? `Exporting application "${options.name}".`
+          selected
+            ? `Exporting application "${selected}".`
             : 'Exporting applications.'
         );
         const outcome = await configManagerExportApplications(
-          options.name,
+          options.appName,
           realmOfRun(command, realm),
           false,
-          options.allowFailures
+          options.allowFailures,
+          undefined,
+          options.appId
         );
         if (!outcome) process.exitCode = 1;
       } else {

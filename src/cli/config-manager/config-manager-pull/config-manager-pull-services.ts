@@ -4,6 +4,7 @@ import { getTokens } from '../../../ops/AuthenticateOps';
 import { verboseMessage } from '../../../utils/Console';
 import { realmOfRun } from '../../../utils/interactive/PositionalArgs';
 import { FrodoCommand } from '../../FrodoCommand';
+import { withOptionAlias } from '../../OptionAlias';
 
 export default function setup() {
   const program = new FrodoCommand('frodo config-manager pull services');
@@ -11,9 +12,12 @@ export default function setup() {
   program
     .description('Export authentication services.')
     .addOption(
-      new Option(
-        '-n, --name <name>',
-        'Service name. If specified, only exports the service with the specified name.'
+      withOptionAlias(
+        new Option(
+          '-i, --service-id <id>',
+          'Service id. If specified, only exports the service with the specified id.'
+        ),
+        ['-n', '--name']
       )
     )
 
@@ -33,7 +37,7 @@ export default function setup() {
         verboseMessage('Exporting services...');
         const outcome = await configManagerExportServices(
           realmOfRun(command, realm),
-          options.name,
+          options.serviceId,
           options.allowFailures
         );
         if (!outcome) process.exitCode = 1;

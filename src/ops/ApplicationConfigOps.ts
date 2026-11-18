@@ -186,6 +186,7 @@ function describeProblem(
  * @param {boolean} quiet true for the step of `pull all`: say nothing when there is no application, and skip a tree that does not use the application layout with a warning instead of failing
  * @param {boolean} allowFailures true to report applications that could not be pulled but still succeed. Default: false
  * @param {ApplicationLayoutDecision} layout the decision about the tree that was made before anything was written into it (`pull all` decides once, before its first step); default: decided now
+ * @param {string} id optional id (`_id`) of the one application to pull instead of a name (needs a single realm too). The id is looked for in the list of applications that a pull of all applications reads, so no other request is made. An empty id is refused, it never means all applications; an id that the realm does not have fails the command.
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
 export async function configManagerExportApplications(
@@ -193,12 +194,19 @@ export async function configManagerExportApplications(
   realm?: string,
   quiet: boolean = false,
   allowFailures: boolean = false,
-  layout?: ApplicationLayoutDecision
+  layout?: ApplicationLayoutDecision,
+  id?: string
 ): Promise<boolean> {
+  if (id === '') {
+    printMessage('The application id must not be empty.', 'error');
+    return false;
+  }
+  // what the command line names: an id, or a name (an empty name means all applications)
+  const selected = id ?? name;
   try {
     const realms =
       realm && realm !== DEFAULT_REALM_KEY ? [realm] : await realmList();
-    if (name && realms.length !== 1) {
+    if (selected && realms.length !== 1) {
       printMessage(
         'Error: for a named application, specify a single realm',
         'error'
@@ -239,15 +247,28 @@ export async function configManagerExportApplications(
       const realmDir = currentRealm === '/' ? 'root' : currentRealm;
       let applications: ApplicationRecord[];
       try {
-        applications = name
-          ? [await frodo.app.readApplicationByName(name)]
-          : await frodo.app.readApplications();
+        applications =
+          id !== undefined
+            ? (await frodo.app.readApplications()).filter(
+                (application) => application._id === id
+              )
+            : name
+              ? [await frodo.app.readApplicationByName(name)]
+              : await frodo.app.readApplications();
+        if (id !== undefined && applications.length === 0) {
+          printMessage(
+            `Application with id '${id}' not found in realm '${currentRealm}'.`,
+            'error'
+          );
+          namedFailed = true;
+          continue;
+        }
       } catch (error) {
-        if (name) {
+        if (selected) {
           // the one application that was asked for: nothing for the flag to allow
           printError(
             error,
-            `Error reading application '${name}' in realm '${currentRealm}'`
+            `Error reading application '${selected}' in realm '${currentRealm}'`
           );
           namedFailed = true;
         } else {

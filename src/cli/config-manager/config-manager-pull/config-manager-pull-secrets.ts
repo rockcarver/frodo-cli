@@ -19,6 +19,12 @@ export default function setup() {
   program
     .description('Export secrets.')
     .addOption(
+      new Option(
+        '-i, --secret-id <id>',
+        'Secret id. If specified, only exports the secret with the specified id (and reports only that secret with -r).'
+      )
+    )
+    .addOption(
       new Option('-a, --active-only', 'Export only active secret versions.')
     )
     .addOption(new Option('-r, --report', 'Output secrets as a CSV report.'))
@@ -34,11 +40,16 @@ export default function setup() {
       );
 
       if (await getTokens(false, true, deploymentTypes)) {
-        verboseMessage('Exporting secrets...');
+        verboseMessage(
+          options.secretId !== undefined
+            ? `Exporting secret "${options.secretId}"...`
+            : 'Exporting secrets...'
+        );
         const outcome = await configManagerExportSecrets(
           options.activeOnly,
           options.report,
-          options.allowFailures
+          options.allowFailures,
+          options.secretId
         );
         if (!outcome) process.exitCode = 1;
       } else {

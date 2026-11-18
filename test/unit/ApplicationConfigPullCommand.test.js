@@ -102,9 +102,37 @@ describe('frodo config-manager pull applications', () => {
       'Zion Portal',
       'alpha',
       false,
-      true
+      true,
+      undefined,
+      undefined
     );
     expect(process.exitCode).toBeUndefined();
+  });
+
+  test('--name is the permanent alias of -n, --app-name', async () => {
+    await run('--name', 'Zion Portal', 'matrix', 'alpha');
+
+    expect(configManagerExportApplications).toHaveBeenCalledWith(
+      'Zion Portal',
+      'alpha',
+      false,
+      undefined,
+      undefined,
+      undefined
+    );
+  });
+
+  test('-i, --app-id pulls the application with that id, and no name', async () => {
+    await run('-i', 'app-id-1', 'matrix', 'alpha');
+
+    expect(configManagerExportApplications).toHaveBeenCalledWith(
+      undefined,
+      'alpha',
+      false,
+      undefined,
+      undefined,
+      'app-id-1'
+    );
   });
 
   test('without a name and without a realm it pulls everything, and failures are not allowed by default', async () => {
@@ -114,6 +142,8 @@ describe('frodo config-manager pull applications', () => {
       undefined,
       undefined,
       false,
+      undefined,
+      undefined,
       undefined
     );
   });

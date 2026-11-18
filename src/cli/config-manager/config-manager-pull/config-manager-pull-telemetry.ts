@@ -1,8 +1,10 @@
 import { frodo } from '@rockcarver/frodo-lib';
+import { Option } from 'commander';
 import { configManagerExportTelemetry } from '../../../configManagerOps/FrConfigTelemetryOps';
 import { getTokens } from '../../../ops/AuthenticateOps';
 import { verboseMessage } from '../../../utils/Console';
 import { FrodoCommand } from '../../FrodoCommand';
+import { withOptionAlias } from '../../OptionAlias';
 
 const { CLOUD_DEPLOYMENT_TYPE_KEY } = frodo.utils.constants;
 
@@ -20,7 +22,15 @@ export default function setup() {
       '-c, --category <category>',
       'Telemetry category to export (e.g. otlp, splunk).'
     )
-    .option('-n, --name <name>', 'Name of a single exporter to export.')
+    .addOption(
+      withOptionAlias(
+        new Option(
+          '-i, --exporter-id <id>',
+          'Id of a single exporter to export.'
+        ),
+        ['-n', '--name']
+      )
+    )
     .multiOp()
     .action(async (host, realm, user, password, options, command) => {
       command.handleDefaultArgsAndOpts(
@@ -43,7 +53,7 @@ export default function setup() {
       verboseMessage('Exporting telemetry configuration.');
       const outcome = await configManagerExportTelemetry(
         options.category,
-        options.name,
+        options.exporterId,
         options.allowFailures
       );
       if (!outcome) process.exitCode = 1;

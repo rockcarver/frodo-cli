@@ -1,4 +1,5 @@
 import { frodo } from '@rockcarver/frodo-lib';
+import { Option } from 'commander';
 import { configManagerExportThemes } from '../../../configManagerOps/FrConfigThemeOps';
 import { getTokens } from '../../../ops/AuthenticateOps';
 import { verboseMessage } from '../../../utils/Console';
@@ -22,6 +23,18 @@ export default function setup() {
 
   program
     .description('Export themes.')
+    .addOption(
+      new Option(
+        '-i, --theme-id <id>',
+        'Theme id. If specified, pulls only the theme with the given id. Needs a single realm. Cannot be used with -n.'
+      ).conflicts(['themeName'])
+    )
+    .addOption(
+      new Option(
+        '-n, --theme-name <name>',
+        'Theme name. If specified, pulls only the theme with the given name. Needs a single realm. Cannot be used with -i.'
+      ).conflicts(['themeId'])
+    )
     .multiOp()
     .usesRealm()
     .action(async (host, realm, user, password, options, command) => {
@@ -35,10 +48,15 @@ export default function setup() {
       );
 
       if (await getTokens(false, true, deploymentTypes)) {
-        verboseMessage('Exporting themes...');
+        const selected = options.themeId ?? options.themeName;
+        verboseMessage(
+          selected ? `Exporting theme "${selected}"...` : 'Exporting themes...'
+        );
         const outcome = await configManagerExportThemes(
           realmOfRun(command, realm),
-          options.allowFailures
+          options.allowFailures,
+          options.themeId,
+          options.themeName
         );
         if (!outcome) process.exitCode = 1;
       } else {

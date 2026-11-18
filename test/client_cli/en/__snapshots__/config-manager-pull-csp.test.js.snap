@@ -26,6 +26,8 @@ Options:
   -f, --file <file>  The CSP_OVERRIDES json file. ex:
                      "/home/trivir/Documents/csp-overrides.json", or
                      "csp-overrides.json"
+  -i, --csp-id <id>  Policy id: enforced or report-only. If specified, the file
+                     holds only that policy.
   -h, --help         Help
   -hh, --help-more   Help with all options.
   -hhh, --help-all   Help with all options, environment variables, and usage

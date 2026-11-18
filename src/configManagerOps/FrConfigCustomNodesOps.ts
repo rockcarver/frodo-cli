@@ -33,16 +33,29 @@ const {
  * does not exist) fail the command whatever `allowFailures` says.
  * @param {string} name Optional display name of a custom node to export. If not provided, all custom nodes will be exported.
  * @param {boolean} allowFailures True to succeed although some custom nodes could not be exported (the failures are still summarised)
+ * @param {string} id Optional id (`_id`) of the custom node to export. The id is looked for in the list that an export of all custom nodes reads, so no other request is made. An empty id is refused, it never means all custom nodes; an id that no custom node has fails the command.
  * @returns {Promise<boolean>} True if export was successful
  */
 export async function configManagerExportCustomNodes(
   name?: string,
-  allowFailures: boolean = false
+  allowFailures: boolean = false,
+  id?: string
 ): Promise<boolean> {
+  if (id === '') {
+    printMessage('The custom node id must not be empty.', 'error');
+    return false;
+  }
   try {
-    const customNodes = name
-      ? [await readCustomNode(undefined, name)]
-      : await readCustomNodes();
+    const customNodes =
+      id !== undefined
+        ? (await readCustomNodes()).filter((node) => node._id === id)
+        : name
+          ? [await readCustomNode(undefined, name)]
+          : await readCustomNodes();
+    if (id !== undefined && customNodes.length === 0) {
+      printMessage(`Custom node with id '${id}' not found.`, 'error');
+      return false;
+    }
     const run = new OperationRun({ unit: 'custom node', allowFailures });
     for (const node of customNodes) {
       try {

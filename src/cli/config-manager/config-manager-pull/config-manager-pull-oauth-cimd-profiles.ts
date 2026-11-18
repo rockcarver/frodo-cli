@@ -6,6 +6,7 @@ import c from '../../../utils/ColorTheme';
 import { verboseMessage } from '../../../utils/Console';
 import { realmOfRun } from '../../../utils/interactive/PositionalArgs';
 import { FrodoCommand } from '../../FrodoCommand';
+import { withOptionAlias } from '../../OptionAlias';
 
 export default function setup() {
   const program = new FrodoCommand(
@@ -18,9 +19,12 @@ export default function setup() {
       'Export the CIMD profiles (the allow-list of client ID URL patterns for OAuth 2.0 clients that identify themselves with a Client ID Metadata Document) of all realms or of one realm to realms/<realm>/realm-config/agents/CIMDProfile/<name>.json, one file for each. The object is written as the server lists it, without its revision; it contains no secrets. A realm or a deployment that does not offer CIMD profiles has nothing to export, which is not an error.'
     )
     .addOption(
-      new Option(
-        '-n, --name <name>',
-        'CIMD profile name. If specified, pulls only the profile with the given name. Needs a single realm.'
+      withOptionAlias(
+        new Option(
+          '-i, --profile-id <id>',
+          'CIMD profile id. If specified, pulls only the profile with the given id. Needs a single realm.'
+        ),
+        ['-n', '--name']
       )
     )
     .addOption(
@@ -42,7 +46,7 @@ export default function setup() {
         ) +
         `  Pull one CIMD profile of a realm:\n` +
         c.command(
-          `  $ frodo config-manager pull oauth-cimd-profiles -n ${s.cimdProfileId} ${s.connId} ${s.realm}\n`
+          `  $ frodo config-manager pull oauth-cimd-profiles -i ${s.cimdProfileId} ${s.connId} ${s.realm}\n`
         ) +
         `  Replace values that differ between environments with placeholders from a file:\n` +
         c.command(
@@ -80,12 +84,12 @@ export default function setup() {
 
       if (await getTokens()) {
         verboseMessage(
-          options.name
-            ? `Exporting CIMD profile "${options.name}".`
+          options.profileId
+            ? `Exporting CIMD profile "${options.profileId}".`
             : 'Exporting CIMD profiles.'
         );
         const outcome = await configManagerExportCIMDProfiles(
-          options.name,
+          options.profileId,
           realmOfRun(command, realm),
           false,
           options.allowFailures,

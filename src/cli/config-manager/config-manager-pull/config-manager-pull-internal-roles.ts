@@ -4,6 +4,7 @@ import { configManagerExportInternalRoles } from '../../../configManagerOps/FrCo
 import { getTokens } from '../../../ops/AuthenticateOps';
 import { verboseMessage } from '../../../utils/Console';
 import { FrodoCommand } from '../../FrodoCommand';
+import { withOptionAlias } from '../../OptionAlias';
 
 const { CLOUD_DEPLOYMENT_TYPE_KEY, FORGEOPS_DEPLOYMENT_TYPE_KEY } =
   frodo.utils.constants;
@@ -25,8 +26,17 @@ export default function setup() {
     .description('Export internal roles.')
     .addOption(
       new Option(
-        '-n, --name <name>',
-        'Internal role name. If specified, only export the internal role with the specified name.'
+        '-i, --role-id <id>',
+        'Internal role id. If specified, only export the internal role with the specified id. Cannot be used with -n.'
+      ).conflicts(['roleName'])
+    )
+    .addOption(
+      withOptionAlias(
+        new Option(
+          '-n, --role-name <name>',
+          'Internal role name. If specified, only export the internal role with the specified name. Cannot be used with -i.'
+        ).conflicts(['roleId']),
+        ['--name']
       )
     )
     .multiOp()
@@ -43,8 +53,9 @@ export default function setup() {
       if (await getTokens(false, true, deploymentTypes)) {
         verboseMessage('Exporting internal roles');
         const outcome = await configManagerExportInternalRoles(
-          options.name,
-          options.allowFailures
+          options.roleName,
+          options.allowFailures,
+          options.roleId
         );
         if (!outcome) process.exitCode = 1;
       } else {

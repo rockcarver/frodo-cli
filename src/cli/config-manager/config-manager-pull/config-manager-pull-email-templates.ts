@@ -4,6 +4,7 @@ import { configManagerExportEmailTemplates } from '../../../configManagerOps/FrC
 import { getTokens } from '../../../ops/AuthenticateOps';
 import { verboseMessage } from '../../../utils/Console';
 import { FrodoCommand } from '../../FrodoCommand';
+import { withOptionAlias } from '../../OptionAlias';
 
 const { CLOUD_DEPLOYMENT_TYPE_KEY, FORGEOPS_DEPLOYMENT_TYPE_KEY } =
   frodo.utils.constants;
@@ -23,9 +24,12 @@ export default function setup() {
   program
     .description('Export email-templates objects.')
     .addOption(
-      new Option(
-        '-n, --name <name>',
-        'Email-templates name. If specified, only export the email template with the specified name.'
+      withOptionAlias(
+        new Option(
+          '-i, --template-id <id>',
+          'Email template id. If specified, only exports the email template with the specified id.'
+        ),
+        ['-n', '--name']
       )
     )
     .multiOp()
@@ -42,7 +46,7 @@ export default function setup() {
       if (await getTokens(false, true, deploymentTypes)) {
         verboseMessage('Exporting email templates');
         const outcome = await configManagerExportEmailTemplates(
-          options.name,
+          options.templateId,
           options.allowFailures
         );
         if (!outcome) process.exitCode = 1;

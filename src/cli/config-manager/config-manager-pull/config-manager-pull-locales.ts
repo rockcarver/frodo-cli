@@ -4,6 +4,7 @@ import { configManagerExportLocales } from '../../../configManagerOps/FrConfigLo
 import { getTokens } from '../../../ops/AuthenticateOps';
 import { verboseMessage } from '../../../utils/Console';
 import { FrodoCommand } from '../../FrodoCommand';
+import { withOptionAlias } from '../../OptionAlias';
 
 const { CLOUD_DEPLOYMENT_TYPE_KEY, FORGEOPS_DEPLOYMENT_TYPE_KEY } =
   frodo.utils.constants;
@@ -23,9 +24,12 @@ export default function setup() {
   program
     .description('Export locales.')
     .addOption(
-      new Option(
-        '-n, --name <name>',
-        'Locale name. If specified, only exports the locale with the specified name.'
+      withOptionAlias(
+        new Option(
+          '-i, --locale-id <id>',
+          'Locale id. If specified, only exports the locale with the specified id.'
+        ),
+        ['-n', '--name']
       )
     )
     .multiOp()
@@ -42,7 +46,7 @@ export default function setup() {
       if (await getTokens(false, true, deploymentTypes)) {
         verboseMessage('Exporting locales...');
         const outcome = await configManagerExportLocales(
-          options.name,
+          options.localeId,
           options.allowFailures
         );
         if (!outcome) process.exitCode = 1;

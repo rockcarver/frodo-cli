@@ -145,7 +145,7 @@ const COMMANDS = [
     name: 'config-manager pull secret-mappings',
     file: 'config-manager-pull/config-manager-pull-secret-mappings',
     fn: 'configManagerExportSecretMappings',
-    options: { name: 'am.x' },
+    options: { secretMappingId: 'am.x' },
     args: (allowFailures) => ['am.x', 'alpha', allowFailures],
   },
   {

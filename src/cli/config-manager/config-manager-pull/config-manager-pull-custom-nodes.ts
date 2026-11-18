@@ -3,6 +3,7 @@ import { configManagerExportCustomNodes } from '../../../configManagerOps/FrConf
 import { getTokens } from '../../../ops/AuthenticateOps';
 import { verboseMessage } from '../../../utils/Console';
 import { FrodoCommand } from '../../FrodoCommand';
+import { withOptionAlias } from '../../OptionAlias';
 
 export default function setup() {
   const program = new FrodoCommand('frodo config-manager pull custom-nodes');
@@ -11,8 +12,17 @@ export default function setup() {
     .description('Export custom nodes.')
     .addOption(
       new Option(
-        '-n, --name <name>',
-        'Custom node display name. If specified, only one custom node is exported.'
+        '-i, --node-id <id>',
+        'Custom node id. If specified, only the custom node with that id is exported. Cannot be used with -n.'
+      ).conflicts(['nodeName'])
+    )
+    .addOption(
+      withOptionAlias(
+        new Option(
+          '-n, --node-name <name>',
+          'Custom node display name. If specified, only one custom node is exported. Cannot be used with -i.'
+        ).conflicts(['nodeId']),
+        ['--name']
       )
     )
     .multiOp()
@@ -32,11 +42,14 @@ export default function setup() {
         return;
       }
       verboseMessage(
-        `Exporting custom node${options.name ? ` with name ${options.name}` : 's'}`
+        options.nodeId !== undefined
+          ? `Exporting custom node with id ${options.nodeId}`
+          : `Exporting custom node${options.nodeName ? ` with name ${options.nodeName}` : 's'}`
       );
       const outcome = await configManagerExportCustomNodes(
-        options.name,
-        options.allowFailures
+        options.nodeName,
+        options.allowFailures,
+        options.nodeId
       );
       if (!outcome) process.exitCode = 1;
     });

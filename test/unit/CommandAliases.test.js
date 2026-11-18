@@ -11,6 +11,7 @@ import {
   FrodoStubCommand,
   getAliasKind,
 } from '../../src/cli/FrodoCommand.ts';
+import { getOptionAliases } from '../../src/cli/OptionAlias.ts';
 import {
   fullName,
   loadCommandTree,
@@ -669,11 +670,15 @@ describe('the old words of the planned renames (cli#1264)', () => {
       words.map((word) => [verb, word])
     );
 
-    // an option of the command by its short or long flag; if the permanent alias is not an
-    // option of the command in the end, this is the one place to change
+    // an option of the command by its short or long flag, or by a spelling that the option
+    // answers to as its permanent alias (src/cli/OptionAlias.ts: -i, --journey-id keeps -n and
+    // --name once the selectors of the command are renamed)
     const takes = (command, flag) =>
       command.options.some(
-        (option) => option.short === flag || option.long === flag
+        (option) =>
+          option.short === flag ||
+          option.long === flag ||
+          getOptionAliases(option).includes(flag)
       );
 
     it('lists 60 commands with -n, --name and 1 with -n, --script-name', () => {

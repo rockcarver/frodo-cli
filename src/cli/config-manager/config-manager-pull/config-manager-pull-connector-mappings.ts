@@ -1,4 +1,5 @@
 import { frodo } from '@rockcarver/frodo-lib';
+import { Option } from 'commander';
 import { configManagerExportMappings } from '../../../configManagerOps/FrConfigConnectorMappingOps';
 import { ownedObjectsHelp } from '../../../ops/ApplicationOwnedObjectsHelp';
 import { getTokens } from '../../../ops/AuthenticateOps';
@@ -22,6 +23,12 @@ export default function setup() {
 
   program
     .description('Export connector mappings.')
+    .addOption(
+      new Option(
+        '-i, --connector-mapping-id <id>',
+        'Connector mapping id (the name of the mapping). If specified, only exports the mapping with the specified id.'
+      )
+    )
     .addHelpText('after', ownedObjectsHelp('mappings'))
     .multiOp()
     .action(async (host, realm, user, password, options, command) => {
@@ -35,9 +42,13 @@ export default function setup() {
       );
 
       if (await getTokens(false, true, deploymentTypes)) {
-        verboseMessage('Exporting connector mappings');
+        verboseMessage(
+          options.connectorMappingId
+            ? `Exporting connector mapping "${options.connectorMappingId}"`
+            : 'Exporting connector mappings'
+        );
         const outcome = await configManagerExportMappings(
-          undefined,
+          options.connectorMappingId,
           options.allowFailures
         );
         if (!outcome) process.exitCode = 1;
