@@ -101,8 +101,18 @@ describe('config-manager pull test, push test and delete test are removed (#1264
     );
     const [upgrading5] = migration.split('## Upgrading to 4.x');
 
-    test.each(REMOVED)('the 5.x section lists %s test as removed', (verb) => {
-      expect(upgrading5).toContain(`| \`frodo config-manager ${verb} test\``);
-    });
+    // the whole row, so a wrong replacement is caught too; the table is padded
+    // with blanks that depend on its widest cell, so they are not matched literally
+    test.each(REMOVED)(
+      'the 5.x section lists %s test as removed and names frodo conn test instead',
+      (verb) => {
+        expect(upgrading5).toMatch(
+          new RegExp(
+            `^\\|\\s*\`frodo config-manager ${verb} test\`\\s*\\|\\s*\`frodo conn test\`\\s*\\|$`,
+            'm'
+          )
+        );
+      }
+    );
   });
 });
