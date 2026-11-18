@@ -89,6 +89,58 @@ describe('createFrodoCompleter', () => {
     expect(complete('my')).toEqual([[], 'my']);
   });
 
+  it('completes openidm methods with their documented scaffold', () => {
+    // The shell's openidm object rides the same doc index as frodo-lib's
+    // methods (ShellContextOps merges OPENIDM_METHOD_DOCS into
+    // docsByMethod); completion is therefore doc-driven, no special case.
+    const openidm = {
+      create: () => 1,
+      read: () => 1,
+      query: () => 1,
+    };
+    const docs = new Map();
+    docs.set('read', [
+      {
+        typeName: 'openidm',
+        methodName: 'read',
+        signature: 'read(resourceName, params?, fields?)',
+        description: 'Fetches one object by its full path.',
+        params: [
+          { name: 'resourceName', type: 'string', required: true },
+          { name: 'params', type: 'object', required: false },
+          { name: 'fields', type: 'string[]', required: false },
+        ],
+        returns: '',
+      },
+    ]);
+    const complete = createFrodoCompleter({ openidm }, docs);
+    expect(complete('openidm.re')).toEqual([
+      ['openidm.read(resourceName, params?, fields?)'],
+      'openidm.re',
+    ]);
+    // Terminal mode (last arg) completes to empty parens: readline
+    // appends the completion's suffix after 'openidm.re', landing the
+    // line on 'openidm.read()', which is inert on Enter. The signature
+    // shows in the hint line instead.
+    const completeTerminal = createFrodoCompleter(
+      { openidm },
+      docs,
+      undefined,
+      undefined,
+      true
+    );
+    expect(completeTerminal('openidm.re')).toEqual([
+      ['openidm.read()'],
+      'openidm.re',
+    ]);
+    // Un-documented methods still complete to the bare call.
+    const completeNoDoc = createFrodoCompleter({ openidm }, new Map());
+    expect(completeNoDoc('openidm.que')).toEqual([
+      ['openidm.query()'],
+      'openidm.que',
+    ]);
+  });
+
   it('completes array hops in bracket notation, the valid JavaScript', () => {
     // Bracket syntax is what a user types for arrays (and the only form
     // that runs: obj.0 is a SyntaxError), so paths through arrays are

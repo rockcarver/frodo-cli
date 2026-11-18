@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Unreleased
 
 ### Added
+- The IDM scripting functions are available in `frodo shell` (terminal and web) as the `openidm` object: `create`, `read`, `update`, `patch`, `delete`, `query`, `action` over the console's authenticated REST layer, plus `encrypt`, `decrypt`, `hash`, `matches` (evaluated through the IDM script endpoint) and `isEncrypted`, `isHashed` locally. Tab completion shows the documented signature and `help(openidm.read)` prints the full parameter docs; bad arguments fail with a synchronous `openidm.read: resourceName is required` instead of a rejected promise.
 - `frodo shell --web` serves the JS console as a local web page: a one-time sign-in link is printed, and the console (the `$` REST facade, object explorer, fuzzy history search, tab completion) runs in the browser with per-tab engines. No username or password is needed for web mode; the worker signs in from the named or picked connection profile.
 - Console history entries now record when a command ran and against which environment. The Ctrl+R popups (terminal and web) show a dim `2h ago · https://tenant...` annotation on the selection, `.history` lists timestamp and host columns, and the web console's per-host history fold keeps each folded entry's environment. Old history files read back unchanged; new entries are additive lines.
 

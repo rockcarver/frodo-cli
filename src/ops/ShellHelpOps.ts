@@ -92,13 +92,20 @@ export function createHelpContext(
   frodoInstance: object,
   // Where help text goes; defaults to the terminal. The web console passes a
   // function that sends it to the browser instead.
-  print: (line: string) => void = (line) => console.log(line)
+  print: (line: string) => void = (line) => console.log(line),
+  // Docs for the shell's own objects (openidm.*), in the same shape as
+  // frodo-lib's help metadata: help() treats openidm.read like
+  // frodo.idm.managed.readManagedObject.
+  extraDocs: MethodHelpDoc[] = []
 ): {
   help: (target?: unknown) => void;
 } {
   const alphaSort = (a: string, b: string): number => a.localeCompare(b);
 
-  const metadata = getHelpMetadataFromInstance(frodoInstance);
+  const metadata = [
+    ...getHelpMetadataFromInstance(frodoInstance),
+    ...extraDocs,
+  ];
   cachedIndex = null;
 
   function getMethodNames(obj: object): string[] {
@@ -213,6 +220,20 @@ export function createHelpContext(
       );
       print(
         `  ${DIM}urls resolve against the connected environment (AM or IDM); headers are an optional trailing argument${RESET}`
+      );
+      print('');
+      print(`${BOLD}IDM functions ${GREEN}openidm${RESET}${BOLD}:${RESET}`);
+      print(
+        `  ${GREEN}openidm.read(path)${RESET}  ${DIM}also create, update, patch, delete, query, action${RESET}`
+      );
+      print(
+        `  ${GREEN}openidm.encrypt(value)${RESET}  ${DIM}also decrypt, hash, matches, isEncrypted, isHashed${RESET}`
+      );
+      print(
+        `  ${DIM}the IDM scripting functions, async: await openidm.read('managed/user/jdoe')${RESET}`
+      );
+      print(
+        `  ${DIM}crypto helpers run through the IDM script endpoint; CRUD talks REST directly${RESET}`
       );
       return;
     }
