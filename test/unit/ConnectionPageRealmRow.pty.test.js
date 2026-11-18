@@ -5,6 +5,7 @@ import { ensureFrodoArtifact } from '../e2e/utils/FrodoBinary.cjs';
 import {
   atConnectedPage,
   CONNECTED,
+  DONE_ROW,
   fillCredentials,
   footerOf,
   lastPage,
@@ -575,8 +576,9 @@ suite('the realm is a row of the connection page, on a real terminal', () => {
             { type: 'send', text: 'not-a-password' },
             ENTER,
             { type: 'sleep', ms: 300 },
+            { type: 'clear_output' },
             DOWN,
-            { type: 'sleep', ms: 300 },
+            { type: 'wait_plain', regex: DONE_ROW, timeoutMs: 30000 },
             { type: 'capture', label: 'again' },
             { type: 'clear_output' },
             ENTER,
