@@ -3,7 +3,7 @@
 /*
 // Cloud
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_TEST_NAME=0_D frodo config-manager pull journeys -D ConfigJourneytestDir1
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_TEST_NAME=0_cD_pull-dependencies frodo config-manager pull journeys -cD ConfigJourneytestDir4 --pull-dependencies
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_TEST_NAME=0_cD_pull-dependencies frodo config-manager pull journeys --clean -D ConfigJourneytestDir4 --pull-dependencies
 
 // ForgeOps
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_REALM=alpha FRODO_HOST=https://nightly.gcp.forgeops.com/am FRODO_TEST_NAME=0_D_m frodo config-manager pull journeys -D testDir12 -m forgeops
@@ -39,7 +39,7 @@ describe('frodo config-manager pull journeys', () => {
   });
   test('"frodo config-manager pull journeys -cD ConfigJourneytestDir4 --pull-dependencies": should export the journeys in fr-config-manager style"', async () => {
     const dirName = 'ConfigJourneytestDir4';
-    const CMD = `frodo config-manager pull journeys -cD ${dirName} --pull-dependencies`;
+    const CMD = `frodo config-manager pull journeys --clean -D ${dirName} --pull-dependencies`;
     await testExport(CMD, { ...env, env: { ...env.env, FRODO_TEST_NAME: '0_cD_pull-dependencies' } }, undefined, undefined, dirName, false);
   });
 });

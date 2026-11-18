@@ -3,11 +3,11 @@
 /*
 // ForgeOps
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://nightly.gcp.forgeops.com/am FRODO_TEST_NAME=0_D_m frodo config-manager push raw -D test/e2e/exports/fr-config-manager/forgeops -m forgeops
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://nightly.gcp.forgeops.com/am FRODO_TEST_NAME=0_p_D_m frodo config-manager push raw -p test/e2e/exports/fr-config-manager/forgeops/raw/openidm/config -D test/e2e/exports/fr-config-manager/forgeops -m forgeops
-cat test/e2e/exports/fr-config-manager/forgeops/raw/openidm/config/cluster.json | FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://nightly.gcp.forgeops.com/am  FRODO_TEST_NAME=0_p_i_m frodo config-manager push raw -p /openidm/config/cluster -i -m forgeops
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://nightly.gcp.forgeops.com/am FRODO_TEST_NAME=0_p_D_m frodo config-manager push raw --path test/e2e/exports/fr-config-manager/forgeops/raw/openidm/config -D test/e2e/exports/fr-config-manager/forgeops -m forgeops
+cat test/e2e/exports/fr-config-manager/forgeops/raw/openidm/config/cluster.json | FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://nightly.gcp.forgeops.com/am  FRODO_TEST_NAME=0_p_i_m frodo config-manager push raw --path /openidm/config/cluster --stdin -m forgeops
 // Cloud
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_TEST_NAME=0_E_D frodo config-manager push raw -E ESV_VARIABLE_TEST="MSwyLDM=" -D test/e2e/exports/fr-config-manager/cloud
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_TEST_NAME=0_E_p_D frodo config-manager push raw -E ESV_VARIABLE_TEST="MSwyLDM=" -p test/e2e/exports/fr-config-manager/cloud/raw/environment  -D test/e2e/exports/fr-config-manager/cloud
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_TEST_NAME=0_E_p_D frodo config-manager push raw -E ESV_VARIABLE_TEST="MSwyLDM=" --path test/e2e/exports/fr-config-manager/cloud/raw/environment  -D test/e2e/exports/fr-config-manager/cloud
 */
 
 import { exec, getEnv, testSuccess } from './utils/TestUtils';
@@ -51,11 +51,11 @@ describe('frodo config-manager push raw ', () => {
         await testSuccess(CMD, { ...forgeopsEnv, env: { ...forgeopsEnv.env, FRODO_TEST_NAME: '0_D_m' } });
     });
     test(`"frodo config-manager push raw -p /openidm/config/cluster -i -m forgeops": should import raw configuration into forgeops"`, async () => {
-        const CMD = `frodo config-manager push raw -p /openidm/config/cluster -i -m forgeops`;
+        const CMD = `frodo config-manager push raw --path /openidm/config/cluster --stdin -m forgeops`;
         await testSuccess(CMD, { ...forgeopsEnv, env: { ...forgeopsEnv.env, FRODO_TEST_NAME: '0_p_i_m' } }, 0, readFileSync(stdinFile));
     });
     test(`"frodo config-manager push raw -p test/e2e/exports/fr-config-manager/forgeops/raw/openidm/config -m forgeops": should fail because the path matches no raw configuration"`, async () => {
-        const CMD = `frodo config-manager push raw -p test/e2e/exports/fr-config-manager/forgeops/raw/openidm/config -D ${forgeopsDirectory} -m forgeops`;
+        const CMD = `frodo config-manager push raw --path test/e2e/exports/fr-config-manager/forgeops/raw/openidm/config -D ${forgeopsDirectory} -m forgeops`;
         await expectNoMatchingPath(CMD, { ...forgeopsEnv, env: { ...forgeopsEnv.env, FRODO_TEST_NAME: '0_p_D_m' } });
     });
 
@@ -65,7 +65,7 @@ describe('frodo config-manager push raw ', () => {
         await testSuccess(CMD, { ...cloudEnv, env: { ...cloudEnv.env, FRODO_TEST_NAME: '0_E_D' } });
     });
     test(`"frodo config-manager push raw -E ESV_VARIABLE_TEST="MSwyLDM=" -p test/e2e/exports/fr-config-manager/cloud/raw/environment -D ${cloudDirectory}: should fail because the path matches no raw configuration"`, async () => {
-        const CMD = `frodo config-manager push raw -E ESV_VARIABLE_TEST="MSwyLDM=" -p test/e2e/exports/fr-config-manager/cloud/raw/environment  -D ${cloudDirectory}`;
+        const CMD = `frodo config-manager push raw -E ESV_VARIABLE_TEST="MSwyLDM=" --path test/e2e/exports/fr-config-manager/cloud/raw/environment  -D ${cloudDirectory}`;
         await expectNoMatchingPath(CMD, { ...cloudEnv, env: { ...cloudEnv.env, FRODO_TEST_NAME: '0_E_p_D' } });
     });
 });

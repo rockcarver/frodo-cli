@@ -3,7 +3,7 @@
 /*
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_TEST_NAME=0_D frodo config-manager pull variables -D variableTestDir
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_TEST_NAME='report' frodo config-manager pull variables -r
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_TEST_NAME=0_u_D frodo config-manager pull variables -u -D variableDumpDir
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_TEST_NAME=0_u_D frodo config-manager pull variables --dump -D variableDumpDir
 */
 
 import fs from 'fs';
@@ -31,7 +31,7 @@ describe('frodo config-manager pull variables', () => {
   });
   test('"frodo config-manager pull variables -u -D variableDumpDir": should dump all variables into the console"', async () => {
     const dirName = 'variableDumpDir';
-    const CMD = `frodo config-manager pull variables -u -D ${dirName}`;
+    const CMD = `frodo config-manager pull variables --dump -D ${dirName}`;
     try {
       await testSuccess(CMD, { ...env, env: { ...env.env, FRODO_TEST_NAME: '0_u_D' } });
     } finally {
