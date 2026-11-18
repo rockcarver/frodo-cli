@@ -4,6 +4,7 @@ import * as s from '../../help/SampleData';
 import { getTokens } from '../../ops/AuthenticateOps';
 import { abortDirectConfigurationSession } from '../../ops/cloud/EnvDirectConfigurationControlOps';
 import c from '../../utils/ColorTheme';
+import { verboseMessage } from '../../utils/Console';
 import { FrodoCommand } from '../FrodoCommand';
 
 const { CLOUD_DEPLOYMENT_TYPE_KEY } = frodo.utils.constants;
@@ -44,6 +45,7 @@ export default function setup() {
           command
         );
         if (await getTokens(false, true, deploymentTypes)) {
+          verboseMessage('Aborting direct configuration session.');
           const outcome = await abortDirectConfigurationSession(options.json);
           if (!outcome) process.exitCode = 1;
         } else {
