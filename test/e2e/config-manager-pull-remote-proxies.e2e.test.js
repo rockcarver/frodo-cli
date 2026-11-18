@@ -2,7 +2,7 @@
 
 /*
 // Cloud. Record after the push test has created the proxy zz-e2e-proxy, before it is deleted again.
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo config-manager pull remote-proxies -n zz-e2e-proxy -D testDir25
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_TEST_NAME=0_n_D frodo config-manager pull remote-proxies -n zz-e2e-proxy -D testDir25
 */
 
 import { getEnv, testExport } from './utils/TestUtils';
@@ -13,7 +13,7 @@ process.env['FRODO_CONNECTION_PROFILES_PATH'] =
   './test/e2e/env/Connections.json';
 const env = getEnv(c);
 
-// Each FRODO_TEST_NAME is the recording's identity (the args id frodo-lib derives from the command): a changed flag does not move the recording.
+// Each FRODO_TEST_NAME below pins the recording identity of its command (the args id it was recorded under, or a fixed label); test/unit/E2eRecordingIdentity.test.js checks every pin.
 describe('frodo config-manager pull remote-proxies', () => {
   test('"frodo config-manager pull remote-proxies -n zz-e2e-proxy -D testDir25": should export one remote proxy in fr-config-manager style"', async () => {
     const dirName = 'testDir25';

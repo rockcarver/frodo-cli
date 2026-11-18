@@ -13,7 +13,7 @@ test_workflow_4 is not an out-of-the-box workflow, so it must exist before
 recording. The beforeAll below stages it automatically during a recording
 run; this is only for reference / manual mock-mode probing (step #1 above):
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-ccb-ai.forgeblocks.com/am frodo iga workflow import --workflow-id test_workflow_4 --file test/e2e/exports/all/allWorkflows.workflow.json --no-deps
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-ccb-ai.forgeblocks.com/am frodo iga workflow delete --workflow-id test_workflow_4 --force
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-ccb-ai.forgeblocks.com/am FRODO_TEST_NAME=0_workflow-id_force frodo iga workflow delete --workflow-id test_workflow_4 --force
 */
 
 import { getEnv, testExport, testFail } from './utils/TestUtils';
@@ -22,7 +22,7 @@ import { iga_connection as ic } from './utils/TestConfig';
 process.env['FRODO_MOCK'] ||= '1';
 const env = getEnv(ic);
 
-// Each FRODO_TEST_NAME is the recording's identity (the args id frodo-lib derives from the command): a changed flag does not move the recording.
+// Each FRODO_TEST_NAME below pins the recording identity of its command (the args id it was recorded under, or a fixed label); test/unit/E2eRecordingIdentity.test.js checks every pin.
 describe('frodo config-manager pull iga-workflows', () => {
   test('"frodo config-manager pull iga-workflows -D igaTestDir01": should export the iga workflows in fr-config-manager style"', async () => {
     const dirName = 'igaTestDir01';

@@ -2,8 +2,8 @@
 
 /*
 // ForgeOps
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://nightly.gcp.forgeops.com/am frodo config-manager pull saml -f test/e2e/fr-config-manager-pull-config/saml.json -D testDir22 -m forgeops
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_REALM=alpha FRODO_HOST=https://nightly.gcp.forgeops.com/am frodo config-manager pull saml -f test/e2e/fr-config-manager-pull-config/saml.json -D testDir23 --type forgeops
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://nightly.gcp.forgeops.com/am FRODO_TEST_NAME=0_f_D_m frodo config-manager pull saml -f test/e2e/fr-config-manager-pull-config/saml.json -D testDir22 -m forgeops
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_REALM=alpha FRODO_HOST=https://nightly.gcp.forgeops.com/am FRODO_TEST_NAME=0_f_D_type frodo config-manager pull saml -f test/e2e/fr-config-manager-pull-config/saml.json -D testDir23 --type forgeops
 */
 
 import { getEnv, testExport } from './utils/TestUtils';
@@ -14,7 +14,7 @@ process.env['FRODO_CONNECTION_PROFILES_PATH'] =
   './test/e2e/env/Connections.json';
 const forgeopsEnv = getEnv(fc);
 
-// Each FRODO_TEST_NAME is the recording's identity (the args id frodo-lib derives from the command): a changed flag does not move the recording.
+// Each FRODO_TEST_NAME below pins the recording identity of its command (the args id it was recorded under, or a fixed label); test/unit/E2eRecordingIdentity.test.js checks every pin.
 describe('frodo config-manager pull saml', () => {
   test('"frodo config-manager pull saml -f test/e2e/fr-config-manager-pull-config/saml.json -D testDir22 -m forgeops": should export the saml based on salm-config.json file in fr-config-manager style"', async () => {
     const dirName = 'testDir22';

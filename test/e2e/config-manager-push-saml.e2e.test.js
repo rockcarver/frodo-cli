@@ -2,9 +2,9 @@
 
 /*
 // ForgeOps
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://nightly.gcp.forgeops.com/am frodo config-manager push saml --env-file test/e2e/env/configManager1.env -D test/e2e/exports/fr-config-manager/forgeops/ -m forgeops
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://nightly.gcp.forgeops.com/am frodo config-manager push saml -n test-IDP -E IDP_URL_PLACEHOLDER=https://platform.dev.trivir.com/am/idpsaehandler/metaAlias/alpha/test -E HTTP_REDIRECT_PLACEHOLDER=urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect -D test/e2e/exports/fr-config-manager/forgeops -m forgeops
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://nightly.gcp.forgeops.com/am frodo config-manager push saml --env-file test/e2e/env/configManager1.env --directory test/e2e/exports/fr-config-manager/forgeops/ -m forgeops
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://nightly.gcp.forgeops.com/am FRODO_TEST_NAME=0_env-file_D_m frodo config-manager push saml --env-file test/e2e/env/configManager1.env -D test/e2e/exports/fr-config-manager/forgeops/ -m forgeops
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://nightly.gcp.forgeops.com/am FRODO_TEST_NAME=0_n_E_E_D_m frodo config-manager push saml -n test-IDP -E IDP_URL_PLACEHOLDER=https://platform.dev.trivir.com/am/idpsaehandler/metaAlias/alpha/test -E HTTP_REDIRECT_PLACEHOLDER=urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect -D test/e2e/exports/fr-config-manager/forgeops -m forgeops
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://nightly.gcp.forgeops.com/am FRODO_TEST_NAME=0_env-file_directory_m frodo config-manager push saml --env-file test/e2e/env/configManager1.env --directory test/e2e/exports/fr-config-manager/forgeops/ -m forgeops
 */
 
 import { getEnv, testSuccess } from './utils/TestUtils';
@@ -16,7 +16,7 @@ const forgeopsEnv = getEnv(fc);
 const allDirectory = "test/e2e/exports/fr-config-manager/forgeops";
 const envDir = "test/e2e/env/configManager1.env"
 
-// FRODO_TEST_NAME pins the recording's identity (the last segment of its path): the id stays when flags are renamed.
+// Each FRODO_TEST_NAME below pins the recording identity of its command (the args id it was recorded under, or a fixed label); test/unit/E2eRecordingIdentity.test.js checks every pin.
 describe('frodo config-manager push saml', () => {
     test(`"frodo config-manager push saml --env-file ${envDir} -D ${allDirectory} -m forgeops": should import the saml into forgeops"`, async () => {
         const CMD = `frodo config-manager push saml --env-file ${envDir} -D ${allDirectory} -m forgeops`;

@@ -12,6 +12,16 @@
 /** What the page says once it is logged in. */
 export const CONNECTED = 'Connected as';
 
+/**
+ * The Done row of a page that logs in, with the cursor on it, as a `wait_plain`
+ * regular expression. Without the cursor the row reads the same, so the text
+ * alone does not say that the cursor moved.
+ */
+export const DONE_ROW = '› Done — log in with these values';
+
+/** The same for a page whose Done only continues: the page logs in nowhere. */
+export const DONE_NEXT_ROW = '› Done — continue with these values';
+
 /** The frame of the page last drawn: a capture holds every frame since the last clear. */
 export const lastPage = (plain) => plain.split('┌ Navigate').pop();
 
@@ -62,7 +72,9 @@ export function pickRealmOnPage(realm, label = 'realms') {
 /**
  * The credentials of a page that was opened for a host on the command line:
  * the cursor is on the username (the first row without a value); types both,
- * and leaves the cursor on Done.
+ * and leaves the cursor on Done. The last step waits for the frame that says
+ * the cursor is on Done, so a capture after it is of that frame, however long
+ * the page took to handle the keys; the output before it is cleared for that.
  * @param {string} username
  * @param {string} password
  */
@@ -80,7 +92,8 @@ export function fillCredentials(
     { type: 'send', text: password },
     ENTER,
     { type: 'sleep', ms: 300 },
+    { type: 'clear_output' },
     DOWN,
-    { type: 'sleep', ms: 300 },
+    { type: 'wait_plain', regex: DONE_ROW, timeoutMs: 30000 },
   ];
 }
