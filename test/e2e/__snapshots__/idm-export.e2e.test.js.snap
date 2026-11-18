@@ -62907,11 +62907,11 @@ exports[`frodo idm export "frodo idm export -xi endpoint/validateQueryFilter -m 
 }
 `;
 
-exports[`frodo idm export "frodo idm export -xi managed --type forgeops": should export the idm config entity with idm id "managed" without extracted idm scripts 1`] = `0`;
+exports[`frodo idm export "frodo idm export -xi managed --type forgeops -D idmTestDir10": should export the idm config entity with idm id "managed" without extracted idm scripts into the directory idmTestDir10 1`] = `0`;
 
-exports[`frodo idm export "frodo idm export -xi managed --type forgeops": should export the idm config entity with idm id "managed" without extracted idm scripts 2`] = `""`;
+exports[`frodo idm export "frodo idm export -xi managed --type forgeops -D idmTestDir10": should export the idm config entity with idm id "managed" without extracted idm scripts into the directory idmTestDir10 2`] = `""`;
 
-exports[`frodo idm export "frodo idm export -xi managed --type forgeops": should export the idm config entity with idm id "managed" without extracted idm scripts: managed.idm.json 1`] = `
+exports[`frodo idm export "frodo idm export -xi managed --type forgeops -D idmTestDir10": should export the idm config entity with idm id "managed" without extracted idm scripts into the directory idmTestDir10: idmTestDir10/managed.idm.json 1`] = `
 {
   "idm": {
     "managed": {
