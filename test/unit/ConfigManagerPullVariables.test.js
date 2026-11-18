@@ -7,7 +7,9 @@ import { formatEnvAssignment } from '../../src/configManagerOps/FrConfigVariable
  * `frodo config-manager pull variables --dump` prints `NAME='value'` lines that
  * are meant to be sourced into a shell, so a value must come back unchanged
  * whatever it contains. `--dump` and `-r` cannot be combined: the report path
- * returns before the dump, so `--dump` would be silently ignored (record 0032).
+ * returns before the dump, so `--dump` would be silently ignored
+ * (https://github.com/rockcarver/frodo-cli/blob/main/docs/decisions/0032-mutually-exclusive-options-are-declared-and-never-contradict-a-requirement.md,
+ * mutually exclusive options are declared).
  */
 
 const sourced = (line) =>

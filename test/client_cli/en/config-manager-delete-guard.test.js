@@ -215,7 +215,7 @@ describe('an empty secret name', () => {
   });
 });
 
-describe('the dry run of the oauth kinds and of schedules has the short form -d', () => {
+describe('the dry run of the oauth types and of schedules has the short form -d', () => {
   // -d is the dry run on every command of the group that has one:
   // https://github.com/rockcarver/frodo-cli/blob/main/docs/decisions/0057-options-of-the-configuration-commands.md
   // (options of the configuration commands)
