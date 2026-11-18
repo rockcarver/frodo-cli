@@ -2,7 +2,7 @@
 
 /*
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_TEST_NAME=0_D frodo config-manager pull org-privileges -D configManagerExportOrgPrivilegesDir0
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_TEST_NAME=0_n_D frodo config-manager pull org-privileges -n alphaOrgPrivileges -D configManagerExportOrgPrivilegesDir1
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_TEST_NAME=0_n_D frodo config-manager pull org-privileges -i alphaOrgPrivileges -D configManagerExportOrgPrivilegesDir1
 */
 import { getEnv, testExport } from './utils/TestUtils';
 import { connection as c } from './utils/TestConfig';
@@ -21,7 +21,7 @@ describe('frodo config-manager pull org-privileges', () => {
     });
     test('"frodo config-manager pull org-privileges -n alphaOrgPrivileges -D configManagerExportOrgPrivilegesDir1": should export on alpha realm organizations privileges in fr-config manager style.', async () => {
         const dirName = 'configManagerExportOrgPrivilegesDir1';
-        const CMD = `frodo config-manager pull org-privileges -n alphaOrgPrivileges -D ${dirName}`;
+        const CMD = `frodo config-manager pull org-privileges -i alphaOrgPrivileges -D ${dirName}`;
         await testExport(CMD, { ...env, env: { ...env.env, FRODO_TEST_NAME: '0_n_D' } }, undefined, undefined, dirName, false);
     });
 });
