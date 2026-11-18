@@ -24,7 +24,8 @@ issues:
 Any layer that returns fewer items than exist, for whatever reason (a size cut, an item ceiling, a page the caller asked for, a cursor, a transport limit), says so in the first fields of the result, placed before the data:
 
 - `truncated` is `true` when items remain beyond the data and `false` when the data is everything that remains. `returned` is the number of items in the data. `total` is the number of items that exist before any cut, or `null` when the platform does not say. `nextPageOffset` or `nextPageToken` is the continuation, and `warning` says in one sentence that the result is not complete and how to read on.
-- A layer never cuts without setting them. The library sets them for every list and search result it can read (an array, or a result that the platform pages); the CLI sets them when it replaces a result, so that one field answers "is this everything?" for every layer. A result that cannot be read as a list gets none of them. The data itself is never changed by them.
+- A layer never cuts without setting them. The library's runtime sets them for every list and search result it can read as a list (an array, or a result that the platform pages) and for a capability that stops at a limit of its own; where it cannot tell whether such a capability stopped, the warning says so. A result that the runtime cannot read as a list, and that nothing cut, gets none of them. The data itself is never changed by them.
+- The CLI, when it replaces a result because of its own size limit, marks that result too, whatever its shape, so that one field answers "is this everything?" for every layer.
 - A live cursor, which has no end, reports `returned` and `nextPageToken` and no `truncated`.
 - The default is the first page, loudly marked, with an explicit continuation. A capability does not return an unbounded number of items in one call by default; an explicit, bounded opt-in for more may be added by a later record.
 - The descriptions of list and search capabilities name `pageSize`, `pageOffset` and `pageToken` and say that a cut result is not to be counted.
@@ -33,7 +34,7 @@ Any layer that returns fewer items than exist, for whatever reason (a size cut, 
 
 - A reviewer of a new list-shaped capability, or of a layer that limits a result, checks that the fields are set, and a test pins them.
 - Clients are told not to count a truncated page and not to conclude that an item does not exist.
-- The older markers keep their meaning: `metadata.pagination.isPartial` agrees with `truncated`, `partial` still means that items of a bulk call failed, and the replacement marker of the CLI stays and also sets the fields.
+- The older markers keep their meaning: `metadata.pagination.isPartial` agrees with `truncated` wherever both are present, `partial` still means that items of a bulk call failed, and the replacement marker of the CLI stays and also sets the fields.
 - Adding fields beside the data is additive, so no client that reads the data by key breaks. A client that ignores everything but the data still misses a cut; the fields come first and the tool descriptions name them to lower that risk.
 - Not covered: choosing fields to return, a bounded opt-in for a complete result, and the size limits themselves, which are code constants that this record does not fix.
 
