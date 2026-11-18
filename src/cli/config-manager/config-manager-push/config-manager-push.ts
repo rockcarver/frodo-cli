@@ -1,4 +1,3 @@
-import Test from '../../conn/conn-test';
 import { FrodoCommand, FrodoStubCommand } from '../../FrodoCommand';
 import AccessConfig from './config-manager-push-access-config';
 import Applications from './config-manager-push-applications';
@@ -95,7 +94,6 @@ export default function setup() {
   program.addCommand(CustomNodes().name('custom-nodes'));
   program.addCommand(CSP().name('csp'));
   program.addCommand(Restart().name('restart'));
-  program.addCommand(Test().name('test'));
   program.addCommand(Journeys().name('journeys'));
   program.addCommand(Variables().name('variables'));
   program.addCommand(Raw().name('raw'));

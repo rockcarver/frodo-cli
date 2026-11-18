@@ -52,18 +52,6 @@ export const LABELS = [
     why: 'recorded under the label deleteOne; the recording keeps its name',
   },
   {
-    file: 'config-manager-delete-test.e2e.test.js',
-    cmd: 'frodo config-manager delete test',
-    pin: 'success',
-    why: 'the two tests of this file run the same command line: the label keeps their recordings apart',
-  },
-  {
-    file: 'config-manager-delete-test.e2e.test.js',
-    cmd: 'frodo config-manager delete test',
-    pin: 'invalid_credentials',
-    why: 'the two tests of this file run the same command line: the label keeps their recordings apart',
-  },
-  {
     file: 'config-manager-delete-trusted-jwt-issuers.e2e.test.js',
     cmd: 'frodo config-manager delete oauth-issuers -n zz-e2e-issuer',
     pin: 'deleteOne',
@@ -94,12 +82,6 @@ export const LABELS = [
     why: 'recorded under the label pullOne; the recording keeps its name',
   },
   {
-    file: 'config-manager-pull-test.e2e.test.js',
-    cmd: 'frodo config-manager pull test',
-    pin: 'invalid_credentials',
-    why: 'another test of this file runs the same command line, this one with wrong credentials: the label keeps the recordings apart',
-  },
-  {
     file: 'config-manager-pull-trusted-jwt-issuers.e2e.test.js',
     cmd: 'frodo config-manager pull oauth-issuers -n zz-e2e-issuer -D oauthIssuersTestDir1',
     pin: 'pullOne',
@@ -122,12 +104,6 @@ export const LABELS = [
     cmd: 'frodo config-manager push oauth-software-publishers -n zz-e2e-publisher -D test/e2e/exports/fr-config-manager/cloud',
     pin: 'pushOne',
     why: 'recorded under the label pushOne; the recording keeps its name',
-  },
-  {
-    file: 'config-manager-push-test.e2e.test.js',
-    cmd: 'frodo config-manager push test',
-    pin: 'invalid_credentials',
-    why: 'another test of this file runs the same command line, this one with wrong credentials: the label keeps the recordings apart',
   },
   {
     file: 'config-manager-push-themes.e2e.test.js',

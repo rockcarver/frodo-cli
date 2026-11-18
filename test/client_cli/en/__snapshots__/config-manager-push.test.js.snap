@@ -75,7 +75,6 @@ Commands:
   telemetry                  [Experimental] [Cloud-only] Import telemetry
                              exporters.
   terms-and-conditions       [Experimental] Import terms and conditions.
-  test                       [Experimental] Test connection and authentication.
   themes                     [Experimental] Import themes.
   ui-config                  [Experimental] Import UI configuration.
   variables                  [Experimental] [Cloud-only] Import variables.

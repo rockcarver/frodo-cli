@@ -35,7 +35,6 @@ Commands:
                              exporters.
   terms-and-conditions       [Experimental] Delete terms and conditions
                              versions.
-  test                       [Experimental] Test connection and authentication.
   themes                     [Experimental] Delete themes by name or delete all
                              themes in the selected realms.
   variables                  [Experimental] [Cloud-only] Delete variables.
