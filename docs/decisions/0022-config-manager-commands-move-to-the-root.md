@@ -1,6 +1,6 @@
 ---
-status: proposed
-date: 2026-10-24
+status: superseded by 0056
+date: 2026-11-17
 decision-makers: maintainers
 applies-to:
   - src/cli/config-manager/**
