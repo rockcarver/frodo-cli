@@ -127,9 +127,11 @@ describe('frodo idm export', () => {
     await testExport(CMD, forgeopsEnv, type, undefined, dirName, false);
   });
 
-  test('"frodo idm export -xi managed --type forgeops": should export the idm config entity with idm id "managed" without extracted idm scripts', async () => {
+  test('"frodo idm export -xi managed --type forgeops -D idmTestDir10": should export the idm config entity with idm id "managed" without extracted idm scripts into the directory idmTestDir10', async () => {
     const fileName = "managed.idm.json"
-    const CMD = `frodo idm export -xi managed --type forgeops`;
-    await testExport(CMD, forgeopsEnv, type, fileName);
+    const dirName = 'idmTestDir10';
+    const CMD = `frodo idm export -xi managed --type forgeops -D ${dirName}`;
+    // recorded without -D (the recording is found under the pin, not under the id of this command)
+    await testExport(CMD, { ...forgeopsEnv, env: { ...forgeopsEnv.env, FRODO_TEST_NAME: '0_xi_type' } }, type, fileName, dirName);
   });
 });
