@@ -79,6 +79,15 @@ const dataOut = () =>
   printMessage.mock.calls
     .filter(([, type]) => type === 'data')
     .map(([message]) => message);
+/** How many times the sentence of success went out (it is a sentence, so never with --json). */
+const successSentences = () =>
+  printMessage.mock.calls.filter(
+    ([message, type]) =>
+      type === undefined &&
+      /^Configuration applied and direct configuration session ended/.test(
+        message
+      )
+  ).length;
 /** What went to stderr as a plain progress line. */
 const statusLines = () =>
   printMessage.mock.calls
@@ -165,6 +174,9 @@ describe('apply with wait', () => {
       'Status: PENDING',
       'Status: SESSION_APPLIED',
     ]);
+    // the sentence of success, once, and no document: that is for --json
+    expect(successSentences()).toBe(1);
+    expect(dataOut()).toEqual([]);
   });
 
   test('an answer of the call that already says SESSION_APPLIED needs no read', async () => {
@@ -175,6 +187,36 @@ describe('apply with wait', () => {
     expect(calls).toEqual(['apply']);
     expect(sleep).not.toHaveBeenCalled();
     expect(statusLines()).toEqual([]);
+    expect(successSentences()).toBe(1);
+  });
+
+  test('with --json an answer that already says SESSION_APPLIED is the one document, with no sentence', async () => {
+    applyAnswers = [APPLIED];
+
+    expect(await apply(true, true)).toBe(true);
+
+    expect(calls).toEqual(['apply']);
+    expect(dataOut()).toEqual([APPLIED]);
+    expect(successSentences()).toBe(0);
+  });
+
+  test('a status it does not know is not success: it keeps reading, and nothing says the configuration was applied', async () => {
+    const UNKNOWN = { editable: false, status: 'SOMETHING_ELSE' };
+    applyAnswers = [APPLYING];
+    // three answers of an unknown status, then the script runs dry: that read is
+    // rejected, which is the only thing that ends the wait
+    readAnswers = [UNKNOWN, UNKNOWN, UNKNOWN];
+
+    expect(await apply(false, true)).toBe(false);
+
+    expect(readDirectConfigurationSessionState).toHaveBeenCalledTimes(4);
+    expect(sleep).toHaveBeenCalledTimes(4);
+    expect(statusLines()).toEqual([
+      'Status: SOMETHING_ELSE',
+      'Status: SOMETHING_ELSE',
+      'Status: SOMETHING_ELSE',
+    ]);
+    expect(successSentences()).toBe(0);
   });
 
   test('ERROR on the second read fails with the message and does not read a third time', async () => {
@@ -196,6 +238,7 @@ describe('apply with wait', () => {
       'Direct Configuration session encountered an error.',
       'error'
     );
+    expect(successSentences()).toBe(0);
   });
 
   test('a read that fails ends the wait with the error and no further read', async () => {
@@ -245,6 +288,8 @@ describe('apply with wait', () => {
       'Status: SESSION_APPLIED',
     ]);
     for (const message of dataOut()) expect(typeof message).toBe('object');
+    // a document is the answer: the sentence of success would be a second one
+    expect(successSentences()).toBe(0);
   });
 
   test('with --json an ERROR fails with the failed state as the one document', async () => {
@@ -255,6 +300,7 @@ describe('apply with wait', () => {
 
     expect(dataOut()).toEqual([FAILED]);
     expect(statusLines()).toEqual(['Status: ERROR']);
+    expect(successSentences()).toBe(0);
   });
 
   test('with --json a session that is still editable is not waited for: the document is printed and the command fails', async () => {
