@@ -646,3 +646,25 @@ export function queryParamSuggestions(typed: string): string[] {
 export function isQueryParamContext(typed: string): boolean {
   return typed.includes('?');
 }
+
+/**
+ * Object-key suggestions for the params object of an `openidm.*` call:
+ * the same CREST set the `?` string context offers, keyed by the
+ * resource (the call's first string argument) for the family extras.
+ * Keys already typed in the object are excluded.
+ */
+export function paramKeySuggestions(
+  resource: string | undefined,
+  typedKeys: string[],
+  partial: string
+): string[] {
+  const family = (resource ?? '').split('?')[0].split('/')[0];
+  const candidates = [
+    ...CREST_QUERY_PARAMS,
+    ...(FAMILY_QUERY_PARAMS[family] ?? []),
+  ];
+  const done = new Set(typedKeys);
+  return candidates.filter(
+    (p) => !done.has(p) && p.toLowerCase().startsWith(partial.toLowerCase())
+  );
+}

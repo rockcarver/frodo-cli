@@ -1,8 +1,13 @@
 import { describe, expect, it } from '@jest/globals';
-import { parseIdmStringContext } from './ShellAutoCompleteOps';
+import {
+  parseIdmArgContext,
+  parseIdmObjectContext,
+  parseIdmStringContext,
+} from './ShellAutoCompleteOps';
 import {
   actionSuggestions,
   IdmCatalog,
+  paramKeySuggestions,
   queryParamSuggestions,
   resourceSuggestions,
 } from './ShellIdmCatalogOps';
@@ -234,5 +239,83 @@ describe('queryParamSuggestions', () => {
   it('offers params after a second &', () => {
     const params = queryParamSuggestions('managed/user?_queryFilter=true&_fi');
     expect(params).toEqual(['_fields']);
+  });
+});
+
+describe('parseIdmObjectContext', () => {
+  it('finds an open params object and collects typed keys', () => {
+    const ctx = parseIdmObjectContext(
+      "openidm.query('managed/alpha_user', {_queryFilter: 'true', _pa"
+    );
+    expect(ctx).not.toBeNull();
+    expect(ctx!.fnName).toBe('query');
+    expect(ctx!.argIndex).toBe(1);
+    expect(ctx!.typedKeys).toEqual(['_queryFilter']);
+    expect(ctx!.partial).toBe('_pa');
+    expect(ctx!.firstArg).toBe('managed/alpha_user');
+  });
+
+  it('reports an empty object and no partial', () => {
+    const ctx = parseIdmObjectContext("openidm.query('managed/user', {");
+    expect(ctx!.typedKeys).toEqual([]);
+    expect(ctx!.partial).toBe('');
+  });
+
+  it('collects quoted keys too', () => {
+    const ctx = parseIdmObjectContext(
+      "openidm.query('managed/user', {'_queryFilter': 'true', '_"
+    );
+    expect(ctx!.typedKeys).toEqual(['_queryFilter']);
+  });
+
+  it('stops at the object close (back to null)', () => {
+    expect(
+      parseIdmObjectContext(
+        "openidm.query('managed/user', {_queryFilter: 'x'})"
+      )
+    ).toBeNull();
+  });
+
+  it('ignores non-openidm object literals', () => {
+    expect(parseIdmObjectContext('const x = { fo')).toBeNull();
+    expect(
+      parseIdmObjectContext("frodo.config.readConfigEntity('sync', { o")
+    ).toBeNull();
+  });
+});
+
+describe('paramKeySuggestions', () => {
+  it('offers the CREST keys, excluding typed ones', () => {
+    const keys = paramKeySuggestions('managed/user', ['_queryFilter'], '_');
+    expect(keys).toContain('_pageSize');
+    expect(keys).not.toContain('_queryFilter');
+  });
+
+  it('adds the family extras by resource (recon carries mapping)', () => {
+    expect(paramKeySuggestions('recon', [], 'm')).toContain('mapping');
+    expect(paramKeySuggestions('managed/user', [], 'm')).not.toContain(
+      'mapping'
+    );
+  });
+
+  it('narrows by the partial', () => {
+    expect(paramKeySuggestions('managed/user', [], '_pa')).toEqual([
+      '_pageSize',
+      '_pagedResultsOffset',
+      '_pagedResultsCookie',
+    ]);
+  });
+});
+
+describe('parseIdmArgContext', () => {
+  it('reports the argument position past strings and nulls', () => {
+    const ctx = parseIdmArgContext("openidm.update('managed/user/x', null,");
+    expect(ctx!.argIndex).toBe(2);
+    expect(ctx!.fnName).toBe('update');
+  });
+
+  it('returns null inside strings and objects (they hint themselves)', () => {
+    expect(parseIdmArgContext("openidm.read('mana")).toBeNull();
+    expect(parseIdmArgContext("openidm.query('managed/user', {_")).toBeNull();
   });
 });

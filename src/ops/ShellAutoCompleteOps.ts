@@ -1,6 +1,7 @@
 import {
   actionSuggestions,
   IdmCatalog,
+  paramKeySuggestions,
   queryParamSuggestions,
   resourceSuggestions,
 } from './ShellIdmCatalogOps';
@@ -31,6 +32,225 @@ export type IdmStringContext = {
   /** The call's first string argument (for openidm.action's filter). */
   readonly firstArg?: string;
 };
+
+/**
+ * An object-literal context inside an `openidm.*` call: the cursor sits
+ * in an argument that is (or should be) an object, most commonly the
+ * `params` object whose keys are the CREST query parameters.
+ */
+export type IdmObjectContext = {
+  /** The dotted call path the cursor is inside, e.g. `openidm.query`. */
+  readonly fullPath: string;
+  /** The function's short name. */
+  readonly fnName: string;
+  /** Zero-based argument position holding the object. */
+  readonly argIndex: number;
+  /** The object's keys typed so far (before the cursor's partial). */
+  readonly typedKeys: string[];
+  /** The partial key text at the cursor. */
+  readonly partial: string;
+  /** The call's first string argument (the resource, for family extras). */
+  readonly firstArg?: string;
+};
+
+/**
+ * Find an open object literal under the cursor that an `openidm.*` call
+ * owns: the cursor inside `{...}` at a call-argument position, before the
+ * closing brace. Collects the keys typed so far (top level of that object
+ * only) and the partial key text at the cursor. Returns null when the
+ * cursor is not in such an object, so string or name completion applies.
+ */
+export function parseIdmObjectContext(line: string): IdmObjectContext | null {
+  let inSingle = false;
+  let inDouble = false;
+  let callPath = '';
+  let parenDepth = 0;
+  // Depth of { relative to the innermost tracked call's args.
+  let braceDepth = 0;
+  let argIndex = 0;
+  let firstArg: string | undefined;
+  let strStart = -1;
+
+  // State for collecting keys at the object's top level.
+  let objStart = -1;
+  let objArgIndex = -1;
+  let objCallPath = '';
+  let objFirstArg: string | undefined;
+  let keyStart = -1;
+  let atValue = false; // Past the ':' of the current key (in a value).
+  let nestedValue = 0; // (), [], {} nesting inside a value.
+  const keys: string[] = [];
+
+  const flushKey = (end: number) => {
+    if (keyStart >= 0 && !atValue) {
+      const key = line
+        .slice(keyStart, end)
+        .trim()
+        .replace(/^['"]|['"]$/g, '');
+      if (key) keys.push(key);
+    }
+    keyStart = -1;
+    atValue = false;
+  };
+
+  for (let i = 0; i < line.length; i++) {
+    const ch = line[i];
+
+    if (inSingle || inDouble) {
+      if (ch === '\\' && i + 1 < line.length) {
+        i++;
+        continue;
+      }
+      if ((inSingle && ch === "'") || (inDouble && ch === '"')) {
+        if (callPath && argIndex === 0 && objStart === -1) {
+          firstArg = line.slice(strStart + 1, i);
+        }
+        // A closed string inside the object was the value (or the key).
+        inSingle = false;
+        inDouble = false;
+        strStart = -1;
+        continue;
+      }
+      continue;
+    }
+    if (ch === "'" || ch === '"') {
+      inSingle = ch === "'";
+      inDouble = ch === '"';
+      strStart = i;
+      if (objStart >= 0 && !atValue && keyStart === -1 && nestedValue === 0) {
+        // A quoted key starts here.
+        keyStart = i + 1;
+      }
+      continue;
+    }
+    if (ch === '(') {
+      if (objStart === -1) {
+        let start = i;
+        while (start > 0 && /[\w$.]/.test(line[start - 1])) start--;
+        const path = line.slice(start, i);
+        if (/^[A-Za-z_$][\w$]*(\.[A-Za-z_$][\w$]*)+$/.test(path)) {
+          callPath = path;
+          argIndex = 0;
+        } else {
+          callPath = '';
+        }
+      }
+      if (objStart >= 0) nestedValue++;
+      else parenDepth++;
+      continue;
+    }
+    if (ch === ')') {
+      if (objStart >= 0 && nestedValue > 0) {
+        nestedValue--;
+      } else if (parenDepth > 0) {
+        parenDepth--;
+        if (parenDepth === 0) {
+          callPath = '';
+          argIndex = 0;
+          firstArg = undefined;
+        }
+      }
+      continue;
+    }
+
+    if (objStart >= 0) {
+      // Inside the tracked object literal.
+      if (ch === '{' || ch === '[') {
+        nestedValue++;
+        continue;
+      }
+      if (ch === '}' || ch === ']') {
+        if (nestedValue > 0) {
+          nestedValue--;
+        } else {
+          // The object closed; stop tracking it.
+          flushKey(i);
+          objStart = -1;
+          objArgIndex = -1;
+          objCallPath = '';
+          objFirstArg = undefined;
+        }
+        continue;
+      }
+      if (nestedValue > 0) continue;
+      if (ch === ',') {
+        flushKey(i);
+        continue;
+      }
+      if (ch === ':') {
+        // The key ended; its value follows.
+        if (keyStart >= 0) {
+          const key = line
+            .slice(keyStart, i)
+            .trim()
+            .replace(/^['"]|['"]$/g, '');
+          if (key && !keys.includes(key)) keys.push(key);
+          keyStart = -1;
+        }
+        atValue = true;
+        continue;
+      }
+      if (!atValue && /[\w$]/.test(ch)) {
+        if (keyStart === -1) keyStart = i;
+      } else if (!atValue && ch === ' ') {
+        // Whitespace may separate the key from ':'; keep collecting.
+      } else if (!atValue) {
+        // Not a key character; reset.
+        keyStart = -1;
+      }
+      continue;
+    }
+
+    if (ch === '{') {
+      // An object literal opening at this call's argument position (or
+      // nested deeper: only track call-arg-position objects).
+      if (callPath && /^openidm\./.test(callPath) && parenDepth > 0) {
+        objStart = i;
+        objArgIndex = argIndex;
+        objCallPath = callPath;
+        objFirstArg = firstArg;
+        keys.length = 0;
+        keyStart = -1;
+        atValue = false;
+        nestedValue = 0;
+      }
+      continue;
+    }
+    if (ch === '[') {
+      // An array at the arg position: not an object, not tracked.
+      braceDepth++;
+      continue;
+    }
+    if (ch === ']') {
+      if (braceDepth > 0) braceDepth--;
+      continue;
+    }
+    if (ch === ',' && callPath && braceDepth === 0) {
+      // Outside the object: this comma advances the call's argument
+      // position, so an object opening after it is captured at the
+      // right index.
+      argIndex++;
+    }
+  }
+
+  if (objStart === -1 || !objCallPath) return null;
+  // The partial key: from the last unflushed keyStart to the end.
+  let partial = '';
+  if (keyStart >= 0 && !atValue) {
+    partial = line.slice(keyStart).trim().replace(/^['"]/, '');
+    // Drop a trailing quote fragment (the key is still being quoted).
+    partial = partial.replace(/['"]$/, '');
+  }
+  const fnName = objCallPath.split('.')[1];
+  return {
+    fullPath: objCallPath,
+    fnName,
+    argIndex: objArgIndex,
+    typedKeys: keys,
+    partial,
+    firstArg: objFirstArg,
+  };
+}
 
 /**
  * Find a quoted string under the cursor that an `openidm.*` call owns.
@@ -138,11 +358,15 @@ export function parseIdmStringContext(line: string): IdmStringContext | null {
 function idmStringCompletions(
   ctx: IdmStringContext,
   catalog: IdmCatalog,
+  docsByMethod: Map<string, MethodHelpDoc[]>,
   onMethodHint?: (hint: string) => void
 ): [string[], string] {
   const { content, argIndex } = ctx;
   const token = content; // The replaceable suffix: the string content.
 
+  // The contextual argument hint for whatever position the string is in;
+  // emitted alongside the candidates (and alone when there are none,
+  // e.g. a _fields array: the hint still says what the argument wants).
   let entries: { path: string; description?: string }[] = [];
 
   if (ctx.fnName === 'action' && argIndex === 1) {
@@ -169,7 +393,18 @@ function idmStringCompletions(
     return [[], token];
   }
 
-  if (entries.length === 0) return [[], token];
+  if (entries.length === 0) {
+    // Nothing to suggest at this string (a _fields array, an action
+    // content...): the contextual arg hint still says what it wants.
+    if (onMethodHint) {
+      const doc = findBestDoc(ctx.fnName, ['openidm'], docsByMethod);
+      if (doc)
+        setImmediate(() =>
+          onMethodHint(argHintLine(ctx.fullPath, doc, ctx.argIndex))
+        );
+    }
+    return [[], token];
+  }
 
   // The candidates are the full resource paths (see the contract note).
   const completions = entries.map((e) => e.path);
@@ -185,6 +420,35 @@ function idmStringCompletions(
     );
   }
   return [completions, token];
+}
+
+/**
+ * Build the completion result for an object context (the params object of
+ * an openidm call): the keys are full replacement text per the readline
+ * contract, with the replaceable token being the partial key text typed
+ * so far. The key keeps its unquoted form; the user adds the value.
+ */
+function idmObjectCompletions(
+  ctx: IdmObjectContext,
+  _catalog: IdmCatalog,
+  onMethodHint?: (hint: string) => void
+): [string[], string] {
+  void _catalog; // Reserved: per-family key sets when the catalog grows them.
+  const keys = paramKeySuggestions(ctx.firstArg, ctx.typedKeys, ctx.partial);
+  if (keys.length === 0) return [[], ctx.partial];
+  // Full replacement: partial + the rest of the key.
+  const completions = keys.map(
+    (k) => `${ctx.partial}${k.slice(ctx.partial.length)}`
+  );
+  if (onMethodHint) {
+    const which = ctx.argIndex === 1 ? 'params' : `arg ${ctx.argIndex + 1}`;
+    setImmediate(() =>
+      onMethodHint(
+        `▸ ${DIM}${ctx.fullPath} ${which} keys — CREST query parameters${RESET}`
+      )
+    );
+  }
+  return [completions, ctx.partial];
 }
 
 /**
@@ -397,6 +661,108 @@ export function buildHintLine(fullPath: string, doc: MethodHelpDoc): string {
   return `\u25b8 ${CYAN}${fullPath}${RESET}(${DIM}${params}${RESET})`;
 }
 
+/**
+ * The contextual form of the hint line: one argument at a time, with its
+ * description. `arg 2 of 5 · value: object — the replacement object`.
+ * Falls back to the full signature when the doc carries no params.
+ */
+function argHintLine(
+  fullPath: string,
+  doc: MethodHelpDoc,
+  argIndex: number
+): string {
+  const params = doc.params ?? [];
+  if (params.length === 0) return buildHintLine(fullPath, doc);
+  const p = params[Math.min(argIndex, params.length - 1)];
+  const type = p?.type ? abbrevType(p.type) : '';
+  const optional = p?.required === false ? ' (optional)' : '';
+  const name = p?.name ?? `arg ${argIndex + 1}`;
+  return (
+    `▸ ${CYAN}${fullPath}${RESET} ${DIM}arg ${argIndex + 1} of ${params.length} · ` +
+    `${name}${optional}${type ? `: ${type}` : ''}` +
+    `${p?.description ? ` — ${p.description}` : ''}${RESET}`
+  );
+}
+
+/**
+ * An openidm call whose argument list the cursor sits in but which is
+ * neither a quoted string nor an object literal (e.g. after a comma, or
+ * past `null`): enough for the contextual argument hint.
+ */
+export type IdmArgPosition = {
+  readonly fullPath: string;
+  readonly fnName: string;
+  readonly argIndex: number;
+};
+
+/**
+ * Find the openidm call and argument index under the cursor, when the
+ * cursor is inside the call's parens and not inside a string or object
+ * (those have their own hint paths). Reuses the same walk as
+ * parseIdmObjectContext's argument tracking.
+ */
+export function parseIdmArgContext(line: string): IdmArgPosition | null {
+  const objectCtx = parseIdmObjectContext(line);
+  if (objectCtx) return null; // Object contexts hint through their keys.
+  const stringCtx = parseIdmStringContext(line);
+  if (stringCtx) return null;
+  let inSingle = false;
+  let inDouble = false;
+  let callPath = '';
+  let parenDepth = 0;
+  let braceDepth = 0;
+  let argIndex = 0;
+
+  for (let i = 0; i < line.length; i++) {
+    const ch = line[i];
+    if (inSingle || inDouble) {
+      if (ch === '\\' && i + 1 < line.length) {
+        i++;
+        continue;
+      }
+      if ((inSingle && ch === "'") || (inDouble && ch === '"')) {
+        inSingle = false;
+        inDouble = false;
+        continue;
+      }
+      continue;
+    }
+    if (ch === "'" || ch === '"') {
+      inSingle = true;
+      inDouble = ch === '"';
+      continue;
+    }
+    if (ch === '(') {
+      let start = i;
+      while (start > 0 && /[\w$.]/.test(line[start - 1])) start--;
+      const path = line.slice(start, i);
+      if (/^[A-Za-z_$][\w$]*(\.[A-Za-z_$][\w$]*)+$/.test(path)) {
+        callPath = path;
+        argIndex = 0;
+      } else {
+        callPath = '';
+      }
+      parenDepth++;
+      continue;
+    }
+    if (ch === ')') {
+      parenDepth--;
+      if (parenDepth <= 0) {
+        callPath = '';
+        parenDepth = 0;
+        argIndex = 0;
+      }
+      continue;
+    }
+    if (ch === '{' || ch === '[') braceDepth++;
+    if (ch === '}' || ch === ']') braceDepth--;
+    if (ch === ',' && callPath && braceDepth === 0) argIndex++;
+  }
+  if (!callPath || parenDepth <= 0) return null;
+  if (!/^openidm\.[A-Za-z_$][\w$]*$/.test(callPath)) return null;
+  return { fullPath: callPath, fnName: callPath.split('.')[1], argIndex };
+}
+
 export function createFrodoCompleter(
   rootBindings: Record<string, object>,
   docsByMethod: Map<string, MethodHelpDoc[]>,
@@ -439,16 +805,26 @@ export function createFrodoCompleter(
   };
 
   return (line: string): [string[], string] => {
-    // IDM resource completion first: the cursor inside a quoted string
-    // that an `openidm.*` call's argument context owns. This must win
-    // over name completion, whose dotted-path branch would otherwise
-    // offer the string's characters as identifiers.
+    // IDM completion first: the cursor inside a quoted string (resource
+    // path) or an object literal (params keys) that an `openidm.*` call
+    // owns. These must win over name completion, whose dotted-path
+    // branch would otherwise offer the string's characters as
+    // identifiers.
     if (idmCatalog) {
       const catalog = idmCatalog();
       if (catalog) {
         const stringCtx = parseIdmStringContext(line);
         if (stringCtx) {
-          return idmStringCompletions(stringCtx, catalog, onMethodHint);
+          return idmStringCompletions(
+            stringCtx,
+            catalog,
+            docsByMethod,
+            onMethodHint
+          );
+        }
+        const objectCtx = parseIdmObjectContext(line);
+        if (objectCtx) {
+          return idmObjectCompletions(objectCtx, catalog, onMethodHint);
         }
       }
     }
@@ -475,10 +851,31 @@ export function createFrodoCompleter(
       if (onMethodHint) {
         const doc = findBestDoc(methodName, parentSegments, docsByMethod);
         if (doc) {
-          setImmediate(() => onMethodHint(buildHintLine(fullPath, doc)));
+          // Contextual arg-0 hint for the openidm functions (whose
+          // params are the point of the catalog work); other modules
+          // keep the full-signature hint they always showed.
+          const hint =
+            rootName === 'openidm'
+              ? argHintLine(fullPath, doc, 0)
+              : buildHintLine(fullPath, doc);
+          setImmediate(() => onMethodHint(hint));
         }
       }
       return [[completion], `${fullPath}(`];
+    }
+
+    // Contextual argument hint: the cursor inside an openidm call's
+    // arguments, past the first (the string branch above already hints
+    // arg 0 via its own suggestion hints). Point at the current arg's
+    // name, type and description.
+    const argCtx = parseIdmArgContext(line);
+    if (argCtx && onMethodHint) {
+      const doc = findBestDoc(argCtx.fnName, ['openidm'], docsByMethod);
+      if (doc) {
+        setImmediate(() =>
+          onMethodHint(argHintLine(argCtx.fullPath, doc, argCtx.argIndex))
+        );
+      }
     }
 
     const tokenMatch = line.match(
