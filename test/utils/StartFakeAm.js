@@ -43,6 +43,7 @@ const fakeAmPath = fileURLToPath(new URL('./FakeAm.mjs', import.meta.url));
  * @param {{ managed?: object, 'repo.ds'?: object }} [options.idmConfig] the IDM configuration `config/managed` and `config/repo.ds` answer with on a read; a write to them answers 500 (default: they answer 404)
  * @param {Record<string, object>} [options.idmEntities] IDM configuration objects by config id (`sync`, `provisioner.openicf/xyz`, ...) the fake serves on a read and replaces on a write, `_id` taken from the URL; the request log holds every body (default: they answer 404)
  * @param {boolean} [options.emptyCollections] answers every collection query the fake has no route for as an empty collection (`GET` with a `_queryFilter`, `POST` with `_action=nextdescendents`: `200` with no result), so a command that reads many kinds of configuration runs through on an empty tenant (default: they answer 404)
+ * @param {{ apply?: object, states?: object[] }} [options.directConfiguration] makes the fake serve the direct configuration session of a Cloud tenant (init, apply, abort and state, and the service account scopes a login reads): `apply` is what the apply call answers (default `{ editable: false }`), `states` what the state reads answer one after the other, the last one again after that (default `[{ editable: false }]`); the request log shows every call (default: the session API answers 404)
  * @param {boolean} [options.cimdRootDenied] makes the root realm answer the type list and the profiles with the Cloud `403` "This operation is not available in PingOne Advanced Identity Cloud."
  * @returns {Promise<{ port: number, stop: () => void }>}
  */
@@ -79,6 +80,7 @@ export async function startFakeAm({
   idmConfig,
   idmEntities,
   emptyCollections,
+  directConfiguration,
 } = {}) {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'fake-am-'));
   const written = (name, data) => {
@@ -171,6 +173,14 @@ export async function startFakeAm({
           }
         : {}),
       ...(emptyCollections ? { FAKE_AM_EMPTY_COLLECTIONS: '1' } : {}),
+      ...(directConfiguration
+        ? {
+            FAKE_AM_DIRECT_CONFIGURATION_FILE: written(
+              'direct-configuration.json',
+              directConfiguration
+            ),
+          }
+        : {}),
     },
     stdio: ['ignore', 'pipe', 'inherit'],
   });
