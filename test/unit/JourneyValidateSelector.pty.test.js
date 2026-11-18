@@ -206,7 +206,12 @@ suite('journey validate, with the selector on the command line', () => {
         'classic',
       ],
       actions: [
-        { type: 'sleep', ms: 4000 },
+        // The fake AM does not serve the trees, so the command ends by itself,
+        // with an error. A fixed sleep captured a command that was still
+        // starting when the machine was busy; the capture after the exit holds
+        // the whole run. The short sleep reads what was left in the terminal.
+        { type: 'wait_exit', timeoutMs: 60000 },
+        { type: 'sleep', ms: 300 },
         { type: 'capture', label: 'after' },
       ],
     });
