@@ -16,9 +16,9 @@ export default function setup() {
         'Journey name. If specified, only exports the journey with the specified name.'
       )
     )
-    .addOption(new Option('-d, --pull-dependencies', 'Pull dependencies.'))
+    .addOption(new Option('--pull-dependencies', 'Pull dependencies.'))
     .addOption(
-      new Option('-c, --clean', 'Clear existing configuration before pull.')
+      new Option('--clean', 'Clear existing configuration before pull.')
     )
     .multiOp()
     .usesRealm()

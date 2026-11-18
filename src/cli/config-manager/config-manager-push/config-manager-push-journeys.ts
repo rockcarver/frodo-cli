@@ -18,7 +18,7 @@ export default function setup() {
     )
 
     .addOption(
-      new Option('-d, --push-dependencies', 'Push scripts and inner journeys')
+      new Option('--push-dependencies', 'Push scripts and inner journeys')
     )
     .addOption(
       new Option('--no-validate', 'Do not validate journeys before import.')

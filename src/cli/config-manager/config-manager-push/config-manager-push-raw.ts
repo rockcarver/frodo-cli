@@ -11,13 +11,13 @@ export default function setup() {
     .description('Import raw configurations.')
     .addOption(
       new Option(
-        '-p, --path <path>',
+        '--path <path>',
         'The path of the service object configuration.'
       )
     )
     .addOption(
       new Option(
-        '-i, --stdin',
+        '--stdin',
         'Read configuration from standard input. Requires --path.'
       )
     )

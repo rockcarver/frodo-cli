@@ -3,9 +3,9 @@
 /*
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_TEST_NAME=0_D frodo config-manager push journeys -D test/e2e/exports/fr-config-manager/forgeops
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_TEST_NAME=0_n_D frodo config-manager push journeys -n ProgressiveProfile -D test/e2e/exports/fr-config-manager/forgeops
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_TEST_NAME=0_Fd_D frodo config-manager push journeys -Fd -D test/e2e/exports/fr-config-manager/forgeops
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_TEST_NAME=0_d_D frodo config-manager push journeys -d -D test/e2e/exports/fr-config-manager/forgeops
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_TEST_NAME=0_Fn_d_D frodo config-manager push journeys -Fn ConfigManagerPushTest -d -D test/e2e/exports/fr-config-manager/forgeops
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_TEST_NAME=0_Fd_D frodo config-manager push journeys -F --push-dependencies -D test/e2e/exports/fr-config-manager/forgeops
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_TEST_NAME=0_d_D frodo config-manager push journeys --push-dependencies -D test/e2e/exports/fr-config-manager/forgeops
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_TEST_NAME=0_Fn_d_D frodo config-manager push journeys -Fn ConfigManagerPushTest --push-dependencies -D test/e2e/exports/fr-config-manager/forgeops
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_REALM=alpha FRODO_TEST_NAME=0_directory frodo config-manager push journeys --directory test/e2e/exports/fr-config-manager/forgeops
 */
 
@@ -27,15 +27,15 @@ describe('frodo config-manager push journeys', () => {
         await testSuccess(CMD, { ...env, env: { ...env.env, FRODO_TEST_NAME: '0_n_D' } });
     });
     test(`"frodo config-manager push journeys -Fd -D ${allDirectory}": should resolve dependencies when importing"`, async () => {
-        const CMD = `frodo config-manager push journeys -Fd -D ${allDirectory}`;
+        const CMD = `frodo config-manager push journeys -F --push-dependencies -D ${allDirectory}`;
         await testSuccess(CMD, { ...env, env: { ...env.env, FRODO_TEST_NAME: '0_Fd_D' } });
     });
     test(`"frodo config-manager push journeys -d -D ${allDirectory}": should not resolve dependencies when no changes to scripts"`, async () => {
-        const CMD = `frodo config-manager push journeys -d -D ${allDirectory}`;
+        const CMD = `frodo config-manager push journeys --push-dependencies -D ${allDirectory}`;
         await testSuccess(CMD, { ...env, env: { ...env.env, FRODO_TEST_NAME: '0_d_D' } });
     });
     test(`"frodo config-manager push journeys -Fn ConfigManagerPushTest -d -D ${allDirectory}": should import a journey with dependencies"`, async () => {
-        const CMD = `frodo config-manager push journeys -Fn ConfigManagerPushTest -d  -D ${allDirectory}`;
+        const CMD = `frodo config-manager push journeys -Fn ConfigManagerPushTest --push-dependencies  -D ${allDirectory}`;
         await testSuccess(CMD, { ...env, env: { ...env.env, FRODO_TEST_NAME: '0_Fn_d_D' } });
     });
     test(`"frodo config-manager push journeys --directory ${allDirectory}": should import journeys into a specific realm"`, async () => {

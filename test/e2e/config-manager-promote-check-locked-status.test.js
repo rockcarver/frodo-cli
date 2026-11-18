@@ -3,7 +3,7 @@
 /*
 // Cloud
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_TEST_NAME=0 frodo config-manager promote check-locked-status
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_TEST_NAME=0_l frodo config-manager promote check-locked-status -l
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_TEST_NAME=0_l frodo config-manager promote check-locked-status -L
 */
 
 import { getEnv, testSuccess } from './utils/TestUtils';
@@ -19,7 +19,7 @@ describe('frodo config-manager promote check-locked-status', () => {
         await testSuccess(CMD, { ...cloudEnv, env: { ...cloudEnv.env, FRODO_TEST_NAME: '0' } });
     });
     test(`"frodo config-manager promote check-locked-status -l": Will check lock-status for local lock only."`, async () => {
-        const CMD = `frodo config-manager promote check-locked-status -l`;
+        const CMD = `frodo config-manager promote check-locked-status -L`;
         await testSuccess(CMD, { ...cloudEnv, env: { ...cloudEnv.env, FRODO_TEST_NAME: '0_l' } });
     });
 });

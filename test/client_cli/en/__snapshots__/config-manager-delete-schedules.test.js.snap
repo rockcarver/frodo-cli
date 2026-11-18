@@ -24,7 +24,7 @@ Options:
   --allow-failures   Report operations that fail, but still exit with code 0.
                      Without this option the command runs every operation,
                      prints a summary of what failed and exits with code 1.
-  --dry-run          Show which schedules would be deleted without deleting
+  -d, --dry-run      Show which schedules would be deleted without deleting
                      them.
   -n, --name <name>  Schedule name, the part of its id after schedule/ (for
                      example taskscan_activate), matched exactly; delete only

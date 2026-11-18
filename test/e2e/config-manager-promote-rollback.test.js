@@ -14,7 +14,7 @@
 /*
 // Cloud
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_TEST_NAME=0 frodo config-manager promote rollback
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_TEST_NAME=0_p_ud_t frodo config-manager promote rollback -p provisional-report -ud 'provisional report' -t ticket
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_TEST_NAME=0_p_ud_t frodo config-manager promote rollback -P provisional-report -u --description 'provisional report' -t ticket
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_TEST_NAME=0_wait frodo config-manager promote rollback --wait
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_TEST_NAME=0_wait_timeout frodo config-manager promote rollback --wait --timeout 6
 */
@@ -32,7 +32,7 @@ describe('frodo config-manager promote rollback', () => {
         await testSuccess(CMD, { ...cloudEnv, env: { ...cloudEnv.env, FRODO_TEST_NAME: '0' } });
     });
     test(`"frodo config-manager promote rollback -p provisional-report -ud 'provisional report' -t ticket": Will run rollback with promoter, description, unlocking after, and Zendesk ticket"`, async () => {
-        const CMD = `frodo config-manager promote rollback -p provisional-report -ud 'provisional report' -t ticket`;
+        const CMD = `frodo config-manager promote rollback -P provisional-report -u --description 'provisional report' -t ticket`;
         await testSuccess(CMD, { ...cloudEnv, env: { ...cloudEnv.env, FRODO_TEST_NAME: '0_p_ud_t' } });
     });
     test(`"frodo config-manager promote rollback --wait": Should wait for rollback to complete`, async () => {

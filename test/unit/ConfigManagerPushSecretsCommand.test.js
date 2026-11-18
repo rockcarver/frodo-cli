@@ -151,7 +151,7 @@ describe('frodo config-manager push secrets', () => {
     expect(constructed[2]).toEqual(['cloud']);
   });
 
-  test('has --prune without a short form, -y/--yes and --dry-run', () => {
+  test('has --prune without a short form, -y/--yes and -d, --dry-run', () => {
     const options = setup().options;
     const flags = (name) => options.find((o) => o.long === name)?.flags;
 
@@ -159,7 +159,13 @@ describe('frodo config-manager push secrets', () => {
     expect(flags('--prune')).toBe('--prune');
     expect(options.some((o) => o.short === '-p')).toBe(false);
     expect(flags('--yes')).toBe('-y, --yes');
-    expect(flags('--dry-run')).toBe('--dry-run');
+    // -d is the dry run on every command of the group that has one:
+    // https://github.com/rockcarver/frodo-cli/blob/main/docs/decisions/0057-options-of-the-configuration-commands.md
+    // (options of the configuration commands)
+    expect(flags('--dry-run')).toBe('-d, --dry-run');
+    expect(options.some((o) => o.short === '-d' && o.long !== '--dry-run')).toBe(
+      false
+    );
   });
 });
 

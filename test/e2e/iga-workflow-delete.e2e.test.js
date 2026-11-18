@@ -21,7 +21,7 @@ const igaEnv = getEnv(ic);
 // deployed there) rather than continuing to fight ccb-ai's indexing here.
 describe('frodo iga workflow delete', () => {
   test.skip(`"frodo iga workflow delete -di <id>": should delete a draft workflow`, async () => {
-    const CMD = `frodo iga workflow delete -di testWorkflow1`;
+    const CMD = `frodo iga workflow delete --draft-only -i testWorkflow1`;
     await testSuccess(CMD, { ...igaEnv, env: { ...igaEnv.env, FRODO_TEST_NAME: '0_di' } });
   });
 
@@ -46,7 +46,7 @@ describe('frodo iga workflow delete', () => {
   });
 
   test.skip(`"frodo iga workflow delete -fdp --all -y": should fail (protected OOTB workflows)`, async () => {
-    const CMD = `frodo iga workflow delete -fdp --all -y`;
+    const CMD = `frodo iga workflow delete -fp --draft-only --all -y`;
     await testSuccess(CMD, { ...igaEnv, env: { ...igaEnv.env, FRODO_TEST_NAME: '0_fdp_all_y' } });
   });
 });

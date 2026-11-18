@@ -254,6 +254,65 @@ versions, and the versions that are deleted are the same as before (the
 versions that are still enabled besides the active one). See
 [a command that can delete more than the one object it names asks first](https://github.com/rockcarver/frodo-cli/blob/main/docs/decisions/0037-a-command-that-can-delete-more-than-the-one-object-it-names-asks-first.md).
 
+**Short forms of the `config-manager` options follow one rule, and some are
+gone**: inside `frodo config-manager` a short letter has one meaning, and an
+option that is destructive, or that shared its letter with an option that means
+something else, has a long form only. The rule and the whole list of letters are
+in
+[options of the configuration commands](https://github.com/rockcarver/frodo-cli/blob/main/docs/decisions/0057-options-of-the-configuration-commands.md).
+The old spellings in the tables below are removed at once, with no alias,
+because the group is experimental: a script that still passes one fails before
+it connects to anything, with `error: unknown option '-p'` and the usage, and
+exit code 1. The long forms keep working. These options moved to the capital
+letter (the commands are `frodo config-manager` commands):
+
+| Removed                          | Now                              | Commands                                                                    |
+| -------------------------------- | -------------------------------- | --------------------------------------------------------------------------- |
+| `-i, --ignore-encrypted-secrets` | `-I, --ignore-encrypted-secrets` | `promote run-dryrun-promotion`, `promote run-promotion`                     |
+| `-l, --local-lock-only`          | `-L, --local-lock-only`          | `promote check-locked-status`                                               |
+| `-p, --promoter`                 | `-P, --promoter`                 | `promote rollback`, `promote run-dryrun-promotion`, `promote run-promotion` |
+
+These options have a long form only now:
+
+| Removed                      | Command                           | Write                    |
+| ---------------------------- | --------------------------------- | ------------------------ |
+| `-p, --provisional`          | `promote check-promotion-reports` | `--provisional`          |
+| `-r, --provisional-rollback` | `promote check-promotion-reports` | `--provisional-rollback` |
+| `-d, --description`          | `promote rollback`                | `--description`          |
+| `-d, --description`          | `promote run-dryrun-promotion`    | `--description`          |
+| `-d, --description`          | `promote run-promotion`           | `--description`          |
+| `-i, --include-immutable`    | `pull iga-workflows`              | `--include-immutable`    |
+| `-c, --clean`                | `pull journeys`                   | `--clean`                |
+| `-d, --pull-dependencies`    | `pull journeys`                   | `--pull-dependencies`    |
+| `-u, --custom-relationships` | `pull managed-objects`            | `--custom-relationships` |
+| `-u, --dump`                 | `pull variables`                  | `--dump`                 |
+| `-f, --filename-filter`      | `push custom-nodes`               | `--filename-filter`      |
+| `-f, --filename-filter`      | `push endpoints`                  | `--filename-filter`      |
+| `-d, --draft`                | `push iga-workflows`              | `--draft`                |
+| `-d, --push-dependencies`    | `push journeys`                   | `--push-dependencies`    |
+| `-p, --path`                 | `push raw`                        | `--path`                 |
+| `-i, --stdin`                | `push raw`                        | `--stdin`                |
+| `-c, --check`                | `push restart`                    | `--check`                |
+| `-f, --filename-filter`      | `push schedules`                  | `--filename-filter`      |
+| `-f, --filenameFilter`       | `push scripts`                    | `--filenameFilter`       |
+
+`-d, --dry-run` is new on `delete oauth-cimd-profiles`, `delete oauth-issuers`,
+`delete oauth-software-publishers`, `delete schedules`, `delete secret-mappings`
+and `push secrets`, where only `--dry-run` existed, so `-d` is the dry run on
+every `config-manager` command that has one. A cluster of short letters that
+holds a removed letter has to be split: `-p provisional-report -uid 'a report'`
+becomes `-P provisional-report -uI --description 'a report'`, and `-cD dir`
+becomes `--clean -D dir`.
+
+Three commands outside the group give up a letter as well, so that `-d` and `-C`
+mean one thing in the group; their long forms are unchanged:
+
+| Removed            | Command               | Write          |
+| ------------------ | --------------------- | -------------- |
+| `-C, --clean`      | `config import`       | `--clean`      |
+| `-d, --draft-only` | `iga workflow delete` | `--draft-only` |
+| `-C, --clean`      | `service import`      | `--clean`      |
+
 **`authn export` and `authn import` exit 1 after a failure**: in 4.x both
 commands printed the error and exited with code 0 when the export or the import
 failed, because they checked the result before the operation had finished. In

@@ -26,9 +26,10 @@ Options:
   --allow-failures  Report operations that fail, but still exit with code 0.
                     Without this option the command runs every operation, prints
                     a summary of what failed and exits with code 1.
-  -r, --report      Output variables as a CSV report. Cannot be used with -u.
-  -u, --dump        Dump decoded variable values to the console. Cannot be used
+  --dump            Dump decoded variable values to the console. Cannot be used
                     with -r.
+  -r, --report      Output variables as a CSV report. Cannot be used with
+                    --dump.
   -h, --help        Help
   -hh, --help-more  Help with all options.
   -hhh, --help-all  Help with all options, environment variables, and usage

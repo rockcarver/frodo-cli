@@ -215,8 +215,10 @@ describe('an empty secret name', () => {
   });
 });
 
-describe('the preview option of the oauth kinds and of schedules has no short form', () => {
-  // an option that makes a command destructive has a long form only (frodo-cli#1264, P5 and P6)
+describe('the dry run of the oauth types and of schedules has the short form -d', () => {
+  // -d is the dry run on every command of the group that has one:
+  // https://github.com/rockcarver/frodo-cli/blob/main/docs/decisions/0057-options-of-the-configuration-commands.md
+  // (options of the configuration commands)
   test.each([
     'frodo config-manager delete oauth-cimd-profiles -d',
     'frodo config-manager delete oauth-cimd-profiles -n Example -d',
@@ -226,14 +228,11 @@ describe('the preview option of the oauth kinds and of schedules has no short fo
     'frodo config-manager delete oauth-software-publishers -n Example -d',
     'frodo config-manager delete schedules -d',
     'frodo config-manager delete schedules -n Example -d',
-  ])('"%s" is rejected as an unknown option before anything else', async (command) => {
-    const { code, stderr } = await run(command);
+  ])('"%s" is a known option and goes on to the login', async (command) => {
+    const { stderr } = await run(command);
 
-    expect(code).toBe(1);
-    expect(stderr).toContain("unknown option '-d'");
+    expect(stderr).not.toContain('unknown option');
     expect(stderr).not.toContain('Refusing to delete');
-    // the usage that commander prints says "connection profile": look for the failed connection itself
-    expect(stderr).not.toMatch(/ECONNREFUSED|ENOTFOUND/);
   });
 });
 

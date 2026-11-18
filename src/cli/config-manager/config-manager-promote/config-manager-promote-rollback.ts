@@ -28,15 +28,12 @@ export default function setup() {
     )
     .addOption(
       new Option(
-        '-p, --promoter <name>',
+        '-P, --promoter <name>',
         'Name of the person performing the rollback.'
       )
     )
     .addOption(
-      new Option(
-        '-d, --description <description>',
-        'Description of the rollback.'
-      )
+      new Option('--description <description>', 'Description of the rollback.')
     )
     .addOption(
       new Option(

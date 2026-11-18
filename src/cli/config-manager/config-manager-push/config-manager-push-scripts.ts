@@ -18,7 +18,7 @@ export default function setup() {
     )
     .addOption(
       new Option(
-        '-f, --filenameFilter <filenameFilter>',
+        '--filenameFilter <filenameFilter>',
         'Filename Filter (combine multiples using comma, use ~ prefix on entry for wildcard match)'
       )
     );

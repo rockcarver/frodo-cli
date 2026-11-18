@@ -19,7 +19,7 @@ import { Command } from 'commander';
  * refuses the root realm (it has no secret mappings to delete), and hands the
  * ID, the realm, the dry run and `--allow-failures` to the ops function. A
  * failed login runs nothing and the exit code is 1 when the login or the ops
- * function fails. The preview option is `--dry-run` and has no short form. What
+ * function fails. The preview option is `-d, --dry-run`. What
  * the ops function does is covered by FrConfigSecretMappingsDelete.test.js.
  */
 
@@ -164,30 +164,33 @@ describe('frodo config-manager delete secret-mappings', () => {
     for (const example of examples.filter((line) => !/ -n /.test(line))) {
       expect(example).toMatch(/ (-y|--dry-run) /);
     }
-    // no example uses the short form of the preview option
-    for (const example of examples) expect(example).not.toMatch(/ -d /);
   });
 });
 
-describe('the preview option is --dry-run and has no short form', () => {
-  test('--dry-run is declared and -d is not', () => {
+describe('the preview option is -d, --dry-run', () => {
+  // -d is the dry run on every command of the group that has one:
+  // https://github.com/rockcarver/frodo-cli/blob/main/docs/decisions/0057-options-of-the-configuration-commands.md
+  // (options of the configuration commands)
+  test('--dry-run is declared with the short form -d', () => {
     const flags = setup().options.map((option) => ({
       long: option.long,
       short: option.short,
     }));
 
-    expect(flags).toContainEqual({ long: '--dry-run', short: undefined });
-    expect(flags.map((flag) => flag.short)).not.toContain('-d');
+    expect(flags).toContainEqual({ long: '--dry-run', short: '-d' });
   });
 
-  test('-d is an unknown option and nothing is checked, asked or deleted', async () => {
-    await expect(run('-d', 'matrix')).rejects.toMatchObject({
-      code: 'commander.unknownOption',
-    });
+  test('-d is the dry run: it is handed to the ops function and told to the guard', async () => {
+    await run('-d', 'matrix');
 
-    expect(checkBulkDelete).not.toHaveBeenCalled();
-    expect(getTokens).not.toHaveBeenCalled();
-    expect(configManagerDeleteSecretMappings).not.toHaveBeenCalled();
+    expect(configManagerDeleteSecretMappings).toHaveBeenCalledWith(
+      undefined,
+      undefined,
+      true,
+      undefined
+    );
+    expect(checkBulkDelete.mock.calls[0][0].dryRun).toBe(true);
+    expect(confirmBulkDelete.mock.calls[0][0].dryRun).toBe(true);
   });
 });
 

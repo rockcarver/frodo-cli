@@ -33,7 +33,7 @@ export default function setup() {
     )
     .addOption(
       new Option(
-        '--dry-run',
+        '-d, --dry-run',
         'Show which secret mappings would be deleted without deleting them.'
       )
     )
