@@ -134,23 +134,25 @@ describe('frodo config-manager delete oauth-cimd-profiles', () => {
     expect(getTokens).toHaveBeenCalledWith();
   });
 
-  test('has -n, --dry-run and -y, and no mandatory option', async () => {
+  test('has -n, -d, --dry-run and -y, and no mandatory option', async () => {
     const program = await run('-y');
     const flags = program.options.map((option) => option.flags);
 
     expect(flags).toEqual(
       expect.arrayContaining([
         '-n, --name <name>',
-        '--dry-run',
+        '-d, --dry-run',
         '-y, --yes',
         '--allow-failures',
       ])
     );
     expect(program.options.filter((option) => option.mandatory)).toEqual([]);
-    // an option that makes a command destructive has a long form only (frodo-cli#1264)
+    // -d is the dry run on every command of the group that has one:
+    // https://github.com/rockcarver/frodo-cli/blob/main/docs/decisions/0057-options-of-the-configuration-commands.md
+    // (options of the configuration commands)
     expect(
-      program.options.find((option) => option.short === '-d')
-    ).toBeUndefined();
+      program.options.find((option) => option.short === '-d')?.long
+    ).toBe('--dry-run');
   });
 });
 

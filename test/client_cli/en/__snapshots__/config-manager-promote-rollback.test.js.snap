@@ -27,8 +27,8 @@ Arguments:
 Deployment: Cloud-only
 
 Options:
-  -d, --description <description>     Description of the rollback.
-  -p, --promoter <name>               Name of the person performing the
+  --description <description>         Description of the rollback.
+  -P, --promoter <name>               Name of the person performing the
                                       rollback.
   -t, --ticket-reference <reference>  Zendesk ticket reference.
   -T, --timeout <seconds>             Specify a timeout in seconds how long the

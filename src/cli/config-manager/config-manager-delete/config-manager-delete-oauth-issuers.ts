@@ -30,7 +30,7 @@ export default function setup() {
     )
     .addOption(
       new Option(
-        '--dry-run',
+        '-d, --dry-run',
         'Show which trusted JWT issuers would be deleted without deleting them.'
       )
     )

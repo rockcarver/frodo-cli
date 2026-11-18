@@ -22,7 +22,7 @@ export default function setup() {
       )
     )
     .addOption(
-      new Option('-i, --include-immutable ', 'Include immutable IGA workflows.')
+      new Option('--include-immutable ', 'Include immutable IGA workflows.')
     )
     .multiOp()
     .action(async (host, realm, user, password, options, command) => {

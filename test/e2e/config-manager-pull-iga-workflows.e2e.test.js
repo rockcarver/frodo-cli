@@ -42,12 +42,12 @@ describe('frodo config-manager pull iga-workflows', () => {
   });
   test('"frodo config-manager pull iga-workflows -i -D igaTestDir03": should export all worfklows including immutable ones in fr-config-manager style"', async () => {
     const dirName = 'igaTestDir03';
-    const CMD = `frodo config-manager pull iga-workflows -i -D ${dirName}`;
+    const CMD = `frodo config-manager pull iga-workflows --include-immutable -D ${dirName}`;
     await testExport(CMD, { ...env, env: { ...env.env, FRODO_TEST_NAME: '0_i_D' } }, undefined, undefined, dirName, false, true);
   });
   test('"frodo config-manager pull iga-workflows -i -n BasicApplicationGrant -D igaTestDir04": should export a non-mutable workflow when -i is set"', async () => {
     const dirName = 'igaTestDir04';
-    const CMD = `frodo config-manager pull iga-workflows -i -n BasicApplicationGrant -D ${dirName}`;
+    const CMD = `frodo config-manager pull iga-workflows --include-immutable -n BasicApplicationGrant -D ${dirName}`;
     await testExport(CMD, { ...env, env: { ...env.env, FRODO_TEST_NAME: '0_i_n_D' } }, undefined, undefined, dirName, false, true);
   });
   // The stderr snapshot of this test was edited by hand (not re-recorded): a workflow that is not there is now a plain

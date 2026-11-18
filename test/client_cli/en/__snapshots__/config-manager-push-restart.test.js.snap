@@ -23,7 +23,7 @@ Arguments:
 Deployment: Cloud-only
 
 Options:
-  -c, --check       Only restart if ESVs need loading.
+  --check           Only restart if ESVs need loading.
   -s, --status      Check restart status only.
   -w, --wait        Wait for restart to complete.
   -h, --help        Help

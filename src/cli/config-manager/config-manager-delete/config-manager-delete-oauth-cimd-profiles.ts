@@ -32,7 +32,7 @@ export default function setup() {
     )
     .addOption(
       new Option(
-        '--dry-run',
+        '-d, --dry-run',
         'Show which CIMD profiles would be deleted without deleting them.'
       )
     )

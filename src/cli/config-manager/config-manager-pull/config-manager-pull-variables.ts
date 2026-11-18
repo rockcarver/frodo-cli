@@ -21,12 +21,12 @@ export default function setup() {
     .addOption(
       new Option(
         '-r, --report',
-        'Output variables as a CSV report. Cannot be used with -u.'
+        'Output variables as a CSV report. Cannot be used with --dump.'
       ).conflicts(['dump'])
     )
     .addOption(
       new Option(
-        '-u, --dump',
+        '--dump',
         'Dump decoded variable values to the console. Cannot be used with -r.'
       ).conflicts(['report'])
     )
