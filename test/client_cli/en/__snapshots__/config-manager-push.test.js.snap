@@ -31,14 +31,6 @@ Commands:
   csp                        [Experimental] [Cloud-only] Import content security
                              policy.
   custom-nodes               [Experimental] Import custom nodes.
-  direct-control-abort       [Experimental] [Cloud-only] Aborts the current
-                             direct configuration session.
-  direct-control-apply       [Experimental] [Cloud-only] Apply changes made
-                             during a direct configuration session.
-  direct-control-init        [Experimental] [Cloud-only] Initialize a new direct
-                             configuration session.
-  direct-control-state       [Experimental] [Cloud-only] Read the current direct
-                             configuration session state.
   email-provider             [Experimental] Import email provider configuration.
   email-templates            [Experimental] Import email template objects.
   endpoints                  [Experimental] Import custom endpoints objects.

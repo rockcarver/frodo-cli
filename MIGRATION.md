@@ -1119,6 +1119,47 @@ does not print the experimental notice of the config-manager group:
 | `frodo config-manager push test`   | `frodo conn test` |
 | `frodo config-manager delete test` | `frodo conn test` |
 
+**`config-manager push direct-control-init`, `-apply`, `-abort` and `-state` are
+removed**: direct control had two implementations, these four commands and
+`frodo dcc session`, which has the same four calls and now the one option that
+only the old commands had, `-w, --wait`
+([the configuration command group](https://github.com/rockcarver/frodo-cli/blob/main/docs/decisions/0056-the-configuration-command-group.md):
+`frodo dcc session` is the one implementation of direct control). The group
+`config-manager` is experimental, so the old spellings have no alias and print no
+notice: a command line that still runs one of them is rejected with `error:
+unknown command 'direct-control-init'` (or `-apply`, `-abort`, `-state`) and
+exit code 1, before any connection is made. Replace the command in the script:
+
+| Removed command                                  | Use instead               |
+| ------------------------------------------------ | ------------------------- |
+| `frodo config-manager push direct-control-init`  | `frodo dcc session init`  |
+| `frodo config-manager push direct-control-apply` | `frodo dcc session apply` |
+| `frodo config-manager push direct-control-abort` | `frodo dcc session abort` |
+| `frodo config-manager push direct-control-state` | `frodo dcc session state` |
+
+`frodo config-manager push direct-control-apply -w` becomes `frodo dcc session
+apply --wait` (or `-w`): it asks the tenant to apply, then reads the state every
+10 seconds until the session is applied, prints `Status: <status>` to stderr for
+each read, and still has no timeout. What differs from the old commands:
+
+- **The result is a sentence on stderr, not the state on stdout.** The old
+  commands printed the state object on stdout. Use `--json` for the same object
+  on stdout; a script that parsed the old stdout needs it. With `--wait --json`
+  stdout holds one document, the final state (the old command printed the answer
+  of the apply call first, then the `Status:` lines).
+- **Without `--json` the exit code is 1 when the answer contradicts the
+  action**: `init` when no session is active afterwards, `apply` and `abort`
+  when the session is still active. The old commands exited 0 whenever the call
+  worked. With `--json` the exit codes of `init`, `apply` and `abort` are those
+  of `frodo dcc session` before: 0 whatever the answer says (making them follow
+  the answer is left for a later change). Waiting is the one exception:
+  `apply --wait`, with or without `--json`, exits 1 at once, without waiting,
+  when the apply call reports the session as still active, and exits 1 when the
+  session reaches the state `ERROR`.
+- **The notice on stderr is the one of a preview command.** `frodo dcc
+  session` prints `Preview feature in use`, not the experimental notice of the
+  config-manager group.
+
 ### Node.js version matrix changes in 5.x
 
 - 5.x is tested on Node.js 26 only, and building frodo from source (the npm

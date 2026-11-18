@@ -356,8 +356,10 @@ describe('the e2e tests', () => {
     console.info(
       `E2eOutputNames: ${calls.length} testExport calls in ${files.size} of ${names.length} e2e test files`
     );
-    // Floors, not exact counts: a scan that finds nothing must fail, adding a test must not.
-    expect(names.length).toBeGreaterThanOrEqual(290);
+    // Sanity floors against a broken collection, not counts: a scan that finds
+    // little or nothing must fail, while adding or removing test files must not
+    // touch these lines.
+    expect(names.length).toBeGreaterThanOrEqual(200);
     expect(calls.length).toBeGreaterThanOrEqual(350);
     expect(files.size).toBeGreaterThanOrEqual(70);
   });

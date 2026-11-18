@@ -25,6 +25,9 @@ Deployment: Cloud-only
 
 Options:
   --json            Output in JSON format.
+  -w, --wait        Wait for the direct configuration session to reach an
+                    applied state before exiting. Checks every 10 seconds and
+                    has no timeout.
   -h, --help        Help
   -hh, --help-more  Help with all options.
   -hhh, --help-all  Help with all options, environment variables, and usage

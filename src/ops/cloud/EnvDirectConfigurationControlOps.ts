@@ -3,6 +3,9 @@ import {
   type DirectConfigurationSessionState,
 } from '@rockcarver/frodo-lib';
 import { printError, printMessage } from '../../utils/Console';
+import { sleep } from '../../utils/FrConfig';
+
+const APPLIED_MESSAGE = `Configuration applied and direct configuration session ended. Use 'frodo dcc session init' to start a new session.`;
 
 export async function readDirectConfigurationSessionState(
   json: boolean = false
@@ -57,26 +60,56 @@ export async function initDirectConfigurationSession(
   }
 }
 
+/**
+ * Apply the configuration of the direct configuration session and end it.
+ * @param {boolean} json print the state as one document on stdout instead of a sentence
+ * @param {boolean} wait poll the state every 10 seconds until the session is applied (no timeout); `Status:` progress lines go to stderr, so `json` still leaves one document, the final state
+ * @returns {Promise<boolean>} a promise that resolves to true if the configuration was applied, false otherwise
+ */
 export async function applyDirectConfigurationSession(
-  json: boolean = false
+  json: boolean = false,
+  wait: boolean = false
 ): Promise<boolean> {
   try {
-    const response: DirectConfigurationSessionState =
+    let response: DirectConfigurationSessionState =
       await frodo.cloud.env.applyDirectConfigurationSession();
+    // a session that is still editable has not started to apply: nothing to wait for
+    if (wait && !response.editable) {
+      const pollIntervalSeconds = 10;
+      while (response.status !== 'SESSION_APPLIED') {
+        await sleep(pollIntervalSeconds * 1000);
+        response = await frodo.cloud.env.readDirectConfigurationSessionState();
+
+        printMessage(`Status: ${response.status}`);
+
+        if (response.status === 'ERROR') {
+          if (json) printMessage(response, 'data');
+          printMessage(
+            'Direct Configuration session encountered an error.',
+            'error'
+          );
+          return false;
+        }
+      }
+      if (json) {
+        printMessage(response, 'data');
+      } else {
+        printMessage(APPLIED_MESSAGE);
+      }
+      return true;
+    }
     if (json) {
       printMessage(response, 'data');
-    } else {
-      if (response.editable) {
-        printMessage(
-          `Direct configuration session is still active, configuration has likely not been applied.`
-        );
-        return false;
-      } else {
-        printMessage(
-          `Configuration applied and direct configuration session ended. Use 'frodo dcc session init' to start a new session.`
-        );
-      }
+      // with wait, the only way here is a session that is still editable
+      return !wait;
     }
+    if (response.editable) {
+      printMessage(
+        `Direct configuration session is still active, configuration has likely not been applied.`
+      );
+      return false;
+    }
+    printMessage(APPLIED_MESSAGE);
     return true;
   } catch (error) {
     printError(json ? { error: error.message } : error);

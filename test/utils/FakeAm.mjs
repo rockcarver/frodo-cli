@@ -154,6 +154,15 @@
  * from the URL, as IDM does) and is answered with `200`. The request log holds the body of
  * every write. An id that is not in the object answers `404`; `managed` and `repo.ds` stay
  * with FAKE_AM_IDM_CONFIG_FILE above when that one is given.
+ * FAKE_AM_DIRECT_CONFIGURATION_FILE=<path> names a JSON object `{ apply?, states? }` that makes the
+ * fake serve the direct configuration session of a Cloud tenant, and the list of service account
+ * scopes that a service account login reads (`GET /environment/scopes/service-accounts`, which
+ * names the scopes of the session API). `PUT /environment/direct-configuration/session/init`
+ * answers `{ editable: true }` and `.../abort` answers `{ editable: false }`; `.../apply` answers
+ * `apply` (default `{ editable: false }`, as the real tenant does); `GET .../state` answers the next
+ * entry of `states` (default `[{ editable: false }]`) and then the last one again, so a test scripts
+ * the statuses a wait polls through. The request log holds every call. Without the option the whole
+ * session API answers 404.
  * FAKE_AM_EMPTY_COLLECTIONS=1 makes the fake answer every collection query it has no
  * route for as an empty collection, the way a realm that holds nothing answers it: a
  * `GET` with a `_queryFilter` and a `POST` with `_action=nextdescendents` get `200`
@@ -198,6 +207,11 @@ const features = readJson(process.env.FAKE_AM_FEATURES_FILE);
 const idmConfig = readJson(process.env.FAKE_AM_IDM_CONFIG_FILE);
 const idmEntities = readJson(process.env.FAKE_AM_IDM_ENTITIES_FILE);
 const failRequests = JSON.parse(process.env.FAKE_AM_FAIL_REQUESTS ?? '[]');
+const directConfiguration = readJson(
+  process.env.FAKE_AM_DIRECT_CONFIGURATION_FILE
+);
+// how many state reads the fake has answered, which picks the next scripted answer
+let directConfigurationStateReads = 0;
 const emptyCollections = process.env.FAKE_AM_EMPTY_COLLECTIONS === '1';
 const logApiKeys = readJson(process.env.FAKE_AM_LOG_API_KEYS_FILE);
 const oauth2Clients = (process.env.FAKE_AM_OAUTH2_CLIENTS ?? '')
@@ -491,6 +505,44 @@ const server = http.createServer((req, res) => {
       });
     }
     if (serveAiAgents(req, body, send)) return;
+    if (directConfiguration) {
+      const route = new URL(req.url, 'http://fake').pathname;
+      const session = '/environment/direct-configuration/session/';
+      if (
+        req.method === 'GET' &&
+        route === '/environment/scopes/service-accounts'
+      ) {
+        return send(200, [
+          {
+            scope: 'fr:idc:direct-configuration:session:*',
+            description:
+              'All Direct Configuration Control Session management APIs',
+            childScopes: [
+              {
+                scope: 'fr:idc:direct-configuration:session:read',
+                description: 'Read Direct Configuration Control Session state',
+              },
+            ],
+          },
+        ]);
+      }
+      if (req.method === 'PUT' && route === `${session}init`) {
+        return send(200, { editable: true });
+      }
+      if (req.method === 'PUT' && route === `${session}apply`) {
+        return send(200, directConfiguration.apply ?? { editable: false });
+      }
+      if (req.method === 'PUT' && route === `${session}abort`) {
+        return send(200, { editable: false });
+      }
+      if (req.method === 'GET' && route === `${session}state`) {
+        const states = directConfiguration.states ?? [{ editable: false }];
+        const answer =
+          states[Math.min(directConfigurationStateReads, states.length - 1)];
+        directConfigurationStateReads += 1;
+        return send(200, answer);
+      }
+    }
     const issuerRoute = req.url
       .split('?')[0]
       .match(/\/realm-config\/agents\/TrustedJwtIssuer(?:\/([^/]+))?$/);
