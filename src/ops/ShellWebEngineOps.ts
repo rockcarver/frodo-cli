@@ -10,6 +10,7 @@ import {
   installConsoleContext,
 } from './ShellContextOps';
 import { HistoryEntry, ShellHistory } from './ShellHistoryOps';
+import { IdmCatalog, refreshIdmCatalog } from './ShellIdmCatalogOps';
 
 /**
  * The evaluation engine behind the web console: a REPL with no terminal.
@@ -55,6 +56,8 @@ export type WebEngine = {
   evaluate(code: string): Promise<EvalOutcome>;
   /** Completions for the text before the cursor: [candidates, replaced text]. */
   complete(line: string): [string[], string];
+  /** Fetch the tenant's managed types, config instances and connectors for resource completion. */
+  refreshCatalog(): Promise<void>;
   /** Persistent history for this host, newest first, with metadata. */
   history(): HistoryEntry[];
   /**
@@ -560,6 +563,10 @@ export function createWebEngine(options: {
     });
   }
 
+  // The tenant-shaped completion data (managed types, config instances,
+  // connectors), refreshed by connectToHost in the worker once the tab
+  // signs in. Empty until then: static families still suggest.
+  let idmCatalog: IdmCatalog | undefined;
   const completer = createFrodoCompleter(
     bindings.rootBindings,
     bindings.docsByMethod,
@@ -570,7 +577,11 @@ export function createWebEngine(options: {
     // and reads resolve lexical names by evaluating them in the context.
     // Cleared by reset (a fresh context holds none of the old names).
     // Passed as an accessor: the completer reads it per completion.
-    () => liveView()
+    () => liveView(),
+    // Web mode keeps the full param scaffold (the page places the cursor
+    // inside the parens); the accessor is for the catalog, not this flag.
+    false,
+    () => idmCatalog
   );
   // Shared across connections: one console, many environments, one
   // history (ShellHistory.shared() folds in the old per-host files).
@@ -621,6 +632,11 @@ export function createWebEngine(options: {
       });
     },
     complete: (line) => completer(line),
+    // Called by the worker after a successful connect: the tenant's live
+    // types, config instances and connectors for resource completion.
+    async refreshCatalog() {
+      idmCatalog = await refreshIdmCatalog(idmCatalog);
+    },
     history: () => history.getEntries(),
     // Queued like an eval, so it cannot interleave with one: the context
     // never vanishes under a script that is running. resetContext() swaps

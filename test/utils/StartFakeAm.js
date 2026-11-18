@@ -23,6 +23,7 @@ const fakeAmPath = fileURLToPath(new URL('./FakeAm.mjs', import.meta.url));
  * @param {string[]} [options.scripts] script names the script list of the realm answers with (default: it answers 404)
  * @param {string[]} [options.trees] journey names the journey list of the realm answers with; an empty array is a realm without journeys (default: it answers 404)
  * @param {object[]} [options.users] managed users the fake serves under /openidm/managed/ (`_id`, `userName`, `givenName`, `sn`, `mail`)
+ * @param {string[]} [options.managedTypes] managed object type names the fake's config entity answers with (for catalog enrichment)
  * @param {string[]} [options.realms] realm names the realm list answers with (default: it answers 404)
  * @returns {Promise<{ port: number, stop: () => void }>}
  */
@@ -33,6 +34,7 @@ export async function startFakeAm({
   grantError,
   issuer,
   users,
+  managedTypes,
   oauth2Clients,
   scripts,
   trees,
@@ -57,6 +59,9 @@ export async function startFakeAm({
         ? { FAKE_AM_ISSUER_FILE: written('issuer.json', issuer) }
         : {}),
       ...(users ? { FAKE_AM_USERS_FILE: written('users.json', users) } : {}),
+      ...(managedTypes
+        ? { FAKE_AM_MANAGED_TYPES: managedTypes.join(',') }
+        : {}),
       ...(oauth2Clients
         ? { FAKE_AM_OAUTH2_CLIENTS: oauth2Clients.join(',') }
         : {}),

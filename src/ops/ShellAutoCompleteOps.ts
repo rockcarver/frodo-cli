@@ -1,6 +1,209 @@
+import {
+  actionSuggestions,
+  IdmCatalog,
+  queryParamSuggestions,
+  resourceSuggestions,
+} from './ShellIdmCatalogOps';
+
 const CYAN = '\x1b[36m';
 const DIM = '\x1b[2m';
 const RESET = '\x1b[0m';
+
+/**
+ * What the IDM string scanner hands the completion builder: which function
+ * and argument position the cursor sits in, and the raw string content so
+ * far. Only calls whose first string argument is an IDM resource path get
+ * completion: the `openidm.*` CRUD/actions family. Other quoted strings
+ * (script names, filter literals in `frodo.*` calls) stay unsuggested,
+ * because nothing finite is known about them.
+ */
+export type IdmStringContext = {
+  /** The dotted call path the cursor is inside, e.g. `openidm.read`. */
+  readonly fullPath: string;
+  /** The function's short name: read, query, action, ... */
+  readonly fnName: string;
+  /** Zero-based argument position of the cursor's argument. */
+  readonly argIndex: number;
+  /** The raw content of the cursor's string so far (no quotes). */
+  readonly content: string;
+  /** The quote character the string is opened with. */
+  readonly quoteChar: string;
+  /** The call's first string argument (for openidm.action's filter). */
+  readonly firstArg?: string;
+};
+
+/**
+ * Find a quoted string under the cursor that an `openidm.*` call owns.
+ *
+ * Quote-aware and argument-aware: single-quoted or double-quoted, escapes
+ * respected, and commas inside strings or nested braces do not count as
+ * argument separators (a filter literal `userName eq "a,b"` is one
+ * argument). Returns undefined when the cursor is not inside such a
+ * string, so ordinary name completion applies.
+ */
+export function parseIdmStringContext(line: string): IdmStringContext | null {
+  // Walk the line once, tracking quote state and paren/brace nesting.
+  let inSingle = false;
+  let inDouble = false;
+  // The open paren of the innermost call whose string we are inside, with
+  // the call path that precedes it and the argument index so far.
+  let callPath = '';
+  let parenDepth = 0;
+  let braceDepth = 0;
+  let argIndex = 0;
+  let strStart = -1;
+  let quoteChar = '';
+  let firstArg: string | undefined;
+
+  for (let i = 0; i < line.length; i++) {
+    const ch = line[i];
+
+    if (inSingle || inDouble) {
+      if (ch === '\\' && i + 1 < line.length) {
+        i++; // Skip the escaped character.
+        continue;
+      }
+      if ((inSingle && ch === "'") || (inDouble && ch === '"')) {
+        // String closed: remember arg 0's full content for action filtering.
+        if (callPath && argIndex === 0) {
+          firstArg = line.slice(strStart + 1, i);
+        }
+        inSingle = false;
+        inDouble = false;
+        strStart = -1;
+        continue;
+      }
+      continue;
+    }
+    if (ch === "'" || ch === '"') {
+      inSingle = ch === "'";
+      inDouble = ch === '"';
+      quoteChar = ch;
+      strStart = i;
+      continue;
+    }
+    if (ch === '(') {
+      // The call path: identifier characters (and dots) immediately before.
+      let start = i;
+      while (start > 0 && /[\w$.]/.test(line[start - 1])) start--;
+      const path = line.slice(start, i);
+      if (/^[A-Za-z_$][\w$]*(\.[A-Za-z_$][\w$]*)+$/.test(path)) {
+        callPath = path;
+        argIndex = 0;
+      } else {
+        callPath = '';
+      }
+      parenDepth++;
+      continue;
+    }
+    if (ch === ')') {
+      parenDepth--;
+      if (parenDepth <= 0) {
+        callPath = '';
+        parenDepth = 0;
+        argIndex = 0;
+      }
+      continue;
+    }
+    if (ch === '{' || ch === '[') braceDepth++;
+    if (ch === '}' || ch === ']') braceDepth--;
+    // A comma at brace depth 0 inside the tracked call starts a new arg.
+    if (ch === ',' && callPath && braceDepth === 0) argIndex++;
+  }
+
+  if (!(inSingle || inDouble) || !callPath || parenDepth <= 0) return null;
+  // Only the openidm functions own resource-path strings.
+  if (!/^openidm\.[A-Za-z_$][\w$]*$/.test(callPath)) return null;
+  const fnName = callPath.split('.')[1];
+  // The action name (arg 1 of openidm.action) completes from the action
+  // map; the resource path (arg 0) from the catalog. Other strings of
+  // other functions get nothing.
+  const content = line.slice(strStart + 1);
+  return { fullPath: callPath, fnName, argIndex, content, quoteChar, firstArg };
+}
+
+/**
+ * Build the completion result for an IDM string context: the candidates
+ * extend the string content typed so far, and the replace boundary is the
+ * whole string (the completer's caller re-splices from there, so the
+ * quotes are re-rendered by inserting `content + suffix` inside them).
+ * The suffix carries the closing quote when a single candidate fully
+ * matches, in the terminal's inert-parens style.
+ */
+function idmStringCompletions(
+  ctx: IdmStringContext,
+  catalog: IdmCatalog,
+  onMethodHint?: (hint: string) => void
+): [string[], string] {
+  const { content, argIndex } = ctx;
+  const token = content; // Replace the whole string content.
+
+  let entries: { path: string; description?: string }[] = [];
+
+  if (ctx.fnName === 'action' && argIndex === 1) {
+    // The action name: filtered by the resource (arg 0), which the
+    // scanner did not capture; re-extract it from the line.
+    const firstArg = extractFirstStringArg(ctx, content);
+    entries = firstArg ? actionSuggestions(firstArg, content) : [];
+  } else if (argIndex === 0) {
+    if (content.includes('?')) {
+      // Query-parameter context: CREST params, without closing quotes
+      // (the user keeps typing values). queryParamSuggestions returns the
+      // full param name; complete with its part past the typed partial.
+      const partial = /[^?&=]*$/.exec(content)[0];
+      const params = queryParamSuggestions(content);
+      return [
+        params.map((p) =>
+          p.toLowerCase().startsWith(partial.toLowerCase())
+            ? p.slice(partial.length)
+            : p
+        ),
+        token,
+      ];
+    }
+    entries = resourceSuggestions(content, catalog);
+  } else {
+    return [[], token];
+  }
+
+  if (entries.length === 0) return [[], token];
+
+  // The catalog returns full resource paths that extend what is typed;
+  // the completion carries only the part past the typed content (the
+  // caller re-splices the whole token, so the typed prefix is preserved
+  // verbatim).
+  const completions = entries.map((e) => {
+    const text = e.path;
+    return text.toLowerCase().startsWith(token.toLowerCase())
+      ? text.slice(token.length)
+      : text;
+  });
+  if (onMethodHint && entries.length > 0) {
+    const shown = entries.slice(0, 3);
+    const hint = shown
+      .map((e) => `${e.path}${e.description ? ` — ${e.description}` : ''}`)
+      .join('   ');
+    setImmediate(() =>
+      onMethodHint(
+        `▸ ${DIM}${hint}${entries.length > 3 ? `   (+${entries.length - 3} more)` : ''}${RESET}`
+      )
+    );
+  }
+  return [completions.map((c) => c), token];
+}
+
+/**
+ * The first string argument of the call the cursor sits in (for
+ * openidm.action's action suggestions to filter by the resource). Scans
+ * the line from the call's open paren.
+ */
+function extractFirstStringArg(
+  ctx: IdmStringContext,
+  _content: string
+): string | undefined {
+  void _content;
+  return ctx.firstArg;
+}
 
 export type MethodHelpDoc = {
   typeName: string;
@@ -218,7 +421,14 @@ export function createFrodoCompleter(
    * hint line above the prompt. The web page completes to the full
    * scaffold by design (it places the cursor inside the parens).
    */
-  terminalParensOnly?: boolean
+  terminalParensOnly?: boolean,
+  /**
+   * The IDM resource catalog, read at completion time: the live tenant
+   * types, config instances and connectors that fill the quoted first
+   * argument of the `openidm.*` functions. Undefined means the feature
+   * is off.
+   */
+  idmCatalog?: () => IdmCatalog | undefined
 ): (line: string) => [string[], string] {
   // One lookup for both root-name and dotted-path completion: static roots
   // win, the live context fills in what they lack (user variables).
@@ -234,6 +444,20 @@ export function createFrodoCompleter(
   };
 
   return (line: string): [string[], string] => {
+    // IDM resource completion first: the cursor inside a quoted string
+    // that an `openidm.*` call's argument context owns. This must win
+    // over name completion, whose dotted-path branch would otherwise
+    // offer the string's characters as identifiers.
+    if (idmCatalog) {
+      const catalog = idmCatalog();
+      if (catalog) {
+        const stringCtx = parseIdmStringContext(line);
+        if (stringCtx) {
+          return idmStringCompletions(stringCtx, catalog, onMethodHint);
+        }
+      }
+    }
+
     const invocationMatch = line.match(
       /([A-Za-z_$][\w$]*(?:\.[A-Za-z_$][\w$]*)+)\(\s*$/
     );

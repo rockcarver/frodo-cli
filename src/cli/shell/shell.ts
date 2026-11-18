@@ -21,6 +21,7 @@ import {
 } from '../../ops/ShellExploreOps';
 import { ShellHistory } from '../../ops/ShellHistoryOps';
 import { createConsoleInput } from '../../ops/ShellHistorySearchOps';
+import { getIdmCatalog, refreshIdmCatalog } from '../../ops/ShellIdmCatalogOps';
 import { createLogBus, startWebConsole } from '../../ops/ShellWebServerOps';
 import c from '../../utils/ColorTheme';
 import { printMessage } from '../../utils/Console';
@@ -250,7 +251,10 @@ async function startConsole(host?: string): Promise<void> {
     // Terminal: complete methods to `name(` only. The full scaffold on
     // the line looks runnable, and Enter submits the placeholder param
     // names to the call; the signature shows in the hint line instead.
-    true
+    true,
+    // The IDM resource catalog for openidm.* string completion; filled by
+    // the refresh after sign-in, empty (static families only) before.
+    () => getIdmCatalog()
   );
 
   const started = repl.start({
@@ -688,6 +692,10 @@ export default function setup() {
           process.exitCode = 1;
           return;
         }
+        // The tenant-shaped completion data (managed types, config
+        // instances, connectors) for openidm.* string completion;
+        // failures leave the static families.
+        await refreshIdmCatalog().catch(() => undefined);
       }
       if (options.web) {
         await startWebMode(host);

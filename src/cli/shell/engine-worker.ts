@@ -209,6 +209,11 @@ async function handle(request: Request): Promise<void> {
       }
       case 'connect': {
         const ok = await connectToHost(request.host ?? '');
+        if (ok) {
+          // The tenant-shaped completion data (managed types, config
+          // instances, connectors); failures leave the static families.
+          await engine.refreshCatalog().catch(() => undefined);
+        }
         emit({
           id: request.id,
           op: 'connect',
