@@ -736,6 +736,12 @@ A profile scopes the surface by _subject area_ instead of by danger: it selects 
 
 Counts use the default `agentic` policy and no tenant connection (`frodo mcp server info --profile <profile>`); the pool behind each profile (the inventory number) is larger than what a policy activates. Internal frodo domains (`state`, `cache`, `factory`, `utils`) are never exposed by any profile -- `--include-domains` and `--exclude-domains` override the profile's top-level domain selection, and `--include-utils` affects the inventory pool only; no profile or policy exposes utils skills.
 
+### Large results
+
+A list or search result says whether it is complete, in the fields that come before `data`: `truncated`, `returned` and `total`, and, when `truncated` is `true`, `nextPageOffset` (pass it as `pageOffset`) or `nextPageToken` (pass it as `pageToken`) and a `warning`. The server cuts a list or search result to a size limit, so a list can hold fewer items than exist even when the client asked for more with `pageSize`: do not count a truncated page, and do not conclude from it that an item does not exist. Read on with `pageOffset` or `pageToken`, or use a count capability for the exact total. A semantic count adds up every realm-qualified type of a family; a list reads one type. Compare a list with a count of the same type and filter; `total` of a list result is that count.
+
+This server also replaces a result whose indented JSON is larger than 256 KiB (2 MiB for the catalog detail of `frodo_discover`) by a note: `data` is `{ "_truncated": true, "message": ... }`, and the top-level fields say `truncated: true`, `returned: 0`, the `total` when it is known, and what to do (ask for fewer items with `pageSize`). The rule that a result which was cut says so in its first fields is recorded in [A result that was cut says so in the first fields of the result](https://github.com/rockcarver/frodo-cli/blob/main/docs/decisions/core/0025-a-result-that-was-cut-says-so-in-the-first-fields-of-the-result.md).
+
 ### Deployment modes
 
 The server runs in one of two modes, selected with `--transport` (default `stdio`).
