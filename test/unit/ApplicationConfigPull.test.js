@@ -574,6 +574,83 @@ describe('which applications and realms', () => {
     expect(console_.printError).toHaveBeenCalled();
   });
 
+  test('an application by its id is pulled alone, from the list of all applications', async () => {
+    world.apps.alpha = [app('One'), app('Two')];
+
+    expect(
+      await configManagerExportApplications(
+        undefined,
+        'alpha',
+        false,
+        false,
+        undefined,
+        'id-Two'
+      )
+    ).toBe(true);
+
+    expect(exists(`${APPS('alpha')}/Two/application.json`)).toBe(true);
+    expect(exists(`${APPS('alpha')}/One`)).toBe(false);
+    expect(frodo.app.readApplications).toHaveBeenCalledTimes(1);
+    expect(frodo.app.readApplicationByName).not.toHaveBeenCalled();
+  });
+
+  test('an application by its id without a single realm is refused before anything is read', async () => {
+    expect(
+      await configManagerExportApplications(
+        undefined,
+        undefined,
+        false,
+        false,
+        undefined,
+        'id-Two'
+      )
+    ).toBe(false);
+
+    expect(messages()).toMatch(/specify a single realm/);
+    expect(frodo.app.readApplications).not.toHaveBeenCalled();
+    expect(fs.readdirSync(tmp)).toEqual([]);
+  });
+
+  test('an id that the realm does not have fails the command whatever --allow-failures says, and names it', async () => {
+    world.apps.alpha = [app('One')];
+
+    expect(
+      await configManagerExportApplications(
+        undefined,
+        'alpha',
+        false,
+        true,
+        undefined,
+        'id-Missing'
+      )
+    ).toBe(false);
+
+    expect(messages()).toMatch(
+      /Application with id 'id-Missing' not found in realm 'alpha'/
+    );
+    expect(messages()).not.toMatch(/No applications found/);
+    expect(fs.readdirSync(tmp)).toEqual([]);
+  });
+
+  test('an empty id is refused before anything is read: it never means all applications', async () => {
+    world.apps.alpha = [app('One')];
+
+    expect(
+      await configManagerExportApplications(
+        undefined,
+        'alpha',
+        false,
+        false,
+        undefined,
+        ''
+      )
+    ).toBe(false);
+
+    expect(messages()).toMatch(/The application id must not be empty/);
+    expect(frodo.app.readApplications).not.toHaveBeenCalled();
+    expect(fs.readdirSync(tmp)).toEqual([]);
+  });
+
   test('a tenant without applications says so, and the step of pull all stays quiet', async () => {
     expect(await configManagerExportApplications(undefined, 'alpha')).toBe(
       true
