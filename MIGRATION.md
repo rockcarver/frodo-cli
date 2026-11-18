@@ -1073,8 +1073,12 @@ each read, and still has no timeout. What differs from the old commands:
 - **Without `--json` the exit code is 1 when the answer contradicts the
   action**: `init` when no session is active afterwards, `apply` and `abort`
   when the session is still active. The old commands exited 0 whenever the call
-  worked. `apply --wait` also fails at once, without waiting, when the tenant
-  still reports the session as active after the apply call.
+  worked. With `--json` the exit codes of `init`, `apply` and `abort` are those
+  of `frodo dcc session` before: 0 whatever the answer says (making them follow
+  the answer is left for a later change). Waiting is the one exception:
+  `apply --wait`, with or without `--json`, exits 1 at once, without waiting,
+  when the apply call reports the session as still active, and exits 1 when the
+  session reaches the state `ERROR`.
 - **The notice on stderr is the one of a preview command.** `frodo dcc
   session` prints `Preview feature in use`, not the experimental notice of the
   config-manager group.
