@@ -207,6 +207,24 @@ suite('dcc session apply through the CLI', () => {
     );
   });
 
+  describe('a tenant that does not serve the session API', () => {
+    it.each([[['apply']], [['apply', '--wait']]])(
+      '%j exits 1 with the error of the 404 and waits for nothing',
+      async (args) => {
+        const server = await fake(undefined);
+
+        const { code, stdout, stderr, seconds } = await session(server, args);
+
+        expect(sessionCalls()).toEqual([`PUT ${SESSION}apply`]);
+        expect(stderr).toContain('Status: 404');
+        expect(stdout).toBe('');
+        expect(code).toBe(1);
+        expect(seconds).toBeLessThan(10);
+      },
+      TIMEOUT
+    );
+  });
+
   describe('apply --wait', () => {
     it(
       'needs no wait when the apply call already answers SESSION_APPLIED: no state read, exit 0',
