@@ -4,7 +4,7 @@ import { getEnv, testSuccess } from './utils/TestUtils';
 import { iga_connection as ic } from './utils/TestConfig';
 
 process.env['FRODO_MOCK'] ||= '1';
-// FRODO_TEST_NAME pins the recording identity of a command: the id its recording was made under.
+// Each FRODO_TEST_NAME below pins the recording identity of its command (the args id it was recorded under, or a fixed label); test/unit/E2eRecordingIdentity.test.js checks every pin.
 const igaEnv = getEnv(ic);
 
 // TODO(iga-ccb-ai-recording): every sub-test below needs a custom workflow

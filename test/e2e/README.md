@@ -98,9 +98,9 @@ Setting it **replaces** the default list, so add any default host the same run a
 
 ## Writing a test
 
-Every test should carry its own explicit `FRODO_TEST_NAME` — a short, file-unique label that identifies its recording, independent of the command's actual arguments and flags. This is what lets you write as many test cases as you need for a given command, even ones that share the exact same invocation (e.g. the same command run against different realms, or a success/failure variant of the same flags) — the recording's identity is the label you chose, not an incidental property of the flags you happened to pass.
+Every test should carry its own explicit `FRODO_TEST_NAME` — a short, file-unique label that identifies its recording, independent of the command's actual arguments and flags. This is what lets you write as many test cases as you need for a given command, even ones that share the exact same invocation (e.g. the same command run against different realms, or a success/failure variant of the same flags) — the recording's identity is the label you chose, not an incidental property of the flags you happened to pass. The tests named under **The pin is checked** below are the exception: their pin must equal the id that frodo-lib derives from the command, so their flags are part of the recording's identity.
 
-1. Pick a short label for the test case (e.g. `noDeps`, `allSeparate`, `invalidCredentials`) — unique among the other tests in the same file, since collisions silently overwrite one another's recording.
+1. Pick a short label for the test case (e.g. `noDeps`, `allSeparate`, `invalidCredentials`) — unique among the other tests in the same file, since collisions silently overwrite one another's recording. (For the `config-manager-*`, `service import`, `config import` and `iga workflow delete` tests: the derived id, not a label; see **The pin is checked** below.)
 2. Check whether a recording already exists under that label by running the exact command in replay mode with it set: `FRODO_MOCK=1 FRODO_TEST_NAME=<name> frodo <command>`. For a genuinely new label this will normally fail — that's expected, move to step 3.
 3. Record it: `FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=<host> FRODO_TEST_NAME=<name> frodo <command>` (or `npm run test:update <pattern>` once the test itself is written — see below). Wait for Polly's shutdown countdown ("Polly instance '...' stopping in 3s...") to finish before running anything else against the same recordings.
 4. Validate the recording by re-running step 2.
@@ -111,6 +111,12 @@ Every test should carry its own explicit `FRODO_TEST_NAME` — a short, file-uni
    });
    ```
 6. Commit both the test and the new/updated files under `test/e2e/mocks/`.
+
+**The pin is checked.** For the `config-manager-*` tests and the `service import`, `config import` and `iga workflow delete` tests, the pin is the args id that frodo-lib derives from the command: the number of words after the first flag that no flag takes as its value, then the flag names without their dashes, joined by `_` (`0_D_m` for `... -D dir -m forgeops`). `test/unit/E2eRecordingIdentity.test.js` (under half a minute, no `frodo` binary, no network) fails when a command has no `FRODO_TEST_NAME`, when the pin is not that id, when `test/e2e/mocks` has no recording for it, when a header record line of a test lacks the variable, when a test file that the check does not read runs `frodo config-manager`, and when the identity code of the installed frodo-lib changed. It proves which recording a test replays, not that two recordings differ. A fixed label (two tests that need separate recordings of one command line), a flag renamed after the command was recorded, and a skipped test without a recording are listed with a reason in `test/unit/E2eRecordingIdentityExceptions.js`. The header of a test file lists each command as it was recorded, with the pin:
+
+```console
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=<host> FRODO_TEST_NAME=<pin> frodo <command>
+```
 
 **Don't put the host on the command line.** A recording's identity includes every positional word between the subcommand and the first flag, so `frodo agent ai delete -i x` and `frodo agent ai delete some-host -i x` are different recordings. The host comes from `FRODO_HOST`, which `getEnv()` sets. (Commands whose argument *is* a host, such as `frodo info <url>` or `frodo conn save <url>`, are the exception, by nature.)
 

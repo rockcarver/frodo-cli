@@ -7,7 +7,7 @@ stays pointed at frodo-dev on purpose; replay matching ignores hostname and
 credentials entirely, so a recording made against a different tenant replays
 fine through a test that nominally targets frodo-dev.
 
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-ccb-ai.forgeblocks.com/am FRODO_MOCK_HOSTS=https://openam-ccb-ai.forgeblocks.com frodo config-manager push iga-workflows --draft -D test/e2e/exports/fr-config-manager/cloud
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-ccb-ai.forgeblocks.com/am FRODO_MOCK_HOSTS=https://openam-ccb-ai.forgeblocks.com FRODO_TEST_NAME=0_draft_D frodo config-manager push iga-workflows --draft -D test/e2e/exports/fr-config-manager/cloud
 
 The source directory (test/e2e/exports/fr-config-manager/cloud/iga/workflows)
 defines test-BasicApplicationGrant and test-BasicEntitlementRemove -- both
@@ -23,7 +23,7 @@ const igaEnv = getEnv(ic);
 
 const allDirectory = "test/e2e/exports/fr-config-manager/cloud";
 
-// FRODO_TEST_NAME pins the recording's identity (the last segment of its path): the id stays when flags are renamed.
+// Each FRODO_TEST_NAME below pins the recording identity of its command (the args id it was recorded under, or a fixed label); test/unit/E2eRecordingIdentity.test.js checks every pin.
 // TODO(iga-ccb-ai-recording): both sub-tests below push a workflow WITHOUT
 // --draft, which (config-manager push iga-workflows' underlying
 // configManagerImportIgaWorkflows -> frodo-lib's updateWorkflow) routes
