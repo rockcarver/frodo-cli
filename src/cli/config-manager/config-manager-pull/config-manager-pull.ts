@@ -1,4 +1,3 @@
-import Test from '../../conn/conn-test';
 import { FrodoStubCommand } from '../../FrodoCommand';
 import AccessConfig from './config-manager-pull-access-config';
 import All from './config-manager-pull-all';
@@ -91,7 +90,6 @@ export default function setup() {
   program.addCommand(Themes().name('themes'));
   program.addCommand(Telemetry().name('telemetry'));
   program.addCommand(Terms().name('terms-and-conditions'));
-  program.addCommand(Test().name('test'));
   program.addCommand(OauthIssuers().name('oauth-issuers'));
   program.addCommand(
     OauthSoftwarePublishers().name('oauth-software-publishers')
