@@ -52,7 +52,7 @@ export default function setup() {
     )
     .addOption(
       new Option(
-        '--dry-run',
+        '-d, --dry-run',
         'Only with --prune: show which versions would be pruned, without pruning or importing anything.'
       )
     )

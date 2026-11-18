@@ -20,7 +20,7 @@ export default function setup() {
   program
     .description('Check the lock status of the environments.')
     .option(
-      '-l, --local-lock-only',
+      '-L, --local-lock-only',
       'Only show lock status of requested environment'
     )
     .addHelpText(

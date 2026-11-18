@@ -30,7 +30,7 @@ export default function setup() {
     )
     .addOption(
       new Option(
-        '-f, --filename-filter <filenameFilter>',
+        '--filename-filter <filenameFilter>',
         'Combine multiple files using comma, use ~ prefix on entry for wildcard match'
       )
     )

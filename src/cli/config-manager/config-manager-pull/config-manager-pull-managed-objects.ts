@@ -30,7 +30,7 @@ export default function setup() {
     )
     .addOption(
       new Option(
-        '-u, --custom-relationships',
+        '--custom-relationships',
         'Export custom relationship schemas.'
       )
     )

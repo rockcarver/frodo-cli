@@ -24,7 +24,7 @@ export default function setup() {
       )
     )
     .addOption(
-      new Option('-d, --draft', 'Push as draft version instead of publishing.')
+      new Option('--draft', 'Push as draft version instead of publishing.')
     )
     .multiOp()
     .action(async (host, realm, user, password, options, command) => {

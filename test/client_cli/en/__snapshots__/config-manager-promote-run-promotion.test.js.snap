@@ -27,9 +27,9 @@ Arguments:
 Deployment: Cloud-only
 
 Options:
-  -d, --description <description>     Description of the promotion.
-  -i, --ignore-encrypted-secrets      Ignore encrypted secrets during promotion.
-  -p, --promoter <name>               Name of the person performing the
+  --description <description>         Description of the promotion.
+  -I, --ignore-encrypted-secrets      Ignore encrypted secrets during promotion.
+  -P, --promoter <name>               Name of the person performing the
                                       promotion.
   -t, --ticket-reference <reference>  Zendesk ticket reference.
   -T, --timeout <seconds>             Specify a timeout in seconds how long the

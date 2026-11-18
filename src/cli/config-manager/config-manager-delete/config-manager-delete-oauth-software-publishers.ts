@@ -32,7 +32,7 @@ export default function setup() {
     )
     .addOption(
       new Option(
-        '--dry-run',
+        '-d, --dry-run',
         'Show which software publishers would be deleted without deleting them.'
       )
     )

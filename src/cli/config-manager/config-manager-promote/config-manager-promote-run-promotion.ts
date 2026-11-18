@@ -23,7 +23,7 @@ export default function setup() {
     .description('Run a configuration promotion.')
     .addOption(
       new Option(
-        '-i, --ignore-encrypted-secrets',
+        '-I, --ignore-encrypted-secrets',
         'Ignore encrypted secrets during promotion.'
       )
     )
@@ -32,15 +32,12 @@ export default function setup() {
     )
     .addOption(
       new Option(
-        '-p, --promoter <name>',
+        '-P, --promoter <name>',
         'Name of the person performing the promotion.'
       )
     )
     .addOption(
-      new Option(
-        '-d, --description <description>',
-        'Description of the promotion.'
-      )
+      new Option('--description <description>', 'Description of the promotion.')
     )
     .addOption(
       new Option(
