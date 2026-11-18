@@ -87,9 +87,6 @@ const root = path.resolve(
 /** The source file of a leaf: `frodo config-manager pull all-static` -> config-manager-pull-all-static.ts */
 function sourceOf(name) {
   const [, , group, ...rest] = name.split(' ');
-  // `test` under pull, push and delete is `conn test`, mounted three times
-  if (rest.join('-') === 'test')
-    return path.join(root, 'src/cli/conn/conn-test.ts');
   return path.join(
     root,
     'src/cli/config-manager',

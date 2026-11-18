@@ -69,7 +69,6 @@ Commands:
   telemetry                  [Experimental] [Cloud-only] Export telemetry
                              exporters.
   terms-and-conditions       [Experimental] Export terms and conditions.
-  test                       [Experimental] Test connection and authentication.
   themes                     [Experimental] Export themes.
   ui-config                  [Experimental] Export IDM UI configuration objects.
   variables                  [Experimental] [Cloud-only] Export variables.

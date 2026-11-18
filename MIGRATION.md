@@ -1024,6 +1024,24 @@ There is no replacement yet for the automatic delete of the files that
 disappeared from the tree, and for the report of the differences (see
 [the restructuring of the config-manager commands](https://github.com/rockcarver/frodo-cli/issues/1264)).
 
+**`config-manager pull test`, `push test` and `delete test` are removed**: the
+three commands were `frodo conn test` mounted under each group, the same code
+with the same options. They tested a connection and the login and neither read
+nor wrote any configuration, and `frodo conn test` does the same for every
+command group
+([the configuration command group](https://github.com/rockcarver/frodo-cli/blob/main/docs/decisions/0056-the-configuration-command-group.md):
+no `test` commands, `frodo conn test` tests a connection for every group). A
+command line that still runs one of them is rejected with `error: unknown
+command 'test'` and exit code 1, before any connection is made. Replace the
+command in the script; the only visible difference is that `frodo conn test`
+does not print the experimental notice of the config-manager group:
+
+| Removed command                    | Use instead       |
+| ---------------------------------- | ----------------- |
+| `frodo config-manager pull test`   | `frodo conn test` |
+| `frodo config-manager push test`   | `frodo conn test` |
+| `frodo config-manager delete test` | `frodo conn test` |
+
 ### Node.js version matrix changes in 5.x
 
 - 5.x is tested on Node.js 26 only, and building frodo from source (the npm
