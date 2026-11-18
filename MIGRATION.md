@@ -1029,12 +1029,15 @@ group is experimental): the result of a list or search now has `truncated`,
 `returned` and `total` in front of `data`, and `nextPageOffset` or
 `nextPageToken` and `warning` when `truncated` is `true`. `data` is unchanged, so
 a client that ignores the new fields keeps working; a client that reads them can
-tell a cut list from a complete one. A result larger than the inline limit of the
+tell a cut list from a complete one. These fields come from frodo-lib: they
+appear with the library release that includes
+[frodo-lib#1117](https://github.com/rockcarver/frodo-lib/pull/1117), so a CLI
+release must pin that library first. A result larger than the inline limit of the
 server (256 KiB of indented JSON, 2 MiB for the catalog detail of
-`frodo_discover`) was already replaced by `data: { "_truncated": true, ... }`; it
-now says `truncated: true` and `returned: 0` at the top level too, keeps the
-`total` when it is known, and has no pointer to a next page, because that page
-was never delivered.
+`frodo_discover`) was already replaced by `data: { "_truncated": true, ... }`; the
+CLI now also says `truncated: true` and `returned: 0` at the top level, keeps the
+`total` when it is known, and leaves out any pointer to a next page, in front of
+`data` and in `metadata.pagination`, because that page was never delivered.
 
 ### Node.js version matrix changes in 5.x
 
