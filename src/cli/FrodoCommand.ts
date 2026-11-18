@@ -55,6 +55,7 @@ import {
   ALLOW_FAILURES_OPTION,
 } from '../utils/OperationRun.js';
 import { activatePersistedTheme } from '../utils/ThemeConfig.js';
+import { copyOptionAliases } from './OptionAlias.js';
 import {
   deferMissingMandatoryOption,
   deferOneOfGroups,
@@ -650,6 +651,9 @@ function cloneOption(option: Option): Option {
   setStabilityMetadata(cloned, getStabilityMetadata(option));
   const category = getOptionCategory(option);
   if (category) setOptionCategory(cloned, category);
+  // the extra spellings of an option (record 0057, selectors) are own
+  // properties that the spread above does not copy
+  copyOptionAliases(option, cloned);
   return cloned;
 }
 
