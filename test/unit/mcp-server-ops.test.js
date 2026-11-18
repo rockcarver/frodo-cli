@@ -113,6 +113,7 @@ const {
   buildErrorResult,
   buildExternalIdpVerifier,
   buildRequestContext,
+  buildSuccessResult,
   computeHttpAllowedHosts,
   isLoopbackBindHost,
   registerServerCrashHandlers,
@@ -4756,5 +4757,137 @@ describe('buildErrorResult: the error of a tool that failed, and the advice of t
     expect(text.indexOf('FRODO_LOG_KEY')).toBeLessThan(
       text.indexOf('needs re-authentication')
     );
+  });
+});
+
+describe('buildSuccessResult: the inline limit of the transport and what a replaced result says', () => {
+  const INLINE_LIMIT_BYTES = 256 * 1024;
+  const DISCOVERY_LIMIT_BYTES = 2 * 1024 * 1024;
+  /** What the library puts in front of `data` when a list was cut at its own size budget. */
+  const LIBRARY_FIELDS = {
+    truncated: true,
+    returned: 28,
+    total: 195,
+    nextPageOffset: 28,
+    warning:
+      'Result is not complete: data holds 28 of 195 items; pass pageOffset: 28 to read on.',
+  };
+
+  /**
+   * A result whose indented JSON text is exactly `bytes` long, padded with ASCII in `data`.
+   * @param {number} bytes the size of `JSON.stringify(result, null, 2)` in bytes
+   * @param {{fields?: object, toolName?: string, data?: object}} [options] top-level fields in front of
+   * `data`, the tool, and the fixed part of `data`
+   */
+  function resultOfSize(
+    bytes,
+    { fields = {}, toolName = 'frodo_dispatch_read_only', data = {} } = {}
+  ) {
+    const make = (padding) => ({
+      toolName,
+      descriptorId: 'authn.journey.readJourneys',
+      ...fields,
+      data: { ...data, padding: 'x'.repeat(padding) },
+      metadata: { pagination: { isPartial: false, returnedCount: 3 } },
+    });
+    const fixed = Buffer.byteLength(JSON.stringify(make(0), null, 2));
+    const result = make(bytes - fixed);
+    expect(Buffer.byteLength(JSON.stringify(result, null, 2))).toBe(bytes);
+    return result;
+  }
+
+  const textOf = (result) => {
+    const { content } = buildSuccessResult(result);
+    expect(content).toHaveLength(1);
+    expect(content[0].type).toBe('text');
+    return content[0].text;
+  };
+
+  describe('a result that fits the limit', () => {
+    test('is returned as the indented JSON of the result, byte for byte', () => {
+      const result = resultOfSize(1024);
+
+      expect(textOf(result)).toBe(JSON.stringify(result, null, 2));
+    });
+
+    test('keeps the fields that the library put in front of data, in their order', () => {
+      const result = resultOfSize(1024, { fields: LIBRARY_FIELDS });
+
+      const text = textOf(result);
+
+      expect(text).toBe(JSON.stringify(result, null, 2));
+      expect(Object.keys(JSON.parse(text))).toEqual([
+        'toolName',
+        'descriptorId',
+        'truncated',
+        'returned',
+        'total',
+        'nextPageOffset',
+        'warning',
+        'data',
+        'metadata',
+      ]);
+    });
+
+    test('is returned as it is when it is exactly as large as the limit', () => {
+      const result = resultOfSize(INLINE_LIMIT_BYTES);
+
+      expect(textOf(result)).toBe(JSON.stringify(result, null, 2));
+    });
+  });
+
+  describe('a result that is larger than the limit', () => {
+    test('has its data replaced by a note, and its size recorded in the metadata', () => {
+      const result = resultOfSize(INLINE_LIMIT_BYTES + 1);
+
+      const parsed = JSON.parse(textOf(result));
+
+      expect(parsed.data).toEqual({
+        _truncated: true,
+        message: expect.stringContaining('inline response limit'),
+      });
+      expect(parsed.metadata.pagination).toEqual(result.metadata.pagination);
+      expect(parsed.metadata.result).toMatchObject({
+        payloadSizeBytes: INLINE_LIMIT_BYTES + 1,
+        payloadSizeHuman: '256.0 KiB',
+        isLarge: true,
+        isTruncated: true,
+      });
+      expect(parsed.toolName).toBe('frodo_dispatch_read_only');
+      expect(parsed.descriptorId).toBe('authn.journey.readJourneys');
+    });
+
+    test('is judged by the indented text, not by the compact one', () => {
+      // Compact, this list is about 215 KiB; indented, it is about 300 KiB.
+      const items = Array.from({ length: 3500 }, (_, i) => ({
+        _id: `journey-${i}`,
+        name: 'x'.repeat(30),
+      }));
+      const result = { toolName: 'frodo_dispatch_read_only', data: items };
+      expect(Buffer.byteLength(JSON.stringify(result))).toBeLessThan(
+        INLINE_LIMIT_BYTES
+      );
+      expect(
+        Buffer.byteLength(JSON.stringify(result, null, 2))
+      ).toBeGreaterThan(INLINE_LIMIT_BYTES);
+
+      expect(JSON.parse(textOf(result)).data._truncated).toBe(true);
+    });
+
+    test('of the discovery tool has the larger limit', () => {
+      const fits = resultOfSize(DISCOVERY_LIMIT_BYTES, {
+        toolName: 'frodo_discover',
+        data: { operationDetailsByType: {} },
+      });
+      const exceeds = resultOfSize(DISCOVERY_LIMIT_BYTES + 1, {
+        toolName: 'frodo_discover',
+        data: { operationDetailsByType: {} },
+      });
+
+      expect(textOf(fits)).toBe(JSON.stringify(fits, null, 2));
+      const parsed = JSON.parse(textOf(exceeds));
+      expect(parsed.data._truncated).toBe(true);
+      expect(parsed.metadata.result.payloadSizeHuman).toBe('2.0 MiB');
+    });
   });
 });

@@ -3475,10 +3475,13 @@ function writeJsonRpcErrorResponse(
 }
 
 /**
- * Builds a standardized error result for tool execution failures.
- * Extracts full error context from FrodoError chains and HTTP error details.
+ * The result of an MCP tool that succeeded: the result of the library as indented JSON text, as long as it
+ * fits the inline limit of the transport. A larger result is replaced by one that says so (see
+ * `buildTruncatedSuccessPayload`).
+ * @param {unknown} result what the tool runtime of the library returned
+ * @returns {{content: {type: 'text'; text: string}[]}} the result to send to the MCP client
  */
-function buildSuccessResult(result: unknown): {
+export function buildSuccessResult(result: unknown): {
   content: { type: 'text'; text: string }[];
 } {
   const serialized = safeJsonStringify(result);
