@@ -40,3 +40,7 @@ Terms: a **file set** is a list of files, each with a path and content, as data 
 - CLI records 0023 and 0024 stay `deprecated` until the layer is gone; they describe the deviation this record rectifies.
 - Kept in sync: the golden file set test of each type, the core copy in both repositories, and the glossary in the tracking issues.
 - Not covered: the order and schedule of the types (the tracking issues), and any command or option name.
+
+## Known deviations
+
+When this section was written, on 2026-11-17, against frodo-cli commit 9c6740985 and frodo-lib commit 2f90002fb, the library still held file helpers that the CLI uses to write and read configuration files, in the heritage commands (every command outside config-manager) and, until its types move, in config-manager: on `frodo.utils` `saveToFile`, `saveJsonToFile`, `saveTextToFile`, `readJsonFile`, `readFiles`, `getFilePath` and `getWorkingDirectory` (the last two create folders on request), and on `frodo.authn.journey` `createFileParamTreeExportResolver` and `fileByIdTreeExportResolver`, which read journey files. They deviate from "No file system" above and are to be rectified: reading and writing files belongs to the consumer. The deviation is tracked in rockcarver/frodo-lib#1114. The pull request that removes the last of these helpers removes this section from both repositories.
