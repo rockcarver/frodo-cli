@@ -19,8 +19,8 @@ const forgeopsEnv = getEnv(fc);
 
 // Each FRODO_TEST_NAME below pins the recording identity of its command (the args id it was recorded under, or a fixed label); test/unit/E2eRecordingIdentity.test.js checks every pin.
 describe('frodo config-manager pull password-policy', () => {
-  test('"frodo config-manager pull password-policy -D testDir19": should export the password-policy in fr-config-manager style"', async () => {
-    const dirName = 'testDir19';
+  test('"frodo config-manager pull password-policy -D configManagerPullPasswordPolicyDir0": should export the password-policy in fr-config-manager style"', async () => {
+    const dirName = 'configManagerPullPasswordPolicyDir0';
     const CMD = `frodo config-manager pull password-policy -D ${dirName}`;
     await testExport(CMD, { ...env, env: { ...env.env, FRODO_TEST_NAME: '0_D' } }, undefined, undefined, dirName, false);
   });

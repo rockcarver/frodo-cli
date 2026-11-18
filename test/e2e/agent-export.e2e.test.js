@@ -38,10 +38,12 @@ describe('frodo agent export', () => {
     // });
 
     describe('Cloud Tests:', () => {
-        test('"frodo agent export --agent-id frodo-test-java-agent": should export the agent with agent id "frodo-test-java-agent"', async () => {
+        test('"frodo agent export --agent-id frodo-test-java-agent -D agentExportTestDir7": should export the agent with agent id "frodo-test-java-agent" into the directory agentExportTestDir7', async () => {
             const exportFile = "frodo-test-java-agent.java.agent.json";
-            const CMD = `frodo agent export --agent-id frodo-test-java-agent`;
-            await testExport(CMD, env, type, exportFile);
+            const exportDirectory = "agentExportTestDir7";
+            const CMD = `frodo agent export --agent-id frodo-test-java-agent -D ${exportDirectory}`;
+            // recorded without -D (the recording is found under the pin, not under the id of this command)
+            await testExport(CMD, { ...env, env: { ...env.env, FRODO_TEST_NAME: '0_agent-id' } }, type, exportFile, exportDirectory);
         });
 
         test('"frodo agent export -i frodo-test-web-agent -f my-frodo-test-web-agent.agent.json": should export the agent with agent id "frodo-test-web-agent" into file named my-frodo-test-web-agent.agent.json', async () => {
