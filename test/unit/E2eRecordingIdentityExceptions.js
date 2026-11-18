@@ -3,10 +3,9 @@
  * is not the args id frodo-lib derives from the command, and the commands that
  * have no recording. An entry is `{ file, cmd, pin, why }`: `file` is the test
  * file below test/e2e, `cmd` the command line as the test runs it (blanks
- * around it do not matter),
- * `pin` its FRODO_TEST_NAME, `why` one line for the reader. The check fails
- * when an entry matches no command, when it is no longer needed, and when an
- * entry has no reason, so the lists cannot go stale.
+ * around it do not matter), `pin` its FRODO_TEST_NAME, `why` one line for the
+ * reader. The check fails when an entry matches no command, when it is no
+ * longer needed, and when an entry has no reason, so the lists cannot go stale.
  *
  * - NEVER add an entry for a pin that is the derived id. Fix the pin.
  * - LABELS: a pin that is a fixed label. Add one only when two tests need
