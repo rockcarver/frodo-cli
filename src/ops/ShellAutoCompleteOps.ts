@@ -123,12 +123,17 @@ export function parseIdmStringContext(line: string): IdmStringContext | null {
 }
 
 /**
- * Build the completion result for an IDM string context: the candidates
- * extend the string content typed so far, and the replace boundary is the
- * whole string (the completer's caller re-splices from there, so the
- * quotes are re-rendered by inserting `content + suffix` inside them).
- * The suffix carries the closing quote when a single candidate fully
- * matches, in the terminal's inert-parens style.
+ * Build the completion result for an IDM string context. The contract is
+ * readline's: the token is the part of the line the caller may replace
+ * (the string content typed so far), and every candidate is the FULL
+ * replacement text (the whole resource path), never the part past the
+ * typed content. Readline's Tab inserts commonPrefix(candidates) at
+ * line.length - token.length; the web page's replaceBefore(token.length,
+ * choice) splices the same way. A delta candidate (aged/ for man) makes
+ * both produce openidm.read('aged/' (the delta replaces the typed text,
+ * destroying it). Full paths keep the splice inside the quotes: the
+ * candidate begins with the typed content, so the splice rewrites the
+ * content in place.
  */
 function idmStringCompletions(
   ctx: IdmStringContext,
@@ -136,27 +141,25 @@ function idmStringCompletions(
   onMethodHint?: (hint: string) => void
 ): [string[], string] {
   const { content, argIndex } = ctx;
-  const token = content; // Replace the whole string content.
+  const token = content; // The replaceable suffix: the string content.
 
   let entries: { path: string; description?: string }[] = [];
 
   if (ctx.fnName === 'action' && argIndex === 1) {
-    // The action name: filtered by the resource (arg 0), which the
-    // scanner did not capture; re-extract it from the line.
+    // The action name: filtered by the resource (arg 0), captured by the
+    // scanner while it walked the line.
     const firstArg = extractFirstStringArg(ctx, content);
     entries = firstArg ? actionSuggestions(firstArg, content) : [];
   } else if (argIndex === 0) {
     if (content.includes('?')) {
-      // Query-parameter context: CREST params, without closing quotes
-      // (the user keeps typing values). queryParamSuggestions returns the
-      // full param name; complete with its part past the typed partial.
+      // Query-parameter context: CREST params are name-only suggestions
+      // whose full text extends the typed partial, so the same
+      // full-replacement rule applies: candidate = partial + param part.
       const partial = /[^?&=]*$/.exec(content)[0];
       const params = queryParamSuggestions(content);
       return [
-        params.map((p) =>
-          p.toLowerCase().startsWith(partial.toLowerCase())
-            ? p.slice(partial.length)
-            : p
+        params.map(
+          (p) => `${content.slice(0, content.length - partial.length)}${p}`
         ),
         token,
       ];
@@ -168,16 +171,8 @@ function idmStringCompletions(
 
   if (entries.length === 0) return [[], token];
 
-  // The catalog returns full resource paths that extend what is typed;
-  // the completion carries only the part past the typed content (the
-  // caller re-splices the whole token, so the typed prefix is preserved
-  // verbatim).
-  const completions = entries.map((e) => {
-    const text = e.path;
-    return text.toLowerCase().startsWith(token.toLowerCase())
-      ? text.slice(token.length)
-      : text;
-  });
+  // The candidates are the full resource paths (see the contract note).
+  const completions = entries.map((e) => e.path);
   if (onMethodHint && entries.length > 0) {
     const shown = entries.slice(0, 3);
     const hint = shown
@@ -189,7 +184,7 @@ function idmStringCompletions(
       )
     );
   }
-  return [completions.map((c) => c), token];
+  return [completions, token];
 }
 
 /**

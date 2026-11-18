@@ -89,6 +89,40 @@ describe('createFrodoCompleter', () => {
     expect(complete('my')).toEqual([[], 'my']);
   });
 
+  it('completes openidm quoted strings with full paths as candidates', () => {
+    // The catalog branch: token = the string content typed so far,
+    // candidates = FULL resource paths (readline's splice replaces the
+    // last token.length chars with the candidate; a delta candidate would
+    // destroy the typed text, the openidm.read('man -> 'aged/' bug).
+    const openidm = { read: () => 1 };
+    const catalog = {
+      managedTypes: ['alpha_user'],
+      configIds: [],
+      configFamilies: [],
+      connectorIds: [],
+      connectorObjectTypes: {},
+    };
+    const complete = createFrodoCompleter(
+      { openidm },
+      docsByMethod,
+      undefined,
+      undefined,
+      true,
+      () => catalog
+    );
+    const [cands, token] = complete("openidm.read('man");
+    expect(cands).toEqual(['managed/']);
+    expect(token).toBe('man');
+    // The readline splice with this shape lands inside the quotes.
+    const inserted =
+      "openidm.read('man".slice(0, "openidm.read('man".length - token.length) +
+      cands[0];
+    expect(inserted).toBe("openidm.read('managed/");
+    // Suffix fallback: a bare type fragment suggests the full path too.
+    const [cands2] = complete("openidm.read('alpha_");
+    expect(cands2).toEqual(['managed/alpha_user']);
+  });
+
   it('completes openidm methods with their documented scaffold', () => {
     // The shell's openidm object rides the same doc index as frodo-lib's
     // methods (ShellContextOps merges OPENIDM_METHOD_DOCS into
