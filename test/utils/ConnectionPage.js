@@ -19,6 +19,9 @@ export const CONNECTED = 'Connected as';
  */
 export const DONE_ROW = '› Done — log in with these values';
 
+/** The same for a page whose Done only continues: the page logs in nowhere. */
+export const DONE_NEXT_ROW = '› Done — continue with these values';
+
 /** The frame of the page last drawn: a capture holds every frame since the last clear. */
 export const lastPage = (plain) => plain.split('┌ Navigate').pop();
 
