@@ -231,17 +231,23 @@ const DISPATCH_SHAPE = {
     .int()
     .positive()
     .optional()
-    .describe('Optional page size hint for paginated operations.'),
+    .describe(
+      'Optional maximum number of items to return from a list or search. The server also cuts a result to a size limit, so fewer items can come back: check truncated, returned and total in the result.'
+    ),
   pageOffset: z
     .number()
     .int()
     .nonnegative()
     .optional()
-    .describe('Optional page offset hint for paginated operations.'),
+    .describe(
+      'Optional number of items to skip in a list or search. Pass nextPageOffset of the previous result to read the next page.'
+    ),
   pageToken: z
     .string()
     .optional()
-    .describe('Optional page token/cursor hint for paginated operations.'),
+    .describe(
+      'Optional cursor for capabilities whose platform pages the result itself (for example log reads). Pass nextPageToken of the previous result.'
+    ),
   includeTotal: z
     .boolean()
     .optional()
