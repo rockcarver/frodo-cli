@@ -430,6 +430,67 @@ describe('one theme by id', () => {
     ]);
   });
 
+  test.each([
+    ['a delete', false],
+    ['a dry run', true],
+  ])('%s of an id that the one realm that is given lacks fails whatever --allow-failures says, with the one error of the realm', async (_, dryRun) => {
+    for (const allowFailures of [false, true]) {
+      printed.length = 0;
+      deleted.length = 0;
+
+      expect(
+        await configManagerDeleteThemes(
+          undefined,
+          'bravo',
+          dryRun,
+          allowFailures,
+          'id-mine'
+        )
+      ).toBe(false);
+
+      expect(deleted).toEqual([]);
+      expect(messages('error').join('\n')).toContain(
+        "'id-mine' not found in realm 'bravo'"
+      );
+      // the realm said it, and no second error says it again
+      expect(messages('error').join('\n')).not.toContain('not found in any realm');
+      expect(messages('error')).toHaveLength(1);
+    }
+  });
+
+  test('an id that the one realm that is given has is deleted, and --allow-failures changes nothing', async () => {
+    for (const allowFailures of [false, true]) {
+      deleted.length = 0;
+
+      expect(
+        await configManagerDeleteThemes(
+          undefined,
+          'alpha',
+          false,
+          allowFailures,
+          'id-mine'
+        )
+      ).toBe(true);
+
+      expect(deleted).toEqual(['alpha:Mine']);
+    }
+  });
+
+  test('an id that one of several realms has is still deleted there with --allow-failures, and the others only warn', async () => {
+    expect(
+      await configManagerDeleteThemes(undefined, undefined, false, true, 'id-mine')
+    ).toBe(true);
+
+    expect(deleted).toEqual(['alpha:Mine']);
+    expect(messages('error')).toEqual([]);
+  });
+
+  test('a name that the one realm that is given lacks keeps its heritage: --allow-failures lets it pass', async () => {
+    expect(
+      await configManagerDeleteThemes('Mine', 'bravo', false, true)
+    ).toBe(true);
+  });
+
   test('--allow-failures does not turn an id that no realm has into a success', async () => {
     expect(
       await configManagerDeleteThemes(

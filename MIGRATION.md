@@ -456,9 +456,10 @@ default script is never deleted, by id or by name. `-i` cannot be combined with
 `-n`, and on `delete scripts` not with `-p`, the prefix (`-n` with `-p` is
 accepted as before, and the prefix is ignored). `delete applications -i` and
 `delete scripts -i` need a single realm, as their `-n` does. `delete themes -i`
-fails with exit code 1 when no realm has the id, also without a realm argument,
-because the id names one theme; `delete themes -n` keeps its warning for each
-realm that lacks the name, as before.
+fails with exit code 1 when the realm that was given, or every realm when none
+was given, lacks the id, also with `--allow-failures`, because the id names one
+theme; `delete themes -n` keeps its behaviour: a warning for each realm that
+lacks the name when no realm was given, and `--allow-failures` as before.
 `delete terms-and-conditions -i, --version-id` is the version to delete, as
 `-n` named it: a single version can be deleted, and `pull` and `push` of the
 type take no selector.
