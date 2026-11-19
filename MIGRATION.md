@@ -321,8 +321,8 @@ and, for a type whose objects have a name that can change, by that name with
 `-n, --<type>-name`. A command that has both declares them mutually exclusive,
 so `-i a -n b` fails before it connects to anything. The rule is in
 [options of the configuration commands](https://github.com/rockcarver/frodo-cli/blob/main/docs/decisions/0057-options-of-the-configuration-commands.md).
-This is the second of three steps, the `pull` and the `push` commands; `delete`
-follows and adds its table here.
+This is the third of three steps: the tables below are the `pull`, the `push`
+and the `delete` commands.
 
 Nothing is removed. On a command that took `-n, --name <name>` for an
 identifier, `-i, --<type>-id` is the option now, and `-n` and `--name` are
@@ -417,15 +417,54 @@ that the application has on the tenant, reads the applications of the realm
 once, and pushes the folder of the application that has that id. A push matches
 an application by its name, so when two applications of a realm share a name,
 `push applications` refuses that name (`-i`, `-n` and a push of every folder
-alike) and writes nothing for it instead of updating the first of them. Each of
-these commands needs a single realm for a selector, as `-n` did, and fails when
-the object is not there. `push csp` keeps its own `-n, --name`, the name of one
+alike) and writes nothing for it instead of updating the first of them. `push
+applications`, `push scripts` and `push themes` need a single realm for a
+selector, as `-n` did; `push custom-nodes`, `push iga-workflows` and
+`push internal-roles` take no realm. Each of the six fails when the object is
+not there. `push csp` keeps its own `-n, --name`, the name of one
 of its two policies (`enforced` or `report-only`), and takes no `-i`: each
 policy is replaced whole, and the other one is not touched; an empty value of
 that `-n` is refused too, because it would write both policies.
 `push terms-and-conditions` takes no selector: the versions are one
 configuration entity and a push that wrote only one version would replace the
 entity and drop the others.
+
+| Command                            | Select by                              | Still works    |
+| ---------------------------------- | -------------------------------------- | -------------- |
+| `delete applications`              | `-i, --app-id`, `-n, --app-name`       | `--name`       |
+| `delete custom-nodes`              | `-i, --node-id`, `-n, --node-name`     | `--name`       |
+| `delete endpoints`                 | `-i, --endpoint-id`                    | `-n`, `--name` |
+| `delete scripts`                   | `-i, --script-id`, `-n, --script-name` | `--name`       |
+| `delete themes`                    | `-i, --theme-id`, `-n, --theme-name`   | `--name`       |
+| `delete email-templates`           | `-i, --template-id`                    | `-n`, `--name` |
+| `delete secrets`                   | `-i, --secret-id`                      | `-n`, `--name` |
+| `delete terms-and-conditions`      | `-i, --version-id`                     | `-n`, `--name` |
+| `delete variables`                 | `-i, --variable-id`                    | `-n`, `--name` |
+| `delete locales`                   | `-i, --locale-id`                      | `-n`, `--name` |
+| `delete oauth-cimd-profiles`       | `-i, --profile-id`                     | `-n`, `--name` |
+| `delete oauth-issuers`             | `-i, --issuer-id`                      | `-n`, `--name` |
+| `delete oauth-software-publishers` | `-i, --software-publisher-id`          | `-n`, `--name` |
+| `delete schedules`                 | `-i, --schedule-id`                    | `-n`, `--name` |
+| `delete secret-mappings`           | `-i, --secret-mapping-id`              | `-n`, `--name` |
+| `delete telemetry`                 | `-i, --exporter-id`                    | `-n`, `--name` |
+
+`delete applications`, `delete custom-nodes`, `delete scripts` and
+`delete themes` take `-i` for the first time: it selects by the id of the object
+(the `_id`; for an application the id it has on the tenant), which these
+commands could not do before, and their `-n` selects by name as before. A
+default script is never deleted, by id or by name. `-i` cannot be combined with
+`-n`, and on `delete scripts` not with `-p`, the prefix (`-n` with `-p` is
+accepted as before, and the prefix is ignored). `delete applications -i` and
+`delete scripts -i` need a single realm, as their `-n` does.
+`delete terms-and-conditions -i, --version-id` is the version to delete, as
+`-n` named it: a single version can be deleted, and `pull` and `push` of the
+type take no selector.
+
+A delete that names one object, with `-i`, `-n` or `--name`, never asks and
+never needs `-y`, as `-n` never did: it is
+[a command that can delete more than the one object it names asks first](https://github.com/rockcarver/frodo-cli/blob/main/docs/decisions/0037-a-command-that-can-delete-more-than-the-one-object-it-names-asks-first.md)
+for a delete without a selector only, and that did not change: it asks on a
+terminal and refuses without one unless `-y` is given.
 
 An empty value of a selector (`-i ""`, `-n ""`, `--name ""`, or a variable that
 expands to nothing) is refused with exit code 1 before the command connects to
@@ -437,6 +476,18 @@ The same holds for the `push` commands: `-n ""` pushed everything before, and an
 empty `-i`, `-n` or `--name` is refused now; leave the option out to push
 everything. The prefix of `pull scripts` is refused when it is empty too
 (`pull scripts -p ""`): it would match every script.
+
+And for the `delete` commands: `-n ""` and `--name ""` selected all objects on
+`delete applications`, `delete custom-nodes`, `delete email-templates`,
+`delete endpoints`, `delete scripts` and `delete themes`, which then asked, or
+deleted all of them with `-y`; the other `delete` commands refused an empty name
+in their own words, or took it for a name that no object has. An empty `-i`, `-n` or `--name` is refused now on every
+`delete` command, with exit code 1, before the command connects and before it
+asks, so a script that passes an empty variable deletes nothing; leave the
+option out to delete all objects, after the question or with `-y`. The prefix of
+`delete scripts` is refused when it is empty (`delete scripts -p ""`): it
+matches every script, and `-y` would have deleted all of them. A name that is
+only blanks is still refused by the command in its own words.
 
 In the root realm of a Cloud tenant, which has no scripts, no applications and
 no themes, a selector on `pull scripts`, `pull applications` or `pull themes`
@@ -1207,7 +1258,7 @@ notice; it gets no new options and no new kinds. To replace it:
 | --------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
 | Run the promotion of the platform                   | `frodo config-manager promote run-promotion <connection>` (and `run-dryrun-promotion`, `rollback`, `check-promotion-status`, ...) |
 | Bring a tenant to a tree of files                   | `frodo config import -A -D <master> <connection>` (add `--static` for what a promotion carries), or the `frodo config-manager push` commands |
-| Delete what was removed from a tree                 | `frodo config-manager delete <kind> -n <name>`                                                                                   |
+| Delete what was removed from a tree                 | `frodo config-manager delete <type> -i <id>`                                                                                     |
 
 There is no replacement yet for the automatic delete of the files that
 disappeared from the tree, and for the report of the differences (see
