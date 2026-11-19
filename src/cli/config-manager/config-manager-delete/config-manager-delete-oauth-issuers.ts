@@ -86,8 +86,9 @@ export default function setup() {
         process.exitCode = 1;
         return;
       }
-      // only a single id is deleted without a question (cli record 0037); a
-      // run that nobody can be asked about is refused before the login
+      // only a single id is deleted without a question, as for a command that
+      // can delete more than the one object it names (https://github.com/rockcarver/frodo-cli/blob/main/docs/decisions/0037-a-command-that-can-delete-more-than-the-one-object-it-names-asks-first.md); a run that nobody can
+      // be asked about is refused before the login
       const what = 'all trusted JWT issuers in the selected realms';
       if (
         !named &&

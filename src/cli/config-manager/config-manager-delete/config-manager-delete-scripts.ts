@@ -91,8 +91,9 @@ export default function setup() {
       );
 
       // a prefix can match many scripts, so only a single script (by id or by
-      // name) is deleted without a question (cli record 0037); a run that
-      // nobody can be asked about is refused before the login
+      // name) is deleted without a question, as for a command that can delete
+      // more than the one object it names (https://github.com/rockcarver/frodo-cli/blob/main/docs/decisions/0037-a-command-that-can-delete-more-than-the-one-object-it-names-asks-first.md); a run that nobody can be asked
+      // about is refused before the login
       const named =
         options.scriptId !== undefined || options.scriptName !== undefined;
       const what = options.prefix?.length

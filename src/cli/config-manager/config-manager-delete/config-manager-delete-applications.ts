@@ -98,8 +98,9 @@ export default function setup() {
       );
 
       // all applications of a realm can be many, so only a single application
-      // (by id or by name) is deleted without a question (cli record 0037); a
-      // run that nobody can be asked about is refused before the login
+      // (by id or by name) is deleted without a question, as for a command that
+      // can delete more than the one object it names (https://github.com/rockcarver/frodo-cli/blob/main/docs/decisions/0037-a-command-that-can-delete-more-than-the-one-object-it-names-asks-first.md); a run that nobody can
+      // be asked about is refused before the login
       const named =
         options.appId !== undefined || options.appName !== undefined;
       const what = 'all applications and the objects they own';
