@@ -1,9 +1,9 @@
-import { Option } from 'commander';
 import { configManagerImportServices } from '../../../configManagerOps/FrConfigServiceOps';
 import { getTokens } from '../../../ops/AuthenticateOps';
 import { verboseMessage } from '../../../utils/Console';
 import { realmOfRun } from '../../../utils/interactive/PositionalArgs';
 import { FrodoCommand } from '../../FrodoCommand';
+import { selectorOption } from '../../SelectorOption';
 
 export default function setup() {
   const program = new FrodoCommand('frodo config-manager push services');
@@ -11,7 +11,10 @@ export default function setup() {
   program
     .description('Import AM authentication services.')
     .addOption(
-      new Option('-n, --name <name>', 'Name of the service to import.')
+      selectorOption('-i, --service-id <id>', 'Id of the service to import.', [
+        '-n',
+        '--name',
+      ])
     )
     .multiOp()
     .usesRealm()
@@ -32,7 +35,7 @@ export default function setup() {
       }
       verboseMessage('Importing services.');
       const outcome = await configManagerImportServices(
-        options.name,
+        options.serviceId,
         realmOfRun(command, realm),
         options.allowFailures
       );

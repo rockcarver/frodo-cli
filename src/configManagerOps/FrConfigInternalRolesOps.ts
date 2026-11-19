@@ -75,11 +75,13 @@ export async function configManagerExportInternalRoles(
  * role that no file holds end the command whatever `--allow-failures` says.
  * @param {string} internalRoleName The internal role name to import
  * @param {boolean} allowFailures true to report roles that could not be imported but still succeed. Default: false
+ * @param {string} id The id (`_id`) of the internal role to import instead of a name. An empty id selects nothing, so it is not found (the command refuses an empty value before it connects); an id that no file holds ends the command.
  * @returns {Promise<boolean>} a promise that resolves to true if successful, false otherwise
  */
 export async function configManagerImportInternalRoles(
   internalRoleName?: string,
-  allowFailures: boolean = false
+  allowFailures: boolean = false,
+  id?: string
 ): Promise<boolean> {
   const run = new OperationRun({ unit: 'internal role', allowFailures });
   try {
@@ -105,7 +107,11 @@ export async function configManagerImportInternalRoles(
         const roleData = readJsonFile(
           getFilePath(`internal-roles/${internalRolesFile}`)
         ) as any;
-        if (internalRoleName && roleData.name !== internalRoleName) {
+        if (
+          id !== undefined
+            ? roleData._id !== id
+            : internalRoleName && roleData.name !== internalRoleName
+        ) {
           continue;
         }
         importData.internalRole[roleData._id] = roleData;
@@ -114,9 +120,14 @@ export async function configManagerImportInternalRoles(
         run.recordFailure(internalRolesFile, causeOf(error));
       }
     }
-    if (internalRoleName && countItems(importData, 'internalRole') === 0) {
+    if (
+      (id !== undefined || internalRoleName) &&
+      countItems(importData, 'internalRole') === 0
+    ) {
       printMessage(
-        `Internal role ${internalRoleName} not found in ${internalRolesDir}.`,
+        id !== undefined
+          ? `Internal role with id '${id}' not found in ${internalRolesDir}.`
+          : `Internal role ${internalRoleName} not found in ${internalRolesDir}.`,
         'error'
       );
       if (run.hasFailures) run.finish();

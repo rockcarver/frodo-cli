@@ -1,4 +1,3 @@
-import { Option } from 'commander';
 import * as s from '../../../help/SampleData';
 import { getTokens } from '../../../ops/AuthenticateOps';
 import { configManagerImportSoftwarePublishers } from '../../../ops/SoftwarePublisherConfigOps';
@@ -10,6 +9,7 @@ import {
   PLACEHOLDER_VALUES_SENTENCE,
 } from '../../../utils/PlaceholderValues';
 import { FrodoCommand } from '../../FrodoCommand';
+import { selectorOption } from '../../SelectorOption';
 
 export default function setup() {
   const program = new FrodoCommand(
@@ -25,9 +25,10 @@ export default function setup() {
         'No publisher is ever deleted. A software publisher is a trust anchor: a software statement it signs is accepted when a client registers itself, so read the files before you push them.'
     )
     .addOption(
-      new Option(
-        '-n, --name <name>',
-        'Software publisher name (the name of the object). If specified, pushes only the publisher of the file with that name. Needs a single realm.'
+      selectorOption(
+        '-i, --software-publisher-id <id>',
+        'Software publisher id (the id of the object). If specified, pushes only the publisher of the file with that id. Needs a single realm.',
+        ['-n', '--name']
       )
     )
     .addHelpText(
@@ -43,7 +44,7 @@ export default function setup() {
         ) +
         `  Push one software publisher of a realm:\n` +
         c.command(
-          `  $ frodo config-manager push oauth-software-publishers -n ${s.softwarePublisherId} ${s.connId} ${s.realm}\n`
+          `  $ frodo config-manager push oauth-software-publishers -i ${s.softwarePublisherId} ${s.connId} ${s.realm}\n`
         ) +
         `  Push from a config directory other than the working directory:\n` +
         c.command(
@@ -64,12 +65,12 @@ export default function setup() {
 
       if (await getTokens()) {
         verboseMessage(
-          options.name
-            ? `Importing software publisher "${options.name}".`
+          options.softwarePublisherId
+            ? `Importing software publisher "${options.softwarePublisherId}".`
             : 'Importing software publishers.'
         );
         const outcome = await configManagerImportSoftwarePublishers(
-          options.name,
+          options.softwarePublisherId,
           realmOfRun(command, realm),
           options.allowFailures
         );

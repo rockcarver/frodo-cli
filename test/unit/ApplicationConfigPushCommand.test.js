@@ -101,15 +101,39 @@ describe('frodo config-manager push applications', () => {
     expect(configManagerImportApplications).toHaveBeenCalledWith(
       'Zion Portal',
       'alpha',
-      true
+      true,
+      undefined
     );
     expect(process.exitCode).toBeUndefined();
+  });
+
+  test('--name is the permanent alias of -n, --app-name', async () => {
+    await run('--name', 'Zion Portal', 'matrix', 'alpha');
+
+    expect(configManagerImportApplications).toHaveBeenCalledWith(
+      'Zion Portal',
+      'alpha',
+      undefined,
+      undefined
+    );
+  });
+
+  test('-i, --app-id pushes the application with that id, and no name', async () => {
+    await run('-i', 'app-id-1', 'matrix', 'alpha');
+
+    expect(configManagerImportApplications).toHaveBeenCalledWith(
+      undefined,
+      'alpha',
+      undefined,
+      'app-id-1'
+    );
   });
 
   test('without a name and without a realm it pushes everything, and failures are not allowed by default', async () => {
     await run('matrix');
 
     expect(configManagerImportApplications).toHaveBeenCalledWith(
+      undefined,
       undefined,
       undefined,
       undefined

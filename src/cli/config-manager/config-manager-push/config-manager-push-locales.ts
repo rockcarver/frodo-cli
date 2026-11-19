@@ -1,9 +1,9 @@
 import { frodo } from '@rockcarver/frodo-lib';
-import { Option } from 'commander';
 import { configManagerImportLocales } from '../../../configManagerOps/FrConfigLocalesOps';
 import { getTokens } from '../../../ops/AuthenticateOps';
 import { verboseMessage } from '../../../utils/Console';
 import { FrodoCommand } from '../../FrodoCommand';
+import { selectorOption } from '../../SelectorOption';
 
 const { CLOUD_DEPLOYMENT_TYPE_KEY, FORGEOPS_DEPLOYMENT_TYPE_KEY } =
   frodo.utils.constants;
@@ -23,9 +23,10 @@ export default function setup() {
   program
     .description('Import custom locales objects.')
     .addOption(
-      new Option(
-        '-n, --name <name>',
-        'Locale name, it only imports the Locale with the specified name'
+      selectorOption(
+        '-i, --locale-id <id>',
+        'Locale id, it only imports the locale with the specified id',
+        ['-n', '--name']
       )
     )
     .multiOp()
@@ -42,7 +43,7 @@ export default function setup() {
       if (await getTokens(false, true, deploymentTypes)) {
         verboseMessage('Importing config entity locales');
         const outcome = await configManagerImportLocales(
-          options.name,
+          options.localeId,
           options.allowFailures
         );
         if (!outcome) process.exitCode = 1;

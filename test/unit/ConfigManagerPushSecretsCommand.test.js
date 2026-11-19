@@ -163,15 +163,15 @@ describe('frodo config-manager push secrets', () => {
     // https://github.com/rockcarver/frodo-cli/blob/main/docs/decisions/0057-options-of-the-configuration-commands.md
     // (options of the configuration commands)
     expect(flags('--dry-run')).toBe('-d, --dry-run');
-    expect(options.some((o) => o.short === '-d' && o.long !== '--dry-run')).toBe(
-      false
-    );
+    expect(
+      options.some((o) => o.short === '-d' && o.long !== '--dry-run')
+    ).toBe(false);
   });
 });
 
 describe('a push without --prune', () => {
   test('is not guarded, asks nothing and imports as it did', async () => {
-    await run('-n', 'esv-a', 'matrix');
+    await run('-i', 'esv-a', 'matrix');
 
     expect(checkBulkDelete).not.toHaveBeenCalled();
     expect(findSecretVersionsToPrune).not.toHaveBeenCalled();
@@ -192,15 +192,44 @@ describe('a push without --prune', () => {
     expect(process.exitCode).toBeUndefined();
   });
 
-  test('an empty name is passed on as it always was', async () => {
-    await run('-n', '', 'matrix');
+  test('-i, --secret-id, -n and --name are one option, and an empty value of any of them is refused before the login', async () => {
+    for (const args of [
+      ['-i', 'esv-a'],
+      ['-n', 'esv-a'],
+      ['--name', 'esv-a'],
+    ]) {
+      configManagerImportSecrets.mockClear();
+      await run(...args, 'matrix');
 
-    expect(events).toEqual(['login', 'import']);
-    expect(configManagerImportSecrets).toHaveBeenCalledWith(
-      '',
-      undefined,
-      undefined
-    );
+      expect(configManagerImportSecrets).toHaveBeenCalledWith(
+        'esv-a',
+        undefined,
+        undefined
+      );
+    }
+
+    jest.clearAllMocks();
+    events = [];
+    for (const args of [
+      ['-i', ''],
+      ['--secret-id='],
+      ['-n', ''],
+      ['--name', ''],
+    ]) {
+      const refused = async () => {
+        program = setup().exitOverride();
+        program.configureOutput({ writeErr: () => {}, writeOut: () => {} });
+        await program.parseAsync([...args, 'matrix'], { from: 'user' });
+      };
+
+      await expect(refused()).rejects.toMatchObject({
+        code: 'commander.invalidArgument',
+        exitCode: 1,
+      });
+    }
+    expect(events).toEqual([]);
+    expect(getTokens).not.toHaveBeenCalled();
+    expect(configManagerImportSecrets).not.toHaveBeenCalled();
   });
 
   test('--dry-run is an error: it would import', async () => {
@@ -489,14 +518,14 @@ describe('--prune --dry-run', () => {
   });
 });
 
-describe('an empty name is not "all secrets" for a prune', () => {
-  test.each([[''], ['  ']])(
-    'the name %j is an error before the check, the login and the import',
+describe('an empty id is not "all secrets" for a prune', () => {
+  test.each([['  '], ['\t']])(
+    'the blank id %j is an error before the check, the login and the import (the parser refuses an empty one)',
     async (name) => {
-      await run('--prune', '-n', name, '-y', 'matrix');
+      await run('--prune', '-i', name, '-y', 'matrix');
 
       expect(printMessage).toHaveBeenCalledWith(
-        'The secret name (-n) must not be empty with --prune. To prune the versions of all secrets, leave out -n.',
+        'The secret id (-i) must not be empty with --prune. To prune the versions of all secrets, leave out -i.',
         'error'
       );
       expect(events).toEqual([]);
@@ -508,7 +537,7 @@ describe('an empty name is not "all secrets" for a prune', () => {
   );
 
   test('also in a dry run', async () => {
-    await run('--prune', '--dry-run', '-n', '', 'matrix');
+    await run('--prune', '--dry-run', '-i', ' ', 'matrix');
 
     expect(getTokens).not.toHaveBeenCalled();
     expect(process.exitCode).toBe(1);

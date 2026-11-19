@@ -1,4 +1,3 @@
-import { Option } from 'commander';
 import * as s from '../../../help/SampleData';
 import { getTokens } from '../../../ops/AuthenticateOps';
 import { configManagerImportTrustedJwtIssuers } from '../../../ops/OAuth2TrustedJwtIssuerConfigOps';
@@ -7,6 +6,7 @@ import { verboseMessage } from '../../../utils/Console';
 import { realmOfRun } from '../../../utils/interactive/PositionalArgs';
 import { KEY_SET_PUSH_SENTENCE } from '../../../utils/PlaceholderValues';
 import { FrodoCommand } from '../../FrodoCommand';
+import { selectorOption } from '../../SelectorOption';
 
 export default function setup() {
   const program = new FrodoCommand('frodo config-manager push oauth-issuers');
@@ -19,9 +19,10 @@ export default function setup() {
         'No issuer is ever deleted. A trusted JWT issuer is a trust anchor: a JWT signed by it is accepted as a grant, so read the files before you push them.'
     )
     .addOption(
-      new Option(
-        '-n, --name <name>',
-        'Trusted JWT issuer name (the name of the object, not its iss URL). If specified, pushes only the issuer of the file with that name. Needs a single realm.'
+      selectorOption(
+        '-i, --issuer-id <id>',
+        'Trusted JWT issuer id (the id of the object, not its iss URL). If specified, pushes only the issuer of the file with that id. Needs a single realm.',
+        ['-n', '--name']
       )
     )
     .addHelpText(
@@ -35,7 +36,7 @@ export default function setup() {
         ) +
         `  Push one trusted JWT issuer of a realm:\n` +
         c.command(
-          `  $ frodo config-manager push oauth-issuers -n ${s.trustedJwtIssuerId} ${s.connId} ${s.realm}\n`
+          `  $ frodo config-manager push oauth-issuers -i ${s.trustedJwtIssuerId} ${s.connId} ${s.realm}\n`
         ) +
         `  Push from a config directory other than the working directory:\n` +
         c.command(
@@ -56,12 +57,12 @@ export default function setup() {
 
       if (await getTokens()) {
         verboseMessage(
-          options.name
-            ? `Importing trusted JWT issuer "${options.name}".`
+          options.issuerId
+            ? `Importing trusted JWT issuer "${options.issuerId}".`
             : 'Importing trusted JWT issuers.'
         );
         const outcome = await configManagerImportTrustedJwtIssuers(
-          options.name,
+          options.issuerId,
           realmOfRun(command, realm),
           options.allowFailures
         );

@@ -746,12 +746,14 @@ function scriptsUsedBy(contents: unknown[], realmDir: string): string[] {
  * @param {string} name optional name: push only that application (needs a single realm)
  * @param {string} realm optional realm: push only that realm. Default: every realm folder that has applications
  * @param {boolean} allowFailures true to report applications that could not be pushed but still succeed. Default: false
+ * @param {string} id optional id of an application of the tenant, instead of a name (needs a single realm too). The record of a pulled folder has no id: the id is the one of the tenant, so the applications of the realm are read first, once, the application that has the id gives the name, and the folder of that name is pushed. An id that the realm does not have fails the command whatever `--allow-failures` says; an empty id selects nothing (the command refuses an empty value before it connects).
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
 export async function configManagerImportApplications(
   name?: string,
   realm?: string,
-  allowFailures: boolean = false
+  allowFailures: boolean = false,
+  id?: string
 ): Promise<boolean> {
   try {
     const realmsDir = `${getWorkingDirectory()}/realms`;
@@ -772,7 +774,9 @@ export async function configManagerImportApplications(
     } else {
       realmDirs = [];
     }
-    if (name && realmDirs.length !== 1) {
+    // what the command line names: an id, or a name (an empty name means all applications)
+    const asked = !!name || id !== undefined;
+    if (asked && realmDirs.length !== 1) {
       printMessage(
         'Error: for a named application, specify a single realm',
         'error'
@@ -783,6 +787,8 @@ export async function configManagerImportApplications(
     const run = new OperationRun({ unit: 'application', allowFailures });
     let found = 0;
     let namedFound = false;
+    let askedReported = false;
+    let wantedName = name;
     for (const realmDir of realmDirs) {
       const currentRealm = realmDir === 'root' ? '/' : realmDir;
       const applicationsDir = `${realmsDir}/${realmDir}/applications`;
@@ -798,6 +804,36 @@ export async function configManagerImportApplications(
         continue;
       }
       state.setRealm(currentRealm);
+
+      let existing: Awaited<ReturnType<typeof frodo.app.readApplications>>;
+      let existingRead = false;
+      if (id !== undefined) {
+        // the record of a pulled folder has no id: it is the id of the application
+        // on the tenant, so the one read of the applications of the realm comes
+        // first, and the application that has the id gives the name of the folder
+        try {
+          existing = await frodo.app.readApplications();
+        } catch (error) {
+          printError(
+            error,
+            `Error reading the applications of realm '${currentRealm}'`
+          );
+          run.recordFailure(`realm ${realmDir}`, causeOf(error));
+          askedReported = true;
+          continue;
+        }
+        const target = existing.find((application) => application._id === id);
+        if (!target) {
+          printMessage(
+            `Application with id '${id}' not found in realm '${currentRealm}'.`,
+            'error'
+          );
+          askedReported = true;
+          continue;
+        }
+        existingRead = true;
+        wantedName = target.name;
+      }
 
       const folders = fs
         .readdirSync(applicationsDir, { withFileTypes: true })
@@ -818,8 +854,8 @@ export async function configManagerImportApplications(
         } catch {
           // reported as that application's failure below, unless another application was asked for
         }
-        if (name && applicationName !== name) continue;
-        if (name) namedFound = true;
+        if (wantedName && applicationName !== wantedName) continue;
+        if (wantedName) namedFound = true;
         selected.push({
           folder,
           label: `${realmDir}/${applicationName ?? folder}`,
@@ -829,16 +865,17 @@ export async function configManagerImportApplications(
       found += selected.length;
 
       // one read of the applications of the realm, before anything is written into it
-      let existing: Awaited<ReturnType<typeof frodo.app.readApplications>>;
-      try {
-        existing = await frodo.app.readApplications();
-      } catch (error) {
-        printError(
-          error,
-          `Error reading the applications of realm '${currentRealm}'`
-        );
-        run.recordFailure(`realm ${realmDir}`, causeOf(error));
-        continue;
+      if (!existingRead) {
+        try {
+          existing = await frodo.app.readApplications();
+        } catch (error) {
+          printError(
+            error,
+            `Error reading the applications of realm '${currentRealm}'`
+          );
+          run.recordFailure(`realm ${realmDir}`, causeOf(error));
+          continue;
+        }
       }
       for (const { folder, label } of selected) {
         await run.run(label, () =>
@@ -847,15 +884,19 @@ export async function configManagerImportApplications(
       }
     }
 
-    if (name && !namedFound) {
-      printMessage(
-        `Application '${name}' has no folder in realm ${named ? realm : realmDirs[0]}.`,
-        'error'
-      );
-    } else if (found === 0 && !name) {
+    if (asked && !namedFound) {
+      if (!askedReported) {
+        printMessage(
+          id !== undefined
+            ? `Application with id '${id}' has no folder in realm ${named ? realm : realmDirs[0]}.`
+            : `Application '${name}' has no folder in realm ${named ? realm : realmDirs[0]}.`,
+          'error'
+        );
+      }
+    } else if (found === 0 && !asked) {
       printMessage('No applications found to push.', 'info');
     }
-    return run.finish() && !(name && !namedFound);
+    return run.finish() && !(asked && !namedFound);
   } catch (error) {
     printError(error, 'Error pushing applications');
     return false;

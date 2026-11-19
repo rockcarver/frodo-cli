@@ -172,9 +172,15 @@ export async function configManagerExportThemes(
 /**
  * Reads the themes of one realm from the config folder.
  * @param {string} importDir The themes folder of the realm
- * @returns {ThemeExportInterface} the themes, ready to be imported
+ * @param {string} id Optional id (`_id`) of the one theme to read
+ * @param {string} name Optional name of the one theme to read
+ * @returns {ThemeExportInterface} the themes, ready to be imported: all of them, or only the one that was selected
  */
-function readThemesOfRealm(importDir: string): ThemeExportInterface {
+function readThemesOfRealm(
+  importDir: string,
+  id?: string,
+  name?: string
+): ThemeExportInterface {
   const themesDir = fs
     .readdirSync(importDir, { withFileTypes: true })
     .filter((dirent) => dirent.isDirectory())
@@ -185,6 +191,13 @@ function readThemesOfRealm(importDir: string): ThemeExportInterface {
     const theme = readJsonFile(
       `${themeDir}/${themeName}.json`
     ) as ThemeSkeleton;
+    if (
+      id !== undefined
+        ? theme._id !== id
+        : name !== undefined && theme.name !== name
+    ) {
+      continue;
+    }
     for (const field of THEME_HTML_FIELDS) {
       if (!theme[field.name] || typeof theme[field.name] !== 'object') continue;
       if (typeof (theme[field.name] as any).file === 'string') {
@@ -219,14 +232,24 @@ function readThemesOfRealm(importDir: string): ThemeExportInterface {
  * one summary names the realms that failed. A realm that was named but has no
  * themes folder fails the command; when all realms are imported, a realm
  * without a themes folder is skipped with a warning.
+ * A theme can be selected by its id (`_id` of its file) or by its name, and then
+ * only that theme is imported: the library merges it into the themes of the
+ * realm and leaves the other themes alone. Like a named script, a selected
+ * theme needs a single realm, and a theme that the config folder does not hold
+ * fails the command whatever `allowFailures` says.
  * @param {string} realm The realm to import to
  * @param {boolean} allowFailures True to succeed although some realms could not be imported (the failures are still summarised)
- * @returns {Promise<boolean>} a promise that evaluates to false if the themes cannot be found or a realm could not be imported (unless failures are allowed), true otherwise
+ * @param {string} id Optional id (`_id`) of the one theme to import
+ * @param {string} name Optional name of the one theme to import
+ * @returns {Promise<boolean>} a promise that evaluates to false if the themes cannot be found or a realm could not be imported (unless failures are allowed), or a selected theme is not in the config folder, true otherwise
  */
 export async function configManagerImportThemes(
   realm?: string,
-  allowFailures: boolean = false
+  allowFailures: boolean = false,
+  id?: string,
+  name?: string
 ): Promise<boolean> {
+  const selected = id ?? name;
   try {
     const realmsDir = `${getWorkingDirectory()}/realms`;
     const named = !!realm && realm !== DEFAULT_REALM_KEY;
@@ -243,7 +266,12 @@ export async function configManagerImportThemes(
           .readdirSync(realmsDir, { withFileTypes: true })
           .filter((entry) => entry.isDirectory())
           .map((entry) => entry.name);
+    if (selected !== undefined && realms.length !== 1) {
+      printMessage('Error: for a named theme, specify a single realm', 'error');
+      return false;
+    }
     const run = new OperationRun({ unit: 'realm', allowFailures });
+    let selectedFound = false;
     for (const realmDir of realms) {
       if (
         realmDir === 'root' &&
@@ -268,14 +296,30 @@ export async function configManagerImportThemes(
       }
       state.setRealm(realmName);
       try {
-        await importThemes(readThemesOfRealm(importDir));
+        const themes = readThemesOfRealm(importDir, id, name);
+        if (selected !== undefined) {
+          // the one theme that was asked for: the library is not asked at all without it
+          if (Object.keys(themes.theme).length === 0) continue;
+          selectedFound = true;
+        }
+        await importThemes(themes);
         run.recordSuccess();
       } catch (error) {
         printError(error, `Error importing themes of realm '${realmName}'`);
         run.recordFailure(realmName, causeOf(error));
       }
     }
-    return run.finish();
+    // a realm that was skipped (no themes folder, the root realm of a Cloud
+    // tenant) cannot have held the theme, so it is not found either
+    const notFound =
+      selected !== undefined && !selectedFound && !run.hasFailures;
+    if (notFound) {
+      printMessage(
+        `Theme ${id !== undefined ? 'with id' : 'named'} '${selected}' not found in the themes of realm '${realms[0] === 'root' ? '/' : realms[0]}'.`,
+        'error'
+      );
+    }
+    return run.finish() && !notFound;
   } catch (error) {
     printError(error);
     return false;

@@ -139,7 +139,7 @@ const COMMANDS = [
     name: 'config-manager push journeys',
     file: 'config-manager-push/config-manager-push-journeys',
     fn: 'configManagerImportJourneys',
-    options: { name: 'Login', pushDependencies: true, validate: false },
+    options: { journeyId: 'Login', pushDependencies: true, validate: false },
     args: (allowFailures) => ['Login', 'alpha', true, false, allowFailures],
   },
   {
@@ -270,7 +270,10 @@ describe('config-manager push org-privileges -n', () => {
   test('imports the named file only, and exits 1 when it cannot be imported', async () => {
     const setup =
       setups['config-manager-push/config-manager-push-org-privileges'];
-    await invoke(setup(), { name: 'alphaOrgPrivileges', allowFailures: true });
+    await invoke(setup(), {
+      orgPrivilegesId: 'alphaOrgPrivileges',
+      allowFailures: true,
+    });
     expect(
       ops.FrConfigOrgPrivilegesOps.configManagerImportOrgPrivileges.mock.calls
     ).toEqual([['alphaOrgPrivileges', true]]);
@@ -279,7 +282,10 @@ describe('config-manager push org-privileges -n', () => {
     ops.FrConfigOrgPrivilegesOps.configManagerImportOrgPrivileges.mockResolvedValue(
       false
     );
-    await invoke(setup(), { name: 'alphaOrgPrivileges', allowFailures: true });
+    await invoke(setup(), {
+      orgPrivilegesId: 'alphaOrgPrivileges',
+      allowFailures: true,
+    });
     expect(process.exitCode).toBe(1);
     process.exitCode = 0;
   });

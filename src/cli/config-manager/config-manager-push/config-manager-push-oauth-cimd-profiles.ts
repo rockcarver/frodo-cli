@@ -1,4 +1,3 @@
-import { Option } from 'commander';
 import * as s from '../../../help/SampleData';
 import { getTokens } from '../../../ops/AuthenticateOps';
 import { configManagerImportCIMDProfiles } from '../../../ops/CIMDProfileConfigOps';
@@ -6,6 +5,7 @@ import c from '../../../utils/ColorTheme';
 import { verboseMessage } from '../../../utils/Console';
 import { realmOfRun } from '../../../utils/interactive/PositionalArgs';
 import { FrodoCommand } from '../../FrodoCommand';
+import { selectorOption } from '../../SelectorOption';
 
 export default function setup() {
   const program = new FrodoCommand(
@@ -18,9 +18,10 @@ export default function setup() {
       'Import CIMD profiles from the files realms/<realm>/realm-config/agents/CIMDProfile/<name>.json that "pull oauth-cimd-profiles" writes, from the working directory (-D). A profile that does not exist is created and one that does is replaced by exactly what the file holds: what the file leaves out is removed. Each ${NAME} in a file is filled from -E/--env NAME=value, else from --env-file, else from the environment variable NAME of the process (a file that names a variable copies its value into what is pushed). No profile is ever deleted. The scripts and journeys that a profile names must exist already, so push those first. A realm or a deployment that does not offer CIMD profiles is skipped with a warning.'
     )
     .addOption(
-      new Option(
-        '-n, --name <name>',
-        'CIMD profile name. If specified, pushes only the profile of the file with that name. Needs a single realm.'
+      selectorOption(
+        '-i, --profile-id <id>',
+        'CIMD profile id. If specified, pushes only the profile of the file with that id. Needs a single realm.',
+        ['-n', '--name']
       )
     )
     .addHelpText(
@@ -36,7 +37,7 @@ export default function setup() {
         ) +
         `  Push one CIMD profile of a realm:\n` +
         c.command(
-          `  $ frodo config-manager push oauth-cimd-profiles -n ${s.cimdProfileId} ${s.connId} ${s.realm}\n`
+          `  $ frodo config-manager push oauth-cimd-profiles -i ${s.cimdProfileId} ${s.connId} ${s.realm}\n`
         ) +
         `  Push from a config directory other than the working directory:\n` +
         c.command(
@@ -57,12 +58,12 @@ export default function setup() {
 
       if (await getTokens()) {
         verboseMessage(
-          options.name
-            ? `Importing CIMD profile "${options.name}".`
+          options.profileId
+            ? `Importing CIMD profile "${options.profileId}".`
             : 'Importing CIMD profiles.'
         );
         const outcome = await configManagerImportCIMDProfiles(
-          options.name,
+          options.profileId,
           realmOfRun(command, realm),
           options.allowFailures
         );

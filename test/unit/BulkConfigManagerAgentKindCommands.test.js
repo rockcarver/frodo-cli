@@ -91,7 +91,10 @@ const COMMANDS = [
     name: 'config-manager pull oauth-cimd-profiles',
     file: 'config-manager-pull/config-manager-pull-oauth-cimd-profiles',
     fn: 'configManagerExportCIMDProfiles',
-    options: { profileId: 'zion-agents', configFile: 'oauth-cimd-profiles.json' },
+    options: {
+      profileId: 'zion-agents',
+      configFile: 'oauth-cimd-profiles.json',
+    },
     overridesFile: true,
     args: (allowFailures) => [
       'zion-agents',
@@ -105,7 +108,7 @@ const COMMANDS = [
     name: 'config-manager push oauth-cimd-profiles',
     file: 'config-manager-push/config-manager-push-oauth-cimd-profiles',
     fn: 'configManagerImportCIMDProfiles',
-    options: { name: 'zion-agents' },
+    options: { profileId: 'zion-agents' },
     args: (allowFailures) => ['zion-agents', 'alpha', allowFailures],
   },
   {
@@ -126,7 +129,7 @@ const COMMANDS = [
     name: 'config-manager push oauth-issuers',
     file: 'config-manager-push/config-manager-push-oauth-issuers',
     fn: 'configManagerImportTrustedJwtIssuers',
-    options: { name: 'zion-issuer' },
+    options: { issuerId: 'zion-issuer' },
     args: (allowFailures) => ['zion-issuer', 'alpha', allowFailures],
   },
   {
@@ -150,7 +153,7 @@ const COMMANDS = [
     name: 'config-manager push oauth-software-publishers',
     file: 'config-manager-push/config-manager-push-oauth-software-publishers',
     fn: 'configManagerImportSoftwarePublishers',
-    options: { name: 'zion-publisher' },
+    options: { softwarePublisherId: 'zion-publisher' },
     args: (allowFailures) => ['zion-publisher', 'alpha', allowFailures],
   },
 ];

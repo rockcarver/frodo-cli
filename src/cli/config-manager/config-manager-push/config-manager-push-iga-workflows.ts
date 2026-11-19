@@ -4,6 +4,7 @@ import { configManagerImportIgaWorkflows } from '../../../configManagerOps/FrCon
 import { getTokens } from '../../../ops/AuthenticateOps';
 import { printMessage, verboseMessage } from '../../../utils/Console';
 import { FrodoCommand } from '../../FrodoCommand';
+import { selectorOption } from '../../SelectorOption';
 
 const { CLOUD_DEPLOYMENT_TYPE_KEY } = frodo.utils.constants;
 
@@ -18,10 +19,17 @@ export default function setup() {
   program
     .description('Import iga-workflows.')
     .addOption(
-      new Option(
-        '-n, --name <name>',
-        'Workflow name. Only import the workflow with this name.'
-      )
+      selectorOption(
+        '-i, --workflow-id <id>',
+        'Workflow id. Only import the workflow with this id. Cannot be used with -n.'
+      ).conflicts(['workflowName'])
+    )
+    .addOption(
+      selectorOption(
+        '-n, --workflow-name <name>',
+        'Workflow name. Only import the workflow with this name. Cannot be used with -i.',
+        ['--name']
+      ).conflicts(['workflowId'])
     )
     .addOption(
       new Option('--draft', 'Push as draft version instead of publishing.')
@@ -56,9 +64,10 @@ export default function setup() {
       }
       verboseMessage('Importing IGA workflows.');
       const outcome = await configManagerImportIgaWorkflows(
-        options.name,
+        options.workflowName,
         options.draft,
-        options.allowFailures
+        options.allowFailures,
+        options.workflowId
       );
       if (!outcome) process.exitCode = 1;
     });
