@@ -34,9 +34,9 @@ Options:
                         prints a summary of what failed and exits with code 1.
   --config-file <file>  A JSON file with overrides for values that differ
                         between environments, e.g. "oauth-issuers.json".
-  -n, --name <name>     Trusted JWT issuer name, the name of the object and not
-                        its iss URL. If specified, pulls only that issuer. Needs
-                        a single realm.
+  -i, --issuer-id <id>  Trusted JWT issuer id, the id of the object and not its
+                        iss URL. If specified, pulls only that issuer. Needs a
+                        single realm. (alias: -n, --name)
   -h, --help            Help
   -hh, --help-more      Help with all options.
   -hhh, --help-all      Help with all options, environment variables, and usage

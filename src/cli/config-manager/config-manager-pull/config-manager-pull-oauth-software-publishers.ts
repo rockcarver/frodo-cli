@@ -10,6 +10,7 @@ import {
   PLACEHOLDER_VALUES_SENTENCE,
 } from '../../../utils/PlaceholderValues';
 import { FrodoCommand } from '../../FrodoCommand';
+import { selectorOption } from '../../SelectorOption';
 
 export default function setup() {
   const program = new FrodoCommand(
@@ -24,9 +25,10 @@ export default function setup() {
         'A realm that does not offer the agent type has nothing to export. Software publishers are dynamic configuration: they are part of "pull all" and not of "pull all-static".'
     )
     .addOption(
-      new Option(
-        '-n, --name <name>',
-        'Software publisher name, the name of the object. If specified, pulls only that publisher. Needs a single realm.'
+      selectorOption(
+        '-i, --software-publisher-id <id>',
+        'Software publisher id, the id of the object. If specified, pulls only that publisher. Needs a single realm.',
+        ['-n', '--name']
       )
     )
     .addOption(
@@ -48,7 +50,7 @@ export default function setup() {
         ) +
         `  Pull one software publisher of a realm:\n` +
         c.command(
-          `  $ frodo config-manager pull oauth-software-publishers -n ${s.softwarePublisherId} ${s.connId} ${s.realm}\n`
+          `  $ frodo config-manager pull oauth-software-publishers -i ${s.softwarePublisherId} ${s.connId} ${s.realm}\n`
         ) +
         `  Replace values that differ between environments with placeholders from a file:\n` +
         c.command(
@@ -85,12 +87,12 @@ export default function setup() {
 
       if (await getTokens()) {
         verboseMessage(
-          options.name
-            ? `Exporting software publisher "${options.name}".`
+          options.softwarePublisherId
+            ? `Exporting software publisher "${options.softwarePublisherId}".`
             : 'Exporting software publishers.'
         );
         const outcome = await configManagerExportSoftwarePublishers(
-          options.name,
+          options.softwarePublisherId,
           realmOfRun(command, realm),
           false,
           options.allowFailures,

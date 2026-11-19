@@ -3,8 +3,8 @@
 /*
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_TEST_NAME=0_D frodo config-manager pull telemetry -D telemetryTestDir
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_TEST_NAME=0_category_D frodo config-manager pull telemetry --category splunk -D telemetryTestDir2
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_TEST_NAME=0_c_n_D frodo config-manager pull telemetry -c otlp -n test-otlp -D telemetryTestDir3
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_TEST_NAME=0_n_D frodo config-manager pull telemetry -n test-otlp -D telemetryTestDir4
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_TEST_NAME=0_c_n_D frodo config-manager pull telemetry -c otlp -i test-otlp -D telemetryTestDir3
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_TEST_NAME=0_n_D frodo config-manager pull telemetry -i test-otlp -D telemetryTestDir4
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_TEST_NAME=0_c_D frodo config-manager pull telemetry -c otlp -D telemetryTestDir5
 */
 
@@ -32,13 +32,13 @@ describe('frodo config-manager pull telemetry', () => {
  
   test('"frodo config-manager pull telemetry -c otlp -n test-otlp": should export a single named exporter', async () => {
     const dirName = 'telemetryTestDir3';
-    const CMD = `frodo config-manager pull telemetry -c otlp -n test-otlp -D ${dirName}`;
+    const CMD = `frodo config-manager pull telemetry -c otlp -i test-otlp -D ${dirName}`;
     await testExport(CMD, { ...env, env: { ...env.env, FRODO_TEST_NAME: '0_c_n_D' } }, undefined, undefined, dirName, false);
   });
 
   test('"frodo config-manager pull telemetry -n test-otlp": should export a single named exporter', async () => {
     const dirName = 'telemetryTestDir4';
-    const CMD = `frodo config-manager pull telemetry -n test-otlp -D ${dirName}`;
+    const CMD = `frodo config-manager pull telemetry -i test-otlp -D ${dirName}`;
     await testExport(CMD, { ...env, env: { ...env.env, FRODO_TEST_NAME: '0_n_D' } }, undefined, undefined, dirName, false);
   });
 

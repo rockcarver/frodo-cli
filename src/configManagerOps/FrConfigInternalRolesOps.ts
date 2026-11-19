@@ -18,17 +18,26 @@ const { readInternalRoleByName, importInternalRoles, readInternalRoles } =
  * `--allow-failures` says.
  * @param {string} name The internal role name to export
  * @param {boolean} allowFailures true to report roles that could not be exported but still succeed. Default: false
+ * @param {string} id The id (`_id`) of the internal role to export. The id is looked for in the list that an export of all internal roles reads, so no other request is made. An empty id selects nothing (the command refuses an empty value before it connects); an id that no role has fails the command.
  * @return {Promise<boolean>} a promise that resolves to true if successful, false otherwise
  */
 export async function configManagerExportInternalRoles(
   name?: string,
-  allowFailures: boolean = false
+  allowFailures: boolean = false,
+  id?: string
 ): Promise<boolean> {
   const run = new OperationRun({ unit: 'internal role', allowFailures });
   try {
-    const roles = name
-      ? [await readInternalRoleByName(name)]
-      : await readInternalRoles();
+    const roles =
+      id !== undefined
+        ? (await readInternalRoles()).filter((role) => role._id === id)
+        : name
+          ? [await readInternalRoleByName(name)]
+          : await readInternalRoles();
+    if (id !== undefined && roles.length === 0) {
+      printMessage(`Internal role with id '${id}' not found.`, 'error');
+      return false;
+    }
     const withPrivileges = roles.filter(
       (role) => role.privileges && role.privileges.length > 0
     );
@@ -44,8 +53,8 @@ export async function configManagerExportInternalRoles(
     }
     if (withPrivileges.length === 0) {
       printMessage(
-        name
-          ? `Internal role ${name} has no privileges and is not exported.`
+        id !== undefined || name
+          ? `Internal role ${id ?? name} has no privileges and is not exported.`
           : 'No internal roles with privileges found to export.',
         'info'
       );

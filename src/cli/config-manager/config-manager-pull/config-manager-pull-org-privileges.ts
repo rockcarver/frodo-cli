@@ -1,10 +1,10 @@
 import { frodo } from '@rockcarver/frodo-lib';
-import { Option } from 'commander';
 import { configManagerExportOrgPrivileges } from '../../../configManagerOps/FrConfigOrgPrivilegesOps';
 import { getTokens } from '../../../ops/AuthenticateOps';
 import { verboseMessage } from '../../../utils/Console';
 import { realmOfRun } from '../../../utils/interactive/PositionalArgs';
 import { FrodoCommand } from '../../FrodoCommand';
+import { selectorOption } from '../../SelectorOption';
 
 const { CLOUD_DEPLOYMENT_TYPE_KEY, FORGEOPS_DEPLOYMENT_TYPE_KEY } =
   frodo.utils.constants;
@@ -27,9 +27,10 @@ export default function setup() {
     .multiOp()
     .usesRealm()
     .addOption(
-      new Option(
-        '-n, --name <name>',
-        'Organization privileges name: privilegeAssignments, or the configuration of a realm (for example alphaOrgPrivileges). If specified, only exports that configuration; it has to belong to the realm if one is given.'
+      selectorOption(
+        '-i, --org-privileges-id <id>',
+        'Organization privileges id: privilegeAssignments, or the configuration of a realm (for example alphaOrgPrivileges). If specified, only exports that configuration; it has to belong to the realm if one is given.',
+        ['-n', '--name']
       )
     )
     .action(async (host, realm, user, password, options, command) => {
@@ -46,9 +47,9 @@ export default function setup() {
         const pickedRealm = realmOfRun(command, realm);
         const oneRealm =
           pickedRealm !== constants.DEFAULT_REALM_KEY ? pickedRealm : undefined;
-        if (options.name) {
+        if (options.orgPrivilegesId) {
           verboseMessage(
-            `Exporting organization privileges config "${options.name}"`
+            `Exporting organization privileges config "${options.orgPrivilegesId}"`
           );
         } else if (oneRealm) {
           verboseMessage(
@@ -60,7 +61,7 @@ export default function setup() {
           );
         }
         const outcome = await configManagerExportOrgPrivileges(
-          options.name,
+          options.orgPrivilegesId,
           options.allowFailures,
           oneRealm
         );

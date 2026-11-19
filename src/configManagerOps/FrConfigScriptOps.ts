@@ -62,14 +62,18 @@ export function exportScriptToFiles(script: ScriptSkeleton, realm: string) {
  * @param {string} realm Designates the specific realm to pull from
  * @param {string} name only exports specifically named script
  * @param {boolean} allowFailures True to succeed although some scripts could not be exported (the failures are still summarised)
- * @returns {boolean} True if export was successful. A script or a realm that cannot be exported does not stop the others; the result is false if any failed, unless failures are allowed. A named script that cannot be read, or that is not a JavaScript script, fails the command whatever the option says.
+ * @param {string} id only exports the script with this id (`_id`); an empty id selects nothing, so it is not found (the command refuses an empty value before it connects). Needs a single realm, like a name; the id is looked for in the list that an export of all scripts reads, so no other request is made.
+ * @returns {boolean} True if export was successful. A script or a realm that cannot be exported does not stop the others; the result is false if any failed, unless failures are allowed. A named script (by name or by id) that cannot be read, that does not exist, or that is not a JavaScript script, fails the command whatever the option says.
  */
 export async function configManagerExportScripts(
   prefixes: string[] = [],
   realm?: string,
   name?: string,
-  allowFailures: boolean = false
+  allowFailures: boolean = false,
+  id?: string
 ): Promise<boolean> {
+  // what the command line names: an id, or a name (an empty name means all scripts)
+  const selected = id ?? name;
   const indicatorId = createProgressIndicator(
     'indeterminate',
     0,
@@ -78,7 +82,7 @@ export async function configManagerExportScripts(
   try {
     const realms =
       realm && realm !== DEFAULT_REALM_KEY ? [realm] : await realmList();
-    if (name && realms.length !== 1) {
+    if (selected && realms.length !== 1) {
       stopProgressIndicator(
         indicatorId,
         'Error: for a named script, specify a single realm',
@@ -92,18 +96,38 @@ export async function configManagerExportScripts(
       if (
         currentRealm === '/' &&
         state.getDeploymentType() === CLOUD_DEPLOYMENT_TYPE_KEY
-      )
+      ) {
+        if (selected) {
+          printMessage(
+            `The root realm of a Cloud tenant has no scripts: nothing to pull for '${selected}'.`,
+            'warn'
+          );
+        }
         continue;
+      }
       state.setRealm(currentRealm);
       let scripts: ScriptSkeleton[];
       try {
-        scripts = name ? [await readScriptByName(name)] : await readScripts();
+        scripts =
+          id !== undefined
+            ? (await readScripts()).filter((script) => script._id === id)
+            : name
+              ? [await readScriptByName(name)]
+              : await readScripts();
+        if (id !== undefined && scripts.length === 0) {
+          printMessage(
+            `Script with id '${id}' not found in realm '${currentRealm}'.`,
+            'error'
+          );
+          cannotExportNamed = true;
+          continue;
+        }
       } catch (error) {
-        if (name) {
+        if (selected) {
           // the one script that was asked for: nothing for the flag to allow
           printError(
             error,
-            `Error reading script '${name}' in realm '${currentRealm}'`
+            `Error reading script '${selected}' in realm '${currentRealm}'`
           );
           cannotExportNamed = true;
         } else {
@@ -117,15 +141,15 @@ export async function configManagerExportScripts(
       }
       for (const s of scripts) {
         if (
-          !name &&
+          !selected &&
           prefixes.length &&
           !prefixes.some((p) => s.name.startsWith(p))
         )
           continue;
         if (s.language !== 'JAVASCRIPT') {
-          if (name) {
+          if (selected) {
             printMessage(
-              `Script '${name}' is not a JavaScript script and cannot be exported.`,
+              `Script '${selected}' is not a JavaScript script and cannot be exported.`,
               'error'
             );
             cannotExportNamed = true;

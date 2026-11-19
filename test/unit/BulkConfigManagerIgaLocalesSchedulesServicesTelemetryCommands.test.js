@@ -86,7 +86,7 @@ const COMMANDS = [
     name: 'config-manager pull iga-workflows',
     file: 'config-manager-pull/config-manager-pull-iga-workflows',
     fn: 'configManagerExportIgaWorkflows',
-    options: { name: 'w1', includeImmutable: true },
+    options: { workflowName: 'w1', includeImmutable: true },
     args: ['w1', true],
     iga: true,
   },
@@ -102,7 +102,7 @@ const COMMANDS = [
     name: 'config-manager pull locales',
     file: 'config-manager-pull/config-manager-pull-locales',
     fn: 'configManagerExportLocales',
-    options: { name: 'en' },
+    options: { localeId: 'en' },
     args: ['en'],
   },
   {
@@ -116,7 +116,7 @@ const COMMANDS = [
     name: 'config-manager pull schedules',
     file: 'config-manager-pull/config-manager-pull-schedules',
     fn: 'configManagerExportSchedules',
-    options: { name: 's1' },
+    options: { scheduleId: 's1' },
     args: ['s1'],
   },
   {
@@ -130,7 +130,7 @@ const COMMANDS = [
     name: 'config-manager pull services',
     file: 'config-manager-pull/config-manager-pull-services',
     fn: 'configManagerExportServices',
-    options: { name: 'baseurl' },
+    options: { serviceId: 'baseurl' },
     args: ['alpha', 'baseurl'],
   },
   {
@@ -144,7 +144,7 @@ const COMMANDS = [
     name: 'config-manager pull telemetry',
     file: 'config-manager-pull/config-manager-pull-telemetry',
     fn: 'configManagerExportTelemetry',
-    options: { category: 'otlp', name: 'e1' },
+    options: { category: 'otlp', exporterId: 'e1' },
     args: ['otlp', 'e1'],
   },
   {

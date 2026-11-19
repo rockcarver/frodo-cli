@@ -149,7 +149,7 @@ const COMMANDS = [
     name: 'config-manager pull custom-nodes',
     path: 'config-manager-pull/config-manager-pull-custom-nodes',
     op: 'configManagerExportCustomNodes',
-    options: { name: 'My Node' },
+    options: { nodeName: 'My Node' },
     before: ['My Node'],
   },
   {
@@ -163,7 +163,7 @@ const COMMANDS = [
     name: 'config-manager pull endpoints',
     path: 'config-manager-pull/config-manager-pull-endpoints',
     op: 'configManagerExportEndpoints',
-    options: { name: 'my-endpoint' },
+    options: { endpointId: 'my-endpoint' },
     before: ['my-endpoint'],
   },
   {

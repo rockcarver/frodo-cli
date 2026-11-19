@@ -1,17 +1,20 @@
 import fs from 'fs';
 import { fileURLToPath } from 'url';
 import { beforeAll, describe, expect, it } from '@jest/globals';
+import { getOptionAliases } from '../../src/cli/OptionAlias.ts';
 import { fullName, loadCommandTree } from '../utils/CommandExamples.js';
 import {
   findLetterProblems,
   isGroupLeaf,
   lettersOf,
+  selectorMeaning,
 } from '../utils/OptionLetters.js';
 import {
   DESCRIPTION_LETTERS,
   EXPECTED_SHORT_FORMS,
   HERITAGE_OVERLAPS,
   SAME_MEANING,
+  SELECTOR_LETTERS,
 } from './ConfigManagerOptionLettersExceptions.js';
 
 /**
@@ -34,18 +37,28 @@ const migrationPath = fileURLToPath(
   new URL('../../MIGRATION.md', import.meta.url)
 );
 
-/** A leaf with options given as `[short, long, description]`; `null` for no short form. */
+/**
+ * A leaf with options given as `[short, long, description, aliases]`; `null`
+ * for no short form, `aliases` for the extra spellings of an option.
+ */
 function leaf(name, options, description = '') {
   return {
     name,
     description,
-    options: options.map(([short, long, text = '']) => ({
+    options: options.map(([short, long, text = '', aliases]) => ({
       short: short ?? undefined,
       long,
       description: text,
+      aliases,
     })),
   };
 }
+
+/** The selector letters of the record, as the real data has them. */
+const SELECTORS = [
+  { letter: '-i', pattern: /^--(?:[a-z]+-)*id$/, why: 'an identifier' },
+  { letter: '-n', pattern: /^--(?:[a-z]+-)*name$/, why: 'a name' },
+];
 
 // The check refuses an empty `expected` and an empty `migration`, so a case
 // that is not about them carries one row about a command of its own and one
@@ -69,6 +82,7 @@ const run = (input) =>
     groupLeaves: [],
     heritageLeaves: [],
     sameMeaning: [],
+    selectorLetters: [],
     heritageOverlaps: [],
     descriptionLetters: [],
     ...input,
@@ -141,6 +155,68 @@ describe('lettersOf', () => {
     const letters = lettersOf([leaf('frodo a', [[null, '--clean']])]);
 
     expect(letters).toEqual({});
+  });
+
+  it('reads the letter of an alias with the long name of the alias', () => {
+    const letters = lettersOf([
+      leaf('frodo a', [
+        ['-i', '--journey-id', '', ['-n', '--name']],
+        ['-y', '--yes'],
+      ]),
+    ]);
+
+    expect(letters).toEqual({
+      '-i': { '--journey-id': ['frodo a'] },
+      '-n': { '--name': ['frodo a'] },
+      '-y': { '--yes': ['frodo a'] },
+    });
+  });
+
+  it('reads an alias letter without an alias long name as the long name of the option', () => {
+    const letters = lettersOf([
+      leaf('frodo a', [['-i', '--journey-id', '', ['-n']]]),
+    ]);
+
+    expect(letters['-n']).toEqual({ '--journey-id': ['frodo a'] });
+  });
+
+  it('reads no letter from an alias that is a long spelling only', () => {
+    const letters = lettersOf([
+      leaf('frodo a', [['-n', '--app-name', '', ['--name']]]),
+    ]);
+
+    expect(letters).toEqual({ '-n': { '--app-name': ['frodo a'] } });
+  });
+});
+
+describe('selectorMeaning', () => {
+  it.each([
+    ['-i', '--id'],
+    ['-i', '--report-id'],
+    ['-i', '--journey-id'],
+    ['-i', '--managed-object-id'],
+    ['-n', '--name'],
+    ['-n', '--script-name'],
+    ['-n', '--software-publisher-name'],
+  ])('is true for %s with %s', (letter, long) => {
+    expect(selectorMeaning(letter, long, SELECTORS)).toBe(true);
+  });
+
+  it.each([
+    ['-i', '--include-immutable'],
+    ['-i', '--idm-host'],
+    ['-i', '--journey-name'],
+    ['-n', '--filename-filter'],
+    ['-n', '--name-prefix'],
+    ['-n', '--journey-id'],
+    ['-y', '--yes-id'],
+    ['-i', undefined],
+  ])('is false for %s with %s', (letter, long) => {
+    expect(selectorMeaning(letter, long, SELECTORS)).toBe(false);
+  });
+
+  it('is false when no entry names the letter', () => {
+    expect(selectorMeaning('-i', '--journey-id', [])).toBe(false);
   });
 });
 
@@ -244,6 +320,110 @@ describe('findLetterProblems on hand-built commands', () => {
 
       expect(letters).toHaveLength(1);
       expect(letters[0]).toContain('3 meanings');
+    });
+
+    describe('the selector letters', () => {
+      const selectors = [
+        leaf('frodo config-manager pull a', [['-i', '--journey-id']]),
+        leaf('frodo config-manager pull b', [['-i', '--script-id']]),
+        leaf('frodo config-manager promote c', [['-i', '--report-id']]),
+      ];
+
+      it('counts the long names that a selector pattern matches as one meaning', () => {
+        const { problems, checked } = run({
+          groupLeaves: selectors,
+          selectorLetters: [SELECTORS[0]],
+        });
+
+        expect(all(problems)).toEqual([]);
+        expect(checked.selectorLetters).toBe(1);
+      });
+
+      it('fails the same long names without the entry', () => {
+        const { letters } = find({ groupLeaves: selectors });
+
+        expect(letters).toHaveLength(1);
+        expect(letters[0]).toContain('3 meanings');
+      });
+
+      it('counts an alias spelling as a selector too: -n --name next to -n --script-name', () => {
+        const { problems } = run({
+          groupLeaves: [
+            leaf('frodo config-manager pull a', [
+              ['-i', '--journey-id', '', ['-n', '--name']],
+            ]),
+            leaf('frodo config-manager pull b', [['-n', '--script-name']]),
+          ],
+          selectorLetters: [SELECTORS[1]],
+        });
+
+        expect(all(problems)).toEqual([]);
+      });
+
+      it('still fails a letter that has a selector and another meaning, naming both', () => {
+        const { letters } = find({
+          groupLeaves: [
+            ...selectors,
+            leaf('frodo config-manager pull d', [
+              ['-i', '--include-immutable'],
+            ]),
+          ],
+          selectorLetters: SELECTORS,
+        });
+
+        expect(letters).toHaveLength(1);
+        expect(letters[0]).toContain('2 meanings');
+        expect(letters[0]).toContain('--include-immutable');
+        expect(letters[0]).toContain('--journey-id/--script-id/--report-id');
+      });
+
+      it('fails a second option on the letter of an alias, in another command', () => {
+        const { letters } = find({
+          groupLeaves: [
+            leaf('frodo config-manager pull a', [
+              ['-i', '--journey-id', '', ['-n', '--name']],
+            ]),
+            leaf('frodo config-manager pull b', [['-n', '--no-deps']]),
+          ],
+          selectorLetters: SELECTORS,
+        });
+
+        expect(letters).toHaveLength(1);
+        expect(letters[0]).toContain('-n');
+        expect(letters[0]).toContain('--no-deps');
+      });
+
+      it('fails an entry that no letter needs any more', () => {
+        const { entries } = find({
+          groupLeaves: [
+            leaf('frodo config-manager pull a', [['-i', '--journey-id']]),
+          ],
+          selectorLetters: SELECTORS,
+        });
+
+        expect(entries).toHaveLength(2);
+        expect(entries[0]).toMatch(
+          /^SELECTOR_LETTERS -i :: no letter -i has two long names/
+        );
+        expect(entries[1]).toMatch(/^SELECTOR_LETTERS -n ::/);
+      });
+
+      it('fails an entry that has no reason or no pattern', () => {
+        const { entries } = find({
+          groupLeaves: selectors,
+          selectorLetters: [
+            { letter: '-i', pattern: SELECTORS[0].pattern },
+            { letter: '-n', why: 'a name' },
+          ],
+        });
+
+        expect(entries).toEqual(
+          expect.arrayContaining([
+            'SELECTOR_LETTERS -i :: entry without why',
+            'SELECTOR_LETTERS -n :: entry without a pattern',
+          ])
+        );
+      });
     });
 
     it('fails a shared letter that means something else on a command', () => {
@@ -530,6 +710,44 @@ describe('findLetterProblems on hand-built commands', () => {
       ).toEqual([]);
     });
 
+    it('accepts the letter of an alias that the command declares', () => {
+      const problems = find({
+        groupLeaves: [
+          leaf(
+            'frodo config-manager pull a',
+            [
+              [
+                '-i',
+                '--journey-id',
+                'Journey id. Cannot be used with -p. (alias: -n, --name)',
+                ['-n', '--name'],
+              ],
+              ['-p', '--prefix', 'Cannot be used with -n.'],
+            ],
+            'Pulls things.'
+          ),
+        ],
+      });
+
+      expect(problems.descriptions).toEqual([]);
+    });
+
+    it('fails the letter of an alias that another command declares', () => {
+      const { descriptions } = find({
+        groupLeaves: [
+          leaf('frodo config-manager pull a', [
+            ['-i', '--journey-id', 'Id.', ['-n', '--name']],
+          ]),
+          leaf('frodo config-manager pull b', [
+            ['-p', '--prefix', 'Cannot be used with -n.'],
+          ]),
+        ],
+      });
+
+      expect(descriptions).toHaveLength(1);
+      expect(descriptions[0]).toContain('frodo config-manager pull b');
+    });
+
     it('reads the description of the command too', () => {
       const { descriptions } = find({
         groupLeaves: [leaf('frodo config-manager pull a', [], 'Use -p.')],
@@ -601,6 +819,7 @@ describe('findLetterProblems on hand-built commands', () => {
       groupLeaves: [PLACEHOLDER.leaf],
       heritageLeaves: [],
       sameMeaning: [],
+      selectorLetters: [],
       expected: [PLACEHOLDER.row],
       heritageOverlaps: [],
       descriptionLetters: [],
@@ -615,6 +834,7 @@ describe('findLetterProblems on hand-built commands', () => {
       'groupLeaves',
       'heritageLeaves',
       'sameMeaning',
+      'selectorLetters',
       'expected',
       'heritageOverlaps',
       'descriptionLetters',
@@ -649,20 +869,24 @@ describe('findLetterProblems on hand-built commands', () => {
         [null, '--stdin', 'Use date -u.'],
       ]);
       const b = leaf('frodo config-manager pull b', [['-n', '--script-name']]);
+      const c = leaf('frodo config-manager push c', [['-d', '--draft']]);
       const h = leaf('frodo service import', [
         ['-n', '--service-name'],
         [null, '--clean'],
       ]);
       const input = {
-        groupLeaves: [a, b],
+        groupLeaves: [a, b, c],
         heritageLeaves: [h],
         sameMeaning: [
           {
-            letter: '-n',
-            longs: ['--name', '--script-name'],
+            letter: '-d',
+            longs: ['--dry-run', '--draft'],
             why: 'one meaning',
             until: 'never',
           },
+        ],
+        selectorLetters: [
+          { letter: '-n', pattern: /^--(?:[a-z]+-)*name$/, why: 'a name' },
         ],
         heritageOverlaps: [
           { letter: '-n', longs: [/^--[a-z]+-name$/], why: 'a reason' },
@@ -685,14 +909,15 @@ describe('findLetterProblems on hand-built commands', () => {
 
       expect(Object.values(problems).flat()).toEqual([]);
       expect(checked).toEqual({
-        groupLeaves: 2,
+        groupLeaves: 3,
         heritageLeaves: 1,
         sameMeaning: 1,
+        selectorLetters: 1,
         rows: 2,
         rowsMatched: 2,
         dryRunLeaves: 1,
         heritageOverlaps: 1,
-        descriptionLeaves: 3,
+        descriptionLeaves: 4,
         descriptionLetters: 1,
         spellings: 1,
         dryRunAdded: 1,
@@ -700,6 +925,10 @@ describe('findLetterProblems on hand-built commands', () => {
       // each input that is dropped shows in what the check looked at
       expect(
         findLetterProblems({ ...input, sameMeaning: [] }).checked.sameMeaning
+      ).toBe(0);
+      expect(
+        findLetterProblems({ ...input, selectorLetters: [] }).checked
+          .selectorLetters
       ).toBe(0);
       expect(
         findLetterProblems({ ...input, heritageOverlaps: [] }).checked
@@ -813,7 +1042,12 @@ describe('the options of the configuration commands', () => {
     const toLeaf = (command) => ({
       name: fullName(command),
       description: command.description(),
-      options: command.options,
+      options: command.options.map((option) => ({
+        short: option.short,
+        long: option.long,
+        description: option.description,
+        aliases: getOptionAliases(option),
+      })),
     });
     const data = leaves.map(toLeaf);
     groupLeaves = data.filter((l) => isGroupLeaf(l.name));
@@ -826,6 +1060,7 @@ describe('the options of the configuration commands', () => {
       groupLeaves,
       heritageLeaves,
       sameMeaning: SAME_MEANING,
+      selectorLetters: SELECTOR_LETTERS,
       expected: EXPECTED_SHORT_FORMS,
       heritageOverlaps: HERITAGE_OVERLAPS,
       descriptionLetters: DESCRIPTION_LETTERS,
@@ -850,11 +1085,22 @@ describe('the options of the configuration commands', () => {
     expect(problems.letters).toEqual([]);
   });
 
-  it('keeps exactly the three letters that two long names share, each with a reason and an end', () => {
-    expect(SAME_MEANING.map((e) => e.letter)).toEqual(['-f', '-i', '-n']);
-    expect(checked.sameMeaning).toBe(3);
+  it('keeps exactly one letter that two long names share, with a reason and an end', () => {
+    // -i and -n are the selectors of the group (below), -f goes with C5
+    expect(SAME_MEANING.map((e) => e.letter)).toEqual(['-f']);
+    expect(checked.sameMeaning).toBe(1);
     expect(
       problems.entries.filter((e) => e.startsWith('SAME_MEANING'))
+    ).toEqual([]);
+  });
+
+  it('joins the long names of -i and -n as the selectors, each letter with a reason and no end', () => {
+    expect(SELECTOR_LETTERS.map((e) => e.letter)).toEqual(['-i', '-n']);
+    expect(SELECTOR_LETTERS.every((e) => !('until' in e))).toBe(true);
+    // both letters have more than one long name in the group, and the pattern joins them
+    expect(checked.selectorLetters).toBe(2);
+    expect(
+      problems.entries.filter((e) => e.startsWith('SELECTOR_LETTERS'))
     ).toEqual([]);
   });
 

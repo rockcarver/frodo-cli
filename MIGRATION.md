@@ -313,6 +313,74 @@ mean one thing in the group; their long forms are unchanged:
 | `-d, --draft-only` | `iga workflow delete` | `--draft-only` |
 | `-C, --clean`      | `service import`      | `--clean`      |
 
+**Selectors of the `config-manager` commands are `-i, --<type>-id` and `-n,
+--<type>-name`, and `-n` and `--name` keep working**: inside `frodo
+config-manager` an object is selected by its identifier with `-i, --<type>-id`
+(a value that cannot be chosen freely or changed later: a journey name is one)
+and, for a type whose objects have a name that can change, by that name with
+`-n, --<type>-name`. A command that has both declares them mutually exclusive,
+so `-i a -n b` fails before it connects to anything. The rule is in
+[options of the configuration commands](https://github.com/rockcarver/frodo-cli/blob/main/docs/decisions/0057-options-of-the-configuration-commands.md).
+This is the first of three steps, the `pull` commands; `push` and `delete`
+follow and add their tables here.
+
+Nothing is removed. On a command that took `-n, --name <name>` for an
+identifier, `-i, --<type>-id` is the option now, and `-n` and `--name` are
+spellings of the same option (the help ends its description with `(alias: -n,
+--name)`). On a command whose objects have a name that can change, `-n` is `-n,
+--<type>-name` and `--name` is its alias. These aliases are permanent: a script
+that passes `-n`, `--name` or a cluster of short letters that ends in `-n` keeps
+working and gets the same result. A selector that is given twice on a command
+that has the identifier only (`-i a -n b`) uses the last one, as any repeated
+option does. A default that was saved with `--prompt --save-defaults` for the
+option `name` of one of these commands is not read any more; save it again for
+the new option.
+
+| Command                          | Select by                                  | Still works      |
+| -------------------------------- | ------------------------------------------ | ---------------- |
+| `pull applications`              | `-i, --app-id`, `-n, --app-name`           | `--name`         |
+| `pull oauth-cimd-profiles`       | `-i, --profile-id`                         | `-n`, `--name`   |
+| `pull connector-definitions`     | `-i, --connector-id`                       | `-n`, `--name`   |
+| `pull connector-mappings`        | `-i, --connector-mapping-id`               | new              |
+| `pull custom-nodes`              | `-i, --node-id`, `-n, --node-name`         | `--name`         |
+| `pull email-templates`           | `-i, --template-id`                        | `-n`, `--name`   |
+| `pull endpoints`                 | `-i, --endpoint-id`                        | `-n`, `--name`   |
+| `pull internal-roles`            | `-i, --role-id`, `-n, --role-name`         | `--name`         |
+| `pull journeys`                  | `-i, --journey-id`                         | `-n`, `--name`   |
+| `pull locales`                   | `-i, --locale-id`                          | `-n`, `--name`   |
+| `pull managed-objects`           | `-i, --managed-object-id`                  | `-n`, `--name`   |
+| `pull org-privileges`            | `-i, --org-privileges-id`                  | `-n`, `--name`   |
+| `pull remote-proxies`            | `-i, --proxy-id`                           | `-n`, `--name`   |
+| `pull schedules`                 | `-i, --schedule-id`                        | `-n`, `--name`   |
+| `pull scripts`                   | `-i, --script-id`, `-n, --script-name`     | `-n` (as before) |
+| `pull secrets`                   | `-i, --secret-id`                          | new              |
+| `pull secret-mappings`           | `-i, --secret-mapping-id`                  | `-n`, `--name`   |
+| `pull services`                  | `-i, --service-id`                         | `-n`, `--name`   |
+| `pull themes`                    | `-i, --theme-id`, `-n, --theme-name`       | new              |
+| `pull telemetry`                 | `-i, --exporter-id`                        | `-n`, `--name`   |
+| `pull oauth-issuers`             | `-i, --issuer-id`                          | `-n`, `--name`   |
+| `pull oauth-software-publishers` | `-i, --software-publisher-id`              | `-n`, `--name`   |
+| `pull variables`                 | `-i, --variable-id`                        | new              |
+| `pull iga-workflows`             | `-i, --workflow-id`, `-n, --workflow-name` | `--name`         |
+
+`pull themes` takes `-n, --theme-name` for the first time, and
+`pull connector-mappings`, `pull secrets` and `pull variables` take `-i` for the
+first time: they pulled everything before and still do without it. `-i` on
+`pull applications`, `pull custom-nodes`, `pull iga-workflows`,
+`pull internal-roles`, `pull scripts` and `pull themes` selects by the id of the
+object, which these commands could not do before (their `-n` selects by name as
+before). `pull scripts -i` cannot be combined with `-n` or with `-p`, the
+prefix, as `-n` could not be combined with `-p` before. `pull csp` and
+`pull terms-and-conditions` take no selector: their file is the whole entity,
+and a file that held a part of it would replace the whole entity when it is
+pushed.
+
+An empty value of a selector (`-i ""`, `-n ""`, `--name ""`, or a variable that
+expands to nothing) is refused with exit code 1 before the command connects to
+anything, and never means all objects: commander says which option was given an
+empty value. This changes the commands that had `-n` and took `-n ""` as no
+selector and pulled everything; leave the option out to pull everything.
+
 **`authn export` and `authn import` exit 1 after a failure**: in 4.x both
 commands printed the error and exited with code 0 when the export or the import
 failed, because they checked the result before the operation had finished. In

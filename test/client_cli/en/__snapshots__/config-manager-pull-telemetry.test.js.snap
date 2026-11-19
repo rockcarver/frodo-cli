@@ -29,7 +29,8 @@ Options:
                              operation, prints a summary of what failed and
                              exits with code 1.
   -c, --category <category>  Telemetry category to export (e.g. otlp, splunk).
-  -n, --name <name>          Name of a single exporter to export.
+  -i, --exporter-id <id>     Id of a single exporter to export. (alias: -n,
+                             --name)
   -h, --help                 Help
   -hh, --help-more           Help with all options.
   -hhh, --help-all           Help with all options, environment variables, and

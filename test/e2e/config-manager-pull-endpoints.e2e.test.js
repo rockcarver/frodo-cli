@@ -2,7 +2,7 @@
 
 /*
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_TEST_NAME=0_D frodo config-manager pull endpoints -D testDir7
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_TEST_NAME=0_n_D frodo config-manager pull endpoints -n testEndpoint2 -D testDir8
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_TEST_NAME=0_n_D frodo config-manager pull endpoints -i testEndpoint2 -D testDir8
 */
 
 
@@ -24,7 +24,7 @@ describe('frodo config-manager pull endpoints', () => {
 
   test('"frodo config-manager pull endpoints -n testEndpoint2 -D testDir8": should export the endpoint with name testEndpoint2 in fr-config-manager style"', async () => {
     const dirName = 'testDir8';
-    const CMD = `frodo config-manager pull endpoints -n testEndpoint2 -D ${dirName}`;
+    const CMD = `frodo config-manager pull endpoints -i testEndpoint2 -D ${dirName}`;
     await testExport(CMD, { ...env, env: { ...env.env, FRODO_TEST_NAME: '0_n_D' } }, undefined, undefined, dirName, false);
   });
 });

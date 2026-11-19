@@ -63,7 +63,7 @@ export const cimdProfileFilePath = (realm: string, fileName: string): string =>
 /**
  * Export the CIMD profiles of every realm (or one realm, or one profile) as one file per profile.
  * The profiles are listed once per realm, also for a named one, so that a pull with and without
- * `-n` writes the same bytes and an id the server holds ignoring case (or with a character outside
+ * `-i` writes the same bytes and an id the server holds ignoring case (or with a character outside
  * the basic multilingual plane) is found; the stored id names the file. The list item is the
  * profile: one request per realm, and no request by id.
  *

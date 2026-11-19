@@ -65,7 +65,7 @@ export const LABELS = [
   },
   {
     file: 'config-manager-pull-cimd-profiles.e2e.test.js',
-    cmd: 'frodo config-manager pull oauth-cimd-profiles -n zz-e2e-cimd -D cimdProfilesTestDir1',
+    cmd: 'frodo config-manager pull oauth-cimd-profiles -i zz-e2e-cimd -D cimdProfilesTestDir1',
     pin: 'pullOne',
     why: 'recorded under the label pullOne; the recording keeps its name',
   },
@@ -77,13 +77,13 @@ export const LABELS = [
   },
   {
     file: 'config-manager-pull-software-publishers.e2e.test.js',
-    cmd: 'frodo config-manager pull oauth-software-publishers -n zz-e2e-publisher -D softwarePublishersTestDir1',
+    cmd: 'frodo config-manager pull oauth-software-publishers -i zz-e2e-publisher -D softwarePublishersTestDir1',
     pin: 'pullOne',
     why: 'recorded under the label pullOne; the recording keeps its name',
   },
   {
     file: 'config-manager-pull-trusted-jwt-issuers.e2e.test.js',
-    cmd: 'frodo config-manager pull oauth-issuers -n zz-e2e-issuer -D oauthIssuersTestDir1',
+    cmd: 'frodo config-manager pull oauth-issuers -i zz-e2e-issuer -D oauthIssuersTestDir1',
     pin: 'pullOne',
     why: 'recorded under the label pullOne; the recording keeps its name',
   },
@@ -196,6 +196,9 @@ export const NO_RECORDING = [
 
 const OPTIONS_RECORD_WHY =
   'a short form of the command was removed or moved to another letter by https://github.com/rockcarver/frodo-cli/blob/main/docs/decisions/0057-options-of-the-configuration-commands.md (options of the configuration commands); the recording keeps its name';
+
+const SELECTORS_RECORD_WHY =
+  'the selector of the command was renamed to -i, --<type>-id by https://github.com/rockcarver/frodo-cli/blob/main/docs/decisions/0057-options-of-the-configuration-commands.md (options of the configuration commands); -n and --name stay as its alias, and the recording keeps its name';
 
 export const RENAMED = [
   {
@@ -393,5 +396,89 @@ export const RENAMED = [
     was: 'frodo config-manager promote check-locked-status -l',
     pin: '0_l',
     why: OPTIONS_RECORD_WHY,
+  },
+  {
+    file: 'config-manager-pull-telemetry.e2e.test.js',
+    cmd: 'frodo config-manager pull telemetry -c otlp -i test-otlp -D telemetryTestDir3',
+    was: 'frodo config-manager pull telemetry -c otlp -n test-otlp -D telemetryTestDir3',
+    pin: '0_c_n_D',
+    why: SELECTORS_RECORD_WHY,
+  },
+  {
+    file: 'config-manager-pull-telemetry.e2e.test.js',
+    cmd: 'frodo config-manager pull telemetry -i test-otlp -D telemetryTestDir4',
+    was: 'frodo config-manager pull telemetry -n test-otlp -D telemetryTestDir4',
+    pin: '0_n_D',
+    why: SELECTORS_RECORD_WHY,
+  },
+  {
+    file: 'config-manager-pull-journeys.e2e.test.js',
+    cmd: 'frodo config-manager pull journeys -i BravoTestRegistration -D ConfigJourneytestDir3 -m forgeops',
+    was: 'frodo config-manager pull journeys -n BravoTestRegistration -D ConfigJourneytestDir3 -m forgeops',
+    pin: '0_n_D_m',
+    why: SELECTORS_RECORD_WHY,
+  },
+  {
+    file: 'config-manager-pull-secret-mappings.e2e.test.js',
+    cmd: 'frodo config-manager pull secret-mappings -i am.services.pingone.worker.bogus.clientsecret -D secretMappingTestDir3',
+    was: 'frodo config-manager pull secret-mappings -n am.services.pingone.worker.bogus.clientsecret -D secretMappingTestDir3',
+    pin: '0_n_D',
+    why: SELECTORS_RECORD_WHY,
+  },
+  {
+    file: 'config-manager-pull-services.e2e.test.js',
+    cmd: 'frodo config-manager pull services -D serviceTestDir2 -i SocialIdentityProviders -m forgeops',
+    was: 'frodo config-manager pull services -D serviceTestDir2 -n SocialIdentityProviders -m forgeops',
+    pin: '0_D_n_m',
+    why: SELECTORS_RECORD_WHY,
+  },
+  {
+    file: 'config-manager-pull-managed-objects.e2e.test.js',
+    cmd: 'frodo config-manager pull managed-objects -i alpha_user -D testDir18',
+    was: 'frodo config-manager pull managed-objects -n alpha_user -D testDir18',
+    pin: '0_n_D',
+    why: SELECTORS_RECORD_WHY,
+  },
+  {
+    file: 'config-manager-pull-connector-definitions.e2e.test.js',
+    cmd: 'frodo config-manager pull connector-definitions -D configManagerExportConnectorDefinitionsDir1 -i Azure',
+    was: 'frodo config-manager pull connector-definitions -D configManagerExportConnectorDefinitionsDir1 -n Azure',
+    pin: '0_D_n',
+    why: SELECTORS_RECORD_WHY,
+  },
+  {
+    file: 'config-manager-pull-org-privileges.e2e.test.js',
+    cmd: 'frodo config-manager pull org-privileges -i alphaOrgPrivileges -D configManagerExportOrgPrivilegesDir1',
+    was: 'frodo config-manager pull org-privileges -n alphaOrgPrivileges -D configManagerExportOrgPrivilegesDir1',
+    pin: '0_n_D',
+    why: SELECTORS_RECORD_WHY,
+  },
+  {
+    file: 'config-manager-pull-email-templates.e2e.test.js',
+    cmd: 'frodo config-manager pull email-templates -i registration -D testDir6',
+    was: 'frodo config-manager pull email-templates -n registration -D testDir6',
+    pin: '0_n_D',
+    why: SELECTORS_RECORD_WHY,
+  },
+  {
+    file: 'config-manager-pull-schedules.e2e.test.js',
+    cmd: 'frodo config-manager pull schedules -i TestSchedule -D testDir24',
+    was: 'frodo config-manager pull schedules -n TestSchedule -D testDir24',
+    pin: '0_n_D',
+    why: SELECTORS_RECORD_WHY,
+  },
+  {
+    file: 'config-manager-pull-endpoints.e2e.test.js',
+    cmd: 'frodo config-manager pull endpoints -i testEndpoint2 -D testDir8',
+    was: 'frodo config-manager pull endpoints -n testEndpoint2 -D testDir8',
+    pin: '0_n_D',
+    why: SELECTORS_RECORD_WHY,
+  },
+  {
+    file: 'config-manager-pull-remote-proxies.e2e.test.js',
+    cmd: 'frodo config-manager pull remote-proxies -i zz-e2e-proxy -D testDir25',
+    was: 'frodo config-manager pull remote-proxies -n zz-e2e-proxy -D testDir25',
+    pin: '0_n_D',
+    why: SELECTORS_RECORD_WHY,
   },
 ];

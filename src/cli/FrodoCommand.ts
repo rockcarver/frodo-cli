@@ -55,6 +55,7 @@ import {
   ALLOW_FAILURES_OPTION,
 } from '../utils/OperationRun.js';
 import { activatePersistedTheme } from '../utils/ThemeConfig.js';
+import { assertAliasesFree, copyOptionAliases } from './OptionAlias.js';
 import {
   deferMissingMandatoryOption,
   deferOneOfGroups,
@@ -650,6 +651,10 @@ function cloneOption(option: Option): Option {
   setStabilityMetadata(cloned, getStabilityMetadata(option));
   const category = getOptionCategory(option);
   if (category) setOptionCategory(cloned, category);
+  // the extra spellings of an option (the permanent alias of the selectors,
+  // https://github.com/rockcarver/frodo-cli/blob/main/docs/decisions/0057-options-of-the-configuration-commands.md)
+  // are own properties that the spread above does not copy
+  copyOptionAliases(option, cloned);
   return cloned;
 }
 
@@ -4046,6 +4051,8 @@ export class FrodoCommand extends FrodoStubCommand {
   override addOption(option: Option) {
     // Clone to avoid mutating shared default option instances.
     const commandOption = cloneOption(option);
+    // commander compares the flags of the new option, not its alias spellings
+    assertAliasesFree(this, commandOption);
 
     if (!commandOption.helpGroupHeading) {
       commandOption.helpGroup(COMMAND_OPTIONS_HEADING);

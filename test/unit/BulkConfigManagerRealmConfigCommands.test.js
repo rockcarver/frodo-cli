@@ -132,7 +132,7 @@ const COMMANDS = [
     name: 'config-manager pull journeys',
     file: 'config-manager-pull/config-manager-pull-journeys',
     fn: 'configManagerExportJourneys',
-    options: { name: 'Login', pullDependencies: true, clean: true },
+    options: { journeyId: 'Login', pullDependencies: true, clean: true },
     args: (allowFailures) => ['Login', 'alpha', true, true, allowFailures],
   },
   {
@@ -299,7 +299,7 @@ describe('config-manager pull org-privileges -n', () => {
     const setup =
       setups['config-manager-pull/config-manager-pull-org-privileges'];
     await invoke(setup(), {
-      name: 'alphaOrgPrivileges',
+      orgPrivilegesId: 'alphaOrgPrivileges',
       allowFailures: true,
     });
     expect(
@@ -310,7 +310,10 @@ describe('config-manager pull org-privileges -n', () => {
     ops.FrConfigOrgPrivilegesOps.configManagerExportOrgPrivileges.mockResolvedValue(
       false
     );
-    await invoke(setup(), { name: 'alphaOrgPrivileges', allowFailures: true });
+    await invoke(setup(), {
+      orgPrivilegesId: 'alphaOrgPrivileges',
+      allowFailures: true,
+    });
     expect(process.exitCode).toBe(1);
     process.exitCode = 0;
   });

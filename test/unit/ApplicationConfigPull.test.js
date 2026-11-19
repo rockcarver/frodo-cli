@@ -574,6 +574,114 @@ describe('which applications and realms', () => {
     expect(console_.printError).toHaveBeenCalled();
   });
 
+  test('an application by its id is pulled alone, from the list of all applications', async () => {
+    // the id of TwoMore starts with the id of Two: an id selects by equality
+    world.apps.alpha = [app('One'), app('Two'), app('TwoMore')];
+
+    expect(
+      await configManagerExportApplications(
+        undefined,
+        'alpha',
+        false,
+        false,
+        undefined,
+        'id-Two'
+      )
+    ).toBe(true);
+
+    expect(exists(`${APPS('alpha')}/Two/application.json`)).toBe(true);
+    expect(exists(`${APPS('alpha')}/One`)).toBe(false);
+    expect(exists(`${APPS('alpha')}/TwoMore`)).toBe(false);
+    expect(frodo.app.readApplications).toHaveBeenCalledTimes(1);
+    expect(frodo.app.readApplicationByName).not.toHaveBeenCalled();
+  });
+
+  test('an application by its id without a single realm is refused before anything is read', async () => {
+    expect(
+      await configManagerExportApplications(
+        undefined,
+        undefined,
+        false,
+        false,
+        undefined,
+        'id-Two'
+      )
+    ).toBe(false);
+
+    expect(messages()).toMatch(/specify a single realm/);
+    expect(frodo.app.readApplications).not.toHaveBeenCalled();
+    expect(fs.readdirSync(tmp)).toEqual([]);
+  });
+
+  test('an id that the realm does not have fails the command whatever --allow-failures says, and names it', async () => {
+    world.apps.alpha = [app('One')];
+
+    expect(
+      await configManagerExportApplications(
+        undefined,
+        'alpha',
+        false,
+        true,
+        undefined,
+        'id-Missing'
+      )
+    ).toBe(false);
+
+    expect(messages()).toMatch(
+      /Application with id 'id-Missing' not found in realm 'alpha'/
+    );
+    expect(messages()).not.toMatch(/No applications found/);
+    expect(fs.readdirSync(tmp)).toEqual([]);
+  });
+
+  test('a selector in the root realm of a Cloud tenant says that it has no applications', async () => {
+    world.apps['/'] = [app('RootApp')];
+
+    expect(
+      await configManagerExportApplications(
+        undefined,
+        '/',
+        false,
+        false,
+        undefined,
+        'id-RootApp'
+      )
+    ).toBe(true);
+    expect(await configManagerExportApplications('RootApp', '/')).toBe(true);
+
+    expect(
+      console_.printMessage.mock.calls.filter(([, type]) => type === 'warn')
+    ).toEqual([
+      [
+        "The root realm of a Cloud tenant has no applications: nothing to pull for 'id-RootApp'.",
+        'warn',
+      ],
+      [
+        "The root realm of a Cloud tenant has no applications: nothing to pull for 'RootApp'.",
+        'warn',
+      ],
+    ]);
+    expect(exists(`${APPS('root')}/RootApp/application.json`)).toBe(false);
+  });
+
+  test('an empty id selects nothing and is not found: it never means all applications', async () => {
+    world.apps.alpha = [app('One')];
+
+    expect(
+      await configManagerExportApplications(
+        undefined,
+        'alpha',
+        false,
+        false,
+        undefined,
+        ''
+      )
+    ).toBe(false);
+
+    expect(messages()).toMatch(/Application with id '' not found/);
+    expect(fs.readdirSync(tmp)).toEqual([]);
+  });
+
   test('a tenant without applications says so, and the step of pull all stays quiet', async () => {
     expect(await configManagerExportApplications(undefined, 'alpha')).toBe(
       true

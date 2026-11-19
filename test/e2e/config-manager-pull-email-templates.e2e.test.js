@@ -2,7 +2,7 @@
 
 /*
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_TEST_NAME=0_D frodo config-manager pull email-templates -D cmEmailTemplatesExportDir
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_TEST_NAME=0_n_D frodo config-manager pull email-templates -n registration -D testDir6
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_TEST_NAME=0_n_D frodo config-manager pull email-templates -i registration -D testDir6
 */
 
 
@@ -24,7 +24,7 @@ describe('frodo config-manager pull email-templates', () => {
 
   test('"frodo config-manager pull email-templates -n registration -D testDir6": should export the email-template with name registration in fr-config-manager style"', async () => {
     const dirName = 'testDir6';
-    const CMD = `frodo config-manager pull email-templates -n registration -D ${dirName}`;
+    const CMD = `frodo config-manager pull email-templates -i registration -D ${dirName}`;
     await testExport(CMD, { ...env, env: { ...env.env, FRODO_TEST_NAME: '0_n_D' } }, undefined, undefined, dirName, false);
   });
 });

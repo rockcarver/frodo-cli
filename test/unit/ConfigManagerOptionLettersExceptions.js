@@ -10,6 +10,9 @@
  *   them a letter each. An entry says that two long names are one meaning, and
  *   `until` says which step of the program removes one of the names (the check
  *   fails from then on until the entry is deleted).
+ * - SELECTOR_LETTERS: the letters whose long names are one meaning because they
+ *   all name an object by its identifier (`-i`) or by its name (`-n`), whatever
+ *   the type is. A pattern per letter, with the reason.
  * - EXPECTED_SHORT_FORMS: every option whose short form the record changed, as
  *   it is now (`short` null: a long form only) and as it was (`was` null: the
  *   option had no short form). MIGRATION.md has to list each `was` spelling.
@@ -34,17 +37,27 @@ export const SAME_MEANING = [
     why: 'both name the file that a pull reads (a data file of pull raw, the config file of the other pulls); the config file is long-only from the step that renames it',
     until: 'C5 of cli#1264 (written 2026-11-18)',
   },
+];
+
+/**
+ * The selectors of the group: `-i, --<type>-id` names an object by its
+ * identifier and `-n, --<type>-name` by a name that can change, whatever the
+ * type is, so the long names of one letter that the pattern matches are one
+ * meaning and need no SAME_MEANING entry (`--id` and `--report-id` of the
+ * promote commands name a promotion or its report by its id; `--name` is the
+ * permanent alias of the selector). The entry fails when no letter has two
+ * such names any more. A letter that is not listed here still has one meaning.
+ */
+export const SELECTOR_LETTERS = [
   {
     letter: '-i',
-    longs: ['--id', '--report-id'],
-    why: 'both name a promotion or its report by its id (promote unlock-tenants, promote check-promotion-reports)',
-    until: 'not planned (written 2026-11-18)',
+    pattern: /^--(?:[a-z]+-)*id$/,
+    why: 'names an object by its identifier: --<type>-id on the selectors of the group, --id and --report-id on the promote commands',
   },
   {
     letter: '-n',
-    longs: ['--name', '--script-name'],
-    why: 'both name the object to pull, the script by its file name (pull scripts); -n --name stays the permanent spelling of the selector',
-    until: 'C4 of cli#1264 (written 2026-11-18)',
+    pattern: /^--(?:[a-z]+-)*name$/,
+    why: 'names an object by a name that can change: --<type>-name, and --name, the permanent alias of the selector',
   },
 ];
 

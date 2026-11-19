@@ -1,0 +1,218 @@
+/**
+ * The data of test/unit/ConfigManagerSelectors.test.js: the selectors of the
+ * commands that name an object, as
+ * https://github.com/rockcarver/frodo-cli/blob/main/docs/decisions/0057-options-of-the-configuration-commands.md
+ * (options of the configuration commands) decides them. The checks that read
+ * this data are in test/utils/OptionLetters.js; each list fails when an entry
+ * is no longer needed, so the lists cannot go stale.
+ *
+ * - EXPECTED_SELECTORS: one row for each command, `{ command, id, name,
+ *   aliases }`: the long form of `-i`, the long form of `-n` (null when `-n` is
+ *   only an alias of `-i`: the object has an identifier and no name that can
+ *   change) and the spellings the option with the alias answers to (`['-n',
+ *   '--name']` on `-i`, `['--name']` on `-n`; none for a command that took no
+ *   `--name` before). The steps C4a (pull), C4b (push) and C4c (delete) of
+ *   cli#1264 add their rows.
+ * - STRAY_SELECTOR_OPTIONS: an option with the letter `-i` or `-n` on a command
+ *   of the group that no row names, because it selects something else.
+ * - PENDING_VERBS: verbs whose commands have not been given their rows yet;
+ *   the check does not look for a stray `-n` on them. The step named in `until`
+ *   deletes the entry.
+ * - NO_SELECTOR_COMMANDS: commands that take no selector on purpose; the check
+ *   fails when one gets an option that selects an object. C4b adds the two push
+ *   commands of the same two types.
+ * - KEPT_OLD_SPELLING: the lines of the e2e tests that type `-n` or `--name`
+ *   on purpose, so that the alias stays covered end to end by a replay.
+ */
+
+export const EXPECTED_SELECTORS = [
+  {
+    command: 'frodo config-manager pull applications',
+    id: '--app-id',
+    name: '--app-name',
+    aliases: ['--name'],
+  },
+  {
+    command: 'frodo config-manager pull oauth-cimd-profiles',
+    id: '--profile-id',
+    name: null,
+    aliases: ['-n', '--name'],
+  },
+  {
+    command: 'frodo config-manager pull connector-definitions',
+    id: '--connector-id',
+    name: null,
+    aliases: ['-n', '--name'],
+  },
+  {
+    command: 'frodo config-manager pull connector-mappings',
+    id: '--connector-mapping-id',
+    name: null,
+    aliases: [],
+  },
+  {
+    command: 'frodo config-manager pull custom-nodes',
+    id: '--node-id',
+    name: '--node-name',
+    aliases: ['--name'],
+  },
+  {
+    command: 'frodo config-manager pull email-templates',
+    id: '--template-id',
+    name: null,
+    aliases: ['-n', '--name'],
+  },
+  {
+    command: 'frodo config-manager pull endpoints',
+    id: '--endpoint-id',
+    name: null,
+    aliases: ['-n', '--name'],
+  },
+  {
+    command: 'frodo config-manager pull internal-roles',
+    id: '--role-id',
+    name: '--role-name',
+    aliases: ['--name'],
+  },
+  {
+    command: 'frodo config-manager pull journeys',
+    id: '--journey-id',
+    name: null,
+    aliases: ['-n', '--name'],
+  },
+  {
+    command: 'frodo config-manager pull locales',
+    id: '--locale-id',
+    name: null,
+    aliases: ['-n', '--name'],
+  },
+  {
+    command: 'frodo config-manager pull managed-objects',
+    id: '--managed-object-id',
+    name: null,
+    aliases: ['-n', '--name'],
+  },
+  {
+    command: 'frodo config-manager pull org-privileges',
+    id: '--org-privileges-id',
+    name: null,
+    aliases: ['-n', '--name'],
+  },
+  {
+    command: 'frodo config-manager pull remote-proxies',
+    id: '--proxy-id',
+    name: null,
+    aliases: ['-n', '--name'],
+  },
+  {
+    command: 'frodo config-manager pull schedules',
+    id: '--schedule-id',
+    name: null,
+    aliases: ['-n', '--name'],
+  },
+  {
+    command: 'frodo config-manager pull scripts',
+    id: '--script-id',
+    name: '--script-name',
+    aliases: [],
+  },
+  {
+    command: 'frodo config-manager pull secrets',
+    id: '--secret-id',
+    name: null,
+    aliases: [],
+  },
+  {
+    command: 'frodo config-manager pull secret-mappings',
+    id: '--secret-mapping-id',
+    name: null,
+    aliases: ['-n', '--name'],
+  },
+  {
+    command: 'frodo config-manager pull services',
+    id: '--service-id',
+    name: null,
+    aliases: ['-n', '--name'],
+  },
+  {
+    command: 'frodo config-manager pull themes',
+    id: '--theme-id',
+    name: '--theme-name',
+    aliases: [],
+  },
+  {
+    command: 'frodo config-manager pull telemetry',
+    id: '--exporter-id',
+    name: null,
+    aliases: ['-n', '--name'],
+  },
+  {
+    command: 'frodo config-manager pull oauth-issuers',
+    id: '--issuer-id',
+    name: null,
+    aliases: ['-n', '--name'],
+  },
+  {
+    command: 'frodo config-manager pull oauth-software-publishers',
+    id: '--software-publisher-id',
+    name: null,
+    aliases: ['-n', '--name'],
+  },
+  {
+    command: 'frodo config-manager pull variables',
+    id: '--variable-id',
+    name: null,
+    aliases: [],
+  },
+  {
+    command: 'frodo config-manager pull iga-workflows',
+    id: '--workflow-id',
+    name: '--workflow-name',
+    aliases: ['--name'],
+  },
+];
+
+export const STRAY_SELECTOR_OPTIONS = [
+  {
+    command: 'frodo config-manager promote unlock-tenants',
+    long: '--id',
+    why: 'the id of the promotion to unlock the tenants of, not an object of a type',
+  },
+  {
+    command: 'frodo config-manager promote check-promotion-reports',
+    long: '--report-id',
+    why: 'the id of a promotion report, not an object of a type',
+  },
+];
+
+export const PENDING_VERBS = [
+  {
+    verb: 'push',
+    why: 'the push commands keep -n, --name until their step renames them',
+    until: 'C4b of cli#1264 (written 2026-11-18)',
+  },
+  {
+    verb: 'delete',
+    why: 'the delete commands keep -n, --name until their step renames them',
+    until: 'C4c of cli#1264 (written 2026-11-18)',
+  },
+];
+
+export const KEPT_OLD_SPELLING = [
+  {
+    file: 'config-manager-pull-locales.e2e.test.js',
+    cmd: 'frodo config-manager pull locales -n fr -D ${dirName}',
+    why: 'the -n spelling replays the recording of the command through the alias, which covers the alias end to end; the other lines type the new spelling',
+  },
+];
+
+export const NO_SELECTOR_COMMANDS = [
+  {
+    command: 'frodo config-manager pull csp',
+    why: 'the file is the whole entity: a file that held a part of it would replace the whole entity when it is pushed',
+  },
+  {
+    command: 'frodo config-manager pull terms-and-conditions',
+    why: 'the file is the whole entity: a file that held a part of it would replace the whole entity when it is pushed',
+  },
+];

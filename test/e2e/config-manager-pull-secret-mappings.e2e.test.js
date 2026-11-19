@@ -3,7 +3,7 @@
 /*
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_TEST_NAME=0_D frodo config-manager pull secret-mappings -D secretMappingTestDir1
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_REALM=alpha FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_TEST_NAME=0_directory frodo config-manager pull secret-mappings --directory secretMappingTestDir2
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_REALM=alpha FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_TEST_NAME=0_n_D frodo config-manager pull secret-mappings -n am.services.pingone.worker.bogus.clientsecret -D secretMappingTestDir3
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_REALM=alpha FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_TEST_NAME=0_n_D frodo config-manager pull secret-mappings -i am.services.pingone.worker.bogus.clientsecret -D secretMappingTestDir3
 */
 
 import { getEnv, testExport } from './utils/TestUtils';
@@ -28,7 +28,7 @@ describe('frodo config-manager pull secret-mappings', () => {
   });
   test('"frodo config-manager pull secret-mappings -n am.services.pingone.worker.bogus.clientsecret -D secretMappingTestDir3": should export the secret-mapping in alpha realm with name "am.services.pingone.worker.bogus.clientsecret" in fr-config-manager style"', async () => {
     const dirName = 'secretMappingTestDir3';
-    const CMD = `frodo config-manager pull secret-mappings -n am.services.pingone.worker.bogus.clientsecret -D ${dirName}`;
+    const CMD = `frodo config-manager pull secret-mappings -i am.services.pingone.worker.bogus.clientsecret -D ${dirName}`;
     await testExport(CMD, { env: {...env.env, FRODO_REALM: 'alpha', FRODO_TEST_NAME: '0_n_D' } }, undefined, undefined, dirName, false);
   });
 });
