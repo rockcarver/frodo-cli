@@ -502,8 +502,9 @@ a file or a folder (`connector-definitions`, `connector-mappings`,
 `oauth-issuers`, `oauth-cimd-profiles` and `oauth-software-publishers`) never
 finds anything outside the folder of its type: a value that is written as a path,
 such as `-i ../x`, is a name that no file has, and fails with exit code 1, also
-with `--allow-failures`, saying that no such file was found (`..` and `.` are
-said not to name an object).
+with `--allow-failures`, saying that no such file was found. `..` and `.` on
+`connector-mappings`, `managed-objects` and `journeys` are said not to name an
+object.
 
 For `connector-definitions`, `connector-mappings`, `managed-objects`,
 `org-privileges`, `remote-proxies` and `journeys`, `-i` finds the file by its
