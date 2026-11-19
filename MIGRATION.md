@@ -497,20 +497,33 @@ own words.
 A selector is an id or a name, never a path
 ([a selector is an id or a name, never a path](https://github.com/rockcarver/frodo-cli/blob/main/docs/decisions/0059-a-selector-is-an-id-or-a-name-never-a-path.md)).
 The selector (`-i`, `-n`, `--name`) of the nine `push` commands that turn it into
-a file (`connector-definitions`, `connector-mappings`, `managed-objects`,
-`org-privileges`, `remote-proxies`, `journeys`, `oauth-issuers`,
-`oauth-cimd-profiles` and `oauth-software-publishers`) finds the file that `pull`
-writes for that id or name: a `/` is written `%2F`, so `-i a/b` is the file
-`a%2Fb.json`, and `-i ../x` is a name that no file has, which fails with exit
-code 1 also with `--allow-failures`. The three agent types no longer find a file
-that was named by hand with a character left as it is (`a*b.json` for the id
-`a*b`): rename it the way `pull` writes it (`ab.json`). They find an id of more
-than 250 bytes by the shortened name that `pull` writes.
+a file or a folder (`connector-definitions`, `connector-mappings`,
+`managed-objects`, `org-privileges`, `remote-proxies`, `journeys`,
+`oauth-issuers`, `oauth-cimd-profiles` and `oauth-software-publishers`) never
+finds anything outside the folder of its type: a value that is written as a path,
+such as `-i ../x`, is a name that no file has, and fails with exit code 1, also
+with `--allow-failures`, naming the file that it looked for.
+
+For `connector-definitions`, `connector-mappings`, `managed-objects`,
+`org-privileges`, `remote-proxies` and `journeys`, `-i` finds the file by its
+plain name as before when the name is one name (no `/` or `\`, not `.` or `..`).
+A name with a `/` is looked up as the agent types look it up: `-i a/b` is the
+file `a%2Fb.json`, and no longer the file `b.json` in a folder `a`.
+
+For `oauth-issuers`, `oauth-cimd-profiles` and `oauth-software-publishers`, `-i`
+finds the file by the id with a character that a file name cannot hold written as
+`%XX` (`/` is `%2F`), so `-i a/b` is `a%2Fb.json`. A file that was named by hand
+with such a character left as it is (`a*b.json` for the id `a*b`) is no longer
+found: rename it `ab.json`. An id of more than 250 bytes is found by its name cut
+at 250 bytes.
 
 A realm that is not `/`, a name or a path of names such as `/parent/child` (for
 example `..`, `../alpha`, `a\b`, or a name with `?`, `#` or `%`) is refused with
 exit code 1 before the command connects, also when it comes from `FRODO_REALM`,
-on every `config-manager` command that runs in a realm.
+on every `config-manager` command that runs in a realm. A realm that is typed
+`/alpha` or `/parent/child` names the folder `realms/alpha` or
+`realms/parent/child` in the messages that print a path; they printed
+`realms//alpha`.
 
 `delete secret-mappings -i` reads the list of the mappings first and deletes the
 mapping that has exactly that id. An id that is not a mapping, or that differs in

@@ -587,7 +587,7 @@ function idOfFile(file: string): string {
 
 /**
  * The files of a folder that a push reads: every `*.json`, sorted; with a name only its file, the
- * one that a pull writes for that id (a name is an id, never a path: `a/b` is the file `a%2Fb.json`).
+ * file name of that id (a name is an id, never a path: `a/b` is the file `a%2Fb.json`).
  * @param {string} dir the folder of the type in one realm
  * @param {string} name optional name
  * @returns {string[]} the file names, none if the named file does not exist

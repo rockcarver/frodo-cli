@@ -26,8 +26,8 @@ export function safeFileName(filename: string): string {
 /**
  * The file name (without the extension) of an object: its id made safe for a file system, and cut
  * to what a file name can hold. The servers accept ids of thousands of characters, and the file
- * name function of the library cuts at 255 bytes, which leaves no room for the extension. A pull
- * writes this name, so a push looks for it.
+ * name function of the library cuts at 255 bytes, which leaves no room for the extension. The three
+ * agent types use this name for their files.
  * @param {string} value the id or the name of the object
  * @returns {string} the file name without the extension, which may be empty
  */
@@ -73,8 +73,8 @@ function isOneSafeSegment(value: string): boolean {
 
 /**
  * The name that an id or a name has in a folder of a tree. A value that is one name (no separator,
- * not `.` or `..`, no control character) is that name, which is how a pull writes the objects that
- * it does not rename; any other value is turned into the name that a pull writes for an id.
+ * not `.` or `..`, no control character) is that name, as before; any other value is turned into
+ * the file name of an id, {@link fileNameOf}.
  * @param {string} value the id or the name
  * @returns {string} the name without the extension
  */
@@ -102,8 +102,8 @@ function inside(folder: string, value: string, candidate: string): string {
 
 /**
  * The file of an object: `<folder>/<name>.json`, directly in the folder. The name is the id or the
- * name as typed when that is one name, else the name that a pull writes for an id. A caller whose
- * pull always renames the id (the agent types) passes `fileNameOf(id)`.
+ * name as typed when that is one name, else the file name of an id. A caller that wants only the
+ * file name of an id (the three agent types) passes `fileNameOf(id)`.
  * @param {string} folder the folder of the type
  * @param {string} value the id or the name of the object
  * @returns {string} the path of the file
@@ -115,8 +115,8 @@ export function objectFilePath(folder: string, value: string): string {
 
 /**
  * The folder of an object that has a folder of its own: `<folder>/<name>`. The name is the id or the
- * name as typed when that is one name, else the name that a pull writes for an id. The folder is
- * never the folder itself or its parent.
+ * name as typed when that is one name, else the file name of an id. The folder is never the folder
+ * itself or its parent.
  * @param {string} folder the folder of the type
  * @param {string} value the id or the name of the object
  * @returns {string} the path of the folder of the object
