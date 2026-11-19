@@ -15,9 +15,10 @@ const RESET = '\x1b[0m';
  * What the IDM string scanner hands the completion builder: which function
  * and argument position the cursor sits in, and the raw string content so
  * far. Only calls whose first string argument is an IDM resource path get
- * completion: the `openidm.*` CRUD/actions family. Other quoted strings
- * (script names, filter literals in `frodo.*` calls) stay unsuggested,
- * because nothing finite is known about them.
+ * completion: the `openidm.*` CRUD/actions family, and the `$` facade's
+ * URL strings. Other quoted strings (script names, filter literals in
+ * `frodo.*` calls) stay unsuggested, because nothing finite is known
+ * about them.
  */
 export type IdmStringContext = {
   /** The dotted call path the cursor is inside, e.g. `openidm.read`. */
@@ -32,7 +33,25 @@ export type IdmStringContext = {
   readonly quoteChar: string;
   /** The call's first string argument (for openidm.action's filter). */
   readonly firstArg?: string;
+  /**
+   * True when the call is the `$` REST facade: arg 0 is a URL that
+   * resolves like the console resolves it (`/openidm/...`, `/am/...`, or
+   * a bare path onto the IDM origin), so its IDM portion completes from
+   * the same catalog. The AM portion has no catalog.
+   */
+  readonly facade?: boolean;
 };
+
+/** The `$` facade verbs whose first string argument is a URL. */
+const FACADE_URL_VERBS = new Set([
+  'get',
+  'post',
+  'put',
+  'patch',
+  'delete',
+  'head',
+  'ajax',
+]);
 
 /**
  * An object-literal context inside an `openidm.*` call: the cursor sits
@@ -334,16 +353,32 @@ export function parseIdmStringContext(line: string): IdmStringContext | null {
 
   if (!(inSingle || inDouble) || !callPath || parenDepth <= 0) return null;
   // The shell's own functions own their strings: openidm.* resource
-  // paths and actions, am.devices' device-type strings. Other calls
-  // (frodo.*) get nothing.
-  if (!/^(openidm|am)(\.[A-Za-z_$][\w$]*)+$/.test(callPath)) return null;
+  // paths and actions, am.devices' device-type strings, and the $ facade's
+  // URL strings. Other calls (frodo.*) get nothing.
+  const isFacade = callPath === '$' || /^\$\.(\w+)$/.test(callPath);
+  if (isFacade) {
+    // Only the URL-carrying verbs at arg 0; $.last and the data argument
+    // of a $.post get nothing.
+    const verb = callPath.split('.')[1] ?? 'ajax';
+    if (!FACADE_URL_VERBS.has(verb) || argIndex !== 0) return null;
+  } else if (!/^(openidm|am)(\.[A-Za-z_$][\w$]*)+$/.test(callPath)) {
+    return null;
+  }
   const fnName = callPath.split('.').pop()!;
   // The action name (arg 1 of openidm.action) completes from the action
   // map; the resource path (arg 0) from the catalog; the device type
   // (arg 1 of am.devices.*) from the fixed set. Other strings of other
   // functions get nothing.
   const content = line.slice(strStart + 1);
-  return { fullPath: callPath, fnName, argIndex, content, quoteChar, firstArg };
+  return {
+    fullPath: callPath,
+    fnName,
+    argIndex,
+    content,
+    quoteChar,
+    firstArg,
+    facade: isFacade,
+  };
 }
 
 /**
@@ -392,6 +427,32 @@ function idmStringCompletions(
     // scanner while it walked the line.
     const firstArg = extractFirstStringArg(ctx, content);
     entries = firstArg ? actionSuggestions(firstArg, content) : [];
+  } else if (argIndex === 0 && ctx.facade) {
+    // The $ facade's URL string. resolveUrl (ShellRestOps) sends
+    // /openidm/... and bare paths to the IDM origin, so the IDM portion
+    // completes from the same catalog: the typed prefix (leading slash,
+    // the openidm/ segment) is kept verbatim and only the resource part
+    // is suggested. AM URLs (/am/...) have no catalog here.
+    const m = /^\/?(?:openidm\/)?(.*)$/i.exec(content);
+    const resource = m ? m[1] : content;
+    const prefix = content.slice(0, content.length - resource.length);
+    if (resource.includes('?')) {
+      // Query-parameter context, as with openidm strings: candidates
+      // extend the typed partial, prefix included.
+      const partial = /[^?&=]*$/.exec(resource)[0];
+      const params = queryParamSuggestions(resource);
+      return [
+        params.map(
+          (p) =>
+            `${prefix}${resource.slice(0, resource.length - partial.length)}${p}`
+        ),
+        token,
+      ];
+    }
+    entries = resourceSuggestions(resource, catalog).map((e) => ({
+      ...e,
+      path: `${prefix}${e.path}`,
+    }));
   } else if (argIndex === 0 && ctx.fullPath.startsWith('openidm.')) {
     if (content.includes('?')) {
       // Query-parameter context: CREST params are name-only suggestions
@@ -417,8 +478,10 @@ function idmStringCompletions(
 
   if (entries.length === 0) {
     // Nothing to suggest at this string (a _fields array, an action
-    // content...): the contextual arg hint still says what it wants.
-    if (onMethodHint) {
+    // content, an AM URL under $...): the contextual arg hint still says
+    // what it wants, except for $ strings whose doc lookup (get, post,
+    // ...) is not an arg-positioned doc.
+    if (onMethodHint && !ctx.facade) {
       const doc = findBestDoc(
         ctx.fnName,
         [ctx.fullPath.split('.')[0]],

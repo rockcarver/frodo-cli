@@ -85,4 +85,42 @@ suite('frodo shell openidm resource completion', () => {
     // repo/link is fixed, so it completes even though nothing is live.
     expect(result.captures.repo.plain).toMatch(/repo\/link/);
   }, 60000);
+
+  test('$ facade URL strings complete from the same live catalog', async () => {
+    ensureFrodoArtifact();
+    fakeAm = await startFakeAm({
+      recordPath: path.join(home, 'requests.jsonl'),
+      journey: 'password',
+      users: [
+        {
+          _id: 'jdoe',
+          userName: 'jdoe',
+          givenName: 'John',
+          sn: 'Doe',
+          mail: 'j@x.z',
+        },
+      ],
+      managedTypes: ['alpha_user', 'alpha_role', 'alpha_org'],
+    });
+    const host = `http://127.0.0.1:${fakeAm.port}/am`;
+    const result = runShellScenario({
+      homeDir: home,
+      allowPrompting: true,
+      env: { FRODO_USERNAME: 'someone', FRODO_PASSWORD: 'secret' },
+      args: ['shell', host, '--type', 'classic'],
+      actions: [
+        { type: 'wait_prompt', timeoutMs: 30000 },
+        { type: 'sleep', ms: 1500 },
+        { type: 'clear_output' },
+        { type: 'send', text: "$.get('/openidm/alpha_" },
+        { type: 'key', name: 'tab' },
+        { type: 'wait_plain', regex: '▸', timeoutMs: 15000 },
+        { type: 'capture', label: 'facade' },
+      ],
+    });
+    const plain = result.captures.facade.plain;
+    // The typed /openidm/ prefix rides along; the suggestion is the full
+    // replacement text for the string content.
+    expect(plain).toMatch(/\/openidm\/managed\/alpha_user/);
+  }, 60000);
 });

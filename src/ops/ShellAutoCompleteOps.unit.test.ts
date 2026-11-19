@@ -175,6 +175,74 @@ describe('createFrodoCompleter', () => {
     ]);
   });
 
+  it('completes $ facade URL strings from the same catalog', () => {
+    // The $ facade resolves /openidm/... and bare paths onto the IDM
+    // origin (resolveUrl), so its URL strings complete from the same
+    // catalog, with the typed prefix kept verbatim in every candidate
+    // (the full-replacement contract: readline replaces the string
+    // content with the candidate).
+    const openidm = { read: () => 1 };
+    const catalog = {
+      managedTypes: ['alpha_user'],
+      configIds: [],
+      configFamilies: [],
+      connectorIds: [],
+      connectorObjectTypes: {},
+    };
+    const complete = createFrodoCompleter(
+      { $: { get: () => 1, post: () => 2 } },
+      docsByMethod,
+      undefined,
+      undefined,
+      true,
+      () => catalog
+    );
+    // The typed prefix (/openidm/) rides along on every candidate.
+    const [cands, token] = complete("$.get('/openidm/alpha_");
+    expect(cands).toEqual(['/openidm/managed/alpha_user']);
+    expect(token).toBe('/openidm/alpha_');
+    const inserted =
+      "$.get('/openidm/alpha_".slice(
+        0,
+        "$.get('/openidm/alpha_".length - token.length
+      ) + cands[0];
+    expect(inserted).toBe("$.get('/openidm/managed/alpha_user");
+    // Bare paths (the IDM origin default) complete too.
+    const [bare] = complete("$.get('man");
+    expect(bare).toEqual(['managed/']);
+    // Query parameters after ? complete, prefix included (name-only, as
+    // with openidm strings; the user types the =).
+    const [params] = complete("$.get('/openidm/managed/alpha_user?");
+    expect(params).toContain('/openidm/managed/alpha_user?_queryFilter');
+    // POST's URL argument is arg 0 as well.
+    const [postCands] = complete("$.post('/openidm/man");
+    expect(postCands).toEqual(['/openidm/managed/']);
+    // Not a URL-carrying position: $.post's data argument gets nothing.
+    const [dataCands] = complete("$.post('/openidm/x', '");
+    expect(dataCands).toEqual([]);
+  });
+
+  it('leaves non-IDM $ strings and other calls unsuggested', () => {
+    // AM URLs under $ have no catalog here, and frodo.* strings were
+    // never suggested.
+    const complete = createFrodoCompleter(
+      { $: { get: () => 1 }, frodo: {} },
+      docsByMethod,
+      undefined,
+      undefined,
+      true,
+      () => ({
+        managedTypes: ['alpha_user'],
+        configIds: [],
+        configFamilies: [],
+        connectorIds: [],
+        connectorObjectTypes: {},
+      })
+    );
+    expect(complete("$.get('/am/json/realms/")[0]).toEqual([]);
+    expect(complete("$.get('https://other.example.com/open")[0]).toEqual([]);
+  });
+
   it('completes array hops in bracket notation, the valid JavaScript', () => {
     // Bracket syntax is what a user types for arrays (and the only form
     // that runs: obj.0 is a SyntaxError), so paths through arrays are
