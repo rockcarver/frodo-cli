@@ -58,6 +58,10 @@ export default function setup() {
         `  Preview deletion of a custom node by display name:\n` +
         c.command(
           `  $ frodo config-manager delete custom-nodes -n 'Example Node' -d ${s.connId} /\n`
+        ) +
+        `  Delete a custom node by id:\n` +
+        c.command(
+          `  $ frodo config-manager delete custom-nodes -i ExampleNode-1 ${s.connId} /\n`
         )
     )
     .multiOp()
@@ -71,8 +75,9 @@ export default function setup() {
         command
       );
       // a single custom node (by id or by display name) is deleted without a
-      // question (cli record 0037); a run that nobody can be asked about is
-      // refused before the login
+      // question, as for a command that can delete more than the one object it
+      // names (https://github.com/rockcarver/frodo-cli/blob/main/docs/decisions/0037-a-command-that-can-delete-more-than-the-one-object-it-names-asks-first.md); a run that nobody can be asked about is refused before the
+      // login
       const named =
         options.nodeId !== undefined || options.nodeName !== undefined;
       if (

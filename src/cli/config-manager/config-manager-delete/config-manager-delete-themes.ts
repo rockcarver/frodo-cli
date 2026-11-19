@@ -62,6 +62,10 @@ export default function setup() {
         `  Preview deletion of a theme by name:\n` +
         c.command(
           `  $ frodo config-manager delete themes -n 'Example Theme' -d ${s.connId}\n`
+        ) +
+        `  Delete a theme by id:\n` +
+        c.command(
+          `  $ frodo config-manager delete themes -i a7f3c0de-2b41-4c1e-8d52-6e9b4a1c7f30 ${s.connId}\n`
         )
     )
     .multiOp()
@@ -76,9 +80,9 @@ export default function setup() {
         command
       );
 
-      // a single theme (by id or by name) is deleted without a question (cli
-      // record 0037); a run that nobody can be asked about is refused before
-      // the login
+      // a single theme (by id or by name) is deleted without a question, as for
+      // a command that can delete more than the one object it names (https://github.com/rockcarver/frodo-cli/blob/main/docs/decisions/0037-a-command-that-can-delete-more-than-the-one-object-it-names-asks-first.md); a run
+      // that nobody can be asked about is refused before the login
       const named =
         options.themeId !== undefined || options.themeName !== undefined;
       const what = 'all themes in the selected realms';

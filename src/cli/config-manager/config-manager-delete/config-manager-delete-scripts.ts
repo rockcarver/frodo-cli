@@ -72,6 +72,10 @@ export default function setup() {
         `  Preview deletion of a script without deleting it:\n` +
         c.command(
           `  $ frodo config-manager delete scripts -n 'Example Script' -d ${s.connId}\n`
+        ) +
+        `  Delete a script by id:\n` +
+        c.command(
+          `  $ frodo config-manager delete scripts -i 6b0c0d73-8d3a-4c63-9c1f-3e0f6d5b2a10 ${s.connId}\n`
         )
     )
     .multiOp()

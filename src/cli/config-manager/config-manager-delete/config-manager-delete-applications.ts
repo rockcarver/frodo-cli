@@ -79,6 +79,10 @@ export default function setup() {
         `  Preview the deletion of one application:\n` +
         c.command(
           `  $ frodo config-manager delete applications -n "${s.pullApplicationName}" -d ${s.connId} ${s.realm}\n`
+        ) +
+        `  Delete one application by the id that it has on the tenant:\n` +
+        c.command(
+          `  $ frodo config-manager delete applications -i 9c2e5a14-7f60-4b3d-a8e1-0d4c6b2f9a57 ${s.connId} ${s.realm}\n`
         )
     )
     .multiOp()

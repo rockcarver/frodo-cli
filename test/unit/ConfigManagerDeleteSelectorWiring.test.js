@@ -461,3 +461,43 @@ describe('the delete commands with a name that can change: the id and the name e
     expect(refusals()).toHaveLength(0);
   });
 });
+
+describe('the usage examples of the delete commands show the primary spelling of the selector', () => {
+  /** The help of the command as `-hhh` prints it after the options, as [title, command line] pairs of the usage examples. */
+  const examplesOf = (type) => {
+    const command = setups[type]();
+    let help = '';
+    command.configureOutput({ writeOut: (text) => (help += text) });
+    command.outputHelp();
+    const lines = help.split('\n');
+    return lines
+      .map((line, index) => [lines[index - 1] ?? '', line])
+      .filter(([, line]) => line.trimStart().startsWith('$ frodo '));
+  };
+
+  it.each(deleteRows.map((row) => [typeOf(row), row]))(
+    '%s: no example types the alias, and no example that types -i is titled "by name"',
+    (type, row) => {
+      const examples = examplesOf(type);
+
+      expect(examples.length).toBeGreaterThan(0);
+      for (const [title, line] of examples) {
+        // -n is the name option of a type with a name that can change; on the others it is an alias, which no example uses
+        if (row.name === null) expect(line).not.toMatch(/ (-n|--name)[ =]/);
+        if (/ -i /.test(line)) expect(title).not.toMatch(/by name/);
+      }
+    }
+  );
+
+  it.each(
+    deleteRows
+      .filter((row) => row.name !== null)
+      .map((row) => [typeOf(row), row])
+  )('%s: one example names the new -i, so that -hhh shows it', (type) => {
+    const withId = examplesOf(type).filter(([, line]) => / -i /.test(line));
+
+    expect(withId).toHaveLength(1);
+    // the example names one object and carries neither -y nor -d: a named delete needs neither
+    expect(withId[0][1]).not.toMatch(/ -[yd] /);
+  });
+});

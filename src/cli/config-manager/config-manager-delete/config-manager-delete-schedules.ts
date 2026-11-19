@@ -59,11 +59,11 @@ export default function setup() {
         c.command(
           `  $ frodo config-manager delete schedules --dry-run ${s.connId}\n`
         ) +
-        `  Delete a schedule by name:\n` +
+        `  Delete a schedule by id:\n` +
         c.command(
           `  $ frodo config-manager delete schedules -i taskscan_activate ${s.connId}\n`
         ) +
-        `  Preview deletion of a schedule by name:\n` +
+        `  Preview deletion of a schedule by id:\n` +
         c.command(
           `  $ frodo config-manager delete schedules -i taskscan_activate --dry-run ${s.connId}\n`
         )
