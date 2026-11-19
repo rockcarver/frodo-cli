@@ -9,6 +9,7 @@ import {
   it,
   jest,
 } from '@jest/globals';
+import { getOptionAliases } from '../../src/cli/OptionAlias.ts';
 import {
   leafCommands,
   loadCommandTree,
@@ -122,9 +123,15 @@ describe('the replacements that the notice names exist', () => {
     }
     return { words, flags };
   };
+  // a spelling that is the documented permanent alias of an option counts: `delete <kind> -n <name>` is `-n` of the commands that have
+  // a name, and an alias of the identifier (`-i, --<type>-id`) on the others
+  // (https://github.com/rockcarver/frodo-cli/blob/main/docs/decisions/0057-options-of-the-configuration-commands.md, options of the configuration commands)
   const hasOption = (command, flag) =>
     command.options.some(
-      (option) => option.long === flag || option.short === flag
+      (option) =>
+        option.long === flag ||
+        option.short === flag ||
+        getOptionAliases(option).includes(flag)
     );
 
   it('5: the notice names the commands we expect (a command dropped from the notice fails here)', () => {
