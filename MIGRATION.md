@@ -455,16 +455,19 @@ commands could not do before, and their `-n` selects by name as before. A
 default script is never deleted, by id or by name. `-i` cannot be combined with
 `-n`, and on `delete scripts` not with `-p`, the prefix (`-n` with `-p` is
 accepted as before, and the prefix is ignored). `delete applications -i` and
-`delete scripts -i` need a single realm, as their `-n` does.
+`delete scripts -i` need a single realm, as their `-n` does. `delete themes -i`
+fails with exit code 1 when no realm has the id, also without a realm argument,
+because the id names one theme; `delete themes -n` keeps its warning for each
+realm that lacks the name, as before.
 `delete terms-and-conditions -i, --version-id` is the version to delete, as
 `-n` named it: a single version can be deleted, and `pull` and `push` of the
 type take no selector.
 
 A delete that names one object, with `-i`, `-n` or `--name`, never asks and
-never needs `-y`, as `-n` never did: it is
-[a command that can delete more than the one object it names asks first](https://github.com/rockcarver/frodo-cli/blob/main/docs/decisions/0037-a-command-that-can-delete-more-than-the-one-object-it-names-asks-first.md)
-for a delete without a selector only, and that did not change: it asks on a
-terminal and refuses without one unless `-y` is given.
+never needs `-y`, as `-n` never did. The delete guard
+([a command that can delete more than the one object it names asks first](https://github.com/rockcarver/frodo-cli/blob/main/docs/decisions/0037-a-command-that-can-delete-more-than-the-one-object-it-names-asks-first.md))
+applies to a delete without a selector only, and that did not change: it asks on
+a terminal and refuses without one unless `-y` is given.
 
 An empty value of a selector (`-i ""`, `-n ""`, `--name ""`, or a variable that
 expands to nothing) is refused with exit code 1 before the command connects to
@@ -481,13 +484,14 @@ And for the `delete` commands: `-n ""` and `--name ""` selected all objects on
 `delete applications`, `delete custom-nodes`, `delete email-templates`,
 `delete endpoints`, `delete scripts` and `delete themes`, which then asked, or
 deleted all of them with `-y`; the other `delete` commands refused an empty name
-in their own words, or took it for a name that no object has. An empty `-i`, `-n` or `--name` is refused now on every
-`delete` command, with exit code 1, before the command connects and before it
-asks, so a script that passes an empty variable deletes nothing; leave the
-option out to delete all objects, after the question or with `-y`. The prefix of
-`delete scripts` is refused when it is empty (`delete scripts -p ""`): it
-matches every script, and `-y` would have deleted all of them. A name that is
-only blanks is still refused by the command in its own words.
+in their own words, or took it for a name that no object has. An empty `-i`,
+`-n` or `--name` is refused now on every `delete` command, with exit code 1,
+before the command connects and before it asks, so a script that passes an empty
+variable deletes nothing; leave the option out to delete all objects, after the
+question or with `-y`. The prefix of `delete scripts` is refused when it is empty
+(`delete scripts -p ""`): it matches every script, and `-y` would have deleted
+all of them. A name that is only blanks is still refused by the command in its
+own words.
 
 In the root realm of a Cloud tenant, which has no scripts, no applications and
 no themes, a selector on `pull scripts`, `pull applications` or `pull themes`

@@ -123,8 +123,8 @@ describe('the replacements that the notice names exist', () => {
     }
     return { words, flags };
   };
-  // a spelling that is the documented permanent alias of an option counts: `delete <kind> -n <name>` is `-n` of the commands that have
-  // a name, and an alias of the identifier (`-i, --<type>-id`) on the others
+  // a spelling that is the documented permanent alias of an option counts: the `-n <name>` that the notice names for the delete commands is
+  // `-n` of the commands that have a name, and an alias of the identifier (`-i, --<type>-id`) on the others
   // (https://github.com/rockcarver/frodo-cli/blob/main/docs/decisions/0057-options-of-the-configuration-commands.md, options of the configuration commands)
   const hasOption = (command, flag) =>
     command.options.some(
