@@ -1104,6 +1104,57 @@ describe('the options of the configuration commands', () => {
     ).toEqual([]);
   });
 
+  it('joins only the names of a selector: --<type>-id for -i and --<type>-name for -n, and no other long name', () => {
+    const pattern = (letter) =>
+      SELECTOR_LETTERS.find((entry) => entry.letter === letter).pattern;
+    const joins = (letter, longs) =>
+      longs.map((long) => [long, pattern(letter).test(long)]);
+
+    // a pattern that accepted any long name would join `-i, --iterations` to
+    // `-i, --journey-id` and the check of the real tree would stay green
+    expect(
+      joins('-i', [
+        '--id',
+        '--report-id',
+        '--journey-id',
+        '--managed-object-id',
+        '--org-privileges-id',
+      ]).filter(([, joined]) => !joined)
+    ).toEqual([]);
+    expect(
+      joins('-i', [
+        '--iterations',
+        '--identity',
+        '--idle',
+        '--ids',
+        '--journey-ids',
+        '--id-prefix',
+        '--Id',
+        '--journey_id',
+        '--name',
+      ]).filter(([, joined]) => joined)
+    ).toEqual([]);
+    expect(
+      joins('-n', [
+        '--name',
+        '--script-name',
+        '--app-name',
+        '--workflow-name',
+      ]).filter(([, joined]) => !joined)
+    ).toEqual([]);
+    expect(
+      joins('-n', [
+        '--names',
+        '--name-prefix',
+        '--username',
+        '--filename',
+        '--include-immutable',
+        '--Name',
+        '--journey-id',
+      ]).filter(([, joined]) => joined)
+    ).toEqual([]);
+  });
+
   it('declares the short forms that the record decided', () => {
     // 34 different rows, and every one of them is what the tree declares
     expect(checked.rows).toBe(34);

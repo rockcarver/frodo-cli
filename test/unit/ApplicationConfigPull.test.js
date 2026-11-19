@@ -596,6 +596,25 @@ describe('which applications and realms', () => {
     expect(frodo.app.readApplicationByName).not.toHaveBeenCalled();
   });
 
+  test('an application by its id is the one that has the id, not the one that is named so', async () => {
+    // the application One has the id 'id-One'; this one is named 'id-One'
+    world.apps.alpha = [app('One'), app('id-One')];
+
+    expect(
+      await configManagerExportApplications(
+        undefined,
+        'alpha',
+        false,
+        false,
+        undefined,
+        'id-One'
+      )
+    ).toBe(true);
+
+    expect(exists(`${APPS('alpha')}/One/application.json`)).toBe(true);
+    expect(exists(`${APPS('alpha')}/id-One`)).toBe(false);
+  });
+
   test('an application by its id without a single realm is refused before anything is read', async () => {
     expect(
       await configManagerExportApplications(

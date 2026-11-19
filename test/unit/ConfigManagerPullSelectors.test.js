@@ -724,3 +724,76 @@ describe('a selector in the root realm of a Cloud tenant', () => {
     expect(messages('warn')).toEqual([]);
   });
 });
+
+/**
+ * `-i` selects by identifier alone. In each world below the NAME of one object
+ * is the ID of another, so a filter that also matched by name would pull two
+ * objects for one id (and a test that offers no such pair cannot notice it).
+ */
+describe('an id is not a name: the name of one object equals the id of another', () => {
+  test('pull scripts -i pulls the script that has the id, not the one that is named so', async () => {
+    // the script 'Two' has the id 'id-Two'; this one is named 'id-Two'
+    world.scripts.alpha.push(script('id-Two'));
+
+    expect(
+      await configManagerExportScripts([], 'alpha', undefined, false, 'id-Two')
+    ).toBe(true);
+
+    expect(writtenFiles()).toEqual([
+      'realms/alpha/scripts/scripts-config/id-Two.json',
+      'realms/alpha/scripts/scripts-content/AUTHENTICATION_TREE_DECISION_NODE/Two.js',
+    ]);
+  });
+
+  test('pull custom-nodes -i pulls the node that has the id, not the one that is named so', async () => {
+    world.customNodes.push({
+      _id: 'dec-1',
+      serviceName: 'decoy',
+      displayName: 'mail-1',
+      script: 'd',
+    });
+
+    expect(
+      await configManagerExportCustomNodes(undefined, false, 'mail-1')
+    ).toBe(true);
+
+    expect(writtenFiles()).toEqual([
+      'custom-nodes/nodes/SendMail/SendMail.js',
+      'custom-nodes/nodes/SendMail/SendMail.json',
+    ]);
+  });
+
+  test('pull internal-roles -i pulls the role that has the id, not the one that is named so', async () => {
+    world.roles.push({
+      _id: 'role-9',
+      name: 'role-2',
+      privileges: [{ path: 'c' }],
+    });
+
+    expect(
+      await configManagerExportInternalRoles(undefined, false, 'role-2')
+    ).toBe(true);
+
+    expect(writtenFiles()).toEqual(['internal-roles/Auditor.json']);
+  });
+
+  test('pull themes -i pulls the theme that has the id, not the one that is named so', async () => {
+    world.themes.alpha.push({ _id: 'theme-9', name: 'theme-2' });
+
+    expect(await configManagerExportThemes('alpha', false, 'theme-2')).toBe(
+      true
+    );
+
+    expect(writtenFiles()).toEqual(['realms/alpha/themes/Matrix/Matrix.json']);
+  });
+
+  test('pull themes -n pulls the theme that is named so, not the one that has the id', async () => {
+    world.themes.alpha.push({ _id: 'Matrix', name: 'Decoy' });
+
+    expect(
+      await configManagerExportThemes('alpha', false, undefined, 'Matrix')
+    ).toBe(true);
+
+    expect(writtenFiles()).toEqual(['realms/alpha/themes/Matrix/Matrix.json']);
+  });
+});
