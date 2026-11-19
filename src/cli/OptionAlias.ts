@@ -1,4 +1,4 @@
-import { Option } from 'commander';
+import { Command, Option } from 'commander';
 
 /**
  * Extra spellings of one option, for the selectors of the configuration
@@ -86,8 +86,10 @@ function acceptSpellings(option: Option, spellings: string[]): void {
 
 /**
  * Gives an option extra spellings and names them at the end of its
- * description in one fixed form, `(alias: -n, --name)`, as record 0049 does for
- * the aliases of a command. Every spelling sets the attribute of the option.
+ * description in one fixed form, `(alias: -n, --name)`, as
+ * https://github.com/rockcarver/frodo-cli/blob/main/docs/decisions/0049-an-alias-is-named-in-the-description-and-the-old-name-of-a-renamed-command-stays-as-a-transition-alias.md
+ * (an alias is named in the description) does for the aliases of a command.
+ * Every spelling sets the attribute of the option.
  * @param option Option to annotate; its description should end its own text.
  * @param spellings Extra spellings, each `-x` or `--long-name`.
  * @returns Same option for chaining.
@@ -116,4 +118,28 @@ export function withOptionAlias(option: Option, spellings: string[]): Option {
 export function copyOptionAliases(from: Option, to: Option): void {
   const spellings = getOptionAliases(from);
   if (spellings.length > 0) acceptSpellings(to, spellings);
+}
+
+/**
+ * Refuses an option whose alias spelling is already taken by an option of the
+ * command, with the message commander gives for two options that declare the
+ * same flag. Commander compares the flags of a new option with the options it
+ * has (and their aliases, through `is`); the alias spellings of the new option
+ * it does not know, so an aliased option that is registered after the option
+ * that owns `-n` would stay dead behind it without a word.
+ * @param command Command that is about to get the option.
+ * @param option Option to be registered.
+ * @throws {Error} when an alias spelling of the option is used by another option
+ */
+export function assertAliasesFree(command: Command, option: Option): void {
+  for (const spelling of getOptionAliases(option)) {
+    const taken = command.options.find((other) =>
+      (other as OptionWithIs).is(spelling)
+    );
+    if (taken) {
+      throw new Error(
+        `Cannot add option '${option.flags}'${command.name() && ` to command '${command.name()}'`} due to conflicting flag '${spelling}'\n-  already used by option '${taken.flags}'`
+      );
+    }
+  }
 }

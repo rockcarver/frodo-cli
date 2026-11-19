@@ -116,7 +116,7 @@ describe('withOptionAlias with plain commander', () => {
     ).toHaveLength(1);
     expect(row.flags).toBe('-i, --journey-id <id>');
     expect(row.description).toBe('Journey id. (alias: -n, --name)');
-    // the form that record 0049 reads
+    // the form that the record on aliases in the description reads (see the header of this file)
     expect(row.description).toMatch(/\((alias(es)?|formerly): [^)]+\)$/);
   });
 
@@ -231,6 +231,44 @@ describe('withOptionAlias through FrodoCommand.addOption', () => {
       expect(parsed(command, args)).toMatchObject({ journeyId: 'x' });
     }
   );
+
+  it.each([
+    ['letter', '-n, --journey-name <name>', "conflicting flag '-n'"],
+    ['long form', '--name <name>', "conflicting flag '--name'"],
+  ])(
+    'refuses an aliased option whose alias %s another option owns already, as for the other order',
+    (_label, flags, message) => {
+      const command = new FrodoCommand('frodo test pull journeys');
+      command.addOption(new Option(flags, 'Name.'));
+
+      expect(() =>
+        command.addOption(
+          withOptionAlias(
+            new Option('-i, --journey-id <id>', 'Journey id.'),
+            ID_SPELLINGS
+          )
+        )
+      ).toThrow(message);
+      // nothing was registered: the option that owns the spelling is the only one
+      expect(command.options.some((o) => o.long === '--journey-id')).toBe(
+        false
+      );
+    }
+  );
+
+  it('accepts an aliased option next to options that own no spelling of it', () => {
+    const command = new FrodoCommand('frodo test pull journeys');
+    command.addOption(new Option('-N, --journey-name <name>', 'Name.'));
+
+    expect(() =>
+      command.addOption(
+        withOptionAlias(
+          new Option('-i, --journey-id <id>', 'Journey id.'),
+          ID_SPELLINGS
+        )
+      )
+    ).not.toThrow();
+  });
 
   it('refuses a second option on the alias letter, as plain commander does', () => {
     const command = commandWithIdOption(FrodoCommand);
