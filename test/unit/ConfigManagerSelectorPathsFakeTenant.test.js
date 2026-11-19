@@ -20,8 +20,8 @@ const {
  * stub, this shows in the log of the requests the tenant received:
  *
  * - `delete secret-mappings -i <id>` reads the list of the mappings first and deletes the mapping
- *   that the list holds: an id that is not a mapping (`..`, `a#b`) never reaches a URL, so the
- *   only requests are the list and the delete of a listed mapping;
+ *   that the list holds: the id is checked against the list of the realm, not used as typed, so an
+ *   id that is not a mapping (`..`, `a#b`, `am.zion`) sends nothing but the read of the list;
  * - `push oauth-issuers -i ../x` does not read a file one level above the folder of the type,
  *   so nothing is sent for it;
  * - a realm that is not a name or a path of names (`../../alpha`) is refused before the command
@@ -183,7 +183,7 @@ suite('a selector is an id or a name, never a path (fake tenant)', () => {
     );
 
     it(
-      'an id that is not a mapping is not put into any URL: one read of the list, no delete, exit 1, also with a dry run and with --allow-failures',
+      'an id that is not a mapping is checked against the list: one read of the list, no delete, exit 1, also with a dry run and with --allow-failures',
       async () => {
         const run = await tenant(
           { journey: 'service-account', secretStores: SECRET_STORES },
@@ -198,6 +198,9 @@ suite('a selector is an id or a name, never a path (fake tenant)', () => {
           'a?b=c',
           '../ESV',
           'AM.ZION.TWO',
+          // strict prefixes of listed ids (am.zion.one, am.zion.two): an id is matched whole
+          'am.zion',
+          'am.zion.tw',
         ]) {
           for (const extra of [[], ['--dry-run'], ['--allow-failures']]) {
             forget();

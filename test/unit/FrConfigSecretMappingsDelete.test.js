@@ -386,6 +386,13 @@ describe('an ID is an ID, never a path', () => {
     ['am.two#x'],
     ['AM.TWO'],
     ['Am.X'],
+    // strict prefixes of listed ids (am.one, am.two, am.three): an id is matched whole
+    ['am'],
+    ['am.'],
+    ['am.t'],
+    ['am.tw'],
+    ['am.thre'],
+    ['am.on'],
   ])('%j is not a mapping: one list read, no delete, an error', async (id) => {
     for (const [dryRun, allowFailures] of [
       [false, false],
