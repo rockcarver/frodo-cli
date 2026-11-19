@@ -4,6 +4,7 @@ import { configManagerImportSchedules } from '../../../configManagerOps/FrConfig
 import { getTokens } from '../../../ops/AuthenticateOps';
 import { verboseMessage } from '../../../utils/Console';
 import { FrodoCommand } from '../../FrodoCommand';
+import { selectorOption } from '../../SelectorOption';
 
 const { CLOUD_DEPLOYMENT_TYPE_KEY, FORGEOPS_DEPLOYMENT_TYPE_KEY } =
   frodo.utils.constants;
@@ -23,9 +24,10 @@ export default function setup() {
   program
     .description('Import schedules.')
     .addOption(
-      new Option(
-        '-n, --name <name>',
-        'Schedule name; import only the specified schedule name'
+      selectorOption(
+        '-i, --schedule-id <id>',
+        'Schedule id; import only the specified schedule',
+        ['-n', '--name']
       )
     )
     .addOption(
@@ -47,7 +49,7 @@ export default function setup() {
       if (await getTokens(false, true, deploymentTypes)) {
         verboseMessage('Importing schedules');
         const outcome = await configManagerImportSchedules(
-          options.name,
+          options.scheduleId,
           options.filenameFilter,
           options.allowFailures
         );

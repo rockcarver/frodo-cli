@@ -3,6 +3,7 @@ import { configManagerImportTelemetry } from '../../../configManagerOps/FrConfig
 import { getTokens } from '../../../ops/AuthenticateOps';
 import { printMessage, verboseMessage } from '../../../utils/Console';
 import { FrodoCommand } from '../../FrodoCommand';
+import { selectorOption } from '../../SelectorOption';
 
 const { CLOUD_DEPLOYMENT_TYPE_KEY } = frodo.utils.constants;
 
@@ -20,9 +21,12 @@ export default function setup() {
       '-c, --category <category>',
       'Telemetry category to import (otlp or splunk).'
     )
-    .option(
-      '-n, --name <name>',
-      'Name of a single exporter to import. Requires --category.'
+    .addOption(
+      selectorOption(
+        '-i, --exporter-id <id>',
+        'Id of a single exporter to import. Requires --category.',
+        ['-n', '--name']
+      )
     )
     .multiOp()
     .action(async (host, realm, user, password, options, command) => {
@@ -34,7 +38,7 @@ export default function setup() {
         options,
         command
       );
-      if (options.name && !options.category) {
+      if (options.exporterId && !options.category) {
         printMessage(
           'Named telemetry config requires category (e.g. --category otlp)',
           'error'
@@ -55,7 +59,7 @@ export default function setup() {
       verboseMessage('Importing telemetry.');
       const outcome = await configManagerImportTelemetry(
         options.category,
-        options.name,
+        options.exporterId,
         options.allowFailures
       );
       if (!outcome) process.exitCode = 1;

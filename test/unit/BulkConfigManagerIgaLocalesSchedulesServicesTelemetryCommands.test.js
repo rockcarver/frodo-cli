@@ -94,7 +94,7 @@ const COMMANDS = [
     name: 'config-manager push iga-workflows',
     file: 'config-manager-push/config-manager-push-iga-workflows',
     fn: 'configManagerImportIgaWorkflows',
-    options: { name: 'w1', draft: true },
+    options: { workflowName: 'w1', draft: true },
     args: ['w1', true],
     iga: true,
   },
@@ -109,7 +109,7 @@ const COMMANDS = [
     name: 'config-manager push locales',
     file: 'config-manager-push/config-manager-push-locales',
     fn: 'configManagerImportLocales',
-    options: { name: 'en' },
+    options: { localeId: 'en' },
     args: ['en'],
   },
   {
@@ -123,7 +123,7 @@ const COMMANDS = [
     name: 'config-manager push schedules',
     file: 'config-manager-push/config-manager-push-schedules',
     fn: 'configManagerImportSchedules',
-    options: { name: 's1', filenameFilter: '~nightly' },
+    options: { scheduleId: 's1', filenameFilter: '~nightly' },
     args: ['s1', '~nightly'],
   },
   {
@@ -137,7 +137,7 @@ const COMMANDS = [
     name: 'config-manager push services',
     file: 'config-manager-push/config-manager-push-services',
     fn: 'configManagerImportServices',
-    options: { name: 'baseurl' },
+    options: { serviceId: 'baseurl' },
     args: ['baseurl', 'alpha'],
   },
   {
@@ -151,7 +151,7 @@ const COMMANDS = [
     name: 'config-manager push telemetry',
     file: 'config-manager-push/config-manager-push-telemetry',
     fn: 'configManagerImportTelemetry',
-    options: { category: 'otlp', name: 'e1' },
+    options: { category: 'otlp', exporterId: 'e1' },
     args: ['otlp', 'e1'],
   },
 ];

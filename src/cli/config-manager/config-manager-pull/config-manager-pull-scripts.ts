@@ -3,7 +3,7 @@ import { getTokens } from '../../../ops/AuthenticateOps';
 import { verboseMessage } from '../../../utils/Console';
 import { realmOfRun } from '../../../utils/interactive/PositionalArgs';
 import { FrodoCommand, ListOption } from '../../FrodoCommand';
-import { selectorOption } from '../../SelectorOption';
+import { refuseEmptySelector, selectorOption } from '../../SelectorOption';
 
 export default function setup() {
   const program = new FrodoCommand('frodo config-manager pull scripts');
@@ -26,8 +26,14 @@ export default function setup() {
     .addOption(
       new ListOption(
         '-p, --prefix <prefix>',
-        'Export all scripts that start with a certain prefix. Repetition of this flag is allowed. Cannot be used with -i or -n.'
-      ).conflicts(['scriptId', 'scriptName'])
+        'Export all scripts that start with a certain prefix. Repetition of this flag is allowed. An empty prefix is refused: it would match every script. Cannot be used with -i or -n.'
+      )
+        // an empty variable must not mean all scripts, as for a selector
+        .argParser((value: string, previous: string[] = []) => [
+          ...previous,
+          refuseEmptySelector(value),
+        ])
+        .conflicts(['scriptId', 'scriptName'])
     )
     .multiOp()
     .usesRealm()

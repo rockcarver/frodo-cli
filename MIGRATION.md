@@ -321,8 +321,8 @@ and, for a type whose objects have a name that can change, by that name with
 `-n, --<type>-name`. A command that has both declares them mutually exclusive,
 so `-i a -n b` fails before it connects to anything. The rule is in
 [options of the configuration commands](https://github.com/rockcarver/frodo-cli/blob/main/docs/decisions/0057-options-of-the-configuration-commands.md).
-This is the first of three steps, the `pull` commands; `push` and `delete`
-follow and add their tables here.
+This is the second of three steps, the `pull` and the `push` commands; `delete`
+follows and adds its table here.
 
 Nothing is removed. On a command that took `-n, --name <name>` for an
 identifier, `-i, --<type>-id` is the option now, and `-n` and `--name` are
@@ -375,11 +375,73 @@ prefix, as `-n` could not be combined with `-p` before. `pull csp` and
 and a file that held a part of it would replace the whole entity when it is
 pushed.
 
+| Command                          | Select by                                  | Still works    |
+| -------------------------------- | ------------------------------------------ | -------------- |
+| `push applications`              | `-i, --app-id`, `-n, --app-name`           | `--name`       |
+| `push connector-definitions`     | `-i, --connector-id`                       | `-n`, `--name` |
+| `push connector-mappings`        | `-i, --connector-mapping-id`               | `-n`, `--name` |
+| `push custom-nodes`              | `-i, --node-id`, `-n, --node-name`         | `--name`       |
+| `push email-templates`           | `-i, --template-id`                        | `-n`, `--name` |
+| `push endpoints`                 | `-i, --endpoint-id`                        | `-n`, `--name` |
+| `push iga-workflows`             | `-i, --workflow-id`, `-n, --workflow-name` | `--name`       |
+| `push internal-roles`            | `-i, --role-id`, `-n, --role-name`         | `--name`       |
+| `push journeys`                  | `-i, --journey-id`                         | `-n`, `--name` |
+| `push locales`                   | `-i, --locale-id`                          | `-n`, `--name` |
+| `push managed-objects`           | `-i, --managed-object-id`                  | `-n`, `--name` |
+| `push oauth-cimd-profiles`       | `-i, --profile-id`                         | `-n`, `--name` |
+| `push oauth-issuers`             | `-i, --issuer-id`                          | `-n`, `--name` |
+| `push oauth-software-publishers` | `-i, --software-publisher-id`              | `-n`, `--name` |
+| `push org-privileges`            | `-i, --org-privileges-id`                  | `-n`, `--name` |
+| `push remote-proxies`            | `-i, --proxy-id`                           | `-n`, `--name` |
+| `push saml`                      | `-i, --entity-id`                          | `-n`, `--name` |
+| `push schedules`                 | `-i, --schedule-id`                        | `-n`, `--name` |
+| `push scripts`                   | `-i, --script-id`, `-n, --script-name`     | `--name`       |
+| `push secret-mappings`           | `-i, --secret-mapping-id`                  | `-n`, `--name` |
+| `push secrets`                   | `-i, --secret-id`                          | `-n`, `--name` |
+| `push services`                  | `-i, --service-id`                         | `-n`, `--name` |
+| `push telemetry`                 | `-i, --exporter-id`                        | `-n`, `--name` |
+| `push themes`                    | `-i, --theme-id`, `-n, --theme-name`       | new            |
+| `push variables`                 | `-i, --variable-id`                        | `-n`, `--name` |
+
+`push themes` takes `-i, --theme-id` and `-n, --theme-name` for the first time:
+it pushed every theme of the realm before and still does without them, and with
+one of them the library merges that theme into the themes of the realm and
+leaves the others alone, except that a theme that is the default one becomes the
+only default theme of the realm. `-i` on `push applications`, `push custom-nodes`,
+`push iga-workflows`, `push internal-roles`, `push scripts` and `push themes`
+selects by the id of the object, which these commands could not do before (their
+`-n` selects by name as before): the id is the `_id` in the file of the object
+(the `id` of a workflow file), and a file with another id is not pushed. The
+files of `pull applications` hold no id, so `push applications -i` takes the id
+that the application has on the tenant, reads the applications of the realm
+once, and pushes the folder of the application that has that id. A push matches
+an application by its name, so when two applications of a realm share a name,
+`push applications` refuses that name (`-i`, `-n` and a push of every folder
+alike) and writes nothing for it instead of updating the first of them. Each of
+these commands needs a single realm for a selector, as `-n` did, and fails when
+the object is not there. `push csp` keeps its own `-n, --name`, the name of one
+of its two policies (`enforced` or `report-only`), and takes no `-i`: each
+policy is replaced whole, and the other one is not touched; an empty value of
+that `-n` is refused too, because it would write both policies.
+`push terms-and-conditions` takes no selector: the versions are one
+configuration entity and a push that wrote only one version would replace the
+entity and drop the others.
+
 An empty value of a selector (`-i ""`, `-n ""`, `--name ""`, or a variable that
 expands to nothing) is refused with exit code 1 before the command connects to
 anything, and never means all objects: commander says which option was given an
 empty value. This changes the commands that had `-n` and took `-n ""` as no
 selector and pulled everything; leave the option out to pull everything.
+
+The same holds for the `push` commands: `-n ""` pushed everything before, and an
+empty `-i`, `-n` or `--name` is refused now; leave the option out to push
+everything. The prefix of `pull scripts` is refused when it is empty too
+(`pull scripts -p ""`): it would match every script.
+
+In the root realm of a Cloud tenant, which has no scripts, no applications and
+no themes, a selector on `pull scripts`, `pull applications` or `pull themes`
+prints one warning that there is nothing to pull for it (the exit code is still
+0). `pull scripts -n` and `pull applications -n` were silent before.
 
 **`authn export` and `authn import` exit 1 after a failure**: in 4.x both
 commands printed the error and exited with code 0 when the export or the import

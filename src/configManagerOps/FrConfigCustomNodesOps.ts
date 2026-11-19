@@ -111,12 +111,14 @@ function recordResultOf(
  * @param {string} name Optional display name of a custom node to import. If not provided, all custom nodes will be imported.
  * @param {string} filenameFilter Optional filter to filter which scripts are imported.
  * @param {boolean} allowFailures True to succeed although some custom nodes could not be imported (the failures are still summarised)
+ * @param {string} id Optional id (`_id`) of the custom node to import instead of a display name. An empty id selects nothing, so it is not found (the command refuses an empty value before it connects); an id that no custom node folder has fails the command.
  * @returns {Promise<boolean>} True if import was successful
  */
 export async function configManagerImportCustomNodes(
   nodeName?: string,
   filenameFilter?: string,
-  allowFailures: boolean = false
+  allowFailures: boolean = false,
+  id?: string
 ): Promise<boolean> {
   const run = new OperationRun({ unit: 'custom node', allowFailures });
   try {
@@ -138,7 +140,12 @@ export async function configManagerImportCustomNodes(
         const importData = readJsonFile(
           `${nodesDir}/${nodeFolder}/${nodeFolder}.json`
         ) as CustomNodeSkeleton;
-        if (nodeName && nodeName !== importData.displayName) continue;
+        if (
+          id !== undefined
+            ? importData._id !== id
+            : nodeName && nodeName !== importData.displayName
+        )
+          continue;
 
         if (!fileFilter((importData.script as any)?.file, filenameFilter)) {
           continue;
@@ -155,8 +162,14 @@ export async function configManagerImportCustomNodes(
     }
 
     // a folder that could not be read may have been the named one: its failure says so
-    if (nodeName && !nodeFound && !run.hasFailures) {
-      printError(new FrodoError(`Custom node not found: ${nodeName}`));
+    if ((id !== undefined || nodeName) && !nodeFound && !run.hasFailures) {
+      printError(
+        new FrodoError(
+          id !== undefined
+            ? `Custom node with id '${id}' not found`
+            : `Custom node not found: ${nodeName}`
+        )
+      );
       return false;
     }
 

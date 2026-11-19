@@ -1,9 +1,9 @@
 import { frodo } from '@rockcarver/frodo-lib';
-import { Option } from 'commander';
 import { configManagerImportVariables } from '../../../configManagerOps/FrConfigVariableOps';
 import { getTokens } from '../../../ops/AuthenticateOps';
 import { verboseMessage } from '../../../utils/Console';
 import { FrodoCommand } from '../../FrodoCommand';
+import { selectorOption } from '../../SelectorOption';
 
 const { CLOUD_DEPLOYMENT_TYPE_KEY } = frodo.utils.constants;
 
@@ -18,9 +18,10 @@ export default function setup() {
   program
     .description('Import variables.')
     .addOption(
-      new Option(
-        '-n, --name <name>',
-        'Variable name; import only the specified variable. If omitted, all variables are imported.'
+      selectorOption(
+        '-i, --variable-id <id>',
+        'Variable id; import only the specified variable. If omitted, all variables are imported.',
+        ['-n', '--name']
       )
     )
 
@@ -45,7 +46,7 @@ export default function setup() {
       }
       verboseMessage('Importing variables');
       const outcome = await configManagerImportVariables(
-        options.name,
+        options.variableId,
         options.allowFailures
       );
       if (!outcome) process.exitCode = 1;

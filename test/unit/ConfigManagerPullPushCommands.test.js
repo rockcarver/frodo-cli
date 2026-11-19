@@ -190,6 +190,7 @@ const COMMANDS = [
     fn: 'configManagerImportConnectors',
     allowAt: 1,
     named: true,
+    nameOption: 'connectorId',
   },
   {
     name: 'push csp',
@@ -206,6 +207,7 @@ const COMMANDS = [
     fn: 'configManagerImportEmailTemplates',
     allowAt: 1,
     named: true,
+    nameOption: 'templateId',
   },
   {
     name: 'push internal-roles',
@@ -213,7 +215,9 @@ const COMMANDS = [
     file: 'internal-roles',
     fn: 'configManagerImportInternalRoles',
     allowAt: 1,
+    extraArgs: 1,
     named: true,
+    nameOption: 'roleName',
   },
   {
     name: 'push remote-proxies',
@@ -222,6 +226,7 @@ const COMMANDS = [
     fn: 'configManagerImportRemoteProxies',
     allowAt: 1,
     named: true,
+    nameOption: 'proxyId',
   },
   {
     name: 'push variables',
@@ -230,6 +235,7 @@ const COMMANDS = [
     fn: 'configManagerImportVariables',
     allowAt: 1,
     named: true,
+    nameOption: 'variableId',
   },
 ];
 

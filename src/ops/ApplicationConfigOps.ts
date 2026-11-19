@@ -715,6 +715,33 @@ function scriptsUsedBy(contents: unknown[], realmDir: string): string[] {
 }
 
 /**
+ * The applications of a realm of the tenant that carry the same name, when
+ * more than one does. A push matches an application by its name, so a name that
+ * two applications share cannot say which of them is meant: the push would
+ * update the first one it finds.
+ * @param {ApplicationRecord[]} existing the applications of the realm on the tenant
+ * @param {string} name the name an application is matched by
+ * @returns {ApplicationRecord[] | undefined} the applications that have the name, undefined unless there are at least two
+ */
+function applicationsOfSameName(
+  existing: ApplicationRecord[],
+  name: string
+): ApplicationRecord[] | undefined {
+  const same = existing.filter((application) => application.name === name);
+  return same.length > 1 ? same : undefined;
+}
+
+/**
+ * Says that a name is shared and why that stops the push.
+ * @param {ApplicationRecord[]} same the applications of the realm that have the name
+ * @param {string} name the shared name
+ * @returns {string} the sentence that names the name, the count and the ids
+ */
+function sharedNameText(same: ApplicationRecord[], name: string): string {
+  return `${same.length} applications of the realm are named '${name}' (ids ${same.map((application) => `'${application._id}'`).join(', ')}): a push matches an application by its name, so it is ambiguous`;
+}
+
+/**
  * Push applications from the files that `pull applications` writes (decision
  * record 0042): one folder per application,
  * `realms/<realm>/applications/<name>/`. The application is matched BY NAME:
@@ -746,12 +773,14 @@ function scriptsUsedBy(contents: unknown[], realmDir: string): string[] {
  * @param {string} name optional name: push only that application (needs a single realm)
  * @param {string} realm optional realm: push only that realm. Default: every realm folder that has applications
  * @param {boolean} allowFailures true to report applications that could not be pushed but still succeed. Default: false
+ * @param {string} id optional id of an application of the tenant, instead of a name (needs a single realm too). The record of a pulled folder has no id: the id is the one of the tenant, so the applications of the realm are read first, once, the application that has the id gives the name, and the folder of that name is pushed. An id that the realm does not have fails the command whatever `--allow-failures` says; an empty id selects nothing (the command refuses an empty value before it connects).
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
 export async function configManagerImportApplications(
   name?: string,
   realm?: string,
-  allowFailures: boolean = false
+  allowFailures: boolean = false,
+  id?: string
 ): Promise<boolean> {
   try {
     const realmsDir = `${getWorkingDirectory()}/realms`;
@@ -772,7 +801,9 @@ export async function configManagerImportApplications(
     } else {
       realmDirs = [];
     }
-    if (name && realmDirs.length !== 1) {
+    // what the command line names: an id, or a name (an empty name means all applications)
+    const asked = !!name || id !== undefined;
+    if (asked && realmDirs.length !== 1) {
       printMessage(
         'Error: for a named application, specify a single realm',
         'error'
@@ -783,6 +814,9 @@ export async function configManagerImportApplications(
     const run = new OperationRun({ unit: 'application', allowFailures });
     let found = 0;
     let namedFound = false;
+    let askedReported = false;
+    let askedRefused = false;
+    let wantedName = name;
     for (const realmDir of realmDirs) {
       const currentRealm = realmDir === 'root' ? '/' : realmDir;
       const applicationsDir = `${realmsDir}/${realmDir}/applications`;
@@ -798,6 +832,45 @@ export async function configManagerImportApplications(
         continue;
       }
       state.setRealm(currentRealm);
+
+      let existing: Awaited<ReturnType<typeof frodo.app.readApplications>>;
+      let existingRead = false;
+      if (id !== undefined) {
+        // the record of a pulled folder has no id: it is the id of the application
+        // on the tenant, so the one read of the applications of the realm comes
+        // first, and the application that has the id gives the name of the folder
+        try {
+          existing = await frodo.app.readApplications();
+        } catch (error) {
+          printError(
+            error,
+            `Error reading the applications of realm '${currentRealm}'`
+          );
+          run.recordFailure(`realm ${realmDir}`, causeOf(error));
+          askedReported = true;
+          continue;
+        }
+        const target = existing.find((application) => application._id === id);
+        if (!target) {
+          printMessage(
+            `Application with id '${id}' not found in realm '${currentRealm}'.`,
+            'error'
+          );
+          askedReported = true;
+          continue;
+        }
+        const same = applicationsOfSameName(existing, target.name);
+        if (same) {
+          printMessage(
+            `Application with id '${id}' of realm '${currentRealm}': ${sharedNameText(same, target.name)}: nothing was written for it.`,
+            'error'
+          );
+          askedReported = true;
+          continue;
+        }
+        existingRead = true;
+        wantedName = target.name;
+      }
 
       const folders = fs
         .readdirSync(applicationsDir, { withFileTypes: true })
@@ -818,8 +891,8 @@ export async function configManagerImportApplications(
         } catch {
           // reported as that application's failure below, unless another application was asked for
         }
-        if (name && applicationName !== name) continue;
-        if (name) namedFound = true;
+        if (wantedName && applicationName !== wantedName) continue;
+        if (wantedName) namedFound = true;
         selected.push({
           folder,
           label: `${realmDir}/${applicationName ?? folder}`,
@@ -829,15 +902,28 @@ export async function configManagerImportApplications(
       found += selected.length;
 
       // one read of the applications of the realm, before anything is written into it
-      let existing: Awaited<ReturnType<typeof frodo.app.readApplications>>;
-      try {
-        existing = await frodo.app.readApplications();
-      } catch (error) {
-        printError(
-          error,
-          `Error reading the applications of realm '${currentRealm}'`
+      if (!existingRead) {
+        try {
+          existing = await frodo.app.readApplications();
+        } catch (error) {
+          printError(
+            error,
+            `Error reading the applications of realm '${currentRealm}'`
+          );
+          run.recordFailure(`realm ${realmDir}`, causeOf(error));
+          continue;
+        }
+      }
+      // the application that was asked for by its name must be one application
+      const sameAsked = name
+        ? applicationsOfSameName(existing, name)
+        : undefined;
+      if (sameAsked) {
+        printMessage(
+          `Realm '${currentRealm}': ${sharedNameText(sameAsked, name)}: nothing was written for it.`,
+          'error'
         );
-        run.recordFailure(`realm ${realmDir}`, causeOf(error));
+        askedRefused = true;
         continue;
       }
       for (const { folder, label } of selected) {
@@ -847,15 +933,19 @@ export async function configManagerImportApplications(
       }
     }
 
-    if (name && !namedFound) {
-      printMessage(
-        `Application '${name}' has no folder in realm ${named ? realm : realmDirs[0]}.`,
-        'error'
-      );
-    } else if (found === 0 && !name) {
+    if (asked && !namedFound) {
+      if (!askedReported) {
+        printMessage(
+          id !== undefined
+            ? `Application with id '${id}' has no folder in realm ${named ? realm : realmDirs[0]}.`
+            : `Application '${name}' has no folder in realm ${named ? realm : realmDirs[0]}.`,
+          'error'
+        );
+      }
+    } else if (found === 0 && !asked) {
       printMessage('No applications found to push.', 'info');
     }
-    return run.finish() && !(name && !namedFound);
+    return run.finish() && !askedRefused && !(asked && !namedFound);
   } catch (error) {
     printError(error, 'Error pushing applications');
     return false;
@@ -883,6 +973,13 @@ async function pushApplication(
     relativeFolder
   );
   const name: string = files.record.name;
+  // before anything is written: a name that two applications share would update the first one
+  const same = applicationsOfSameName(existing, name);
+  if (same) {
+    throw new Error(
+      `${sharedNameText(same, name)}; nothing was written for this application`
+    );
+  }
   const step = async (what: string, work: () => Promise<unknown> | unknown) => {
     try {
       await work();

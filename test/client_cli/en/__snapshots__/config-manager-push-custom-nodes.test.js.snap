@@ -32,9 +32,13 @@ Options:
                                       1.
   --filename-filter <filenameFilter>  Combine multiple files using comma, use ~
                                       prefix on entry for wildcard match
-  -n, --name <name>                   Custom node display name. If specified,
+  -i, --node-id <id>                  Custom node id. If specified, only the
+                                      custom node with that id is imported.
+                                      Cannot be used with -n.
+  -n, --node-name <name>              Custom node display name. If specified,
                                       only the specified custom node is
-                                      imported.
+                                      imported. Cannot be used with -i. (alias:
+                                      --name)
   -h, --help                          Help
   -hh, --help-more                    Help with all options.
   -hhh, --help-all                    Help with all options, environment

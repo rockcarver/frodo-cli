@@ -33,8 +33,11 @@ Options:
   --filenameFilter <filenameFilter>  Filename Filter (combine multiples using
                                      comma, use ~ prefix on entry for wildcard
                                      match)
-  -n, --name <name>                  Script name, import only the specified
-                                     script
+  -i, --script-id <id>               Script id, import only the specified
+                                     script. Cannot be used with -n.
+  -n, --script-name <name>           Script name, import only the specified
+                                     script. Cannot be used with -i. (alias:
+                                     --name)
   -h, --help                         Help
   -hh, --help-more                   Help with all options.
   -hhh, --help-all                   Help with all options, environment

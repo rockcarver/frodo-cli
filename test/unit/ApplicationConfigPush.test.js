@@ -1059,6 +1059,235 @@ describe('what the command line asks for', () => {
     ]);
   });
 
+  test('-i pushes the application that has that id on the tenant: the folder of that name, found by the name in its record, with one read of the applications', async () => {
+    world.apps.alpha = [
+      existingApp('Zion Portal', 'id-zion'),
+      existingApp('Other', 'id-other'),
+    ];
+    writeApp('alpha', 'Zion_Portal', {
+      record: webRecord('Zion Portal', 'zion-portal'),
+      client: client('zion-portal'),
+    });
+    writeApp('alpha', 'Other', {
+      record: webRecord('Other', 'other'),
+      client: client('other'),
+    });
+
+    expect(
+      await configManagerImportApplications(
+        undefined,
+        'alpha',
+        false,
+        'id-zion'
+      )
+    ).toBe(true);
+
+    expect(calls).toEqual(['agent:zion-portal', 'app:update:id-zion']);
+    expect(frodo.app.readApplications).toHaveBeenCalledTimes(1);
+  });
+
+  test('-i is not a name: the application that is named like the id of another one is not pushed by it', async () => {
+    // the id of One is 'Two', the name of the other application is 'Two', and that one is listed first: a lookup that also compared the name would find it
+    world.apps.alpha = [existingApp('Two', 'id-2'), existingApp('One', 'Two')];
+    writeApp('alpha', 'One', {
+      record: webRecord('One', 'one'),
+      client: client('one'),
+    });
+    writeApp('alpha', 'Two', {
+      record: webRecord('Two', 'two'),
+      client: client('two'),
+    });
+
+    expect(
+      await configManagerImportApplications(undefined, 'alpha', false, 'Two')
+    ).toBe(true);
+
+    expect(calls).toEqual(['agent:one', 'app:update:Two']);
+  });
+
+  test('-i with an id that the tenant does not have fails whatever --allow-failures says, names the id and the realm, and pushes nothing', async () => {
+    world.apps.alpha = [existingApp('Zion Portal', 'id-zion')];
+    writeApp('alpha', 'Zion_Portal', {
+      record: webRecord('Zion Portal', 'zion-portal'),
+      client: client('zion-portal'),
+    });
+
+    for (const allowFailures of [false, true]) {
+      expect(
+        await configManagerImportApplications(
+          undefined,
+          'alpha',
+          allowFailures,
+          'id-missing'
+        )
+      ).toBe(false);
+    }
+
+    expect(calls).toEqual([]);
+    expect(messages()).toMatch(
+      /Application with id 'id-missing' not found in realm 'alpha'/
+    );
+    // said once: the id was not found, which is not a missing folder
+    expect(messages()).not.toMatch(/has no folder/);
+  });
+
+  test('-i with the id of an application of the tenant that has no folder fails, and names the id', async () => {
+    world.apps.alpha = [existingApp('Zion Portal', 'id-zion')];
+    writeApp('alpha', 'Other', { record: webRecord('Other', 'other') });
+
+    expect(
+      await configManagerImportApplications(undefined, 'alpha', true, 'id-zion')
+    ).toBe(false);
+
+    expect(calls).toEqual([]);
+    expect(messages()).toMatch(
+      /Application with id 'id-zion' has no folder in realm alpha/
+    );
+  });
+
+  test('-i with the id of an application whose name another application of the realm shares is refused: a push by name would update the first one', async () => {
+    world.apps.alpha = [
+      existingApp('Zion Portal', 'id-a'),
+      existingApp('Zion Portal', 'id-b'),
+    ];
+    writeApp('alpha', 'Zion_Portal', {
+      record: webRecord('Zion Portal', 'zion-portal'),
+      client: client('zion-portal'),
+    });
+
+    for (const allowFailures of [false, true]) {
+      expect(
+        await configManagerImportApplications(
+          undefined,
+          'alpha',
+          allowFailures,
+          'id-b'
+        )
+      ).toBe(false);
+    }
+
+    expect(calls).toEqual([]);
+    expect(messages()).toMatch(/Application with id 'id-b' of realm 'alpha'/);
+    expect(messages()).toMatch(
+      /2 applications of the realm are named 'Zion Portal' \(ids 'id-a', 'id-b'\)/
+    );
+    expect(messages()).toMatch(/ambiguous/);
+  });
+
+  test('-n with a name that two applications of the realm share is refused too, whatever --allow-failures says, and writes nothing', async () => {
+    world.apps.alpha = [
+      existingApp('Zion Portal', 'id-a'),
+      existingApp('Zion Portal', 'id-b'),
+    ];
+    writeApp('alpha', 'Zion_Portal', {
+      record: webRecord('Zion Portal', 'zion-portal'),
+      client: client('zion-portal'),
+    });
+
+    for (const allowFailures of [false, true]) {
+      expect(
+        await configManagerImportApplications(
+          'Zion Portal',
+          'alpha',
+          allowFailures
+        )
+      ).toBe(false);
+    }
+
+    expect(calls).toEqual([]);
+    expect(messages()).toMatch(
+      /2 applications of the realm are named 'Zion Portal'/
+    );
+    expect(messages()).toMatch(/ambiguous/);
+  });
+
+  test('a push of every folder fails the application whose name is shared, before anything is written for it, and pushes the others', async () => {
+    world.apps.alpha = [
+      existingApp('Zion Portal', 'id-a'),
+      existingApp('Zion Portal', 'id-b'),
+      existingApp('Other', 'id-other'),
+    ];
+    writeApp('alpha', 'Zion_Portal', {
+      record: webRecord('Zion Portal', 'zion-portal'),
+      client: client('zion-portal'),
+    });
+    writeApp('alpha', 'Other', {
+      record: webRecord('Other', 'other'),
+      client: client('other'),
+    });
+
+    expect(await configManagerImportApplications(undefined, 'alpha')).toBe(
+      false
+    );
+
+    expect(calls).toEqual(['agent:other', 'app:update:id-other']);
+    expect(summary()).toMatch(/1 of 2 applications failed/);
+    expect(summary()).toMatch(/Zion Portal/);
+    expect(errors() + messages()).toMatch(/ambiguous/);
+  });
+
+  test('a name that one application of the realm has is not ambiguous: -i and -n push it as before', async () => {
+    world.apps.alpha = [
+      existingApp('Zion Portal', 'id-a'),
+      existingApp('Other', 'id-b'),
+    ];
+    writeApp('alpha', 'Zion_Portal', {
+      record: webRecord('Zion Portal', 'zion-portal'),
+      client: client('zion-portal'),
+    });
+
+    expect(
+      await configManagerImportApplications(undefined, 'alpha', false, 'id-a')
+    ).toBe(true);
+    expect(await configManagerImportApplications('Zion Portal', 'alpha')).toBe(
+      true
+    );
+
+    expect(calls).toEqual([
+      'agent:zion-portal',
+      'app:update:id-a',
+      'agent:zion-portal',
+      'app:update:id-a',
+    ]);
+  });
+
+  test('-i needs a single realm, like -n', async () => {
+    writeApp('alpha', 'A', { record: { name: 'A' } });
+    writeApp('bravo', 'A', { record: { name: 'A' } });
+
+    expect(
+      await configManagerImportApplications(undefined, undefined, false, 'x')
+    ).toBe(false);
+
+    expect(calls).toEqual([]);
+    expect(frodo.app.readApplications).not.toHaveBeenCalled();
+    expect(messages()).toMatch(/specify a single realm/);
+  });
+
+  test('an empty id selects nothing and is not found: it never means all applications', async () => {
+    world.apps.alpha = [existingApp('A', 'id-a')];
+    writeApp('alpha', 'A', { record: webRecord('A', 'a') });
+
+    expect(
+      await configManagerImportApplications(undefined, 'alpha', false, '')
+    ).toBe(false);
+
+    expect(calls).toEqual([]);
+  });
+
+  test('-i with a realm whose applications cannot be read fails and names the realm', async () => {
+    world.listFails.add('alpha');
+    writeApp('alpha', 'A', { record: webRecord('A', 'a') });
+
+    expect(
+      await configManagerImportApplications(undefined, 'alpha', false, 'id-a')
+    ).toBe(false);
+
+    expect(calls).toEqual([]);
+    expect(summary()).toMatch(/1 of 1 application failed/);
+    expect(summary()).toMatch(/realm alpha/);
+  });
+
   test('-n with a name that has no folder fails whatever --allow-failures says', async () => {
     writeApp('alpha', 'Other', { record: webRecord('Other', 'other') });
 

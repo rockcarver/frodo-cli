@@ -3,7 +3,7 @@
 /*
 // ForgeOps
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://nightly.gcp.forgeops.com/am FRODO_TEST_NAME=0_D_m frodo config-manager push email-templates -D test/e2e/exports/fr-config-manager/forgeops -m forgeops
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://nightly.gcp.forgeops.com/am FRODO_TEST_NAME=0_n_D_m frodo config-manager push email-templates -n forgottenUsername -D test/e2e/exports/fr-config-manager/forgeops -m forgeops
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://nightly.gcp.forgeops.com/am FRODO_TEST_NAME=0_n_D_m frodo config-manager push email-templates -i forgottenUsername -D test/e2e/exports/fr-config-manager/forgeops -m forgeops
 */
 
 import { getEnv, testSuccess } from './utils/TestUtils';
@@ -21,7 +21,7 @@ describe('frodo config-manager push email-templates', () => {
         await testSuccess(CMD, { ...forgeopsEnv, env: { ...forgeopsEnv.env, FRODO_TEST_NAME: '0_D_m' } });
     });
     test(`"frodo config-manager push email-templates -n forgottenUsername -D ${allDirectory} -m forgeops": should import a specific email-template by name into forgeops"`, async () => {
-        const CMD = `frodo config-manager push email-templates -n forgottenUsername -D ${allDirectory} -m forgeops`;
+        const CMD = `frodo config-manager push email-templates -i forgottenUsername -D ${allDirectory} -m forgeops`;
         await testSuccess(CMD, { ...forgeopsEnv, env: { ...forgeopsEnv.env, FRODO_TEST_NAME: '0_n_D_m' } });
     });
 });

@@ -32,8 +32,8 @@ Options:
                                       1.
   --filename-filter <filenameFilter>  Combine multiple files using comma, use ~
                                       prefix on entry for wildcard match
-  -n, --name <name>                   Schedule name; import only the specified
-                                      schedule name
+  -i, --schedule-id <id>              Schedule id; import only the specified
+                                      schedule (alias: -n, --name)
   -h, --help                          Help
   -hh, --help-more                    Help with all options.
   -hhh, --help-all                    Help with all options, environment

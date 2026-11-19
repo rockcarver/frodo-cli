@@ -114,7 +114,7 @@ const COMMANDS = [
     name: 'config-manager push secrets',
     path: 'config-manager-push/config-manager-push-secrets',
     op: 'configManagerImportSecrets',
-    options: { name: 'esv-a', prune: true, yes: true },
+    options: { secretId: 'esv-a', prune: true, yes: true },
     before: ['esv-a', true],
   },
   {
@@ -156,7 +156,7 @@ const COMMANDS = [
     name: 'config-manager push custom-nodes',
     path: 'config-manager-push/config-manager-push-custom-nodes',
     op: 'configManagerImportCustomNodes',
-    options: { name: 'My Node', filenameFilter: '~node' },
+    options: { nodeName: 'My Node', filenameFilter: '~node' },
     before: ['My Node', '~node'],
   },
   {
@@ -170,7 +170,7 @@ const COMMANDS = [
     name: 'config-manager push endpoints',
     path: 'config-manager-push/config-manager-push-endpoints',
     op: 'configManagerImportEndpoints',
-    options: { name: 'my-endpoint', filenameFilter: '~endpoint' },
+    options: { endpointId: 'my-endpoint', filenameFilter: '~endpoint' },
     before: ['my-endpoint', '~endpoint'],
   },
 ];

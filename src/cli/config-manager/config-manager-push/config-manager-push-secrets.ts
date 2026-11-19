@@ -17,6 +17,7 @@ import {
 import c from '../../../utils/ColorTheme';
 import { printMessage, verboseMessage } from '../../../utils/Console';
 import { FrodoCommand } from '../../FrodoCommand';
+import { selectorOption } from '../../SelectorOption';
 
 const { CLOUD_DEPLOYMENT_TYPE_KEY } = frodo.utils.constants;
 
@@ -32,9 +33,10 @@ export default function setup() {
   program
     .description('Import secrets.')
     .addOption(
-      new Option(
-        '-n, --name <name>',
-        'Secret name; import only the specified secret'
+      selectorOption(
+        '-i, --secret-id <id>',
+        'Secret id; import only the specified secret',
+        ['-n', '--name']
       )
     )
 
@@ -63,7 +65,7 @@ export default function setup() {
         c.command(`  $ frodo config-manager push secrets ${s.connId}\n`) +
         `  Import one secret:\n` +
         c.command(
-          `  $ frodo config-manager push secrets -n esv-example ${s.connId}\n`
+          `  $ frodo config-manager push secrets -i esv-example ${s.connId}\n`
         ) +
         `  Show which old versions pruning would delete, without deleting or importing anything:\n` +
         c.command(
@@ -85,16 +87,17 @@ export default function setup() {
         command
       );
 
-      const named = options.name !== undefined;
+      const named = options.secretId !== undefined;
       const what = named
-        ? `the old versions of secret ${options.name}`
+        ? `the old versions of secret ${options.secretId}`
         : 'the old versions of all secrets to import';
       if (options.prune) {
-        // an empty name must never mean "all secrets" for a delete: "not
-        // given" and "given but empty" are different (-n "$UNSET" is empty)
-        if (named && options.name.trim() === '') {
+        // an empty id never means "all secrets" for a delete: the parser of
+        // the selector refuses '' and this refuses a blank one, which would
+        // select nothing (-i " ")
+        if (named && options.secretId.trim() === '') {
           printMessage(
-            'The secret name (-n) must not be empty with --prune. To prune the versions of all secrets, leave out -n.',
+            'The secret id (-i) must not be empty with --prune. To prune the versions of all secrets, leave out -i.',
             'error'
           );
           process.exitCode = 1;
@@ -138,7 +141,7 @@ export default function setup() {
       // it would delete first and show them
       if (options.prune && (options.dryRun || !options.yes)) {
         const check = await findSecretVersionsToPrune(
-          options.name,
+          options.secretId,
           options.allowFailures
         );
         if (!check) {
@@ -179,7 +182,7 @@ export default function setup() {
 
       verboseMessage('Importing secrets to cloud');
       const outcome = await configManagerImportSecrets(
-        options.name,
+        options.secretId,
         options.prune,
         options.allowFailures
       );

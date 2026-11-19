@@ -124,7 +124,7 @@ const COMMANDS = [
     name: 'config-manager push saml',
     file: 'config-manager-push/config-manager-push-saml',
     fn: 'configManagerImportSaml',
-    options: { name: 'urn:x' },
+    options: { entityId: 'urn:x' },
     args: (allowFailures) => ['alpha', 'urn:x', allowFailures],
   },
   {
@@ -138,7 +138,7 @@ const COMMANDS = [
     name: 'config-manager push scripts',
     file: 'config-manager-push/config-manager-push-scripts',
     fn: 'configManagerImportScripts',
-    options: { name: 'My Script', filenameFilter: 'Debug' },
+    options: { scriptName: 'My Script', filenameFilter: 'Debug' },
     args: (allowFailures) => ['alpha', 'My Script', 'Debug', allowFailures],
   },
   {
@@ -152,7 +152,7 @@ const COMMANDS = [
     name: 'config-manager push secret-mappings',
     file: 'config-manager-push/config-manager-push-secret-mappings',
     fn: 'configManagerImportSecretMappings',
-    options: { name: 'am.x' },
+    options: { secretMappingId: 'am.x' },
     args: (allowFailures) => ['am.x', 'alpha', allowFailures],
   },
 ];

@@ -3,6 +3,7 @@ import { configManagerImportCustomNodes } from '../../../configManagerOps/FrConf
 import { getTokens } from '../../../ops/AuthenticateOps';
 import { verboseMessage } from '../../../utils/Console';
 import { FrodoCommand } from '../../FrodoCommand';
+import { selectorOption } from '../../SelectorOption';
 
 export default function setup() {
   const program = new FrodoCommand(
@@ -13,10 +14,17 @@ export default function setup() {
   program
     .description('Import custom nodes.')
     .addOption(
-      new Option(
-        '-n, --name <name>',
-        'Custom node display name. If specified, only the specified custom node is imported.'
-      )
+      selectorOption(
+        '-i, --node-id <id>',
+        'Custom node id. If specified, only the custom node with that id is imported. Cannot be used with -n.'
+      ).conflicts(['nodeName'])
+    )
+    .addOption(
+      selectorOption(
+        '-n, --node-name <name>',
+        'Custom node display name. If specified, only the specified custom node is imported. Cannot be used with -i.',
+        ['--name']
+      ).conflicts(['nodeId'])
     )
     .addOption(
       new Option(
@@ -36,15 +44,20 @@ export default function setup() {
       );
 
       if (await getTokens()) {
-        if (options.name) {
-          verboseMessage(`Importing custom node with name '${options.name}'`);
+        if (options.nodeId !== undefined) {
+          verboseMessage(`Importing custom node with id '${options.nodeId}'`);
+        } else if (options.nodeName) {
+          verboseMessage(
+            `Importing custom node with name '${options.nodeName}'`
+          );
         } else {
           verboseMessage('Importing custom nodes');
         }
         const outcome = await configManagerImportCustomNodes(
-          options.name,
+          options.nodeName,
           options.filenameFilter,
-          options.allowFailures
+          options.allowFailures,
+          options.nodeId
         );
         if (!outcome) process.exitCode = 1;
       } else {

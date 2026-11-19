@@ -229,14 +229,18 @@ export async function importScriptFromFiles(
  * @param {string} name option to import a specific script by name
  * @param {string} filenameFilter option to filter imported scripts
  * @param {boolean} allowFailures True to succeed although some scripts could not be imported (the failures are still summarised)
- * @returns True if Import was successful. A script that cannot be imported does not stop the others; the result is false if any failed, unless failures are allowed. A named script that is not in the config folder, a named realm without script config, and a config folder without a realms folder fail the command whatever the option says; a realm folder without script config is skipped with a warning.
+ * @param {string} id option to import the script with this id (`_id` of its config file) instead of a name. Needs a single realm, like a name; an empty id selects nothing, so it is not found (the command refuses an empty value before it connects).
+ * @returns True if Import was successful. A script that cannot be imported does not stop the others; the result is false if any failed, unless failures are allowed. A named script (by name or by id) that is not in the config folder, a named realm without script config, and a config folder without a realms folder fail the command whatever the option says; a realm folder without script config is skipped with a warning.
  */
 export async function configManagerImportScripts(
   realm?: string,
   name?: string,
   filenameFilter?: string,
-  allowFailures: boolean = false
+  allowFailures: boolean = false,
+  id?: string
 ): Promise<boolean> {
+  // what the command line names: an id (an empty id selects nothing), or a name (an empty name means all scripts)
+  const asked = id !== undefined || !!name;
   const indicatorId = createProgressIndicator(
     'indeterminate',
     0,
@@ -264,7 +268,7 @@ export async function configManagerImportScripts(
         .map((entry) => entry.name);
     }
 
-    if (name && realms.length !== 1) {
+    if (asked && realms.length !== 1) {
       stopProgressIndicator(
         indicatorId,
         'For a named script, specify a single realm',
@@ -328,7 +332,12 @@ export async function configManagerImportScripts(
             continue;
           }
 
-          if (name && importData.name !== name) continue;
+          if (
+            id !== undefined
+              ? importData._id !== id
+              : name && importData.name !== name
+          )
+            continue;
           scriptFound = true;
 
           const fullScriptPath = getFilePath(
@@ -357,10 +366,12 @@ export async function configManagerImportScripts(
     }
 
     const notFound =
-      !!name && !scriptFound && !missingNamedConfig && !run.hasFailures;
+      asked && !scriptFound && !missingNamedConfig && !run.hasFailures;
     if (notFound) {
       printMessage(
-        `Script "${name}" not found in the script config of realm ${realms[0]}.`,
+        id !== undefined
+          ? `Script with id '${id}' not found in the script config of realm ${realms[0]}.`
+          : `Script "${name}" not found in the script config of realm ${realms[0]}.`,
         'error'
       );
     }

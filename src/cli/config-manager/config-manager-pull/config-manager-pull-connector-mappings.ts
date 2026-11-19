@@ -26,7 +26,7 @@ export default function setup() {
     .addOption(
       selectorOption(
         '-i, --connector-mapping-id <id>',
-        'Connector mapping id (the name of the mapping). If specified, only exports the mapping with the specified id.'
+        'Connector mapping id: the name of the mapping, without the sync/ prefix. If specified, only exports the mapping with the specified id.'
       )
     )
     .addHelpText('after', ownedObjectsHelp('mappings'))

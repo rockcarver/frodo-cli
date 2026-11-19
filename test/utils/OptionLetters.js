@@ -938,7 +938,13 @@ export function findSelectorMigrationProblems(text, rows) {
  * command of the rows that has `-n` as an alias (no option of its own) does not
  * type `-n`, `--name` or a cluster that ends in `n`, unless it is listed in
  * `kept` (`{ file, cmd, why }`), which keeps the alias covered end to end. A
- * kept line must still exist.
+ * kept line must still exist. The record header lines of a test file
+ * (`FRODO_MOCK=record ... frodo config-manager pull journeys -i Login`) are
+ * read the same way, and are only compared with the CMD lines through this
+ * check (the identity check of the recordings compares each pin with the
+ * command of its test, which both spellings derive): a header line follows its
+ * CMD line, and a file that keeps an old spelling on purpose for a command
+ * keeps it in the header line of that command too.
  * @param {{name: string, text: string}[]} files the e2e test files
  * @param {object[]} rows the expected selectors
  * @param {object[]} kept the lines that keep the old spelling on purpose
@@ -946,38 +952,55 @@ export function findSelectorMigrationProblems(text, rows) {
  */
 export function findOldSpellingProblems(files, rows, kept) {
   const problems = [];
-  const checked = { cmdLines: 0, kept: 0 };
+  const checked = { cmdLines: 0, headerLines: 0, kept: 0 };
   const aliased = new Map(
     rows
       .filter((row) => row.name === null)
       .map((row) => [commandWords(row.command), row])
   );
   const used = new Set();
-  for (const file of files) {
-    for (const line of file.text.split('\n')) {
-      const match = /\bCMD\s*=\s*[`'"](.*)[`'"];?\s*$/.exec(line);
-      if (!match) continue;
-      const cmd = match[1];
-      const words =
-        /^frodo (?:config-manager|config) ([a-z-]+ [a-z0-9-]+)(?: |$)/.exec(
-          cmd
-        );
-      if (!words || !aliased.has(words[1])) continue;
-      checked.cmdLines += 1;
-      const args = cmd
-        .slice(cmd.indexOf(words[1]) + words[1].length)
-        .split(' ');
-      const old = args.find(
+  const COMMAND = /frodo (?:config-manager|config) ([a-z-]+ [a-z0-9-]+)(?: |$)/;
+  const CMD_COMMAND = new RegExp(`^${COMMAND.source}`);
+  /** The spelling of the alias in the arguments of a command line, or undefined. */
+  const oldSpellingIn = (command, words) =>
+    command
+      .slice(command.indexOf(words) + words.length)
+      .split(' ')
+      .find(
         (arg) => arg === '-n' || arg === '--name' || /^-[A-Za-z]*n$/.test(arg)
       );
-      if (!old) continue;
-      const entry = kept.find((e) => e.file === file.name && e.cmd === cmd);
-      if (entry) {
-        used.add(entry);
+  for (const file of files) {
+    const keptHere = kept.filter((e) => e.file === file.name);
+    for (const line of file.text.split('\n')) {
+      const match = /\bCMD\s*=\s*[`'"](.*)[`'"];?\s*$/.exec(line);
+      if (match) {
+        const cmd = match[1];
+        const words = CMD_COMMAND.exec(cmd);
+        if (!words || !aliased.has(words[1])) continue;
+        checked.cmdLines += 1;
+        const old = oldSpellingIn(cmd, words[1]);
+        if (!old) continue;
+        const entry = keptHere.find((e) => e.cmd === cmd);
+        if (entry) {
+          used.add(entry);
+          continue;
+        }
+        problems.push(
+          `${file.name} :: ${cmd} :: types ${old}, the alias of ${aliased.get(words[1]).id}: type the new spelling, or list the line as kept on purpose`
+        );
         continue;
       }
+      if (!line.includes('FRODO_MOCK=record')) continue;
+      const header = COMMAND.exec(line);
+      if (!header || !aliased.has(header[1])) continue;
+      checked.headerLines += 1;
+      const old = oldSpellingIn(line.slice(line.indexOf(header[0])), header[1]);
+      if (!old) continue;
+      // a command that the file keeps on purpose keeps the spelling of its record line too
+      if (keptHere.some((e) => COMMAND.exec(e.cmd)?.[1] === header[1]))
+        continue;
       problems.push(
-        `${file.name} :: ${cmd} :: types ${old}, the alias of ${aliased.get(words[1]).id}: type the new spelling, or list the line as kept on purpose`
+        `${file.name} :: ${line.trim()} :: the record line types ${old}, the alias of ${aliased.get(header[1]).id}: type the new spelling, as the CMD line does`
       );
     }
   }

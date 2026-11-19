@@ -1,9 +1,9 @@
 import { frodo } from '@rockcarver/frodo-lib';
-import { Option } from 'commander';
 import { configManagerImportOrgPrivileges } from '../../../configManagerOps/FrConfigOrgPrivilegesOps';
 import { getTokens } from '../../../ops/AuthenticateOps';
 import { verboseMessage } from '../../../utils/Console';
 import { FrodoCommand } from '../../FrodoCommand';
+import { selectorOption } from '../../SelectorOption';
 
 const { CLOUD_DEPLOYMENT_TYPE_KEY, FORGEOPS_DEPLOYMENT_TYPE_KEY } =
   frodo.utils.constants;
@@ -23,9 +23,10 @@ export default function setup() {
   program
     .description('Import organization privileges config.')
     .addOption(
-      new Option(
-        '-n, --name <name>',
-        'Organization Privileges name; only imports the privileges with the specified name.'
+      selectorOption(
+        '-i, --org-privileges-id <id>',
+        'Organization privileges id; only imports the privileges with the specified id.',
+        ['-n', '--name']
       )
     )
     .multiOp()
@@ -49,10 +50,10 @@ export default function setup() {
         return;
       }
       verboseMessage(
-        `Importing organization privileges config for ${options.name || 'all realms'}`
+        `Importing organization privileges config for ${options.orgPrivilegesId || 'all realms'}`
       );
       const outcome = await configManagerImportOrgPrivileges(
-        options.name,
+        options.orgPrivilegesId,
         options.allowFailures
       );
       if (!outcome) process.exitCode = 1;
