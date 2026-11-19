@@ -12,7 +12,7 @@
  *   change) and the spellings the option with the alias answers to (`['-n',
  *   '--name']` on `-i`, `['--name']` on `-n`; none for a command that took no
  *   `--name` before). The steps C4a (pull), C4b (push) and C4c (delete) of
- *   cli#1264 add their rows (pull and push are in; delete is C4c).
+ *   cli#1264 add their rows (pull, push and delete are in).
  * - STRAY_SELECTOR_OPTIONS: an option with the letter `-i` or `-n` on a command
  *   of the group that no row names, because it selects something else.
  * - PENDING_VERBS: verbs whose commands have not been given their rows yet;
@@ -323,6 +323,102 @@ export const EXPECTED_SELECTORS = [
     name: null,
     aliases: ['-n', '--name'],
   },
+  {
+    command: 'frodo config-manager delete applications',
+    id: '--app-id',
+    name: '--app-name',
+    aliases: ['--name'],
+  },
+  {
+    command: 'frodo config-manager delete custom-nodes',
+    id: '--node-id',
+    name: '--node-name',
+    aliases: ['--name'],
+  },
+  {
+    command: 'frodo config-manager delete endpoints',
+    id: '--endpoint-id',
+    name: null,
+    aliases: ['-n', '--name'],
+  },
+  {
+    command: 'frodo config-manager delete scripts',
+    id: '--script-id',
+    name: '--script-name',
+    aliases: ['--name'],
+  },
+  {
+    command: 'frodo config-manager delete themes',
+    id: '--theme-id',
+    name: '--theme-name',
+    aliases: ['--name'],
+  },
+  {
+    command: 'frodo config-manager delete email-templates',
+    id: '--template-id',
+    name: null,
+    aliases: ['-n', '--name'],
+  },
+  {
+    command: 'frodo config-manager delete secrets',
+    id: '--secret-id',
+    name: null,
+    aliases: ['-n', '--name'],
+  },
+  {
+    command: 'frodo config-manager delete terms-and-conditions',
+    id: '--version-id',
+    name: null,
+    aliases: ['-n', '--name'],
+  },
+  {
+    command: 'frodo config-manager delete variables',
+    id: '--variable-id',
+    name: null,
+    aliases: ['-n', '--name'],
+  },
+  {
+    command: 'frodo config-manager delete locales',
+    id: '--locale-id',
+    name: null,
+    aliases: ['-n', '--name'],
+  },
+  {
+    command: 'frodo config-manager delete oauth-cimd-profiles',
+    id: '--profile-id',
+    name: null,
+    aliases: ['-n', '--name'],
+  },
+  {
+    command: 'frodo config-manager delete oauth-issuers',
+    id: '--issuer-id',
+    name: null,
+    aliases: ['-n', '--name'],
+  },
+  {
+    command: 'frodo config-manager delete oauth-software-publishers',
+    id: '--software-publisher-id',
+    name: null,
+    aliases: ['-n', '--name'],
+  },
+  {
+    command: 'frodo config-manager delete schedules',
+    id: '--schedule-id',
+    name: null,
+    aliases: ['-n', '--name'],
+  },
+  {
+    command: 'frodo config-manager delete secret-mappings',
+    id: '--secret-mapping-id',
+    name: null,
+    aliases: ['-n', '--name'],
+  },
+  {
+    command: 'frodo config-manager delete telemetry',
+    id: '--exporter-id',
+    name: null,
+    aliases: ['-n', '--name'],
+  },
 ];
 
 export const STRAY_SELECTOR_OPTIONS = [
@@ -338,13 +434,7 @@ export const STRAY_SELECTOR_OPTIONS = [
   },
 ];
 
-export const PENDING_VERBS = [
-  {
-    verb: 'delete',
-    why: 'the delete commands keep -n, --name until their step renames them',
-    until: 'C4c of cli#1264 (written 2026-11-18)',
-  },
-];
+export const PENDING_VERBS = [];
 
 export const KEPT_OLD_SPELLING = [
   {
@@ -361,6 +451,11 @@ export const KEPT_OLD_SPELLING = [
     file: 'config-manager-push-services.e2e.test.js',
     cmd: 'frodo config-manager push services --name id-repositories -D ${allDirectory} -m forgeops',
     why: 'the --name spelling replays its recording through the alias; the other lines type the new spelling',
+  },
+  {
+    file: 'config-manager-delete-locales.e2e.test.js',
+    cmd: 'frodo config-manager delete locales -n fr -m forgeops',
+    why: 'the -n spelling of a delete replays its recording through the alias; a named delete never asks, so the replay also shows that the alias counts as a name; the other lines type the new spelling',
   },
   {
     file: 'config-manager-push-journeys.e2e.test.js',
