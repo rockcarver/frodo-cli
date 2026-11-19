@@ -223,7 +223,7 @@ gets its own row.
 | &emsp;`list`        | 4.12.0 | List authenticated sessions across all hosts.                                                                                                                      |
 | `frodo settings`    | 4.9.0  | Manage CLI settings (color theme).                                                                                                                                 |
 | &emsp;`theme`       | 4.9.0  | Manage the CLI color theme (background, contrast, detection, preview).                                                                                             |
-| `frodo shell`       | 2.0.0  | [Experimental] Launch the frodo interactive shell.                                                                                                                 |
+| `frodo shell`       | 2.0.0  | [Experimental] Launch the frodo JS console (add `--web` to serve it as a local web page) — see [The frodo JS shell](../docs/SHELL.md).                              |
 | `frodo mcp`         | 4.0.0  | [Experimental] Manage Model Context Protocol (MCP) integrations — see [MCP Server](#mcp-server).                                                                   |
 | &emsp;`server`      | 4.0.0  | Manage Frodo MCP server lifecycle and metadata.                                                                                                                    |
 | &emsp;&emsp;`start` | 4.0.0  | Start an MCP server session from frodo-lib capabilities.                                                                                                           |
@@ -578,7 +578,7 @@ Commands:
   saml                                                  Manage SAML entity providers and circles of trust.
   script                                                Manage scripts.
   service                                               Manage AM services.
-  shell [options] [host] [realm] [username] [password]  Launch the frodo interactive shell.
+  shell [options] [host] [realm] [username] [password]  Launch the frodo JS console.
   theme                                                 Manage themes.
   help [command]                                        display help for command
 ```
