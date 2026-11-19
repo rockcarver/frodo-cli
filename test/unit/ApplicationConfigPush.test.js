@@ -1127,6 +1127,8 @@ describe('what the command line asks for', () => {
     expect(messages()).toMatch(
       /Application with id 'id-missing' not found in realm 'alpha'/
     );
+    // said once: the id was not found, which is not a missing folder
+    expect(messages()).not.toMatch(/has no folder/);
   });
 
   test('-i with the id of an application of the tenant that has no folder fails, and names the id', async () => {
