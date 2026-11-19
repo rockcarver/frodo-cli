@@ -165,6 +165,9 @@ describe('objectFilePath', () => {
     ['C:\\x', `${FOLDER}/C%3A%5Cx.json`],
     ['a\u0000b', `${FOLDER}/a%00b.json`],
     ['a\nb', `${FOLDER}/a%0Ab.json`],
+    // a control character of the C1 block is not part of a plain name either
+    ['a\u0085b', `${FOLDER}/a%C2%85b.json`],
+    ['a\u009fb', `${FOLDER}/a%C2%9Fb.json`],
     ['..', `${FOLDER}/.json`],
     ['.', `${FOLDER}/.json`],
   ])('%j is the file %s', (selector, expected) => {
@@ -218,6 +221,8 @@ describe('objectFolderPath', () => {
     ['/etc/passwd', `${MAPPINGS}/%2Fetc%2Fpasswd`],
     ['..\\x', `${MAPPINGS}/..%5Cx`],
     ['a\u0000b', `${MAPPINGS}/a%00b`],
+    ['a\u0085b', `${MAPPINGS}/a%C2%85b`],
+    ['a\u009fb', `${MAPPINGS}/a%C2%9Fb`],
   ])('%j is the folder %s', (selector, expected) => {
     expect(objectFolderPath(MAPPINGS, selector)).toBe(expected);
   });

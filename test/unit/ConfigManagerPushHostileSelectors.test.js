@@ -12,7 +12,8 @@ import { jest } from '@jest/globals';
  * it is asked to do:
  *
  * - a hostile selector finds no file: the command fails (the ops function returns false, which is
- *   the exit code 1), whatever `--allow-failures` says, and says which file it looked for;
+ *   the exit code 1), whatever `--allow-failures` says, and says that it found no such file (the
+ *   file it looked for, where the command names one);
  * - nothing outside the folder of the type is looked at, no decoy is read, and the library is never
  *   asked to import anything;
  * - the three agent types find the file of the id (`a/b` is `a%2Fb.json`),
