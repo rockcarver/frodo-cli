@@ -235,6 +235,23 @@ export function createHelpContext(
       print(
         `  ${DIM}crypto helpers run through the IDM script endpoint; CRUD talks REST directly${RESET}`
       );
+      print('');
+      print(`${BOLD}AM functions ${GREEN}am${RESET}${BOLD}:${RESET}`);
+      print(
+        `  ${GREEN}am.users.query({_queryFilter: 'userName sw "a"'})${RESET}  ${DIM}also read, create, update, delete; same for am.groups${RESET}`
+      );
+      print(
+        `  ${GREEN}am.groups.addMember(groupId, userId)${RESET}  ${DIM}also removeMember${RESET}`
+      );
+      print(
+        `  ${GREEN}am.devices.list(userId, 'oath')${RESET}  ${DIM}registered MFA devices: binding, oath, push, webauthn, profile, trusted${RESET}`
+      );
+      print(
+        `  ${GREEN}am.sessions.info()${RESET}  ${DIM}also validate, refresh, logout${RESET}`
+      );
+      print(
+        `  ${DIM}AM realm JSON APIs, realm-aware: paths compose from the session's realm${RESET}`
+      );
       return;
     }
 

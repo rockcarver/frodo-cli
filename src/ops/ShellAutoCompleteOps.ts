@@ -1,3 +1,4 @@
+import { AM_DEVICE_TYPES } from './ShellAmOps';
 import {
   actionSuggestions,
   IdmCatalog,
@@ -204,7 +205,7 @@ export function parseIdmObjectContext(line: string): IdmObjectContext | null {
     if (ch === '{') {
       // An object literal opening at this call's argument position (or
       // nested deeper: only track call-arg-position objects).
-      if (callPath && /^openidm\./.test(callPath) && parenDepth > 0) {
+      if (callPath && /^(openidm|am)\./.test(callPath) && parenDepth > 0) {
         objStart = i;
         objArgIndex = argIndex;
         objCallPath = callPath;
@@ -241,7 +242,7 @@ export function parseIdmObjectContext(line: string): IdmObjectContext | null {
     // Drop a trailing quote fragment (the key is still being quoted).
     partial = partial.replace(/['"]$/, '');
   }
-  const fnName = objCallPath.split('.')[1];
+  const fnName = objCallPath.split('.').pop()!;
   return {
     fullPath: objCallPath,
     fnName,
@@ -332,12 +333,15 @@ export function parseIdmStringContext(line: string): IdmStringContext | null {
   }
 
   if (!(inSingle || inDouble) || !callPath || parenDepth <= 0) return null;
-  // Only the openidm functions own resource-path strings.
-  if (!/^openidm\.[A-Za-z_$][\w$]*$/.test(callPath)) return null;
-  const fnName = callPath.split('.')[1];
+  // The shell's own functions own their strings: openidm.* resource
+  // paths and actions, am.devices' device-type strings. Other calls
+  // (frodo.*) get nothing.
+  if (!/^(openidm|am)(\.[A-Za-z_$][\w$]*)+$/.test(callPath)) return null;
+  const fnName = callPath.split('.').pop()!;
   // The action name (arg 1 of openidm.action) completes from the action
-  // map; the resource path (arg 0) from the catalog. Other strings of
-  // other functions get nothing.
+  // map; the resource path (arg 0) from the catalog; the device type
+  // (arg 1 of am.devices.*) from the fixed set. Other strings of other
+  // functions get nothing.
   const content = line.slice(strStart + 1);
   return { fullPath: callPath, fnName, argIndex, content, quoteChar, firstArg };
 }
@@ -369,12 +373,26 @@ function idmStringCompletions(
   // e.g. a _fields array: the hint still says what the argument wants).
   let entries: { path: string; description?: string }[] = [];
 
-  if (ctx.fnName === 'action' && argIndex === 1) {
+  if (ctx.fullPath.startsWith('am.devices.') && argIndex === 1) {
+    // The device type: the fixed set AM serves under /users/<id>/devices.
+    const typeHint: Record<string, string> = {
+      binding: 'device binding (MFA)',
+      oath: 'OATH devices (HOTP/TOTP)',
+      push: 'push notification devices',
+      webauthn: 'WebAuthn/FIDO2 devices',
+      profile: 'profile devices',
+      trusted: 'trusted devices',
+    };
+    entries = AM_DEVICE_TYPES.filter((t) => t.startsWith(content)).map((t) => ({
+      path: t,
+      description: typeHint[t],
+    }));
+  } else if (ctx.fnName === 'action' && argIndex === 1) {
     // The action name: filtered by the resource (arg 0), captured by the
     // scanner while it walked the line.
     const firstArg = extractFirstStringArg(ctx, content);
     entries = firstArg ? actionSuggestions(firstArg, content) : [];
-  } else if (argIndex === 0) {
+  } else if (argIndex === 0 && ctx.fullPath.startsWith('openidm.')) {
     if (content.includes('?')) {
       // Query-parameter context: CREST params are name-only suggestions
       // whose full text extends the typed partial, so the same
@@ -389,6 +407,10 @@ function idmStringCompletions(
       ];
     }
     entries = resourceSuggestions(content, catalog);
+  } else if (argIndex === 0 && ctx.fullPath.startsWith('am.')) {
+    // AM strings have no resource-path catalog (the wrappers compose the
+    // realm base); the contextual arg hint covers these positions.
+    return [[], token];
   } else {
     return [[], token];
   }
@@ -397,7 +419,11 @@ function idmStringCompletions(
     // Nothing to suggest at this string (a _fields array, an action
     // content...): the contextual arg hint still says what it wants.
     if (onMethodHint) {
-      const doc = findBestDoc(ctx.fnName, ['openidm'], docsByMethod);
+      const doc = findBestDoc(
+        ctx.fnName,
+        [ctx.fullPath.split('.')[0]],
+        docsByMethod
+      );
       if (doc)
         setImmediate(() =>
           onMethodHint(argHintLine(ctx.fullPath, doc, ctx.argIndex))
@@ -759,8 +785,8 @@ export function parseIdmArgContext(line: string): IdmArgPosition | null {
     if (ch === ',' && callPath && braceDepth === 0) argIndex++;
   }
   if (!callPath || parenDepth <= 0) return null;
-  if (!/^openidm\.[A-Za-z_$][\w$]*$/.test(callPath)) return null;
-  return { fullPath: callPath, fnName: callPath.split('.')[1], argIndex };
+  if (!/^(openidm|am)(\.[A-Za-z_$][\w$]*)+$/.test(callPath)) return null;
+  return { fullPath: callPath, fnName: callPath.split('.').pop()!, argIndex };
 }
 
 export function createFrodoCompleter(
@@ -870,7 +896,11 @@ export function createFrodoCompleter(
     // name, type and description.
     const argCtx = parseIdmArgContext(line);
     if (argCtx && onMethodHint) {
-      const doc = findBestDoc(argCtx.fnName, ['openidm'], docsByMethod);
+      const doc = findBestDoc(
+        argCtx.fnName,
+        [argCtx.fullPath.split('.')[0]],
+        docsByMethod
+      );
       if (doc) {
         setImmediate(() =>
           onMethodHint(argHintLine(argCtx.fullPath, doc, argCtx.argIndex))

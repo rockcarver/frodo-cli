@@ -2,6 +2,7 @@ import util from 'node:util';
 import { frodo, state } from '@rockcarver/frodo-lib';
 import _ from 'lodash';
 import c from '../utils/ColorTheme';
+import { AM_METHOD_DOCS, AmApi, createAmApi } from './ShellAmOps';
 import { buildDocsByMethod, MethodHelpDoc } from './ShellAutoCompleteOps';
 import { createHelpContext } from './ShellHelpOps';
 import { createOpenIdm, OpenIdm, OPENIDM_METHOD_DOCS } from './ShellIdmOps';
@@ -20,6 +21,8 @@ export type ConsoleBindings = {
   shellRest: ShellRest;
   /** The IDM scripting functions installed as `openidm`. */
   openIdm: OpenIdm;
+  /** The AM identity/device/session functions installed as `am`. */
+  am: AmApi;
   /** Root names completion and signature hints can resolve. */
   rootBindings: Record<string, object>;
   /** Signature and docs per frodo-lib method, for completion hints. */
@@ -30,17 +33,19 @@ export type ConsoleBindings = {
 export function createConsoleBindings(): ConsoleBindings {
   const shellRest = createShellRest();
   const openIdm = createOpenIdm(shellRest);
+  const am = createAmApi(shellRest);
   const docsByMethod = buildDocsByMethod(frodo);
   // The shell's own objects sit in the same doc index as frodo-lib's
-  // methods: completion and help() treat `openidm.read` like
-  // `frodo.idm.managed.readManagedObject`.
-  for (const doc of OPENIDM_METHOD_DOCS) {
+  // methods: completion and help() treat `openidm.read` and `am.users.query`
+  // like `frodo.idm.managed.readManagedObject`.
+  for (const doc of [...OPENIDM_METHOD_DOCS, ...AM_METHOD_DOCS]) {
     if (!docsByMethod.has(doc.methodName)) docsByMethod.set(doc.methodName, []);
     docsByMethod.get(doc.methodName)!.push(doc);
   }
   return {
     shellRest,
     openIdm,
+    am,
     // Everything the context installs as a top-level object or function a
     // user may want to tab into. help lands later (installConsoleContext
     // creates it); its completer entry is patched in there so the two
@@ -50,6 +55,7 @@ export function createConsoleBindings(): ConsoleBindings {
       frodoLib: frodo,
       $: shellRest as unknown as object,
       openidm: openIdm as unknown as object,
+      am: am as unknown as object,
       state: state as unknown as object,
       _: _ as unknown as object,
     },
@@ -81,6 +87,7 @@ export function installConsoleContext(
   context.state = state;
   context.$ = bindings.shellRest;
   context.openidm = bindings.openIdm;
+  context.am = bindings.am;
   // Pre-binding _ to lodash makes the REPL disable its own "last result"
   // assignment ("Expression assignment to _ now disabled"), so lodash
   // survives every evaluated expression.
@@ -138,7 +145,7 @@ export function installConsoleContext(
   const { help } = createHelpContext(
     frodo,
     output.captureAll ? (line) => write(line + '\n') : undefined,
-    OPENIDM_METHOD_DOCS
+    [...OPENIDM_METHOD_DOCS, ...AM_METHOD_DOCS]
   );
   context.help = help;
   // Completion learns the name here, where it is created, so the completer
