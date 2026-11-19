@@ -14,6 +14,7 @@ import {
   setUseDeviceFlow,
 } from '../ops/AuthenticateOps.js';
 import { accessFootnote } from '../utils/AccessCommandAreas.js';
+import { realmFolderOf } from '../utils/ConfigTreePath.js';
 import {
   cleanupProgressIndicators,
   createProgressIndicator,
@@ -40,10 +41,12 @@ import {
 } from '../utils/interactive/EscapableSelectPrompt.js';
 import { EXIT_ALL, EXIT_ALL_SIGNAL } from '../utils/interactive/ExitAll.js';
 import { passStateApplied } from '../utils/interactive/PassLogin.js';
+import { positionalValue } from '../utils/interactive/PositionalArgs.js';
 import { canPrompt, setNeverPrompt } from '../utils/interactive/PromptGate.js';
 import {
   declareRealmPickerOnlyWith,
   declareRealmUse,
+  realmUseOf,
 } from '../utils/interactive/RealmUse.js';
 import {
   markSecret,
@@ -2443,6 +2446,29 @@ function enforceOptionStabilityAndWarn(actionCommand: Command): void {
 }
 
 /**
+ * Refuses a realm that is not '/', a name or a path of names, for a command that declared
+ * `usesRealm()`: the realm becomes a folder of the config tree, so `..` and the like never get that
+ * far. It is the first thing a command does, before anything prompts or logs in, and it reads the
+ * value that the action will get, which is the default (FRODO_REALM) when none was typed: commander
+ * does not parse a default, so a parser on the argument would miss it. The exit code is 1, as for an
+ * empty selector (see SelectorOption.ts).
+ * @param actionCommand Concrete command being executed.
+ */
+function refuseInvalidRealm(actionCommand: Command): void {
+  if (!realmUseOf(actionCommand)) return;
+  const realm = positionalValue(actionCommand, 'realm');
+  if (realm === undefined) return;
+  try {
+    realmFolderOf(realm);
+  } catch {
+    actionCommand.error(
+      `error: command-argument value '${realm}' is invalid for argument 'realm'. A realm is '/', a name or a path of names such as /parent/child, never a path of the file system.`,
+      { exitCode: 1, code: 'commander.invalidArgument' }
+    );
+  }
+}
+
+/**
  * Enforces stability gate and prints warnings for non-stable commands.
  * @param actionCommand Concrete command being executed.
  */
@@ -2833,6 +2859,7 @@ export class FrodoStubCommand extends Command {
     // on every FrodoCommand in the ancestry and all receive the same
     // actionCommand, so dedupe on the executing command.
     this.hook('preAction', (_thisCommand, actionCommand) => {
+      refuseInvalidRealm(actionCommand);
       enforceStabilityAndWarn(actionCommand);
       adoptPromptingFromActionStub(actionCommand);
       // `--json` and `--scriptFriendly` mean a program reads the output: the
@@ -4171,7 +4198,10 @@ export class FrodoCommand extends FrodoStubCommand {
    * it the default, the command preview prints no realm token for the default,
    * and the command passes `realmOfRun(command, realm)` (not the stale `realm`
    * parameter) to its operation after login. A `config-manager` command that
-   * does not declare it ignores the realm and gets no realm picker.
+   * does not declare it ignores the realm and gets no realm picker. The realm is
+   * a name or a path of names, never a path of the file system: a command that
+   * declares this refuses any other realm (`..`, `a\b`) with exit code 1, before
+   * it prompts or logs in, also when the realm comes from FRODO_REALM.
    * See src/utils/interactive/RealmUse.ts.
    * @param use.tenantWide the command also covers configuration of the tenant that no realm limits (`pull all`); the picker says so. Default: false
    * @returns This command for chaining.
