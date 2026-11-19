@@ -715,6 +715,33 @@ function scriptsUsedBy(contents: unknown[], realmDir: string): string[] {
 }
 
 /**
+ * The applications of a realm of the tenant that carry the same name, when
+ * more than one does. A push matches an application by its name, so a name that
+ * two applications share cannot say which of them is meant: the push would
+ * update the first one it finds.
+ * @param {ApplicationRecord[]} existing the applications of the realm on the tenant
+ * @param {string} name the name an application is matched by
+ * @returns {ApplicationRecord[] | undefined} the applications that have the name, undefined unless there are at least two
+ */
+function applicationsOfSameName(
+  existing: ApplicationRecord[],
+  name: string
+): ApplicationRecord[] | undefined {
+  const same = existing.filter((application) => application.name === name);
+  return same.length > 1 ? same : undefined;
+}
+
+/**
+ * Says that a name is shared and why that stops the push.
+ * @param {ApplicationRecord[]} same the applications of the realm that have the name
+ * @param {string} name the shared name
+ * @returns {string} the sentence that names the name, the count and the ids
+ */
+function sharedNameText(same: ApplicationRecord[], name: string): string {
+  return `${same.length} applications of the realm are named '${name}' (ids ${same.map((application) => `'${application._id}'`).join(', ')}): a push matches an application by its name, so it is ambiguous`;
+}
+
+/**
  * Push applications from the files that `pull applications` writes (decision
  * record 0042): one folder per application,
  * `realms/<realm>/applications/<name>/`. The application is matched BY NAME:
@@ -788,6 +815,7 @@ export async function configManagerImportApplications(
     let found = 0;
     let namedFound = false;
     let askedReported = false;
+    let askedRefused = false;
     let wantedName = name;
     for (const realmDir of realmDirs) {
       const currentRealm = realmDir === 'root' ? '/' : realmDir;
@@ -826,6 +854,15 @@ export async function configManagerImportApplications(
         if (!target) {
           printMessage(
             `Application with id '${id}' not found in realm '${currentRealm}'.`,
+            'error'
+          );
+          askedReported = true;
+          continue;
+        }
+        const same = applicationsOfSameName(existing, target.name);
+        if (same) {
+          printMessage(
+            `Application with id '${id}' of realm '${currentRealm}': ${sharedNameText(same, target.name)}: nothing was written for it.`,
             'error'
           );
           askedReported = true;
@@ -877,6 +914,18 @@ export async function configManagerImportApplications(
           continue;
         }
       }
+      // the application that was asked for by its name must be one application
+      const sameAsked = name
+        ? applicationsOfSameName(existing, name)
+        : undefined;
+      if (sameAsked) {
+        printMessage(
+          `Realm '${currentRealm}': ${sharedNameText(sameAsked, name)}: nothing was written for it.`,
+          'error'
+        );
+        askedRefused = true;
+        continue;
+      }
       for (const { folder, label } of selected) {
         await run.run(label, () =>
           pushApplication(folder, currentRealm, realmDir, existing)
@@ -896,7 +945,7 @@ export async function configManagerImportApplications(
     } else if (found === 0 && !asked) {
       printMessage('No applications found to push.', 'info');
     }
-    return run.finish() && !(asked && !namedFound);
+    return run.finish() && !askedRefused && !(asked && !namedFound);
   } catch (error) {
     printError(error, 'Error pushing applications');
     return false;
@@ -924,6 +973,13 @@ async function pushApplication(
     relativeFolder
   );
   const name: string = files.record.name;
+  // before anything is written: a name that two applications share would update the first one
+  const same = applicationsOfSameName(existing, name);
+  if (same) {
+    throw new Error(
+      `${sharedNameText(same, name)}; nothing was written for this application`
+    );
+  }
   const step = async (what: string, work: () => Promise<unknown> | unknown) => {
     try {
       await work();
