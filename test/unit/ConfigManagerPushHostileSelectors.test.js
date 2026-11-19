@@ -15,7 +15,7 @@ import { jest } from '@jest/globals';
  *   the exit code 1), whatever `--allow-failures` says, and says which file it looked for;
  * - nothing outside the folder of the type is looked at, no decoy is read, and the library is never
  *   asked to import anything;
- * - the three agent types find the file that `pull` writes for the id (`a/b` is `a%2Fb.json`),
+ * - the three agent types find the file of the id (`a/b` is `a%2Fb.json`),
  *   also for an id of 300 characters, and never a file that was made by hand in a sub-folder.
  *
  * The decision: a selector is an id or a name, never a path (the new record of this change). What
@@ -28,6 +28,8 @@ const messages = () => printed.map((entry) => entry.msg).join('\n');
 
 /** Every call of the facade, as the path of the function; the file functions of `utils` are not recorded. */
 const libCalls = [];
+/** The trees that the library was asked to import, by the journeys command. */
+const importedTrees = [];
 const deep = (impl = {}, trail = 'frodo') =>
   new Proxy(function () {}, {
     get: (target, key) => {
@@ -90,6 +92,7 @@ const lib = {
           importJourneys: recorded(
             'frodo.authn.journey.importJourneys',
             async ({ trees }, options, callback) => {
+              importedTrees.push(trees);
               for (const name of Object.keys(trees)) callback(undefined, name);
             }
           ),
@@ -312,6 +315,7 @@ beforeEach(() => {
   fs.mkdirSync(tree);
   printed.length = 0;
   libCalls.length = 0;
+  importedTrees.length = 0;
   touched.length = 0;
   currentRealm = undefined;
   spies = SPIED.map((name) => {
@@ -405,7 +409,7 @@ describe.each(COMMANDS)('push $command -i', (c) => {
 describe.each(COMMANDS.filter((c) => c.object))(
   'push $command -i, a name that is not one name',
   (c) => {
-    test('`a/b` is the file that pull writes for the id: a%2Fb, and that file is pushed', async () => {
+    test('`a/b` is looked up as the file a%2Fb.json, and that file is pushed', async () => {
       const file =
         c.shape === 'file'
           ? path.join(tree, c.folder, 'a%2Fb.json')
@@ -436,6 +440,29 @@ describe.each(COMMANDS.filter((c) => c.object))(
     });
   }
 );
+
+describe('push journeys -i, the folder of a journey that is not one name', () => {
+  test('the nodes of the journey `a/b` are read from the nodes folder of the folder a%2Fb, and sent with it', async () => {
+    const folder = path.join(tree, 'realms', 'alpha', 'journeys', 'a%2Fb');
+    fs.mkdirSync(path.join(folder, 'nodes'), { recursive: true });
+    fs.writeFileSync(
+      path.join(folder, 'a%2Fb.json'),
+      JSON.stringify({ _id: 'a/b', nodes: {} })
+    );
+    fs.writeFileSync(
+      path.join(folder, 'nodes', 'node-one.json'),
+      JSON.stringify({
+        _id: 'node-one',
+        _type: { _id: 'ScriptedDecisionNode' },
+      })
+    );
+
+    expect(await configManagerImportJourneys('a/b', 'alpha')).toBe(true);
+
+    expect(importedTrees).toHaveLength(1);
+    expect(Object.keys(importedTrees[0]['a/b'].nodes)).toEqual(['node-one']);
+  });
+});
 
 describe('the agent types: the id of an object is the name of its file', () => {
   const spec = {
@@ -489,7 +516,7 @@ describe('the agent types: the id of an object is the name of its file', () => {
   test.each(
     IDS.map((id) => [id.length > 20 ? `${id.slice(0, 8)}...` : id, id])
   )(
-    'what a pull writes for the id %j is what `-i` finds, and it pushes that object only',
+    'the file that is pulled for the id %j is what `-i` finds, and it pushes that object only',
     async (_, id) => {
       expect(await pull(IDS)).toBe(true);
       // the files that the pull made, one for each id
@@ -560,13 +587,13 @@ describe('the agent types: the id of an object is the name of its file', () => {
     );
   });
 
-  test('a file that was named by hand with the plain id is no longer found by -i when the id has a character that a pull writes as %XX', async () => {
+  test('a file that was named by hand with the plain id is no longer found by -i when the id has a character that is written as %XX in a file name', async () => {
     fs.mkdirSync(folder(), { recursive: true });
     fs.writeFileSync(path.join(folder(), 'a*b.json'), '{"_id":"a*b"}');
 
     const { ok } = await push('a*b');
 
-    // the pull of the id a*b writes ab.json, so that is the file that -i looks for
+    // the file name of the id a*b is ab.json, so that is the file that -i looks for
     expect(ok).toBe(false);
     expect(messages()).toContain(
       `No test agent file 'ab.json' in ${folder()}.`

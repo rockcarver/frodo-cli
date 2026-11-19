@@ -16,7 +16,7 @@ import {
  * system: whatever the value says, the result is one name inside the folder it is asked for, or
  * an error.
  *
- * The expected names are what `pull` writes for an id (`/` becomes `%2F`), checked against
+ * The expected names are the file names of ids (`/` becomes `%2F`), checked against
  * sanitize-filename 1.6.5: `/ \ ? < > : | "` and control characters become `%XX`, `*` is removed,
  * a name that is only dots or a device name of Windows becomes empty, trailing dots go, and the
  * name is cut at 255 bytes.
@@ -27,7 +27,7 @@ const FOLDER = '/work/tree/sync/connectors';
 /** The value of a row is a string, or `[character, count]` for a long one. */
 const value = (v) => (Array.isArray(v) ? v[0].repeat(v[1]) : v);
 
-/** [selector, the file name that pull writes for it, without the extension] */
+/** [selector, the file name of that id, without the extension] */
 const FILE_NAMES = [
   ['x', 'x'],
   ['zion-a', 'zion-a'],
@@ -51,6 +51,7 @@ const FILE_NAMES = [
   ['aC:b', 'aC%3Ab'],
   ['a\u0000b', 'a%00b'],
   ['a\nb', 'a%0Ab'],
+  ['a\u0085b', 'a%C2%85b'], // a control character of the C1 block
   ['a?b', 'a%3Fb'],
   ['a<b>c', 'a%3Cb%3Ec'],
   ['a*b', 'ab'],
@@ -71,6 +72,7 @@ const FILE_NAMES = [
   ['\u00e9', '\u00e9'],
   ['\uff0f', '\uff0f'], // a full width slash is not a separator
   ['\uff0e\uff0e', '\uff0e\uff0e'],
+  ['a\u202eb', 'a\u202eb'], // the right-to-left override stays as typed
   // cut at 250 bytes, which leaves room for `.json` in the 255 that a file name can hold
   [['a', 300], 'a'.repeat(250)],
   [['é', 200], 'é'.repeat(125)],
@@ -142,8 +144,8 @@ describe('assertInside', () => {
 });
 
 describe('objectFilePath', () => {
-  // the six types that pull writes with the plain name: it is found when it is one safe segment,
-  // else the name pull writes for an id is looked for
+  // a plain name is found as before when it is one safe segment, else the file name of an id
+  // is looked for
   it.each([
     ['csv', `${FOLDER}/csv.json`],
     ['a b', `${FOLDER}/a b.json`],
@@ -178,7 +180,7 @@ describe('objectFilePath', () => {
     }
   });
 
-  it('finds what pull writes for an id when the caller makes the name first (the agent types)', () => {
+  it('finds the file name of an id when the caller makes the name first (the agent types)', () => {
     for (const [selector, expected] of FILE_NAMES) {
       expect(objectFilePath(FOLDER, fileNameOf(value(selector)))).toBe(
         `${FOLDER}/${expected}.json`
