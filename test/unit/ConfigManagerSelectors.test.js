@@ -1041,6 +1041,16 @@ describe('the selectors of the configuration commands', () => {
       expect(failure(name, ['-n', 'a', '-p', 'b'])).toBeUndefined();
     });
 
+    it('declares the conflict of -i and -p of delete scripts on both options, as the record on mutually exclusive options asks', () => {
+      const options = commands.get('frodo config-manager delete scripts').options;
+      const conflictsOf = (long) =>
+        [...(options.find((option) => option.long === long)?.conflictsWith ?? [])].sort();
+
+      expect(conflictsOf('--script-id')).toEqual(['prefix', 'scriptName']);
+      expect(conflictsOf('--script-name')).toEqual(['scriptId']);
+      expect(conflictsOf('--prefix')).toEqual(['scriptId']);
+    });
+
     it('refuses an empty -n of push csp, which would write both policies, and still takes a policy name as it did', () => {
       const name = 'frodo config-manager push csp';
 

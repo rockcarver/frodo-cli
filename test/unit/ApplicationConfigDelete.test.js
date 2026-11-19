@@ -857,6 +857,25 @@ describe('one application by id', () => {
     expect(order()).toEqual([]);
   });
 
+  test('the dry run of an id needs a single realm too, and reads nothing before it says so', async () => {
+    world.realms = ['alpha', 'bravo'];
+    world.apps.alpha = [app('a1', 'Zion Portal')];
+
+    const outcome = await configManagerDeleteApplications(
+      undefined,
+      undefined,
+      true,
+      false,
+      'a1'
+    );
+
+    expect(outcome).toBe(false);
+    expect(output()).toContain(
+      'for a named application, specify a single realm'
+    );
+    expect(calls.filter((c) => c.startsWith('read'))).toEqual([]);
+  });
+
   test('an active application is refused by id as by name, and nothing of it is deleted', async () => {
     world.apps.alpha = [
       app('a1', 'Zion Portal', [ref('connector', 'ZionDirectory')], 'ZionDirectory'),
