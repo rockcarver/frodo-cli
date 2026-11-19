@@ -885,10 +885,15 @@ export function findSelectorProblems(input) {
 }
 
 /**
- * MIGRATION.md lists every command of the rows with its new option: a line
- * that holds the command in backticks, the id option as `-i, --<type>-id`, the
- * name option as `-n, --<type>-name` when the command has one, and each alias
- * spelling in backticks.
+ * MIGRATION.md lists every command of the rows with its new option in a TABLE
+ * ROW, one row for each command, with three cells: the command in backticks
+ * (`pull journeys`), the options that select by, exactly the id option as
+ * `-i, --<type>-id` and, when the command has one, `, ` and the name option as
+ * `-n, --<type>-name`, and the spellings that keep working, each alias spelling
+ * in backticks (a command that had no `--name` has a word there, `new`). A
+ * sentence of the prose that names the command and its options does not count:
+ * the table is what a reader scans, and a row that is deleted or misspelt must
+ * fail even when a sentence still names the command.
  * @param {string} text the text of MIGRATION.md
  * @param {object[]} rows the expected selectors
  * @returns {{problems: string[], checked: {rows: number}}}
@@ -899,32 +904,59 @@ export function findSelectorMigrationProblems(text, rows) {
       'findSelectorMigrationProblems: the text of MIGRATION.md is missing or empty'
     );
   }
-  const lines = text.split('\n');
+  // the cells of every table row of the text: a line that starts with a pipe
+  const tableRows = text
+    .split('\n')
+    .map((line) => line.trim())
+    .filter((line) => line.startsWith('|') && line.endsWith('|'))
+    .map((line) =>
+      line
+        .slice(1, -1)
+        .split('|')
+        .map((cell) => cell.trim())
+    );
   const problems = [];
   let found = 0;
   for (const row of rows) {
     const words = commandWords(row.command);
-    const wanted = [
-      `\`${words}\``,
-      `\`-i, ${row.id}\``,
-      ...(row.name !== null ? [`\`-n, ${row.name}\``] : []),
-      ...(row.aliases ?? []).map((alias) => `\`${alias}\``),
-    ];
-    const line = lines.find(
-      (candidate) =>
-        candidate.includes(`\`${words}\``) &&
-        candidate.includes(`\`-i, ${row.id}\``)
+    const sameCommand = tableRows.filter(
+      (cells) => cells.length === 3 && cells[0] === `\`${words}\``
     );
-    if (!line) {
+    if (sameCommand.length === 0) {
       problems.push(
-        `${row.command} :: MIGRATION.md has no line with \`${words}\` and \`-i, ${row.id}\`: add the command to the table of the selectors`
+        `${row.command} :: MIGRATION.md has no table row of three cells for \`${words}\`: add the command to the table of the selectors`
       );
       continue;
     }
-    const missing = wanted.filter((item) => !line.includes(item));
+    if (sameCommand.length > 1) {
+      problems.push(
+        `${row.command} :: MIGRATION.md has ${sameCommand.length} table rows for \`${words}\`: one row for each command`
+      );
+      continue;
+    }
+    const [, selectCell, stillWorksCell] = sameCommand[0];
+    const selects = [
+      `\`-i, ${row.id}\``,
+      ...(row.name !== null ? [`\`-n, ${row.name}\``] : []),
+    ].join(', ');
+    if (selectCell !== selects) {
+      problems.push(
+        `${row.command} :: the row of MIGRATION.md says ${selectCell} in its second cell, expected ${selects}`
+      );
+      continue;
+    }
+    const missing = (row.aliases ?? [])
+      .map((alias) => `\`${alias}\``)
+      .filter((alias) => !stillWorksCell.includes(alias));
     if (missing.length > 0) {
       problems.push(
-        `${row.command} :: the line of MIGRATION.md does not hold ${missing.join(', ')}`
+        `${row.command} :: the row of MIGRATION.md does not hold ${missing.join(', ')} in its third cell`
+      );
+      continue;
+    }
+    if (stillWorksCell === '') {
+      problems.push(
+        `${row.command} :: the third cell of the row of MIGRATION.md is empty: name the spellings that keep working, or say new`
       );
       continue;
     }

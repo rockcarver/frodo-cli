@@ -471,6 +471,17 @@ describe('findSelectorMigrationProblems', () => {
     expect(checked.rows).toBe(2);
   });
 
+  it('accepts a word in the third cell for a command that had no --name, and counts it', () => {
+    const row = { ...ROW_I, aliases: [] };
+    const { problems, checked } = findSelectorMigrationProblems(
+      '| `pull journeys` | `-i, --journey-id` | new |',
+      [row]
+    );
+
+    expect(problems).toEqual([]);
+    expect(checked.rows).toBe(1);
+  });
+
   it('fails a command that is not listed, naming it', () => {
     const { problems } = findSelectorMigrationProblems(
       table.replace('`pull journeys`', '`pull journey`'),
@@ -478,21 +489,82 @@ describe('findSelectorMigrationProblems', () => {
     );
 
     expect(problems).toEqual([
-      'frodo config-manager pull journeys :: MIGRATION.md has no line with `pull journeys` and `-i, --journey-id`: add the command to the table of the selectors',
+      'frodo config-manager pull journeys :: MIGRATION.md has no table row of three cells for `pull journeys`: add the command to the table of the selectors',
     ]);
   });
 
-  it('fails a line that lacks the name option, or an alias spelling', () => {
+  it('does not count a sentence of the prose that names the command and its options: the table row is what is checked', () => {
+    // the sentence holds everything the old check looked for, the row is gone
+    const prose =
+      'text\n`pull journeys` takes `-i, --journey-id` for the first time, and `-n`, `--name` keep working.\n';
+    const { problems } = findSelectorMigrationProblems(
+      prose + table.split('\n')[1],
+      [ROW_I]
+    );
+
+    expect(problems).toEqual([
+      'frodo config-manager pull journeys :: MIGRATION.md has no table row of three cells for `pull journeys`: add the command to the table of the selectors',
+    ]);
+  });
+
+  it('does not count a row of another table that has another shape (two or four cells)', () => {
+    const { problems } = findSelectorMigrationProblems(
+      [
+        '| `pull journeys` | `-i, --journey-id` |',
+        '| `pull journeys` | `-i, --journey-id` | `-n`, `--name` | extra |',
+      ].join('\n'),
+      [ROW_I]
+    );
+
+    expect(problems).toHaveLength(1);
+    expect(problems[0]).toMatch(/no table row of three cells/);
+  });
+
+  it('fails a second cell that is not exactly the options of the row: the name option left out, one that is not the row\'s, or an extra one', () => {
     expect(
       findSelectorMigrationProblems(table.replace(', `-n, --app-name`', ''), [
         ROW_N,
-      ]).problems[0]
-    ).toMatch(/does not hold `-n, --app-name`/);
+      ]).problems
+    ).toEqual([
+      'frodo config-manager pull applications :: the row of MIGRATION.md says `-i, --app-id` in its second cell, expected `-i, --app-id`, `-n, --app-name`',
+    ]);
+    expect(
+      findSelectorMigrationProblems(
+        table.replace('`-i, --journey-id`', '`-i, --journey-name`'),
+        [ROW_I]
+      ).problems[0]
+    ).toMatch(/says `-i, --journey-name` in its second cell/);
+    expect(
+      findSelectorMigrationProblems(
+        table.replace('`-i, --journey-id`', '`-i, --journey-id`, `-n, --x`'),
+        [ROW_I]
+      ).problems[0]
+    ).toMatch(/in its second cell, expected `-i, --journey-id`$/);
+  });
+
+  it('fails a third cell that lacks an alias spelling, or is empty', () => {
     expect(
       findSelectorMigrationProblems(table.replace('`-n`, `--name`', '`-n`'), [
         ROW_I,
       ]).problems[0]
-    ).toMatch(/does not hold `--name`/);
+    ).toMatch(/does not hold `--name` in its third cell/);
+    expect(
+      findSelectorMigrationProblems(
+        '| `pull journeys` | `-i, --journey-id` |  |',
+        [{ ...ROW_I, aliases: [] }]
+      ).problems[0]
+    ).toMatch(/third cell .* is empty/);
+  });
+
+  it('fails a command that has two rows', () => {
+    const { problems } = findSelectorMigrationProblems(
+      `${table}\n${table.split('\n')[0]}`,
+      [ROW_I]
+    );
+
+    expect(problems).toEqual([
+      'frodo config-manager pull journeys :: MIGRATION.md has 2 table rows for `pull journeys`: one row for each command',
+    ]);
   });
 
   it('throws on a text that is empty', () => {
