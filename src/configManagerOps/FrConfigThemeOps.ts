@@ -352,11 +352,13 @@ function isNothingToDelete(error: unknown): boolean {
  * does not stop the others.
  * A theme that is not in the realm is an error when the realm was given, and a
  * warning when all realms are processed (fr-config-manager only warns).
+ * An id that none of the realms has is an error too, also when all realms are
+ * processed: it names one theme, so not finding it is no result.
  * @param {string} name Optional exact name of the theme to target.
  * @param {string} realm Optional realm to process.
  * @param {boolean} dryRun Show which themes would be deleted without deleting them.
  * @param {boolean} allowFailures True to succeed although some realms could not be processed (the failures are still summarised)
- * @param {string} id Optional id (`_id`) of the one theme to target instead of a name, with the same rules as a name: an error when the realm was given and has no such theme, a warning when all realms are processed. An empty id selects nothing (the command refuses an empty value before it connects).
+ * @param {string} id Optional id (`_id`) of the one theme to target instead of a name, an error when the realm was given and has no such theme; across realms a warning for each realm that lacks it, and an error when no realm has it. An empty id selects nothing (the command refuses an empty value before it connects).
  * @returns {Promise<boolean>} False if a realm could not be processed (unless failures are allowed); otherwise true.
  */
 export async function configManagerDeleteThemes(
@@ -372,6 +374,8 @@ export async function configManagerDeleteThemes(
     const oneRealm = realm && realm !== DEFAULT_REALM_KEY;
     const realms = oneRealm ? [realm] : await realmList();
     const run = new OperationRun({ unit: 'realm', allowFailures });
+    // an id that was found in no realm of the run is an error (the id names one theme: not finding it is no result)
+    let idFound = false;
     for (const currentRealm of realms) {
       if (
         currentRealm === '/' &&
@@ -405,6 +409,7 @@ export async function configManagerDeleteThemes(
             `${dryRun ? 'Dry run: ' : ''}Deleting theme '${theme.name}' in realm '${currentRealm}'`
           );
         }
+        if (id !== undefined) idFound = true;
         run.recordSuccess();
       } catch (error) {
         if (isNothingToDelete(error) && (selected === undefined || !oneRealm)) {
@@ -421,7 +426,12 @@ export async function configManagerDeleteThemes(
         run.recordFailure(currentRealm, causeOf(error));
       }
     }
-    return run.finish();
+    // a realm that failed has said why; a realm that was given and lacks the id is a failure already
+    const idMissing = id !== undefined && !idFound && !run.hasFailures;
+    if (idMissing) {
+      printMessage(`Theme with id '${id}' not found in any realm.`, 'error');
+    }
+    return run.finish() && !idMissing;
   } catch (error) {
     printError(error);
     return false;

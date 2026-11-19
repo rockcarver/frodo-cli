@@ -407,6 +407,80 @@ describe('one theme by id', () => {
     expect(messages('error')).toEqual([]);
   });
 
+  test('an id that no realm has is an error across several realms, which is not the heritage of a name: nothing is deleted and the id is named', async () => {
+    expect(
+      await configManagerDeleteThemes(
+        undefined,
+        undefined,
+        false,
+        false,
+        'id-nowhere'
+      )
+    ).toBe(false);
+
+    expect(deleted).toEqual([]);
+    // each realm says it, and one error says that no realm has the id
+    expect(messages('warn')).toEqual([
+      "Theme with id 'id-nowhere' not found in realm '/'.",
+      "Theme with id 'id-nowhere' not found in realm 'alpha'.",
+      "Theme with id 'id-nowhere' not found in realm 'bravo'.",
+    ]);
+    expect(messages('error')).toEqual([
+      "Theme with id 'id-nowhere' not found in any realm.",
+    ]);
+  });
+
+  test('--allow-failures does not turn an id that no realm has into a success', async () => {
+    expect(
+      await configManagerDeleteThemes(
+        undefined,
+        undefined,
+        false,
+        true,
+        'id-nowhere'
+      )
+    ).toBe(false);
+  });
+
+  test('the dry run of an id that no realm has fails too', async () => {
+    expect(
+      await configManagerDeleteThemes(
+        undefined,
+        undefined,
+        true,
+        false,
+        'id-nowhere'
+      )
+    ).toBe(false);
+    expect(messages('error')).toEqual([
+      "Theme with id 'id-nowhere' not found in any realm.",
+    ]);
+  });
+
+  test('a name that no realm has keeps its heritage: warnings and a success', async () => {
+    expect(
+      await configManagerDeleteThemes('Nowhere', undefined, false, false)
+    ).toBe(true);
+
+    expect(deleted).toEqual([]);
+    expect(messages('error')).toEqual([]);
+  });
+
+  test('a realm that fails is the one error, not a second one for the id', async () => {
+    failingRealms = new Set(['alpha']);
+
+    expect(
+      await configManagerDeleteThemes(
+        undefined,
+        undefined,
+        false,
+        false,
+        'id-mine'
+      )
+    ).toBe(false);
+    expect(messages('error').join('\n')).not.toContain('not found in any realm');
+  });
+
   test('a failure other than "not found" is an error even across several realms', async () => {
     failingRealms = new Set(['alpha']);
 
