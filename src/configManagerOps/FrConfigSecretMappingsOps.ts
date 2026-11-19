@@ -15,7 +15,6 @@ const {
   readSecretStoreMappings,
   updateSecretStoreMapping,
   deleteSecretStoreMapping,
-  readSecretStoreMapping,
 } = frodo.secretStore;
 
 const constants = frodo.utils.constants;
@@ -187,12 +186,14 @@ export async function configManagerImportSecretMappings(
 }
 
 /**
- * Delete secret mappings from the ESV secret store.
+ * Delete secret mappings from the ESV secret store. A named mapping is looked for in the list of the
+ * realm (exact, case-sensitive match) and the listed ID is what is deleted: the ID of the command line
+ * is never put into a request, so it cannot be anything but an ID.
  * @param {string} name Optional exact mapping ID. If omitted, targets all mappings. An empty ID is an error, never "all".
  * @param {string} realm Optional realm to target. If omitted, processes every realm but the root realm. The root realm is an error: it has no secret mappings to delete.
  * @param {boolean} dryRun Show matching mappings without deleting them.
  * @param {boolean} allowFailures Allow individual deletion failures without failing the command.
- * @returns {Promise<boolean>} True if the run succeeds. False if the arguments are refused, if the realms cannot be listed, or, unless failures are allowed, if a mapping could not be deleted, a named mapping does not exist, or the mappings of a realm could not be read. A mapping or a realm that fails does not stop the others. Nothing to delete is a success.
+ * @returns {Promise<boolean>} True if the run succeeds. False if the arguments are refused, if the realms cannot be listed, or a named mapping is not in a realm (whatever failures are allowed), or, unless failures are allowed, if a mapping could not be deleted or the mappings of a realm could not be read. A mapping or a realm that fails does not stop the others. Nothing to delete is a success.
  */
 export async function configManagerDeleteSecretMappings(
   name?: string,
@@ -218,6 +219,9 @@ export async function configManagerDeleteSecretMappings(
     return false;
   }
   const run = new OperationRun({ unit: 'secret mapping', allowFailures });
+  // a named mapping that a realm does not have is not an operation that failed
+  // among others: it fails the command whatever --allow-failures says
+  let notFound = false;
   // the realm is set per realm below; the caller (for example the question of
   // the bulk-delete guard, which names the realm) must find it as it was
   const realmBefore = state.getRealm();
@@ -238,46 +242,29 @@ export async function configManagerDeleteSecretMappings(
     }
     for (const currentRealm of realms) {
       state.setRealm(currentRealm);
-      // a named mapping is deleted with one request, without reading first
-      if (named && !dryRun) {
-        try {
-          await deleteSecretStoreMapping(
-            ESV_SECRET_STORE_ID,
-            ESV_SECRET_STORE_TYPE,
-            name,
-            false
-          );
-          run.recordSuccess();
-          printMessage(
-            `Deleting secret ID mapping '${name}' in realm '${currentRealm}'`
-          );
-        } catch (error) {
-          printError(error);
-          run.recordFailure(name, causeOf(error));
-        }
-        continue;
-      }
       let mappings: SecretStoreMappingSkeleton[];
       try {
-        mappings = named
-          ? [
-              await readSecretStoreMapping(
-                ESV_SECRET_STORE_ID,
-                ESV_SECRET_STORE_TYPE,
-                name,
-                false
-              ),
-            ]
-          : await readSecretStoreMappings(
-              ESV_SECRET_STORE_ID,
-              ESV_SECRET_STORE_TYPE,
-              false
-            );
+        mappings = await readSecretStoreMappings(
+          ESV_SECRET_STORE_ID,
+          ESV_SECRET_STORE_TYPE,
+          false
+        );
       } catch (error) {
         // a realm whose mappings cannot be read does not stop the other realms
         printError(error);
         run.recordFailure(named ? name : currentRealm, causeOf(error));
         continue;
+      }
+      if (named) {
+        mappings = mappings.filter((mapping) => mapping._id === name);
+        if (mappings.length === 0) {
+          printMessage(
+            `Secret mapping '${name}' not found in realm '${currentRealm}'.`,
+            'error'
+          );
+          notFound = true;
+          continue;
+        }
       }
       if (mappings.length === 0) {
         printMessage(
@@ -312,7 +299,7 @@ export async function configManagerDeleteSecretMappings(
         }
       }
     }
-    return run.finish();
+    return run.finish() && !notFound;
   } finally {
     state.setRealm(realmBefore);
   }

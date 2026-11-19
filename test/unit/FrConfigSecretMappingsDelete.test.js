@@ -11,7 +11,10 @@
  * What these tests guard (cli records 0037, 0040 and 0041): the mappings are
  * those of the ESV secret store of each realm but the root realm; an empty or
  * blank ID never means "all"; naming the root realm is an error, not a silent
- * success; a named mapping that does not exist is an error; a mapping that
+ * success; a named mapping is looked for in the list of the realm (exact,
+ * case-sensitive) and only the listed ID is deleted, so an ID that is not a
+ * mapping (`..`, `a#b`) sends no delete at all, and one that does not exist
+ * is an error whatever --allow-failures says; a mapping that
  * cannot be deleted does not hide the others, is named by its ID with the cause
  * and is counted in one summary; a realm whose mappings cannot be read does not
  * stop the other realms; a list of realms that fails deletes nothing; a dry run
@@ -247,12 +250,12 @@ describe('dry run', () => {
     ]);
   });
 
-  test('the dry run of a named mapping reads that mapping and deletes nothing', async () => {
+  test('the dry run of a named mapping reads the list of the realm, finds the mapping and deletes nothing', async () => {
     expect(
       await configManagerDeleteSecretMappings('am.two', 'alpha', true)
     ).toBe(true);
 
-    expect(calls.map((c) => c.call)).toEqual(['read']);
+    expect(calls.map((c) => c.call)).toEqual(['list']);
     expect(messages(undefined)).toEqual([
       "Dry run: Deleting secret ID mapping 'am.two' in realm 'alpha'",
     ]);
@@ -268,59 +271,95 @@ describe('dry run', () => {
     expect(messages('error')).toEqual([]);
   });
 
-  test('the dry run of a named mapping that does not exist fails and names the mapping', async () => {
+  test('the dry run of a named mapping that does not exist fails whatever --allow-failures says, and names the mapping and the realm', async () => {
     expect(
       await configManagerDeleteSecretMappings('nosuch', 'alpha', true)
     ).toBe(false);
+    expect(
+      await configManagerDeleteSecretMappings('nosuch', 'alpha', true, true)
+    ).toBe(false);
 
-    expect(deletesOf()).toEqual([]);
+    expect(calls.map((c) => c.call)).toEqual(['list', 'list']);
     expect(messages('error')).toEqual([
-      "Error reading secret store mapping 'nosuch'\n  Request failed with status code 404",
-      '1 of 1 secret mapping failed:\n  - nosuch: Request failed with status code 404',
+      "Secret mapping 'nosuch' not found in realm 'alpha'.",
+      "Secret mapping 'nosuch' not found in realm 'alpha'.",
     ]);
   });
 });
 
 describe('delete one secret mapping', () => {
-  test('is one delete request, without reading the list first', async () => {
+  test('reads the list of the realm first, then deletes the mapping that it lists', async () => {
     expect(
       await configManagerDeleteSecretMappings('am.two', 'alpha', false)
     ).toBe(true);
 
-    expect(calls.map((c) => c.call)).toEqual(['delete']);
+    expect(calls.map((c) => c.call)).toEqual(['list', 'delete']);
     expect(deletesOf()).toEqual(['alpha/am.two']);
     expect(messages(undefined)).toEqual([
       "Deleting secret ID mapping 'am.two' in realm 'alpha'",
     ]);
   });
 
-  test('the ID is matched exactly and only in the named realm', async () => {
+  test('the ID is matched exactly and only in the named realm: the mapping of another realm is not deleted', async () => {
     expect(
       await configManagerDeleteSecretMappings('am.bravo.one', 'alpha', false)
     ).toBe(false);
 
-    expect(deletesOf()).toEqual(['alpha/am.bravo.one']);
+    expect(calls.map((c) => c.call)).toEqual(['list']);
     expect(tenant.bravo).toEqual(['am.bravo.one']);
-  });
-
-  test('a mapping that does not exist is an error, named, with the cause, and the result is false', async () => {
-    expect(
-      await configManagerDeleteSecretMappings('nosuch', 'alpha', false)
-    ).toBe(false);
-
-    expect(messages(undefined)).toEqual([]);
     expect(messages('error')).toEqual([
-      'Error deleting the secret store mapping nosuch\n  Request failed with status code 404',
-      '1 of 1 secret mapping failed:\n  - nosuch: Request failed with status code 404',
+      "Secret mapping 'am.bravo.one' not found in realm 'alpha'.",
     ]);
   });
 
-  test('a mapping that cannot be deleted fails the command, also with --allow-failures it is reported but the result is true', async () => {
+  test('a mapping that does not exist is an error, named with its realm, and the result is false whatever --allow-failures says; nothing is deleted', async () => {
+    expect(
+      await configManagerDeleteSecretMappings('nosuch', 'alpha', false)
+    ).toBe(false);
+    expect(
+      await configManagerDeleteSecretMappings('nosuch', 'alpha', false, true)
+    ).toBe(false);
+
+    expect(messages(undefined)).toEqual([]);
+    expect(calls.map((c) => c.call)).toEqual(['list', 'list']);
+    expect(messages('error')).toEqual([
+      "Secret mapping 'nosuch' not found in realm 'alpha'.",
+      "Secret mapping 'nosuch' not found in realm 'alpha'.",
+    ]);
+  });
+
+  test('a realm without any mapping does not have the named one either: an error, not "nothing to delete"', async () => {
+    tenant = { alpha: [] };
+
+    expect(
+      await configManagerDeleteSecretMappings('am.two', 'alpha', false)
+    ).toBe(false);
+
+    expect(calls.map((c) => c.call)).toEqual(['list']);
+    expect(messages('warn')).toEqual([]);
+    expect(messages('error')).toEqual([
+      "Secret mapping 'am.two' not found in realm 'alpha'.",
+    ]);
+  });
+
+  test('without a realm the mapping is looked for in every realm but the root realm: deleted where it is, an error where it is not', async () => {
+    expect(
+      await configManagerDeleteSecretMappings('am.bravo.one', DEFAULT_REALM)
+    ).toBe(false);
+
+    expect(deletesOf()).toEqual(['bravo/am.bravo.one']);
+    expect(messages('error')).toEqual([
+      "Secret mapping 'am.bravo.one' not found in realm 'alpha'.",
+    ]);
+  });
+
+  test('a mapping that cannot be deleted fails the command, also with --allow-failures it is reported but the result is true: the list was read first', async () => {
     failingIds = new Set(['am.two']);
 
     expect(
       await configManagerDeleteSecretMappings('am.two', 'alpha', false)
     ).toBe(false);
+    expect(calls.map((c) => c.call)).toEqual(['list', 'delete']);
     printed.length = 0;
     expect(
       await configManagerDeleteSecretMappings('am.two', 'alpha', false, true)
@@ -329,6 +368,49 @@ describe('delete one secret mapping', () => {
     expect(messages('warn').join('\n')).toContain(
       '1 of 1 secret mapping failed:\n  - am.two: Request failed with status code 500\nThe exit code stays 0 because --allow-failures was given.'
     );
+  });
+});
+
+describe('an ID is an ID, never a path', () => {
+  // none of these is a mapping: the list is read once, nothing is deleted, the command fails
+  test.each([
+    ['..'],
+    ['%2e%2e'],
+    ['.'],
+    ['a#b'],
+    ['a?b=c'],
+    ['../ESV'],
+    ['../../x'],
+    ['am.two/..'],
+    ['am.two/'],
+    ['am.two#x'],
+    ['AM.TWO'],
+    ['Am.X'],
+  ])('%j is not a mapping: one list read, no delete, an error', async (id) => {
+    for (const [dryRun, allowFailures] of [
+      [false, false],
+      [true, false],
+      [false, true],
+      [true, true],
+    ]) {
+      calls.length = 0;
+      printed.length = 0;
+
+      expect(
+        await configManagerDeleteSecretMappings(
+          id,
+          'alpha',
+          dryRun,
+          allowFailures
+        )
+      ).toBe(false);
+
+      expect(calls.map((c) => c.call)).toEqual(['list']);
+      expect(messages('error')).toEqual([
+        `Secret mapping '${id}' not found in realm 'alpha'.`,
+      ]);
+    }
+    expect(tenant.alpha).toEqual(['am.one', 'am.two', 'am.three']);
   });
 });
 
