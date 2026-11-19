@@ -406,20 +406,26 @@ pushed.
 `push themes` takes `-i, --theme-id` and `-n, --theme-name` for the first time:
 it pushed every theme of the realm before and still does without them, and with
 one of them the library merges that theme into the themes of the realm and
-leaves the others alone. `-i` on `push applications`, `push custom-nodes`,
+leaves the others alone, except that a theme that is the default one becomes the
+only default theme of the realm. `-i` on `push applications`, `push custom-nodes`,
 `push iga-workflows`, `push internal-roles`, `push scripts` and `push themes`
 selects by the id of the object, which these commands could not do before (their
 `-n` selects by name as before): the id is the `_id` in the file of the object
 (the `id` of a workflow file), and a file with another id is not pushed. The
 files of `pull applications` hold no id, so `push applications -i` takes the id
 that the application has on the tenant, reads the applications of the realm
-once, and pushes the folder of the application that has that id. Each of these
-commands needs a single realm for a selector, as `-n` did, and fails when the
-object is not there. `push csp` keeps its own `-n, --name`, the name of one of
-its two policies (`enforced` or `report-only`), and takes no `-i`: each policy
-is replaced whole, and the other one is not touched. `push terms-and-conditions`
-takes no selector: the versions are one configuration entity and a push that
-wrote only one version would replace the entity and drop the others.
+once, and pushes the folder of the application that has that id. A push matches
+an application by its name, so when two applications of a realm share a name,
+`push applications` refuses that name (`-i`, `-n` and a push of every folder
+alike) and writes nothing for it instead of updating the first of them. Each of
+these commands needs a single realm for a selector, as `-n` did, and fails when
+the object is not there. `push csp` keeps its own `-n, --name`, the name of one
+of its two policies (`enforced` or `report-only`), and takes no `-i`: each
+policy is replaced whole, and the other one is not touched; an empty value of
+that `-n` is refused too, because it would write both policies.
+`push terms-and-conditions` takes no selector: the versions are one
+configuration entity and a push that wrote only one version would replace the
+entity and drop the others.
 
 An empty value of a selector (`-i ""`, `-n ""`, `--name ""`, or a variable that
 expands to nothing) is refused with exit code 1 before the command connects to

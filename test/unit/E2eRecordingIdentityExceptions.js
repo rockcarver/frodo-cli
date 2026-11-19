@@ -540,7 +540,8 @@ export const RENAMED = [
   {
     file: 'config-manager-push-saml.e2e.test.js',
     cmd: 'frodo config-manager push saml -i test-IDP -E IDP_URL_PLACEHOLDER=https://platform.dev.trivir.com/am/idpsaehandler/metaAlias/alpha/test -E HTTP_REDIRECT_PLACEHOLDER=urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect -D test/e2e/exports/fr-config-manager/forgeops -m forgeops',
-    was: 'frodo config-manager push saml -n test-IDP -E IDP_URL_PLACEHOLDER=https://platform.dev.trivir.com/am/idpsaehandler/metaAlias/alpha/test -E HTTP_REDIRECT_PLACEHOLDER=urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect -D test/e2e/exports/fr-config-manager/forgeops -m forgeops',
+    // the host in the value of the first -E is the sample host: the args id of the command as it was recorded depends on its flags only
+    was: 'frodo config-manager push saml -n test-IDP -E IDP_URL_PLACEHOLDER=https://openam-matrix.example.com/am/idpsaehandler/metaAlias/alpha/test -E HTTP_REDIRECT_PLACEHOLDER=urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect -D test/e2e/exports/fr-config-manager/forgeops -m forgeops',
     pin: '0_n_E_E_D_m',
     why: SELECTORS_RECORD_WHY,
   },
