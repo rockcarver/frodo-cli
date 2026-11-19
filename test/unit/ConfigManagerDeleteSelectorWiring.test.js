@@ -24,7 +24,8 @@ import { EXPECTED_SELECTORS } from './ConfigManagerSelectorRows.js';
  *   even with `-y`; a value of blanks is never "all" either.
  *
  * The ops functions are fakes: what they do with an id is in
- * ConfigManagerDeleteSelectors.test.js, the options are in
+ * FrConfigScriptDelete.test.js, FrConfigCustomNodesDelete.test.js,
+ * FrConfigThemeDelete.test.js and ApplicationConfigDelete.test.js, the options are in
  * ConfigManagerSelectors.test.js, and the commands that are checked one by one
  * are in the ConfigManagerDelete*Command tests. This is the delete twin of
  * ConfigManagerPushSelectorWiring.test.js, one entry for each delete row of the
@@ -233,10 +234,10 @@ function program(type) {
   return command;
 }
 
-/** Runs the command with the arguments and returns what the ops function was called with, or undefined when it was not called. */
-async function run(type, args) {
+/** Runs the command with the arguments and returns what the ops function was called with, or undefined when it was not called; `result` is what the ops function resolves to. */
+async function run(type, args, result = true) {
   const { fn, extra = [] } = WIRING[type];
-  ops[fn].mockReset().mockResolvedValue(true);
+  ops[fn].mockReset().mockResolvedValue(result);
   getTokens.mockReset().mockResolvedValue(true);
   printMessage.mockReset();
   confirm.mockReset();
@@ -343,6 +344,28 @@ describe('the delete commands: a named delete never asks, and the selectors reac
       expect(dry[id]).toBeUndefined();
       expect(refusals()).toHaveLength(0);
       expect(process.exitCode).toBe(0);
+    }
+  );
+});
+
+describe('the delete commands: what the ops function reports is the exit code', () => {
+  // a delete that failed, or an id that was not there, must end the command with exit code 1: the ops functions say so by resolving false
+  it.each(deleteRows.map((row) => [typeOf(row), row]))(
+    '%s: a delete that the ops function reports as failed exits 1, one that it reports as done exits 0, for a named delete and for a delete of all',
+    async (type) => {
+      for (const args of [['-i', 'x'], ['-y']]) {
+        const typed = args.join(' ');
+
+        const failed = await run(type, args, false);
+
+        expect([typed, failed !== undefined]).toEqual([typed, true]);
+        expect([typed, process.exitCode]).toEqual([typed, 1]);
+
+        const done = await run(type, args, true);
+
+        expect([typed, done !== undefined]).toEqual([typed, true]);
+        expect([typed, process.exitCode]).toEqual([typed, 0]);
+      }
     }
   );
 });

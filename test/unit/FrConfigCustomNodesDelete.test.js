@@ -121,8 +121,8 @@ describe('one custom node by id', () => {
     ]);
   });
 
-  test('the id is matched exactly: the id without its -1, the display name and a prefix select nothing', async () => {
-    for (const id of ['alu', 'ALU', 'alu-']) {
+  test('the id is matched exactly: the id without its -1, the display name, a prefix and the id in other letters select nothing', async () => {
+    for (const id of ['alu', 'ALU', 'alu-', 'ALU-1']) {
       printed.length = 0;
       expect(
         await configManagerDeleteCustomNodes(undefined, false, false, id)

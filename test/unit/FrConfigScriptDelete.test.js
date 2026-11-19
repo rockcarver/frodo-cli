@@ -231,12 +231,15 @@ describe('one script by id', () => {
     expect(messages('error')).toEqual([]);
   });
 
-  test('an id that is the name of a script, or the id of a prefix, selects nothing: it is matched exactly', async () => {
+  test('an id that is the name of a script, or the id of a prefix, or the id in other letters, selects nothing: it is matched exactly', async () => {
     expect(
       await configManagerDeleteScripts([], '/alpha', undefined, false, false, 'Mine')
     ).toBe(false);
     expect(
       await configManagerDeleteScripts([], '/alpha', undefined, false, false, 'id-Mi')
+    ).toBe(false);
+    expect(
+      await configManagerDeleteScripts([], '/alpha', undefined, false, false, 'ID-MINE')
     ).toBe(false);
 
     expect(deletedIds).toEqual([]);
