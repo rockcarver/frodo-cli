@@ -4,6 +4,7 @@ import { configManagerImportCsp } from '../../../configManagerOps/FrConfigCspOps
 import { getTokens } from '../../../ops/AuthenticateOps';
 import { verboseMessage } from '../../../utils/Console';
 import { FrodoCommand } from '../../FrodoCommand';
+import { refuseEmptySelector } from '../../SelectorOption';
 
 const { CLOUD_DEPLOYMENT_TYPE_KEY } = frodo.utils.constants;
 
@@ -19,10 +20,12 @@ export default function setup() {
   program
     .description('Import content security policy.')
     .addOption(
+      // the option that this command declared before the selectors, kept as it
+      // is, but an empty value never selects: it would write both policies
       new Option(
         '-n, --name <name>',
         'Policy name; import only the policy with the specified name.'
-      )
+      ).argParser(refuseEmptySelector)
     )
     .description('Import content security policy.')
     .multiOp()

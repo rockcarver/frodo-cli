@@ -935,6 +935,30 @@ describe('the selectors of the configuration commands', () => {
       expect(parse(name, ['-p', 'a', '--prefix=b']).prefix).toEqual(['a', 'b']);
     });
 
+    it('refuses an empty -n of push csp, which would write both policies, and still takes a policy name as it did', () => {
+      const name = 'frodo config-manager push csp';
+
+      for (const args of [['-n', ''], ['--name', ''], ['--name=']]) {
+        const error = failure(name, args);
+
+        expect([args.join(' '), error?.code, error?.exitCode]).toEqual([
+          args.join(' '),
+          'commander.invalidArgument',
+          1,
+        ]);
+        expect(error.message).toContain("option '-n, --name <name>'");
+        expect(error.message).toContain(
+          'An empty value never selects all objects'
+        );
+      }
+      // the meaning of the option did not change: a name is passed on as it was typed
+      expect(failure(name, ['-n', 'enforced'])).toBeUndefined();
+      expect(failure(name, ['--name', 'report-only'])).toBeUndefined();
+      expect(parse(name, ['-n', 'enforced']).name).toBe('enforced');
+      // no -i and no alias: the command has no selector
+      expect(failure(name, ['-i', 'x'])?.code).toBe('commander.unknownOption');
+    });
+
     it('keeps the letters of the other options: -n is no letter of another option on a renamed command', () => {
       for (const row of EXPECTED_SELECTORS) {
         const others = commands
