@@ -2,7 +2,7 @@
 
 /*
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_TEST_NAME=0_D frodo config-manager push journeys -D test/e2e/exports/fr-config-manager/forgeops
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_TEST_NAME=0_n_D frodo config-manager push journeys -n ProgressiveProfile -D test/e2e/exports/fr-config-manager/forgeops
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_TEST_NAME=0_n_D frodo config-manager push journeys -i ProgressiveProfile -D test/e2e/exports/fr-config-manager/forgeops
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_TEST_NAME=0_Fd_D frodo config-manager push journeys -F --push-dependencies -D test/e2e/exports/fr-config-manager/forgeops
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_TEST_NAME=0_d_D frodo config-manager push journeys --push-dependencies -D test/e2e/exports/fr-config-manager/forgeops
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_TEST_NAME=0_Fn_d_D frodo config-manager push journeys -Fn ConfigManagerPushTest --push-dependencies -D test/e2e/exports/fr-config-manager/forgeops
@@ -23,7 +23,7 @@ describe('frodo config-manager push journeys', () => {
         await testSuccess(CMD, { ...env, env: { ...env.env, FRODO_TEST_NAME: '0_D' } });
     });
     test(`"frodo config-manager push journeys -n ProgressiveProfile -D ${allDirectory}": should import a specific journey by name"`, async () => {
-        const CMD = `frodo config-manager push journeys -n ProgressiveProfile -D ${allDirectory}`;
+        const CMD = `frodo config-manager push journeys -i ProgressiveProfile -D ${allDirectory}`;
         await testSuccess(CMD, { ...env, env: { ...env.env, FRODO_TEST_NAME: '0_n_D' } });
     });
     test(`"frodo config-manager push journeys -Fd -D ${allDirectory}": should resolve dependencies when importing"`, async () => {
