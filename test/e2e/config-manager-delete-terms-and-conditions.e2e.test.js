@@ -3,9 +3,9 @@
 /*
 // ForgeOps
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://nightly.gcp.forgeops.com/am FRODO_TEST_NAME=0_y_m frodo config-manager delete terms-and-conditions -y -m forgeops
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://nightly.gcp.forgeops.com/am FRODO_TEST_NAME=0_n_m frodo config-manager delete terms-and-conditions -n 0.1 -m forgeops
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://nightly.gcp.forgeops.com/am FRODO_TEST_NAME=0_n_m frodo config-manager delete terms-and-conditions -i 0.1 -m forgeops
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://nightly.gcp.forgeops.com/am FRODO_TEST_NAME=0_dry-run_m frodo config-manager delete terms-and-conditions --dry-run  -m forgeops
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://nightly.gcp.forgeops.com/am FRODO_TEST_NAME=0_d_n_m frodo config-manager delete terms-and-conditions -d -n 0.1 -m forgeops
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://nightly.gcp.forgeops.com/am FRODO_TEST_NAME=0_d_n_m frodo config-manager delete terms-and-conditions -d -i 0.1 -m forgeops
 */
 
 import { getEnv, testSuccess } from './utils/TestUtils';
@@ -21,7 +21,7 @@ describe('frodo config-manager delete terms-and-conditions', () => {
       await testSuccess(CMD, { ...forgeopsEnv, env: { ...forgeopsEnv.env, FRODO_TEST_NAME: '0_y_m' } });
     });
     test(`"frodo config-manager delete terms-and-conditions -n 0.1 -m forgeops": should delete a specific terms and conditions version from forgeops`, async () => {
-      const CMD = `frodo config-manager delete terms-and-conditions -n 0.1 -m forgeops`;
+      const CMD = `frodo config-manager delete terms-and-conditions -i 0.1 -m forgeops`;
       await testSuccess(CMD, { ...forgeopsEnv, env: { ...forgeopsEnv.env, FRODO_TEST_NAME: '0_n_m' } });
     });
     test(`"frodo config-manager delete terms-and-conditions --dry-run -m forgeops": should preview deletion of all terms and conditions versions from forgeops`, async () => {
@@ -29,7 +29,7 @@ describe('frodo config-manager delete terms-and-conditions', () => {
       await testSuccess(CMD, { ...forgeopsEnv, env: { ...forgeopsEnv.env, FRODO_TEST_NAME: '0_dry-run_m' } });
     });
     test(`"frodo config-manager delete terms-and-conditions -d -n 0.1 -m forgeops": should preview deletion of a specific terms and conditions version from forgeops`, async () => {
-      const CMD = `frodo config-manager delete terms-and-conditions -d -n 0.1 -m forgeops`;
+      const CMD = `frodo config-manager delete terms-and-conditions -d -i 0.1 -m forgeops`;
       await testSuccess(CMD, { ...forgeopsEnv, env: { ...forgeopsEnv.env, FRODO_TEST_NAME: '0_d_n_m' } });
     });
 });
