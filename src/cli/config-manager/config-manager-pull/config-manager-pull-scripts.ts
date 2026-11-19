@@ -1,9 +1,9 @@
-import { Option } from 'commander';
 import { configManagerExportScripts } from '../../../configManagerOps/FrConfigScriptOps';
 import { getTokens } from '../../../ops/AuthenticateOps';
 import { verboseMessage } from '../../../utils/Console';
 import { realmOfRun } from '../../../utils/interactive/PositionalArgs';
 import { FrodoCommand, ListOption } from '../../FrodoCommand';
+import { selectorOption } from '../../SelectorOption';
 
 export default function setup() {
   const program = new FrodoCommand('frodo config-manager pull scripts');
@@ -11,13 +11,13 @@ export default function setup() {
   program
     .description('Export AM scripts.')
     .addOption(
-      new Option(
+      selectorOption(
         '-i, --script-id <id>',
         'Export the script with this id. Cannot be used with -n or -p.'
       ).conflicts(['scriptName', 'prefix'])
     )
     .addOption(
-      new Option(
+      selectorOption(
         '-n, --script-name <name>',
         'Export specific script using filename. Omit file extension. Cannot be used with -i or -p.'
       ).conflicts(['scriptId', 'prefix'])

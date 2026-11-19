@@ -1,11 +1,10 @@
 import { frodo } from '@rockcarver/frodo-lib';
-import { Option } from 'commander';
 import { configManagerExportConnectorDefinitions } from '../../../configManagerOps/FrConfigConnectorDefinitionsOps';
 import { ownedObjectsHelp } from '../../../ops/ApplicationOwnedObjectsHelp';
 import { getTokens } from '../../../ops/AuthenticateOps';
 import { verboseMessage } from '../../../utils/Console';
 import { FrodoCommand } from '../../FrodoCommand';
-import { withOptionAlias } from '../../OptionAlias';
+import { selectorOption } from '../../SelectorOption';
 
 const { CLOUD_DEPLOYMENT_TYPE_KEY, FORGEOPS_DEPLOYMENT_TYPE_KEY } =
   frodo.utils.constants;
@@ -25,11 +24,9 @@ export default function setup() {
   program
     .description('Export connector definitions.')
     .addOption(
-      withOptionAlias(
-        new Option(
-          '-i, --connector-id <id>',
-          'Get the connector definition with the specified id, without the type prefix.'
-        ),
+      selectorOption(
+        '-i, --connector-id <id>',
+        'Get the connector definition with the specified id, without the type prefix.',
         ['-n', '--name']
       )
     )

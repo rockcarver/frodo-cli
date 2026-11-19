@@ -18,6 +18,9 @@
  * - PENDING_VERBS: verbs whose commands have not been given their rows yet;
  *   the check does not look for a stray `-n` on them. The step named in `until`
  *   deletes the entry.
+ * - NO_SELECTOR_COMMANDS: commands that take no selector on purpose; the check
+ *   fails when one gets an option that selects an object. C4b adds the two push
+ *   commands of the same two types.
  * - KEPT_OLD_SPELLING: the lines of the e2e tests that type `-n` or `--name`
  *   on purpose, so that the alias stays covered end to end by a replay.
  */
@@ -44,12 +47,6 @@ export const EXPECTED_SELECTORS = [
   {
     command: 'frodo config-manager pull connector-mappings',
     id: '--connector-mapping-id',
-    name: null,
-    aliases: [],
-  },
-  {
-    command: 'frodo config-manager pull csp',
-    id: '--csp-id',
     name: null,
     aliases: [],
   },
@@ -150,12 +147,6 @@ export const EXPECTED_SELECTORS = [
     aliases: ['-n', '--name'],
   },
   {
-    command: 'frodo config-manager pull terms-and-conditions',
-    id: '--version-id',
-    name: null,
-    aliases: [],
-  },
-  {
     command: 'frodo config-manager pull oauth-issuers',
     id: '--issuer-id',
     name: null,
@@ -212,5 +203,16 @@ export const KEPT_OLD_SPELLING = [
     file: 'config-manager-pull-locales.e2e.test.js',
     cmd: 'frodo config-manager pull locales -n fr -D ${dirName}',
     why: 'the -n spelling replays the recording of the command through the alias, which covers the alias end to end; the other lines type the new spelling',
+  },
+];
+
+export const NO_SELECTOR_COMMANDS = [
+  {
+    command: 'frodo config-manager pull csp',
+    why: 'the file is the whole entity: a file that held a part of it would replace the whole entity when it is pushed',
+  },
+  {
+    command: 'frodo config-manager pull terms-and-conditions',
+    why: 'the file is the whole entity: a file that held a part of it would replace the whole entity when it is pushed',
   },
 ];

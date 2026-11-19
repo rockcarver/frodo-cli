@@ -1,10 +1,9 @@
 import { frodo } from '@rockcarver/frodo-lib';
-import { Option } from 'commander';
 import { configManagerExportEmailTemplates } from '../../../configManagerOps/FrConfigEmailTemplatesOps';
 import { getTokens } from '../../../ops/AuthenticateOps';
 import { verboseMessage } from '../../../utils/Console';
 import { FrodoCommand } from '../../FrodoCommand';
-import { withOptionAlias } from '../../OptionAlias';
+import { selectorOption } from '../../SelectorOption';
 
 const { CLOUD_DEPLOYMENT_TYPE_KEY, FORGEOPS_DEPLOYMENT_TYPE_KEY } =
   frodo.utils.constants;
@@ -24,11 +23,9 @@ export default function setup() {
   program
     .description('Export email-templates objects.')
     .addOption(
-      withOptionAlias(
-        new Option(
-          '-i, --template-id <id>',
-          'Email template id. If specified, only exports the email template with the specified id.'
-        ),
+      selectorOption(
+        '-i, --template-id <id>',
+        'Email template id. If specified, only exports the email template with the specified id.',
         ['-n', '--name']
       )
     )

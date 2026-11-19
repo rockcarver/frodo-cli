@@ -7,7 +7,7 @@ import { verboseMessage } from '../../../utils/Console';
 import { realmOfRun } from '../../../utils/interactive/PositionalArgs';
 import { KEY_SET_PULL_SENTENCE } from '../../../utils/PlaceholderValues';
 import { FrodoCommand } from '../../FrodoCommand';
-import { withOptionAlias } from '../../OptionAlias';
+import { selectorOption } from '../../SelectorOption';
 
 export default function setup() {
   const program = new FrodoCommand('frodo config-manager pull oauth-issuers');
@@ -20,11 +20,9 @@ export default function setup() {
         'Trusted JWT issuers are dynamic configuration: they are part of "pull all" and not of "pull all-static".'
     )
     .addOption(
-      withOptionAlias(
-        new Option(
-          '-i, --issuer-id <id>',
-          'Trusted JWT issuer id, the id of the object and not its iss URL. If specified, pulls only that issuer. Needs a single realm.'
-        ),
+      selectorOption(
+        '-i, --issuer-id <id>',
+        'Trusted JWT issuer id, the id of the object and not its iss URL. If specified, pulls only that issuer. Needs a single realm.',
         ['-n', '--name']
       )
     )

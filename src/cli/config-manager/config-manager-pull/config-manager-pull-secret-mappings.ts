@@ -1,11 +1,10 @@
 import { frodo } from '@rockcarver/frodo-lib';
-import { Option } from 'commander';
 import { configManagerExportSecretMappings } from '../../../configManagerOps/FrConfigSecretMappingsOps';
 import { getTokens } from '../../../ops/AuthenticateOps';
 import { verboseMessage } from '../../../utils/Console';
 import { realmOfRun } from '../../../utils/interactive/PositionalArgs';
 import { FrodoCommand } from '../../FrodoCommand';
-import { withOptionAlias } from '../../OptionAlias';
+import { selectorOption } from '../../SelectorOption';
 
 const { CLOUD_DEPLOYMENT_TYPE_KEY } = frodo.utils.constants;
 
@@ -21,11 +20,9 @@ export default function setup() {
   program
     .description('Export secret mappings.')
     .addOption(
-      withOptionAlias(
-        new Option(
-          '-i, --secret-mapping-id <id>',
-          'Id of the secret mapping. If specified, only exports the secret mapping with the specified id.'
-        ),
+      selectorOption(
+        '-i, --secret-mapping-id <id>',
+        'Id of the secret mapping. If specified, only exports the secret mapping with the specified id.',
         ['-n', '--name']
       )
     )

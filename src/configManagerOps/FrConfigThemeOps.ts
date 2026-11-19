@@ -108,9 +108,9 @@ async function exportThemesOfRealm(
  * one summary names the realms that failed.
  * A theme can be selected by its id or by its name; the theme is looked for in
  * the list that an export of all themes reads, so no other request is made.
- * Like a named script, a selected theme needs a single realm, an empty id or
- * name is refused (it never means all themes), and a theme that the realm does
- * not have fails the command whatever `allowFailures` says.
+ * Like a named script, a theme that is selected (named: by id or by name) needs
+ * a single realm, and a theme that the realm does not have fails the command
+ * whatever `allowFailures` says.
  * @param {string} realm The realm to export from
  * @param {boolean} allowFailures True to succeed although some realms could not be exported (the failures are still summarised)
  * @param {string} id Optional id (`_id`) of the one theme to export
@@ -123,22 +123,12 @@ export async function configManagerExportThemes(
   id?: string,
   name?: string
 ): Promise<boolean> {
-  if (id === '' || name === '') {
-    printMessage(
-      `The theme ${id === '' ? 'id' : 'name'} must not be empty.`,
-      'error'
-    );
-    return false;
-  }
   const selected = id ?? name;
   try {
     const realmNames =
       realm && realm !== DEFAULT_REALM_KEY ? [realm] : await realmList();
     if (selected !== undefined && realmNames.length !== 1) {
-      printMessage(
-        'Error: for a selected theme, specify a single realm',
-        'error'
-      );
+      printMessage('Error: for a named theme, specify a single realm', 'error');
       return false;
     }
     const run = new OperationRun({ unit: 'realm', allowFailures });
@@ -147,8 +137,15 @@ export async function configManagerExportThemes(
       if (
         currentRealm === '/' &&
         state.getDeploymentType() === CLOUD_DEPLOYMENT_TYPE_KEY
-      )
+      ) {
+        if (selected !== undefined) {
+          printMessage(
+            `The root realm of a Cloud tenant has no themes: nothing to pull for '${selected}'.`,
+            'warn'
+          );
+        }
         continue;
+      }
       try {
         const exported = await exportThemesOfRealm(currentRealm, id, name);
         if (selected !== undefined && exported === 0) {

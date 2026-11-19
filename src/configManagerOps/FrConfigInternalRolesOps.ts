@@ -18,7 +18,7 @@ const { readInternalRoleByName, importInternalRoles, readInternalRoles } =
  * `--allow-failures` says.
  * @param {string} name The internal role name to export
  * @param {boolean} allowFailures true to report roles that could not be exported but still succeed. Default: false
- * @param {string} id The id (`_id`) of the internal role to export. The id is looked for in the list that an export of all internal roles reads, so no other request is made. An empty id is refused, it never means all roles; an id that no role has fails the command.
+ * @param {string} id The id (`_id`) of the internal role to export. The id is looked for in the list that an export of all internal roles reads, so no other request is made. An empty id selects nothing (the command refuses an empty value before it connects); an id that no role has fails the command.
  * @return {Promise<boolean>} a promise that resolves to true if successful, false otherwise
  */
 export async function configManagerExportInternalRoles(
@@ -26,10 +26,6 @@ export async function configManagerExportInternalRoles(
   allowFailures: boolean = false,
   id?: string
 ): Promise<boolean> {
-  if (id === '') {
-    printMessage('The internal role id must not be empty.', 'error');
-    return false;
-  }
   const run = new OperationRun({ unit: 'internal role', allowFailures });
   try {
     const roles =

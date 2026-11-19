@@ -4,6 +4,7 @@ import { configManagerExportVariables } from '../../../configManagerOps/FrConfig
 import { getTokens } from '../../../ops/AuthenticateOps';
 import { verboseMessage } from '../../../utils/Console';
 import { FrodoCommand } from '../../FrodoCommand';
+import { selectorOption } from '../../SelectorOption';
 
 const { CLOUD_DEPLOYMENT_TYPE_KEY } = frodo.utils.constants;
 
@@ -19,7 +20,7 @@ export default function setup() {
   program
     .description('Export variables.')
     .addOption(
-      new Option(
+      selectorOption(
         '-i, --variable-id <id>',
         'Variable id. If specified, only exports the variable with the specified id (and reports or dumps only that variable).'
       )

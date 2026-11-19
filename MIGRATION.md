@@ -342,7 +342,6 @@ the new option.
 | `pull oauth-cimd-profiles`       | `-i, --profile-id`                         | `-n`, `--name`   |
 | `pull connector-definitions`     | `-i, --connector-id`                       | `-n`, `--name`   |
 | `pull connector-mappings`        | `-i, --connector-mapping-id`               | new              |
-| `pull csp`                       | `-i, --csp-id`                             | new              |
 | `pull custom-nodes`              | `-i, --node-id`, `-n, --node-name`         | `--name`         |
 | `pull email-templates`           | `-i, --template-id`                        | `-n`, `--name`   |
 | `pull endpoints`                 | `-i, --endpoint-id`                        | `-n`, `--name`   |
@@ -359,24 +358,28 @@ the new option.
 | `pull services`                  | `-i, --service-id`                         | `-n`, `--name`   |
 | `pull themes`                    | `-i, --theme-id`, `-n, --theme-name`       | new              |
 | `pull telemetry`                 | `-i, --exporter-id`                        | `-n`, `--name`   |
-| `pull terms-and-conditions`      | `-i, --version-id`                         | new              |
 | `pull oauth-issuers`             | `-i, --issuer-id`                          | `-n`, `--name`   |
 | `pull oauth-software-publishers` | `-i, --software-publisher-id`              | `-n`, `--name`   |
 | `pull variables`                 | `-i, --variable-id`                        | new              |
 | `pull iga-workflows`             | `-i, --workflow-id`, `-n, --workflow-name` | `--name`         |
 
 `pull themes` takes `-n, --theme-name` for the first time, and
-`pull connector-mappings`, `pull csp`, `pull secrets`,
-`pull terms-and-conditions` and `pull variables` take `-i` for the first time:
-they pulled everything before and still do without it. `-i` on `pull applications`, `pull custom-nodes`,
-`pull iga-workflows`, `pull internal-roles`, `pull scripts` and `pull themes`
-selects by the id of the object, which these commands could not do before (their
-`-n` selects by name as before). An empty selector is refused and never means
-all objects. `pull csp -i enforced|report-only` and
-`pull terms-and-conditions -i <version>` write a file that holds only that
-policy or version: pull again without the option before you push the whole file.
-`pull scripts -i` cannot be combined with `-n` or with `-p`, the prefix, as `-n`
-could not be combined with `-p` before.
+`pull connector-mappings`, `pull secrets` and `pull variables` take `-i` for the
+first time: they pulled everything before and still do without it. `-i` on
+`pull applications`, `pull custom-nodes`, `pull iga-workflows`,
+`pull internal-roles`, `pull scripts` and `pull themes` selects by the id of the
+object, which these commands could not do before (their `-n` selects by name as
+before). `pull scripts -i` cannot be combined with `-n` or with `-p`, the
+prefix, as `-n` could not be combined with `-p` before. `pull csp` and
+`pull terms-and-conditions` take no selector: their file is the whole entity,
+and a file that held a part of it would replace the whole entity when it is
+pushed.
+
+An empty value of a selector (`-i ""`, `-n ""`, `--name ""`, or a variable that
+expands to nothing) is refused with exit code 1 before the command connects to
+anything, and never means all objects: commander says which option was given an
+empty value. This changes the commands that had `-n` and took `-n ""` as no
+selector and pulled everything; leave the option out to pull everything.
 
 **`authn export` and `authn import` exit 1 after a failure**: in 4.x both
 commands printed the error and exited with code 0 when the export or the import

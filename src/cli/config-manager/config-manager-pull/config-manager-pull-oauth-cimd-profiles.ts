@@ -6,7 +6,7 @@ import c from '../../../utils/ColorTheme';
 import { verboseMessage } from '../../../utils/Console';
 import { realmOfRun } from '../../../utils/interactive/PositionalArgs';
 import { FrodoCommand } from '../../FrodoCommand';
-import { withOptionAlias } from '../../OptionAlias';
+import { selectorOption } from '../../SelectorOption';
 
 export default function setup() {
   const program = new FrodoCommand(
@@ -19,11 +19,9 @@ export default function setup() {
       'Export the CIMD profiles (the allow-list of client ID URL patterns for OAuth 2.0 clients that identify themselves with a Client ID Metadata Document) of all realms or of one realm to realms/<realm>/realm-config/agents/CIMDProfile/<name>.json, one file for each. The object is written as the server lists it, without its revision; it contains no secrets. A realm or a deployment that does not offer CIMD profiles has nothing to export, which is not an error.'
     )
     .addOption(
-      withOptionAlias(
-        new Option(
-          '-i, --profile-id <id>',
-          'CIMD profile id. If specified, pulls only the profile with the given id. Needs a single realm.'
-        ),
+      selectorOption(
+        '-i, --profile-id <id>',
+        'CIMD profile id. If specified, pulls only the profile with the given id. Needs a single realm.',
         ['-n', '--name']
       )
     )

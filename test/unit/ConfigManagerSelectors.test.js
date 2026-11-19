@@ -14,6 +14,7 @@ import {
 import {
   EXPECTED_SELECTORS,
   KEPT_OLD_SPELLING,
+  NO_SELECTOR_COMMANDS,
   PENDING_VERBS,
   STRAY_SELECTOR_OPTIONS,
 } from './ConfigManagerSelectorRows.js';
@@ -205,6 +206,35 @@ describe('findSelectorProblems on hand-built commands', () => {
     ]);
   });
 
+  it('fails a conflict with another option that is declared on one side only, naming the side that is missing', () => {
+    const scripts = (id, prefix) =>
+      leaf('frodo config-manager pull scripts', [
+        opt('-i', '--script-id', { conflicts: id }),
+        opt('-p', '--prefix', { conflicts: prefix }),
+      ]);
+    const row = {
+      command: 'frodo config-manager pull scripts',
+      id: '--script-id',
+      name: null,
+      aliases: [],
+    };
+
+    expect(
+      find({ groupLeaves: [scripts(['prefix'], ['scriptId'])], rows: [row] })
+        .rows
+    ).toEqual([]);
+    expect(
+      find({ groupLeaves: [scripts(['prefix'], [])], rows: [row] }).rows
+    ).toEqual([
+      "frodo config-manager pull scripts :: --script-id conflicts with --prefix, but --prefix does not declare the conflict back (.conflicts(['scriptId']))",
+    ]);
+    expect(
+      find({ groupLeaves: [scripts([], ['scriptId'])], rows: [row] }).rows
+    ).toEqual([
+      "frodo config-manager pull scripts :: --prefix conflicts with --script-id, but --script-id does not declare the conflict back (.conflicts(['prefix']))",
+    ]);
+  });
+
   it('fails a selector that is mandatory, and one that stands in a one-of group', () => {
     expect(
       find({ groupLeaves: [journeys([idWithAlias({ mandatory: true })])] }).rows
@@ -265,6 +295,10 @@ describe('findSelectorProblems on hand-built commands', () => {
       }).rows.join('\n');
 
     expect(bad({ id: '--journey' })).toMatch(/is not --<type>-id/);
+    // the words are compared whole: a longer word is not a selector
+    expect(bad({ id: '--journey-ids' })).toMatch(/is not --<type>-id/);
+    expect(bad({ name: '--journey-names' })).toMatch(/is not --<type>-name/);
+    expect(bad({ name: '--name-prefix' })).toMatch(/is not --<type>-name/);
     expect(bad({ name: '--journey-title' })).toMatch(/is not --<type>-name/);
     expect(bad({ aliases: ['name'] })).toMatch(/is not a flag/);
     expect(bad({ aliases: ['-n'] })).toMatch(
@@ -602,14 +636,14 @@ describe('the selectors of the configuration commands', () => {
     }));
   }, 120000);
 
-  it('lists the commands that have been renamed: the 26 pull commands of C4a, and every row is a command', () => {
-    // a floor that grows with each step: 26 (pull), 53 (push), 69 (delete)
-    expect(EXPECTED_SELECTORS.length).toBeGreaterThanOrEqual(26);
+  it('lists the commands that have been renamed: the 24 pull commands of C4a, and every row is a command', () => {
+    // a floor that grows with each step: 24 (pull), then the push and delete commands
+    expect(EXPECTED_SELECTORS.length).toBeGreaterThanOrEqual(24);
     expect(checked.rows).toBe(EXPECTED_SELECTORS.length);
     expect(checked.rowsMatched).toBe(EXPECTED_SELECTORS.length);
     expect(
       EXPECTED_SELECTORS.filter((row) => row.command.includes(' pull ')).length
-    ).toBe(26);
+    ).toBe(24);
   });
 
   it('has the options of every row, and nothing else on -i and -n: one -i, a -n of its own only for a name that can change, the conflicts in both directions', () => {
@@ -628,6 +662,32 @@ describe('the selectors of the configuration commands', () => {
     expect(checked.strays).toBe(STRAY_SELECTOR_OPTIONS.length);
     expect(checked.pendingVerbs).toBe(PENDING_VERBS.length);
   });
+
+  it.each(NO_SELECTOR_COMMANDS.map((entry) => [entry.command, entry]))(
+    '%s takes no selector: no -i, no -n, no alias and no --<type>-id or --<type>-name option',
+    (name, entry) => {
+      const leaf = groupLeaves.find((l) => l.name === name);
+      // a command that selects nothing: its options are the ones of every command
+      const baseline = groupLeaves.find(
+        (l) => l.name === 'frodo config-manager pull cors'
+      );
+
+      expect(entry.why).toMatch(/\S/);
+      expect(leaf).toBeDefined();
+      expect(baseline).toBeDefined();
+      expect(EXPECTED_SELECTORS.map((row) => row.command)).not.toContain(name);
+      const known = new Set(baseline.options.map((o) => o.long));
+      const selectorLike = leaf.options.filter(
+        (o) =>
+          o.short === '-i' ||
+          o.short === '-n' ||
+          o.aliases.length > 0 ||
+          (!known.has(o.long) &&
+            /^--(?:[a-z]+-)*(?:id|name)$/.test(o.long ?? ''))
+      );
+      expect(selectorLike.map((o) => o.long)).toEqual([]);
+    }
+  );
 
   it('has no plain --name option on a command of a verb that has its rows', () => {
     const done = new Set(
@@ -688,6 +748,56 @@ describe('the selectors of the configuration commands', () => {
           expectSets(row, ['--name', 'x'], named);
           expectSets(row, ['--name=x'], named);
         }
+      }
+    );
+
+    /** Parses the arguments on a fresh command that has the options of the leaf, and returns what commander says. */
+    const failure = (name, args) => {
+      const fresh = new Command('x').exitOverride();
+      fresh.configureOutput({ writeErr: () => {}, writeOut: () => {} });
+      for (const option of commands.get(name).options) fresh.addOption(option);
+      fresh.action(() => {});
+      try {
+        fresh.parse(args, { from: 'user' });
+      } catch (error) {
+        return error;
+      }
+      return undefined;
+    };
+
+    it.each(EXPECTED_SELECTORS.map((row) => [row.command, row]))(
+      '%s: an empty value is refused for every spelling, before the command runs, naming the option',
+      (name, row) => {
+        const spellings = [
+          ['-i', ''],
+          [row.id, ''],
+          [`${row.id}=`],
+          ...(row.name === null
+            ? row.aliases.includes('-n')
+              ? [['-n', '']]
+              : []
+            : [['-n', ''], [row.name, ''], [`${row.name}=`]]),
+          ...(row.aliases.includes('--name')
+            ? [['--name', ''], ['--name=']]
+            : []),
+        ];
+        for (const args of spellings) {
+          const error = failure(name, args);
+
+          expect([args.join(' '), error?.code, error?.exitCode]).toEqual([
+            args.join(' '),
+            'commander.invalidArgument',
+            1,
+          ]);
+          expect(error.message).toMatch(
+            /error: option '-[in], --[a-z-]+ <[a-z]+>'/
+          );
+          expect(error.message).toContain(
+            'An empty value never selects all objects'
+          );
+        }
+        // a value that is not empty is not refused
+        expect(failure(name, ['-i', 'x'])).toBeUndefined();
       }
     );
 

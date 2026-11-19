@@ -11,33 +11,11 @@ const { readConfigEntity, importConfigEntities, updateConfigEntity } =
 
 /**
  * Export terms and conditions to file in fr-config-manager format
- * @param {string} versionId Optional exact version identifier: the file then holds that version only, whatever else the entity holds. An empty identifier is refused, it never means all versions; a version that the entity does not have fails the command.
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
-export async function configManagerExportTermsAndConditions(
-  versionId?: string
-): Promise<boolean> {
-  if (versionId === '') {
-    printMessage(
-      'The terms and conditions version must not be empty.',
-      'error'
-    );
-    return false;
-  }
+export async function configManagerExportTermsAndConditions(): Promise<boolean> {
   try {
     const exportData = (await readConfigEntity('selfservice.terms')) as any;
-    if (versionId !== undefined) {
-      exportData.versions = (exportData.versions ?? []).filter(
-        (entry: any) => entry.version === versionId
-      );
-      if (exportData.versions.length === 0) {
-        printMessage(
-          `Terms and conditions version '${versionId}' not found.`,
-          'error'
-        );
-        return false;
-      }
-    }
     for (const version of exportData.versions) {
       for (const [language, text] of Object.entries(
         version.termsTranslations

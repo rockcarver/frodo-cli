@@ -699,6 +699,27 @@ function leafProblems(leaf, row, problems, checked) {
       );
     }
   }
+  // a conflict with any other option is declared on both options (the record
+  // on mutually exclusive options): commander fires from either side, so only
+  // a check of the declarations sees a side that is missing
+  for (const option of [id, name]) {
+    if (!option) continue;
+    for (const other of leaf.options) {
+      // the two selectors are checked against each other above
+      if (other === option || other === id || other === name) continue;
+      const ours = (option.conflicts ?? []).includes(other.attribute);
+      const theirs = (other.conflicts ?? []).includes(option.attribute);
+      if (ours && !theirs) {
+        problems.push(
+          `${where} :: ${option.long} conflicts with ${other.long}, but ${other.long} does not declare the conflict back (.conflicts(['${option.attribute}']))`
+        );
+      } else if (theirs && !ours) {
+        problems.push(
+          `${where} :: ${other.long} conflicts with ${option.long}, but ${option.long} does not declare the conflict back (.conflicts(['${other.attribute}']))`
+        );
+      }
+    }
+  }
   // the option that carries the alias: -n on a command with a name, else -i
   const carrier = row.name !== null ? name : id;
   const aliases = row.aliases ?? [];

@@ -4,7 +4,7 @@ import { configManagerExportManagedObjects } from '../../../configManagerOps/FrC
 import { getTokens } from '../../../ops/AuthenticateOps';
 import { verboseMessage } from '../../../utils/Console';
 import { FrodoCommand } from '../../FrodoCommand';
-import { withOptionAlias } from '../../OptionAlias';
+import { selectorOption } from '../../SelectorOption';
 
 const { CLOUD_DEPLOYMENT_TYPE_KEY, FORGEOPS_DEPLOYMENT_TYPE_KEY } =
   frodo.utils.constants;
@@ -24,11 +24,9 @@ export default function setup() {
   program
     .description('Export managed-objects.')
     .addOption(
-      withOptionAlias(
-        new Option(
-          '-i, --managed-object-id <id>',
-          'Managed object id. If specified, only exports the managed object with the specified id.'
-        ),
+      selectorOption(
+        '-i, --managed-object-id <id>',
+        'Managed object id. If specified, only exports the managed object with the specified id.',
         ['-n', '--name']
       )
     )

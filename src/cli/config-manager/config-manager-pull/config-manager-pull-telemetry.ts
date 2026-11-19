@@ -1,10 +1,9 @@
 import { frodo } from '@rockcarver/frodo-lib';
-import { Option } from 'commander';
 import { configManagerExportTelemetry } from '../../../configManagerOps/FrConfigTelemetryOps';
 import { getTokens } from '../../../ops/AuthenticateOps';
 import { verboseMessage } from '../../../utils/Console';
 import { FrodoCommand } from '../../FrodoCommand';
-import { withOptionAlias } from '../../OptionAlias';
+import { selectorOption } from '../../SelectorOption';
 
 const { CLOUD_DEPLOYMENT_TYPE_KEY } = frodo.utils.constants;
 
@@ -23,11 +22,9 @@ export default function setup() {
       'Telemetry category to export (e.g. otlp, splunk).'
     )
     .addOption(
-      withOptionAlias(
-        new Option(
-          '-i, --exporter-id <id>',
-          'Id of a single exporter to export.'
-        ),
+      selectorOption(
+        '-i, --exporter-id <id>',
+        'Id of a single exporter to export.',
         ['-n', '--name']
       )
     )

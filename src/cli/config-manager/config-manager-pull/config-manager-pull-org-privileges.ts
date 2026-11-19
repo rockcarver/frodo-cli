@@ -1,11 +1,10 @@
 import { frodo } from '@rockcarver/frodo-lib';
-import { Option } from 'commander';
 import { configManagerExportOrgPrivileges } from '../../../configManagerOps/FrConfigOrgPrivilegesOps';
 import { getTokens } from '../../../ops/AuthenticateOps';
 import { verboseMessage } from '../../../utils/Console';
 import { realmOfRun } from '../../../utils/interactive/PositionalArgs';
 import { FrodoCommand } from '../../FrodoCommand';
-import { withOptionAlias } from '../../OptionAlias';
+import { selectorOption } from '../../SelectorOption';
 
 const { CLOUD_DEPLOYMENT_TYPE_KEY, FORGEOPS_DEPLOYMENT_TYPE_KEY } =
   frodo.utils.constants;
@@ -28,11 +27,9 @@ export default function setup() {
     .multiOp()
     .usesRealm()
     .addOption(
-      withOptionAlias(
-        new Option(
-          '-i, --org-privileges-id <id>',
-          'Organization privileges id: privilegeAssignments, or the configuration of a realm (for example alphaOrgPrivileges). If specified, only exports that configuration; it has to belong to the realm if one is given.'
-        ),
+      selectorOption(
+        '-i, --org-privileges-id <id>',
+        'Organization privileges id: privilegeAssignments, or the configuration of a realm (for example alphaOrgPrivileges). If specified, only exports that configuration; it has to belong to the realm if one is given.',
         ['-n', '--name']
       )
     )

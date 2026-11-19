@@ -1,12 +1,11 @@
 import { frodo } from '@rockcarver/frodo-lib';
-import { Option } from 'commander';
 import * as s from '../../../help/SampleData';
 import { getTokens } from '../../../ops/AuthenticateOps';
 import { configManagerExportRemoteProxies } from '../../../ops/RemoteProxyOps';
 import c from '../../../utils/ColorTheme';
 import { verboseMessage } from '../../../utils/Console';
 import { FrodoCommand } from '../../FrodoCommand';
-import { withOptionAlias } from '../../OptionAlias';
+import { selectorOption } from '../../SelectorOption';
 
 const { CLOUD_DEPLOYMENT_TYPE_KEY } = frodo.utils.constants;
 
@@ -24,11 +23,9 @@ export default function setup() {
       'Export IDM remote proxies: one file remote-proxies/<name>.json for each.'
     )
     .addOption(
-      withOptionAlias(
-        new Option(
-          '-i, --proxy-id <id>',
-          'Remote proxy id. If specified, pulls only the remote proxy with the given id.'
-        ),
+      selectorOption(
+        '-i, --proxy-id <id>',
+        'Remote proxy id. If specified, pulls only the remote proxy with the given id.',
         ['-n', '--name']
       )
     )

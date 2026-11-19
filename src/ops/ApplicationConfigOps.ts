@@ -186,7 +186,7 @@ function describeProblem(
  * @param {boolean} quiet true for the step of `pull all`: say nothing when there is no application, and skip a tree that does not use the application layout with a warning instead of failing
  * @param {boolean} allowFailures true to report applications that could not be pulled but still succeed. Default: false
  * @param {ApplicationLayoutDecision} layout the decision about the tree that was made before anything was written into it (`pull all` decides once, before its first step); default: decided now
- * @param {string} id optional id (`_id`) of the one application to pull instead of a name (needs a single realm too). The id is looked for in the list of applications that a pull of all applications reads, so no other request is made. An empty id is refused, it never means all applications; an id that the realm does not have fails the command.
+ * @param {string} id optional id (`_id`) of the one application to pull instead of a name (needs a single realm too). The id is looked for in the list of applications that a pull of all applications reads, so no other request is made. An empty id selects nothing (the command refuses an empty value before it connects); an id that the realm does not have fails the command.
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
 export async function configManagerExportApplications(
@@ -197,10 +197,6 @@ export async function configManagerExportApplications(
   layout?: ApplicationLayoutDecision,
   id?: string
 ): Promise<boolean> {
-  if (id === '') {
-    printMessage('The application id must not be empty.', 'error');
-    return false;
-  }
   // what the command line names: an id, or a name (an empty name means all applications)
   const selected = id ?? name;
   try {
@@ -241,8 +237,15 @@ export async function configManagerExportApplications(
       if (
         currentRealm === '/' &&
         state.getDeploymentType() === CLOUD_DEPLOYMENT_TYPE_KEY
-      )
+      ) {
+        if (selected) {
+          printMessage(
+            `The root realm of a Cloud tenant has no applications: nothing to pull for '${selected}'.`,
+            'warn'
+          );
+        }
         continue;
+      }
       state.setRealm(currentRealm);
       const realmDir = currentRealm === '/' ? 'root' : currentRealm;
       let applications: ApplicationRecord[];

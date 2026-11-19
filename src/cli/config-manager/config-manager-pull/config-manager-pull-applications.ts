@@ -1,5 +1,4 @@
 import { frodo } from '@rockcarver/frodo-lib';
-import { Option } from 'commander';
 import * as s from '../../../help/SampleData';
 import { configManagerExportApplications } from '../../../ops/ApplicationConfigOps';
 import { getTokens } from '../../../ops/AuthenticateOps';
@@ -8,7 +7,7 @@ import { verboseMessage } from '../../../utils/Console';
 import { realmOfRun } from '../../../utils/interactive/PositionalArgs';
 import { APPLICATION_KEY_SET_PULL_SENTENCE } from '../../../utils/PlaceholderValues';
 import { FrodoCommand } from '../../FrodoCommand';
-import { withOptionAlias } from '../../OptionAlias';
+import { selectorOption } from '../../SelectorOption';
 
 const { CLOUD_DEPLOYMENT_TYPE_KEY, FORGEOPS_DEPLOYMENT_TYPE_KEY } =
   frodo.utils.constants;
@@ -34,19 +33,17 @@ export default function setup() {
         APPLICATION_KEY_SET_PULL_SENTENCE
     )
     .addOption(
-      new Option(
+      selectorOption(
         '-i, --app-id <id>',
         'Application id. If specified, pulls only the application with the given id. Needs a single realm. Cannot be used with -n.'
       ).conflicts(['appName'])
     )
     .addOption(
-      withOptionAlias(
-        new Option(
-          '-n, --app-name <name>',
-          'Application name. If specified, pulls only the application with the given name. Needs a single realm. Cannot be used with -i.'
-        ).conflicts(['appId']),
+      selectorOption(
+        '-n, --app-name <name>',
+        'Application name. If specified, pulls only the application with the given name. Needs a single realm. Cannot be used with -i.',
         ['--name']
-      )
+      ).conflicts(['appId'])
     )
     .addHelpText(
       'after',

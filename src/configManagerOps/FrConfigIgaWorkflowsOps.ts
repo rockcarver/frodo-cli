@@ -16,7 +16,7 @@ const { readWorkflows, updateWorkflow } = frodo.cloud.iga.workflow;
  * @param {string} name optional workflow name to filter by
  * @param {boolean} includeImmutable if true, also export immutable workflows
  * @param {boolean} allowFailures true to succeed although some workflows could not be exported (the failures are still summarised)
- * @param {string} id optional workflow id (the `id` of the workflow) to filter by. An empty id is refused, it never means all workflows.
+ * @param {string} id optional workflow id (the `id` of the workflow) to filter by. An empty id selects nothing, so it is not found (the command refuses an empty value before it connects).
  * @returns {Promise<boolean>} a promise that resolves to false if a named workflow (by name or by id) does not exist, the workflows cannot be read, or a workflow cannot be exported (unless failures are allowed). No workflows when none was named is a success.
  */
 export async function configManagerExportIgaWorkflows(
@@ -25,10 +25,6 @@ export async function configManagerExportIgaWorkflows(
   allowFailures: boolean = false,
   id?: string
 ): Promise<boolean> {
-  if (id === '') {
-    printMessage('The workflow id must not be empty.', 'error');
-    return false;
-  }
   try {
     const workflows = (await readWorkflows()).filter(
       (w) =>

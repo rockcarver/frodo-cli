@@ -4,7 +4,7 @@ import { configManagerExportIgaWorkflows } from '../../../configManagerOps/FrCon
 import { getTokens } from '../../../ops/AuthenticateOps';
 import { printMessage, verboseMessage } from '../../../utils/Console';
 import { FrodoCommand } from '../../FrodoCommand';
-import { withOptionAlias } from '../../OptionAlias';
+import { selectorOption } from '../../SelectorOption';
 
 const { CLOUD_DEPLOYMENT_TYPE_KEY } = frodo.utils.constants;
 const deploymentTypes = [CLOUD_DEPLOYMENT_TYPE_KEY];
@@ -17,19 +17,17 @@ export default function setup() {
   program
     .description('Export iga-workflows.')
     .addOption(
-      new Option(
+      selectorOption(
         '-i, --workflow-id <id>',
         'Workflow id. Only export the workflow with this id. Cannot be used with -n.'
       ).conflicts(['workflowName'])
     )
     .addOption(
-      withOptionAlias(
-        new Option(
-          '-n, --workflow-name <name>',
-          'Workflow name. Only export the workflow with this name. Cannot be used with -i.'
-        ).conflicts(['workflowId']),
+      selectorOption(
+        '-n, --workflow-name <name>',
+        'Workflow name. Only export the workflow with this name. Cannot be used with -i.',
         ['--name']
-      )
+      ).conflicts(['workflowId'])
     )
     .addOption(
       new Option('--include-immutable ', 'Include immutable IGA workflows.')

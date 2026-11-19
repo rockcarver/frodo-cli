@@ -4,7 +4,7 @@ import { getTokens } from '../../../ops/AuthenticateOps';
 import { verboseMessage } from '../../../utils/Console';
 import { realmOfRun } from '../../../utils/interactive/PositionalArgs';
 import { FrodoCommand } from '../../FrodoCommand';
-import { withOptionAlias } from '../../OptionAlias';
+import { selectorOption } from '../../SelectorOption';
 
 export default function setup() {
   const program = new FrodoCommand('frodo config-manager pull journeys');
@@ -12,11 +12,9 @@ export default function setup() {
   program
     .description('Export journeys.')
     .addOption(
-      withOptionAlias(
-        new Option(
-          '-i, --journey-id <id>',
-          'Journey id. If specified, only exports the journey with the specified id.'
-        ),
+      selectorOption(
+        '-i, --journey-id <id>',
+        'Journey id. If specified, only exports the journey with the specified id.',
         ['-n', '--name']
       )
     )

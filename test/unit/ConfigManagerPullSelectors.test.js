@@ -42,6 +42,7 @@ const deep = (impl = {}) =>
   });
 
 let currentRealm;
+let deployment = 'forgeops';
 const realmsVisited = [];
 let world;
 
@@ -105,35 +106,18 @@ const lib = {
         world.variables.map((v) => ({ ...v }))
       ),
     },
-    env: {
-      readEnforcedContentSecurityPolicy: jest.fn(async () => ({
-        active: true,
-        directives: { 'default-src': ["'self'"] },
-      })),
-      readReportOnlyContentSecurityPolicy: jest.fn(async () => ({
-        active: false,
-        directives: { 'img-src': ['*'] },
-      })),
-    },
   },
   theme: {
     readThemes: jest.fn(async () =>
       (world.themes[currentRealm] ?? []).map((t) => ({ ...t }))
     ),
   },
-  idm: {
-    config: {
-      readConfigEntity: jest.fn(async () =>
-        JSON.parse(JSON.stringify(world.terms))
-      ),
-    },
-  },
 };
 
 jest.unstable_mockModule('@rockcarver/frodo-lib', () => ({
   frodo: deep(lib),
   state: {
-    getDeploymentType: () => 'forgeops',
+    getDeploymentType: () => deployment,
     setRealm: (realm) => {
       currentRealm = realm;
       realmsVisited.push(realm);
@@ -175,10 +159,6 @@ const { configManagerExportSecrets } =
   await import('../../src/configManagerOps/FrConfigSecretOps.ts');
 const { configManagerExportVariables } =
   await import('../../src/configManagerOps/FrConfigVariableOps.ts');
-const { configManagerExportTermsAndConditions } =
-  await import('../../src/configManagerOps/FrConfigTermsAndConditionsOps.ts');
-const { configManagerExportCsp } =
-  await import('../../src/configManagerOps/FrConfigCspOps.ts');
 
 const script = (name, overrides = {}) => ({
   _id: `id-${name}`,
@@ -193,6 +173,7 @@ beforeEach(() => {
   printed.length = 0;
   written.length = 0;
   realmsVisited.length = 0;
+  deployment = 'forgeops';
   jest.clearAllMocks();
   world = {
     realms: ['alpha', 'bravo'],
@@ -200,6 +181,8 @@ beforeEach(() => {
       alpha: [
         script('One'),
         script('Two'),
+        // its id starts with the id of Two: an id selects by equality, not by prefix
+        script('TwoMore'),
         script('Groovy', { language: 'GROOVY' }),
       ],
       bravo: [script('Three')],
@@ -217,23 +200,35 @@ beforeEach(() => {
         displayName: 'SendMail',
         script: 'b',
       },
+      {
+        _id: 'mail-12',
+        serviceName: 'mail2',
+        displayName: 'SendMail2',
+        script: 'c',
+      },
     ],
     roles: [
       { _id: 'role-1', name: 'Helpdesk', privileges: [{ path: 'a' }] },
       { _id: 'role-2', name: 'Auditor', privileges: [{ path: 'b' }] },
+      { _id: 'role-20', name: 'Auditor2', privileges: [{ path: 'b' }] },
       { _id: 'role-3', name: 'Empty', privileges: [] },
     ],
     workflows: [
       { id: 'wf-1', name: 'Grant', mutable: true, steps: [] },
       { id: 'wf-2', name: 'Revoke', mutable: true, steps: [] },
+      { id: 'wf-20', name: 'Revoke2', mutable: true, steps: [] },
       { id: 'wf-3', name: 'Builtin', mutable: false, steps: [] },
     ],
     themes: {
       alpha: [
         { _id: 'theme-1', name: 'Zion' },
         { _id: 'theme-2', name: 'Matrix' },
+        { _id: 'theme-20', name: 'Matrix2' },
       ],
-      bravo: [{ _id: 'theme-3', name: 'Zion' }],
+      bravo: [
+        { _id: 'theme-3', name: 'Zion' },
+        { _id: 'theme-30', name: 'Zion2' },
+      ],
     },
     secrets: [
       {
@@ -244,8 +239,22 @@ beforeEach(() => {
         lastChangeDate: '2026-01-01',
       },
       {
+        _id: 'esv-ab',
+        description: 'ab',
+        encoding: 'generic',
+        useInPlaceholders: false,
+        lastChangeDate: '2026-01-02',
+      },
+      {
         _id: 'esv-b',
         description: 'b',
+        encoding: 'generic',
+        useInPlaceholders: false,
+        lastChangeDate: '2026-01-02',
+      },
+      {
+        _id: 'esv-bb',
+        description: 'bb',
         encoding: 'generic',
         useInPlaceholders: false,
         lastChangeDate: '2026-01-02',
@@ -260,21 +269,27 @@ beforeEach(() => {
         lastChangeDate: '2026-01-01',
       },
       {
+        _id: 'esv-xy',
+        description: 'xy',
+        expressionType: 'int',
+        value: 'vxy',
+        lastChangeDate: '2026-01-02',
+      },
+      {
         _id: 'esv-y',
         description: 'y',
         expressionType: 'int',
         value: 'vy',
         lastChangeDate: '2026-01-02',
       },
+      {
+        _id: 'esv-yy',
+        description: 'yy',
+        expressionType: 'int',
+        value: 'vyy',
+        lastChangeDate: '2026-01-02',
+      },
     ],
-    terms: {
-      _id: 'selfservice.terms',
-      active: '0.2',
-      versions: [
-        { version: '0.1', termsTranslations: { en: 'one' } },
-        { version: '0.2', termsTranslations: { en: 'two', fr: 'deux' } },
-      ],
-    },
   };
 });
 
@@ -343,13 +358,11 @@ describe('pull scripts -i', () => {
     expect(lib.script.readScripts).not.toHaveBeenCalled();
   });
 
-  test('refuses an empty id before anything is read: it never means all scripts', async () => {
+  test('an empty id selects nothing and is not found: it never means all scripts', async () => {
     expect(
       await configManagerExportScripts([], 'alpha', undefined, false, '')
     ).toBe(false);
 
-    expect(everything()).toContain('The script id must not be empty');
-    expect(lib.script.readScripts).not.toHaveBeenCalled();
     expect(written).toEqual([]);
   });
 
@@ -361,7 +374,7 @@ describe('pull scripts -i', () => {
     await configManagerExportScripts([], 'alpha', undefined, false);
     expect(
       written.filter((w) => w.file.includes('scripts-config'))
-    ).toHaveLength(2);
+    ).toHaveLength(3);
   });
 });
 
@@ -388,13 +401,12 @@ describe('pull custom-nodes -i', () => {
     expect(everything()).toContain("Custom node with id 'nope-1' not found");
   });
 
-  test('refuses an empty id before anything is read', async () => {
+  test('an empty id selects nothing and is not found: it never means all custom nodes', async () => {
     expect(await configManagerExportCustomNodes(undefined, false, '')).toBe(
       false
     );
 
-    expect(everything()).toContain('The custom node id must not be empty');
-    expect(lib.authn.node.readCustomNodes).not.toHaveBeenCalled();
+    expect(written).toEqual([]);
   });
 
   test('a name still reads the node by name, and no selector pulls all', async () => {
@@ -406,7 +418,7 @@ describe('pull custom-nodes -i', () => {
 
     written.length = 0;
     await configManagerExportCustomNodes(undefined, false);
-    expect(written.filter((w) => w.file.endsWith('.json'))).toHaveLength(2);
+    expect(written.filter((w) => w.file.endsWith('.json'))).toHaveLength(3);
   });
 });
 
@@ -437,13 +449,12 @@ describe('pull internal-roles -i', () => {
     expect(everything()).toContain("Internal role with id 'role-9' not found");
   });
 
-  test('refuses an empty id before anything is read', async () => {
+  test('an empty id selects nothing and is not found: it never means all internal roles', async () => {
     expect(await configManagerExportInternalRoles(undefined, false, '')).toBe(
       false
     );
 
-    expect(everything()).toContain('The internal role id must not be empty');
-    expect(lib.role.readInternalRoles).not.toHaveBeenCalled();
+    expect(written).toEqual([]);
   });
 
   test('a name still reads the role by name', async () => {
@@ -490,13 +501,12 @@ describe('pull iga-workflows -i', () => {
     expect(writtenFiles()).toEqual(['iga/workflows/Builtin/Builtin.json']);
   });
 
-  test('refuses an empty id before anything is read', async () => {
+  test('an empty id selects nothing and is not found: it never means all workflows', async () => {
     expect(
       await configManagerExportIgaWorkflows(undefined, false, false, '')
     ).toBe(false);
 
-    expect(everything()).toContain('The workflow id must not be empty');
-    expect(lib.cloud.iga.workflow.readWorkflows).not.toHaveBeenCalled();
+    expect(written).toEqual([]);
   });
 
   test('a name still selects by name, and no selector pulls every mutable workflow', async () => {
@@ -505,7 +515,7 @@ describe('pull iga-workflows -i', () => {
 
     written.length = 0;
     await configManagerExportIgaWorkflows(undefined, false, false);
-    expect(written).toHaveLength(2);
+    expect(written).toHaveLength(3);
   });
 });
 
@@ -531,8 +541,10 @@ describe('pull themes -i and -n', () => {
 
     expect(writtenFiles()).toEqual([
       'realms/alpha/themes/Matrix/Matrix.json',
+      'realms/alpha/themes/Matrix2/Matrix2.json',
       'realms/alpha/themes/Zion/Zion.json',
       'realms/bravo/themes/Zion/Zion.json',
+      'realms/bravo/themes/Zion2/Zion2.json',
     ]);
   });
 
@@ -564,24 +576,17 @@ describe('pull themes -i and -n', () => {
       false
     );
 
-    expect(everything()).toContain(
-      'for a selected theme, specify a single realm'
-    );
+    expect(everything()).toContain('for a named theme, specify a single realm');
     expect(lib.theme.readThemes).not.toHaveBeenCalled();
   });
 
-  test.each([
-    ['id', ''],
-    ['name', ''],
-  ])('refuses an empty %s before anything is read', async (which, value) => {
-    const args = which === 'id' ? [value, undefined] : [undefined, value];
-
-    expect(await configManagerExportThemes('alpha', false, ...args)).toBe(
+  test('an empty id or name selects nothing and is not found: it never means all themes', async () => {
+    expect(await configManagerExportThemes('alpha', false, '')).toBe(false);
+    expect(await configManagerExportThemes('alpha', false, undefined, '')).toBe(
       false
     );
 
-    expect(everything()).toContain(`The theme ${which} must not be empty`);
-    expect(lib.theme.readThemes).not.toHaveBeenCalled();
+    expect(written).toEqual([]);
   });
 });
 
@@ -615,13 +620,12 @@ describe('pull secrets -i', () => {
     expect(everything()).toContain("Secret 'esv-nope' not found");
   });
 
-  test('refuses an empty id before anything is read', async () => {
+  test('an empty id selects nothing and is not found: it never means all secrets', async () => {
     expect(await configManagerExportSecrets(true, false, false, '')).toBe(
       false
     );
 
-    expect(everything()).toContain('The secret id must not be empty');
-    expect(lib.cloud.secret.readSecrets).not.toHaveBeenCalled();
+    expect(written).toEqual([]);
   });
 
   test('without an id every secret is pulled, as before', async () => {
@@ -629,7 +633,9 @@ describe('pull secrets -i', () => {
 
     expect(writtenFiles()).toEqual([
       'esvs/secrets/esv-a.json',
+      'esvs/secrets/esv-ab.json',
       'esvs/secrets/esv-b.json',
+      'esvs/secrets/esv-bb.json',
     ]);
   });
 });
@@ -670,90 +676,51 @@ describe('pull variables -i', () => {
     expect(everything()).toContain("Variable 'esv-nope' not found");
   });
 
-  test('refuses an empty id before anything is read', async () => {
+  test('an empty id selects nothing and is not found: it never means all variables', async () => {
     expect(await configManagerExportVariables(false, false, false, '')).toBe(
       false
     );
 
-    expect(everything()).toContain('The variable id must not be empty');
-    expect(lib.cloud.variable.readVariables).not.toHaveBeenCalled();
+    expect(written).toEqual([]);
   });
 });
 
-describe('pull terms-and-conditions -i', () => {
-  const termsFile = () =>
-    written.find((w) => w.file === 'terms-conditions/terms-conditions.json')
-      .data;
-
-  test('the file holds only the version with that identifier, the rest of the entity stays', async () => {
-    expect(await configManagerExportTermsAndConditions('0.1')).toBe(true);
-
-    expect(termsFile().versions.map((v) => v.version)).toEqual(['0.1']);
-    expect(termsFile()._id).toBe('selfservice.terms');
-    expect(termsFile().active).toBe('0.2');
-    expect(writtenFiles()).toEqual([
-      'terms-conditions/0.1/en.html',
-      'terms-conditions/terms-conditions.json',
-    ]);
+describe('a selector in the root realm of a Cloud tenant', () => {
+  beforeEach(() => {
+    deployment = 'cloud';
   });
 
-  test('without a version every version is pulled, as before', async () => {
-    expect(await configManagerExportTermsAndConditions()).toBe(true);
-
-    expect(termsFile().versions.map((v) => v.version)).toEqual(['0.1', '0.2']);
-  });
-
-  test('fails for a version that the entity does not have, and names it', async () => {
-    expect(await configManagerExportTermsAndConditions('9.9')).toBe(false);
-
-    expect(written).toEqual([]);
-    expect(everything()).toContain(
-      "Terms and conditions version '9.9' not found"
-    );
-  });
-
-  test('refuses an empty version before anything is read', async () => {
-    expect(await configManagerExportTermsAndConditions('')).toBe(false);
-
-    expect(everything()).toContain(
-      'The terms and conditions version must not be empty'
-    );
-    expect(lib.idm.config.readConfigEntity).not.toHaveBeenCalled();
-  });
-});
-
-describe('pull csp -i', () => {
-  const cspFile = () => written.find((w) => w.file === 'csp/csp.json').data;
-
-  test.each(['enforced', 'report-only'])(
-    'the file holds only the %s policy',
-    async (id) => {
-      expect(await configManagerExportCsp(undefined, id)).toBe(true);
-
-      expect(Object.keys(cspFile())).toEqual([id]);
-    }
-  );
-
-  test('without an id both policies are pulled, as before', async () => {
-    expect(await configManagerExportCsp()).toBe(true);
-
-    expect(Object.keys(cspFile())).toEqual(['enforced', 'report-only']);
-  });
-
-  test('fails for any other id, and names the two that are valid', async () => {
-    expect(await configManagerExportCsp(undefined, 'both')).toBe(false);
-
-    expect(written).toEqual([]);
-    expect(everything()).toContain("Invalid CSP id 'both'");
-    expect(everything()).toContain("'enforced' or 'report-only'");
-  });
-
-  test('refuses an empty id before anything is read', async () => {
-    expect(await configManagerExportCsp(undefined, '')).toBe(false);
-
-    expect(everything()).toContain('The CSP id must not be empty');
+  test('pull scripts says that the root realm has no scripts, and reads nothing', async () => {
     expect(
-      lib.cloud.env.readEnforcedContentSecurityPolicy
-    ).not.toHaveBeenCalled();
+      await configManagerExportScripts([], '/', undefined, false, 'id-One')
+    ).toBe(true);
+
+    expect(messages('warn')).toEqual([
+      "The root realm of a Cloud tenant has no scripts: nothing to pull for 'id-One'.",
+    ]);
+    expect(lib.script.readScripts).not.toHaveBeenCalled();
+    expect(written).toEqual([]);
+  });
+
+  test('pull themes says it too, for an id and for a name', async () => {
+    expect(await configManagerExportThemes('/', false, 'theme-1')).toBe(true);
+    expect(await configManagerExportThemes('/', false, undefined, 'Zion')).toBe(
+      true
+    );
+
+    expect(messages('warn')).toEqual([
+      "The root realm of a Cloud tenant has no themes: nothing to pull for 'theme-1'.",
+      "The root realm of a Cloud tenant has no themes: nothing to pull for 'Zion'.",
+    ]);
+    expect(lib.theme.readThemes).not.toHaveBeenCalled();
+  });
+
+  test('without a selector the root realm is skipped quietly, as before', async () => {
+    expect(await configManagerExportScripts([], '/', undefined, false)).toBe(
+      true
+    );
+    expect(await configManagerExportThemes('/', false)).toBe(true);
+
+    expect(messages('warn')).toEqual([]);
   });
 });

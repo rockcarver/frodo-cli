@@ -62,7 +62,7 @@ export function exportScriptToFiles(script: ScriptSkeleton, realm: string) {
  * @param {string} realm Designates the specific realm to pull from
  * @param {string} name only exports specifically named script
  * @param {boolean} allowFailures True to succeed although some scripts could not be exported (the failures are still summarised)
- * @param {string} id only exports the script with this id (`_id`); an empty id is refused, it never means all scripts. Needs a single realm, like a name; the id is looked for in the list that an export of all scripts reads, so no other request is made.
+ * @param {string} id only exports the script with this id (`_id`); an empty id selects nothing, so it is not found (the command refuses an empty value before it connects). Needs a single realm, like a name; the id is looked for in the list that an export of all scripts reads, so no other request is made.
  * @returns {boolean} True if export was successful. A script or a realm that cannot be exported does not stop the others; the result is false if any failed, unless failures are allowed. A named script (by name or by id) that cannot be read, that does not exist, or that is not a JavaScript script, fails the command whatever the option says.
  */
 export async function configManagerExportScripts(
@@ -72,10 +72,6 @@ export async function configManagerExportScripts(
   allowFailures: boolean = false,
   id?: string
 ): Promise<boolean> {
-  if (id === '') {
-    printMessage('The script id must not be empty.', 'error');
-    return false;
-  }
   // what the command line names: an id, or a name (an empty name means all scripts)
   const selected = id ?? name;
   const indicatorId = createProgressIndicator(
@@ -100,8 +96,15 @@ export async function configManagerExportScripts(
       if (
         currentRealm === '/' &&
         state.getDeploymentType() === CLOUD_DEPLOYMENT_TYPE_KEY
-      )
+      ) {
+        if (selected) {
+          printMessage(
+            `The root realm of a Cloud tenant has no scripts: nothing to pull for '${selected}'.`,
+            'warn'
+          );
+        }
         continue;
+      }
       state.setRealm(currentRealm);
       let scripts: ScriptSkeleton[];
       try {

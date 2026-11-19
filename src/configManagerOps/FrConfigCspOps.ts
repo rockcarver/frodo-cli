@@ -20,31 +20,17 @@ type CSPExport = {
 /**
  * Export the content security policy in fr-config manager format
  * @param {string} file optional file to be exported
- * @param {string} id optional id of the one policy to export, `enforced` or `report-only` (the same two ids that a push takes): the file then holds that policy only. Both policies are read as for an export of both, so no other request is made. An empty id is refused, it never means both policies; any other id fails the command.
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
 export async function configManagerExportCsp(
-  file: string = null,
-  id?: string
+  file: string = null
 ): Promise<boolean> {
-  if (id === '') {
-    printMessage('The CSP id must not be empty.', 'error');
-    return false;
-  }
   try {
-    if (id !== undefined && id !== 'enforced' && id !== 'report-only') {
-      throw new Error(
-        `Invalid CSP id '${id}'. Valid values are 'enforced' or 'report-only'.`
-      );
-    }
     const cspEnforced: ContentSecurityPolicy =
       await env.readEnforcedContentSecurityPolicy();
     const cspReport: ContentSecurityPolicy =
       await env.readReportOnlyContentSecurityPolicy();
-    const csp: Partial<CSPExport> = {
-      enforced: cspEnforced,
-      'report-only': cspReport,
-    };
+    const csp = { enforced: cspEnforced, 'report-only': cspReport };
 
     if (file) {
       const configFileData = JSON.parse(
@@ -53,11 +39,7 @@ export async function configManagerExportCsp(
       lodashMerge(csp, configFileData);
     }
 
-    const selected =
-      id !== undefined
-        ? ({ [id]: csp[id as keyof CSPExport] } as Partial<CSPExport>)
-        : csp;
-    saveJsonToFile(selected, getFilePath('csp/csp.json', true), false, true);
+    saveJsonToFile(csp, getFilePath('csp/csp.json', true), false, true);
     return true;
   } catch (error) {
     printError(error);

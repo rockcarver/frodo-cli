@@ -10,7 +10,7 @@ import {
   PLACEHOLDER_VALUES_SENTENCE,
 } from '../../../utils/PlaceholderValues';
 import { FrodoCommand } from '../../FrodoCommand';
-import { withOptionAlias } from '../../OptionAlias';
+import { selectorOption } from '../../SelectorOption';
 
 export default function setup() {
   const program = new FrodoCommand(
@@ -25,11 +25,9 @@ export default function setup() {
         'A realm that does not offer the agent type has nothing to export. Software publishers are dynamic configuration: they are part of "pull all" and not of "pull all-static".'
     )
     .addOption(
-      withOptionAlias(
-        new Option(
-          '-i, --software-publisher-id <id>',
-          'Software publisher id, the id of the object. If specified, pulls only that publisher. Needs a single realm.'
-        ),
+      selectorOption(
+        '-i, --software-publisher-id <id>',
+        'Software publisher id, the id of the object. If specified, pulls only that publisher. Needs a single realm.',
         ['-n', '--name']
       )
     )

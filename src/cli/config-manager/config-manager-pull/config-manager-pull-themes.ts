@@ -1,10 +1,10 @@
 import { frodo } from '@rockcarver/frodo-lib';
-import { Option } from 'commander';
 import { configManagerExportThemes } from '../../../configManagerOps/FrConfigThemeOps';
 import { getTokens } from '../../../ops/AuthenticateOps';
 import { verboseMessage } from '../../../utils/Console';
 import { realmOfRun } from '../../../utils/interactive/PositionalArgs';
 import { FrodoCommand } from '../../FrodoCommand';
+import { selectorOption } from '../../SelectorOption';
 
 const { CLOUD_DEPLOYMENT_TYPE_KEY, FORGEOPS_DEPLOYMENT_TYPE_KEY } =
   frodo.utils.constants;
@@ -24,13 +24,13 @@ export default function setup() {
   program
     .description('Export themes.')
     .addOption(
-      new Option(
+      selectorOption(
         '-i, --theme-id <id>',
         'Theme id. If specified, pulls only the theme with the given id. Needs a single realm. Cannot be used with -n.'
       ).conflicts(['themeName'])
     )
     .addOption(
-      new Option(
+      selectorOption(
         '-n, --theme-name <name>',
         'Theme name. If specified, pulls only the theme with the given name. Needs a single realm. Cannot be used with -i.'
       ).conflicts(['themeId'])

@@ -1,10 +1,9 @@
 import { frodo } from '@rockcarver/frodo-lib';
-import { Option } from 'commander';
 import { configManagerExportLocales } from '../../../configManagerOps/FrConfigLocalesOps';
 import { getTokens } from '../../../ops/AuthenticateOps';
 import { verboseMessage } from '../../../utils/Console';
 import { FrodoCommand } from '../../FrodoCommand';
-import { withOptionAlias } from '../../OptionAlias';
+import { selectorOption } from '../../SelectorOption';
 
 const { CLOUD_DEPLOYMENT_TYPE_KEY, FORGEOPS_DEPLOYMENT_TYPE_KEY } =
   frodo.utils.constants;
@@ -24,11 +23,9 @@ export default function setup() {
   program
     .description('Export locales.')
     .addOption(
-      withOptionAlias(
-        new Option(
-          '-i, --locale-id <id>',
-          'Locale id. If specified, only exports the locale with the specified id.'
-        ),
+      selectorOption(
+        '-i, --locale-id <id>',
+        'Locale id. If specified, only exports the locale with the specified id.',
         ['-n', '--name']
       )
     )

@@ -1,10 +1,9 @@
-import { Option } from 'commander';
 import { configManagerExportServices } from '../../../configManagerOps/FrConfigServiceOps';
 import { getTokens } from '../../../ops/AuthenticateOps';
 import { verboseMessage } from '../../../utils/Console';
 import { realmOfRun } from '../../../utils/interactive/PositionalArgs';
 import { FrodoCommand } from '../../FrodoCommand';
-import { withOptionAlias } from '../../OptionAlias';
+import { selectorOption } from '../../SelectorOption';
 
 export default function setup() {
   const program = new FrodoCommand('frodo config-manager pull services');
@@ -12,11 +11,9 @@ export default function setup() {
   program
     .description('Export authentication services.')
     .addOption(
-      withOptionAlias(
-        new Option(
-          '-i, --service-id <id>',
-          'Service id. If specified, only exports the service with the specified id.'
-        ),
+      selectorOption(
+        '-i, --service-id <id>',
+        'Service id. If specified, only exports the service with the specified id.',
         ['-n', '--name']
       )
     )
