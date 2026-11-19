@@ -16,7 +16,8 @@ const { familyEntityPicks } =
  */
 
 const EXPECTED = {
-  'frodo admin execute-rfc7523-authz-grant-flow': ['clientId'],
+  // the client, then the user it gets tokens for
+  'frodo admin execute-rfc7523-authz-grant-flow': ['clientId', 'sub'],
   'frodo admin get-access-token': ['clientId'],
   'frodo admin federation export': ['idpId'],
   'frodo feature describe': ['featureId'],
@@ -26,7 +27,7 @@ const EXPECTED = {
   'frodo idm delete': ['id'],
   'frodo mapping export': ['mappingId'],
   'frodo mapping rename': ['mappingId'],
-  // inherits the family's pick, but keeps its own (see below)
+  // narrows the list by -c and -t (see below)
   'frodo mapping delete': ['mappingId'],
   'frodo server export': ['serverId'],
 };
@@ -71,7 +72,7 @@ describe('the commands that inherit a pick from the admin, feature, idm, mapping
     }
   });
 
-  it('leave mapping delete with its own pick, which narrows the list by -c and -t, and idm delete with the family pick', () => {
+  it('give mapping delete a pick that narrows the list by -c and -t, and idm delete the plain family pick', () => {
     const mappingDelete = leaves.find(
       (leaf) => fullName(leaf) === 'frodo mapping delete'
     );

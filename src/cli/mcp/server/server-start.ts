@@ -179,6 +179,9 @@ export default function setup() {
   const program = new FrodoCommand('frodo mcp server start', [
     'realm',
     'flush-cache',
+    // the server runs for a client that must not be able to see credentials,
+    // so its curl output stays masked (the tools cannot switch it on either)
+    'curlirize-secrets',
   ])
     .description('Start an MCP server session from frodo-lib skills.')
     .withStability('experimental')

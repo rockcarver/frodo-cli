@@ -1,7 +1,6 @@
 import { Option } from 'commander';
 import { describeJavaAgent } from '../../ops/AgentOps.js';
 import { getTokens } from '../../ops/AuthenticateOps';
-import { printMessage } from '../../utils/Console.js';
 import { FrodoCommand } from '../FrodoCommand';
 
 export default function setup() {
@@ -23,11 +22,11 @@ export default function setup() {
           command
         );
         if (await getTokens()) {
-          const description = await describeJavaAgent(
+          const outcome = await describeJavaAgent(
             options.agentId,
             options.json
           );
-          printMessage(description, 'data');
+          if (!outcome) process.exitCode = 1;
         } else {
           process.exitCode = 1;
         }

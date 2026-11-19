@@ -14,7 +14,7 @@ described in the job sections that follow.)
 ```mermaid
 flowchart TD
     PR["PR to main<br/>or push to main"] --> CH["Detect code changes<br/>(skips tests for docs-only PRs)"]
-    CH -->|"guidance files, no code"| G["Validate guidance<br/>(decision records, skills)"]
+    CH -->|"guidance files, no code"| G["Validate guidance<br/>(decision records, skills, Dependabot policy)"]
     PR --> B["Build<br/>(version bump, dist bundle)<br/>required check"]
     B --> T["Test (26)"]
     B --> X["Cross-Platform Tests<br/>(credential file permissions)"]
@@ -103,7 +103,12 @@ which answers two questions:
 - `guidance`: does a file change that a guidance test reads? Only meaningful
   with `code=false` (with code, `Test` runs the same tests). The list is
   `GUIDANCE` in the script: `docs/decisions/`, `AGENTS.md`, `CLAUDE.md`,
-  `docs/CONTRIBUTE.md`, `.claude/skills/` and `.github/instructions/`.
+  `docs/CONTRIBUTE.md`, `.claude/skills/`, `.github/instructions/` and the
+  Dependabot policy of [core 0023](decisions/core/0023-dependency-updates-arrive-late-and-only-tooling-merges-without-a-person.md):
+  `.github/dependabot.yml` and `.github/workflows/dependabot-auto-merge.yml`
+  (the policy is decided by the shared action
+  `gearsnlevers/dependabot-auto-merge-action`, pinned in that workflow;
+  `test/unit/DependabotPolicy.test.js` reads both files).
 
 The script is read from the pull request's **base** commit (the contents API
 at `base.sha`), never from its head: a pull request does not choose the rules
@@ -136,7 +141,8 @@ the files the classifier calls non-code:
   and `*.md`) it installs.
 
 Some of these are guidance files that a test reads (`docs/decisions/`,
-`AGENTS.md`, `CLAUDE.md`, `.claude/skills/`, `.github/instructions/`). A pull
+`AGENTS.md`, `CLAUDE.md`, `.claude/skills/`, `.github/instructions/`,
+`.github/dependabot.yml` and the Dependabot auto-merge workflow). A pull
 request that changes them runs the fast `Validate guidance` job; the push after
 the merge does not repeat it, as it has never repeated it for `docs/decisions/`.
 `pipeline.yml` is on the list too, although the classifier counts it as code: a
@@ -159,12 +165,13 @@ it checked.
 ### Validate guidance
 
 `Validate guidance` runs when `code=false` and `guidance=true`: a pull request
-that changes decision records, skills, the agent entry points or instruction
-files and nothing else. It checks out the pull request head, runs `npm ci` and
+that changes decision records, skills, the agent entry points, instruction
+files, `.github/dependabot.yml` or the Dependabot auto-merge workflow and
+nothing else. It checks out the pull request head, runs `npm ci` and
 `npm run test:guidance`
 ([../tools/run-guidance-tests.mjs](../tools/run-guidance-tests.mjs)), which runs
-only `test/unit/DecisionRecords.test.js` and `test/unit/Skills.test.js` and
-fails if either file is missing. No build, no tenant, no binary: about a
+only `test/unit/DecisionRecords.test.js`, `test/unit/Skills.test.js` and
+`test/unit/DependabotPolicy.test.js` and fails if any of them is missing. No build, no tenant, no binary: about a
 minute, most of it `npm ci`. The same command runs locally.
 
 ### Build
@@ -198,7 +205,29 @@ suite against the SEA binary itself.
   an npm install.
 - **Live Tenant Smoke Test** (push/release only): runs against a real
   tenant using service credentials (`FRODO_SA_ID`/`FRODO_SA_JWK`), through a
-  squid proxy service container.
+  squid proxy service container. Its `Proxy Tests` step runs `frodo conn save`
+  and `frodo info` with `HTTPS_PROXY` set to squid, then a **negative
+  control**: `frodo info` with `HTTPS_PROXY=http://127.0.0.1:9` (a port nobody
+  listens on) must fail, and the step fails if it succeeds. Without it the two
+  commands would also pass when the proxy setting is ignored. The check is an
+  `if` condition, so the expected failure does not stop the step under
+  `bash -e`; `test/unit/PipelineClassification.test.js` runs the step's shell
+  against a stand-in for `frodo` for each outcome.
+- **Proxy support of the bundle** (`test/unit/ProxySupport.test.js`, in the
+  `Test` job, no secrets and no network beyond loopback): the built CLI
+  (`dist/launch.cjs`, and `dist-sea/frodo` when it exists, which it does in the
+  `Test` job) runs `frodo realm list` against a fake tenant with a forward
+  proxy in the test process in between. It shows that `HTTP_PROXY` and
+  `http_proxy` route the requests through the proxy, that `HTTPS_PROXY` opens a
+  `CONNECT` tunnel to a self-signed https tenant (`--insecure`), with and
+  without credentials in the proxy URL, that `NO_PROXY` keeps the proxy out of
+  it, and that a proxy nobody listens on fails the command quickly with
+  nothing reaching the tenant. proxy-agent and the agents it loads on demand are
+  inlined into the bundle, so this is what notices a bundling change that
+  drops one. The library tests its own agents from source (frodo-lib issue
+  [#982](https://github.com/rockcarver/frodo-lib/issues/982)). It needs the
+  `openssl` command for the https cases (skipped without it, a failure when
+  `CI` is set) and sends no update check (`FRODO_NO_UPDATE_CHECK`).
 - **Cross-Platform Tests (Credential File Permissions)**: verifies the CLI
   creates credential files with restrictive permissions on Windows, macOS
   and Linux.

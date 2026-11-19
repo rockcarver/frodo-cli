@@ -42,5 +42,7 @@ Options:
 Rule:
   one of -i, --workflow-id <workflow-id> | -f, --file <file> is required -- choose which workflow
 
+
+Not available with --browser or --device: needs a service account (Governance). See https://github.com/rockcarver/frodo-cli/blob/main/docs/BROWSER_LOGIN.md#what-a-browser-or-device-login-can-do
 "
 `;

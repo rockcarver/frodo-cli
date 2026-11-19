@@ -36,7 +36,7 @@ Use a fixed set of scenarios for all variants:
 2. Read + update flow
 3. Search + read follow-up
 4. Domain with explicit `scope` required
-5. Pagination flow (`pageSize`, `pageOffset` or `pageToken`)
+5. Pagination flow (`pageSize`, `pageOffset` or `pageToken`; read on with `nextPageOffset` or `nextPageToken` while the result says `truncated: true`, and compare `returned` and `total` with a count capability)
 6. Realm override flow
 7. Export-optional task (should complete without export)
 8. Historically error-prone argument contract (named arguments)

@@ -1,0 +1,22 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`frodo config-manager pull oauth-software-publishers "frodo config-manager pull oauth-software-publishers -n zz-e2e-publisher -D softwarePublishersTestDir1": should pull the software publisher zz-e2e-publisher of the alpha realm in fr-config-manager style" 1`] = `0`;
+
+exports[`frodo config-manager pull oauth-software-publishers "frodo config-manager pull oauth-software-publishers -n zz-e2e-publisher -D softwarePublishersTestDir1": should pull the software publisher zz-e2e-publisher of the alpha realm in fr-config-manager style" 2`] = `""`;
+
+exports[`frodo config-manager pull oauth-software-publishers "frodo config-manager pull oauth-software-publishers -n zz-e2e-publisher -D softwarePublishersTestDir1": should pull the software publisher zz-e2e-publisher of the alpha realm in fr-config-manager style": softwarePublishersTestDir1/realms/alpha/realm-config/agents/SoftwarePublisher/zz-e2e-publisher.json 1`] = `
+{
+  "_id": "zz-e2e-publisher",
+  "_type": {
+    "_id": "SoftwarePublisher",
+    "collection": true,
+    "name": "OAuth2 Software Publisher",
+  },
+  "issuer": "https://zz-e2e-publisher.example.com",
+  "jwkStoreCacheMissCacheTime": 60000,
+  "jwksCacheTimeout": 3600000,
+  "jwksUri": "https://zz-e2e-publisher.example.com/.well-known/jwks.json",
+  "publicKeyLocation": "jwks_uri",
+  "softwareStatementSigningAlgorithm": "RS256",
+}
+`;

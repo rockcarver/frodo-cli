@@ -1,10 +1,10 @@
 import { frodo } from '@rockcarver/frodo-lib';
-import { Option } from 'commander';
 import { configManagerImportSecretMappings } from '../../../configManagerOps/FrConfigSecretMappingsOps';
 import { getTokens } from '../../../ops/AuthenticateOps';
 import { printMessage, verboseMessage } from '../../../utils/Console';
 import { realmOfRun } from '../../../utils/interactive/PositionalArgs';
 import { FrodoCommand } from '../../FrodoCommand';
+import { selectorOption } from '../../SelectorOption';
 
 const { CLOUD_DEPLOYMENT_TYPE_KEY, DEFAULT_REALM_KEY } = frodo.utils.constants;
 
@@ -20,9 +20,10 @@ export default function setup() {
   program
     .description('Import secret mappings.')
     .addOption(
-      new Option(
-        '-n, --name <name>',
-        'Secret mapping name. It will only import secret mapping with the specified name.'
+      selectorOption(
+        '-i, --secret-mapping-id <id>',
+        'Secret mapping id. It will only import the secret mapping with the specified id.',
+        ['-n', '--name']
       )
     )
     .multiOp()
@@ -37,9 +38,9 @@ export default function setup() {
         command
       );
 
-      if (options.name && (!realm || realm === DEFAULT_REALM_KEY)) {
+      if (options.secretMappingId && (!realm || realm === DEFAULT_REALM_KEY)) {
         printMessage(
-          'The -n/--name option requires a realm argument to be specified.',
+          'The -i, --secret-mapping-id option requires a realm argument to be specified.',
           'error'
         );
         process.exitCode = 1;
@@ -58,7 +59,7 @@ export default function setup() {
       }
       verboseMessage('Importing secret mappings configuration.');
       const outcome = await configManagerImportSecretMappings(
-        options.name,
+        options.secretMappingId,
         realmOfRun(command, realm),
         options.allowFailures
       );

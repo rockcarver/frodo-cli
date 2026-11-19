@@ -40,7 +40,7 @@ export default function setup() {
           )
         ) {
           verboseMessage('Importing authentication settings from file...');
-          const outcome = importAuthenticationSettingsFromFile(
+          const outcome = await importAuthenticationSettingsFromFile(
             options.file,
             options.global
           );

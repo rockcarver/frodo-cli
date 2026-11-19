@@ -12,8 +12,9 @@ import { startFakeAm } from '../utils/StartFakeAm.js';
 /**
  * "Choose after connecting": on the options page, <enter> on an empty value of
  * an option that names an entity marks it without a value, and the picker for
- * it opens after login. It is for the options whose picker does not open by
- * itself because the command line is complete without them
+ * it opens once the options page is done, after the login the pass makes for
+ * it (record 0044); the Ready step follows. It is for the options whose picker
+ * does not open by itself because the command line is complete without them
  * (`journey describe`: no -i describes every journey). Before, the value box
  * took free text only, ignored an empty <enter>, and there was no way to ask for
  * the picker: the host has to be chosen first, and the picker needs the host.
@@ -119,7 +120,7 @@ suite('choose after connecting, on a real terminal', () => {
     expect(footer(marked)).not.toContain('--journey-id matrix');
   });
 
-  test('after login the picker opens, once, and the command runs for the journey picked', () => {
+  test('the picker opens in the pass, once, before the Ready step, and the command runs for the journey picked', () => {
     const run = describeJourney([
       ...toJourneyId,
       { type: 'key', name: 'space' },
@@ -127,11 +128,7 @@ suite('choose after connecting, on a real terminal', () => {
       { type: 'sleep', ms: 500 },
       { type: 'clear_output' },
       { type: 'key', name: 'enter' }, // commit the options page
-      // the Ready step is the last prompt of the pass; the picker needs the login
-      { type: 'wait_plain', regex: 'Ready to run\\?', timeoutMs: 30000 },
-      { type: 'sleep', ms: 400 },
-      { type: 'capture', label: 'ready' },
-      { type: 'key', name: 'enter' },
+      // the pass logs in for the picker, which comes before the Ready step
       {
         type: 'wait_plain',
         regex: 'Select journey to act on',
@@ -141,19 +138,23 @@ suite('choose after connecting, on a real terminal', () => {
       { type: 'capture', label: 'picker' },
       { type: 'clear_output' },
       { type: 'key', name: 'enter' },
+      { type: 'wait_plain', regex: 'Ready to run\\?', timeoutMs: 30000 },
+      { type: 'sleep', ms: 400 },
+      { type: 'capture', label: 'ready' },
+      { type: 'key', name: 'enter' },
       { type: 'sleep', ms: 3000 },
       { type: 'capture', label: 'after' },
     ]);
-    // the step says that a pick is still open, and the picker comes after it
-    expect(lastFrame(run.captures.ready.plain)).toContain(
-      'chosen from the target system after login'
-    );
     const picker = lastFrame(run.captures.picker.plain);
     expect(picker.indexOf('matrix-login')).toBeGreaterThan(-1);
     expect(picker.indexOf('matrix-login')).toBeLessThan(
       picker.indexOf('zion-login')
     );
     expect(footer(picker)).toContain('--journey-id matrix-login');
+    // the step is the last prompt: nothing is left to choose, and the command shows the pick
+    const ready = lastFrame(run.captures.ready.plain);
+    expect(ready).not.toContain('after login');
+    expect(footer(ready)).toContain('--journey-id matrix-login');
     // asked once, and not as free text before it
     expect(run.captures.picker.plain).not.toContain('Enter a value for');
     expect(
@@ -172,7 +173,7 @@ suite('choose after connecting, on a real terminal', () => {
       { type: 'sleep', ms: 4000 },
       { type: 'capture', label: 'after' },
     ]);
-    // nothing is open for after login: the step does not say so
+    // no picker was asked for: none opens, and the step has nothing to say about one
     expect(lastFrame(run.captures.ready.plain)).not.toContain('after login');
     expect(run.captures.after.plain).not.toContain('Select journey to act on');
   });

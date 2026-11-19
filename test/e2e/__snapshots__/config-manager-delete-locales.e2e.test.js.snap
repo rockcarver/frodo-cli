@@ -1,0 +1,35 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`frodo config-manager delete locales "frodo config-manager delete locales --dry-run -m forgeops": should print a dryrun message listing all locales in forgeops" 1`] = `""`;
+
+exports[`frodo config-manager delete locales "frodo config-manager delete locales --dry-run -m forgeops": should print a dryrun message listing all locales in forgeops" 2`] = `
+"Experimental feature in use: 'frodo config-manager delete locales'. This feature may change without notice.
+Dry run: Deleting uilocale: fr
+Dry run: Deleting uilocale: ko
+"
+`;
+
+exports[`frodo config-manager delete locales "frodo config-manager delete locales -d -n fr -m forgeops": should print a dryrun message for a specific locale by name in forgeops" 1`] = `""`;
+
+exports[`frodo config-manager delete locales "frodo config-manager delete locales -d -n fr -m forgeops": should print a dryrun message for a specific locale by name in forgeops" 2`] = `
+"Experimental feature in use: 'frodo config-manager delete locales'. This feature may change without notice.
+Dry run: Deleting uilocale: fr
+"
+`;
+
+exports[`frodo config-manager delete locales "frodo config-manager delete locales -n fr -m forgeops": should delete a specific locale by name in forgeops" 1`] = `""`;
+
+exports[`frodo config-manager delete locales "frodo config-manager delete locales -n fr -m forgeops": should delete a specific locale by name in forgeops" 2`] = `
+"Experimental feature in use: 'frodo config-manager delete locales'. This feature may change without notice.
+Deleting uilocale: fr
+"
+`;
+
+exports[`frodo config-manager delete locales "frodo config-manager delete locales -y -m forgeops": should delete all locales in forgeops" 1`] = `""`;
+
+exports[`frodo config-manager delete locales "frodo config-manager delete locales -y -m forgeops": should delete all locales in forgeops" 2`] = `
+"Experimental feature in use: 'frodo config-manager delete locales'. This feature may change without notice.
+Deleting uilocale: fr
+Deleting uilocale: ko
+"
+`;

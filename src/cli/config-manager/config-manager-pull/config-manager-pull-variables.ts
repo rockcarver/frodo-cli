@@ -4,6 +4,7 @@ import { configManagerExportVariables } from '../../../configManagerOps/FrConfig
 import { getTokens } from '../../../ops/AuthenticateOps';
 import { verboseMessage } from '../../../utils/Console';
 import { FrodoCommand } from '../../FrodoCommand';
+import { selectorOption } from '../../SelectorOption';
 
 const { CLOUD_DEPLOYMENT_TYPE_KEY } = frodo.utils.constants;
 
@@ -19,14 +20,20 @@ export default function setup() {
   program
     .description('Export variables.')
     .addOption(
+      selectorOption(
+        '-i, --variable-id <id>',
+        'Variable id. If specified, only exports the variable with the specified id (and reports or dumps only that variable).'
+      )
+    )
+    .addOption(
       new Option(
         '-r, --report',
-        'Output variables as a CSV report. Cannot be used with -u.'
+        'Output variables as a CSV report. Cannot be used with --dump.'
       ).conflicts(['dump'])
     )
     .addOption(
       new Option(
-        '-u, --dump',
+        '--dump',
         'Dump decoded variable values to the console. Cannot be used with -r.'
       ).conflicts(['report'])
     )
@@ -42,11 +49,16 @@ export default function setup() {
       );
 
       if (await getTokens(false, true, deploymentTypes)) {
-        verboseMessage('Exporting variables...');
+        verboseMessage(
+          options.variableId !== undefined
+            ? `Exporting variable "${options.variableId}"...`
+            : 'Exporting variables...'
+        );
         const outcome = await configManagerExportVariables(
           options.report,
           options.dump,
-          options.allowFailures
+          options.allowFailures,
+          options.variableId
         );
         if (!outcome) process.exitCode = 1;
       } else {

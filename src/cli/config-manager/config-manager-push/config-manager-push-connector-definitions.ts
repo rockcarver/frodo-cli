@@ -1,10 +1,10 @@
 import { frodo } from '@rockcarver/frodo-lib';
-import { Option } from 'commander';
 import { configManagerImportConnectors } from '../../../configManagerOps/FrConfigConnectorDefinitionsOps';
 import { ownedObjectsPushHelp } from '../../../ops/ApplicationOwnedObjectsHelp';
 import { getTokens } from '../../../ops/AuthenticateOps';
 import { verboseMessage } from '../../../utils/Console';
 import { FrodoCommand } from '../../FrodoCommand';
+import { selectorOption } from '../../SelectorOption';
 
 const { CLOUD_DEPLOYMENT_TYPE_KEY, FORGEOPS_DEPLOYMENT_TYPE_KEY } =
   frodo.utils.constants;
@@ -24,9 +24,10 @@ export default function setup() {
   program
     .description('Import connector definitions.')
     .addOption(
-      new Option(
-        '-n, --name <name>',
-        'Connector definition name; imports only the specified connector definition.'
+      selectorOption(
+        '-i, --connector-id <id>',
+        'Connector definition id, without the type prefix; imports only the specified connector definition.',
+        ['-n', '--name']
       )
     )
     .addHelpText('after', ownedObjectsPushHelp('connectors'))
@@ -44,7 +45,7 @@ export default function setup() {
       if (await getTokens(false, true, deploymentTypes)) {
         verboseMessage('Importing connector definitions');
         const outcome = await configManagerImportConnectors(
-          options.name,
+          options.connectorId,
           options.allowFailures
         );
         if (!outcome) process.exitCode = 1;

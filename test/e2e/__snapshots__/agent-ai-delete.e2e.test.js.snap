@@ -1,7 +1,8 @@
 // Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
 exports[`frodo agent ai delete "frodo agent ai delete frodo-dev --agent-id does-not-exist": should fail deleting does-not-exist 1`] = `
-"Error deleting alpha realm AI agent does-not-exist
+"Deprecated feature in use: 'frodo agent ai delete'. Use 'frodo aiagent' instead: the commands and options are the same. 'frodo agent ai' keeps working in 5.x and may be removed in a later major release.
+Error deleting alpha realm AI agent does-not-exist
   alpha realm AI agent 'does-not-exist' not found!
 "
 `;

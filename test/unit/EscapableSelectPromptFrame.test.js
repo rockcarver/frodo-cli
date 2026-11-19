@@ -251,3 +251,83 @@ describe('escapableSelect Navigate menu keys', () => {
     expect(navigate({})).toContain('[ESC] back · [ESC]×2 exit all');
   });
 });
+
+describe('escapableSelect intro lines', () => {
+  const CHOICES = [
+    { value: 'up', name: '..' },
+    { value: 'a', name: 'alpha/' },
+    { value: 'b', name: 'beta.json' },
+  ];
+  const intro = (lines) => ({
+    message: 'Choose',
+    choices: CHOICES,
+    intro: lines,
+  });
+
+  it.each(FRAME_WIDTHS)(
+    'keeps the silhouette at %i columns with hostile intro lines of both tones',
+    (width) => {
+      setTerminal(width);
+      harness.reset();
+      const output = render(
+        intro([
+          { text: `In /${HOSTILE_TEXTS.longDottedNames}` },
+          { text: HOSTILE_TEXTS.tabbedStackTrace, tone: 'error' },
+          { text: HOSTILE_TEXTS.multiLine },
+          { text: HOSTILE_TEXTS.veryLongWord, tone: 'error' },
+        ])
+      );
+      assertFrame(output, width);
+    }
+  );
+
+  it('shows the intro above the list, with a blank row between them', () => {
+    setTerminal(120);
+    const rows = visibleLines(
+      render(intro([{ text: 'In /work' }, { text: 'Files shown: .json' }]))
+    );
+    const where = rows.findIndex((row) => row.includes('In /work'));
+    const filter = rows.findIndex((row) => row.includes('Files shown: .json'));
+    const first = rows.findIndex((row) => row.includes('..'));
+    expect(where).toBeGreaterThan(0);
+    expect(filter).toBe(where + 1);
+    expect(rows[filter + 1].replace(/[│\s]/g, '')).toBe('');
+    expect(first).toBe(filter + 2);
+  });
+
+  it('keeps the intro when the filter matches no row', () => {
+    setTerminal(120);
+    const output = visibleLines(
+      render(intro([{ text: 'In /work' }]), { [STATE.query]: 'zzz' })
+    ).join('\n');
+    expect(output).toContain('In /work');
+    expect(output).toContain('(no matches -- backspace to edit)');
+  });
+
+  it('draws nothing extra without an intro', () => {
+    setTerminal(120);
+    const without = visibleLines(
+      render({ message: 'Choose', choices: CHOICES })
+    );
+    harness.reset();
+    const empty = visibleLines(render(intro([])));
+    expect(empty).toEqual(without);
+  });
+
+  it('wraps a long intro line to the frame it is drawn in', () => {
+    const sentence = `In /${'folder/'.repeat(14)}end`;
+    setTerminal(156);
+    expect(
+      visibleLines(render(intro([{ text: sentence }]))).filter((row) =>
+        row.includes(sentence)
+      )
+    ).toHaveLength(1);
+    harness.reset();
+    setTerminal(60);
+    const narrow = render(intro([{ text: sentence }]));
+    assertFrame(narrow, 60);
+    expect(
+      visibleLines(narrow).filter((row) => row.includes('folder/')).length
+    ).toBeGreaterThan(1);
+  });
+});

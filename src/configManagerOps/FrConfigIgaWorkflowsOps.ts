@@ -16,19 +16,28 @@ const { readWorkflows, updateWorkflow } = frodo.cloud.iga.workflow;
  * @param {string} name optional workflow name to filter by
  * @param {boolean} includeImmutable if true, also export immutable workflows
  * @param {boolean} allowFailures true to succeed although some workflows could not be exported (the failures are still summarised)
- * @returns {Promise<boolean>} a promise that resolves to false if a named workflow does not exist, the workflows cannot be read, or a workflow cannot be exported (unless failures are allowed). No workflows when none was named is a success.
+ * @param {string} id optional workflow id (the `id` of the workflow) to filter by. An empty id selects nothing, so it is not found (the command refuses an empty value before it connects).
+ * @returns {Promise<boolean>} a promise that resolves to false if a named workflow (by name or by id) does not exist, the workflows cannot be read, or a workflow cannot be exported (unless failures are allowed). No workflows when none was named is a success.
  */
 export async function configManagerExportIgaWorkflows(
   name?: string,
   includeImmutable: boolean = false,
-  allowFailures: boolean = false
+  allowFailures: boolean = false,
+  id?: string
 ): Promise<boolean> {
   try {
     const workflows = (await readWorkflows()).filter(
-      (w) => (!name || w.name === name) && (includeImmutable || w.mutable)
+      (w) =>
+        (id !== undefined ? w.id === id : !name || w.name === name) &&
+        (includeImmutable || w.mutable)
     );
-    if (name && workflows.length === 0) {
-      printMessage(`Workflow ${name} not found`, 'error');
+    if ((id !== undefined || name) && workflows.length === 0) {
+      printMessage(
+        id !== undefined
+          ? `Workflow with id ${id} not found`
+          : `Workflow ${name} not found`,
+        'error'
+      );
       return false;
     }
     if (workflows.length === 0) {
@@ -93,12 +102,14 @@ export async function configManagerExportIgaWorkflows(
  * @param {string} name optional workflow name to filter by
  * @param {boolean} draft if true, will import workflow as draft
  * @param {boolean} allowFailures true to succeed although some workflows could not be imported (the failures are still summarised)
- * @returns {Promise<boolean>} a promise that resolves to false if the workflows folder or a named workflow does not exist, or a workflow cannot be read or imported (unless failures are allowed). No workflows when none was named is a success.
+ * @param {string} id optional workflow id (the `id` of the workflow file) to filter by instead of a name. An empty id selects nothing, so it is not found (the command refuses an empty value before it connects).
+ * @returns {Promise<boolean>} a promise that resolves to false if the workflows folder or a named workflow (by name or by id) does not exist, or a workflow cannot be read or imported (unless failures are allowed). No workflows when none was named is a success.
  */
 export async function configManagerImportIgaWorkflows(
   name?: string,
   draft: boolean = false,
-  allowFailures: boolean = false
+  allowFailures: boolean = false,
+  id?: string
 ): Promise<boolean> {
   try {
     const workflowsDir = `${getWorkingDirectory()}/iga/workflows`;
@@ -119,7 +130,10 @@ export async function configManagerImportIgaWorkflows(
       try {
         const workflowFile = path.join(workflowDir, `${workflowName}.json`);
         const workflow = readJsonFile(workflowFile) as any;
-        if (name && name !== workflow.name) continue;
+        if (
+          id !== undefined ? workflow.id !== id : name && name !== workflow.name
+        )
+          continue;
         workflowFound = true;
         if (!workflow.mutable) {
           printMessage(`Skipping immutable workflow ${workflow.name}`);
@@ -166,8 +180,13 @@ export async function configManagerImportIgaWorkflows(
         run.recordFailure(workflowName, causeOf(error));
       }
     }
-    if (name && !workflowFound) {
-      printMessage(`Requested workflow ${name} not found`, 'error');
+    if ((id !== undefined || name) && !workflowFound) {
+      printMessage(
+        id !== undefined
+          ? `Requested workflow with id ${id} not found`
+          : `Requested workflow ${name} not found`,
+        'error'
+      );
       return false;
     }
     if (workflowDirs.length === 0) {

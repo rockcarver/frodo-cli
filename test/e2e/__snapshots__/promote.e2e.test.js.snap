@@ -3,23 +3,31 @@
 exports[`frodo promote -M ./test/e2e/exports/full-export-separate -e ./tmp/tmp-* "authentication frodo promote -M ./test/e2e/exports/full-export-separate -e ./tmp/tmp-*": this should run a promote on authentication changes 1`] = `""`;
 
 exports[`frodo promote -M ./test/e2e/exports/full-export-separate -e ./tmp/tmp-* "authentication frodo promote -M ./test/e2e/exports/full-export-separate -e ./tmp/tmp-*": this should run a promote on authentication changes 2`] = `
-"✔ Imported alpha realm authentication settings.
+"Deprecated feature in use: 'frodo promote'. This command does not run a platform promotion and will be removed in 5.0.0. For the platform's promotion use 'frodo config-manager promote run-promotion'; to bring a tenant to a tree of files use 'frodo config import -A -D <master> <connection>' (add --static for what a promotion carries) or the 'frodo config-manager push' commands; to delete what was removed from a tree use 'frodo config-manager delete <kind> -n <name>'.
+✔ Imported alpha realm authentication settings.
 ✔ Imported bravo realm authentication settings.
 "
 `;
 
 exports[`frodo promote -M ./test/e2e/exports/full-export-separate -e ./tmp/tmp-* "managedapplication frodo promote -M ./test/e2e/exports/full-export-separate -e ./tmp/tmp-*": this should run a promote on managedapplication changes 1`] = `""`;
 
-exports[`frodo promote -M ./test/e2e/exports/full-export-separate -e ./tmp/tmp-* "managedapplication frodo promote -M ./test/e2e/exports/full-export-separate -e ./tmp/tmp-*": this should run a promote on managedapplication changes 2`] = `""`;
+exports[`frodo promote -M ./test/e2e/exports/full-export-separate -e ./tmp/tmp-* "managedapplication frodo promote -M ./test/e2e/exports/full-export-separate -e ./tmp/tmp-*": this should run a promote on managedapplication changes 2`] = `
+"Deprecated feature in use: 'frodo promote'. This command does not run a platform promotion and will be removed in 5.0.0. For the platform's promotion use 'frodo config-manager promote run-promotion'; to bring a tenant to a tree of files use 'frodo config import -A -D <master> <connection>' (add --static for what a promotion carries) or the 'frodo config-manager push' commands; to delete what was removed from a tree use 'frodo config-manager delete <kind> -n <name>'.
+"
+`;
 
 exports[`frodo promote -M ./test/e2e/exports/full-export-separate -e ./tmp/tmp-* "mapping frodo promote -M ./test/e2e/exports/full-export-separate -e ./tmp/tmp-*": this should run a promote on mapping changes 1`] = `""`;
 
 exports[`frodo promote -M ./test/e2e/exports/full-export-separate -e ./tmp/tmp-* "mapping frodo promote -M ./test/e2e/exports/full-export-separate -e ./tmp/tmp-*": this should run a promote on mapping changes 2`] = `
-"• Successfully imported mapping mapping/managedAlpha_user_systemAzureUser.
+"Deprecated feature in use: 'frodo promote'. This command does not run a platform promotion and will be removed in 5.0.0. For the platform's promotion use 'frodo config-manager promote run-promotion'; to bring a tenant to a tree of files use 'frodo config import -A -D <master> <connection>' (add --static for what a promotion carries) or the 'frodo config-manager push' commands; to delete what was removed from a tree use 'frodo config-manager delete <kind> -n <name>'.
+• Successfully imported mapping mapping/managedAlpha_user_systemAzureUser.
 • Successfully imported mapping mapping/managedBravo_group_managedBravo_group.
 "
 `;
 
 exports[`frodo promote -M ./test/e2e/exports/full-export-separate -e ./tmp/tmp-* "variable frodo promote -M ./test/e2e/exports/full-export-separate -e ./tmp/tmp-*": this should run a promote on variable changes 1`] = `""`;
 
-exports[`frodo promote -M ./test/e2e/exports/full-export-separate -e ./tmp/tmp-* "variable frodo promote -M ./test/e2e/exports/full-export-separate -e ./tmp/tmp-*": this should run a promote on variable changes 2`] = `""`;
+exports[`frodo promote -M ./test/e2e/exports/full-export-separate -e ./tmp/tmp-* "variable frodo promote -M ./test/e2e/exports/full-export-separate -e ./tmp/tmp-*": this should run a promote on variable changes 2`] = `
+"Deprecated feature in use: 'frodo promote'. This command does not run a platform promotion and will be removed in 5.0.0. For the platform's promotion use 'frodo config-manager promote run-promotion'; to bring a tenant to a tree of files use 'frodo config import -A -D <master> <connection>' (add --static for what a promotion carries) or the 'frodo config-manager push' commands; to delete what was removed from a tree use 'frodo config-manager delete <kind> -n <name>'.
+"
+`;

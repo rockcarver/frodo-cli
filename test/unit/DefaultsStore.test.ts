@@ -10,6 +10,8 @@ import {
   clearDefaultsByPath,
   commandStoreKey,
   getDefaultsPath,
+  isNeverSavedOption,
+  markNeverSaved,
   optionMissingUserValue,
   readCommandDefaults,
   readDefaultsStore,
@@ -172,5 +174,60 @@ describe('secret options', () => {
     const command = secretCommand();
     writeDefaultsStore({ 'conn set': { password: 'stale', alias: 'prod' } });
     expect(applicableCommandDefaults(command)).toEqual({ alias: 'prod' });
+  });
+});
+
+describe('options that are never saved as a default (--curlirize-secrets)', () => {
+  function curlCommand(): Command {
+    const command = new Command('list');
+    command.addOption(new Option('--curlirize', 'Curl'));
+    command.addOption(
+      markNeverSaved(new Option('--curlirize-secrets', 'Show credentials'))
+    );
+    command.addOption(new Option('--long', 'Long listing').default(false));
+    command.parent = new Command('journey');
+    command.parent.name('journey');
+    return command;
+  }
+
+  it('are marked, and a plain option is not', () => {
+    const command = curlCommand();
+    const marked = command.options.filter(isNeverSavedOption);
+    expect(marked.map((option) => option.attributeName())).toEqual([
+      'curlirizeSecrets',
+    ]);
+  });
+
+  it('survive the clone FrodoCommand makes of a shared option', () => {
+    const option = markNeverSaved(new Option('--curlirize-secrets'));
+    expect(isNeverSavedOption({ ...option } as Option)).toBe(true);
+  });
+
+  it('are never written to the store, whatever the editor committed', () => {
+    baseDir = fs.mkdtempSync(path.join(os.tmpdir(), 'defaults-'));
+    setDefaultsBaseDirForTests(baseDir);
+    const command = curlCommand();
+    saveCommandDefaults(command, {
+      curlirize: true,
+      curlirizeSecrets: true,
+      long: true,
+    });
+    expect(readCommandDefaults(command)).toEqual({
+      curlirize: true,
+      long: true,
+    });
+    expect(fs.readFileSync(getDefaultsPath(), 'utf8')).not.toContain(
+      'curlirizeSecrets'
+    );
+  });
+
+  it('are never applied from a store that holds one', () => {
+    baseDir = fs.mkdtempSync(path.join(os.tmpdir(), 'defaults-'));
+    setDefaultsBaseDirForTests(baseDir);
+    const command = curlCommand();
+    writeDefaultsStore({
+      'journey list': { curlirizeSecrets: true, long: true },
+    });
+    expect(applicableCommandDefaults(command)).toEqual({ long: true });
   });
 });

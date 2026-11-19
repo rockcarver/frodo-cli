@@ -4,6 +4,7 @@ import * as s from '../../help/SampleData';
 import { getTokens } from '../../ops/AuthenticateOps';
 import { applyDirectConfigurationSession } from '../../ops/cloud/EnvDirectConfigurationControlOps';
 import c from '../../utils/ColorTheme';
+import { verboseMessage } from '../../utils/Console';
 import { FrodoCommand } from '../FrodoCommand';
 
 const { CLOUD_DEPLOYMENT_TYPE_KEY } = frodo.utils.constants;
@@ -19,6 +20,12 @@ export default function setup() {
 
   program
     .description('Apply configuration and end a direct configuration session.')
+    .addOption(
+      new Option(
+        '-w, --wait',
+        'Wait for the direct configuration session to reach an applied state before exiting. Checks every 10 seconds and has no timeout.'
+      )
+    )
     .addOption(new Option('--json', 'Output in JSON format.'))
     .addHelpText(
       'after',
@@ -29,6 +36,8 @@ export default function setup() {
         ) +
         `  Apply configuration and end a direct configuration session with connection ID:\n` +
         c.command(`  $ frodo dcc session apply ${s.connId}\n`) +
+        `  Apply configuration and wait until the direct configuration session is applied, with connection ID:\n` +
+        c.command(`  $ frodo dcc session apply --wait ${s.connId}\n`) +
         `  Apply configuration and end a direct configuration session in JSON format with connection ID:\n` +
         c.command(`  $ frodo dcc session apply --json ${s.connId}\n`)
     )
@@ -44,7 +53,11 @@ export default function setup() {
           command
         );
         if (await getTokens(false, true, deploymentTypes)) {
-          const outcome = await applyDirectConfigurationSession(options.json);
+          verboseMessage('Applying changes from direct configuration session.');
+          const outcome = await applyDirectConfigurationSession(
+            options.json,
+            options.wait
+          );
           if (!outcome) process.exitCode = 1;
         } else {
           process.exitCode = 1;

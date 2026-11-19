@@ -387,10 +387,21 @@ export async function importRealmsFromFiles(
 /**
  * Describe realm
  * @param {String} realm realm name
+ * @returns {Promise<boolean>} true if the realm was printed, false if it could not be (it does not exist, or the realms could not be read); the reason has been printed
  */
-export async function describeRealm(realm: string) {
+export async function describeRealm(realm: string): Promise<boolean> {
   try {
-    const realmConfig = await readRealmByName(realm);
+    // The realms are read and searched here, rather than read by name, so that
+    // a realm that is not there is told apart from a read that failed: the
+    // library throws a plain Error for the first and a FrodoError for the second.
+    const realms = await readRealms();
+    const realmConfig = realms.find(
+      (candidate) => candidate.name === frodo.utils.getRealmName(realm)
+    );
+    if (!realmConfig) {
+      printMessage(`Realm ${realm} not found!`, 'error');
+      return false;
+    }
     const table = createKeyValueTable();
     table.push([c.heading('Name'), realmConfig.name]);
     table.push([
@@ -401,9 +412,11 @@ export async function describeRealm(realm: string) {
     table.push([c.heading('Parent'), realmConfig.parentPath]);
     table.push([c.heading('Id'), realmConfig._id]);
     printMessage(table.toString(), 'data');
-  } catch {
-    printMessage(`Realm ${realm} not found!`, 'error');
+    return true;
+  } catch (error) {
+    printError(error, `Error describing realm ${realm}`);
   }
+  return false;
 }
 
 /**

@@ -18,6 +18,82 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - `frodo shell` is now the full JS console (formerly the separate `frodo console` command, which is removed before its first release): browser-console-style collapsed results, `$` REST calls with authentication attached, `state` and lodash in context, the Ctrl+O object explorer, Ctrl+R fuzzy history search, and top-level await and persistent `let`/`const` by default. The `--allow-await` option is gone (await always works).
 
+## [v5.0.0-29] - 2026-11-17
+
+### Changed
+- Agent files are now written in a plain shape, aligning with the new configuration management rules. This change standardizes the format and simplifies file handling. (#1358)
+
+### Security
+- `config-manager pull` now replaces key sets containing private key material with placeholders, preventing sensitive data from being written to files intended for version control. This change enhances security by ensuring that private or symmetric keys are not inadvertently exposed. (#1362)
+
+## [v5.0.0-28] - 2026-11-16
+
+### Added
+- Introduced `frodo config-manager pull|push|delete oauth-software-publishers` commands, allowing management of OAuth2 software publishers. This includes a step in `pull all` for handling OAuth2 software publishers, enhancing the management of signed software statements for OAuth 2.0 providers. (#1354)
+- Added `--raw` option to `idm export` and `idm import` commands, allowing the import and export of IDM configuration objects without the `idm` wrapper. This ensures that `idm import` refuses files without the wrapper, providing a clearer error message. (#1327)
+- Enhanced `frodo feature validate` with a `--repair` option to diagnose and repair the AI agents feature, ensuring that repairs leave features installed and restore customizations only upon request. (#1325, #1335)
+- Implemented interactive login enhancements to inform users about session capabilities, providing clear access profiles for `--browser` and `--device` logins. (#1324)
+
+### Changed
+- `frodo config-manager pull oauth-cimd-profiles` now writes the wrapped shape for each property, aligning with other agent kinds for consistent file structure. (#1353)
+- `pull oauth2-agents` and `push oauth2-agents` now exclude CIMD profiles and trusted JWT issuers, delegating them to their respective kinds for better organization. (#1348)
+- Updated `frodo feature validate` to improve output order and provide clearer messages for unknown feature IDs and missing elements during repair. (#1328)
+- `frodo config-manager push` now fills placeholders from the process environment, improving configuration management. (#1341)
+
+### Deprecated
+- Deprecated the root `frodo promote` command, which will be removed in version 5.0.0. Users should transition to `frodo config-manager promote` for promotion tasks. (#1347)
+
+### Removed
+- Removed unused options: `esv secret version list -l/--long`, `esv variable delete --no-deep`, `oauth client delete --no-deep`, and `promote --target`. These options were not being utilized by any commands. (#1329)
+
+### Fixed
+- Fixed `frodo config-manager push secrets --prune` to prompt users before deleting old secret versions, aligning with bulk-delete guidelines. (#1330)
+- Resolved issues in `conn save` to ensure it exits with code 1 and saves nothing when a service account key is invalid. Also, improved version check handling to prevent silent failures. (#1331)
+- Corrected `feature install` behavior to prevent reinstallation when feature definitions differ from the original in the tenant. (#1333)
+
+### Security
+- Updated to `frodo-lib` version 5.0.0-47, incorporating security and functionality enhancements from the library. (#1341)
+
+## [v5.0.0-27] - 2026-11-14
+
+### Added
+- Introduced `frodo config-manager delete telemetry` command, allowing deletion of telemetry configurations with options for category (`-c`), specific exporter (`-n`), dry run (`-d`), and confirmation bypass (`-y`). (#1314)
+- Enhanced `frodo app template list` to display the newest version of each template by default and provide detailed information with `--long` and `--all-versions` options. The `describe` command now offers more comprehensive details about templates. (#1313)
+
+### Fixed
+- Resolved issues in `frodo app template` commands where list row text was unsafe to print, an empty `-v` option caused errors, and `-n` failed to find templates without a display name. (#1313)
+
+## [v5.0.0-26] - 2026-11-13
+
+### Added
+- Introduced `frodo app template` command group for managing application templates, including `list`, `describe`, and `download` commands. The catalog cache follows `FRODO_CONFIG_PATH`, and templates can be specified with `--templates <file>`. (#1310)
+- Added air-gapped mode with `FRODO_AIRGAPPED` environment variable and `frodo settings airgap` commands (`show`, `enable`, `disable`) to block requests to unspecified hosts. (#1309)
+- Implemented `frodo config-manager delete secret-mappings`, allowing deletion of secret mappings with options for specific ID, dry run, and failure allowance. (#1302)
+- Added `frodo config-manager delete schedules` for deleting schedules with options for specific name, dry run, and failure allowance. (#1284)
+- Introduced `frodo config-manager delete locales`, enabling deletion of locales by name with dry run and failure allowance options. (#1224)
+- Added `frodo oauth cimd` command group for managing CIMD profiles with `list`, `describe`, `export`, `import`, and `delete` commands. (#1268)
+- Introduced `frodo oauth issuer` command group for managing OAuth2 trusted JWT issuers with `list`, `describe`, `export`, `import`, and `delete` commands. (#1269)
+- Added `frodo aiagent` command group for managing AI agents, deprecating `frodo agent ai`. Commands include `list`, `describe`, `export`, `import`, and `delete`. (#1272)
+- Added `--curlirize-secrets` option and `FRODO_CURLIRIZE_SECRETS` environment variable to show credentials in curl output. (#1222)
+- Introduced a file system picker for path options in interactive mode, enhancing user experience for file and directory selections. (#1208)
+
+### Changed
+- Updated `frodo config export` to remove unused `-s` and `-o` options, improving command clarity and error handling for unknown options. (#1218)
+- Enhanced `frodo feature install` to correctly report success and `frodo feature validate` to list failures, improving feedback accuracy. (#1215)
+- Improved `frodo log tail` to continue following logs through transient failures and rate limits, enhancing reliability. (#1204)
+- Updated interactive commands to make the Ready step the last prompt, ensuring login occurs only when necessary. (#1207)
+- Modified command help to show aliases in descriptions rather than names, providing clearer guidance on command usage. (#1275)
+
+### Deprecated
+- Deprecated `frodo agent ai` in favor of `frodo aiagent`, maintaining functionality while transitioning to the new command group. (#1272)
+
+### Fixed
+- Resolved issue where `frodo aiagent import -f` and `frodo agent ai import -f` imported only the first agent, ensuring correct behavior. (#1295)
+- Fixed `frodo agent gateway import -f` to stop after the first agent and report failures accurately. (#1296)
+- Corrected `frodo agent web` and `java import -f` to print detailed error messages on failure. (#1294)
+- Ensured `describe` commands exit with code 1 when the target is not found, improving script error detection. (#1286)
+- Fixed `frodo idm remote-proxy setup` and `teardown` to pass `--env` values explicitly, ensuring correct environment configuration. (#1285)
+
 ## [v5.0.0-25] - 2026-11-10
 
 ### Added
@@ -3253,6 +3329,10 @@ Frodo CLI 2.x automatically refreshes session and access tokens before they expi
 - Fixed problem with adding connection profiles
 - Miscellaneous bug fixes
 
+[v5.0.0-29]: https://github.com/rockcarver/frodo-cli/compare/v5.0.0-28...v5.0.0-29
+[v5.0.0-28]: https://github.com/rockcarver/frodo-cli/compare/v5.0.0-27...v5.0.0-28
+[v5.0.0-27]: https://github.com/rockcarver/frodo-cli/compare/v5.0.0-26...v5.0.0-27
+[v5.0.0-26]: https://github.com/rockcarver/frodo-cli/compare/v5.0.0-25...v5.0.0-26
 [v5.0.0-25]: https://github.com/rockcarver/frodo-cli/compare/v5.0.0-24...v5.0.0-25
 [v5.0.0-24]: https://github.com/rockcarver/frodo-cli/compare/v5.0.0-23...v5.0.0-24
 [v5.0.0-23]: https://github.com/rockcarver/frodo-cli/compare/v5.0.0-22...v5.0.0-23

@@ -1,0 +1,13 @@
+{
+  "_id": "zz-e2e-cimd",
+  "_type": {
+    "_id": "CIMDProfile",
+    "collection": true,
+    "name": "CIMD Profile"
+  },
+  "cimdConfig": {
+    "cimdClientIdUrlPatterns": [
+      "https://zz-e2e-cimd.example.com/*"
+    ]
+  }
+}

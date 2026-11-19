@@ -26,6 +26,13 @@ import {
   writeTreeMarker,
   type ApplicationLayoutDecision,
 } from '../utils/TreeLayout';
+import { leftOutMessage, toPlainShape } from './AgentFileShape';
+import {
+  readAgentFile,
+  redactedKeySetMessage,
+  redactKeySets,
+  type RedactedKeySet,
+} from './AgentKeySets';
 
 const {
   getFilePath,
@@ -59,6 +66,20 @@ const RECORD_FIELDS_NOT_PULLED = [
 const KINDS_LEFT_OUT = ['glossarySchema', 'requestForm', 'requestType'];
 
 /**
+ * The name of an application as a part of the name of an environment variable:
+ * in upper case, every run of characters other than letters and digits as one
+ * underscore.
+ * @param {string} applicationName the name of the application
+ * @returns {string} the part of the name, e.g. `ZION_PORTAL`
+ */
+function variablePartOf(applicationName: string): string {
+  return applicationName
+    .toUpperCase()
+    .replace(/[^A-Z0-9]+/g, '_')
+    .replace(/^_+|_+$/g, '');
+}
+
+/**
  * The name of the environment variable that holds the secret of the OAuth2
  * client of an application, which the pulled file refers to as a placeholder:
  * `APP_<NAME>_CLIENT_SECRET`, with the name in upper case and every run of
@@ -67,11 +88,20 @@ const KINDS_LEFT_OUT = ['glossarySchema', 'requestForm', 'requestType'];
  * @returns {string} the name of the variable
  */
 export function clientSecretVariable(applicationName: string): string {
-  const name = applicationName
-    .toUpperCase()
-    .replace(/[^A-Z0-9]+/g, '_')
-    .replace(/^_+|_+$/g, '');
-  return `APP_${name}_CLIENT_SECRET`;
+  return `APP_${variablePartOf(applicationName)}_CLIENT_SECRET`;
+}
+
+/**
+ * The name of the environment variable that holds the key set of the OAuth2
+ * client of an application when that key set holds private or secret key
+ * material, which the pulled file refers to as a placeholder (decision record
+ * 0055): `APP_<NAME>_JWKSET`, with the name made as in
+ * {@link clientSecretVariable}.
+ * @param {string} applicationName the name of the application
+ * @returns {string} the name of the variable
+ */
+export function clientKeySetVariable(applicationName: string): string {
+  return `APP_${variablePartOf(applicationName)}_JWKSET`;
 }
 
 /**
@@ -89,19 +119,32 @@ export function isConfidentialClient(client: any): boolean {
 
 /**
  * The OAuth2 client of an application as it is written to `oauth2-client.json`:
- * the format of the `oauth2-agents` kind, with literal `${` escaped, and for a
- * confidential client the secret as a placeholder (the library masks it on
- * reads, and a secret is never written in the clear: core record 0013).
+ * the format of the `oauth2-agents` kind (the plain shape of record 0054, rule 6),
+ * with literal `${` escaped, for a confidential client the secret as a
+ * placeholder (the library masks it on reads, and a secret is never written in
+ * the clear: core record 0013), and a key set that holds private or secret key
+ * material as a placeholder too (decision record 0055).
  * @param {any} client the OAuth2 client as the library reads it
  * @param {string} applicationName the name of the application
- * @returns {object} the content of the file
+ * @returns {{ file: object; leftOut: number; redacted: RedactedKeySet[] }} the content of the
+ * file, how many properties were left out of it (unset, inherited or null), and the key sets
+ * that were replaced by a placeholder
  */
-function clientFile(client: any, applicationName: string): object {
-  const file: any = escapePlaceholders(client);
+function clientFile(
+  client: any,
+  applicationName: string
+): { file: object; leftOut: number; redacted: RedactedKeySet[] } {
+  const plain = toPlainShape(client);
+  const file: any = escapePlaceholders(plain.value);
   if (isConfidentialClient(client)) {
     file.userpassword = `\${${clientSecretVariable(applicationName)}}`;
   }
-  return file;
+  const redacted = redactKeySets(
+    file,
+    applicationName,
+    clientKeySetVariable(applicationName)
+  );
+  return { file, leftOut: plain.leftOut, redacted };
 }
 
 /** The text that names a reference that could not be followed, for the summary. */
@@ -143,6 +186,7 @@ function describeProblem(
  * @param {boolean} quiet true for the step of `pull all`: say nothing when there is no application, and skip a tree that does not use the application layout with a warning instead of failing
  * @param {boolean} allowFailures true to report applications that could not be pulled but still succeed. Default: false
  * @param {ApplicationLayoutDecision} layout the decision about the tree that was made before anything was written into it (`pull all` decides once, before its first step); default: decided now
+ * @param {string} id optional id (`_id`) of the one application to pull instead of a name (needs a single realm too). The id is looked for in the list of applications that a pull of all applications reads, so no other request is made. An empty id selects nothing (the command refuses an empty value before it connects); an id that the realm does not have fails the command.
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
 export async function configManagerExportApplications(
@@ -150,12 +194,15 @@ export async function configManagerExportApplications(
   realm?: string,
   quiet: boolean = false,
   allowFailures: boolean = false,
-  layout?: ApplicationLayoutDecision
+  layout?: ApplicationLayoutDecision,
+  id?: string
 ): Promise<boolean> {
+  // what the command line names: an id, or a name (an empty name means all applications)
+  const selected = id ?? name;
   try {
     const realms =
       realm && realm !== DEFAULT_REALM_KEY ? [realm] : await realmList();
-    if (name && realms.length !== 1) {
+    if (selected && realms.length !== 1) {
       printMessage(
         'Error: for a named application, specify a single realm',
         'error'
@@ -190,21 +237,41 @@ export async function configManagerExportApplications(
       if (
         currentRealm === '/' &&
         state.getDeploymentType() === CLOUD_DEPLOYMENT_TYPE_KEY
-      )
+      ) {
+        if (selected) {
+          printMessage(
+            `The root realm of a Cloud tenant has no applications: nothing to pull for '${selected}'.`,
+            'warn'
+          );
+        }
         continue;
+      }
       state.setRealm(currentRealm);
       const realmDir = currentRealm === '/' ? 'root' : currentRealm;
       let applications: ApplicationRecord[];
       try {
-        applications = name
-          ? [await frodo.app.readApplicationByName(name)]
-          : await frodo.app.readApplications();
+        applications =
+          id !== undefined
+            ? (await frodo.app.readApplications()).filter(
+                (application) => application._id === id
+              )
+            : name
+              ? [await frodo.app.readApplicationByName(name)]
+              : await frodo.app.readApplications();
+        if (id !== undefined && applications.length === 0) {
+          printMessage(
+            `Application with id '${id}' not found in realm '${currentRealm}'.`,
+            'error'
+          );
+          namedFailed = true;
+          continue;
+        }
       } catch (error) {
-        if (name) {
+        if (selected) {
           // the one application that was asked for: nothing for the flag to allow
           printError(
             error,
-            `Error reading application '${name}' in realm '${currentRealm}'`
+            `Error reading application '${selected}' in realm '${currentRealm}'`
           );
           namedFailed = true;
         } else {
@@ -355,13 +422,30 @@ export async function pullApplication(
           `The secret of the OAuth2 client of application '${application.name}' is written as \${${clientSecretVariable(application.name)}}; set that variable when you push.`
         );
       }
+      const { file, leftOut, redacted } = clientFile(agent, application.name);
+      for (const keySet of redacted) {
+        printMessage(
+          redactedKeySetMessage(
+            'OAuth2 client of application',
+            application.name,
+            realm,
+            keySet
+          ),
+          'warn'
+        );
+      }
       saveJsonToFile(
-        clientFile(agent, application.name),
+        file,
         getFilePath(`${folder}/oauth2-client.json`, true),
         false,
         false,
         true
       );
+      if (leftOut > 0) {
+        verboseMessage(
+          leftOutMessage(leftOut, 1, 'OAuth2 client', 'OAuth2 clients')
+        );
+      }
     });
   }
 
@@ -505,7 +589,12 @@ function readApplicationFolder(
 
   if (owned.some((reference) => reference.kind === 'oauth2Client')) {
     if (need('oauth2-client.json')) {
-      files.client = readJsonFile(`${folder}/oauth2-client.json`);
+      // a key set that a pull replaced by a variable is filled from it as JSON text (record 0055)
+      files.client = readAgentFile(
+        `${folder}/oauth2-client.json`,
+        (file) => readJsonFile(file),
+        state
+      );
       if (!files.client?._id) {
         throw new Error(`oauth2-client.json has no _id`);
       }
@@ -626,6 +715,33 @@ function scriptsUsedBy(contents: unknown[], realmDir: string): string[] {
 }
 
 /**
+ * The applications of a realm of the tenant that carry the same name, when
+ * more than one does. A push matches an application by its name, so a name that
+ * two applications share cannot say which of them is meant: the push would
+ * update the first one it finds.
+ * @param {ApplicationRecord[]} existing the applications of the realm on the tenant
+ * @param {string} name the name an application is matched by
+ * @returns {ApplicationRecord[] | undefined} the applications that have the name, undefined unless there are at least two
+ */
+function applicationsOfSameName(
+  existing: ApplicationRecord[],
+  name: string
+): ApplicationRecord[] | undefined {
+  const same = existing.filter((application) => application.name === name);
+  return same.length > 1 ? same : undefined;
+}
+
+/**
+ * Says that a name is shared and why that stops the push.
+ * @param {ApplicationRecord[]} same the applications of the realm that have the name
+ * @param {string} name the shared name
+ * @returns {string} the sentence that names the name, the count and the ids
+ */
+function sharedNameText(same: ApplicationRecord[], name: string): string {
+  return `${same.length} applications of the realm are named '${name}' (ids ${same.map((application) => `'${application._id}'`).join(', ')}): a push matches an application by its name, so it is ambiguous`;
+}
+
+/**
  * Push applications from the files that `pull applications` writes (decision
  * record 0042): one folder per application,
  * `realms/<realm>/applications/<name>/`. The application is matched BY NAME:
@@ -657,12 +773,14 @@ function scriptsUsedBy(contents: unknown[], realmDir: string): string[] {
  * @param {string} name optional name: push only that application (needs a single realm)
  * @param {string} realm optional realm: push only that realm. Default: every realm folder that has applications
  * @param {boolean} allowFailures true to report applications that could not be pushed but still succeed. Default: false
+ * @param {string} id optional id of an application of the tenant, instead of a name (needs a single realm too). The record of a pulled folder has no id: the id is the one of the tenant, so the applications of the realm are read first, once, the application that has the id gives the name, and the folder of that name is pushed. An id that the realm does not have fails the command whatever `--allow-failures` says; an empty id selects nothing (the command refuses an empty value before it connects).
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
 export async function configManagerImportApplications(
   name?: string,
   realm?: string,
-  allowFailures: boolean = false
+  allowFailures: boolean = false,
+  id?: string
 ): Promise<boolean> {
   try {
     const realmsDir = `${getWorkingDirectory()}/realms`;
@@ -683,7 +801,9 @@ export async function configManagerImportApplications(
     } else {
       realmDirs = [];
     }
-    if (name && realmDirs.length !== 1) {
+    // what the command line names: an id, or a name (an empty name means all applications)
+    const asked = !!name || id !== undefined;
+    if (asked && realmDirs.length !== 1) {
       printMessage(
         'Error: for a named application, specify a single realm',
         'error'
@@ -694,6 +814,9 @@ export async function configManagerImportApplications(
     const run = new OperationRun({ unit: 'application', allowFailures });
     let found = 0;
     let namedFound = false;
+    let askedReported = false;
+    let askedRefused = false;
+    let wantedName = name;
     for (const realmDir of realmDirs) {
       const currentRealm = realmDir === 'root' ? '/' : realmDir;
       const applicationsDir = `${realmsDir}/${realmDir}/applications`;
@@ -709,6 +832,45 @@ export async function configManagerImportApplications(
         continue;
       }
       state.setRealm(currentRealm);
+
+      let existing: Awaited<ReturnType<typeof frodo.app.readApplications>>;
+      let existingRead = false;
+      if (id !== undefined) {
+        // the record of a pulled folder has no id: it is the id of the application
+        // on the tenant, so the one read of the applications of the realm comes
+        // first, and the application that has the id gives the name of the folder
+        try {
+          existing = await frodo.app.readApplications();
+        } catch (error) {
+          printError(
+            error,
+            `Error reading the applications of realm '${currentRealm}'`
+          );
+          run.recordFailure(`realm ${realmDir}`, causeOf(error));
+          askedReported = true;
+          continue;
+        }
+        const target = existing.find((application) => application._id === id);
+        if (!target) {
+          printMessage(
+            `Application with id '${id}' not found in realm '${currentRealm}'.`,
+            'error'
+          );
+          askedReported = true;
+          continue;
+        }
+        const same = applicationsOfSameName(existing, target.name);
+        if (same) {
+          printMessage(
+            `Application with id '${id}' of realm '${currentRealm}': ${sharedNameText(same, target.name)}: nothing was written for it.`,
+            'error'
+          );
+          askedReported = true;
+          continue;
+        }
+        existingRead = true;
+        wantedName = target.name;
+      }
 
       const folders = fs
         .readdirSync(applicationsDir, { withFileTypes: true })
@@ -729,8 +891,8 @@ export async function configManagerImportApplications(
         } catch {
           // reported as that application's failure below, unless another application was asked for
         }
-        if (name && applicationName !== name) continue;
-        if (name) namedFound = true;
+        if (wantedName && applicationName !== wantedName) continue;
+        if (wantedName) namedFound = true;
         selected.push({
           folder,
           label: `${realmDir}/${applicationName ?? folder}`,
@@ -740,15 +902,28 @@ export async function configManagerImportApplications(
       found += selected.length;
 
       // one read of the applications of the realm, before anything is written into it
-      let existing: Awaited<ReturnType<typeof frodo.app.readApplications>>;
-      try {
-        existing = await frodo.app.readApplications();
-      } catch (error) {
-        printError(
-          error,
-          `Error reading the applications of realm '${currentRealm}'`
+      if (!existingRead) {
+        try {
+          existing = await frodo.app.readApplications();
+        } catch (error) {
+          printError(
+            error,
+            `Error reading the applications of realm '${currentRealm}'`
+          );
+          run.recordFailure(`realm ${realmDir}`, causeOf(error));
+          continue;
+        }
+      }
+      // the application that was asked for by its name must be one application
+      const sameAsked = name
+        ? applicationsOfSameName(existing, name)
+        : undefined;
+      if (sameAsked) {
+        printMessage(
+          `Realm '${currentRealm}': ${sharedNameText(sameAsked, name)}: nothing was written for it.`,
+          'error'
         );
-        run.recordFailure(`realm ${realmDir}`, causeOf(error));
+        askedRefused = true;
         continue;
       }
       for (const { folder, label } of selected) {
@@ -758,15 +933,19 @@ export async function configManagerImportApplications(
       }
     }
 
-    if (name && !namedFound) {
-      printMessage(
-        `Application '${name}' has no folder in realm ${named ? realm : realmDirs[0]}.`,
-        'error'
-      );
-    } else if (found === 0 && !name) {
+    if (asked && !namedFound) {
+      if (!askedReported) {
+        printMessage(
+          id !== undefined
+            ? `Application with id '${id}' has no folder in realm ${named ? realm : realmDirs[0]}.`
+            : `Application '${name}' has no folder in realm ${named ? realm : realmDirs[0]}.`,
+          'error'
+        );
+      }
+    } else if (found === 0 && !asked) {
       printMessage('No applications found to push.', 'info');
     }
-    return run.finish() && !(name && !namedFound);
+    return run.finish() && !askedRefused && !(asked && !namedFound);
   } catch (error) {
     printError(error, 'Error pushing applications');
     return false;
@@ -794,6 +973,13 @@ async function pushApplication(
     relativeFolder
   );
   const name: string = files.record.name;
+  // before anything is written: a name that two applications share would update the first one
+  const same = applicationsOfSameName(existing, name);
+  if (same) {
+    throw new Error(
+      `${sharedNameText(same, name)}; nothing was written for this application`
+    );
+  }
   const step = async (what: string, work: () => Promise<unknown> | unknown) => {
     try {
       await work();

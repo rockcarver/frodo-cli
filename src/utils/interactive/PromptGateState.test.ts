@@ -1,9 +1,16 @@
-import { afterEach, describe, expect, it } from '@jest/globals';
+import { afterEach, describe, expect, it, jest } from '@jest/globals';
 import {
   canPrompt,
+  notePromptRendered,
+  promptsRendered,
   resetNeverPromptForTests,
   setNeverPrompt,
 } from './PromptGateState';
+import {
+  clearTransientFrame,
+  showTransientFrame,
+  transientFrameShown,
+} from './TransientFrame';
 
 // canPrompt() reads the real process streams. Jest's own stdio under this
 // harness is NOT a TTY, so the "genuinely interactive" case can't be
@@ -40,5 +47,24 @@ describe('PromptGateState.canPrompt', () => {
     // No FRODO_TEST, no FRODO_NO_PROMPT, no kill switch -- the only
     // remaining reason to refuse is the non-TTY stdio this suite runs on.
     expect(canPrompt()).toBe(false);
+  });
+});
+
+describe('PromptGateState.notePromptRendered', () => {
+  it('counts the prompt and takes a frame that is drawn without a prompt off the screen first', () => {
+    const write = jest
+      .spyOn(process.stdout, 'write')
+      .mockImplementation((() => true) as typeof process.stdout.write);
+    try {
+      showTransientFrame('busy frame');
+      expect(transientFrameShown()).toBe(true);
+      const before = promptsRendered();
+      notePromptRendered();
+      expect(transientFrameShown()).toBe(false);
+      expect(promptsRendered()).toBe(before + 1);
+    } finally {
+      clearTransientFrame();
+      write.mockRestore();
+    }
   });
 });

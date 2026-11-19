@@ -114,7 +114,13 @@ jest.unstable_mockModule('../../src/ops/RemoteProxyOps', () =>
   exportsOf('proxies')
 );
 
-/** `allowAt`: the position of the value of --allow-failures in the arguments of the ops function. */
+/**
+ * `allowAt`: the position of the value of --allow-failures in the arguments of
+ * the ops function. `extraArgs`: how many arguments follow it (the id that a
+ * selector adds). `nameOption`: the attribute of the option that carries the
+ * name or id of a `named` command (default `name`: the commands that are not
+ * renamed yet).
+ */
 const COMMANDS = [
   {
     name: 'pull connector-definitions',
@@ -123,6 +129,7 @@ const COMMANDS = [
     fn: 'configManagerExportConnectorDefinitions',
     allowAt: 1,
     named: true,
+    nameOption: 'connectorId',
   },
   {
     name: 'pull connector-mappings',
@@ -138,6 +145,7 @@ const COMMANDS = [
     fn: 'configManagerExportEmailTemplates',
     allowAt: 1,
     named: true,
+    nameOption: 'templateId',
   },
   {
     name: 'pull internal-roles',
@@ -145,7 +153,9 @@ const COMMANDS = [
     file: 'internal-roles',
     fn: 'configManagerExportInternalRoles',
     allowAt: 1,
+    extraArgs: 1,
     named: true,
+    nameOption: 'roleName',
   },
   {
     name: 'pull managed-objects',
@@ -154,6 +164,7 @@ const COMMANDS = [
     fn: 'configManagerExportManagedObjects',
     allowAt: 2,
     named: true,
+    nameOption: 'managedObjectId',
   },
   {
     name: 'pull remote-proxies',
@@ -162,6 +173,7 @@ const COMMANDS = [
     fn: 'configManagerExportRemoteProxies',
     allowAt: 2,
     named: true,
+    nameOption: 'proxyId',
   },
   {
     name: 'pull variables',
@@ -169,6 +181,7 @@ const COMMANDS = [
     file: 'variables',
     fn: 'configManagerExportVariables',
     allowAt: 2,
+    extraArgs: 1,
   },
   {
     name: 'push connector-definitions',
@@ -177,6 +190,7 @@ const COMMANDS = [
     fn: 'configManagerImportConnectors',
     allowAt: 1,
     named: true,
+    nameOption: 'connectorId',
   },
   {
     name: 'push csp',
@@ -193,6 +207,7 @@ const COMMANDS = [
     fn: 'configManagerImportEmailTemplates',
     allowAt: 1,
     named: true,
+    nameOption: 'templateId',
   },
   {
     name: 'push internal-roles',
@@ -200,7 +215,9 @@ const COMMANDS = [
     file: 'internal-roles',
     fn: 'configManagerImportInternalRoles',
     allowAt: 1,
+    extraArgs: 1,
     named: true,
+    nameOption: 'roleName',
   },
   {
     name: 'push remote-proxies',
@@ -209,6 +226,7 @@ const COMMANDS = [
     fn: 'configManagerImportRemoteProxies',
     allowAt: 1,
     named: true,
+    nameOption: 'proxyId',
   },
   {
     name: 'push variables',
@@ -217,6 +235,7 @@ const COMMANDS = [
     fn: 'configManagerImportVariables',
     allowAt: 1,
     named: true,
+    nameOption: 'variableId',
   },
 ];
 
@@ -268,7 +287,7 @@ describe.each(COMMANDS)('config-manager $name', (c) => {
 
       const calls = ops[c.fn].mock.calls;
       expect(calls).toHaveLength(1);
-      expect(calls[0]).toHaveLength(c.allowAt + 1);
+      expect(calls[0]).toHaveLength(c.allowAt + 1 + (c.extraArgs ?? 0));
       expect(calls[0][c.allowAt]).toBe(allowFailures);
       expect(process.exitCode).toBe(0);
     }
@@ -276,7 +295,7 @@ describe.each(COMMANDS)('config-manager $name', (c) => {
 
   if (c.named) {
     test('hands the name to the ops function', async () => {
-      await invoke(setups[c.name](), { name: 'x' });
+      await invoke(setups[c.name](), { [c.nameOption ?? 'name']: 'x' });
 
       expect(ops[c.fn].mock.calls[0][0]).toBe('x');
     });

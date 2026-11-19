@@ -415,3 +415,68 @@ describe('core decision records', () => {
     });
   });
 });
+
+describe('links to the decision records', () => {
+  // A record is renumbered or renamed now and then. The index is checked above
+  // against the files; this checks the links to the records from everywhere
+  // else (the guide, the instructions, the skills, the records themselves), so
+  // a link to a file that is gone, or a link whose number is not its target's,
+  // fails here and not in a reader's browser.
+  const SCANNED_ROOTS = ['docs', '.github', '.claude/skills'];
+  const SKIPPED = new Set(['node_modules', '.git', 'mocks', 'exports']);
+
+  function markdownFiles(directory) {
+    if (!fs.existsSync(directory)) return [];
+    return fs.readdirSync(directory, { withFileTypes: true }).flatMap((entry) => {
+      const full = path.join(directory, entry.name);
+      if (entry.isDirectory()) {
+        return SKIPPED.has(entry.name) ? [] : markdownFiles(full);
+      }
+      return entry.name.endsWith('.md') ? [full] : [];
+    });
+  }
+
+  const sources = [
+    ...fs
+      .readdirSync(ROOT)
+      .filter((f) => f.endsWith('.md') && f !== 'CHANGELOG.md')
+      .map((f) => path.join(ROOT, f)),
+    ...SCANNED_ROOTS.flatMap((root) => markdownFiles(path.join(ROOT, root))),
+  ];
+
+  /** Every markdown link of the scanned files that points at a file of docs/decisions. */
+  const links = sources.flatMap((source) => {
+    const text = fs.readFileSync(source, 'utf8');
+    return [...text.matchAll(/\[([^\]\n]*)\]\(([^)\s#]+\.md)(?:#[^)\s]*)?\)/g)]
+      .filter((m) => !/^[a-z][a-z0-9+.-]*:/i.test(m[2]))
+      .map((m) => ({
+        source: path.relative(ROOT, source),
+        label: m[1],
+        target: path.resolve(path.dirname(source), m[2]),
+      }))
+      .filter((link) => !path.relative(DIR, link.target).startsWith('..'));
+  });
+
+  it('finds links to check', () => {
+    expect(links.length).toBeGreaterThan(100);
+  });
+
+  it('every link to a record points at a file that exists', () => {
+    const missing = links
+      .filter((link) => !fs.existsSync(link.target))
+      .map((link) => `${link.source}: ${link.label} -> ${path.relative(ROOT, link.target)}`);
+    expect(missing).toEqual([]);
+  });
+
+  it('a link that names a record by number names the number of the file it points at', () => {
+    const wrong = links
+      .map((link) => ({
+        ...link,
+        named: /^(?:record |core )?(\d{4})\b/i.exec(link.label)?.[1],
+        actual: /^(\d{4})-/.exec(path.basename(link.target))?.[1],
+      }))
+      .filter((link) => link.named && link.actual && link.named !== link.actual)
+      .map((link) => `${link.source}: "${link.label}" -> ${path.relative(ROOT, link.target)}`);
+    expect(wrong).toEqual([]);
+  });
+});

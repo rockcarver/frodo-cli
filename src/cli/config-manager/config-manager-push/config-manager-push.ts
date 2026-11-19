@@ -1,5 +1,4 @@
-import Test from '../../conn/conn-test';
-import { FrodoStubCommand } from '../../FrodoCommand';
+import { FrodoCommand, FrodoStubCommand } from '../../FrodoCommand';
 import AccessConfig from './config-manager-push-access-config';
 import Applications from './config-manager-push-applications';
 import Audit from './config-manager-push-audit';
@@ -12,10 +11,6 @@ import CookieDomains from './config-manager-push-cookie-domains';
 import Cors from './config-manager-push-cors';
 import CSP from './config-manager-push-csp';
 import CustomNodes from './config-manager-push-custom-nodes';
-import DirectControlAbort from './config-manager-push-direct-control-abort';
-import DirectControlApply from './config-manager-push-direct-control-apply';
-import DirectControlInit from './config-manager-push-direct-control-init';
-import DirectControlState from './config-manager-push-direct-control-state';
 import EmailProvider from './config-manager-push-email-provider';
 import EmailTemplates from './config-manager-push-email-templates';
 import Endpoints from './config-manager-push-endpoints';
@@ -26,6 +21,9 @@ import Journeys from './config-manager-push-journeys';
 import Kba from './config-manager-push-kba';
 import Locales from './config-manager-push-locales';
 import ManagedObjects from './config-manager-push-managed-objects';
+import OauthCimdProfiles from './config-manager-push-oauth-cimd-profiles';
+import OauthIssuers from './config-manager-push-oauth-issuers';
+import OauthSoftwarePublishers from './config-manager-push-oauth-software-publishers';
 import OAuth2Agents from './config-manager-push-oauth2-agents';
 import OrgPrivileges from './config-manager-push-org-privileges';
 import PasswordPolicy from './config-manager-push-password-policy';
@@ -77,17 +75,17 @@ export default function setup() {
   program.addCommand(ConnectorDefinitions().name('connector-definitions'));
   program.addCommand(ConnectorMappings().name('connector-mappings'));
   program.addCommand(Cors().name('cors'));
-  program.addCommand(DirectControlAbort().name('direct-control-abort'));
-  program.addCommand(DirectControlApply().name('direct-control-apply'));
-  program.addCommand(DirectControlInit().name('direct-control-init'));
-  program.addCommand(DirectControlState().name('direct-control-state'));
+  program.addCommand(OauthCimdProfiles().name('oauth-cimd-profiles'));
+  program.addCommand(OauthIssuers().name('oauth-issuers'));
+  program.addCommand(
+    OauthSoftwarePublishers().name('oauth-software-publishers')
+  );
   program.addCommand(RemoteProxies().name('remote-proxies'));
   program.addCommand(RemoteServers().name('remote-servers'));
   program.addCommand(SecretMappings().name('secret-mappings'));
   program.addCommand(CustomNodes().name('custom-nodes'));
   program.addCommand(CSP().name('csp'));
   program.addCommand(Restart().name('restart'));
-  program.addCommand(Test().name('test'));
   program.addCommand(Journeys().name('journeys'));
   program.addCommand(Variables().name('variables'));
   program.addCommand(Raw().name('raw'));
@@ -96,6 +94,17 @@ export default function setup() {
   program.addCommand(AuthzPolicies().name('authz-policies'));
   program.addCommand(Saml().name('saml'));
   program.addCommand(Scripts().name('scripts'));
+
+  // A pipeline hands its values to a push as environment variables (the
+  // convention of fr-config-manager): every push command lets a ${NAME}
+  // placeholder of its files fall back to the process environment, after -E/--env
+  // and --env-file (frodo-lib#1109). The pull commands and every other command
+  // family keep it off.
+  for (const command of program.commands) {
+    if (command instanceof FrodoCommand) {
+      command.fillsPlaceholdersFromProcessEnvironment();
+    }
+  }
 
   return program;
 }

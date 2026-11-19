@@ -28,8 +28,6 @@ Options:
                      prints a summary of what failed and exits with code 1.
   -i, --app-id <id>  OAuth2 client id/name. If specified, -a cannot be used.
                      (pick from OAuth2 client)
-  --no-deep          No deep delete. This leaves orphaned configuration
-                     artifacts behind.
   -y, --yes          Do not ask for confirmation before deleting all OAuth2
                      clients. Required with -a when there is no terminal.
   -h, --help         Help

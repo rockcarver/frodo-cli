@@ -1,4 +1,4 @@
-import { frodo, type SecretSkeleton } from '@rockcarver/frodo-lib';
+import { frodo } from '@rockcarver/frodo-lib';
 import { Option } from 'commander';
 import { getTokens } from '../../ops/AuthenticateOps';
 import { deleteSecret, deleteSecrets } from '../../ops/cloud/SecretsOps';
@@ -6,12 +6,7 @@ import {
   checkBulkDelete,
   confirmBulkDelete,
 } from '../../utils/BulkDeleteGuard';
-import { verboseMessage } from '../../utils/Console.js';
-import {
-  deferEntityPicks,
-  entityPick,
-  resolveEntityPicks,
-} from '../../utils/interactive/EntityPickers';
+import { printMessage, verboseMessage } from '../../utils/Console.js';
 import { FrodoCommand } from '../FrodoCommand';
 
 const { CLOUD_DEPLOYMENT_TYPE_KEY } = frodo.utils.constants;
@@ -70,29 +65,18 @@ export default function setup() {
           process.exitCode = 1;
           return;
         }
-        // delete by id
-        if (
-          options.secretId &&
-          (await getTokens(false, true, deploymentTypes))
-        ) {
-          verboseMessage('Deleting secret...');
-          const outcome = await deleteSecret(options.secretId);
-          if (!outcome) process.exitCode = 1;
-        }
-        // --all -a, or an interactive pick of the secret to delete
-        // (resolveEntityPicks is a no-op outside the prompt gate, so a
-        // non-interactive run with neither option never reaches
-        // deleteSecrets here -- same as in the pre-picker layout, where the error
-        // branch below handled that case).
-        else if (
-          (options.all || (await resolveEntityPicks(command))) &&
-          (await getTokens(false, true, deploymentTypes))
-        ) {
+        // The login comes first: a secret that was not given is asked for by
+        // the framework once it worked (a secret picker, record 0038), and a
+        // declined pick makes getTokens fail.
+        if (await getTokens(false, true, deploymentTypes)) {
+          // delete by id
           if (options.secretId) {
             verboseMessage(`Deleting secret ${options.secretId}...`);
             const outcome = await deleteSecret(options.secretId);
             if (!outcome) process.exitCode = 1;
-          } else {
+          }
+          // --all -a
+          else if (options.all) {
             if (
               !(await confirmBulkDelete({
                 what: 'all secrets',
@@ -107,27 +91,21 @@ export default function setup() {
             const outcome = await deleteSecrets(options.allowFailures);
             if (!outcome) process.exitCode = 1;
           }
+          // neither -i nor -a: the picker had no secret to offer. Never fall
+          // through to deleting all secrets.
+          else {
+            printMessage('There is no secret to choose from.', 'error');
+            process.exitCode = 1;
+          }
         }
-        // No branch ran: with requireOneOf satisfied, the only ways here
-        // are getTokens() failing (keep the old exit-1 semantics -- the
-        // removed else handled auth failure too) or the user escaping the
-        // entity picker (declined to run).
+        // getTokens() failed, or the user escaped the entity picker (declined
+        // to run): keep the old exit-1 semantics.
         else {
           process.exitCode = 1;
         }
       }
       // end command logic inside action handler
     );
-
-  deferEntityPicks(program, [
-    entityPick<SecretSkeleton>({
-      name: 'secretId',
-      kind: 'secret',
-      load: frodo.cloud.secret.readSecrets,
-      label: (secret) => secret._id ?? '',
-      description: (secret) => secret.description,
-    }),
-  ]);
 
   return program;
 }

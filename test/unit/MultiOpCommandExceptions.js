@@ -56,7 +56,6 @@ export const LEGACY_MULTI_OP_COMMANDS_WITHOUT_ALLOW_FAILURES = [
  * belong here, it accepts `--allow-failures`.
  */
 export const NOT_MULTI_OP_BULK_CANDIDATES = [
-  'frodo config-manager delete test',
   'frodo config-manager pull access-config',
   'frodo config-manager pull audit',
   'frodo config-manager pull config-metadata',
@@ -68,7 +67,6 @@ export const NOT_MULTI_OP_BULK_CANDIDATES = [
   'frodo config-manager pull kba',
   'frodo config-manager pull remote-servers',
   'frodo config-manager pull terms-and-conditions',
-  'frodo config-manager pull test',
   'frodo config-manager pull ui-config',
   'frodo config-manager push access-config',
   'frodo config-manager push audit',
@@ -76,10 +74,6 @@ export const NOT_MULTI_OP_BULK_CANDIDATES = [
   'frodo config-manager push connector-mappings',
   'frodo config-manager push cookie-domains',
   'frodo config-manager push cors',
-  'frodo config-manager push direct-control-abort',
-  'frodo config-manager push direct-control-apply',
-  'frodo config-manager push direct-control-init',
-  'frodo config-manager push direct-control-state',
   'frodo config-manager push email-provider',
   'frodo config-manager push idm-authentication',
   'frodo config-manager push kba',
@@ -87,7 +81,6 @@ export const NOT_MULTI_OP_BULK_CANDIDATES = [
   'frodo config-manager push remote-servers',
   'frodo config-manager push restart',
   'frodo config-manager push terms-and-conditions',
-  'frodo config-manager push test',
   'frodo config-manager push ui-config',
   'frodo secretstore mapping alias activate',
   'frodo secretstore mapping alias create',

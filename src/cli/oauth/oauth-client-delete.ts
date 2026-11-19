@@ -34,12 +34,6 @@ export default function setup() {
         'Do not ask for confirmation before deleting all OAuth2 clients. Required with -a when there is no terminal.'
       )
     )
-    .addOption(
-      new Option(
-        '--no-deep',
-        'No deep delete. This leaves orphaned configuration artifacts behind.'
-      )
-    )
     .requireOneOf({ options: ['all', 'appId'], purpose: 'what to delete' })
     .multiOp()
     .action(

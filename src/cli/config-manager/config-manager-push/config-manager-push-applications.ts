@@ -1,12 +1,13 @@
 import { frodo } from '@rockcarver/frodo-lib';
-import { Option } from 'commander';
 import * as s from '../../../help/SampleData';
 import { configManagerImportApplications } from '../../../ops/ApplicationConfigOps';
 import { getTokens } from '../../../ops/AuthenticateOps';
 import c from '../../../utils/ColorTheme';
 import { verboseMessage } from '../../../utils/Console';
 import { realmOfRun } from '../../../utils/interactive/PositionalArgs';
+import { APPLICATION_KEY_SET_PUSH_SENTENCE } from '../../../utils/PlaceholderValues';
 import { FrodoCommand } from '../../FrodoCommand';
+import { selectorOption } from '../../SelectorOption';
 
 const { CLOUD_DEPLOYMENT_TYPE_KEY, FORGEOPS_DEPLOYMENT_TYPE_KEY } =
   frodo.utils.constants;
@@ -28,13 +29,22 @@ export default function setup() {
       'Import applications, one folder per application with the objects it owns.'
     )
     .description(
-      'Import applications from the folders realms/<realm>/applications/<name>/ that "pull applications" writes. For each application the scripts it uses, its connector and mappings, its OAuth2 client and its SAML providers are imported first, then the circles of trust the providers are members of, and the application itself last. An application is matched by its name: the tenant\'s application of that name is updated in place, and a new one is created if there is none. The secret of an OAuth2 client is read from the environment variable named in its file (APP_<NAME>_CLIENT_SECRET); an application whose variable is not set is not imported. Members, owners and roles of an application, and the glossary values and request forms of Identity Governance tenants, are never changed.'
+      'Import applications from the folders realms/<realm>/applications/<name>/ that "pull applications" writes. For each application the scripts it uses, its connector and mappings, its OAuth2 client and its SAML providers are imported first, then the circles of trust the providers are members of, and the application itself last. An application is matched by its name: the tenant\'s application of that name is updated in place, and a new one is created if there is none. The secret of an OAuth2 client is read from the environment variable named in its file (APP_<NAME>_CLIENT_SECRET); an application whose variable is not set is not imported. ' +
+        APPLICATION_KEY_SET_PUSH_SENTENCE +
+        ' Members, owners and roles of an application, and the glossary values and request forms of Identity Governance tenants, are never changed.'
     )
     .addOption(
-      new Option(
-        '-n, --name <name>',
-        'Application name. If specified, imports only the application with the given name. Needs a single realm.'
-      )
+      selectorOption(
+        '-i, --app-id <id>',
+        'Application id, the id that the application has on the tenant (the files of a pull do not hold it). If specified, imports only the folder of that application. Needs a single realm. Cannot be used with -n.'
+      ).conflicts(['appName'])
+    )
+    .addOption(
+      selectorOption(
+        '-n, --app-name <name>',
+        'Application name. If specified, imports only the application with the given name. Needs a single realm. Cannot be used with -i.',
+        ['--name']
+      ).conflicts(['appId'])
     )
     .addHelpText(
       'after',
@@ -63,15 +73,17 @@ export default function setup() {
       );
 
       if (await getTokens(false, true, deploymentTypes)) {
+        const selected = options.appId ?? options.appName;
         verboseMessage(
-          options.name
-            ? `Importing application "${options.name}".`
+          selected
+            ? `Importing application "${selected}".`
             : 'Importing applications.'
         );
         const outcome = await configManagerImportApplications(
-          options.name,
+          options.appName,
           realmOfRun(command, realm),
-          options.allowFailures
+          options.allowFailures,
+          options.appId
         );
         if (!outcome) process.exitCode = 1;
       } else {

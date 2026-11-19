@@ -17,7 +17,11 @@ export default function setup() {
       // implement command logic inside action handler
       async (host, options, command) => {
         command.handleDefaultArgsAndOpts(host, options, command);
-        await describeConnectionProfile(host, options.showSecrets);
+        const outcome = await describeConnectionProfile(
+          host,
+          options.showSecrets
+        );
+        if (!outcome) process.exitCode = 1;
       }
       // end command logic inside action handler
     );

@@ -315,4 +315,28 @@ describe('checkProceed, the refusal that happens before the login', () => {
 
     expect(printed).toEqual([]);
   });
+
+  test('a command without --dry-run does not name it, and still names --yes', () => {
+    terminal = false;
+
+    expect(
+      checkProceed({ what: 'repair a feature', dryRunAvailable: false })
+    ).toBe(false);
+
+    const error = messages('error').join('\n');
+    expect(error).toContain('Refusing to repair a feature');
+    expect(error).toContain('-y/--yes');
+    expect(error).not.toContain('--dry-run');
+  });
+
+  test('confirmProceed of a command without --dry-run refuses the same way', async () => {
+    terminal = false;
+
+    expect(
+      await confirmProceed({ what: 'repair a feature', dryRunAvailable: false })
+    ).toBe(false);
+
+    expect(messages('error').join('\n')).not.toContain('--dry-run');
+    expect(asked).toEqual([]);
+  });
 });

@@ -12,7 +12,7 @@ import WebCmd from './agent-web.js';
 export default function setup() {
   const program = new FrodoStubCommand('agent').description('Manage agents.');
 
-  program.addCommand(AICmd().name('ai'));
+  program.addCommand(AICmd());
 
   program.addCommand(GatewayCmd().name('gateway'));
 

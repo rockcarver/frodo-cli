@@ -6,3 +6,7 @@ A command line interface to manage PingOne Advanced Identity Cloud environments,
 Frodo is the successor to field tools like [amtree.sh](https://github.com/vscheuber/AM-treetool), [fidc-debug-tools](https://github.com/vscheuber/fidc-debug-tools), and Ping/ForgeRock-internal utilities.
 
 Please refer to the [GitHub README](https://github.com/rockcarver/frodo-cli#readme) for full documentation.
+
+For air-gapped installs, run `frodo settings airgap enable` (or set `FRODO_AIRGAPPED=1`) to switch on air-gapped mode: frodo then makes no request to a host you did not name. The tenant and the hosts and URLs you give stay allowed; the update check on GitHub and npm and the application template catalog are not made. `frodo settings airgap show` shows the effective state and its source, and `disable` clears the persisted setting (`FRODO_AIRGAPPED` can still switch the mode on).
+
+To disable only the automatic update check, run `frodo settings update-check disable` to persist it, `show` to see the effective state and its source, or `enable` to restore the persisted preference. Either the setting or `FRODO_NO_UPDATE_CHECK=1` disables start-up requests to GitHub and npm, and so does air-gapped mode. Installed versions remain available with `frodo -v` or `--version`.

@@ -11,9 +11,7 @@ import { Command, Option } from 'commander';
  * - a declined pick (Escape) or a failed load returns false, so the command
  *   does not run its body, and nothing is written to the command;
  * - an empty list counts as satisfied;
- * - an option the user gave is never asked for;
- * - only the inherited picks run, and a command's own pick for an option
- *   wins over the family's.
+ * - an option the user gave is never asked for.
  */
 
 const escapableSelect = jest.fn();
@@ -54,7 +52,7 @@ jest.unstable_mockModule('../../src/cli/ResolveInteractiveInputs', () => ({
   commandPreviewFor: () => '',
 }));
 
-const { deferEntityPicks, entityPick, resolveFamilyEntityPicks } =
+const { entityPick, resolveFamilyEntityPicks } =
   await import('../../src/utils/interactive/EntityPickers.ts');
 const { registerEntityPickFamily } =
   await import('../../src/utils/interactive/EntityPickRegistry.ts');
@@ -158,40 +156,6 @@ describe('resolveFamilyEntityPicks in an interactive session', () => {
     expect(await resolveFamilyEntityPicks(command)).toBe(true);
     expect(load).not.toHaveBeenCalled();
     expect(command.getOptionValue('proxyId')).toBe('given');
-  });
-
-  it('runs only the inherited picks, not those the command registered itself', async () => {
-    const ownLoad = jest.fn(async () => entities('x', 'y'));
-    const command = setup(async () => entities('only'));
-    deferEntityPicks(command, [
-      entityPick({
-        name: 'clientId',
-        kind: 'client',
-        load: ownLoad,
-        label: (entity) => entity.name,
-      }),
-    ]);
-    expect(await resolveFamilyEntityPicks(command)).toBe(true);
-    expect(ownLoad).not.toHaveBeenCalled();
-    expect(command.getOptionValue('clientId')).toBeUndefined();
-    expect(command.getOptionValue('proxyId')).toBe('only');
-  });
-
-  it('prefers the pick a command registered itself for the same option', async () => {
-    const familyLoad = jest.fn(async () => entities('from-family'));
-    const command = setup(familyLoad);
-    deferEntityPicks(command, [
-      entityPick({
-        name: 'proxyId',
-        kind: 'thing',
-        load: async () => entities('own'),
-        label: (entity) => entity.name,
-      }),
-    ]);
-    // the command’s own pick is not an inherited one: the family runner leaves it
-    expect(await resolveFamilyEntityPicks(command)).toBe(true);
-    expect(familyLoad).not.toHaveBeenCalled();
-    expect(command.getOptionValue('proxyId')).toBeUndefined();
   });
 
   it('does nothing for a command outside every family', async () => {

@@ -1,12 +1,12 @@
 import c from '../../utils/ColorTheme';
 import { FrodoStubCommand } from '../FrodoCommand';
 import DeleteCmd from './app-delete.js';
-// import DescribeCmd from './app-describe.js';
 import DisableCmd from './app-disable.js';
 import EnableCmd from './app-enable.js';
 import ExportCmd from './app-export.js';
 import ImportCmd from './app-import.js';
 import ListCmd from './app-list.js';
+import TemplateCmd from './app-template.js';
 
 export default function setup() {
   const program = new FrodoStubCommand('app')
@@ -20,8 +20,6 @@ export default function setup() {
 
   program.addCommand(ListCmd().name('list'));
 
-  // program.addCommand(DescribeCmd().name('describe'));
-
   program.addCommand(ExportCmd().name('export'));
 
   program.addCommand(ImportCmd().name('import'));
@@ -31,6 +29,8 @@ export default function setup() {
   program.addCommand(EnableCmd().name('enable'));
 
   program.addCommand(DisableCmd().name('disable'));
+
+  program.addCommand(TemplateCmd().name('template'));
 
   return program;
 }

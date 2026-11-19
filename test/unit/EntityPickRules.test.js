@@ -3,7 +3,7 @@ import { Command, Option } from 'commander';
 
 /**
  * Decision record 0038 and the rules of the entity picker runner that keep a
- * pick from asking for what the command line already answers (record 0030).
+ * pick from asking for what the command line already answers (record 0047).
  * This drives the runner as an interactive session (the prompt gate open, the
  * dropdown replaced by a stub), on small fake commands and on the registered
  * `mapping` family:
@@ -14,10 +14,12 @@ import { Command, Option } from 'commander';
  *    whoever set it: the user, the choice made in the resolution pass, or an
  *    earlier pick of the run, so an id and a name are asked for once;
  * 3. a pick is skipped when another member of its one-of group is given (or
- *    was chosen in the resolution pass and is still to be picked).
+ *    was chosen in the resolution pass and is still to be picked);
+ * 4. the search-first steps of a long list are given the command too.
  */
 
 const escapableSelect = jest.fn();
+const promptInput = jest.fn();
 const printError = jest.fn();
 const verboseMessage = jest.fn();
 const revokeAuthoringPrint = jest.fn();
@@ -29,6 +31,8 @@ const actualSelect =
 const actualPrint =
   await import('../../src/utils/interactive/AuthoringPrintState.ts');
 const actualConsole = await import('../../src/utils/Console.ts');
+const actualPromptGate =
+  await import('../../src/utils/interactive/PromptGate.ts');
 
 jest.unstable_mockModule('../../src/utils/interactive/PromptGateState', () => ({
   ...actualGate,
@@ -38,6 +42,10 @@ jest.unstable_mockModule(
   '../../src/utils/interactive/EscapableSelectPrompt',
   () => ({ ...actualSelect, escapableSelect })
 );
+jest.unstable_mockModule('../../src/utils/interactive/PromptGate', () => ({
+  ...actualPromptGate,
+  promptInput,
+}));
 jest.unstable_mockModule(
   '../../src/utils/interactive/AuthoringPrintState',
   () => ({
@@ -58,12 +66,9 @@ jest.unstable_mockModule('../../src/cli/ResolveInteractiveInputs', () => ({
 }));
 
 const { frodo } = await import('@rockcarver/frodo-lib');
-const {
-  deferEntityPicks,
-  entityPick,
-  resolveEntityPicks,
-  resolveFamilyEntityPicks,
-} = await import('../../src/utils/interactive/EntityPickers.ts');
+const { entityPick, resolveFamilyEntityPicks } =
+  await import('../../src/utils/interactive/EntityPickers.ts');
+const { withPicks } = await import('../utils/EntityPickFamilyOf.js');
 const { commitOption } =
   await import('../../src/utils/interactive/OptionConflicts.ts');
 const { deferOneOfGroups, noteDeferredChoice } =
@@ -130,8 +135,8 @@ describe('rule 1: a loader that reads the command', () => {
       { name: `for-${given.getOptionValue('connectorId')}` },
     ]);
     const { load, pick } = pickOf('nodeId', ['plain']);
-    deferEntityPicks(command, [{ ...pick, loadFor }]);
-    expect(await resolveEntityPicks(command)).toBe(true);
+    withPicks(command, [{ ...pick, loadFor }]);
+    expect(await resolveFamilyEntityPicks(command)).toBe(true);
     expect(loadFor).toHaveBeenCalledTimes(1);
     expect(loadFor.mock.calls[0][0]).toBe(command);
     expect(load).not.toHaveBeenCalled();
@@ -141,8 +146,8 @@ describe('rule 1: a loader that reads the command', () => {
   it('still calls a plain load without arguments, so a library read function passed as load keeps its own first argument', async () => {
     const command = nodeCommand();
     const { load, pick } = pickOf('nodeId', ['only']);
-    deferEntityPicks(command, [pick]);
-    expect(await resolveEntityPicks(command)).toBe(true);
+    withPicks(command, [pick]);
+    expect(await resolveFamilyEntityPicks(command)).toBe(true);
     expect(load).toHaveBeenCalledTimes(1);
     expect(load).toHaveBeenCalledWith();
   });
@@ -150,7 +155,7 @@ describe('rule 1: a loader that reads the command', () => {
   it('declines the pick when loadFor fails, like a failing load', async () => {
     const command = nodeCommand();
     const { pick } = pickOf('nodeId', ['only']);
-    deferEntityPicks(command, [
+    withPicks(command, [
       {
         ...pick,
         loadFor: async () => {
@@ -158,7 +163,7 @@ describe('rule 1: a loader that reads the command', () => {
         },
       },
     ]);
-    expect(await resolveEntityPicks(command)).toBe(false);
+    expect(await resolveFamilyEntityPicks(command)).toBe(false);
     expect(printError).toHaveBeenCalledTimes(1);
     expect(command.getOptionValue('nodeId')).toBeUndefined();
   });
@@ -256,9 +261,9 @@ describe('rule 2: a pick that conflicts with an option set earlier', () => {
     const command = nodeCommand();
     const id = pickOf('nodeId', ['alpha', 'bravo']);
     const name = pickOf('nodeName', ['alpha', 'bravo']);
-    deferEntityPicks(command, [id.pick, name.pick]);
+    withPicks(command, [id.pick, name.pick]);
     escapableSelect.mockImplementation(async ({ choices }) => choices[1].value);
-    expect(await resolveEntityPicks(command)).toBe(true);
+    expect(await resolveFamilyEntityPicks(command)).toBe(true);
     expect(escapableSelect).toHaveBeenCalledTimes(1);
     expect(command.getOptionValue('nodeId')).toBe('bravo');
     expect(command.getOptionValue('nodeName')).toBeUndefined();
@@ -272,8 +277,8 @@ describe('rule 2: a pick that conflicts with an option set earlier', () => {
     const command = nodeCommand();
     const id = pickOf('nodeId', ['only']);
     const name = pickOf('nodeName', ['only', 'other']);
-    deferEntityPicks(command, [id.pick, name.pick]);
-    expect(await resolveEntityPicks(command)).toBe(true);
+    withPicks(command, [id.pick, name.pick]);
+    expect(await resolveFamilyEntityPicks(command)).toBe(true);
     expect(escapableSelect).not.toHaveBeenCalled();
     expect(command.getOptionValue('nodeId')).toBe('only');
     expect(command.getOptionValue('nodeName')).toBeUndefined();
@@ -285,8 +290,8 @@ describe('rule 2: a pick that conflicts with an option set earlier', () => {
     const command = nodeCommand();
     expect(commitOption(command, 'all', true).status).toBe('committed');
     const id = pickOf('nodeId', ['alpha', 'bravo']);
-    deferEntityPicks(command, [id.pick]);
-    expect(await resolveEntityPicks(command)).toBe(true);
+    withPicks(command, [id.pick]);
+    expect(await resolveFamilyEntityPicks(command)).toBe(true);
     expect(id.load).not.toHaveBeenCalled();
     expect(escapableSelect).not.toHaveBeenCalled();
     expect(command.getOptionValue('all')).toBe(true);
@@ -297,8 +302,8 @@ describe('rule 2: a pick that conflicts with an option set earlier', () => {
     const command = nodeCommand();
     command.setOptionValueWithSource('all', true, 'cli');
     const id = pickOf('nodeId', ['alpha', 'bravo']);
-    deferEntityPicks(command, [id.pick]);
-    expect(await resolveEntityPicks(command)).toBe(true);
+    withPicks(command, [id.pick]);
+    expect(await resolveFamilyEntityPicks(command)).toBe(true);
     expect(id.load).not.toHaveBeenCalled();
   });
 
@@ -307,8 +312,8 @@ describe('rule 2: a pick that conflicts with an option set earlier', () => {
     command.addOption(new Option('-t, --type <type>').conflicts(['nodeId']));
     command.setOptionValueWithSource('type', 'user', 'cli');
     const id = pickOf('nodeId', ['alpha', 'bravo'], { scopedBy: ['type'] });
-    deferEntityPicks(command, [id.pick]);
-    expect(await resolveEntityPicks(command)).toBe(true);
+    withPicks(command, [id.pick]);
+    expect(await resolveFamilyEntityPicks(command)).toBe(true);
     expect(command.getOptionValue('nodeId')).toBe('alpha');
     expect(command.getOptionValue('type')).toBeUndefined();
   });
@@ -317,9 +322,9 @@ describe('rule 2: a pick that conflicts with an option set earlier', () => {
     const command = nodeCommand();
     const id = pickOf('nodeId', ['alpha', 'bravo']);
     const name = pickOf('nodeName', ['alpha', 'bravo']);
-    deferEntityPicks(command, [id.pick, name.pick]);
+    withPicks(command, [id.pick, name.pick]);
     escapableSelect.mockImplementation(async () => actualSelect.ESCAPE);
-    expect(await resolveEntityPicks(command)).toBe(false);
+    expect(await resolveFamilyEntityPicks(command)).toBe(false);
     expect(name.load).not.toHaveBeenCalled();
     expect(command.getOptionValue('nodeId')).toBeUndefined();
   });
@@ -329,8 +334,8 @@ describe('rule 2: a pick that conflicts with an option set earlier', () => {
     command.setOptionValueWithSource('nodeId', 'given', 'cli');
     const id = pickOf('nodeId', ['alpha', 'bravo']);
     const name = pickOf('nodeName', ['alpha', 'bravo']);
-    deferEntityPicks(command, [id.pick, name.pick]);
-    expect(await resolveEntityPicks(command)).toBe(true);
+    withPicks(command, [id.pick, name.pick]);
+    expect(await resolveFamilyEntityPicks(command)).toBe(true);
     expect(id.load).not.toHaveBeenCalled();
     expect(name.load).not.toHaveBeenCalled();
     expect(command.getOptionValue('nodeId')).toBe('given');
@@ -342,8 +347,8 @@ describe('rule 3: a pick whose one-of group is answered', () => {
     const command = nodeCommand();
     command.setOptionValueWithSource('global', true, 'cli');
     const id = pickOf('nodeId', ['alpha', 'bravo']);
-    deferEntityPicks(command, [id.pick]);
-    expect(await resolveEntityPicks(command)).toBe(true);
+    withPicks(command, [id.pick]);
+    expect(await resolveFamilyEntityPicks(command)).toBe(true);
     expect(id.load).not.toHaveBeenCalled();
     expect(escapableSelect).not.toHaveBeenCalled();
     expect(command.getOptionValue('nodeId')).toBeUndefined();
@@ -355,8 +360,8 @@ describe('rule 3: a pick whose one-of group is answered', () => {
   it('is offered when no member of the group is given', async () => {
     const command = nodeCommand();
     const id = pickOf('nodeId', ['alpha', 'bravo']);
-    deferEntityPicks(command, [id.pick]);
-    expect(await resolveEntityPicks(command)).toBe(true);
+    withPicks(command, [id.pick]);
+    expect(await resolveFamilyEntityPicks(command)).toBe(true);
     expect(command.getOptionValue('nodeId')).toBe('alpha');
   });
 
@@ -373,8 +378,8 @@ describe('rule 3: a pick whose one-of group is answered', () => {
     ]);
     command.setOptionValueWithSource('version', '2', 'cli');
     const id = pickOf('nodeId', ['alpha', 'bravo']);
-    deferEntityPicks(command, [id.pick]);
-    expect(await resolveEntityPicks(command)).toBe(true);
+    withPicks(command, [id.pick]);
+    expect(await resolveFamilyEntityPicks(command)).toBe(true);
     expect(command.getOptionValue('nodeId')).toBe('alpha');
   });
 
@@ -382,8 +387,8 @@ describe('rule 3: a pick whose one-of group is answered', () => {
     const command = nodeCommand();
     command.setOptionValueWithSource('connectorId', 'systemMatrix', 'cli');
     const id = pickOf('nodeId', ['alpha', 'bravo']);
-    deferEntityPicks(command, [id.pick]);
-    expect(await resolveEntityPicks(command)).toBe(true);
+    withPicks(command, [id.pick]);
+    expect(await resolveFamilyEntityPicks(command)).toBe(true);
     expect(command.getOptionValue('nodeId')).toBe('alpha');
   });
 
@@ -392,9 +397,9 @@ describe('rule 3: a pick whose one-of group is answered', () => {
     noteDeferredChoice(command, 'nodeName');
     const id = pickOf('nodeId', ['alpha', 'bravo']);
     const name = pickOf('nodeName', ['zion', 'matrix']);
-    deferEntityPicks(command, [id.pick, name.pick]);
+    withPicks(command, [id.pick, name.pick]);
     escapableSelect.mockImplementation(async ({ choices }) => choices[1].value);
-    expect(await resolveEntityPicks(command)).toBe(true);
+    expect(await resolveFamilyEntityPicks(command)).toBe(true);
     expect(id.load).not.toHaveBeenCalled();
     expect(escapableSelect).toHaveBeenCalledTimes(1);
     expect(
@@ -409,8 +414,8 @@ describe('rule 3: a pick whose one-of group is answered', () => {
     noteDeferredChoice(command, 'nodeId');
     const id = pickOf('nodeId', ['alpha', 'bravo']);
     const name = pickOf('nodeName', ['zion', 'matrix']);
-    deferEntityPicks(command, [id.pick, name.pick]);
-    expect(await resolveEntityPicks(command)).toBe(true);
+    withPicks(command, [id.pick, name.pick]);
+    expect(await resolveFamilyEntityPicks(command)).toBe(true);
     expect(command.getOptionValue('nodeId')).toBe('alpha');
     expect(name.load).not.toHaveBeenCalled();
   });
@@ -440,6 +445,49 @@ describe('rule 3: a pick whose one-of group is answered', () => {
     command.setOptionValueWithSource('global', true, 'cli');
     expect(await resolveFamilyEntityPicks(command)).toBe(true);
     expect(escapableSelect).not.toHaveBeenCalled();
+    expect(command.getOptionValue('nodeId')).toBeUndefined();
+  });
+});
+
+describe('rule 4: a list too long to show whole asks for a search text first', () => {
+  /** A pick whose steps are mocks; the text typed is `typed`. */
+  function searchedPick(typed, found) {
+    const when = jest.fn(async () => true);
+    const load = jest.fn(async () => found);
+    const { pick } = pickOf('nodeId', []);
+    promptInput.mockResolvedValue(typed);
+    return {
+      when,
+      load,
+      pick: {
+        ...pick,
+        searchFirst: { when, load, message: 'Search nodes:' },
+      },
+    };
+  }
+
+  it('gives the command to the test that decides whether to ask, and to the search', async () => {
+    const command = nodeCommand();
+    const search = searchedPick(' zi ', entities('zion'));
+    withPicks(command, [search.pick]);
+    expect(await resolveFamilyEntityPicks(command)).toBe(true);
+    expect(search.when).toHaveBeenCalledTimes(1);
+    expect(search.when.mock.calls[0][0]).toBe(command);
+    // the text is trimmed, and the search is given the command after it
+    expect(search.load).toHaveBeenCalledTimes(1);
+    expect(search.load.mock.calls[0][0]).toBe('zi');
+    expect(search.load.mock.calls[0][1]).toBe(command);
+    // one match is no choice
+    expect(escapableSelect).not.toHaveBeenCalled();
+    expect(command.getOptionValue('nodeId')).toBe('zion');
+  });
+
+  it('declines the pick when the search text is left empty', async () => {
+    const command = nodeCommand();
+    const search = searchedPick('', entities('zion'));
+    withPicks(command, [search.pick]);
+    expect(await resolveFamilyEntityPicks(command)).toBe(false);
+    expect(search.load).not.toHaveBeenCalled();
     expect(command.getOptionValue('nodeId')).toBeUndefined();
   });
 });

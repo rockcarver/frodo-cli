@@ -29,11 +29,13 @@ Options:
                              operation, prints a summary of what failed and
                              exits with code 1.
   -c, --category <category>  Telemetry category to import (otlp or splunk).
-  -n, --name <name>          Name of a single exporter to import. Requires
-                             --category.
+  -i, --exporter-id <id>     Id of a single exporter to import. Requires
+                             --category. (alias: -n, --name)
   -h, --help                 Help
   -hh, --help-more           Help with all options.
   -hhh, --help-all           Help with all options, environment variables, and
                              usage examples.
+
+Not available with --browser or --device: needs a service account (Telemetry). See https://github.com/rockcarver/frodo-cli/blob/main/docs/BROWSER_LOGIN.md#what-a-browser-or-device-login-can-do
 "
 `;

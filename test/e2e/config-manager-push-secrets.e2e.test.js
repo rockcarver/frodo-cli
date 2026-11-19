@@ -2,10 +2,10 @@
 
 /*
 // cloud
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo config-manager push secrets --env-file test/e2e/env/configManager1.env  -D test/e2e/exports/fr-config-manager/cloud 
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo config-manager push secrets -n esv-fr-test-secret -E ESV_FR_TEST_SECRET="test1" -D test/e2e/exports/fr-config-manager/cloud 
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo config-manager push secrets -n esv-test-secret --env-file test/e2e/env/configManager1.env -D test/e2e/exports/fr-config-manager/cloud
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo config-manager push secrets -p -n esv-prune-secrets -E ESV_PRUNE_SECRETS=test3 -D test/e2e/exports/fr-config-manager/cloud 
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_TEST_NAME=0_env-file_D frodo config-manager push secrets --env-file test/e2e/env/configManager1.env  -D test/e2e/exports/fr-config-manager/cloud
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_TEST_NAME=0_n_E_D frodo config-manager push secrets -i esv-fr-test-secret -E ESV_FR_TEST_SECRET="test1" -D test/e2e/exports/fr-config-manager/cloud
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_TEST_NAME=0_n_env-file_D frodo config-manager push secrets -i esv-test-secret --env-file test/e2e/env/configManager1.env -D test/e2e/exports/fr-config-manager/cloud
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_TEST_NAME=0_prune_yes_n_E_D frodo config-manager push secrets --prune --yes -i esv-prune-secrets -E ESV_PRUNE_SECRETS=test3 -D test/e2e/exports/fr-config-manager/cloud
 */
 
 import { getEnv, testFail, testSuccess } from './utils/TestUtils';
@@ -18,6 +18,7 @@ const cloudEnv = getEnv(c);
 const allDirectory = "test/e2e/exports/fr-config-manager/cloud";
 const envDir = "test/e2e/env/configManager1.env"
 
+// Each FRODO_TEST_NAME below pins the recording identity of its command (the args id it was recorded under, or a fixed label); test/unit/E2eRecordingIdentity.test.js checks every pin.
 describe('frodo config-manager push secrets', () => {
     // This replay fails: the env file has no value for ESV_PRUNE_SECRETS, so the file of esv-prune-secrets cannot be read
     // (the recording holds no request for it). The other secrets are imported, a summary names esv-prune-secrets and
@@ -25,18 +26,19 @@ describe('frodo config-manager push secrets', () => {
     // which hid it. The recording needs an env file with the value to show a clean import (frodo-cli#1102).
     test(`"frodo config-manager push secrets --env-file ${envDir} -D ${allDirectory} ": should import the secrets into cloud"`, async () => {
         const CMD = `frodo config-manager push secrets --env-file ${envDir} -D ${allDirectory} `;
-        await testFail(CMD, cloudEnv)
+        await testFail(CMD, { ...cloudEnv, env: { ...cloudEnv.env, FRODO_TEST_NAME: '0_env-file_D' } })
     });
     test(`"frodo config-manager push secrets -n esv-fr-test-secret -E ESV_FR_TEST_SECRET="test1" ${allDirectory}": should import the specified secret into cloud`, async () => {
-        const CMD = `frodo config-manager push secrets -n esv-fr-test-secret -E ESV_FR_TEST_SECRET="test1"  -D ${allDirectory}`;
-        await testSuccess(CMD, cloudEnv)
+        const CMD = `frodo config-manager push secrets -i esv-fr-test-secret -E ESV_FR_TEST_SECRET="test1"  -D ${allDirectory}`;
+        await testSuccess(CMD, { ...cloudEnv, env: { ...cloudEnv.env, FRODO_TEST_NAME: '0_n_E_D' } })
     });
     test(`"frodo config-manager push secrets -n esv-test-secret --env-file ${envDir} -D ${allDirectory}": should import multiple versions of the specified secret into cloud`, async () => {
-        const CMD = `frodo config-manager push secrets -n esv-test-secret --env-file ${envDir} -D ${allDirectory}`;
-        await testSuccess(CMD, cloudEnv);
+        const CMD = `frodo config-manager push secrets -i esv-test-secret --env-file ${envDir} -D ${allDirectory}`;
+        await testSuccess(CMD, { ...cloudEnv, env: { ...cloudEnv.env, FRODO_TEST_NAME: '0_n_env-file_D' } });
     });
-    test(`"frodo config-manager push secrets -p -n esv-prune-secrets -E ESV_PRUNE_SECRETS=test3  -D ${allDirectory}": should import multiple specified secrets into cloud`, async () => {
-        const CMD = `frodo config-manager push secrets -p -n esv-prune-secrets -E ESV_PRUNE_SECRETS=test3  -D ${allDirectory}`;
-        await testSuccess(CMD, cloudEnv)
+    // --yes: a prune asks first, and refuses without a terminal (decision record 0037); the requests are the same as before
+    test(`"frodo config-manager push secrets --prune --yes -n esv-prune-secrets -E ESV_PRUNE_SECRETS=test3  -D ${allDirectory}": should import multiple specified secrets into cloud`, async () => {
+        const CMD = `frodo config-manager push secrets --prune --yes -i esv-prune-secrets -E ESV_PRUNE_SECRETS=test3  -D ${allDirectory}`;
+        await testSuccess(CMD, { ...cloudEnv, env: { ...cloudEnv.env, FRODO_TEST_NAME: '0_prune_yes_n_E_D' } })
     });
 });

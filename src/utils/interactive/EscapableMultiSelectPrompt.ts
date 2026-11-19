@@ -113,6 +113,14 @@ export type EscapableMultiSelectConfig<Value> = {
   laterFor?: (value: Value) => boolean;
   /** Called when such a member is marked without a value. */
   onLater?: (value: Value) => void;
+  /**
+   * Called when a member is marked WITHOUT its value box opening (a flag, or a
+   * member whose `needsValue` says no because its value is asked for after the
+   * page is committed: the file system picker of a path option). It tells the
+   * caller which marks were made now, as opposed to the ones the page opened
+   * with, so a member that already has a value can be asked for again.
+   */
+  onMark?: (value: Value) => void;
 };
 
 /**
@@ -594,6 +602,7 @@ const escapableMultiSelectImpl = createPrompt(
           rl.clearLine(0);
           return;
         }
+        if (togglingOnValue) config.onMark?.(highlighted.choice.value);
         setSelected((previous) => {
           const next = new Set(previous);
           if (next.has(highlighted.choice.value)) {

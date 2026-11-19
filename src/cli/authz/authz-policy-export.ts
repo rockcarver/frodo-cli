@@ -24,7 +24,7 @@ export default function setup() {
     .addOption(
       new Option(
         '--set-id <set-id>',
-        'Export policies in policy set only. Cannot be used with -i.'
+        'Export policies in policy set only. Only with -a or -A. Cannot be used with -i.'
       ).conflicts(['policyId'])
     )
     .addOption(
@@ -66,8 +66,11 @@ export default function setup() {
         'Include prerequisites (policy sets, resource types).'
       )
     )
+    // --set-id is not a member of the group: it narrows -a and -A and never
+    // selects what to export on its own, as it does not for `delete`
+    // (frodo-cli#1163)
     .requireOneOf({
-      options: ['all', 'allSeparate', 'policyId', 'setId'],
+      options: ['all', 'allSeparate', 'policyId'],
       purpose: 'what to export',
     })
     .multiOp()

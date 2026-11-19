@@ -1,0 +1,104 @@
+import { Option } from 'commander';
+import * as s from '../../../help/SampleData';
+import { getTokens } from '../../../ops/AuthenticateOps';
+import { configManagerExportCIMDProfiles } from '../../../ops/CIMDProfileConfigOps';
+import c from '../../../utils/ColorTheme';
+import { verboseMessage } from '../../../utils/Console';
+import { realmOfRun } from '../../../utils/interactive/PositionalArgs';
+import { FrodoCommand } from '../../FrodoCommand';
+import { selectorOption } from '../../SelectorOption';
+
+export default function setup() {
+  const program = new FrodoCommand(
+    'frodo config-manager pull oauth-cimd-profiles'
+  );
+
+  program
+    .summary('Export CIMD profiles, one file per profile.')
+    .description(
+      'Export the CIMD profiles (the allow-list of client ID URL patterns for OAuth 2.0 clients that identify themselves with a Client ID Metadata Document) of all realms or of one realm to realms/<realm>/realm-config/agents/CIMDProfile/<name>.json, one file for each. The object is written as the server lists it, without its revision; it contains no secrets. A realm or a deployment that does not offer CIMD profiles has nothing to export, which is not an error.'
+    )
+    .addOption(
+      selectorOption(
+        '-i, --profile-id <id>',
+        'CIMD profile id. If specified, pulls only the profile with the given id. Needs a single realm.',
+        ['-n', '--name']
+      )
+    )
+    .addOption(
+      new Option(
+        '--config-file <file>',
+        `A JSON file with overrides for values that differ between environments, e.g. "${s.cimdOverridesFile}".`
+      )
+    )
+    .addHelpText(
+      'after',
+      `Usage Examples:\n` +
+        `  Pull all CIMD profiles of all realms to realms/<realm>/realm-config/agents/CIMDProfile/<name>.json:\n` +
+        c.command(
+          `  $ frodo config-manager pull oauth-cimd-profiles ${s.connId}\n`
+        ) +
+        `  Pull the CIMD profiles of one realm:\n` +
+        c.command(
+          `  $ frodo config-manager pull oauth-cimd-profiles ${s.connId} ${s.realm}\n`
+        ) +
+        `  Pull one CIMD profile of a realm:\n` +
+        c.command(
+          `  $ frodo config-manager pull oauth-cimd-profiles -i ${s.cimdProfileId} ${s.connId} ${s.realm}\n`
+        ) +
+        `  Replace values that differ between environments with placeholders from a file:\n` +
+        c.command(
+          `  $ frodo config-manager pull oauth-cimd-profiles --config-file ${s.cimdOverridesFile} ${s.connId}\n`
+        )
+    )
+    .addHelpText(
+      'after',
+      `\nOverrides file example (${s.cimdOverridesFile}): for each realm a list of profiles and the values to replace, in the form of the file (a property that is set is its value; a value written as { "value": ... } of the first 5.0.0 prereleases still works). An array is replaced element by element, so list every element that should change.\n` +
+        '{\n' +
+        '  "alpha": [\n' +
+        '    {\n' +
+        `      "id": "${s.cimdProfileId}",\n` +
+        '      "overrides": {\n' +
+        '        "cimdConfig": {\n' +
+        '          "cimdClientIdUrlPatterns": ["${ZION_AGENTS_URL_PATTERN}"]\n' +
+        '        }\n' +
+        '      }\n' +
+        '    }\n' +
+        '  ]\n' +
+        '}\n' +
+        'When the files are pushed, each ${NAME} is filled from -E/--env NAME=value, else from --env-file, else from the environment variable NAME of the process (a file that names a variable copies its value into what is pushed).\n'
+    )
+    .multiOp()
+    .usesRealm()
+    .action(async (host, realm, user, password, options, command) => {
+      command.handleDefaultArgsAndOpts(
+        host,
+        realm,
+        user,
+        password,
+        options,
+        command
+      );
+
+      if (await getTokens()) {
+        verboseMessage(
+          options.profileId
+            ? `Exporting CIMD profile "${options.profileId}".`
+            : 'Exporting CIMD profiles.'
+        );
+        const outcome = await configManagerExportCIMDProfiles(
+          options.profileId,
+          realmOfRun(command, realm),
+          false,
+          options.allowFailures,
+          options.configFile
+        );
+        if (!outcome) process.exitCode = 1;
+      } else {
+        // getTokens() failed (any option combination is valid here).
+        process.exitCode = 1;
+      }
+    });
+
+  return program;
+}

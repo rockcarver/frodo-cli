@@ -1,4 +1,3 @@
-import Test from '../../conn/conn-test';
 import { FrodoStubCommand } from '../../FrodoCommand';
 import AccessConfig from './config-manager-pull-access-config';
 import All from './config-manager-pull-all';
@@ -24,6 +23,9 @@ import Journeys from './config-manager-pull-journeys';
 import Kba from './config-manager-pull-kba';
 import Locales from './config-manager-pull-locales';
 import ManagedObjects from './config-manager-pull-managed-objects';
+import OauthCimdProfiles from './config-manager-pull-oauth-cimd-profiles';
+import OauthIssuers from './config-manager-pull-oauth-issuers';
+import OauthSoftwarePublishers from './config-manager-pull-oauth-software-publishers';
 import Oauth2Agents from './config-manager-pull-oauth2-agents';
 import OrgPrivileges from './config-manager-pull-org-privileges';
 import PasswordPolicy from './config-manager-pull-password-policy';
@@ -55,6 +57,7 @@ export default function setup() {
   program.addCommand(Audit().name('audit'));
   program.addCommand(Authentication().name('authentication'));
   program.addCommand(AuthzPolicies().name('authz-policies'));
+  program.addCommand(OauthCimdProfiles().name('oauth-cimd-profiles'));
   program.addCommand(ConnectorDefinitions().name('connector-definitions'));
   program.addCommand(ConnectorMappings().name('connector-mappings'));
   program.addCommand(CookieDomains().name('cookie-domains'));
@@ -87,7 +90,10 @@ export default function setup() {
   program.addCommand(Themes().name('themes'));
   program.addCommand(Telemetry().name('telemetry'));
   program.addCommand(Terms().name('terms-and-conditions'));
-  program.addCommand(Test().name('test'));
+  program.addCommand(OauthIssuers().name('oauth-issuers'));
+  program.addCommand(
+    OauthSoftwarePublishers().name('oauth-software-publishers')
+  );
   program.addCommand(UiConfig().name('ui-config'));
   program.addCommand(Variables().name('variables'));
   program.addCommand(IgaWorkflows().name('iga-workflows'));

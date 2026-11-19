@@ -4,10 +4,12 @@ import setupPullVariables from '../../src/cli/config-manager/config-manager-pull
 import { formatEnvAssignment } from '../../src/configManagerOps/FrConfigVariableOps.ts';
 
 /**
- * `frodo config-manager pull variables -u` prints `NAME='value'` lines that are
- * meant to be sourced into a shell, so a value must come back unchanged
- * whatever it contains. `-u` and `-r` cannot be combined: the report path
- * returns before the dump, so `-u` would be silently ignored (record 0032).
+ * `frodo config-manager pull variables --dump` prints `NAME='value'` lines that
+ * are meant to be sourced into a shell, so a value must come back unchanged
+ * whatever it contains. `--dump` and `-r` cannot be combined: the report path
+ * returns before the dump, so `--dump` would be silently ignored
+ * (https://github.com/rockcarver/frodo-cli/blob/main/docs/decisions/0032-mutually-exclusive-options-are-declared-and-never-contradict-a-requirement.md,
+ * mutually exclusive options are declared).
  */
 
 const sourced = (line) =>
@@ -62,8 +64,10 @@ describe('frodo config-manager pull variables options', () => {
   const dump = options.find((o) => o.long === '--dump');
   const report = options.find((o) => o.long === '--report');
 
-  it('dumps with -u and reports with -r', () => {
-    expect(dump.short).toBe('-u');
+  it('reports with -r and dumps with a long form only', () => {
+    // https://github.com/rockcarver/frodo-cli/blob/main/docs/decisions/0057-options-of-the-configuration-commands.md
+    // (options of the configuration commands): -u is the unlock of a promotion
+    expect(dump.short).toBeUndefined();
     expect(report.short).toBe('-r');
   });
 
@@ -71,6 +75,6 @@ describe('frodo config-manager pull variables options', () => {
     expect(dump.conflictsWith).toContain('report');
     expect(report.conflictsWith).toContain('dump');
     expect(dump.description).toContain('Cannot be used with -r');
-    expect(report.description).toContain('Cannot be used with -u');
+    expect(report.description).toContain('Cannot be used with --dump');
   });
 });

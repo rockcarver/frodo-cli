@@ -42,12 +42,14 @@ export function formatEnvAssignment(name: string, value: unknown): string {
  * @param {boolean} report true to report in csv format
  * @param {boolean} dump true to dump variable values to the console
  * @param {boolean} allowFailures true to report variables that could not be exported but still succeed. Default: false
+ * @param {string} id optional id of the one variable to export, report or dump (the report and the dump hold that variable only). The id is looked for in the list of all variables that the export reads, so no other request is made. An empty id selects nothing (the command refuses an empty value before it connects); an id that no variable has fails the command.
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
 export async function configManagerExportVariables(
   report?: boolean,
   dump?: boolean,
-  allowFailures: boolean = false
+  allowFailures: boolean = false,
+  id?: string
 ): Promise<boolean> {
   let spinnerId: string;
   let variableList: VariableSkeleton[];
@@ -58,6 +60,13 @@ export async function configManagerExportVariables(
       `Retrieving variables...`
     );
     variableList = await readVariables();
+    if (id !== undefined) {
+      variableList = variableList.filter((variable) => variable._id === id);
+      if (variableList.length === 0) {
+        stopProgressIndicator(spinnerId, `Variable '${id}' not found.`, 'fail');
+        return false;
+      }
+    }
     stopProgressIndicator(
       spinnerId,
       `Successfully retrieved ${variableList.length} variables`,

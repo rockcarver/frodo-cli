@@ -1,0 +1,8 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`frodo config-manager push oauth-software-publishers "frodo config-manager push oauth-software-publishers -n zz-e2e-publisher -D test/e2e/exports/fr-config-manager/cloud": should create the software publisher zz-e2e-publisher in the alpha realm 1`] = `""`;
+
+exports[`frodo config-manager push oauth-software-publishers "frodo config-manager push oauth-software-publishers -n zz-e2e-publisher -D test/e2e/exports/fr-config-manager/cloud": should create the software publisher zz-e2e-publisher in the alpha realm 2`] = `
+"Experimental feature in use: 'frodo config-manager push oauth-software-publishers'. This feature may change without notice.
+"
+`;

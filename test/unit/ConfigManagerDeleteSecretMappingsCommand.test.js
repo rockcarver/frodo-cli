@@ -1,0 +1,472 @@
+import {
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  jest,
+  test,
+} from '@jest/globals';
+import { Command } from 'commander';
+
+/**
+ * The command `config-manager delete secret-mappings` (records 0037, 0040 and
+ * 0041): it adds the shared `--allow-failures` option (`.multiOp()`), runs for
+ * Cloud only, refuses a delete of all secret mappings that nobody can be asked
+ * about before it logs in, asks after the login (with the dry run of all
+ * secret mappings as the plan) before all of them are deleted, never asks for
+ * a single named mapping, refuses an empty or blank ID before anything else (an
+ * empty ID must never mean all mappings), needs a realm for a named mapping,
+ * refuses the root realm (it has no secret mappings to delete), and hands the
+ * ID, the realm, the dry run and `--allow-failures` to the ops function. A
+ * failed login runs nothing and the exit code is 1 when the login or the ops
+ * function fails. The preview option is `-d, --dry-run`. What
+ * the ops function does is covered by FrConfigSecretMappingsDelete.test.js.
+ */
+
+const getTokens = jest.fn();
+const checkBulkDelete = jest.fn();
+const confirmBulkDelete = jest.fn();
+const configManagerDeleteSecretMappings = jest.fn();
+const printMessage = jest.fn();
+let events;
+let constructed;
+
+jest.unstable_mockModule('@rockcarver/frodo-lib', () => ({
+  frodo: {
+    utils: {
+      constants: {
+        CLOUD_DEPLOYMENT_TYPE_KEY: 'cloud',
+        DEFAULT_REALM_KEY: '__default__realm__',
+      },
+    },
+  },
+}));
+jest.unstable_mockModule('../../src/cli/FrodoCommand', () => ({
+  FrodoCommand: class extends Command {
+    constructor(...args) {
+      super(args[0]);
+      constructed = args;
+      this.argument('[host]')
+        .argument('[realm]')
+        .argument('[username]')
+        .argument('[password]');
+    }
+
+    handleDefaultArgsAndOpts() {}
+    multiOp() {
+      this.multiOpCalled = true;
+      return this.option('--allow-failures');
+    }
+    usesRealm() {
+      this.usesRealmCalled = true;
+      return this;
+    }
+  },
+}));
+jest.unstable_mockModule('../../src/utils/interactive/PositionalArgs', () => ({
+  realmOfRun: (command, realm) => realm,
+}));
+jest.unstable_mockModule('../../src/utils/ColorTheme', () => ({
+  default: { command: (text) => text },
+}));
+jest.unstable_mockModule('../../src/ops/AuthenticateOps', () => ({
+  getTokens,
+}));
+jest.unstable_mockModule('../../src/utils/BulkDeleteGuard', () => ({
+  checkBulkDelete,
+  confirmBulkDelete,
+}));
+jest.unstable_mockModule('../../src/utils/Console', () => ({
+  printMessage,
+  verboseMessage: jest.fn(),
+}));
+jest.unstable_mockModule(
+  '../../src/configManagerOps/FrConfigSecretMappingsOps',
+  () => ({
+    configManagerDeleteSecretMappings,
+  })
+);
+
+const { default: setup } =
+  await import('../../src/cli/config-manager/config-manager-delete/config-manager-delete-secret-mappings');
+
+const run = (...args) => {
+  const program = setup();
+  // an unknown option is an error that the real program reports and exits with
+  program.exitOverride();
+  program.configureOutput({ writeErr: () => {}, writeOut: () => {} });
+  return program.parseAsync(args, { from: 'user' }).then(() => program);
+};
+
+beforeEach(() => {
+  jest.clearAllMocks();
+  process.exitCode = undefined;
+  events = [];
+  checkBulkDelete.mockImplementation(() => {
+    events.push('check');
+    return true;
+  });
+  getTokens.mockImplementation(async () => {
+    events.push('login');
+    return true;
+  });
+  confirmBulkDelete.mockImplementation(async () => {
+    events.push('confirm');
+    return true;
+  });
+  configManagerDeleteSecretMappings.mockImplementation(async () => {
+    events.push('delete');
+    return true;
+  });
+});
+afterEach(() => {
+  process.exitCode = undefined;
+});
+
+const WHAT = 'all secret mappings in the selected realms';
+
+describe('frodo config-manager delete secret-mappings', () => {
+  test('is a multi-operation command that takes a realm, for Cloud only', async () => {
+    const program = await run('-y', 'matrix');
+
+    expect(program.multiOpCalled).toBe(true);
+    expect(program.usesRealmCalled).toBe(true);
+    expect(constructed[0]).toBe('frodo config-manager delete secret-mappings');
+    expect(constructed[2]).toEqual(['cloud']);
+  });
+
+  test('logs in for Cloud', async () => {
+    await run('-i', 'am.example.secret.id', 'matrix', 'alpha');
+
+    expect(getTokens).toHaveBeenCalledWith(false, true, ['cloud']);
+  });
+
+  test('its help says what happens without -i, and its examples never open a prompt', async () => {
+    const program = setup();
+    let help = '';
+    program.configureOutput({ writeOut: (text) => (help += text) });
+    program.outputHelp();
+
+    // the help wraps its lines
+    const flat = help.replace(/\s+/g, ' ');
+    expect(flat).toContain(
+      'If omitted, all secret mappings of the selected realms are deleted'
+    );
+    expect(flat).toContain('Needs a single realm');
+    expect(help).not.toMatch(/eligible/i);
+    const examples = help
+      .split('\n')
+      .filter((line) =>
+        line.includes('$ frodo config-manager delete secret-mappings')
+      );
+    expect(examples).toHaveLength(4);
+    // every example that can delete more than one mapping carries -y or --dry-run
+    for (const example of examples.filter((line) => !/ -i /.test(line))) {
+      expect(example).toMatch(/ (-y|--dry-run) /);
+    }
+  });
+});
+
+describe('the preview option is -d, --dry-run', () => {
+  // -d is the dry run on every command of the group that has one:
+  // https://github.com/rockcarver/frodo-cli/blob/main/docs/decisions/0057-options-of-the-configuration-commands.md
+  // (options of the configuration commands)
+  test('--dry-run is declared with the short form -d', () => {
+    const flags = setup().options.map((option) => ({
+      long: option.long,
+      short: option.short,
+    }));
+
+    expect(flags).toContainEqual({ long: '--dry-run', short: '-d' });
+  });
+
+  test('-d is the dry run: it is handed to the ops function and told to the guard', async () => {
+    await run('-d', 'matrix');
+
+    expect(configManagerDeleteSecretMappings).toHaveBeenCalledWith(
+      undefined,
+      undefined,
+      true,
+      undefined
+    );
+    expect(checkBulkDelete.mock.calls[0][0].dryRun).toBe(true);
+    expect(confirmBulkDelete.mock.calls[0][0].dryRun).toBe(true);
+  });
+});
+
+describe('deleting all secret mappings', () => {
+  test('is checked before the login, asked after it, and deleted last', async () => {
+    await run('matrix');
+
+    expect(events).toEqual(['check', 'login', 'confirm', 'delete']);
+    expect(checkBulkDelete).toHaveBeenCalledWith({
+      what: WHAT,
+      yes: undefined,
+      dryRun: undefined,
+    });
+    // without -y the question is not told "yes" (it would not be asked)
+    expect(confirmBulkDelete.mock.calls[0][0].yes).toBeUndefined();
+    expect(confirmBulkDelete.mock.calls[0][0].dryRun).toBeUndefined();
+    expect(process.exitCode).toBeUndefined();
+  });
+
+  test('is refused before the login when nobody can be asked, and deletes nothing', async () => {
+    checkBulkDelete.mockImplementation(() => {
+      events.push('check');
+      return false;
+    });
+
+    await run('matrix');
+
+    expect(events).toEqual(['check']);
+    expect(getTokens).not.toHaveBeenCalled();
+    expect(confirmBulkDelete).not.toHaveBeenCalled();
+    expect(configManagerDeleteSecretMappings).not.toHaveBeenCalled();
+    expect(process.exitCode).toBe(1);
+  });
+
+  test('a question that is answered no deletes nothing and exits 1', async () => {
+    confirmBulkDelete.mockImplementation(async () => {
+      events.push('confirm');
+      return false;
+    });
+
+    await run('matrix');
+
+    expect(events).toEqual(['check', 'login', 'confirm']);
+    expect(configManagerDeleteSecretMappings).not.toHaveBeenCalled();
+    expect(process.exitCode).toBe(1);
+  });
+
+  test('the question is told what is deleted, and its plan is the dry run of the selected realms', async () => {
+    await run('-y', 'matrix', 'alpha');
+
+    expect(confirmBulkDelete).toHaveBeenCalledTimes(1);
+    const guard = confirmBulkDelete.mock.calls[0][0];
+    expect(guard.what).toBe(WHAT);
+    expect(guard.yes).toBe(true);
+    expect(guard.dryRun).toBeUndefined();
+    // the plan is what the question shows before it is asked: it must delete nothing
+    configManagerDeleteSecretMappings.mockClear();
+    configManagerDeleteSecretMappings.mockResolvedValue(true);
+    await expect(guard.showPlan()).resolves.toBe(true);
+    expect(configManagerDeleteSecretMappings).toHaveBeenCalledTimes(1);
+    expect(configManagerDeleteSecretMappings).toHaveBeenCalledWith(
+      undefined,
+      'alpha',
+      true
+    );
+  });
+
+  test('a plan that cannot be shown is the answer of the ops function', async () => {
+    await run('-y', 'matrix');
+    const guard = confirmBulkDelete.mock.calls[0][0];
+
+    configManagerDeleteSecretMappings.mockResolvedValue(false);
+
+    await expect(guard.showPlan()).resolves.toBe(false);
+  });
+
+  test('--yes goes on to the delete of all secret mappings of all realms', async () => {
+    await run('-y', 'matrix');
+
+    expect(checkBulkDelete.mock.calls[0][0].yes).toBe(true);
+    expect(configManagerDeleteSecretMappings).toHaveBeenCalledWith(
+      undefined,
+      undefined,
+      undefined,
+      undefined
+    );
+    expect(process.exitCode).toBeUndefined();
+  });
+
+  test('a realm that is named is handed to the ops function', async () => {
+    await run('-y', 'matrix', 'bravo');
+
+    expect(configManagerDeleteSecretMappings).toHaveBeenCalledWith(
+      undefined,
+      'bravo',
+      undefined,
+      undefined
+    );
+  });
+
+  test('a dry run is handed to the ops function and is told to the guard', async () => {
+    await run('--dry-run', 'matrix');
+
+    expect(configManagerDeleteSecretMappings).toHaveBeenCalledWith(
+      undefined,
+      undefined,
+      true,
+      undefined
+    );
+    expect(checkBulkDelete.mock.calls[0][0].dryRun).toBe(true);
+    expect(confirmBulkDelete.mock.calls[0][0].dryRun).toBe(true);
+  });
+
+  test('--allow-failures reaches the ops function', async () => {
+    await run('-y', '--allow-failures', 'matrix');
+
+    expect(configManagerDeleteSecretMappings).toHaveBeenCalledWith(
+      undefined,
+      undefined,
+      undefined,
+      true
+    );
+  });
+
+  test('a failed login exits 1 and asks and deletes nothing', async () => {
+    getTokens.mockResolvedValue(false);
+
+    await run('-y', 'matrix');
+
+    expect(confirmBulkDelete).not.toHaveBeenCalled();
+    expect(configManagerDeleteSecretMappings).not.toHaveBeenCalled();
+    expect(process.exitCode).toBe(1);
+  });
+
+  test('a delete that fails exits 1', async () => {
+    configManagerDeleteSecretMappings.mockResolvedValue(false);
+
+    await run('-y', 'matrix');
+
+    expect(process.exitCode).toBe(1);
+  });
+
+  test('a delete that succeeds leaves the exit code alone', async () => {
+    configManagerDeleteSecretMappings.mockResolvedValue(true);
+
+    await run('-y', 'matrix');
+
+    expect(process.exitCode).toBeUndefined();
+  });
+});
+
+describe('deleting one secret mapping by id', () => {
+  test('is deleted without a check and without a question', async () => {
+    await run('-i', 'am.example.secret.id', 'matrix', 'alpha');
+
+    expect(checkBulkDelete).not.toHaveBeenCalled();
+    expect(confirmBulkDelete).not.toHaveBeenCalled();
+    expect(events).toEqual(['login', 'delete']);
+    expect(configManagerDeleteSecretMappings).toHaveBeenCalledWith(
+      'am.example.secret.id',
+      'alpha',
+      undefined,
+      undefined
+    );
+    expect(process.exitCode).toBeUndefined();
+  });
+
+  test('the dry run and --allow-failures reach the ops function', async () => {
+    await run(
+      '-i',
+      'am.example.secret.id',
+      '--dry-run',
+      '--allow-failures',
+      'matrix',
+      'alpha'
+    );
+
+    expect(configManagerDeleteSecretMappings).toHaveBeenCalledWith(
+      'am.example.secret.id',
+      'alpha',
+      true,
+      true
+    );
+  });
+
+  test.each([
+    ['no realm', ['matrix']],
+    ['the default realm of the framework', ['matrix', '__default__realm__']],
+  ])(
+    'needs a realm: %s is an error before the check and the login',
+    async (_, args) => {
+      await run('-i', 'am.example.secret.id', ...args);
+
+      expect(printMessage).toHaveBeenCalledWith(
+        'The -i, --secret-mapping-id option requires a realm argument to be specified.',
+        'error'
+      );
+      expect(getTokens).not.toHaveBeenCalled();
+      expect(configManagerDeleteSecretMappings).not.toHaveBeenCalled();
+      expect(process.exitCode).toBe(1);
+    }
+  );
+
+  test('a failed login exits 1 and deletes nothing', async () => {
+    getTokens.mockResolvedValue(false);
+
+    await run('-i', 'am.example.secret.id', 'matrix', 'alpha');
+
+    expect(configManagerDeleteSecretMappings).not.toHaveBeenCalled();
+    expect(process.exitCode).toBe(1);
+  });
+
+  test('a delete that fails, or a mapping that is not there, exits 1', async () => {
+    configManagerDeleteSecretMappings.mockResolvedValue(false);
+
+    await run('-i', 'am.example.secret.id', 'matrix', 'alpha');
+
+    expect(process.exitCode).toBe(1);
+  });
+});
+
+describe('the root realm has no secret mappings', () => {
+  test.each([
+    ['all mappings', ['-y']],
+    ['a named mapping', ['-i', 'am.example.secret.id']],
+    ['a dry run', ['--dry-run']],
+  ])(
+    'naming it for %s is an error before the check and the login',
+    async (_, options) => {
+      await run(...options, 'matrix', '/');
+
+      expect(printMessage).toHaveBeenCalledWith(
+        'The root realm has no secret mappings to delete. Name a realm such as alpha, or leave the realm out to use every realm except the root realm.',
+        'error'
+      );
+      expect(checkBulkDelete).not.toHaveBeenCalled();
+      expect(getTokens).not.toHaveBeenCalled();
+      expect(configManagerDeleteSecretMappings).not.toHaveBeenCalled();
+      expect(process.exitCode).toBe(1);
+    }
+  );
+});
+
+describe('a blank id is not "all secret mappings"', () => {
+  test.each([['  ']])(
+    'the id %j is an error before the check, the login and the delete',
+    async (name) => {
+      await run('-i', name, '-y', 'matrix', 'alpha');
+
+      expect(printMessage).toHaveBeenCalledWith(
+        'The secret mapping id (-i) must not be empty. To delete all secret mappings, leave out -i.',
+        'error'
+      );
+      expect(events).toEqual([]);
+      expect(checkBulkDelete).not.toHaveBeenCalled();
+      expect(getTokens).not.toHaveBeenCalled();
+      expect(confirmBulkDelete).not.toHaveBeenCalled();
+      expect(configManagerDeleteSecretMappings).not.toHaveBeenCalled();
+      expect(process.exitCode).toBe(1);
+    }
+  );
+
+  test('also in a dry run, and without a realm', async () => {
+    await run('-i', '  ', '--dry-run', 'matrix', 'alpha');
+    await run('-i', '  ', 'matrix');
+
+    expect(configManagerDeleteSecretMappings).not.toHaveBeenCalled();
+    expect(getTokens).not.toHaveBeenCalled();
+    expect(process.exitCode).toBe(1);
+  });
+
+  test('an id that is given is never taken for a delete of all secret mappings', async () => {
+    await run('-i', 'am.example.secret.id', 'matrix', 'alpha');
+
+    expect(checkBulkDelete).not.toHaveBeenCalled();
+    expect(confirmBulkDelete).not.toHaveBeenCalled();
+    expect(printMessage).not.toHaveBeenCalled();
+  });
+});

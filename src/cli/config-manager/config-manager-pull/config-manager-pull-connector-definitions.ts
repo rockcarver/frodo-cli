@@ -1,10 +1,10 @@
 import { frodo } from '@rockcarver/frodo-lib';
-import { Option } from 'commander';
 import { configManagerExportConnectorDefinitions } from '../../../configManagerOps/FrConfigConnectorDefinitionsOps';
 import { ownedObjectsHelp } from '../../../ops/ApplicationOwnedObjectsHelp';
 import { getTokens } from '../../../ops/AuthenticateOps';
 import { verboseMessage } from '../../../utils/Console';
 import { FrodoCommand } from '../../FrodoCommand';
+import { selectorOption } from '../../SelectorOption';
 
 const { CLOUD_DEPLOYMENT_TYPE_KEY, FORGEOPS_DEPLOYMENT_TYPE_KEY } =
   frodo.utils.constants;
@@ -24,9 +24,10 @@ export default function setup() {
   program
     .description('Export connector definitions.')
     .addOption(
-      new Option(
-        '-n, --name <connector-name>',
-        'Get connector definition from specified name/id, without the type prefix.'
+      selectorOption(
+        '-i, --connector-id <id>',
+        'Get the connector definition with the specified id, without the type prefix.',
+        ['-n', '--name']
       )
     )
     .addHelpText('after', ownedObjectsHelp('connectors'))
@@ -46,12 +47,12 @@ export default function setup() {
         return;
       }
       verboseMessage(
-        options.name
-          ? `Exporting connector definition for connector: "${options.name}"`
+        options.connectorId
+          ? `Exporting connector definition for connector: "${options.connectorId}"`
           : 'Exporting all connector defitions.'
       );
       const outcome = await configManagerExportConnectorDefinitions(
-        options.name,
+        options.connectorId,
         options.allowFailures
       );
       if (!outcome) process.exitCode = 1;

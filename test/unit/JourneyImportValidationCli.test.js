@@ -47,6 +47,10 @@ jest.unstable_mockModule('../../src/cli/FrodoCommand', () => ({
     multiOp() {
       return this;
     }
+    // promote is deprecated (cli#1263): the stability level does not matter here
+    withStability() {
+      return this;
+    }
   },
 }));
 // journey import logs in through trackLogin(), which hands out getTokens and remembers a failed login

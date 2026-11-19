@@ -8,7 +8,7 @@ import { forgetDeferredChoice, noteDeferredChoice } from './OptionRequirements';
 // "Choose after connecting": a command whose entity option is an optional
 // filter (`journey describe`: without -i it describes every journey) does not
 // get its picker by itself, because the command line is complete without it
-// (record 0030). The family lists such commands in `onRequest`, and the user
+// (record 0047). The family lists such commands in `onRequest`, and the user
 // can ask for the picker on the options page. The pick then runs after login,
 // like the picks that open by themselves.
 

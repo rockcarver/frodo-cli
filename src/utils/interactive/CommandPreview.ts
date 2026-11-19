@@ -148,8 +148,9 @@ function resolveReadiness(input: ReadinessInput): CommandReadiness | undefined {
  * Serializes the command as it would be typed on the command line today
  * -- every valued option as its flag (value placeholder included),
  * valued positional arguments in order. Secrets (the password
- * positional) are masked; values are shell-safe by inspection but NOT
- * shell-quoted -- this is a preview, not an eval string.
+ * positional) are masked. The value of an option is quoted when it has
+ * a space or another character the shell would take for its own (a path
+ * with spaces), so the command is the one to type again (record 0019).
  */
 export function serializeCommand(command: Command): string {
   const parts: string[] = [commandPath(command)];
@@ -216,16 +217,50 @@ export function serializeCommand(command: Command): string {
         .split(/[, ]+/)
         .find((token) => token.startsWith('--'));
       for (const entry of value) {
-        parts.push(`${longFlag ?? option.flags} ${String(entry)}`);
+        parts.push(
+          `${longFlag ?? option.flags} ${valueToken(option, String(entry))}`
+        );
       }
     } else {
       const longFlag = option.flags
         .split(/[, ]+/)
         .find((token) => token.startsWith('--'));
-      parts.push(`${longFlag ?? option.flags} ${String(value)}`);
+      parts.push(
+        `${longFlag ?? option.flags} ${valueToken(option, String(value))}`
+      );
     }
   }
   return parts.join(' ');
+}
+
+/** What makes a value need quotes: white space, quotes and what the shell (the Windows command line) reads as its own. */
+const NEEDS_QUOTES_POSIX = /[\s"'\\$`&|;<>(){}*?[\]!#]/;
+const NEEDS_QUOTES_WINDOWS = /[\s"&|<>^()%!]/;
+
+/**
+ * A value as it is typed after its flag: as it is, or in quotes when it has a
+ * space or a character the shell would read as its own (a path such as
+ * `My Documents/export.json`). Single quotes, or double quotes on Windows.
+ */
+export function quoteForCommandLine(
+  value: string,
+  windows: boolean = process.platform === 'win32'
+): string {
+  const special = windows ? NEEDS_QUOTES_WINDOWS : NEEDS_QUOTES_POSIX;
+  if (value !== '' && !special.test(value)) return value;
+  return windows
+    ? `"${value.replace(/"/g, '\\"')}"`
+    : `'${value.replace(/'/g, `'\\''`)}'`;
+}
+
+/**
+ * The value of an option as the preview shows it: quoted when it needs it,
+ * except the placeholder the editor's preview puts in the slot of a value the
+ * user is still to give (`<type>`), which is no value to quote.
+ */
+function valueToken(option: Option, value: string): string {
+  if (/^[<[]/.test(value) && option.flags.includes(value)) return value;
+  return quoteForCommandLine(value);
 }
 
 /**

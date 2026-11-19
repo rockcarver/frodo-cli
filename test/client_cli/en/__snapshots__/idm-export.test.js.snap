@@ -46,6 +46,14 @@ Options:
                                        (pick from config entity)
   -N, --no-metadata                    Does not include metadata in the export
                                        file.
+  -r, --raw                            Export the configuration object as IDM
+                                       serves it, without the "idm" wrapper and
+                                       without metadata, and with the scripts
+                                       left inline, as with -x. The file is
+                                       named <id>.json unless -f is given.
+                                       Import it with "idm import --raw".
+                                       Requires -i. Cannot be used with -a, -A
+                                       or -e.
   -x, --no-extract                     Do not extract and save idm scripts and
                                        save to separate files. Cannot be used
                                        with -a.

@@ -218,6 +218,82 @@ describe.each(['cloud', 'forgeops', 'classic'])(
   }
 );
 
+/**
+ * The overrides files of the steps `oauth-cimd-profiles`, `oauth-issuers` and `oauth-software-publishers` are optional input to steps that
+ * need none: they are not file steps, so a config folder without them is not warned about, and a config
+ * folder that has one hands its path to the exporter (frodo-cli#1250 and #1257).
+ */
+describe.each(['cloud', 'forgeops', 'classic'])(
+  'pull all on a %s deployment, with the optional overrides files of the discovery steps',
+  (deployment) => {
+    const STEPS = [
+      {
+        file: 'oauth-cimd-profiles.json',
+        module: 'src/ops/CIMDProfileConfigOps',
+        name: 'configManagerExportCIMDProfiles',
+      },
+      {
+        file: 'oauth-issuers.json',
+        module: 'src/ops/OAuth2TrustedJwtIssuerConfigOps',
+        name: 'configManagerExportTrustedJwtIssuers',
+      },
+      {
+        file: 'oauth-software-publishers.json',
+        module: 'src/ops/SoftwarePublisherConfigOps',
+        name: 'configManagerExportSoftwarePublishers',
+      },
+    ];
+    const exporterOf = ({ module, name }) =>
+      spies.get(path.resolve(root, module))[name];
+
+    beforeEach(() => {
+      deploymentType = deployment;
+    });
+
+    test.each(STEPS)(
+      'a config folder without $file is not warned about, and the exporter gets no file',
+      async (step) => {
+        const folder = configFolder();
+
+        expect(
+          await configManagerExportAllWithConfigFolder({ configFolder: folder })
+        ).toBe(true);
+
+        expect(exporterOf(step)).toHaveBeenCalledWith(
+          undefined,
+          undefined,
+          true,
+          false,
+          null
+        );
+        expect(warnings().join('\n')).not.toMatch(
+          /cimd|oauth-issuers|oauth-software-publishers|trusted JWT|software publisher/i
+        );
+        expect(errors()).toEqual([]);
+      }
+    );
+
+    test.each(STEPS)(
+      'a config folder that has $file hands its path to the exporter',
+      async (step) => {
+        const folder = configFolder(step.file);
+
+        expect(
+          await configManagerExportAllWithConfigFolder({ configFolder: folder })
+        ).toBe(true);
+
+        expect(exporterOf(step)).toHaveBeenCalledWith(
+          undefined,
+          undefined,
+          true,
+          false,
+          `${folder}/${step.file}`
+        );
+      }
+    );
+  }
+);
+
 describe('pull all, mixed outcomes (cloud)', () => {
   const stepCount = deploymentMapAll.cloud.length;
 

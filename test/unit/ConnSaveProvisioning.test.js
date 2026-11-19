@@ -58,6 +58,11 @@ jest.unstable_mockModule('../../src/cli/FrodoCommand', () => ({
     }
 
     handleDefaultArgsAndOpts() {}
+
+    // the real class records the kind of the alias; here it only has to add it
+    withAlias(name) {
+      return this.alias(name);
+    }
   },
   preferredCredentialOption: new Option('--preferred-credential <type>'),
   SecretOption: class extends Option {},

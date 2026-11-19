@@ -4,6 +4,7 @@ import { getTokens } from '../../../ops/AuthenticateOps';
 import { verboseMessage } from '../../../utils/Console';
 import { realmOfRun } from '../../../utils/interactive/PositionalArgs';
 import { FrodoCommand } from '../../FrodoCommand';
+import { selectorOption } from '../../SelectorOption';
 
 export default function setup() {
   const program = new FrodoCommand('frodo config-manager push journeys', []);
@@ -11,14 +12,15 @@ export default function setup() {
   program
     .description('Import journeys.')
     .addOption(
-      new Option(
-        '-n, --name <name>',
-        'Journey name, imports the specified Journey.'
+      selectorOption(
+        '-i, --journey-id <id>',
+        'Journey id, imports the specified Journey.',
+        ['-n', '--name']
       )
     )
 
     .addOption(
-      new Option('-d, --push-dependencies', 'Push scripts and inner journeys')
+      new Option('--push-dependencies', 'Push scripts and inner journeys')
     )
     .addOption(
       new Option('--no-validate', 'Do not validate journeys before import.')
@@ -42,7 +44,7 @@ export default function setup() {
       }
       verboseMessage('Importing email provider configuration.');
       const outcome = await configManagerImportJourneys(
-        options.name,
+        options.journeyId,
         realmOfRun(command, realm),
         options.pushDependencies,
         options.validate,

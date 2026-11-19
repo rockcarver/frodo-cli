@@ -116,3 +116,100 @@ describe('describeConnectionProfile authentication header overrides', () => {
     }
   );
 });
+
+describe('describeConnectionProfile configuration header overrides', () => {
+  const host = 'https://tenant.example.com/am';
+  const authentication = Object.freeze({
+    'X-Gateway-Key': 'dummy-header-value-one',
+  });
+  const configuration = Object.freeze({
+    'X-Configuration-Type': 'dummy-header-value-two',
+    'X-Other': 'dummy-header-value-three',
+  });
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+    getConnectionProfileByHost.mockResolvedValue({
+      tenant: host,
+      authenticationHeaderOverrides: authentication,
+      configurationHeaderOverrides: configuration,
+    });
+  });
+
+  test.each([false, undefined])(
+    'masks the values of both maps and keeps the names when showSecrets is %s',
+    async (showSecrets) => {
+      await describeConnectionProfile(host, showSecrets);
+
+      const rendered = createObjectTable.mock.calls[0][0];
+      expect(rendered.authenticationHeaderOverrides).toEqual({
+        'X-Gateway-Key': '[present]',
+      });
+      expect(rendered.configurationHeaderOverrides).toEqual({
+        'X-Configuration-Type': '[present]',
+        'X-Other': '[present]',
+      });
+      expect(rendered.configurationHeaderOverrides).not.toBe(configuration);
+      const output = printMessage.mock.calls.flat().join('\n');
+      for (const header of [
+        ...Object.keys(authentication),
+        ...Object.keys(configuration),
+      ]) {
+        expect(output).toContain(header);
+      }
+      for (const value of [
+        ...Object.values(authentication),
+        ...Object.values(configuration),
+      ]) {
+        expect(output).not.toContain(value);
+        expect(debugMessage.mock.calls.flat().join('\n')).not.toContain(value);
+      }
+    }
+  );
+
+  test('shows the values of both maps only when showSecrets is true', async () => {
+    await describeConnectionProfile(host, true);
+
+    const rendered = createObjectTable.mock.calls[0][0];
+    expect(rendered.authenticationHeaderOverrides).toEqual(authentication);
+    expect(rendered.configurationHeaderOverrides).toEqual(configuration);
+  });
+
+  test('labels the configuration map', async () => {
+    await describeConnectionProfile(host, false);
+
+    expect(createObjectTable.mock.calls[0][1]).toMatchObject({
+      authenticationHeaderOverrides: 'Authentication Header Overrides',
+      configurationHeaderOverrides: 'Configuration Header Overrides',
+    });
+  });
+
+  test.each([false, true])(
+    'does not add an absent configuration map with showSecrets %s',
+    async (showSecrets) => {
+      getConnectionProfileByHost.mockResolvedValue({ tenant: host });
+
+      await describeConnectionProfile(host, showSecrets);
+
+      expect(createObjectTable.mock.calls[0][0]).not.toHaveProperty(
+        'configurationHeaderOverrides'
+      );
+    }
+  );
+
+  test.each([false, true])(
+    'preserves an empty configuration map with showSecrets %s',
+    async (showSecrets) => {
+      getConnectionProfileByHost.mockResolvedValue({
+        tenant: host,
+        configurationHeaderOverrides: {},
+      });
+
+      await describeConnectionProfile(host, showSecrets);
+
+      expect(
+        createObjectTable.mock.calls[0][0].configurationHeaderOverrides
+      ).toEqual({});
+    }
+  );
+});

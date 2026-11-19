@@ -1,0 +1,38 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`CLI help interface for 'oauth issuer describe' should be expected english 1`] = `
+"Usage: frodo oauth issuer describe [options] [host] [realm] [username] [password]
+
+Describe an OAuth2 trusted JWT issuer.
+
+Arguments:
+  host                         AM base URL, e.g.:
+                               https://cdk.iam.example.com/am. To use a
+                               connection profile, just specify a unique
+                               substring or alias.
+  realm                        Realm. Specify realm as '/' for the root realm or
+                               'realm' or '/parent/child' otherwise. (default:
+                               "alpha" for Identity Cloud tenants, "/"
+                               otherwise.)
+  username                     Username to login with. Must be an admin user
+                               with appropriate rights to manage authentication
+                               journeys/trees. If given without a password, and
+                               it matches the username already stored in the
+                               connection profile for the target host, frodo
+                               uses that profile's stored password instead of
+                               requiring it on the command line.
+  password                     Password.
+
+Options:
+  -i, --issuer-id <issuer-id>  Trusted issuer id: the name of the object in the
+                               realm, not the issuer URL (iss) that its
+                               assertions carry. (pick from trusted JWT issuer)
+                               (prompts if missing)
+  --json                       Output the whole issuer in JSON format, including
+                               the key set.
+  -h, --help                   Help
+  -hh, --help-more             Help with all options.
+  -hhh, --help-all             Help with all options, environment variables, and
+                               usage examples.
+"
+`;

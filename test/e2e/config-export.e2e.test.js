@@ -73,12 +73,18 @@ describe('frodo config export', () => {
       await testExport(CMD, cloudEnv, undefined, undefined, exportDirectory, false);
     });
 
+    // Frozen September recording: it holds the AI agents of realms alpha and bravo (six exported files with snapshots in each of the two tests).
+    // The tenant no longer lists the AIAgent type, so a re-record would drop them. Do not re-record it; see
+    // test/e2e/README.md ("Re-recording individual tests") and test/unit/FrozenAiAgentCassettes.test.js.
     test('"frodo config export --all-separate --read-only --no-metadata --default --directory exportAllTestDir3 --use-string-arrays --no-decode --no-coords --no-extract": should export everything, including default scripts, into separate files in the directory exportAllTestDir3 with scripts, no decoding variables, no journey coordinates, separate mappings, and using string arrays', async () => {
       const exportDirectory = 'exportAllTestDir3';
       const CMD = `frodo config export --all-separate --read-only --no-metadata --default --directory ${exportDirectory} --use-string-arrays --no-decode --no-coords --no-extract`;
       await testExport(CMD, cloudEnv, undefined, undefined, exportDirectory, false);
     });
 
+    // Frozen September recording: it holds the AI agents of realms alpha and bravo (six exported files with snapshots in each of the two tests).
+    // The tenant no longer lists the AIAgent type, so a re-record would drop them. Do not re-record it; see
+    // test/e2e/README.md ("Re-recording individual tests") and test/unit/FrozenAiAgentCassettes.test.js.
     test('"frodo config export -RAD exportAllTestDir5 --include-active-values": should export everything including secret values into separate files in the directory exportAllTestDir5', async () => {
       const exportDirectory = 'exportAllTestDir5';
       const CMD = `frodo config export -RAD ${exportDirectory} --include-active-values`;

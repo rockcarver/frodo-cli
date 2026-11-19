@@ -1,44 +1,78 @@
 name: 'Dependabot Auto-Merge'
 
-# Enables auto-merge on Dependabot version-update PRs for patch and minor
-# bumps (including security updates, which arrive as patch/minor PRs).
-# GitHub merges once the required status checks pass and the branch-protection
-# ruleset is satisfied - this workflow only arms the merge.
+# Arms auto-merge on a Dependabot pull request when core 0023
+# (docs/decisions/core/0023-dependency-updates-arrive-late-and-only-tooling-merges-without-a-person.md)
+# allows it. GitHub merges once the required status checks pass and the
+# branch-protection ruleset is satisfied - this workflow only arms the merge.
 #
-# Not auto-merged, on purpose:
-# - Major updates: can break the API, need a human.
-# - Prettier, TypeScript and ESLint (mirrors the exclude-patterns in
-#   dependabot.yml): Prettier minors reformat code and the TS/ESLint majors
-#   need coordinated config work.
+# The decision is made by the shared action
+# https://github.com/gearsnlevers/dependabot-auto-merge-action (the same code
+# serves frodo-lib and frodo-cli), pinned below by its full commit SHA. In short,
+# a pull request is armed when
+# - it is an npm pull request made by Dependabot (a GitHub Actions update is
+#   never armed: an action runs with the credentials of our workflows, so a
+#   person merges it);
+# - it is a patch or minor update of every dependency it touches;
+# - every package it updates is in the Dependabot group `tooling` of
+#   .github/dependabot.yml (a security update has no group, so its package is
+#   matched against the same patterns); bundled packages and the bundler arrive
+#   one pull request each and a person merges them;
+# - no package it touches has a name that stays manual: the whole word eslint,
+#   prettier or typescript;
+# - every package version that the lockfile adds or changes, direct or
+#   transitive, was published at least 7 days ago; a registry that cannot be
+#   read means "not armed".
+# A pull request that fails only the age test is looked at again by the daily
+# sweep. A person may merge any pull request at any time.
 # Note: Dependabot "rules" in repo settings only triage alerts - they cannot
 # auto-merge PRs. That is why this workflow exists.
+#
+# The action reads the policy from the default branch's .github/dependabot.yml
+# through the API, never from the pull request, so a pull request cannot change
+# the rule that decides about itself. A new version of the action arrives as a
+# Dependabot pull request that moves the SHA below; a person reads what changed
+# in the action and merges it (GitHub Actions updates are never armed). For the
+# same reason the job does not run for the pull requests that move the pin
+# themselves (branches dependabot/github_actions/...): they are never armed, and
+# the new, unread version of the action must not run with this token before a
+# person has read it; the daily sweep, which runs this file from the default
+# branch, looks at them.
+#
+# First run of a changed policy: `gh workflow run dependabot-auto-merge.yml -f
+# dry-run=true` decides about every open Dependabot pull request and arms none.
 
-on: pull_request
+on:
+  pull_request:
+  schedule:
+    - cron: '17 6 * * *'
+  workflow_dispatch:
+    inputs:
+      dry-run:
+        description: 'Decide and report, arm nothing'
+        type: boolean
+        default: false
 
 permissions:
   contents: write
   pull-requests: write
 
+concurrency:
+  group: dependabot-auto-merge-${{ github.event.pull_request.number || 'all' }}
+  cancel-in-progress: false
+
 jobs:
   dependabot:
     runs-on: ubuntu-latest
-    # Guard on the actor: skips immediately for every non-Dependabot PR,
-    # including all human PRs.
-    if: github.actor == 'dependabot[bot]'
+    # Guard on the actor for a pull request: skips immediately for every
+    # non-Dependabot PR, including all human PRs, and for the pull requests of
+    # Dependabot that update a GitHub Action (see above). The scheduled and
+    # manual runs only look at pull requests that Dependabot opened (the action
+    # checks the author of each one).
+    if: github.event_name != 'pull_request' || (github.actor == 'dependabot[bot]' && !startsWith(github.head_ref, 'dependabot/github_actions/'))
     steps:
-      - name: Fetch Dependabot metadata
-        id: metadata
-        uses: dependabot/fetch-metadata@v3
+      - name: Arm auto-merge where the policy allows it
+        uses: gearsnlevers/dependabot-auto-merge-action@45357b7f4a66638b9dd485dab564c0005c30f4b5 # v1.0.0
         with:
-          github-token: '${{ secrets.GITHUB_TOKEN }}'
-
-      - name: Enable auto-merge for minor and patch updates
-        if: >-
-          contains(fromJSON('["version-update:semver-patch", "version-update:semver-minor"]'), steps.metadata.outputs.update-type) &&
-          !contains(steps.metadata.outputs.dependency-names, 'prettier') &&
-          !contains(steps.metadata.outputs.dependency-names, 'typescript') &&
-          !contains(steps.metadata.outputs.dependency-names, 'eslint')
-        run: gh pr merge --auto --squash "$PR_URL"
-        env:
-          PR_URL: ${{ github.event.pull_request.html_url }}
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          pull-request: ${{ github.event.pull_request.number }}
+          dry-run: ${{ github.event_name == 'workflow_dispatch' && inputs.dry-run || 'false' }}

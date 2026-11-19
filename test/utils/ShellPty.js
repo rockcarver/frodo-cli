@@ -33,6 +33,9 @@ export function runShellScenario({
     env = {},
     args = ['shell'],
     allowPrompting = false,
+    // where the command runs; the repository's own root unless a test needs a
+    // working directory it controls (the file system picker starts in it)
+    cwd = repoRoot,
 }) {
     // The shell tests exercise the interactive shell of THIS checkout's build.
     // The SEA binary is the artifact customers run, so prefer it; build it on
@@ -42,7 +45,7 @@ export function runShellScenario({
     const scenarioHomeDir = homeDir ?? createShellTestHome();
     const scenario = {
         command: [seaBinaryPath, ...args],
-        cwd: repoRoot,
+        cwd,
         homeDir: scenarioHomeDir,
         env: {
             ...env,

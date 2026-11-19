@@ -19,9 +19,6 @@ export default function setup() {
   program
     .description('List versions of secret.')
     .addOption(new Option('-i, --secret-id <secret-id>', 'Secret id.'))
-    .addOption(
-      new Option('-l, --long', 'Long with all fields.').default(false, 'false')
-    )
     .action(
       // implement command logic inside action handler
       async (host, user, password, options, command) => {

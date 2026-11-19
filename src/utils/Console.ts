@@ -10,7 +10,10 @@ import {
 import Table, { Table as TableType } from 'cli-table3';
 import { stderr as logUpdateStderr } from 'log-update';
 import { v4 as uuidv4 } from 'uuid';
+import { accessAdviceFor } from './AccessErrorAdvice';
+import { airGappedHintFor } from './AirGapHint';
 import c from './ColorTheme';
+import { clearTransientFrame } from './interactive/TransientFrame';
 
 const arcSpinner = {
   frames: ['◜', '◠', '◝', '◞', '◡', '◟'],
@@ -162,6 +165,8 @@ function curlirize(message: string) {
 export function verboseMessage(message) {
   if (!message) return;
   if (state.getVerbose()) {
+    // a frame the connection page left on the screen gives way to the message
+    clearTransientFrame();
     text(message);
   }
 }
@@ -173,6 +178,7 @@ export function verboseMessage(message) {
 export function debugMessage(message) {
   if (!message) return;
   if (state.getDebug()) {
+    clearTransientFrame();
     debug(message);
   }
 }
@@ -220,6 +226,8 @@ export function printMessage(
   type: string = 'text',
   newline = true
 ) {
+  // a frame the page left on the screen while a login runs gives way to the message
+  clearTransientFrame();
   if (indicators.size > 0) {
     logUpdateStderr.clear();
   }
@@ -298,6 +306,18 @@ export function printError(error: Error, message?: string) {
   switch (error.name) {
     case 'FrodoError':
       printMessage('' + (error as FrodoError).getCombinedMessage(), 'error');
+      // An air-gapped refusal of the library states the fact and names no
+      // option of this command line: the advice is ours (cli#1307).
+      {
+        const hint = airGappedHintFor(error);
+        if (hint) printMessage(hint, 'info');
+      }
+      // An interactive login that lacks the reach for the command: name the
+      // login and what to use instead (the library states the facts).
+      {
+        const advice = accessAdviceFor(error);
+        if (advice) printMessage(advice, 'info');
+      }
       break;
 
     case 'AxiosError': {

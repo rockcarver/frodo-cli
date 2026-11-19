@@ -12,6 +12,7 @@ import {
   test,
 } from '@jest/globals';
 import { ensureFrodoArtifact } from '../e2e/utils/FrodoBinary.cjs';
+import { atConnectedPage } from '../utils/ConnectionPage.js';
 import { answerReady } from '../utils/ReadyStep.js';
 import {
   createShellTestHome,
@@ -23,7 +24,9 @@ import { startFakeAm } from '../utils/StartFakeAm.js';
 /**
  * The realm picker only opens if another required input prompted the user.
  * This drives the REAL CLI through a pseudo-terminal against the fake AM
- * with two realms.
+ * with two realms. The realm is a row of the connection page (record 0046):
+ * the choices are in the box that Enter opens on that row, and Escape in the
+ * box keeps the default.
  *
  * The credentials come from the environment in the first two cases because the
  * realm is the operand between the host and the user name: this is the only
@@ -136,7 +139,7 @@ suite('default realm behavior, on a real terminal', () => {
   );
 
   test(
-    'a given host but missing credentials opens the Connection page, then the realm picker',
+    'a given host but missing credentials opens the Connection page; Done logs in and the page offers the realm',
     () => {
       const result = runShellScenario({
         homeDir: home,
@@ -155,11 +158,18 @@ suite('default realm behavior, on a real terminal', () => {
           { type: 'wait_plain', regex: 'password: ••••••••', timeoutMs: 10000 },
           { type: 'key', name: 'down' },
           { type: 'key', name: 'enter' },
-          // the realm picker needs the login, so it follows the Ready step
-          ...answerReady(),
+          // Done logs in on the page; the realm comes before the Ready step
+          ...atConnectedPage('page'),
+          { type: 'key', name: 'up' },
+          { type: 'key', name: 'enter' },
           { type: 'wait_plain', regex: 'Choose a realm', timeoutMs: 60000 },
           { type: 'sleep', ms: 300 },
+          // Escape in the box keeps the default (after the wait for a second one)
           { type: 'key', name: 'escape' },
+          { type: 'sleep', ms: 900 },
+          { type: 'key', name: 'down' },
+          { type: 'key', name: 'enter' },
+          ...answerReady(),
           { type: 'sleep', ms: 6000 },
         ],
       });
@@ -172,7 +182,7 @@ suite('default realm behavior, on a real terminal', () => {
   );
 
   test(
-    'a missing host prompts for completion, then the realm picker opens and Escape keeps the default',
+    'a missing host prompts for completion, then the page offers the realm and Escape keeps the default',
     () => {
       const result = journeyList(
         [],
@@ -180,10 +190,16 @@ suite('default realm behavior, on a real terminal', () => {
           { type: 'wait_plain', regex: 'AM base URL:', timeoutMs: 60000 },
           { type: 'send', text: `http://127.0.0.1:${fakeAm.port}/am` },
           { type: 'key', name: 'enter' },
-          ...answerReady(),
+          ...atConnectedPage('page'),
+          { type: 'key', name: 'up' },
+          { type: 'key', name: 'enter' },
           { type: 'wait_plain', regex: 'Choose a realm', timeoutMs: 60000 },
           { type: 'sleep', ms: 300 },
           { type: 'key', name: 'escape' },
+          { type: 'sleep', ms: 900 },
+          { type: 'key', name: 'down' },
+          { type: 'key', name: 'enter' },
+          ...answerReady(),
           { type: 'sleep', ms: 6000 },
         ]
       );

@@ -1,15 +1,34 @@
 # Dependabot version updates.
 # Docs: https://docs.github.com/code-security/dependabot/dependabot-version-updates/configuration-options-for-the-dependabot.yml-file
 #
-# - One grouped weekly PR for development-dependency minor/patch updates.
-#   Prettier, TypeScript and ESLint are excluded from the group (and TS majors
-#   ignored entirely): Prettier minors reformat code, and the TypeScript/ESLint
-#   majors need coordinated config work - those arrive as individual PRs for
-#   human review.
+# - Packages that end up in what we ship (every package that shipped source
+#   imports, and the pin of @rockcarver/frodo-lib) and the bundler that writes
+#   the shipped file (tsdown) are NOT grouped: each update arrives as its own
+#   pull request, which a person merges after looking at what changed in the
+#   package (core 0023). Tooling (the named list in the `tooling` group below:
+#   test and type packages) is one grouped weekly PR for minor/patch updates,
+#   and the only thing that auto-merges (a security update of a tooling package
+#   too, once it passes the age test: the shared auto-merge action matches its
+#   package against this same list, because a security update carries no group
+#   and the list is read from here, never copied). A package
+#   that is in neither list arrives on its own as well, so a person merges it
+#   until it is added: test/unit/DependabotPolicy.test.js keeps the list honest.
+#   Prettier, TypeScript and ESLint with their plugins and configs stay
+#   individual too (and TS majors are ignored entirely): Prettier minors
+#   reformat code, and the TypeScript/ESLint majors need coordinated config
+#   work.
 # - The exact @rockcarver/frodo-lib pin is updated by this too, so new library
 #   releases automatically arrive here as a PR.
 # - Weekly updates for the GitHub Actions used by the workflows, except
 #   github/gh-aw-actions/setup (see the ignore below).
+# - A version update is proposed only once its release is 7 days old
+#   (cooldown). Packages that are bundled into what we ship, and the
+#   auto-merge of Dependabot pull requests (dependabot-auto-merge.yml, which
+#   merges within minutes once the checks pass), would otherwise take a
+#   release on the day it is published; a poisoned release is usually found
+#   and withdrawn within days. Dependabot security updates are not delayed by
+#   it. Our own actions (gearsnlevers/*) are excluded so that they arrive at
+#   once, and so does the pin of our own library (@rockcarver/frodo-lib).
 # - Dependabot security updates are enabled separately in repo settings.
 
 version: 2
@@ -18,20 +37,29 @@ updates:
     directory: "/"
     schedule:
       interval: "weekly"
+    cooldown:
+      default-days: 7
+      exclude:
+        - "@rockcarver/frodo-lib"
     open-pull-requests-limit: 10
     groups:
-      dev-minor-patch:
-        dependency-type: "development"
+      tooling:
+        patterns:
+          - "@modelcontextprotocol/client"
+          - "@types/*"
+          - "cli-progress"
+          - "fs-extra"
+          - "jest"
+          - "loglevel"
+          - "map-stream"
+          - "replaceall"
+          - "rimraf"
+          - "slugify"
+          - "tmp"
+          - "ts-jest"
         update-types:
           - "minor"
           - "patch"
-        exclude-patterns:
-          - "prettier"
-          - "typescript"
-          - "eslint"
-          - "@eslint/*"
-          - "typescript-eslint"
-          - "@typescript-eslint/*"
     ignore:
       - dependency-name: "typescript"
         update-types:
@@ -47,6 +75,10 @@ updates:
     directory: "/"
     schedule:
       interval: "weekly"
+    cooldown:
+      default-days: 7
+      exclude:
+        - "gearsnlevers/*"
     ignore:
       # The Issue Concierge's .github/workflows/*.lock.yml files are compiled by
       # gh-aw and record the compiler they were built with (compiler_version,

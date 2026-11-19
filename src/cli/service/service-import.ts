@@ -50,7 +50,7 @@ export default function setup() {
       ).conflicts(['serviceId', 'allSeparate'])
     )
     .addOption(
-      new Option('-C, --clean', 'Remove existing service(s) before importing.')
+      new Option('--clean', 'Remove existing service(s) before importing.')
     )
     .addOption(
       new Option(

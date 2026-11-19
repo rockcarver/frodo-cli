@@ -1,36 +1,19 @@
 /**
- * Entity options that have no picker. Used only by EntityOptionsHavePickers.test.js
- * (decision record 0038).
+ * Entity options that have no picker, and why. Used only by
+ * EntityOptionsHavePickers.test.js (decision record 0038).
  *
  * An option is listed as `<command>::<option attribute>`; sorted, one per line.
- */
-
-/**
- * Options of commands that predate the rule and have no picker yet.
+ * Every other option that names an existing entity and that a command requires
+ * gets its picker from its command family
+ * (src/utils/interactive/EntityPickFamilies.ts).
  *
- * This list only ever shrinks:
- * - NEVER add an option here. A new command gets its picker from its family
- *   (src/utils/interactive/EntityPickFamilies.ts), and the command file
- *   declares nothing.
- * - When a command gets its picker, delete its line. The test fails until you
- *   do, so the list cannot go stale.
- *
- * Generated from the command tree on 2026-11-07.
+ * An option that names an existing entity but that a command does not require
+ * is not listed either, because the test looks only at the options a command
+ * requires (mandatory, or a member of a group of which one or all are needed).
+ * `--set-id` of `authz policy delete` and `authz policy export` is one: it
+ * narrows `-a` (and `-A`) to a policy set and selects nothing on its own
+ * (frodo-cli#1163), so it is no member of the group the commands declare.
  */
-export const LEGACY_ENTITY_OPTIONS_WITHOUT_PICKER = [
-  // `--set-id` is a member of the one-of group but does not select what to
-  // export on its own (frodo-cli#1081)
-  'frodo authz policy export::setId',
-  // local commands never log in, and the framework runs a pick after the login
-  'frodo conn service-account describe::name',
-  'frodo conn service-account remove::name',
-  // the three `create` options below name an existing secret store or mapping,
-  // but the commands declare a one-of group of five options where they need
-  // three, so a pick would open on no line a person can finish
-  'frodo secretstore mapping alias create::secretId',
-  'frodo secretstore mapping alias create::secretstoreId',
-  'frodo secretstore mapping create::secretstoreId',
-];
 
 /**
  * Options that name a NEW entity or one that is in a file, not one that exists

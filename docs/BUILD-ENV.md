@@ -28,8 +28,8 @@ TypeScript sources (src/)
   └─ eslint + prettier .... lint & format (currently ESLint 8/9 configs; a planned migration will move to ESLint 10 with Prettier owning import order)
 
 Release automation:
-  ├─ dependabot.yml ....... weekly grouped dependency PRs
-  ├─ dependabot-auto-merge.yml  arms auto-merge on green patch/minor PRs
+  ├─ dependabot.yml ....... weekly dependency PRs: tooling grouped, bundled packages one PR each
+  ├─ dependabot-auto-merge.yml  arms auto-merge on green tooling PRs (patch/minor) whose versions are 7 days old
   ├─ ruleset "main-branch-protection"  Build + Test gate + linux-x64-binary-release required
   └─ pipeline.yml ......... version bump -> build -> test -> 5 binaries -> npm publish -> GitHub release -> Homebrew
 ```
@@ -362,18 +362,61 @@ tenant smoke test included, after an update pull request that skipped it.
 
 ## 9. Dependency automation
 
-- `dependabot.yml` (both repos): weekly npm + github-actions updates; one
-  grouped PR for dev minor/patch; prettier/typescript/eslint excluded
-  (Prettier minors reformat; TS/ESLint majors need coordinated work); TS
-  majors ignored outright. The exact `@rockcarver/frodo-lib` pin updates
-  flow through the same group. `github/gh-aw-actions/setup` is ignored: it is
-  pinned inside the Issue Concierge's generated `*.lock.yml` files, which a
-  Concierge release moves by recompiling them.
-- `dependabot-auto-merge.yml`: arms `gh pr merge --auto --squash` on
-  Dependabot patch/minor PRs (security updates included) once checks pass.
-  Majors and the tooling set stay manual. NOTE: Dependabot "rules" in repo
-  settings only triage alerts — they cannot merge PRs; the workflow is the
-  mechanism.
+- `dependabot.yml` (both repos): weekly npm + github-actions updates. Bundled
+  packages (every package that shipped source imports, and the exact
+  `@rockcarver/frodo-lib` pin) and the bundler (`tsdown`) are not grouped: each
+  update is its own pull request, which a person merges after looking at what
+  changed in the package.
+  Tooling is the named list in the `tooling` group: one grouped PR for minor and
+  patch updates, and the only thing that auto-merges (a security update of a
+  tooling package too, once it passes the age test: it has no group, so the
+  shared auto-merge action matches its package against the same list, which it
+  reads from this `dependabot.yml`; there is no second copy of the list). A
+  package in neither list
+  arrives on its own too, so a person merges it until it is added;
+  `test/unit/DependabotPolicy.test.js` fails when the list would match a bundled
+  package, or a pattern matches nothing. prettier/typescript/eslint and their
+  plugins stay individual (Prettier minors reformat; TS/ESLint majors need
+  coordinated work); TS majors are ignored outright.
+  `github/gh-aw-actions/setup` is ignored: it is pinned inside the Issue Concierge's generated `*.lock.yml` files, which a
+  Concierge release moves by recompiling them. A `cooldown` of 7 days holds a
+  version update back until its release is a week old; security updates are not
+  delayed, and our own pin `@rockcarver/frodo-lib` and our own actions
+  (`gearsnlevers/*`) are excluded from it ([core 0023](decisions/core/0023-dependency-updates-arrive-late-and-only-tooling-merges-without-a-person.md)).
+- `dependabot-auto-merge.yml`: calls the shared action
+  [gearsnlevers/dependabot-auto-merge-action](https://github.com/gearsnlevers/dependabot-auto-merge-action)
+  (the same code serves frodo-lib; its code, tests and a corpus of recorded real
+  Dependabot pull requests live there, not in this repository), pinned by its
+  full commit SHA. The action arms `gh pr merge --auto --squash` on a Dependabot
+  pull request once the checks pass and the policy of core 0023 allows it: an
+  npm pull request of the `tooling` group (a bundled package, the bundler and a
+  GitHub Actions update are merged by a person; a security update is armed only
+  for a tooling package), a patch or minor update of every dependency it touches
+  (a security update has no type in its metadata, the action derives it from the
+  lockfile), no name that stays manual (the whole word eslint, prettier or
+  typescript in the scope or the name), and every package version that the
+  lockfile adds or changes, direct or transitive, published at least 7 days
+  ago. The cooldown only covers what Dependabot proposes, a bump also moves
+  transitive packages to the newest version. A pull request that fails the age
+  test is looked at again by the daily run (`schedule`, or `workflow_dispatch`
+  by hand); a registry that cannot be read means not armed. The action reads the
+  policy from the default branch's `dependabot.yml` through the API, so a pull
+  request cannot change the rule that decides about itself.
+  To see the verdicts without arming anything, run the workflow by hand with the
+  dry-run input: `gh workflow run dependabot-auto-merge.yml -f dry-run=true`
+  (every open Dependabot pull request gets a verdict in the run log). A new
+  version of the action arrives as a GitHub Actions pull request that moves the
+  SHA; a person reads what changed in the action and merges it (an Actions update
+  is never armed). The job does not run for the pull requests from
+  `dependabot/github_actions/` branches: the new, unread version of the action
+  must not run with the write token; the daily sweep, which runs the workflow
+  from the default branch, still looks at them. `test/unit/DependabotPolicy.test.js` also pins the properties
+  of the workflow itself: the action pinned by a full SHA, no checkout, the
+  actor guard, the two permissions and nothing more, and a dry run only by hand.
+  GitHub Actions updates, majors and the manual names stay manual; a person may
+  merge any pull request at any time.
+  NOTE: Dependabot "rules" in repo settings only triage alerts — they cannot
+  merge PRs; the workflow is the mechanism.
 - Known GitHub quirk (hit 3× on 2026-10-03): the mergeability service lags
   behind green check-runs — combined commit status shows `pending` with 0
   statuses and `mergeStateStatus` is BLOCKED/UNKNOWN although every check
@@ -430,4 +473,7 @@ pkg→SEA migration (it builds `dist/` from source).
 | 2026-11-01 | `workflow_dispatch` of `pipeline.yml` gets the release type `ci-only`, the new default: the validation of a push to `main` (build, tests, live smoke test, linux-x64 binary) without any release job, so a full CI run can be started by hand for a change the classifier skipped or for `main`, and a dispatch that names no type publishes nothing. The seven dispatch-only jobs skip on `ci-only`; the release skill passes its type explicitly. | — |
 | 2026-11-01 | A real release dispatch (neither `ci-only` nor a dry run) from any ref but `main` is refused by the first step of the Build job of `pipeline.yml`: the release jobs had no condition on the ref, so a mistaken dispatch from a branch would have published a prerelease of that branch (core 0005 makes a release a dispatch on `main`). Dry runs and `ci-only` still run from a branch. `test/unit/PipelineClassification.test.js` evaluates the condition and pins that every release job needs Build. | — |
 | 2026-11-01 | The `push` trigger of `pipeline.yml` ignores the rest of what the classifier calls non-code (the Markdown files of the root such as `AGENTS.md` and `CLAUDE.md`, `LICENSE`, `.claude/skills/`, `.github/instructions/`, `.github/ISSUE_TEMPLATE/`, `CODEOWNERS`, `dependabot.yml`, `copilot-instructions.md`): a merge of a pull request that changed only these started the whole pipeline, and the live tenant smoke test, for files no test builds. Guidance files are in it too, as `docs/decisions/` already was; their pull request ran `Validate guidance`. `test/unit/PipelineClassification.test.js` pins the list against the classifier | — |
+| 2026-11-10 | Proof that proxy support works in the shipped bundle (frodo-lib#982): `test/unit/ProxySupport.test.js` runs `dist/launch.cjs` and, when it exists, `dist-sea/frodo` against a fake tenant with a forward proxy in the test process (`HTTP_PROXY`, a `CONNECT` tunnel for `HTTPS_PROXY`, `NO_PROXY`, credentials in the proxy URL, a proxy nobody listens on), and the `Proxy Tests` step of the live job ends with a negative control (`frodo info` with `HTTPS_PROXY=http://127.0.0.1:9` must fail); `test/unit/PipelineClassification.test.js` runs the step's shell for each outcome | — |
+| 2026-11-14 | A pull request that changes only `.github/dependabot.yml` or `.github/workflows/dependabot-auto-merge.yml` runs `Validate guidance` instead of nothing: both are in `GUIDANCE` of the classifier (still non-code), and `tools/run-guidance-tests.mjs` lists `DependabotAutoMerge.test.js` and `DependabotPolicy.test.js` (core 0023). `scripts/dependabot-auto-merge.mjs` stays code, so `Test` runs its tests. Required checks unchanged | #1321 |
+| 2026-11-15 | The Dependabot auto-merge policy of core 0023 is decided by the shared action `gearsnlevers/dependabot-auto-merge-action` (pinned by full SHA in `dependabot-auto-merge.yml`), the same one frodo-lib uses; `scripts/dependabot-auto-merge.mjs` and its test are gone. `test/unit/DependabotPolicy.test.js` stays, with its own matcher and manual-name rule, and now pins the workflow's properties; `tools/run-guidance-tests.mjs` lists it alone. The classifier's `GUIDANCE` is unchanged (`dependabot.yml` and the workflow are still read by that test). The workflow gets a `dry-run` input for `workflow_dispatch`. |
 | planned    | Polly→nock (library repo) — DEFERRED 2026-10-04 (deep record-harness coupling; revisit on Node 28 or real breakage)                                                                                                                                                                                                                                                                                                                                                                                                                                                 | —                            |

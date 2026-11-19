@@ -1,19 +1,20 @@
-import { Option } from 'commander';
 import { configManagerImportSaml } from '../../../configManagerOps/FrConfigSamlOps';
 import { ownedObjectsPushHelp } from '../../../ops/ApplicationOwnedObjectsHelp';
 import { getTokens } from '../../../ops/AuthenticateOps';
 import { verboseMessage } from '../../../utils/Console';
 import { realmOfRun } from '../../../utils/interactive/PositionalArgs';
 import { FrodoCommand } from '../../FrodoCommand';
+import { selectorOption } from '../../SelectorOption';
 
 export default function setup() {
   const program = new FrodoCommand('frodo config-manager push saml');
   program
     .description('Import saml configuration.')
     .addOption(
-      new Option(
-        '-n, --name <name>',
-        'The entityId of a single SAML entity to import.'
+      selectorOption(
+        '-i, --entity-id <id>',
+        'The entityId of a single SAML entity to import.',
+        ['-n', '--name']
       )
     )
     .addHelpText('after', ownedObjectsPushHelp('SAML providers'))
@@ -36,7 +37,7 @@ export default function setup() {
       verboseMessage('Importing SAML configuration.');
       const outcome = await configManagerImportSaml(
         realmOfRun(command, realm),
-        options.name,
+        options.entityId,
         options.allowFailures
       );
       if (!outcome) process.exitCode = 1;

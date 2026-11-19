@@ -1,0 +1,77 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`CLI help interface for 'settings airgap disable' should be expected english 1`] = `
+"Usage: frodo settings airgap disable [options]
+
+Persistently disable the air-gap setting. FRODO_AIRGAPPED can still enable
+air-gapped mode.
+
+Options:
+  -h, --help        Help
+  -hh, --help-more  Help with all options.
+  -hhh, --help-all  Help with all options, environment variables, and usage
+                    examples.
+"
+`;
+
+exports[`CLI help interface for 'settings airgap enable' should be expected english 1`] = `
+"Usage: frodo settings airgap enable [options]
+
+Persistently enable air-gapped mode: frodo then makes no request to a host you
+did not name (the update check and the application template catalog included).
+FRODO_AIRGAPPED can enable it too.
+
+Options:
+  -h, --help        Help
+  -hh, --help-more  Help with all options.
+  -hhh, --help-all  Help with all options, environment variables, and usage
+                    examples.
+"
+`;
+
+exports[`CLI help interface for 'settings airgap show' should be expected english 1`] = `
+"Usage: frodo settings airgap show [options]
+
+Show whether air-gapped mode is enabled and why.
+
+Options:
+  -h, --help        Help
+  -hh, --help-more  Help with all options.
+  -hhh, --help-all  Help with all options, environment variables, and usage
+                    examples.
+"
+`;
+
+exports[`CLI help interface for 'settings airgap' should be expected english 1`] = `
+"Usage: frodo settings airgap [options] [command]
+
+Manage air-gapped mode. While it is on, frodo makes no request to a host you did
+not name: the update check and the application template catalog are not made.
+The tenant and the hosts and URLs you give stay allowed. Either the persisted
+setting or FRODO_AIRGAPPED switches it on.
+
+Options:
+  -h, --help        Help
+  -hh, --help-more  Help with all options.
+  -hhh, --help-all  Help with all options, environment variables, and usage
+                    examples.
+
+Runtime Options:
+  --no-prompt       Never prompt interactively (same as setting
+                    FRODO_NO_PROMPT).
+
+Commands:
+  disable           Persistently disable the air-gap setting. FRODO_AIRGAPPED
+                    can still enable air-gapped mode.
+  enable            Persistently enable air-gapped mode: frodo then makes no
+                    request to a host you did not name (the update check and the
+                    application template catalog included). FRODO_AIRGAPPED can
+                    enable it too.
+  show              Show whether air-gapped mode is enabled and why.
+
+Utilities:
+  help              display help for command
+
+
+Run without a sub-command to enter interactive mode."
+`;

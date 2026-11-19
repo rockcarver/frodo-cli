@@ -25,25 +25,25 @@ export default function setup() {
     .addOption(
       new Option(
         '-l, --list',
-        'List all promotion reports. Cannot be used with -i, -p or -r.'
+        'List all promotion reports. Cannot be used with -i, --provisional or --provisional-rollback.'
       ).conflicts(['reportId', 'provisional', 'provisionalRollback'])
     )
     .addOption(
       new Option(
         '-i, --report-id <id>',
-        'Retrieve a promotion report by ID. Cannot be used with -l, -p or -r.'
+        'Retrieve a promotion report by ID. Cannot be used with -l, --provisional or --provisional-rollback.'
       ).conflicts(['list', 'provisional', 'provisionalRollback'])
     )
     .addOption(
       new Option(
-        '-p, --provisional',
-        'Retrieve the current provisional promotion report. Cannot be used with -l, -i or -r.'
+        '--provisional',
+        'Retrieve the current provisional promotion report. Cannot be used with -l, -i or --provisional-rollback.'
       ).conflicts(['list', 'reportId', 'provisionalRollback'])
     )
     .addOption(
       new Option(
-        '-r, --provisional-rollback',
-        'Retrieve the current provisional rollback report. Cannot be used with -l, -i or -p.'
+        '--provisional-rollback',
+        'Retrieve the current provisional rollback report. Cannot be used with -l, -i or --provisional.'
       ).conflicts(['list', 'reportId', 'provisional'])
     )
     .addHelpText(

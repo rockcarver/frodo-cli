@@ -1,7 +1,6 @@
 import { afterEach, describe, expect, it } from '@jest/globals';
 import { Command, Option } from 'commander';
 import {
-  deferEntityPicks,
   entityPick,
   getEntityPicks,
   hasEntityPick,
@@ -220,29 +219,21 @@ describe('familyEntityPicks', () => {
 });
 
 describe('the picks of a command', () => {
-  it('are its own and those of its family', () => {
+  it('are those of its family, for the options it has', () => {
     const { family, group } = newFamily();
-    registerEntityPickFamily({ family, picks: [proxyPick('proxyId')] });
+    registerEntityPickFamily({
+      family,
+      picks: [proxyPick('proxyId'), proxyPick('clientId'), proxyPick('other')],
+    });
     const command = commandAt(
       [...group, 'describe'],
       ['--proxy-id <id>', '--client-id <id>']
     );
-    deferEntityPicks(command, [proxyPick('clientId')]);
     expect(
       getEntityPicks(command)
         .map((pick) => pick.name)
         .sort()
     ).toEqual(['clientId', 'proxyId']);
-  });
-
-  it('keep the command’s own pick for an option the family also has, once', () => {
-    const { family, group } = newFamily();
-    const familyPick = proxyPick();
-    const ownPick = proxyPick();
-    registerEntityPickFamily({ family, picks: [familyPick] });
-    const command = commandAt([...group, 'describe']);
-    deferEntityPicks(command, [ownPick]);
-    expect(getEntityPicks(command)).toEqual([ownPick]);
   });
 
   it('say that the option has a pick when the family provides it', () => {

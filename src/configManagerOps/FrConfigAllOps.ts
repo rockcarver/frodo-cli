@@ -1,7 +1,10 @@
 import path from 'path';
 import { frodo, state } from '@rockcarver/frodo-lib';
 import { configManagerExportApplications } from '../ops/ApplicationConfigOps';
+import { configManagerExportCIMDProfiles } from '../ops/CIMDProfileConfigOps';
+import { configManagerExportTrustedJwtIssuers } from '../ops/OAuth2TrustedJwtIssuerConfigOps';
 import { configManagerExportRemoteProxies } from '../ops/RemoteProxyOps';
+import { configManagerExportSoftwarePublishers } from '../ops/SoftwarePublisherConfigOps';
 import { printError, printMessage } from '../utils/Console';
 import { OperationRun } from '../utils/OperationRun';
 import {
@@ -34,7 +37,7 @@ import { configManagerExportKbaConfig } from './FrConfigKbaOps';
 import { configManagerExportLocales } from './FrConfigLocalesOps';
 import { configManagerExportManagedObjects } from './FrConfigManagedObjectsOps';
 import { configManagerExportOAuth2Agents } from './FrConfigOauth2AgentOps';
-import { configManagerExportOrgPrivilegesAllRealms } from './FrConfigOrgPrivilegesOps';
+import { configManagerExportOrgPrivileges } from './FrConfigOrgPrivilegesOps';
 import { configManagerExportPasswordPolicy } from './FrConfigPasswordPolicyOps';
 import { configManagerExportRaw } from './FrConfigRawOps';
 import { configManagerExportRemoteServers } from './FrConfigRemoteServersOps';
@@ -123,7 +126,7 @@ export const deploymentMapAll: Record<string, ExportStep[]> = {
     step('locales', () => configManagerExportLocales()),
     step('managed-objects', () => configManagerExportManagedObjects()),
     step('org-privileges', (options) =>
-      configManagerExportOrgPrivilegesAllRealms(options.realm)
+      configManagerExportOrgPrivileges(undefined, false, options.realm)
     ),
     step('password-policy', (options) =>
       configManagerExportPasswordPolicy(options.realm)
@@ -151,6 +154,45 @@ export const deploymentMapAll: Record<string, ExportStep[]> = {
     step('terms-and-conditions', () => configManagerExportTermsAndConditions()),
     step('themes', (options) => configManagerExportThemes(options.realm)),
     step('ui-config', () => configManagerExportUiConfig()),
+    // CIMD profiles are dynamic configuration for now, so they are in `pull all` and not in `pull all-static`. The step needs no
+    // input: it discovers the profiles of every realm (or of the realm that was given) and says nothing where the deployment or
+    // the realm does not offer them. `oauth-cimd-profiles.json` in the config folder is optional.
+    step('oauth-cimd-profiles', (options) =>
+      configManagerExportCIMDProfiles(
+        undefined,
+        options.realm,
+        true,
+        false,
+        existingConfigFile(options.configFolder, 'oauth-cimd-profiles.json')
+      )
+    ),
+    // Trusted JWT issuers are dynamic configuration (Ping's promotion FAQ lists them as not promoted), so they are in `pull all`
+    // and not in `pull all-static`. No input is needed: the step discovers the issuers of every realm (or of the realm that was
+    // given). `oauth-issuers.json` in the config folder is optional.
+    step('oauth-issuers', (options) =>
+      configManagerExportTrustedJwtIssuers(
+        undefined,
+        options.realm,
+        true,
+        false,
+        existingConfigFile(options.configFolder, 'oauth-issuers.json')
+      )
+    ),
+    // Software publishers are dynamic configuration too (Ping's promotion FAQ lists them as not promoted), so they are in
+    // `pull all` and not in `pull all-static`. No input is needed: the step discovers the publishers of every realm (or of
+    // the realm that was given). `oauth-software-publishers.json` in the config folder is optional.
+    step('oauth-software-publishers', (options) =>
+      configManagerExportSoftwarePublishers(
+        undefined,
+        options.realm,
+        true,
+        false,
+        existingConfigFile(
+          options.configFolder,
+          'oauth-software-publishers.json'
+        )
+      )
+    ),
     // The four standalone kinds that leave out what an application owns (decision record 0042) come last, before
     // applications: the layout of the tree is decided before the first step runs (see runSteps), so their position
     // does not matter for that, and the requests they add (the ownership of the applications) come after those of
@@ -225,7 +267,7 @@ export const deploymentMapAll: Record<string, ExportStep[]> = {
       configManagerExportManagedObjects(undefined, true)
     ),
     step('org-privileges', (options) =>
-      configManagerExportOrgPrivilegesAllRealms(options.realm)
+      configManagerExportOrgPrivileges(undefined, false, options.realm)
     ),
     step('password-policy', (options) =>
       configManagerExportPasswordPolicy(options.realm)
@@ -261,6 +303,45 @@ export const deploymentMapAll: Record<string, ExportStep[]> = {
     step('themes', (options) => configManagerExportThemes(options.realm)),
     step('ui-config', () => configManagerExportUiConfig()),
     step('variables', () => configManagerExportVariables()),
+    // CIMD profiles are dynamic configuration for now, so they are in `pull all` and not in `pull all-static`. The step needs no
+    // input: it discovers the profiles of every realm (or of the realm that was given) and says nothing where the deployment or
+    // the realm does not offer them. `oauth-cimd-profiles.json` in the config folder is optional.
+    step('oauth-cimd-profiles', (options) =>
+      configManagerExportCIMDProfiles(
+        undefined,
+        options.realm,
+        true,
+        false,
+        existingConfigFile(options.configFolder, 'oauth-cimd-profiles.json')
+      )
+    ),
+    // Trusted JWT issuers are dynamic configuration (Ping's promotion FAQ lists them as not promoted), so they are in `pull all`
+    // and not in `pull all-static`. No input is needed: the step discovers the issuers of every realm (or of the realm that was
+    // given). `oauth-issuers.json` in the config folder is optional.
+    step('oauth-issuers', (options) =>
+      configManagerExportTrustedJwtIssuers(
+        undefined,
+        options.realm,
+        true,
+        false,
+        existingConfigFile(options.configFolder, 'oauth-issuers.json')
+      )
+    ),
+    // Software publishers are dynamic configuration too (Ping's promotion FAQ lists them as not promoted), so they are in
+    // `pull all` and not in `pull all-static`. No input is needed: the step discovers the publishers of every realm (or of
+    // the realm that was given). `oauth-software-publishers.json` in the config folder is optional.
+    step('oauth-software-publishers', (options) =>
+      configManagerExportSoftwarePublishers(
+        undefined,
+        options.realm,
+        true,
+        false,
+        existingConfigFile(
+          options.configFolder,
+          'oauth-software-publishers.json'
+        )
+      )
+    ),
     // The four standalone kinds that leave out what an application owns (decision record 0042) come last, before
     // applications: the layout of the tree is decided before the first step runs (see runSteps), so their position
     // does not matter for that, and the requests they add (the ownership of the applications) come after those of
@@ -334,9 +415,51 @@ export const deploymentMapAll: Record<string, ExportStep[]> = {
       configManagerExportScripts(undefined, options.realm)
     ),
     step('services', (options) => configManagerExportServices(options.realm)),
+    // CIMD profiles are dynamic configuration for now, so they are in `pull all` and not in `pull all-static`. The step needs no
+    // input: it discovers the profiles of every realm (or of the realm that was given) and says nothing where the deployment or
+    // the realm does not offer them. `oauth-cimd-profiles.json` in the config folder is optional.
+    step('oauth-cimd-profiles', (options) =>
+      configManagerExportCIMDProfiles(
+        undefined,
+        options.realm,
+        true,
+        false,
+        existingConfigFile(options.configFolder, 'oauth-cimd-profiles.json')
+      )
+    ),
+    // Trusted JWT issuers are dynamic configuration (Ping's promotion FAQ lists them as not promoted), so they are in `pull all`
+    // and not in `pull all-static`. No input is needed: the step discovers the issuers of every realm (or of the realm that was
+    // given). `oauth-issuers.json` in the config folder is optional.
+    step('oauth-issuers', (options) =>
+      configManagerExportTrustedJwtIssuers(
+        undefined,
+        options.realm,
+        true,
+        false,
+        existingConfigFile(options.configFolder, 'oauth-issuers.json')
+      )
+    ),
+    // Software publishers are dynamic configuration too (Ping's promotion FAQ lists them as not promoted), so they are in
+    // `pull all` and not in `pull all-static`. No input is needed: the step discovers the publishers of every realm (or of
+    // the realm that was given). `oauth-software-publishers.json` in the config folder is optional.
+    step('oauth-software-publishers', (options) =>
+      configManagerExportSoftwarePublishers(
+        undefined,
+        options.realm,
+        true,
+        false,
+        existingConfigFile(
+          options.configFolder,
+          'oauth-software-publishers.json'
+        )
+      )
+    ),
   ],
 };
 
+// `oauth-cimd-profiles`, `oauth-issuers` and `oauth-software-publishers` are absent from the lists below on purpose: all
+// three are dynamic configuration (CIMD profiles until Ping says a promotion carries them, trusted JWT issuers and software
+// publishers because Ping's promotion FAQ lists them as not promoted); see the steps in `deploymentMapAll`.
 export const deploymentMapAllStatic: Record<string, ExportStep[]> = {
   [FORGEOPS_DEPLOYMENT_TYPE_KEY]: [
     step('access-config', () => configManagerExportAccessConfig()),
@@ -363,7 +486,7 @@ export const deploymentMapAllStatic: Record<string, ExportStep[]> = {
     step('managed-objects', () => configManagerExportManagedObjects()),
     step('connector-mappings', () => configManagerExportMappings()),
     step('org-privileges', (options) =>
-      configManagerExportOrgPrivilegesAllRealms(options.realm)
+      configManagerExportOrgPrivileges(undefined, false, options.realm)
     ),
     step('password-policy', (options) =>
       configManagerExportPasswordPolicy(options.realm)
@@ -406,7 +529,7 @@ export const deploymentMapAllStatic: Record<string, ExportStep[]> = {
     ),
     step('connector-mappings', () => configManagerExportMappings()),
     step('org-privileges', (options) =>
-      configManagerExportOrgPrivilegesAllRealms(options.realm)
+      configManagerExportOrgPrivileges(undefined, false, options.realm)
     ),
     step('password-policy', (options) =>
       configManagerExportPasswordPolicy(options.realm)

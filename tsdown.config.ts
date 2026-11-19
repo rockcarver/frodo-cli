@@ -1,14 +1,12 @@
 import { defineConfig } from 'tsdown';
 
 const devDeps = [
-  '@types/colors',
   '@types/fs-extra',
   '@types/jest',
   '@types/node',
   '@typescript-eslint/eslint-plugin',
   '@typescript-eslint/parser',
   '@yao-pkg/pkg',
-  'copyfiles',
   'del',
   'eslint',
   'eslint-config-prettier',

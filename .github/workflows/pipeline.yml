@@ -484,6 +484,16 @@ jobs:
         run: |
           frodo conn save "$FIDC_TENANT_URL" --no-log-api
           frodo info "$FIDC_TENANT_URL"
+          # Negative control: the same command through a proxy nobody listens on
+          # (the discard port) must fail. If it succeeds, the two commands above
+          # prove nothing, because the proxy setting is not being honoured.
+          # Inside an `if` condition a failure does not stop the step (bash -e);
+          # a success is the error.
+          if HTTPS_PROXY=http://127.0.0.1:9 frodo info "$FIDC_TENANT_URL"; then
+            echo "::error::frodo info succeeded although HTTPS_PROXY points at a closed port: the proxy setting is not honoured"
+            exit 1
+          fi
+          echo "frodo info failed through the closed proxy port, as it must"
 
   release:
     if: github.event_name == 'workflow_dispatch' && inputs.release-type != 'ci-only'

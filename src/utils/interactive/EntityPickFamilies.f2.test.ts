@@ -179,15 +179,20 @@ describe('the secret store picker (secretstore)', () => {
     }
   });
 
-  it('does not belong to the commands that name something new or take it from a file', () => {
+  it('does not belong to import, which takes the secret store from a file', () => {
+    expect(
+      picksOf(commandAt(['secretstore', 'import'], 'secretstoreId'))
+    ).toEqual([]);
+  });
+
+  it('belongs to the create commands of the mappings and the aliases: they add to a secret store that exists', () => {
     for (const path of [
-      ['import'],
       ['mapping', 'create'],
       ['mapping', 'alias', 'create'],
     ]) {
       expect(
         picksOf(commandAt(['secretstore', ...path], 'secretstoreId'))
-      ).toEqual([]);
+      ).toEqual(['secretstoreId']);
     }
   });
 
@@ -255,10 +260,11 @@ describe('the secret store mapping picker (secretstore mapping)', () => {
     expect(picks.map((candidate) => candidate.name)).toEqual(options);
   });
 
-  it('belongs to the commands that take an existing mapping, and not to create, which names a new one', () => {
+  it('belongs to the commands that take an existing mapping, alias create included, and not to mapping create, which names a new one', () => {
     for (const path of [
       ['mapping', 'delete'],
       ['mapping', 'alias', 'activate'],
+      ['mapping', 'alias', 'create'],
       ['mapping', 'alias', 'delete'],
       ['mapping', 'alias', 'list'],
     ]) {
@@ -266,12 +272,10 @@ describe('the secret store mapping picker (secretstore mapping)', () => {
         'secretId'
       );
     }
-    for (const path of [
-      ['mapping', 'create'],
-      ['mapping', 'alias', 'create'],
-    ]) {
-      expect(picksOf(withSecretId(['secretstore', ...path]))).toEqual([]);
-    }
+    // the secret store it adds to, but not --secret-id: the mapping it creates
+    expect(picksOf(withSecretId(['secretstore', 'mapping', 'create']))).toEqual(
+      ['secretstoreId']
+    );
   });
 
   it('fills the secretId option with the mappings of the store the command names', async () => {

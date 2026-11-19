@@ -1,5 +1,5 @@
 /**
- * The pure parts of the Ready step (record 0043), split into a zero-import
+ * The pure parts of the Ready step (records 0043 and 0044), split into a zero-import
  * module the same way PromptGateState and EditableOptions are: the resolution
  * pass (cli/ResolveInteractiveInputs) cannot be imported by the unit tests,
  * and these are the decisions that need a test.
@@ -8,7 +8,9 @@
  * Ready step: the command as it will run, and the choice to run it, to edit
  * its options or to cancel. Until then no prompt of the resolution pass runs
  * the command, and each says so with `NEXT_LABEL` on its Enter key; the Ready
- * step's Enter is the only one that does.
+ * step's Enter is the only one that does. It is the LAST prompt of the pass
+ * (record 0044): the pickers that need a login run before it, in the pass,
+ * after the login the pass makes for them.
  */
 
 import type { EscapableSelectChoice } from './EscapableSelectPrompt';
@@ -22,7 +24,7 @@ export type ReadyAnswer = 'run' | 'edit' | 'cancel';
 /**
  * Whether the Ready step is asked: only when the resolution pass itself put at
  * least one prompt on the screen. A complete command line renders none, so it
- * never sees the step (record 0030); neither does a run that may not prompt.
+ * never sees the step (record 0047); neither does a run that may not prompt.
  * @param promptsBefore prompts rendered in the process when the pass began
  * @param promptsAfter prompts rendered in the process when the pass ended
  * @returns true when the pass rendered a prompt
@@ -61,20 +63,16 @@ export const READY_ESCAPE_LABEL = 'cancel';
  * The rows of the Ready step: Run first (the default), Edit options only when
  * the command has options left to edit, Cancel last.
  * @param options.canEdit whether the invocation editor has anything to offer
- * @param options.openAfterLogin whether input is still open that is chosen after login (an entity pick)
  * @returns the rows
  */
 export function readyChoices(options: {
   canEdit: boolean;
-  openAfterLogin: boolean;
 }): EscapableSelectChoice<ReadyAnswer>[] {
   const choices: EscapableSelectChoice<ReadyAnswer>[] = [
     {
       value: 'run',
       name: 'Run',
-      description: options.openAfterLogin
-        ? 'Run the command shown below. What is still open is chosen from the target system after login.'
-        : 'Run the command shown below.',
+      description: 'Run the command shown below.',
     },
   ];
   if (options.canEdit) {

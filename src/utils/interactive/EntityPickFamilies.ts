@@ -15,7 +15,9 @@
 import {
   frodo,
   state,
+  type CIMDProfileSkeleton,
   type CustomNodeSkeleton,
+  type OAuth2TrustedJwtIssuerSkeleton,
   type PolicySetSkeleton,
   type PolicySkeleton,
   type RemoteProxySkeleton,
@@ -28,6 +30,9 @@ import {
   type VariableSkeleton,
   type WorkflowGroup,
 } from '@rockcarver/frodo-lib';
+import type { Command } from 'commander';
+import { catalogOptionsOf } from '../ApplicationTemplateSource';
+import { displayNameOf, groupTemplates } from '../ApplicationTemplateView';
 import {
   sameHost,
   savedConnectionProfiles,
@@ -36,6 +41,13 @@ import {
 import { getActiveActionCommand } from './ActiveActionCommandState';
 import { entityPick } from './EntityPickers';
 import { registerEntityPickFamily } from './EntityPickRegistry';
+import { positionalValue } from './PositionalArgs';
+import {
+  createSubjectSource,
+  SUBJECT_LIST_LIMIT,
+  subjectMatches,
+  type SubjectCandidate,
+} from './Rfc7523Subjects';
 
 const REMOTE_PROXY_ID_PREFIX = 'external.idm/';
 
@@ -115,11 +127,25 @@ function connectorId(connector: { _id?: string }): string {
   return (connector._id ?? '').slice(CONNECTOR_ID_PREFIX.length);
 }
 
+/**
+ * The first client id URL pattern of a CIMD profile, for the picker row. The
+ * library returns the plain shape; the by-id read of the server wraps a member
+ * as `{ inherited, value }`, so both are read.
+ */
+function firstCIMDPattern(profile: CIMDProfileSkeleton): string | undefined {
+  const member: unknown = profile.cimdConfig?.cimdClientIdUrlPatterns;
+  const patterns = Array.isArray(member)
+    ? member
+    : (member as { value?: unknown } | undefined)?.value;
+  return Array.isArray(patterns) ? patterns[0] : undefined;
+}
+
 export function registerEntityPickFamilies(): void {
   // The agents (`frodo agent`). Each type has a group of its own and an entry of
   // its own, so the generic entry leaves the typed groups out: a command would
   // inherit two pickers for -i otherwise. `describe` takes -i as optional (without
-  // it every agent is described), so it gets no picker (record 0030). `export` of
+  // it every agent is described), so its command line is complete without it and it
+  // gets no picker (record 0047). `export` of
   // the generic group stays out: its -g is an alternative to -i that does not
   // conflict with it, and the framework cannot yet tell that -g already answers
   // the question (cli#1081).
@@ -130,12 +156,14 @@ export function registerEntityPickFamilies(): void {
   const byAgentId = (a: AgentSkeleton, b: AgentSkeleton) =>
     (a._id ?? '').localeCompare(b._id ?? '');
 
+  const aiAgents = {
+    group: 'ai',
+    kind: 'AI agent',
+    read: () => frodo.agent.readAIAgents(),
+  };
+
   const typedAgents = [
-    {
-      group: 'ai',
-      kind: 'AI agent',
-      read: () => frodo.agent.readAIAgents(),
-    },
+    aiAgents,
     {
       group: 'gateway',
       kind: 'identity gateway agent',
@@ -173,9 +201,20 @@ export function registerEntityPickFamilies(): void {
     ],
   });
 
-  for (const { group, kind, read } of typedAgents) {
+  // The AI agents are also a root group of their own (`frodo aiagent`), and
+  // `frodo agent ai` stays registered from the same commands while it is
+  // deprecated: both paths get the same picks.
+  const typedFamilies = [
+    ...typedAgents.map((typed) => ({
+      ...typed,
+      family: `agent ${typed.group}`,
+    })),
+    { ...aiAgents, family: 'aiagent' },
+  ];
+
+  for (const { family, kind, read } of typedFamilies) {
     registerEntityPickFamily({
-      family: `agent ${group}`,
+      family,
       except: ['describe'],
       picks: [
         entityPick<AgentSkeleton>({
@@ -199,6 +238,8 @@ export function registerEntityPickFamilies(): void {
         name: 'target',
         kind: 'connection profile',
         message: 'Select the receiving tenant:',
+        // the saved profiles are read from this machine
+        needsLogin: false,
         load: async () =>
           savedConnectionProfiles().filter(
             (profile) => !sameHost(profile.host, state.getHost() ?? '')
@@ -240,10 +281,40 @@ export function registerEntityPickFamilies(): void {
     ],
   });
 
+  // The additional service accounts saved on a connection profile (`describe`
+  // and `remove`). The commands are local: they read and write the profile file
+  // and never log in, so the pick says it needs no login and the pass opens it
+  // without one. The profile is the host the command was given (a URL, an alias
+  // or part of one, as the commands themselves take it) or the host of the
+  // environment. `add` names a service account that does not exist yet.
+  type ServiceAccountRow = ReturnType<
+    typeof frodo.conn.listAdditionalServiceAccounts
+  >[number];
+
+  registerEntityPickFamily({
+    family: 'conn service-account',
+    except: ['add'],
+    picks: [
+      entityPick<ServiceAccountRow>({
+        name: 'name',
+        kind: 'service account',
+        needsLogin: false,
+        load: async () =>
+          frodo.conn.listAdditionalServiceAccounts(state.getHost()),
+        loadFor: async (command) =>
+          frodo.conn.listAdditionalServiceAccounts(
+            positionalValue(command, 'host') ?? state.getHost()
+          ),
+        label: (account) => account.name,
+        description: (account) => account.svcacctId,
+      }),
+    ],
+  });
+
   // Authorization policies: the policy that `-i` names. `--set-id` of `delete`
   // and `export` is not offered a pick: it narrows `-a` to one policy set, so a
   // pick would open on a complete command line such as `delete -a` (record
-  // 0030). `import` takes its option from a file (see `NEW_ENTITY_VERBS`).
+  // 0047). `import` takes its option from a file (see `NEW_ENTITY_VERBS`).
   registerEntityPickFamily({
     family: 'authz policy',
     picks: [
@@ -307,7 +378,7 @@ export function registerEntityPickFamilies(): void {
   // IGA workflows: the workflow that `-i` names. `describe` takes `-i` or `-f`
   // (the workflow inside a file) as one of two; the framework does not open the
   // pick when `-f` is given, so a complete command line is left alone (record
-  // 0030). A tenant without IGA has no workflows to offer: the commands say so
+  // 0047). A tenant without IGA has no workflows to offer: the commands say so
   // themselves once the pick is satisfied.
   registerEntityPickFamily({
     family: 'iga workflow',
@@ -327,9 +398,28 @@ export function registerEntityPickFamilies(): void {
     ],
   });
 
+  // The users of an RFC7523 assertion are offered from the trusted issuer of
+  // the client, so the source of the candidates is made for the command that
+  // runs the pick, and the search steps read it from the command they are given.
+  type SubjectSource = ReturnType<typeof createSubjectSource>;
+  const subjectSources = new WeakMap<Command, SubjectSource>();
+  const subjectsOf = (command: Command | undefined): SubjectSource => {
+    const clientId = () => command?.getOptionValue('clientId') as string;
+    if (!command) return createSubjectSource(clientId);
+    let source = subjectSources.get(command);
+    if (!source) {
+      source = createSubjectSource(clientId);
+      subjectSources.set(command, source);
+    }
+    return source;
+  };
+
   // The OAuth2 client a command acts as (`--client-id` of `get-access-token`
-  // and `execute-rfc7523-authz-grant-flow`). Left out are the commands whose
-  // `--client-id` is optional, or names a client that does not exist yet.
+  // and `execute-rfc7523-authz-grant-flow`), and the user that
+  // `execute-rfc7523-authz-grant-flow` gets tokens for (`--sub`, from the users
+  // the trusted issuer of the client allows, else the realm's; it is asked for
+  // after the client). Left out are the commands whose `--client-id` is
+  // optional, or names a client that does not exist yet.
   registerEntityPickFamily({
     family: 'admin',
     except: [
@@ -347,6 +437,23 @@ export function registerEntityPickFamilies(): void {
             (a._id ?? '').localeCompare(b._id ?? '')
           ),
         label: (client) => client._id ?? '',
+      }),
+      entityPick<SubjectCandidate>({
+        name: 'sub',
+        kind: 'user',
+        message: 'Select the user to get tokens for:',
+        load: () => subjectsOf(getActiveActionCommand()).list(),
+        loadFor: (command) => subjectsOf(command).list(),
+        label: (user) => user.row,
+        value: (user) => user.id,
+        description: (user) => user.mail,
+        search: subjectMatches,
+        searchFirst: {
+          when: (command) => subjectsOf(command).tooMany(),
+          message: 'Search users:',
+          hint: `The realm has ${SUBJECT_LIST_LIMIT} or more users. Type part of a username, first or last name or email, or a whole id.`,
+          load: (text, command) => subjectsOf(command).search(text),
+        },
       }),
     ],
   });
@@ -491,6 +598,71 @@ export function registerEntityPickFamilies(): void {
     ],
   });
 
+  // `app template`: the application templates, one row per template (not per
+  // version), by id (for example `azure.ad`) for -i and by display name for -n.
+  // The picker lists the catalog the command reads (`--templates` or
+  // `--channel`) with the templates of the tenant merged in; it runs after a
+  // login, so a command that needs no tenant never opens it. The version is
+  // not picked: -v names it, and the newest is the default.
+  type ApplicationTemplate = Awaited<
+    ReturnType<typeof frodo.app.template.listTemplates>
+  >[number];
+
+  /** The newest version of every template of a list, in the order of the list. */
+  const newestTemplates = (
+    templates: ApplicationTemplate[]
+  ): ApplicationTemplate[] =>
+    groupTemplates(templates).map((group) => group.newest);
+
+  const templateDescription = (template: ApplicationTemplate): string =>
+    [
+      template.displayName,
+      template.templateType,
+      template.isOverride ? 'defined by the tenant' : undefined,
+    ]
+      .filter(Boolean)
+      .join(' · ');
+
+  const loadTemplates = async (
+    command?: Command
+  ): Promise<ApplicationTemplate[]> =>
+    newestTemplates(
+      await frodo.app.template.listTemplates({
+        ...(command ? catalogOptionsOf(command.opts()) : {}),
+        includeOverrides: true,
+      })
+    );
+
+  registerEntityPickFamily({
+    family: 'app template',
+    picks: [
+      entityPick<ApplicationTemplate>({
+        name: 'templateId',
+        kind: 'application template',
+        load: async () => loadTemplates(),
+        loadFor: async (command) => loadTemplates(command),
+        label: (template) => template.name,
+        description: templateDescription,
+        search: (template, query) =>
+          `${template.name} ${template.displayName ?? ''}`
+            .toLowerCase()
+            .includes(query.toLowerCase()),
+      }),
+      entityPick<ApplicationTemplate>({
+        name: 'templateName',
+        kind: 'application template',
+        load: async () => loadTemplates(),
+        loadFor: async (command) => loadTemplates(command),
+        label: (template) => displayNameOf(template),
+        description: (template) => template.name,
+        search: (template, query) =>
+          `${template.name} ${template.displayName ?? ''}`
+            .toLowerCase()
+            .includes(query.toLowerCase()),
+      }),
+    ],
+  });
+
   // `idp`: the social identity providers of the realm, by id.
   type SocialIdp = Awaited<
     ReturnType<typeof frodo.oauth2oidc.external.readSocialIdentityProviders>
@@ -511,6 +683,23 @@ export function registerEntityPickFamilies(): void {
     ],
   });
 
+  // `oauth cimd`: the CIMD profiles of the realm, by id. The library returns
+  // them sorted by id (and none for a realm that does not offer the type, which
+  // the framework counts as satisfied). `import` names a profile in a file and
+  // never inherits a pick.
+  registerEntityPickFamily({
+    family: 'oauth cimd',
+    picks: [
+      entityPick<CIMDProfileSkeleton>({
+        name: 'profileId',
+        kind: 'CIMD profile',
+        load: async () => frodo.oauth2oidc.cimd.readCIMDProfiles(),
+        label: (profile) => profile._id ?? '',
+        description: (profile) => firstCIMDPattern(profile),
+      }),
+    ],
+  });
+
   // `oauth client`: the OAuth2 clients of the realm, by client id.
 
   registerEntityPickFamily({
@@ -524,6 +713,38 @@ export function registerEntityPickFamilies(): void {
             (a._id ?? '').localeCompare(b._id ?? '')
           ),
         label: (client) => client._id ?? '',
+      }),
+    ],
+  });
+
+  // `oauth issuer`: the OAuth2 trusted JWT issuers of the realm, by the name of
+  // the object. The description is the issuer value its assertions carry, which
+  // is what tells two issuers apart when their names do not. The library returns
+  // the plain shape from a query; a read by id wraps a member as
+  // `{ inherited, value }`, so both are read.
+  const issuerValueOf = (
+    issuer: OAuth2TrustedJwtIssuerSkeleton
+  ): string | undefined => {
+    const member: unknown = issuer.issuer;
+    const value =
+      typeof member === 'string'
+        ? member
+        : (member as { value?: unknown } | undefined)?.value;
+    return typeof value === 'string' ? value : undefined;
+  };
+
+  registerEntityPickFamily({
+    family: 'oauth issuer',
+    picks: [
+      entityPick<OAuth2TrustedJwtIssuerSkeleton>({
+        name: 'issuerId',
+        kind: 'trusted JWT issuer',
+        load: async () =>
+          (await frodo.oauth2oidc.issuer.readOAuth2TrustedJwtIssuers()).sort(
+            (a, b) => (a._id ?? '').localeCompare(b._id ?? '')
+          ),
+        label: (issuer) => issuer._id ?? '',
+        description: issuerValueOf,
       }),
     ],
   });
@@ -749,9 +970,11 @@ export function registerEntityPickFamilies(): void {
   });
 
   // Secrets of the environment (cloud only). `create` and `import` name a new
-  // secret or one in a file and get no pick.
+  // secret or one in a file and get no pick; `version create` adds a version to
+  // a secret that exists, so it is included.
   registerEntityPickFamily({
     family: 'esv secret',
+    include: ['version create'],
     picks: [
       entityPick<SecretSkeleton>({
         name: 'secretId',
@@ -781,10 +1004,12 @@ export function registerEntityPickFamilies(): void {
   // with `-g`. A store is addressed by its id; when two stores of different
   // types share an id the command still asks for `-t`, so the row shows the
   // type. Every command below `secretstore` that has the option inherits the
-  // pick, including the mapping and alias commands (their `create` verbs
-  // name something new and are left out).
+  // pick, including the mapping and alias commands. `import` names a store in
+  // a file and is left out; the `create` commands of the mappings and the
+  // aliases add to a store that exists, so they are included.
   registerEntityPickFamily({
     family: 'secretstore',
+    include: ['mapping create', 'mapping alias create'],
     picks: [
       entityPick<SecretStore>({
         name: 'secretstoreId',
@@ -803,9 +1028,12 @@ export function registerEntityPickFamilies(): void {
 
   // The mappings of a secret store. Registered after the store, so that the
   // store is picked first: the loader reads the store (and its type and
-  // scope) from the command, and offers nothing while there is none.
+  // scope) from the command, and offers nothing while there is none. `create`
+  // names a mapping that does not exist yet and gets no pick; `alias create`
+  // adds an alias to a mapping that does, so it is included.
   registerEntityPickFamily({
     family: 'secretstore mapping',
+    include: ['alias create'],
     picks: [
       entityPick<SecretStoreMappingSkeleton>({
         name: 'secretId',
@@ -828,8 +1056,9 @@ export function registerEntityPickFamilies(): void {
 
   // The Log API keys of the tenant (`log key delete -i`), by key id with the
   // name of the key as the description. `describe` takes `-i` as optional, so
-  // it gets no pick (record 0030); with `-a` the option is a regex filter and
-  // the framework does not open the pick.
+  // its command line is complete without it and it gets no pick (record
+  // 0047); with `-a` the option is a regex filter and the framework does not
+  // open the pick.
   type LogApiKeyEntity = Awaited<
     ReturnType<typeof frodo.cloud.log.getLogApiKeys>
   >[number];
@@ -851,9 +1080,9 @@ export function registerEntityPickFamilies(): void {
     ],
   });
 
-  // The AM services (`service export -i`). `-g` switches between the services
-  // of the realm and the global ones, so the loader reads it from the command.
-  // `service delete` keeps its own picker for its `-i` (`--id`).
+  // The AM services: `service export -i` (`--service-id`) and `service delete -i`
+  // (`--id`). `-g` switches between the services of the realm and the global
+  // ones, so the loader reads it from the command.
   type AmService = Awaited<
     ReturnType<typeof frodo.service.getListOfServices>
   >[number];
@@ -865,9 +1094,9 @@ export function registerEntityPickFamilies(): void {
 
   registerEntityPickFamily({
     family: 'service',
-    picks: [
+    picks: ['serviceId', 'id'].map((name) =>
       entityPick<AmService>({
-        name: 'serviceId',
+        name,
         kind: 'service',
         load: () => services(false),
         loadFor: (command) =>
@@ -875,8 +1104,8 @@ export function registerEntityPickFamilies(): void {
         label: (service) => service._id ?? '',
         description: (service) =>
           typeof service.name === 'string' ? service.name : undefined,
-      }),
-    ],
+      })
+    ),
   });
 
   // `connector`: the IDM connectors, by id. The configuration of the connector

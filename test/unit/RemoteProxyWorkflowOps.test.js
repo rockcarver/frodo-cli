@@ -23,6 +23,11 @@ const everythingPrinted = () => printed.map((entry) => entry.msg).join('\n');
 
 /** The library calls that fail (by the label they put in `calls`) in the test at hand. */
 const failing = new Set();
+
+/** What the sender's library state answers to getCurlirizeSecrets(). */
+let senderCurlirizeSecrets = false;
+/** What the sender's library state answers to getEnvs(): the values of --env and --env-file. */
+let senderEnvs = {};
 function maybeFail(label) {
   if (failing.has(label)) {
     throw new FakeFrodoError(
@@ -69,14 +74,18 @@ const okResult = {
   message: 'ok',
 };
 
-function receiverFacade() {
+function receiverFacade(config) {
   const r = world.receiver;
+  r.config = config;
   return {
     state: {
       getHost: () => world.receiver.host,
       setDebug: () => {},
       setVerbose: () => {},
       setCurlirize: () => {},
+      setCurlirizeSecrets: (value) => {
+        world.receiver.curlirizeSecrets = value;
+      },
       setAllowInsecureConnection: () => {},
       setUseTokenCache: () => {},
     },
@@ -326,7 +335,7 @@ jest.unstable_mockModule('@rockcarver/frodo-lib', () => ({
   FrodoError: FakeFrodoError,
   frodo: {
     utils: { constants: { CLOUD_DEPLOYMENT_TYPE_KEY: 'cloud' } },
-    createInstance: () => receiverFacade(),
+    createInstance: (config) => receiverFacade(config),
     idm: { remoteProxy },
     cloud,
   },
@@ -335,7 +344,9 @@ jest.unstable_mockModule('@rockcarver/frodo-lib', () => ({
     getDebug: () => false,
     getVerbose: () => false,
     getCurlirize: () => false,
+    getCurlirizeSecrets: () => senderCurlirizeSecrets,
     getAllowInsecureConnection: () => false,
+    getEnvs: () => ({ ...senderEnvs }),
   },
 }));
 
@@ -426,6 +437,8 @@ beforeEach(() => {
   printed.length = 0;
   guardCalls.length = 0;
   savedProfileByHostName = undefined;
+  senderCurlirizeSecrets = false;
+  senderEnvs = {};
 });
 
 /** What a finished setup leaves on both tenants. */
@@ -465,6 +478,31 @@ describe('names', () => {
 });
 
 describe('setup on two empty tenants', () => {
+  test('the receiving tenant gets the values of --env and --env-file explicitly', async () => {
+    senderEnvs = { HOST: 'receiver.example.com', STAGE: 'test' };
+    await runSetup();
+    expect(world.receiver.config.host).toBe(RECEIVER);
+    expect(world.receiver.config.env).toEqual({
+      HOST: 'receiver.example.com',
+      STAGE: 'test',
+    });
+  });
+
+  test('without --env the receiving tenant gets an empty map', async () => {
+    await runSetup();
+    expect(world.receiver.config.env).toEqual({});
+  });
+
+  test('the receiving tenant shows the credentials in the curl output exactly when the sender does', async () => {
+    await runSetup();
+    expect(world.receiver.curlirizeSecrets).toBe(false);
+
+    senderCurlirizeSecrets = true;
+    world = freshWorld();
+    await runSetup();
+    expect(world.receiver.curlirizeSecrets).toBe(true);
+  });
+
   test('creates the client and mapping on the receiver, then the ESV secret, variable and proxy, applies once and tests', async () => {
     const { outcome } = await runSetup();
 
@@ -857,6 +895,13 @@ describe('teardown', () => {
     );
     return { outcome, clock };
   };
+
+  test('the receiving tenant gets the values of --env and --env-file explicitly here too', async () => {
+    await setupThenForget();
+    senderEnvs = { HOST: 'receiver.example.com' };
+    await runTeardown();
+    expect(world.receiver.config.env).toEqual({ HOST: 'receiver.example.com' });
+  });
 
   test('cuts the access first: the mapping, then the client, and only then the proxy, the ESV variable and the ESV secret', async () => {
     await setupThenForget();

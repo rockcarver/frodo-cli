@@ -33,6 +33,7 @@ A miss fails with `Recording for the following request is not found`. An expired
 ## Before you record: stop unless all of these hold
 
 - A maintainer asked for it, and you have a **working saved connection profile for a development tenant** of the right deployment type (`frodo conn list`). Recording uses `FRODO_CONNECTION` (your profile) and leaves the credential variables unset; nothing from the committed test fixtures is used to log in.
+- `test/e2e/utils/TestConfig.js` holds no key (replay uses throwaway ones made at test time). A recording pass uses your profile and leaves it alone, except the tests that log in with credentials they pass themselves (`info`, `log-list`): export your own `FRODO_TEST_USER`, `FRODO_TEST_PASSWORD`, `FRODO_TEST_SA_ID` and `FRODO_TEST_SA_JWK` (the JWK itself) for that pass. Never write a real key into a file of the repository or a header comment; `test/unit/NoCredentialsInTests.test.js` fails on a key in a test source.
 - The tenant holds **no data you cannot publish**. Recordings are committed to a public repository and secret filtering is a denylist.
 - `frodo` is built from this checkout (`npx tsdown`), and, if your change depends on library changes, a linked local frodo-lib is built (see the `build-the-cli` skill).
 - **The bare `frodo` in the commands below is this checkout's build, not an older install.** The npm scripts pin it for you; for a command you type yourself, run `export PATH="$PWD/test/e2e/shims:$PATH"` first (the shim runs `dist/launch.cjs`) and check with `frodo -v` that the `cli:` time is your build's. A `frodo` installed elsewhere records the wrong traffic.
@@ -78,7 +79,7 @@ npm run test:only -- test/e2e/conn-describe                                     
 
 ## Review before you commit
 
-- **Read the recording diff** (`git diff test/e2e/mocks`) for anything that should not be public: tokens, keys, e-mail addresses, tenant data. Secrets are masked by a denylist in frodo-lib (`filterRecording`), which does not know about fields it has not been taught.
+- **Read the recording diff** (`git diff test/e2e/mocks`) for anything that should not be public: tokens, keys, e-mail addresses, tenant data. Read the test file you changed for the same, header comments included. Secrets are masked by a denylist in frodo-lib (`filterRecording`), which does not know about fields it has not been taught.
 - `git status` must show only the recordings, test and snapshot you meant to change. No `default_*` directory; no recording for a setup helper (recording-only setup traffic is recorded under a script-derived name and must be deleted).
 - **Do not run Prettier over `test/e2e/`.** Replay matches recorded request bodies byte for byte.
 - **Snapshots:** an updated snapshot must be an expected output change. Read each snapshot diff and say in the pull request what changed and why. Never update snapshots to turn CI green.

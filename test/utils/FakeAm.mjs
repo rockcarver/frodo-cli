@@ -48,12 +48,72 @@
  * the username filtered as `uid`. FAKE_AM_USERS_CAP=<n> makes that endpoint
  * stop at n results, in the list and in the count, as AM does at the data
  * store's maximum results (1000 by default).
+ * FAKE_AM_TRUSTED_ISSUERS_FILE=<path> names a JSON array of OAuth2 trusted JWT
+ * issuers in the plain shape (a setting that is not set is `null`) the fake
+ * serves as a collection (`.../realm-config/agents/TrustedJwtIssuer`), the way
+ * AM does: the query answers the issuers as they are, a read by id answers one
+ * with every setting wrapped in `{ inherited, value }` (no `value` for a setting
+ * that is not set) or `404`, `PUT` stores one (`201` for a new id, `200`
+ * otherwise; `400 Invalid attribute specified.` for a body with `_rev`, which AM
+ * refuses) and `DELETE` removes one (`404` for a missing id). The issuers are
+ * kept in memory for the life of the process, whatever the realm of the URL.
+ * It wins over FAKE_AM_ISSUER_FILE when both are set. An empty array is a realm
+ * without issuers.
+ * FAKE_AM_AI_AGENTS_FILE=<path> names a JSON array of AI agents (objects with `_id`,
+ * `_type` and the settings sections AM holds, e.g. `coreOAuth2ClientConfig`) the fake
+ * serves as a collection (`.../realm-config/agents/AIAgent`): the query (`_queryFilter=true`
+ * or `_id eq '<id>'`) and a read by id answer the agents as they are (`404` for a missing id), `PUT` stores one (`201` for a
+ * new id, `200` otherwise) and `DELETE` removes one (`404` for a missing id). The agents
+ * are kept in memory for the life of the process, whatever the realm of the URL. An empty
+ * array is a realm without AI agents. Only the AM calls are served, so use a classic
+ * login (`-m classic`): a cloud login reads the agent identities from IDM as well.
  * FAKE_AM_OAUTH2_CLIENTS=<id,id,...> makes the OAuth2 client list of the realm
  * (`.../realm-config/agents/OAuth2Client`) answer with those client ids, the way
  * the OAuth2 client picker of the admin commands reads it.
+ * FAKE_AM_OAUTH_CIMD_PROFILES=<id,id,...> makes every realm offer the agent type
+ * CIMDProfile (the agent type list `.../realm-config/agents?_action=getAllTypes`
+ * lists it; without the variable the list answers 404, a deployment that does not
+ * have the type) and hold CIMD profiles of those ids (an empty value: none). The
+ * profiles are the same in every realm and live as long as the fake: the list
+ * (`.../agents/CIMDProfile?_queryFilter=true`) answers with them in the plain
+ * shape, a `GET` of one id (`.../agents/CIMDProfile/<id>`, ignoring case, as AM
+ * does; `404` when missing) answers in the wrapped shape (`{ inherited, value }`
+ * per property, as AM answers a read by id), a `PUT` stores the body (`201` for a new id, which the server completes
+ * with a default group the body lacks, `200` for an existing one, which stores
+ * exactly the body; ids are matched ignoring case, as AM does) and refuses a `_rev` in it with `400
+ * Invalid attribute specified`, and a `DELETE` removes one (`404` when missing).
+ * FAKE_AM_OAUTH_ISSUERS=<id,id,...> makes every realm hold OAuth2 trusted JWT
+ * issuers of those ids (an empty value: none; without the variable the routes
+ * answer 404). The issuers are the same in every realm and live as long as the
+ * fake: the list (`.../agents/TrustedJwtIssuer?_queryFilter=true`) answers with
+ * them in the plain shape (ids only matter), the single read answers with every
+ * property wrapped as `{ inherited, value }`, a `PUT` stores the body (`201` for a
+ * new id, which the server completes with a default property the body lacks,
+ * `200` for an existing one, which stores exactly the body; a `_rev` in it is
+ * refused with `400 Invalid attribute specified.`, and so is a top-level
+ * attribute that AM does not know, which AM answers with the attributes it
+ * accepts in `detail.validAttributes`, the way the library's retry reads it) and
+ * a `DELETE` removes one (`404` when missing). Ids are matched exactly.
  * FAKE_AM_SCRIPTS=<name,name,...> makes the script list of the realm
  * (`.../scripts`) answer with scripts of those names, the way the script
  * picker of the script commands reads it.
+ * FAKE_AM_SECRETS=<id,id,...> makes the list of environment secrets
+ * (`/environment/secrets`, a cloud tenant) answer with secrets of those ids; an
+ * empty value is a tenant without secrets. Without it the list answers 404. The
+ * calls that delete a secret or add a version to one are answered `200`, and
+ * reading one of them answers its skeleton.
+ * FAKE_AM_SERVICE_ACCOUNTS=<id,id,...> makes the read of one service account of
+ * a cloud tenant (`GET /openidm/managed/svcacct/<id>`, what saving a connection
+ * profile with a service account asks for) answer with an account of that id;
+ * any other id answers 404. Without it every such read answers 404.
+ * FAKE_AM_SERVICES=<id,id,...> makes the list of the AM services of the realm
+ * and of the global ones (`.../services?_action=nextdescendents`) answer with
+ * services of those ids; an empty value is a realm without services. Without it
+ * the list answers 404. Deleting one is answered `200`.
+ * FAKE_AM_SECRET_STORES_FILE=<path> names a JSON file `{ stores: [{ _id, type }],
+ * mappings: { <store id>: [{ secretId, aliases }] } }` the fake serves the secret
+ * stores of the realm (`.../secrets/stores?_action=nextdescendents`) and their
+ * mappings from; creating or replacing a mapping is answered `200`.
  * FAKE_AM_TREES=<name,name,...> makes the journey list of the realm
  * (`.../authenticationtrees/trees`) answer with trees of those names; an empty
  * value is a realm without journeys. Without it the list answers 404. The
@@ -64,6 +124,56 @@
  * answers it; every request is recorded, so a test counts the logouts in the
  * request log. FAKE_AM_LOGOUT=refuse makes AM refuse it (`400`), and
  * FAKE_AM_LOGOUT=hang makes it never answer.
+ * FAKE_AM_LOGIN=refuse makes AM refuse the credentials of every login: the
+ * authenticate call that carries callbacks is answered `401 Login failure`, as
+ * AM answers a wrong password. A login is one authenticate call without
+ * callbacks (it starts the journey), so a test counts the logins in the
+ * request log by counting those.
+ * FAKE_AM_LOGIN_DELAY_MS=<n> holds every authenticate answer for n ms, so a
+ * terminal test can see what the CLI shows while a login is running.
+ * FAKE_AM_FAIL_REQUESTS='[{"method":"GET","path":"/realm-config/authentication"}]'
+ * makes every request with that method whose URL contains that path answer
+ * `500` with the message `fake tenant operation failed`. It is checked before
+ * every other route, after the request was recorded, so a test sees the failing
+ * request in the request log and the CLI sees a failed operation behind a login
+ * that worked.
+ * FAKE_AM_FEATURES_FILE=<path> names a JSON array of IDM tenant-configuration features
+ * (`_id`, `installedVersion`, `availableVersions`, and `validate`, the body the validate
+ * action answers with: default `{ status: 200, success: true, message: 'Validate
+ * complete.', failures: [] }`) the fake serves as the feature registry of a Cloud tenant
+ * (`GET /openidm/feature`, `GET /openidm/feature/<id>` and `POST ...?_action=validate`;
+ * an id that is not listed answers `404`; the install action is not served). Without it
+ * the registry answers 404.
+ * FAKE_AM_IDM_CONFIG_FILE=<path> names a JSON object `{ managed, "repo.ds" }` the fake
+ * serves as `GET /openidm/config/managed` and `GET /openidm/config/repo.ds`. Only reads
+ * are answered: a write to them is answered `500`, so a test that must not change the
+ * tenant sees it in the request log.
+ * FAKE_AM_IDM_ENTITIES_FILE=<path> names a JSON object `{ "<config id>": { ...the object IDM serves } }`
+ * (for example `sync` or `provisioner.openicf/xyz`) the fake serves as `GET /openidm/config/<id>`
+ * and takes `PUT /openidm/config/<id>` for: the body replaces the entity (with `_id` taken
+ * from the URL, as IDM does) and is answered with `200`. The request log holds the body of
+ * every write. An id that is not in the object answers `404`; `managed` and `repo.ds` stay
+ * with FAKE_AM_IDM_CONFIG_FILE above when that one is given.
+ * FAKE_AM_DIRECT_CONFIGURATION_FILE=<path> names a JSON object `{ apply?, states? }` that makes the
+ * fake serve the direct configuration session of a Cloud tenant, and the list of service account
+ * scopes that a service account login reads (`GET /environment/scopes/service-accounts`, which
+ * names the scopes of the session API). `PUT /environment/direct-configuration/session/init`
+ * answers `{ editable: true }` and `.../abort` answers `{ editable: false }`; `.../apply` answers
+ * `apply` (default `{ editable: false }`, as the real tenant does); `GET .../state` answers the next
+ * entry of `states` (default `[{ editable: false }]`) and then the last one again, so a test scripts
+ * the statuses a wait polls through. The request log holds every call. Without the option the whole
+ * session API answers 404.
+ * FAKE_AM_EMPTY_COLLECTIONS=1 makes the fake answer every collection query it has no
+ * route for as an empty collection, the way a realm that holds nothing answers it: a
+ * `GET` with a `_queryFilter` and a `POST` with `_action=nextdescendents` get `200`
+ * with an empty `result`. It is checked last, so every route above still wins. A
+ * command that reads many kinds of configuration (`config export`) then runs through
+ * on an empty tenant without a route for each kind; the request log shows what it asked for.
+ * FAKE_AM_LOG_API_KEYS_FILE=<path> names a JSON array of log API keys
+ * (`api_key_id`, `name`) the fake serves as the log API key list (`GET /keys`)
+ * and one key (`GET /keys/<id>`), and it makes the fake answer the OAuth2
+ * authorize and access token calls a cloud login with a user name and password
+ * makes.
  */
 import fs from 'node:fs';
 import http from 'node:http';
@@ -79,20 +189,179 @@ const sessionExpiry = () =>
     ? new Date(Date.now() + sessionTtlSeconds * 1000).toISOString()
     : '2099-01-01T00:00:00Z';
 const plainLogin = process.env.FAKE_AM_JOURNEY === 'password';
+const loginRefused = process.env.FAKE_AM_LOGIN === 'refuse';
+const loginDelayMs = Number(process.env.FAKE_AM_LOGIN_DELAY_MS) || 0;
 const serviceAccountLogin = process.env.FAKE_AM_JOURNEY === 'service-account';
 const realms = (process.env.FAKE_AM_REALMS ?? '').split(',').filter(Boolean);
 const readJson = (file) =>
   file ? JSON.parse(fs.readFileSync(file, 'utf8')) : undefined;
 const issuer = readJson(process.env.FAKE_AM_ISSUER_FILE);
 const users = readJson(process.env.FAKE_AM_USERS_FILE);
+const trustedIssuers = readJson(process.env.FAKE_AM_TRUSTED_ISSUERS_FILE)?.map(
+  (issuer) => ({ ...issuer })
+);
+const aiAgents = readJson(process.env.FAKE_AM_AI_AGENTS_FILE)?.map((agent) => ({
+  ...agent,
+}));
+const features = readJson(process.env.FAKE_AM_FEATURES_FILE);
+const idmConfig = readJson(process.env.FAKE_AM_IDM_CONFIG_FILE);
+const idmEntities = readJson(process.env.FAKE_AM_IDM_ENTITIES_FILE);
+const failRequests = JSON.parse(process.env.FAKE_AM_FAIL_REQUESTS ?? '[]');
+const directConfiguration = readJson(
+  process.env.FAKE_AM_DIRECT_CONFIGURATION_FILE
+);
+// how many state reads the fake has answered, which picks the next scripted answer
+let directConfigurationStateReads = 0;
+const emptyCollections = process.env.FAKE_AM_EMPTY_COLLECTIONS === '1';
+const logApiKeys = readJson(process.env.FAKE_AM_LOG_API_KEYS_FILE);
 const oauth2Clients = (process.env.FAKE_AM_OAUTH2_CLIENTS ?? '')
   .split(',')
   .filter(Boolean);
+const cimdProfileIds = process.env.FAKE_AM_OAUTH_CIMD_PROFILES;
+const cimdProfiles = new Map();
+for (const _id of (cimdProfileIds ?? '').split(',').filter(Boolean)) {
+  cimdProfiles.set(_id.toLowerCase(), {
+    _id,
+    _rev: '-1',
+    _type: { _id: 'CIMDProfile', name: 'CIMD Profile', collection: true },
+    cimdConfig: {
+      cimdClientIdUrlPatterns: [`https://${_id}.example.com/*`],
+      cimdSsrfProtectionEnabled: true,
+    },
+  });
+}
+const trustedJwtIssuerIds = process.env.FAKE_AM_OAUTH_ISSUERS;
+const trustedJwtIssuers = new Map();
+for (const _id of (trustedJwtIssuerIds ?? '').split(',').filter(Boolean)) {
+  trustedJwtIssuers.set(_id, {
+    _id,
+    _rev: '-1',
+    _type: {
+      _id: 'TrustedJwtIssuer',
+      name: 'OAuth2 Trusted JWT Issuer',
+      collection: true,
+    },
+    issuer: `https://${_id}.example.com`,
+    allowedSubjects: [],
+    consentedScopesClaim: 'scope',
+  });
+}
+// the read of one object wraps every property, as AM does
+const wrapJwtIssuer = (object) =>
+  Object.fromEntries(
+    Object.entries(object).map(([key, value]) =>
+      key.startsWith('_') ||
+      (value && typeof value === 'object' && 'inherited' in value)
+        ? [key, value]
+        : [key, { inherited: false, value }]
+    )
+  );
 const scripts = (process.env.FAKE_AM_SCRIPTS ?? '').split(',').filter(Boolean);
+const idList = (value) =>
+  value === undefined ? undefined : value.split(',').filter(Boolean);
+const secrets = idList(process.env.FAKE_AM_SECRETS);
+const services = idList(process.env.FAKE_AM_SERVICES);
+const serviceAccounts = idList(process.env.FAKE_AM_SERVICE_ACCOUNTS);
+const secretStores = readJson(process.env.FAKE_AM_SECRET_STORES_FILE);
+const agentTypes = idList(process.env.FAKE_AM_AGENT_TYPES);
+// the profiles of FAKE_AM_CIMD_PROFILES_FILE (a list that the `oauth cimd` tests
+// read, store and delete); FAKE_AM_OAUTH_CIMD_PROFILES keeps its own map above
+const cimdProfileList = readJson(process.env.FAKE_AM_CIMD_PROFILES_FILE);
+const cimdRootDenied = process.env.FAKE_AM_CIMD_ROOT_DENIED === '1';
+const cimdCompleteOnCreate =
+  process.env.FAKE_AM_CIMD_COMPLETE_ON_CREATE === '1';
+// the top-level attributes of an OAuth2 trusted JWT issuer that AM accepts (it lists them in the
+// detail of the 400 that it answers for any other); _id and _type are not among them
+const TRUSTED_JWT_ISSUER_ATTRIBUTES = [
+  'agentgroup',
+  'allowedSubjects',
+  'consentedScopesClaim',
+  'issuer',
+  'jwkSet',
+  'jwkStoreCacheMissCacheTime',
+  'jwksCacheTimeout',
+  'jwksUri',
+  'resourceOwnerIdentityClaim',
+];
+
+const CLOUD_NOT_AVAILABLE = {
+  code: 403,
+  reason: 'Forbidden',
+  message:
+    'This operation is not available in PingOne Advanced Identity Cloud.',
+};
+
+/** A property that is wrapped already (a file that a pull wrote and a push sent back stays as it is). */
+function isWrappedMember(value) {
+  return (
+    value !== null &&
+    typeof value === 'object' &&
+    !Array.isArray(value) &&
+    'inherited' in value
+  );
+}
+
+/** The CIMD profile the way a read by id answers it: the members of the groups wrapped. */
+function wrapCimdProfile(profile) {
+  const wrapped = {};
+  for (const [key, value] of Object.entries(profile)) {
+    if (
+      value &&
+      typeof value === 'object' &&
+      !Array.isArray(value) &&
+      key.endsWith('Config') &&
+      key !== 'overrideOAuth2ClientConfig'
+    ) {
+      wrapped[key] = Object.fromEntries(
+        Object.entries(value).map(([member, memberValue]) => [
+          member,
+          memberValue === null
+            ? { inherited: false }
+            : isWrappedMember(memberValue)
+              ? memberValue
+              : { inherited: false, value: memberValue },
+        ])
+      );
+    } else {
+      wrapped[key] = value;
+    }
+  }
+  return wrapped;
+}
+let cimdRevision = 0;
 const trees =
   process.env.FAKE_AM_TREES === undefined
     ? undefined
     : process.env.FAKE_AM_TREES.split(',').filter(Boolean);
+
+/** An issuer as a read by id answers it: every setting wrapped, `value` missing when it is not set. */
+function wrapIssuer(issuer) {
+  return Object.fromEntries(
+    Object.entries(issuer).map(([key, value]) => [
+      key,
+      key.startsWith('_') || key === 'agentgroup'
+        ? value
+        : value === null || value === undefined
+          ? { inherited: false }
+          : { inherited: false, value },
+    ])
+  );
+}
+
+/** The issuer a request body holds, with its wrapped settings made plain again. */
+function plainIssuer(id, body) {
+  return {
+    ...Object.fromEntries(
+      Object.entries(body).map(([key, value]) => [
+        key,
+        value && typeof value === 'object' && 'inherited' in value
+          ? (value.value ?? null)
+          : value,
+      ])
+    ),
+    _id: id,
+  };
+}
 
 /** The users an IDM or AM `_queryFilter` of the shapes above selects. */
 function selectUsers(filter) {
@@ -112,6 +381,51 @@ function selectUsers(filter) {
       return operator === 'eq' ? have === wanted : have.startsWith(wanted);
     })
   );
+}
+/**
+ * Answers a request for the AI agent collection (`.../realm-config/agents/AIAgent`
+ * and `.../AIAgent/<id>`) from `aiAgents`, or returns false when the request is not
+ * one. `send(status, payload)` writes the answer.
+ */
+function serveAiAgents(req, body, send) {
+  const route = req.url
+    .split('?')[0]
+    .match(/\/realm-config\/agents\/AIAgent(?:\/([^/]+))?$/);
+  if (!aiAgents || !route) return false;
+  const notFound = { code: 404, reason: 'Not Found', message: 'Not Found' };
+  const id = route[1] && decodeURIComponent(route[1]);
+  const index = aiAgents.findIndex(({ _id }) => _id === id);
+  if (!id && req.method === 'GET') {
+    // `_queryFilter=true` selects every agent, `_id eq '<id>'` the one with that id
+    const filter = new URL(req.url, 'http://fake').searchParams.get(
+      '_queryFilter'
+    );
+    const byId = filter?.match(/^_id eq '(.*)'$/);
+    const result = byId
+      ? aiAgents.filter(({ _id }) => _id === byId[1])
+      : aiAgents;
+    send(200, {
+      result,
+      resultCount: result.length,
+      pagedResultsCookie: null,
+      totalPagedResultsPolicy: 'EXACT',
+      totalPagedResults: result.length,
+      remainingPagedResults: -1,
+    });
+  } else if (id && req.method === 'GET') {
+    send(index < 0 ? 404 : 200, index < 0 ? notFound : aiAgents[index]);
+  } else if (id && req.method === 'PUT') {
+    const stored = { ...(body ? JSON.parse(body) : {}), _id: id, _rev: '1' };
+    if (index < 0) aiAgents.push(stored);
+    else aiAgents[index] = stored;
+    send(index < 0 ? 201 : 200, stored);
+  } else if (id && req.method === 'DELETE') {
+    if (index < 0) send(404, notFound);
+    else send(200, aiAgents.splice(index, 1)[0]);
+  } else {
+    return false;
+  }
+  return true;
 }
 let step = 0;
 
@@ -137,10 +451,44 @@ const server = http.createServer((req, res) => {
       );
     }
     const send = (status, payload) => {
-      res.writeHead(status, { 'content-type': 'application/json' });
-      res.end(JSON.stringify(payload));
+      const answer = () => {
+        res.writeHead(status, { 'content-type': 'application/json' });
+        res.end(JSON.stringify(payload));
+      };
+      if (loginDelayMs > 0 && req.url.includes('/authenticate')) {
+        setTimeout(answer, loginDelayMs);
+      } else {
+        answer();
+      }
     };
-    if (serviceAccountLogin && req.url.includes('/access_token')) {
+    if (
+      failRequests.some(
+        ({ method, path }) => req.method === method && req.url.includes(path)
+      )
+    ) {
+      return send(500, {
+        code: 500,
+        reason: 'Internal Server Error',
+        message: 'fake tenant operation failed',
+      });
+    }
+    if (logApiKeys && req.method === 'GET' && req.url === '/keys') {
+      return send(200, { result: logApiKeys });
+    }
+    if (logApiKeys && req.method === 'GET' && req.url.startsWith('/keys/')) {
+      const key = logApiKeys.find(
+        ({ api_key_id }) => req.url === `/keys/${api_key_id}`
+      );
+      return send(key ? 200 : 404, key ?? {});
+    }
+    if (logApiKeys && req.url.includes('/oauth2/authorize')) {
+      res.writeHead(302, { location: '/?code=fake-auth-code' });
+      return res.end();
+    }
+    if (
+      (serviceAccountLogin || logApiKeys) &&
+      req.url.includes('/access_token')
+    ) {
       if (
         process.env.FAKE_AM_GRANT_ERROR &&
         !body.includes('client_id=service-account')
@@ -156,6 +504,88 @@ const server = http.createServer((req, res) => {
         expires_in: 3600,
       });
     }
+    if (serveAiAgents(req, body, send)) return;
+    if (directConfiguration) {
+      const route = new URL(req.url, 'http://fake').pathname;
+      const session = '/environment/direct-configuration/session/';
+      if (
+        req.method === 'GET' &&
+        route === '/environment/scopes/service-accounts'
+      ) {
+        return send(200, [
+          {
+            scope: 'fr:idc:direct-configuration:session:*',
+            description:
+              'All Direct Configuration Control Session management APIs',
+            childScopes: [
+              {
+                scope: 'fr:idc:direct-configuration:session:read',
+                description: 'Read Direct Configuration Control Session state',
+              },
+            ],
+          },
+        ]);
+      }
+      if (req.method === 'PUT' && route === `${session}init`) {
+        return send(200, { editable: true });
+      }
+      if (req.method === 'PUT' && route === `${session}apply`) {
+        return send(200, directConfiguration.apply ?? { editable: false });
+      }
+      if (req.method === 'PUT' && route === `${session}abort`) {
+        return send(200, { editable: false });
+      }
+      if (req.method === 'GET' && route === `${session}state`) {
+        const states = directConfiguration.states ?? [{ editable: false }];
+        const answer =
+          states[Math.min(directConfigurationStateReads, states.length - 1)];
+        directConfigurationStateReads += 1;
+        return send(200, answer);
+      }
+    }
+    const issuerRoute = req.url
+      .split('?')[0]
+      .match(/\/realm-config\/agents\/TrustedJwtIssuer(?:\/([^/]+))?$/);
+    if (trustedIssuers && issuerRoute) {
+      const notFound = { code: 404, reason: 'Not Found', message: 'Not Found' };
+      const id = issuerRoute[1] && decodeURIComponent(issuerRoute[1]);
+      const index = trustedIssuers.findIndex(({ _id }) => _id === id);
+      if (!id && req.method === 'GET') {
+        return send(200, {
+          result: trustedIssuers,
+          resultCount: trustedIssuers.length,
+          pagedResultsCookie: null,
+          totalPagedResultsPolicy: 'EXACT',
+          totalPagedResults: trustedIssuers.length,
+          remainingPagedResults: -1,
+        });
+      }
+      if (id && req.method === 'GET') {
+        return index < 0
+          ? send(404, notFound)
+          : send(200, wrapIssuer(trustedIssuers[index]));
+      }
+      if (id && req.method === 'PUT') {
+        const posted = body ? JSON.parse(body) : {};
+        if ('_rev' in posted) {
+          return send(400, {
+            code: 400,
+            reason: 'Bad Request',
+            message: 'Invalid attribute specified.',
+            detail: { validAttributes: Object.keys(posted) },
+          });
+        }
+        const stored = { ...plainIssuer(id, posted), _rev: '1' };
+        if (index < 0) trustedIssuers.push(stored);
+        else trustedIssuers[index] = stored;
+        return send(index < 0 ? 201 : 200, wrapIssuer(stored));
+      }
+      if (id && req.method === 'DELETE') {
+        if (index < 0) return send(404, notFound);
+        const [removed] = trustedIssuers.splice(index, 1);
+        return send(200, wrapIssuer(removed));
+      }
+    }
     if (issuer && req.url.includes('/realm-config/agents/TrustedJwtIssuer/')) {
       return send(200, {
         _id: decodeURIComponent(req.url.split('/TrustedJwtIssuer/')[1]).split(
@@ -168,6 +598,111 @@ const server = http.createServer((req, res) => {
       });
     }
     const pathname = new URL(req.url, 'http://fake').pathname;
+    // the root realm of a Cloud tenant offers neither the type list nor the profiles
+    const rootRealmOnly = /\/json\/realms\/root\/realm-config\//.test(pathname);
+    if (
+      agentTypes &&
+      req.method === 'POST' &&
+      pathname.endsWith('/realm-config/agents') &&
+      new URL(req.url, 'http://fake').searchParams.get('_action') ===
+        'getAllTypes'
+    ) {
+      if (cimdRootDenied && rootRealmOnly) {
+        return send(403, CLOUD_NOT_AVAILABLE);
+      }
+      return send(200, {
+        result: agentTypes.map((_id) => ({
+          _id,
+          name: `${_id} Agents`,
+          collection: true,
+        })),
+        resultCount: agentTypes.length,
+        pagedResultsCookie: null,
+        totalPagedResultsPolicy: 'NONE',
+        totalPagedResults: -1,
+        remainingPagedResults: -1,
+      });
+    }
+    if (
+      cimdProfileList &&
+      pathname.includes('/realm-config/agents/CIMDProfile')
+    ) {
+      if (cimdRootDenied && rootRealmOnly) {
+        return send(403, CLOUD_NOT_AVAILABLE);
+      }
+      const notFound = { code: 404, reason: 'Not Found', message: 'Not Found' };
+      const collection = pathname.endsWith('/agents/CIMDProfile');
+      const wanted = collection
+        ? undefined
+        : decodeURIComponent(pathname.split('/agents/CIMDProfile/')[1] ?? '');
+      const position = collection
+        ? -1
+        : cimdProfileList.findIndex(
+            (profile) => profile._id.toLowerCase() === wanted.toLowerCase()
+          );
+      if (collection && req.method === 'GET') {
+        return send(200, {
+          result: cimdProfileList,
+          resultCount: cimdProfileList.length,
+          pagedResultsCookie: null,
+          totalPagedResultsPolicy: 'EXACT',
+          totalPagedResults: cimdProfileList.length,
+          remainingPagedResults: -1,
+        });
+      }
+      if (!collection && req.method === 'GET') {
+        return position < 0
+          ? send(404, notFound)
+          : send(200, wrapCimdProfile(cimdProfileList[position]));
+      }
+      if (!collection && req.method === 'DELETE') {
+        if (position < 0) return send(404, notFound);
+        const [deleted] = cimdProfileList.splice(position, 1);
+        return send(200, wrapCimdProfile(deleted));
+      }
+      if (!collection && req.method === 'PUT') {
+        const posted = body ? JSON.parse(body) : {};
+        if ('_rev' in posted) {
+          return send(400, {
+            code: 400,
+            reason: 'Bad Request',
+            message: 'Invalid attribute specified.',
+          });
+        }
+        if (position >= 0 && req.headers['if-none-match'] === '*') {
+          return send(412, {
+            code: 412,
+            reason: 'Precondition Failed',
+            message: 'Precondition Failed',
+          });
+        }
+        const stored = {
+          _id: position >= 0 ? cimdProfileList[position]._id : wanted,
+          _rev: String(++cimdRevision),
+          ...Object.fromEntries(
+            Object.entries(posted).filter(
+              ([key]) => !['_id', '_rev', '_type'].includes(key)
+            )
+          ),
+          _type: { _id: 'CIMDProfile', name: 'CIMD Profile', collection: true },
+        };
+        if (position < 0 && cimdCompleteOnCreate) {
+          // the server fills in what a create left out
+          stored.coreOAuth2ClientConfig = {
+            status: 'Active',
+            scopes: ['openid'],
+            ...stored.coreOAuth2ClientConfig,
+          };
+          stored.overrideOAuth2ClientConfig = {
+            issueRefreshToken: true,
+            ...stored.overrideOAuth2ClientConfig,
+          };
+        }
+        if (position >= 0) cimdProfileList[position] = stored;
+        else cimdProfileList.push(stored);
+        return send(position >= 0 ? 200 : 201, wrapCimdProfile(stored));
+      }
+    }
     if (
       oauth2Clients.length > 0 &&
       pathname.endsWith('/realm-config/agents/OAuth2Client')
@@ -180,6 +715,266 @@ const server = http.createServer((req, res) => {
         totalPagedResults: oauth2Clients.length,
         remainingPagedResults: -1,
       });
+    }
+    if (cimdProfileIds !== undefined) {
+      const query = new URL(req.url, 'http://fake').searchParams;
+      if (
+        req.method === 'POST' &&
+        pathname.endsWith('/realm-config/agents') &&
+        query.get('_action') === 'getAllTypes'
+      ) {
+        return send(200, {
+          result: [
+            { _id: 'CIMDProfile', name: 'CIMD Profile', collection: true },
+          ],
+        });
+      }
+      if (req.method === 'GET' && pathname.endsWith('/agents/CIMDProfile')) {
+        return send(200, {
+          result: [...cimdProfiles.values()],
+          resultCount: cimdProfiles.size,
+          pagedResultsCookie: null,
+          totalPagedResultsPolicy: 'EXACT',
+          totalPagedResults: cimdProfiles.size,
+          remainingPagedResults: -1,
+        });
+      }
+      const profilePath = pathname.split('/agents/CIMDProfile/');
+      if (profilePath.length === 2) {
+        const id = decodeURIComponent(profilePath[1]);
+        const key = id.toLowerCase();
+        if (req.method === 'PUT') {
+          const posted = body ? JSON.parse(body) : {};
+          if ('_rev' in posted) {
+            return send(400, {
+              code: 400,
+              reason: 'Bad Request',
+              message: 'Invalid attribute specified.',
+            });
+          }
+          const created = !cimdProfiles.has(key);
+          const stored = {
+            // a created profile is completed with the server's defaults, an updated one is stored as sent
+            ...(created
+              ? { coreOAuth2ClientConfig: { redirectionUris: [] } }
+              : {}),
+            ...posted,
+            _id: cimdProfiles.get(key)?._id ?? id,
+            _rev: '-2',
+            _type: {
+              _id: 'CIMDProfile',
+              name: 'CIMD Profile',
+              collection: true,
+            },
+          };
+          cimdProfiles.set(key, stored);
+          return send(created ? 201 : 200, stored);
+        }
+        if (req.method === 'GET') {
+          const stored = cimdProfiles.get(key);
+          return stored
+            ? send(200, wrapCimdProfile(stored))
+            : send(404, {
+                code: 404,
+                reason: 'Not Found',
+                message: 'Not Found',
+              });
+        }
+        if (req.method === 'DELETE') {
+          const stored = cimdProfiles.get(key);
+          cimdProfiles.delete(key);
+          return stored
+            ? send(200, stored)
+            : send(404, {
+                code: 404,
+                reason: 'Not Found',
+                message: 'Not Found',
+              });
+        }
+      }
+    }
+    if (trustedJwtIssuerIds !== undefined) {
+      if (
+        req.method === 'GET' &&
+        pathname.endsWith('/agents/TrustedJwtIssuer')
+      ) {
+        return send(200, {
+          result: [...trustedJwtIssuers.values()],
+          resultCount: trustedJwtIssuers.size,
+          pagedResultsCookie: null,
+          totalPagedResultsPolicy: 'EXACT',
+          totalPagedResults: trustedJwtIssuers.size,
+          remainingPagedResults: -1,
+        });
+      }
+      const issuerPath = pathname.split('/agents/TrustedJwtIssuer/');
+      if (issuerPath.length === 2) {
+        const id = decodeURIComponent(issuerPath[1]);
+        const notFound = () =>
+          send(404, { code: 404, reason: 'Not Found', message: 'Not Found' });
+        if (req.method === 'GET') {
+          const stored = trustedJwtIssuers.get(id);
+          return stored ? send(200, wrapJwtIssuer(stored)) : notFound();
+        }
+        if (req.method === 'PUT') {
+          const posted = body ? JSON.parse(body) : {};
+          if ('_rev' in posted) {
+            return send(400, {
+              code: 400,
+              reason: 'Bad Request',
+              message: 'Invalid attribute specified.',
+            });
+          }
+          // AM refuses a top-level attribute it does not know and says which ones it accepts
+          const unknown = Object.keys(posted).filter(
+            (attribute) =>
+              attribute !== '_id' &&
+              attribute !== '_type' &&
+              !TRUSTED_JWT_ISSUER_ATTRIBUTES.includes(attribute)
+          );
+          if (unknown.length > 0) {
+            return send(400, {
+              code: 400,
+              reason: 'Bad Request',
+              message: 'Invalid attribute specified.',
+              detail: { validAttributes: TRUSTED_JWT_ISSUER_ATTRIBUTES },
+            });
+          }
+          const created = !trustedJwtIssuers.has(id);
+          const stored = {
+            // a created issuer is completed with the server's defaults, an updated one is stored as sent
+            ...(created ? { jwksCacheTimeout: 3600000 } : {}),
+            ...posted,
+            _id: id,
+            _rev: '-2',
+            _type: {
+              _id: 'TrustedJwtIssuer',
+              name: 'OAuth2 Trusted JWT Issuer',
+              collection: true,
+            },
+          };
+          trustedJwtIssuers.set(id, stored);
+          return send(created ? 201 : 200, wrapJwtIssuer(stored));
+        }
+        if (req.method === 'DELETE') {
+          const stored = trustedJwtIssuers.get(id);
+          trustedJwtIssuers.delete(id);
+          return stored ? send(200, wrapJwtIssuer(stored)) : notFound();
+        }
+      }
+    }
+    if (serviceAccounts && pathname.includes('/openidm/managed/svcacct/')) {
+      const _id = decodeURIComponent(
+        pathname.split('/openidm/managed/svcacct/')[1]
+      );
+      return serviceAccounts.includes(_id)
+        ? send(200, {
+            _id,
+            name: `service account ${_id}`,
+            description: 'a service account of the fake tenant',
+            accountStatus: 'Active',
+            scopes: [],
+          })
+        : send(404, { code: 404, reason: 'Not Found', message: 'Not Found' });
+    }
+    if (secrets && pathname.endsWith('/environment/secrets')) {
+      return send(200, {
+        result: secrets.map((_id) => ({
+          _id,
+          description: `the secret ${_id}`,
+          activeVersion: '1',
+          loadedVersion: '1',
+        })),
+        pagedResultsCookie: null,
+        totalPagedResultsPolicy: 'EXACT',
+        totalPagedResults: secrets.length,
+        remainingPagedResults: -1,
+      });
+    }
+    if (
+      secrets &&
+      req.method === 'GET' &&
+      pathname.includes('/environment/secrets/')
+    ) {
+      const _id = decodeURIComponent(
+        pathname.split('/environment/secrets/')[1]
+      );
+      return secrets.includes(_id.split('/')[0])
+        ? send(200, { _id, encoding: 'generic', useInPlaceholders: true })
+        : send(404, { code: 404, message: 'not found' });
+    }
+    if (
+      secrets &&
+      pathname.includes('/environment/secrets/') &&
+      ['DELETE', 'POST'].includes(req.method)
+    ) {
+      return send(200, {});
+    }
+    if (
+      services &&
+      req.method === 'POST' &&
+      pathname.endsWith('/services') &&
+      new URL(req.url, 'http://fake').searchParams.get('_action') ===
+        'nextdescendents'
+    ) {
+      return send(200, {
+        result: services.map((_id) => ({
+          _id,
+          name: `the service ${_id}`,
+          _type: { _id, name: _id, collection: false },
+        })),
+      });
+    }
+    if (
+      services &&
+      req.method === 'DELETE' &&
+      pathname.includes('/services/')
+    ) {
+      return send(200, {});
+    }
+    if (secretStores && pathname.includes('/secrets/stores')) {
+      const search = new URL(req.url, 'http://fake').searchParams;
+      if (
+        req.method === 'POST' &&
+        pathname.endsWith('/secrets/stores') &&
+        search.get('_action') === 'nextdescendents'
+      ) {
+        return send(200, {
+          result: secretStores.stores.map(({ _id, type }) => ({
+            _id,
+            _type: { _id: type, name: type, collection: true },
+          })),
+        });
+      }
+      const mappings = pathname.match(
+        /\/secrets\/stores\/[^/]+\/([^/]*)\/?mappings$/
+      );
+      if (mappings && req.method === 'GET') {
+        const wanted =
+          mappings[1] ||
+          secretStores.stores.find(({ type }) =>
+            pathname.includes(`/stores/${type}/`)
+          )?._id;
+        return send(200, {
+          result: (secretStores.mappings?.[wanted] ?? []).map((mapping) => ({
+            _id: mapping.secretId,
+            ...mapping,
+          })),
+        });
+      }
+      if (mappings && req.method === 'POST') return send(200, {});
+      const mapping = pathname.match(
+        /\/secrets\/stores\/[^/]+\/([^/]*)\/?mappings\/([^/]+)$/
+      );
+      if (mapping && req.method === 'GET') {
+        const found = (secretStores.mappings?.[mapping[1]] ?? []).find(
+          ({ secretId }) => secretId === decodeURIComponent(mapping[2])
+        );
+        return found
+          ? send(200, { _id: found.secretId, ...found })
+          : send(404, { code: 404, message: 'not found' });
+      }
+      if (mapping && req.method === 'PUT') return send(200, {});
     }
     if (trees && pathname.endsWith('/authenticationtrees/trees')) {
       return send(200, {
@@ -207,6 +1002,70 @@ const server = http.createServer((req, res) => {
         totalPagedResultsPolicy: 'EXACT',
         totalPagedResults: scripts.length,
         remainingPagedResults: -1,
+      });
+    }
+    if (features && /\/openidm\/feature(\/|$)/.test(pathname)) {
+      const query = new URL(req.url, 'http://fake').searchParams;
+      const rest = pathname.split('/openidm/feature')[1].replace(/^\//, '');
+      const listed = ({ validate, ...feature }) => feature;
+      if (req.method === 'GET' && rest === '') {
+        return send(200, {
+          result: features.map(listed),
+          resultCount: features.length,
+          pagedResultsCookie: null,
+          totalPagedResultsPolicy: 'NONE',
+          totalPagedResults: -1,
+          remainingPagedResults: -1,
+        });
+      }
+      const feature = features.find(
+        (candidate) => candidate._id === decodeURIComponent(rest)
+      );
+      if (!feature) {
+        return send(404, {
+          code: 404,
+          reason: 'Not Found',
+          message: 'Not Found',
+        });
+      }
+      if (req.method === 'GET') return send(200, listed(feature));
+      if (req.method === 'POST' && query.get('_action') === 'validate') {
+        return send(
+          200,
+          feature.validate ?? {
+            status: 200,
+            success: true,
+            message: 'Validate complete.',
+            failures: [],
+          }
+        );
+      }
+    }
+    if (idmConfig && /\/openidm\/config\/(managed|repo\.ds)$/.test(pathname)) {
+      const name = pathname.split('/').pop();
+      if (req.method === 'GET' && idmConfig[name] !== undefined) {
+        return send(200, idmConfig[name]);
+      }
+      return send(500, {
+        code: 500,
+        reason: 'Internal Server Error',
+        message: 'the fake tenant does not take writes to this configuration',
+      });
+    }
+    if (idmEntities && pathname.includes('/openidm/config/')) {
+      const id = decodeURIComponent(pathname.split('/openidm/config/')[1]);
+      if (req.method === 'GET' && idmEntities[id] !== undefined) {
+        return send(200, idmEntities[id]);
+      }
+      if (req.method === 'PUT') {
+        const posted = body ? JSON.parse(body) : {};
+        idmEntities[id] = { _id: id, ...posted };
+        return send(200, idmEntities[id]);
+      }
+      return send(404, {
+        code: 404,
+        reason: 'Not Found',
+        message: 'Not Found',
       });
     }
     if (users && pathname.includes('/json/') && pathname.endsWith('/users')) {
@@ -276,6 +1135,13 @@ const server = http.createServer((req, res) => {
     }
     if (req.url.includes('/authenticate')) {
       const posted = body ? JSON.parse(body) : {};
+      if (posted.callbacks && loginRefused) {
+        return send(401, {
+          code: 401,
+          reason: 'Unauthorized',
+          message: 'Login failure',
+        });
+      }
       if (!posted.callbacks) {
         step = 1;
         return send(200, {
@@ -336,6 +1202,22 @@ const server = http.createServer((req, res) => {
         reason: 'Unauthorized',
         message: 'fake AM: no session lookup',
       });
+    }
+    if (emptyCollections) {
+      const query = new URL(req.url, 'http://fake').searchParams;
+      if (
+        (req.method === 'GET' && query.has('_queryFilter')) ||
+        (req.method === 'POST' && query.get('_action') === 'nextdescendents')
+      ) {
+        return send(200, {
+          result: [],
+          resultCount: 0,
+          pagedResultsCookie: null,
+          totalPagedResultsPolicy: 'EXACT',
+          totalPagedResults: 0,
+          remainingPagedResults: -1,
+        });
+      }
     }
     return send(404, {});
   });

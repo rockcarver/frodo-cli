@@ -16,15 +16,36 @@ const fakeAmPath = fileURLToPath(new URL('./FakeAm.mjs', import.meta.url));
  * @param {string} [options.journey] `password` for plain login, `service-account` for bearer login (default: the MFA journey)
  * @param {string} [options.grantError] makes the service-account journey refuse other token requests with `invalid_grant` and this description
  * @param {{ issuer?: string, allowedSubjects: string[] }} [options.issuer] what every trusted JWT issuer read answers with
+ * @param {object[]} [options.trustedIssuers] OAuth2 trusted JWT issuers (plain shape, `null` for a setting that is not set) the realm-config/agents/TrustedJwtIssuer collection serves, stores and deletes; an empty array is a realm without issuers (default: only what `issuer` answers)
+ * @param {object[]} [options.aiAgents] AI agents (`_id`, `_type`, settings sections) the realm-config/agents/AIAgent collection serves, stores and deletes; an empty array is a realm without AI agents (default: it answers 404). AM calls only, so log in with `-m classic`
  * @param {number} [options.sessionTtlSeconds] lifetime of the session of a plain login, from the moment it is looked up (default: it expires in 2099)
  * @param {'refuse' | 'hang'} [options.logout] makes the logout call fail with `400` (`refuse`) or never answer (`hang`); default: it succeeds
+ * @param {'refuse'} [options.login] makes every login fail with `401 Login failure` once the credentials are posted; default: it succeeds
+ * @param {number} [options.loginDelayMs] holds every authenticate answer for this many milliseconds (default: no delay)
  * @param {number} [options.usersCap] stops the AM users endpoint (not IDM) at this many results, in the list and in the count
  * @param {string[]} [options.oauth2Clients] client ids the OAuth2 client list of the realm answers with (default: it answers 404)
+ * @param {string[]} [options.oauthCimdProfiles] ids of the CIMD profiles every realm holds; the realms then offer the agent type CIMDProfile, an empty array is none (default: the type is not offered, its type list answers 404)
+ * @param {string[]} [options.oauthIssuers] ids of the OAuth2 trusted JWT issuers every realm holds; an empty array is none (default: the routes answer 404)
  * @param {string[]} [options.scripts] script names the script list of the realm answers with (default: it answers 404)
+ * @param {string[]} [options.secrets] ids the list of environment secrets answers with (a cloud tenant; default: it answers 404)
+ * @param {string[]} [options.serviceAccounts] ids of the service accounts a cloud tenant answers a read of `/openidm/managed/svcacct/<id>` for, which saving a connection profile with a service account asks for (default: every such read answers 404)
+ * @param {string[]} [options.services] ids the list of AM services (realm and global) answers with (default: it answers 404)
+ * @param {{ stores: { _id: string, type: string }[], mappings?: Record<string, { secretId: string, aliases?: string[] }[]> }} [options.secretStores] the secret stores of the realm and their mappings (default: they answer 404)
  * @param {string[]} [options.trees] journey names the journey list of the realm answers with; an empty array is a realm without journeys (default: it answers 404)
  * @param {object[]} [options.users] managed users the fake serves under /openidm/managed/ (`_id`, `userName`, `givenName`, `sn`, `mail`)
  * @param {string[]} [options.managedTypes] managed object type names the fake's config entity answers with (for catalog enrichment)
  * @param {string[]} [options.realms] realm names the realm list answers with (default: it answers 404)
+ * @param {{method: string, path: string}[]} [options.failRequests] requests that answer with HTTP 500 (path is a URL fragment)
+ * @param {object[]} [options.logApiKeys] keys returned by the log API key list
+ * @param {string[]} [options.agentTypes] ids the agent type list of the realm answers with; an empty array is a realm that offers no type (default: it answers 404)
+ * @param {object[]} [options.cimdProfiles] CIMD profiles in the plain shape the fake serves, stores and deletes (default: the type's endpoints answer 404)
+ * @param {boolean} [options.cimdCompleteOnCreate] makes a create of a CIMD profile answer with it completed by defaults, as the server does, while an update stores exactly what it is sent
+ * @param {object[]} [options.features] IDM features the registry serves (`_id`, `installedVersion`, `availableVersions`, `validate`: the body the validate action answers with), reads and validate only (default: the registry answers 404)
+ * @param {{ managed?: object, 'repo.ds'?: object }} [options.idmConfig] the IDM configuration `config/managed` and `config/repo.ds` answer with on a read; a write to them answers 500 (default: they answer 404)
+ * @param {Record<string, object>} [options.idmEntities] IDM configuration objects by config id (`sync`, `provisioner.openicf/xyz`, ...) the fake serves on a read and replaces on a write, `_id` taken from the URL; the request log holds every body (default: they answer 404)
+ * @param {boolean} [options.emptyCollections] answers every collection query the fake has no route for as an empty collection (`GET` with a `_queryFilter`, `POST` with `_action=nextdescendents`: `200` with no result), so a command that reads many kinds of configuration runs through on an empty tenant (default: they answer 404)
+ * @param {{ apply?: object, states?: object[] }} [options.directConfiguration] makes the fake serve the direct configuration session of a Cloud tenant (init, apply, abort and state, and the service account scopes a login reads): `apply` is what the apply call answers (default `{ editable: false }`), `states` what the state reads answer one after the other, the last one again after that (default `[{ editable: false }]`); the request log shows every call (default: the session API answers 404)
+ * @param {boolean} [options.cimdRootDenied] makes the root realm answer the type list and the profiles with the Cloud `403` "This operation is not available in PingOne Advanced Identity Cloud."
  * @returns {Promise<{ port: number, stop: () => void }>}
  */
 export async function startFakeAm({
@@ -33,14 +54,35 @@ export async function startFakeAm({
   realms,
   grantError,
   issuer,
+  trustedIssuers,
+  aiAgents,
   users,
   managedTypes,
   oauth2Clients,
+  oauthCimdProfiles,
+  oauthIssuers,
   scripts,
+  secrets,
+  serviceAccounts,
+  services,
+  secretStores,
   trees,
   usersCap,
   sessionTtlSeconds,
   logout,
+  login,
+  loginDelayMs,
+  failRequests,
+  logApiKeys,
+  agentTypes,
+  cimdProfiles,
+  cimdCompleteOnCreate,
+  cimdRootDenied,
+  features,
+  idmConfig,
+  idmEntities,
+  emptyCollections,
+  directConfiguration,
 } = {}) {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'fake-am-'));
   const written = (name, data) => {
@@ -58,6 +100,17 @@ export async function startFakeAm({
       ...(issuer
         ? { FAKE_AM_ISSUER_FILE: written('issuer.json', issuer) }
         : {}),
+      ...(trustedIssuers
+        ? {
+            FAKE_AM_TRUSTED_ISSUERS_FILE: written(
+              'trusted-issuers.json',
+              trustedIssuers
+            ),
+          }
+        : {}),
+      ...(aiAgents
+        ? { FAKE_AM_AI_AGENTS_FILE: written('ai-agents.json', aiAgents) }
+        : {}),
       ...(users ? { FAKE_AM_USERS_FILE: written('users.json', users) } : {}),
       ...(managedTypes
         ? { FAKE_AM_MANAGED_TYPES: managedTypes.join(',') }
@@ -65,13 +118,74 @@ export async function startFakeAm({
       ...(oauth2Clients
         ? { FAKE_AM_OAUTH2_CLIENTS: oauth2Clients.join(',') }
         : {}),
+      ...(oauthCimdProfiles
+        ? { FAKE_AM_OAUTH_CIMD_PROFILES: oauthCimdProfiles.join(',') }
+        : {}),
+      ...(oauthIssuers
+        ? { FAKE_AM_OAUTH_ISSUERS: oauthIssuers.join(',') }
+        : {}),
       ...(scripts ? { FAKE_AM_SCRIPTS: scripts.join(',') } : {}),
+      ...(secrets ? { FAKE_AM_SECRETS: secrets.join(',') } : {}),
+      ...(services ? { FAKE_AM_SERVICES: services.join(',') } : {}),
+      ...(serviceAccounts
+        ? { FAKE_AM_SERVICE_ACCOUNTS: serviceAccounts.join(',') }
+        : {}),
+      ...(secretStores
+        ? {
+            FAKE_AM_SECRET_STORES_FILE: written(
+              'secret-stores.json',
+              secretStores
+            ),
+          }
+        : {}),
       ...(trees ? { FAKE_AM_TREES: trees.join(',') } : {}),
       ...(usersCap ? { FAKE_AM_USERS_CAP: String(usersCap) } : {}),
       ...(sessionTtlSeconds
         ? { FAKE_AM_SESSION_TTL_SECONDS: String(sessionTtlSeconds) }
         : {}),
       ...(logout ? { FAKE_AM_LOGOUT: logout } : {}),
+      ...(login ? { FAKE_AM_LOGIN: login } : {}),
+      ...(loginDelayMs ? { FAKE_AM_LOGIN_DELAY_MS: String(loginDelayMs) } : {}),
+      ...(failRequests
+        ? { FAKE_AM_FAIL_REQUESTS: JSON.stringify(failRequests) }
+        : {}),
+      ...(logApiKeys
+        ? { FAKE_AM_LOG_API_KEYS_FILE: written('log-keys.json', logApiKeys) }
+        : {}),
+      ...(agentTypes ? { FAKE_AM_AGENT_TYPES: agentTypes.join(',') } : {}),
+      ...(cimdProfiles
+        ? {
+            FAKE_AM_CIMD_PROFILES_FILE: written(
+              'cimd-profiles.json',
+              cimdProfiles
+            ),
+          }
+        : {}),
+      ...(cimdCompleteOnCreate ? { FAKE_AM_CIMD_COMPLETE_ON_CREATE: '1' } : {}),
+      ...(cimdRootDenied ? { FAKE_AM_CIMD_ROOT_DENIED: '1' } : {}),
+      ...(features
+        ? { FAKE_AM_FEATURES_FILE: written('features.json', features) }
+        : {}),
+      ...(idmConfig
+        ? { FAKE_AM_IDM_CONFIG_FILE: written('idm-config.json', idmConfig) }
+        : {}),
+      ...(idmEntities
+        ? {
+            FAKE_AM_IDM_ENTITIES_FILE: written(
+              'idm-entities.json',
+              idmEntities
+            ),
+          }
+        : {}),
+      ...(emptyCollections ? { FAKE_AM_EMPTY_COLLECTIONS: '1' } : {}),
+      ...(directConfiguration
+        ? {
+            FAKE_AM_DIRECT_CONFIGURATION_FILE: written(
+              'direct-configuration.json',
+              directConfiguration
+            ),
+          }
+        : {}),
     },
     stdio: ['ignore', 'pipe', 'inherit'],
   });

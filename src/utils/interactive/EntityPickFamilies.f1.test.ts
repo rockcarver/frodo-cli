@@ -65,6 +65,13 @@ describe('which agent commands get a picker', () => {
     }
   });
 
+  it('gives the AI agents the same pickers under their own group as under agent ai (cli#1271)', () => {
+    expect(pickOf(['aiagent', 'delete'])).toHaveLength(1);
+    expect(pickOf(['aiagent', 'export'])).toHaveLength(1);
+    expect(pickOf(['aiagent', 'describe'])).toEqual([]);
+    expect(pickOf(['aiagent', 'import'])).toEqual([]);
+  });
+
   it('leaves out describe, which takes -i as optional and describes every agent without it', () => {
     for (const path of [
       ['agent', 'describe'],
@@ -120,6 +127,31 @@ describe('the picker of the generic agent group', () => {
   it('offers nothing, and does not fail, when there is no agent', async () => {
     jest.spyOn(frodo.agent, 'readAgents').mockResolvedValue([]);
     expect(await pick.load()).toEqual([]);
+  });
+});
+
+describe('the picker of the aiagent group', () => {
+  const [pick] = pickOf(['aiagent', 'delete']);
+
+  it('offers the AI agents by id, in order, from the library read of the AI agents only', async () => {
+    const own = jest
+      .spyOn(frodo.agent, 'readAIAgents')
+      .mockResolvedValue([agent('zion'), agent('matrix')]);
+    const others = jest
+      .spyOn(frodo.agent, 'readAgents')
+      .mockResolvedValue([agent('never')]);
+    const entities = await pick.load();
+    expect(own).toHaveBeenCalledTimes(1);
+    expect(others).not.toHaveBeenCalled();
+    expect(entities.map((entity) => pick.label(entity))).toEqual([
+      'matrix',
+      'zion',
+    ]);
+    expect(pick.kind).toBe('AI agent');
+  });
+
+  it('is the same picker for export', () => {
+    expect(pickOf(['aiagent', 'export'])[0].kind).toBe('AI agent');
   });
 });
 

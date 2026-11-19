@@ -1,7 +1,6 @@
 import { afterAll, beforeAll, describe, expect, it } from '@jest/globals';
 import { Command } from 'commander';
 import { deferOneOfGroups } from '../../src/cli/ResolveInteractiveInputs.ts';
-import { deferEntityPicks } from '../../src/utils/interactive/EntityPickers.ts';
 import {
   exampleViolations,
   extractExamples,
@@ -17,6 +16,7 @@ import {
   tokenize,
   unlistedViolations,
 } from '../utils/CommandExamples.js';
+import { withPicks } from '../utils/EntityPickFamilyOf.js';
 import { LEGACY_EXAMPLE_VIOLATIONS } from './UsageExampleOperandsLegacyExceptions.js';
 
 /**
@@ -259,7 +259,7 @@ describe('realm operand', () => {
 describe('entity pickers and option groups', () => {
   function pickable() {
     const command = withRealm();
-    deferEntityPicks(command, [
+    withPicks(command, [
       {
         name: 'thingId',
         load: async () => [],
@@ -289,7 +289,7 @@ describe('entity pickers and option groups', () => {
 
   it('asks for the picked option when a picker has no option group', () => {
     const command = withRealm();
-    deferEntityPicks(command, [
+    withPicks(command, [
       {
         name: 'thingId',
         load: async () => [],

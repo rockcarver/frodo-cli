@@ -50,7 +50,7 @@ Error Exporting SAML2 Providers
           Message: Script with UUID 07ee6240-d106-4e25-a781-5fcabc477d22 could not be found in realm /alpha
 • Exported 5 alpha realm circles of trust.
 • Exported 3 alpha realm agent groups.
-• Exported 15 alpha realm agents.
+• Exported 13 alpha realm agents.
 • Exported 20 alpha realm OAuth2 clients.
 • Exported 6 alpha realm applications
 • Exported 6 alpha realm policies.
@@ -64,7 +64,7 @@ Error Exporting SAML2 Providers
 • Exported 0 bravo realm policies.
 • Exported 3 bravo realm policy sets.
 • Exported 3 bravo realm resource types.
-1 of 30 items failed:
+1 of 32 items failed:
   - Error Exporting SAML2 Providers: Script with UUID 85523e71-2d77-4577-b078-6f9674cc54e2 could not be found in realm /alpha
 "
 `;
@@ -6557,33 +6557,6 @@ exports[`frodo config export Cloud "frodo config export --all --dynamic --file t
           "description": null,
           "status": "Active",
         },
-        "rfc7523-client1-issuer": {
-          "_id": "rfc7523-client1-issuer",
-          "_type": {
-            "_id": "TrustedJwtIssuer",
-            "collection": true,
-            "name": "OAuth2 Trusted JWT Issuer",
-          },
-          "agentgroup": null,
-          "allowedSubjects": [],
-          "consentedScopesClaim": "scope",
-          "issuer": "https://my-issuer.com/issuer",
-          "jwkSet": "{
-  "keys": [
-    {
-      "alg": "RS256",
-      "e": "AQAB",
-      "kid": "F8XFabIUlF3EDIJNX7YXdmK5uanwbON7CRbaL1MEFqs",
-      "kty": "RSA",
-      "n": "nuFbAmaHuTnH5yMkEU8b0SiL7pfQtfJz1p50QMeN_ZRxd3rEMPkP95sEjd5d4CjzkGIlgF_vX3oLm1GreAqp97okjM-KCAlYI8rIqptDfMFRRJV-ydw0zeDFjNdIo1FFquat1rz_mgys6oBBgYyc1x2MSfuCL82lJK__E0KULdqgZ-93eEfS9UgxguPsHCYnrdUrLQbk7j0OWy0awaGgjw_GBeW6VriVMPNm7q0Ist4XoXpTHqfuDhrchdOadSw5wULJQLqkK2iOzKfE1JrunIVMcsN_FhyxMGhJ2f6j1_8txMac5ISW6AugGoW6yeeRL-H_y_Pc1MPHNPYPOAvzAyviomajaVSQImSCTIrrtYX1WUSdrVkEFwk0H379xwlfwux7-6DjgwbJKrbtHlKw28CGNanHs2j1eJNuWkPXF_1F5koqKr05jIC6h96g1vl_EKddN7Vy9j6yRYdfS1A5co5nW4UtuVo1VujQWVtOnDEpDOQFYriAxRrghk250FGW82jyxEstI2HmLznHgPYUw_xS6qEmboCJ2r9zfVMVTTcaE9KWaetEhSTZzVTLddQs2-1vp-7A_VmVU0OmUXIyFpAv0uE94nX1mW24yOf0tYUrEfmktfNNMxHh3fncSJu93q90yaj6e3m4Ibgc2JZnp4m_hDFjyuTAruclisN4u4M"
-    }
-  ]
-}",
-          "jwkStoreCacheMissCacheTime": 60000,
-          "jwksCacheTimeout": 3600000,
-          "jwksUri": null,
-          "resourceOwnerIdentityClaim": "sub",
-        },
         "sharedTestApp": {
           "_id": "sharedTestApp",
           "_type": {
@@ -6653,23 +6626,6 @@ exports[`frodo config export Cloud "frodo config export --all --dynamic --file t
           "secretLabelIdentifier": null,
           "status": "Active",
           "userpassword": null,
-        },
-        "testJWT": {
-          "_id": "testJWT",
-          "_type": {
-            "_id": "TrustedJwtIssuer",
-            "collection": true,
-            "name": "OAuth2 Trusted JWT Issuer",
-          },
-          "agentgroup": null,
-          "allowedSubjects": [],
-          "consentedScopesClaim": "scope",
-          "issuer": "test",
-          "jwkSet": null,
-          "jwkStoreCacheMissCacheTime": 60000,
-          "jwksCacheTimeout": 3600000,
-          "jwksUri": null,
-          "resourceOwnerIdentityClaim": "sub",
         },
       },
       "agentGroup": {
@@ -12005,7 +11961,7 @@ Error Exporting SAML2 Providers
           Message: Script with UUID 07ee6240-d106-4e25-a781-5fcabc477d22 could not be found in realm /alpha
 • Exported 5 alpha realm circles of trust.
 • Exported 3 alpha realm agent groups.
-• Exported 15 alpha realm agents.
+• Exported 13 alpha realm agents.
 • Exported 19 alpha realm OAuth2 clients.
 • 5 alpha realm providers exported.
 4 of 35 journeys have validation findings (1 error and 5 warnings): 4 unconnected outcomes, 1 unknown connection outcome, 1 unresolved entry node.
@@ -12032,7 +11988,7 @@ Error Exporting SAML2 Providers
 • Exported 1 secret stores.
 • Exported 2 bravo realm services.
 • Exported 8 bravo realm themes.
-1 of 56 items failed:
+1 of 58 items failed:
   - Error Exporting SAML2 Providers: Script with UUID 85523e71-2d77-4577-b078-6f9674cc54e2 could not be found in realm /alpha
 "
 `;
@@ -39215,33 +39171,6 @@ isGoogleEligible;
           "description": null,
           "status": "Active",
         },
-        "rfc7523-client1-issuer": {
-          "_id": "rfc7523-client1-issuer",
-          "_type": {
-            "_id": "TrustedJwtIssuer",
-            "collection": true,
-            "name": "OAuth2 Trusted JWT Issuer",
-          },
-          "agentgroup": null,
-          "allowedSubjects": [],
-          "consentedScopesClaim": "scope",
-          "issuer": "https://my-issuer.com/issuer",
-          "jwkSet": "{
-  "keys": [
-    {
-      "alg": "RS256",
-      "e": "AQAB",
-      "kid": "F8XFabIUlF3EDIJNX7YXdmK5uanwbON7CRbaL1MEFqs",
-      "kty": "RSA",
-      "n": "nuFbAmaHuTnH5yMkEU8b0SiL7pfQtfJz1p50QMeN_ZRxd3rEMPkP95sEjd5d4CjzkGIlgF_vX3oLm1GreAqp97okjM-KCAlYI8rIqptDfMFRRJV-ydw0zeDFjNdIo1FFquat1rz_mgys6oBBgYyc1x2MSfuCL82lJK__E0KULdqgZ-93eEfS9UgxguPsHCYnrdUrLQbk7j0OWy0awaGgjw_GBeW6VriVMPNm7q0Ist4XoXpTHqfuDhrchdOadSw5wULJQLqkK2iOzKfE1JrunIVMcsN_FhyxMGhJ2f6j1_8txMac5ISW6AugGoW6yeeRL-H_y_Pc1MPHNPYPOAvzAyviomajaVSQImSCTIrrtYX1WUSdrVkEFwk0H379xwlfwux7-6DjgwbJKrbtHlKw28CGNanHs2j1eJNuWkPXF_1F5koqKr05jIC6h96g1vl_EKddN7Vy9j6yRYdfS1A5co5nW4UtuVo1VujQWVtOnDEpDOQFYriAxRrghk250FGW82jyxEstI2HmLznHgPYUw_xS6qEmboCJ2r9zfVMVTTcaE9KWaetEhSTZzVTLddQs2-1vp-7A_VmVU0OmUXIyFpAv0uE94nX1mW24yOf0tYUrEfmktfNNMxHh3fncSJu93q90yaj6e3m4Ibgc2JZnp4m_hDFjyuTAruclisN4u4M"
-    }
-  ]
-}",
-          "jwkStoreCacheMissCacheTime": 60000,
-          "jwksCacheTimeout": 3600000,
-          "jwksUri": null,
-          "resourceOwnerIdentityClaim": "sub",
-        },
         "sharedTestApp": {
           "_id": "sharedTestApp",
           "_type": {
@@ -39311,23 +39240,6 @@ isGoogleEligible;
           "secretLabelIdentifier": null,
           "status": "Active",
           "userpassword": null,
-        },
-        "testJWT": {
-          "_id": "testJWT",
-          "_type": {
-            "_id": "TrustedJwtIssuer",
-            "collection": true,
-            "name": "OAuth2 Trusted JWT Issuer",
-          },
-          "agentgroup": null,
-          "allowedSubjects": [],
-          "consentedScopesClaim": "scope",
-          "issuer": "test",
-          "jwkSet": null,
-          "jwkStoreCacheMissCacheTime": 60000,
-          "jwksCacheTimeout": 3600000,
-          "jwksUri": null,
-          "resourceOwnerIdentityClaim": "sub",
         },
       },
       "agentGroup": {
@@ -191914,30 +191826,6 @@ exports[`frodo config export Cloud "frodo config export --all-separate --read-on
 }
 `;
 
-exports[`frodo config export Cloud "frodo config export --all-separate --read-only --no-metadata --default --directory exportAllTestDir3 --use-string-arrays --no-decode --no-coords --no-extract": should export everything, including default scripts, into separate files in the directory exportAllTestDir3 with scripts, no decoding variables, no journey coordinates, separate mappings, and using string arrays: exportAllTestDir3/realm/root-alpha/agent/testJWT.agent.json 1`] = `
-{
-  "agent": {
-    "testJWT": {
-      "_id": "testJWT",
-      "_type": {
-        "_id": "TrustedJwtIssuer",
-        "collection": true,
-        "name": "OAuth2 Trusted JWT Issuer",
-      },
-      "agentgroup": null,
-      "allowedSubjects": [],
-      "consentedScopesClaim": "scope",
-      "issuer": "test",
-      "jwkSet": null,
-      "jwkStoreCacheMissCacheTime": 60000,
-      "jwksCacheTimeout": 3600000,
-      "jwksUri": null,
-      "resourceOwnerIdentityClaim": "sub",
-    },
-  },
-}
-`;
-
 exports[`frodo config export Cloud "frodo config export --all-separate --read-only --no-metadata --default --directory exportAllTestDir3 --use-string-arrays --no-decode --no-coords --no-extract": should export everything, including default scripts, into separate files in the directory exportAllTestDir3 with scripts, no decoding variables, no journey coordinates, separate mappings, and using string arrays: exportAllTestDir3/realm/root-alpha/agentGroup/test_ig_group.agentGroup.json 1`] = `
 {
   "agentGroup": {
@@ -331332,31 +331220,6 @@ exports[`frodo config export Cloud "frodo config export -RAD exportAllTestDir5 -
         "userinfoResponseFormat": "JSON",
         "userinfoSignedResponseAlg": null,
       },
-    },
-  },
-  "meta": Any<Object>,
-}
-`;
-
-exports[`frodo config export Cloud "frodo config export -RAD exportAllTestDir5 --include-active-values": should export everything including secret values into separate files in the directory exportAllTestDir5: exportAllTestDir5/realm/root-alpha/agent/testJWT.agent.json 1`] = `
-{
-  "agent": {
-    "testJWT": {
-      "_id": "testJWT",
-      "_type": {
-        "_id": "TrustedJwtIssuer",
-        "collection": true,
-        "name": "OAuth2 Trusted JWT Issuer",
-      },
-      "agentgroup": null,
-      "allowedSubjects": [],
-      "consentedScopesClaim": "scope",
-      "issuer": "test",
-      "jwkSet": null,
-      "jwkStoreCacheMissCacheTime": 60000,
-      "jwksCacheTimeout": 3600000,
-      "jwksUri": null,
-      "resourceOwnerIdentityClaim": "sub",
     },
   },
   "meta": Any<Object>,

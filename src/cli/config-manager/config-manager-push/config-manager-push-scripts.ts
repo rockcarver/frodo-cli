@@ -4,6 +4,7 @@ import { getTokens } from '../../../ops/AuthenticateOps';
 import { verboseMessage } from '../../../utils/Console';
 import { realmOfRun } from '../../../utils/interactive/PositionalArgs';
 import { FrodoCommand } from '../../FrodoCommand';
+import { selectorOption } from '../../SelectorOption';
 
 export default function setup() {
   const program = new FrodoCommand('frodo config-manager push scripts');
@@ -11,14 +12,21 @@ export default function setup() {
   program
     .description('Import scripts.')
     .addOption(
-      new Option(
-        '-n, --name <name>',
-        'Script name, import only the specified script'
-      )
+      selectorOption(
+        '-i, --script-id <id>',
+        'Script id, import only the specified script. Cannot be used with -n.'
+      ).conflicts(['scriptName'])
+    )
+    .addOption(
+      selectorOption(
+        '-n, --script-name <name>',
+        'Script name, import only the specified script. Cannot be used with -i.',
+        ['--name']
+      ).conflicts(['scriptId'])
     )
     .addOption(
       new Option(
-        '-f, --filenameFilter <filenameFilter>',
+        '--filenameFilter <filenameFilter>',
         'Filename Filter (combine multiples using comma, use ~ prefix on entry for wildcard match)'
       )
     );
@@ -45,9 +53,10 @@ export default function setup() {
     verboseMessage('Importing scripts');
     const outcome = await configManagerImportScripts(
       realmOfRun(command, realm),
-      options.name,
+      options.scriptName,
       options.filenameFilter,
-      options.allowFailures
+      options.allowFailures,
+      options.scriptId
     );
     if (!outcome) process.exitCode = 1;
   });

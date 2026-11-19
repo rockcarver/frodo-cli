@@ -2,7 +2,7 @@ import { frodo } from '@rockcarver/frodo-lib';
 import { Option } from 'commander';
 import { describeAgent, describeAgents } from '../../ops/AgentOps.js';
 import { getTokens } from '../../ops/AuthenticateOps';
-import { printMessage } from '../../utils/Console.js';
+import { NOT_AGENTS_OF_THIS_COMMAND } from '../../utils/AgentHelpText';
 import { FrodoCommand } from '../FrodoCommand';
 
 const { CLASSIC_DEPLOYMENT_TYPE_KEY, FORGEOPS_DEPLOYMENT_TYPE_KEY } =
@@ -16,7 +16,8 @@ export default function setup() {
   const program = new FrodoCommand('frodo agent describe');
 
   program
-    .description('Describe agents.')
+    .summary('Describe agents.')
+    .description(`Describe agents. ${NOT_AGENTS_OF_THIS_COMMAND}`)
     .addOption(new Option('-i, --agent-id <agent-id>', 'Agent id.'))
     .addOption(new Option('-g, --global', 'Describe global agent.'))
     .addOption(new Option('--json', 'Output in JSON format.'))
@@ -40,20 +41,17 @@ export default function setup() {
         ) {
           // describe single agent
           if (options.agentId) {
-            const description = await describeAgent(
+            const outcome = await describeAgent(
               options.agentId,
               options.global,
               options.json
             );
-            printMessage(description, 'data');
+            if (!outcome) process.exitCode = 1;
           }
           // describe all agents
           else {
-            const description = await describeAgents(
-              options.global,
-              options.json
-            );
-            printMessage(description, 'data');
+            const outcome = await describeAgents(options.global, options.json);
+            if (!outcome) process.exitCode = 1;
           }
         } else {
           process.exitCode = 1;

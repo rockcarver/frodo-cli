@@ -22,6 +22,8 @@
  * layer existed: same errors, same exit codes.
  */
 
+import { clearTransientFrame } from './TransientFrame';
+
 /** Module-scoped hard kill switch for protocol-channel surfaces. */
 let neverPrompt = false;
 
@@ -44,6 +46,8 @@ let promptSessionCount = 0;
  * connectionPage) at open time.
  */
 export function notePromptRendered(): void {
+  // a frame drawn without a prompt (TransientFrame) gives the screen to the prompt
+  clearTransientFrame();
   promptSessionCount += 1;
 }
 

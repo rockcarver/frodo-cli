@@ -1,9 +1,9 @@
 import { frodo } from '@rockcarver/frodo-lib';
-import { Option } from 'commander';
 import { configManagerExportEndpoints } from '../../../configManagerOps/FrConfigEndpointsOps';
 import { getTokens } from '../../../ops/AuthenticateOps';
 import { verboseMessage } from '../../../utils/Console';
 import { FrodoCommand } from '../../FrodoCommand';
+import { selectorOption } from '../../SelectorOption';
 
 const { CLOUD_DEPLOYMENT_TYPE_KEY, FORGEOPS_DEPLOYMENT_TYPE_KEY } =
   frodo.utils.constants;
@@ -23,9 +23,10 @@ export default function setup() {
   program
     .description('Export custom endpoints.')
     .addOption(
-      new Option(
-        '-n, --name <name>',
-        'Endpoint name. If specified, pulls only the endpoint with the given name.'
+      selectorOption(
+        '-i, --endpoint-id <id>',
+        'Endpoint id. If specified, pulls only the endpoint with the given id.',
+        ['-n', '--name']
       )
     )
     .multiOp()
@@ -42,7 +43,7 @@ export default function setup() {
       if (await getTokens(false, true, deploymentTypes)) {
         verboseMessage('Exporting custom endpoints.');
         const outcome = await configManagerExportEndpoints(
-          options.name,
+          options.endpointId,
           options.allowFailures
         );
         if (!outcome) process.exitCode = 1;

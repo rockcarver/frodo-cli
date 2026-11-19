@@ -129,9 +129,21 @@ function ownerNames(owners: { applicationName: string }[]): string {
 /**
  * Read the applications of the current realm with the status of each.
  * @param {string} name optional: only the application with this name
+ * @param {string} id optional: only the application with this id (`_id`), looked for in the list of applications that a read of all reads. It is an error when the realm has no such application.
  * @returns {Promise<Candidate[]>} the applications, sorted by name
  */
-async function readCandidates(name?: string): Promise<Candidate[]> {
+async function readCandidates(
+  name?: string,
+  id?: string
+): Promise<Candidate[]> {
+  if (id !== undefined) {
+    const record = (await frodo.app.readApplications()).find(
+      (application) => application._id === id
+    );
+    if (!record) throw new Error(`Application with id '${id}' not found`);
+    const status = await frodo.app.readApplicationStatus(record._id);
+    return [{ record, status: status.status, connectorId: status.connectorId }];
+  }
   if (name) {
     const record = await frodo.app.readApplicationByName(name);
     const status = await frodo.app.readApplicationStatus(record._id);
@@ -231,12 +243,19 @@ async function printPlan(
  * Look at what a delete of applications would do, without deleting anything.
  * @param {string} name optional name: only that application (needs a single realm)
  * @param {string} realm optional realm. Default: every realm (the root realm of a Cloud tenant has no applications)
+ * @param {string} id optional id of one application instead of a name (needs a single realm too)
  * @returns {Promise<Preview>} whether the applications could be read, and how many a run would refuse
  */
-async function preview(name?: string, realm?: string): Promise<Preview> {
+async function preview(
+  name?: string,
+  realm?: string,
+  id?: string
+): Promise<Preview> {
+  // what the command line names: an id, or a name (an empty name means all applications)
+  const selected = id ?? (name || undefined);
   try {
     const realms = await realmsOf(realm);
-    if (name && realms.length !== 1) {
+    if (selected !== undefined && realms.length !== 1) {
       printMessage(
         'Error: for a named application, specify a single realm',
         'error'
@@ -250,12 +269,12 @@ async function preview(name?: string, realm?: string): Promise<Preview> {
       state.setRealm(currentRealm);
       let candidates: Candidate[];
       try {
-        candidates = await readCandidates(name);
+        candidates = await readCandidates(name, id);
       } catch (error) {
         printError(
           error,
-          name
-            ? `Error reading application '${name}' in realm '${currentRealm}'`
+          selected !== undefined
+            ? `Error reading application '${selected}' in realm '${currentRealm}'`
             : `Error reading the applications of realm '${currentRealm}'`
         );
         return { ok: false, refused };
@@ -309,16 +328,20 @@ export async function showApplicationDeletePlan(
  * @param {string} realm optional realm. Default: every realm (the root realm of a Cloud tenant has no applications)
  * @param {boolean} dryRun true to show what would be deleted and delete nothing; an application that a run would refuse is a failure of the preview too. Default: false
  * @param {boolean} allowFailures true to report operations that failed but still succeed. Default: false
+ * @param {string} id optional id (`_id`) of the one application to delete instead of a name (needs a single realm too). The id is looked for in the list of applications that a delete of all reads, so no other request is made; an id that the realm does not have ends the command whatever `--allow-failures` says, like a name that cannot be read. An empty id selects nothing, so it is not found (the command refuses an empty value before it connects).
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
 export async function configManagerDeleteApplications(
   name?: string,
   realm?: string,
   dryRun: boolean = false,
-  allowFailures: boolean = false
+  allowFailures: boolean = false,
+  id?: string
 ): Promise<boolean> {
+  // what the command line names: an id, or a name (an empty name means all applications)
+  const selected = id ?? (name || undefined);
   if (dryRun) {
-    const outcome = await preview(name, realm);
+    const outcome = await preview(name, realm, id);
     if (!outcome.ok) return false;
     if (outcome.refused === 0) return true;
     const message = `${outcome.refused} application${outcome.refused === 1 ? '' : 's'} would be refused because the connector is active; a run exits with code 1 for that.`;
@@ -336,7 +359,7 @@ export async function configManagerDeleteApplications(
   const run = new OperationRun({ unit: 'operation', allowFailures });
   try {
     const realms = await realmsOf(realm);
-    if (name && realms.length !== 1) {
+    if (selected !== undefined && realms.length !== 1) {
       printMessage(
         'Error: for a named application, specify a single realm',
         'error'
@@ -349,12 +372,12 @@ export async function configManagerDeleteApplications(
       state.setRealm(currentRealm);
       let candidates: Candidate[];
       try {
-        candidates = await readCandidates(name);
+        candidates = await readCandidates(name, id);
       } catch (error) {
         printError(
           error,
-          name
-            ? `Error reading application '${name}' in realm '${currentRealm}'`
+          selected !== undefined
+            ? `Error reading application '${selected}' in realm '${currentRealm}'`
             : `Error reading the applications of realm '${currentRealm}'`
         );
         // nothing is deleted when the applications or their status cannot be read

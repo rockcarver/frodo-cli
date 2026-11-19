@@ -3,6 +3,10 @@ import { Option } from 'commander';
 import { deleteAgent, deleteAgents } from '../../ops/AgentOps';
 import { getTokens } from '../../ops/AuthenticateOps';
 import {
+  NOT_AGENTS_OF_THIS_COMMAND,
+  notAgentsOfBulkOption,
+} from '../../utils/AgentHelpText';
+import {
   checkBulkDelete,
   confirmBulkDelete,
 } from '../../utils/BulkDeleteGuard';
@@ -13,7 +17,8 @@ export default function setup() {
   const program = new FrodoCommand('frodo agent delete');
 
   program
-    .description('Delete agents.')
+    .summary('Delete agents.')
+    .description(`Delete agents. ${NOT_AGENTS_OF_THIS_COMMAND}`)
     .addOption(
       new Option(
         '-i, --agent-id <agent-id>',
@@ -23,7 +28,7 @@ export default function setup() {
     .addOption(
       new Option(
         '-a, --all',
-        'Delete all agents. Cannot be used with -i.'
+        `Delete all agents. Cannot be used with -i. ${notAgentsOfBulkOption('delete', '-a')}`
       ).conflicts(['agentId'])
     )
     .addOption(

@@ -27,9 +27,9 @@ Arguments:
 Deployment: Cloud-only
 
 Options:
-  -d, --description <description>     Description of the promotion.
-  -i, --ignore-encrypted-secrets      Ignore encrypted secrets during promotion.
-  -p, --promoter <name>               Name of the person performing the
+  --description <description>         Description of the promotion.
+  -I, --ignore-encrypted-secrets      Ignore encrypted secrets during promotion.
+  -P, --promoter <name>               Name of the person performing the
                                       promotion.
   -t, --ticket-reference <reference>  Zendesk ticket reference.
   -T, --timeout <seconds>             Specify a timeout in seconds how long the
@@ -44,5 +44,7 @@ Options:
   -hh, --help-more                    Help with all options.
   -hhh, --help-all                    Help with all options, environment
                                       variables, and usage examples.
+
+Not available with --browser or --device: needs a service account (Configuration promotion). See https://github.com/rockcarver/frodo-cli/blob/main/docs/BROWSER_LOGIN.md#what-a-browser-or-device-login-can-do
 "
 `;

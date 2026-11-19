@@ -6,10 +6,12 @@ import {
   addExistingServiceAccount,
   findAliasConflict,
   findSavedProvisioning,
+  parseHeaderOverrides,
 } from '../../ops/ConnectionProfileOps.js';
 import { provisionCreds } from '../../ops/LogOps';
 import c from '../../utils/ColorTheme';
 import { printError, printMessage, verboseMessage } from '../../utils/Console';
+import { markSecret } from '../../utils/interactive/SecretOptions';
 import {
   FrodoCommand,
   preferredCredentialOption,
@@ -23,7 +25,7 @@ export default function setup() {
   const program = new FrodoCommand('frodo conn save', ['realm']);
 
   program
-    .alias('add')
+    .withAlias('add')
     .description('Save connection profiles.')
     .addOption(
       new Option(
@@ -57,15 +59,19 @@ export default function setup() {
       )
     )
     .addOption(
-      new Option(
-        '--authentication-header-overrides <headers>',
-        `Map of headers: '{"host":"am.example.com:8081"}'. These headers are sent with all requests and can be used to override default behavior, for example to set a custom host header for Proxy Connect-protected PingOne Advanced Identity Cloud environments.`
+      markSecret(
+        new Option(
+          '--authentication-header-overrides <headers>',
+          `Map of headers: '{"host":"am.example.com:8081"}'. These headers are sent with all requests and can be used to override default behavior, for example to set a custom host header for Proxy Connect-protected PingOne Advanced Identity Cloud environments. The values are secrets: they are stored encrypted in the connection profile and masked wherever the command is shown.`
+        )
       )
     )
     .addOption(
-      new Option(
-        '--configuration-header-overrides <headers>',
-        `Map of headers: '{"X-Configuration-Type":"mutable"}'. These headers are sent with all configuration requests and can be used to override default behavior, for example to set a custom configuration header for mutable PingOne Advanced Identity Cloud environments.`
+      markSecret(
+        new Option(
+          '--configuration-header-overrides <headers>',
+          `Map of headers: '{"X-Configuration-Type":"mutable"}'. These headers are sent with all configuration requests and can be used to override default behavior, for example to set a custom configuration header for mutable PingOne Advanced Identity Cloud environments. The values are secrets: they are stored encrypted in the connection profile and masked wherever the command is shown.`
+        )
       )
     )
     .addOption(
@@ -165,12 +171,18 @@ export default function setup() {
         }
         if (options.authenticationHeaderOverrides) {
           state.setAuthenticationHeaderOverrides(
-            JSON.parse(options.authenticationHeaderOverrides)
+            parseHeaderOverrides(
+              options.authenticationHeaderOverrides,
+              '--authentication-header-overrides'
+            )
           );
         }
         if (options.configurationHeaderOverrides) {
           state.setConfigurationHeaderOverrides(
-            JSON.parse(options.configurationHeaderOverrides)
+            parseHeaderOverrides(
+              options.configurationHeaderOverrides,
+              '--configuration-header-overrides'
+            )
           );
         }
         if (options.preferredCredential) {
@@ -238,6 +250,13 @@ export default function setup() {
                 printMessage(
                   `Validated and added service account with id ${options.saId} to profile.`
                 );
+              } else {
+                // The user asked for this service account and the tenant
+                // refused it. addExistingServiceAccount() has printed why; the
+                // login options already put the id and the key in the state,
+                // so saving now would store the rejected key (cli#1262).
+                process.exitCode = 1;
+                return;
               }
             }
             // add new service account if none already exists in the profile
@@ -261,11 +280,18 @@ export default function setup() {
             options.saJwkFile &&
             options.sa
           ) {
-            addExistingServiceAccount(
-              options.saId,
-              options.saJwkFile,
-              options.validate
-            );
+            if (
+              !(await addExistingServiceAccount(
+                options.saId,
+                options.saJwkFile,
+                options.validate
+              ))
+            ) {
+              // the key file cannot be read: no profile with half a service
+              // account (cli#1262); the function has printed why
+              process.exitCode = 1;
+              return;
+            }
           }
           // if cloud deployment add log api key and secret
           if (
@@ -273,23 +299,11 @@ export default function setup() {
             state.getDeploymentType() === CLOUD_DEPLOYMENT_TYPE_KEY &&
             needLogApiKey
           ) {
-            // validate and add existing log api key and secret
-            if (options.logApiKey && options.logApiSecret) {
-              verboseMessage(`Validating and adding log api key and secret...`);
-              if (
-                await addExistingServiceAccount(
-                  options.logApiKey,
-                  options.logApiSecret,
-                  options.validate
-                )
-              ) {
-                printMessage(
-                  `Added log API key ${options.logApiKey} to profile.`
-                );
-              }
-            }
-            // add new log api key and secret if none already exists in the profile
-            else if (!state.getLogApiKey()) {
+            // A log API key and secret from --log-api-key and --log-api-secret
+            // are in the state already (see above) and are saved with the
+            // profile as they are, so needLogApiKey is false for them. What
+            // is left is to create a pair when the profile has none.
+            if (!state.getLogApiKey()) {
               try {
                 const creds = await provisionCreds();
                 if (creds) {

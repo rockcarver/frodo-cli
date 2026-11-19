@@ -181,6 +181,7 @@ describe('frodo config-manager delete applications', () => {
       undefined,
       'alpha',
       undefined,
+      undefined,
       undefined
     );
     expect(process.exitCode).toBeUndefined();
@@ -193,6 +194,7 @@ describe('frodo config-manager delete applications', () => {
       undefined,
       'alpha',
       true,
+      undefined,
       undefined
     );
     expect(checkBulkDelete.mock.calls[0][0].dryRun).toBe(true);
@@ -208,6 +210,7 @@ describe('frodo config-manager delete applications', () => {
     expect(configManagerDeleteApplications).toHaveBeenCalledWith(
       'Zion Portal',
       'alpha',
+      undefined,
       undefined,
       undefined
     );
@@ -226,7 +229,8 @@ describe('frodo config-manager delete applications', () => {
       'Zion Portal',
       'alpha',
       undefined,
-      true
+      true,
+      undefined
     );
   });
 

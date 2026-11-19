@@ -1,0 +1,14 @@
+{
+  "_id": "zz-e2e-publisher",
+  "_type": {
+    "_id": "SoftwarePublisher",
+    "collection": true,
+    "name": "OAuth2 Software Publisher"
+  },
+  "issuer": "https://zz-e2e-publisher.example.com",
+  "jwkStoreCacheMissCacheTime": 60000,
+  "jwksCacheTimeout": 3600000,
+  "jwksUri": "https://zz-e2e-publisher.example.com/.well-known/jwks.json",
+  "publicKeyLocation": "jwks_uri",
+  "softwareStatementSigningAlgorithm": "RS256"
+}

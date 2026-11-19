@@ -22,7 +22,7 @@ import { Command } from 'commander';
  *   delete of everything;
  * - the mapping and alias commands, which print a usage error for an
  *   incomplete command line, still do so without a terminal and without a
- *   login (record 0030: the command lines that worked do not change).
+ *   login (record 0047: with prompting off the framework adds nothing).
  */
 
 const getTokens = jest.fn();
@@ -428,17 +428,6 @@ describe('the commands of the families carry no picker code of their own', () =>
     'src',
     'cli'
   );
-  // Two commands keep the picker they have (frodo-cli#1081):
-  // - `esv secret version create` names an existing secret, but the ratchet
-  //   test refuses a family pick on a command called `create`;
-  // - `esv secret delete`: its terminal tests (phase5-editor-routing.pty) pin a
-  //   picker that opens before any login, and the framework asks after the
-  //   login, which the replayed mock tenant of CI answers as ForgeOps
-  //   ("Unsupported deployment type"), a type this cloud-only command refuses.
-  const KEEPS_ITS_OWN = [
-    'esv-secret-delete.ts',
-    'esv-secret-version-create.ts',
-  ];
   const files = ['esv', 'secretstore'].flatMap((dir) =>
     fs
       .readdirSync(path.join(root, dir))
@@ -453,6 +442,6 @@ describe('the commands of the families carry no picker code of their own', () =>
     const own = files
       .filter(({ text }) => /deferEntityPicks|resolveEntityPicks/.test(text))
       .map(({ name }) => name);
-    expect(own).toEqual(KEEPS_ITS_OWN);
+    expect(own).toEqual([]);
   });
 });

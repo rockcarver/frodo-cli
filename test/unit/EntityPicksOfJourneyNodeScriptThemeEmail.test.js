@@ -12,7 +12,7 @@ const { getOneOfGroups } =
  * Decision record 0038 for the families journey, node, script, theme and email
  * template, checked against the real command tree: which commands inherit a
  * picker (a command whose -i and -n only narrow what it covers must not, record
- * 0030), and that -a, -A and the deprecated -s keep a pick from opening.
+ * 0047), and that -a, -A and the deprecated -s keep a pick from opening.
  */
 
 const EXPECTED = {
@@ -89,7 +89,7 @@ describe('entity pickers of journey, node, script, theme and email template', ()
         if (!leaf.options.some((o) => o.attributeName() === selector)) continue;
         leaf.setOptionValue(selector, true);
         for (const pick of picksOf(leaf)) {
-          // `journey validate` accepts -i with -a (4.x did), so they do not
+          // `journey validate` accepts -i with -a, so they do not
           // conflict; the selector answers the group that -i belongs to, and a
           // group that is answered asks for nothing more
           const answersTheGroup = getOneOfGroups(leaf).some(

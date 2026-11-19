@@ -4,6 +4,7 @@ import { configManagerExportManagedObjects } from '../../../configManagerOps/FrC
 import { getTokens } from '../../../ops/AuthenticateOps';
 import { verboseMessage } from '../../../utils/Console';
 import { FrodoCommand } from '../../FrodoCommand';
+import { selectorOption } from '../../SelectorOption';
 
 const { CLOUD_DEPLOYMENT_TYPE_KEY, FORGEOPS_DEPLOYMENT_TYPE_KEY } =
   frodo.utils.constants;
@@ -23,14 +24,15 @@ export default function setup() {
   program
     .description('Export managed-objects.')
     .addOption(
-      new Option(
-        '-n, --name <name>',
-        'Managed object name. If specified, only exports the managed object with the specified name.'
+      selectorOption(
+        '-i, --managed-object-id <id>',
+        'Managed object id. If specified, only exports the managed object with the specified id.',
+        ['-n', '--name']
       )
     )
     .addOption(
       new Option(
-        '-u, --custom-relationships',
+        '--custom-relationships',
         'Export custom relationship schemas.'
       )
     )
@@ -49,7 +51,7 @@ export default function setup() {
       if (await getTokens(false, true, deploymentTypes)) {
         verboseMessage('Exporting managed objects...');
         const outcome = await configManagerExportManagedObjects(
-          options.name,
+          options.managedObjectId,
           options.customRelationships,
           options.allowFailures
         );

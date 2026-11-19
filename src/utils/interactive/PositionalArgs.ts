@@ -75,6 +75,34 @@ export function setPositionalValue(
 }
 
 /**
+ * Writes `value` into a positional that may already hold one, on BOTH surfaces
+ * (see `setPositionalValue`). `setPositionalValue` fills a gap and keeps what
+ * the user typed in `args`; this replaces it, for the connection page, whose
+ * rows the user edits after the resolver filled them (a host chosen in the
+ * profile picker and then changed, a password typed again).
+ * @param command the command
+ * @param name the positional, e.g. `host`
+ * @param value the new value
+ */
+export function replacePositionalValue(
+  command: Command,
+  name: string,
+  value: string
+): void {
+  const index = positionalIndex(command, name);
+  if (index === -1) return;
+  if (command.processedArgs) {
+    command.processedArgs[index] = value;
+  }
+  if (Array.isArray(command.args)) {
+    while (command.args.length < index) {
+      command.args.push(null);
+    }
+    command.args[index] = value;
+  }
+}
+
+/**
  * The realm a command runs with, read when the operation starts: the value of
  * the realm positional NOW, so a realm that the post-auth realm picker wrote
  * is seen. The picker runs inside `getTokens()`, after the action has bound

@@ -5,6 +5,7 @@ import {
   liveMultiOptionPreview,
   liveOptionPreview,
   livePositionalPreview,
+  quoteForCommandLine,
   serializeCommand,
   setDeploymentTypeForPreview,
 } from '../../src/utils/interactive/CommandPreview';
@@ -113,6 +114,85 @@ describe('serializeCommand (option fidelity -- slice 4 regressions)', () => {
     const command = makeOptionCommand();
     command.parse([], { from: 'user' });
     expect(serializeCommand(command)).toBe('delete');
+  });
+});
+
+describe('quoteForCommandLine (a path with a space is still a command to retype)', () => {
+  it('leaves a plain value, a relative path and a URL alone', () => {
+    for (const value of [
+      'out.json',
+      'sub/dir/out.json',
+      '/abs/path/out.json',
+      '../up/out.json',
+      'a=b',
+      '~/exports',
+      'https://example.com/am',
+    ]) {
+      expect(quoteForCommandLine(value, false)).toBe(value);
+    }
+  });
+
+  it('quotes a value with a space or a character a shell reads as its own', () => {
+    expect(quoteForCommandLine('My Documents/out.json', false)).toBe(
+      "'My Documents/out.json'"
+    );
+    expect(quoteForCommandLine('a;b', false)).toBe("'a;b'");
+    expect(quoteForCommandLine('$HOME/out', false)).toBe("'$HOME/out'");
+    expect(quoteForCommandLine('a&b', false)).toBe("'a&b'");
+    expect(quoteForCommandLine('a*', false)).toBe("'a*'");
+    expect(quoteForCommandLine('x#y', false)).toBe("'x#y'");
+  });
+
+  it('escapes a single quote inside the quotes', () => {
+    expect(quoteForCommandLine("it's here", false)).toBe(`'it'\\''s here'`);
+  });
+
+  it('quotes a backslash for a shell, and not on Windows, where it is the separator of a path', () => {
+    expect(quoteForCommandLine('C:\\work\\out.json', false)).toBe(
+      "'C:\\work\\out.json'"
+    );
+    expect(quoteForCommandLine('C:\\work\\out.json', true)).toBe(
+      'C:\\work\\out.json'
+    );
+  });
+
+  it('quotes in double quotes on Windows', () => {
+    expect(quoteForCommandLine('My Documents\\out.json', true)).toBe(
+      '"My Documents\\out.json"'
+    );
+    expect(quoteForCommandLine('say "hi"', true)).toBe('"say \\"hi\\""');
+  });
+
+  it('quotes an empty value', () => {
+    expect(quoteForCommandLine('', false)).toBe("''");
+  });
+
+  it('is used for the value of an option and for the entries of a repeated option', () => {
+    const command = new Command('export');
+    command.addOption(new Option('-f, --file <file>', 'File'));
+    const envOption = new Option('--env-file <file>', 'Env files').default([]);
+    envOption.argParser((value: string, previous: string[] = []) => {
+      previous.push(value);
+      return previous;
+    });
+    command.addOption(envOption);
+    command.action(async () => {});
+    command.parse(
+      [
+        '-f',
+        'My Documents/out.json',
+        '--env-file',
+        'a b.env',
+        '--env-file',
+        'c.env',
+      ],
+      { from: 'user' }
+    );
+    expect(serializeCommand(command)).toBe(
+      process.platform === 'win32'
+        ? 'export --file "My Documents/out.json" --env-file "a b.env" --env-file c.env'
+        : "export --file 'My Documents/out.json' --env-file 'a b.env' --env-file c.env"
+    );
   });
 });
 

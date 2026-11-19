@@ -17,9 +17,6 @@ import { loadCommandTree } from '../utils/CommandExamples.js';
  */
 const SINGLE_OBJECT_ONLY = {};
 
-/** Subcommands of `config-manager delete` that delete nothing. */
-const DELETES_NOTHING = ['test'];
-
 const commandDirectory = new URL(
   '../../src/cli/config-manager/config-manager-delete/',
   import.meta.url
@@ -60,13 +57,20 @@ describe('the config-manager delete commands and the bulk-delete guard', () => {
     expect(names).toEqual(
       expect.arrayContaining([
         'applications',
+        'oauth-cimd-profiles',
         'custom-nodes',
         'email-templates',
         'endpoints',
+        'locales',
         'scripts',
         'secrets',
         'terms-and-conditions',
         'themes',
+        'oauth-issuers',
+        'oauth-software-publishers',
+        'schedules',
+        'secret-mappings',
+        'telemetry',
         'variables',
       ])
     );
@@ -74,7 +78,6 @@ describe('the config-manager delete commands and the bulk-delete guard', () => {
 
   test('2: every command either has the guard or is listed as single-object-only, with a reason', () => {
     const unguarded = deleteCommands
-      .filter((command) => !DELETES_NOTHING.includes(command.name()))
       .filter((command) => !(command.name() in SINGLE_OBJECT_ONLY))
       .filter(
         (command) =>
@@ -101,9 +104,9 @@ describe('the config-manager delete commands and the bulk-delete guard', () => {
   });
 
   test('4: every guarded command asks through the shared helpers: checkBulkDelete before the login, confirmBulkDelete after it', () => {
-    const guarded = deleteCommands
-      .filter((command) => !DELETES_NOTHING.includes(command.name()))
-      .filter((command) => !(command.name() in SINGLE_OBJECT_ONLY));
+    const guarded = deleteCommands.filter(
+      (command) => !(command.name() in SINGLE_OBJECT_ONLY)
+    );
     expect(guarded.length).toBeGreaterThan(0);
     for (const command of guarded) {
       const file = new URL(
@@ -139,9 +142,9 @@ describe('the config-manager delete commands and the bulk-delete guard', () => {
   });
 
   test('5: every guarded command has its cases in the guard test: refused, and not refused with -y and with -d', () => {
-    const guarded = deleteCommands
-      .filter((command) => !DELETES_NOTHING.includes(command.name()))
-      .filter((command) => !(command.name() in SINGLE_OBJECT_ONLY));
+    const guarded = deleteCommands.filter(
+      (command) => !(command.name() in SINGLE_OBJECT_ONLY)
+    );
     for (const command of guarded) {
       const name = command.name();
       const line = (suffix) =>
@@ -157,7 +160,11 @@ describe('the config-manager delete commands and the bulk-delete guard', () => {
         name,
         yes: true,
       });
-      expect({ name, dryRun: line(' -d').test(guardTestSource) }).toEqual({
+      // the case of the preview: -d where the command has the short form, otherwise --dry-run
+      expect({
+        name,
+        dryRun: line(' (-d|--dry-run)').test(guardTestSource),
+      }).toEqual({
         name,
         dryRun: true,
       });

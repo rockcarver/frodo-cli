@@ -19,7 +19,7 @@ export default function setup() {
       program.createOption('-s, --status', 'Check restart status only.')
     )
     .addOption(
-      program.createOption('-c, --check', 'Only restart if ESVs need loading.')
+      program.createOption('--check', 'Only restart if ESVs need loading.')
     )
     .addOption(
       program.createOption('-w, --wait', 'Wait for restart to complete.')

@@ -3,13 +3,22 @@
 This page summarizes the breaking changes between major versions of
 `@rockcarver/frodo-cli` — everything you need to migrate scripts and
 automation from one major version to the next without deciphering the full
-[changelog](CHANGELOG.md).
+[changelog](CHANGELOG.md). What a release may change, and what has to be
+listed here, is decided by
+[record 0048](docs/decisions/0048-a-major-release-may-change-commands-a-minor-or-patch-release-does-not-break-them.md).
 
 ---
 
 ## Upgrading to 5.x
 
 ### From 4.x
+
+**`frodo log tail` retries failed polls**: the tail used to end silently after
+one failed poll with exit code 0. It now keeps following, with increasing pauses,
+and gives up after 5 failures in a row with exit code 1. The new `--keep-trying`
+option keeps following through longer outages until Ctrl-C. Rate limiting (HTTP
+429) is waited out with or without it and does not count as a failure. Refused
+credentials (HTTP 401/403) always stop the tail with exit code 1.
 
 **Removed command aliases** (backwards-compatibility spellings of the
 canonical commands; use the canonical name):
@@ -24,6 +33,39 @@ canonical commands; use the canonical name):
 | `ig`                           | `frodo agent gateway`  |
 
 **Kept**: `frodo conn save` retains its `add` alias.
+
+**`frodo agent ai` is deprecated, use `frodo aiagent`**: AI agents are a kind of
+identity of their own in Advanced Identity Cloud, not another integration agent
+like the web, Java and Gateway agents, so they have a root command group:
+
+| Deprecated (works through 5.x) | Use                      |
+| ------------------------------ | ------------------------ |
+| `frodo agent ai list`          | `frodo aiagent list`     |
+| `frodo agent ai describe`      | `frodo aiagent describe` |
+| `frodo agent ai export`        | `frodo aiagent export`   |
+| `frodo agent ai import`        | `frodo aiagent import`   |
+| `frodo agent ai delete`        | `frodo aiagent delete`   |
+
+`frodo agent ai` is frozen: it behaves as it did in 4.x and the 5.0 prereleases,
+and differs only by the deprecated mark in its help, the notice, the missing
+usage examples and the exit code of `describe` for an agent that is not there
+(below). The commands and options of `frodo aiagent` are the same (and so
+are the files they write and read, `<id>.ai.agent.json`), with one difference:
+`frodo aiagent import` requires `-f, --file` or `-A, --all-separate`, so `-i` or
+`-a` alone is rejected before it connects, with the list of what is missing.
+`frodo agent ai import` still accepts `-i` or `-a` without `-f`, as before.
+Everything else this guide says about `agent ai` holds for `aiagent` too.
+
+`frodo agent ai` keeps working through 5.x and prints a notice that names `frodo
+aiagent` on standard error (standard output and the exit code are unchanged).
+Its removal is proposed for 6.0.0 (see [a major release may change
+commands](https://github.com/rockcarver/frodo-cli/blob/main/docs/decisions/0048-a-major-release-may-change-commands-a-minor-or-patch-release-does-not-break-them.md)).
+To migrate, replace `frodo agent ai` with `frodo aiagent` in scripts and
+automation, and give `import` its `-f` or `-A`. The generic commands (`frodo
+agent list`, `agent export` and the others) still handle AI agents as before.
+Defaults saved with `--prompt --save-defaults` are kept per command, so those
+saved for `agent ai ...` do not apply to `aiagent ...`; save them again (`frodo
+settings defaults --clear 'agent ai list'` removes the old ones).
 
 **Journey import validation**: journey imports, full configuration imports,
 config-manager journey pushes, and `frodo promote` now validate journey
@@ -67,7 +109,6 @@ The rejected combinations follow these patterns:
 | `--no-deps` with `-A`                                                                                  | `script import`                                                                                                                                                                                                                                     |
 | `-t, --secretstore-type` with `-a` or `-A`                                                             | `secretstore delete`, `export`, `import`                                                                                                                                                                                                            |
 | `-g, --global` with `-a` or `-A`                                                                       | `config import`                                                                                                                                                                                                                                     |
-| `-s, --separate-mappings` or `-o, --separate-objects` with `-a`                                        | `config export`                                                                                                                                                                                                                                     |
 | `--raw` with `-a`                                                                                      | `email template import`                                                                                                                                                                                                                             |
 | `-x, --no-extract` with `-a`                                                                           | `iga workflow export`                                                                                                                                                                                                                               |
 | `-c, --connector-id` or `-t, --managed-object-type` with `-i, --mapping-id`                            | `mapping delete`, `mapping export`                                                                                                                                                                                                                  |
@@ -136,8 +177,36 @@ issuer's allowed subject only when there is exactly one (4.x took the first of
 several); with several, or with an issuer that allows any user, you name the
 user with `--sub` or, on a terminal, pick one from a list. A `--jwk-file` that cannot be read stops
 either command with exit code 1 (`generate-rfc7523-authz-grant-artefacts` used
-to make a new key instead). These are fixes for defects in the sense of
-[a fix for a defect is not a departure from the 4.x rule](https://github.com/rockcarver/frodo-cli/blob/main/docs/decisions/0034-a-fix-for-a-defect-is-not-a-departure-from-the-4x-rule.md).
+to make a new key instead). These are fixes for defects, behaviour that no
+valid input could mean (see
+[record 0048](docs/decisions/0048-a-major-release-may-change-commands-a-minor-or-patch-release-does-not-break-them.md)).
+
+**Commands that cannot tell what to act on say so before they connect**: a
+command line that does not say what to delete, export or create is rejected
+before the command connects to anything, with the error of every command that
+has an option rule, and exits with code 1. From 5.0.0-26 this holds for these
+four:
+
+| Command line                                                                                                  | Rejected with                                                                                                                                                | Use instead                                                                                                                                                                                                    |
+| ------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `service delete` without `-i, --id` or `-a, --all` (`-y` or `-g` alone)                                       | `error: one of '-i, --id <id> \| -a, --all' is required to choose what to delete`                                                                            | Name the service with `-i`, or delete all of them with `-a` (and `-y` without a terminal). The 5.0.0 prereleases up to 5.0.0-25 logged in first, and `service delete -y` deleted every service.                |
+| `authz policy export --set-id <set>` without `-a`, `-A` or `-i`                                               | `error: one of '-a, --all \| -A, --all-separate \| -i, --policy-id <policy-id>' is required to choose what to export`                                        | `--set-id` only narrows `-a` or `-A` to one policy set, as it does for `authz policy delete`: add `-a` or `-A`, or name one policy with `-i`. It logged in and printed the usage.                              |
+| `secretstore mapping create` without all of `-i, --secretstore-id`, `-s, --secret-id` and `-a, --aliases`     | `error: all of '-i, --secretstore-id <secretstore-id> + -s, --secret-id <secret-id> + -a, --aliases <aliases>' are required to choose the mapping to create` | Give the three options; `-t` and `-g` stay optional. It printed `Unrecognized combination of options or no options...` and the usage, or, with none of its five options, a `one of` error that named all five. |
+| `secretstore mapping alias create` without all of `-i, --secretstore-id`, `-s, --secret-id` and `-a, --alias` | `error: all of '-i, --secretstore-id <secretstore-id> + -s, --secret-id <secret-id> + -a, --alias <alias>' are required to choose the alias to create`       | Give the three options; `-t` and `-g` stay optional. The old messages were the same as for `mapping create`.                                                                                                   |
+
+**On a terminal, the last options get a picker (interactive mode only)**: from
+5.0.0-26, `conn service-account describe` and `remove` no longer ask for
+`--name` as free text; they list the additional service accounts saved on the
+connection profile, without a login. `service delete` first asks what to delete
+(`-i` or `-a`), as the other delete commands do. `esv secret delete` and
+`service delete` used to go on to the question "Delete all ...?" when the tenant
+had nothing to pick; they now print `There is no secret to choose from.` or
+`There is no service to choose from.` and exit with code 1, and nothing is
+deleted (to delete everything, pass `-a`). A command whose options are all
+required (`secretstore mapping create`, `secretstore mapping alias create`,
+`esv secret version activate`, `deactivate` and `delete`) asks for every option
+that is missing, not for one of them. A command line that is complete, and a
+run without a terminal, are not affected.
 
 **Deleting everything of a kind now asks first**: a delete that can remove
 more than the one object it names (`-a`/`--all`) used to run without a
@@ -158,9 +227,386 @@ named object never asks. This affects `frodo agent delete -a` and
 `log key delete -a`, `mapping delete -a`, `node delete -a`, `saml delete -a`,
 `script delete -a`, `secretstore delete --all`, `secretstore mapping delete
 --all`, `secretstore mapping alias delete --all`, `service delete -a` and
-`theme delete -a`. It is a safety guard, a deliberate exception to the rule that
-a command line that ran under 4.x keeps running: see
+`theme delete -a`. It is a safety guard added in a major release: see
 [a command that can delete more than the one object it names asks first](https://github.com/rockcarver/frodo-cli/blob/main/docs/decisions/0037-a-command-that-can-delete-more-than-the-one-object-it-names-asks-first.md).
+
+**`config-manager push secrets --prune` asks before it deletes, and `-p` is
+gone**: `--prune` deletes the old versions of every secret it pushes, and in 4.x
+it did so without asking. In 5.x, on a terminal, it reads the tenant, shows the
+versions it would delete and asks (the answer defaults to no) when more than one
+version would go, and also when a secret could not be checked; a prune that
+would delete a single version does not ask. Without a terminal (a script, a CI
+job, `--no-prompt`, `FRODO_NO_PROMPT`) it refuses before it connects to anything
+and exits with code 1, unless you pass `-y`/`--yes`; it refuses even when the
+prune would delete nothing, so that a script does not start to fail on the day
+it has something to delete. Add `--yes` to every script and CI job that pushes
+secrets with `--prune`:
+
+```text
+frodo config-manager push secrets --prune --yes <host>
+```
+
+The new option `--dry-run` (only with `--prune`) shows which versions would be
+deleted and neither deletes nor imports anything; it wins over `--yes`. The
+short form `-p` of `--prune` is removed, because a destructive option has a long
+form only: write `--prune`. A secret that is new in the tenant has no old
+versions, and the versions that are deleted are the same as before (the
+versions that are still enabled besides the active one). See
+[a command that can delete more than the one object it names asks first](https://github.com/rockcarver/frodo-cli/blob/main/docs/decisions/0037-a-command-that-can-delete-more-than-the-one-object-it-names-asks-first.md).
+
+**Short forms of the `config-manager` options follow one rule, and some are
+gone**: inside `frodo config-manager` a short letter has one meaning, and an
+option that is destructive, or that shared its letter with an option that means
+something else, has a long form only. The rule and the whole list of letters are
+in
+[options of the configuration commands](https://github.com/rockcarver/frodo-cli/blob/main/docs/decisions/0057-options-of-the-configuration-commands.md).
+The old spellings in the tables below are removed at once, with no alias,
+because the group is experimental: a script that still passes one fails before
+it connects to anything, with `error: unknown option '-p'` and the usage, and
+exit code 1. The long forms keep working. These options moved to the capital
+letter (the commands are `frodo config-manager` commands):
+
+| Removed                          | Now                              | Commands                                                                    |
+| -------------------------------- | -------------------------------- | --------------------------------------------------------------------------- |
+| `-i, --ignore-encrypted-secrets` | `-I, --ignore-encrypted-secrets` | `promote run-dryrun-promotion`, `promote run-promotion`                     |
+| `-l, --local-lock-only`          | `-L, --local-lock-only`          | `promote check-locked-status`                                               |
+| `-p, --promoter`                 | `-P, --promoter`                 | `promote rollback`, `promote run-dryrun-promotion`, `promote run-promotion` |
+
+These options have a long form only now:
+
+| Removed                      | Command                           | Write                    |
+| ---------------------------- | --------------------------------- | ------------------------ |
+| `-p, --provisional`          | `promote check-promotion-reports` | `--provisional`          |
+| `-r, --provisional-rollback` | `promote check-promotion-reports` | `--provisional-rollback` |
+| `-d, --description`          | `promote rollback`                | `--description`          |
+| `-d, --description`          | `promote run-dryrun-promotion`    | `--description`          |
+| `-d, --description`          | `promote run-promotion`           | `--description`          |
+| `-i, --include-immutable`    | `pull iga-workflows`              | `--include-immutable`    |
+| `-c, --clean`                | `pull journeys`                   | `--clean`                |
+| `-d, --pull-dependencies`    | `pull journeys`                   | `--pull-dependencies`    |
+| `-u, --custom-relationships` | `pull managed-objects`            | `--custom-relationships` |
+| `-u, --dump`                 | `pull variables`                  | `--dump`                 |
+| `-f, --filename-filter`      | `push custom-nodes`               | `--filename-filter`      |
+| `-f, --filename-filter`      | `push endpoints`                  | `--filename-filter`      |
+| `-d, --draft`                | `push iga-workflows`              | `--draft`                |
+| `-d, --push-dependencies`    | `push journeys`                   | `--push-dependencies`    |
+| `-p, --path`                 | `push raw`                        | `--path`                 |
+| `-i, --stdin`                | `push raw`                        | `--stdin`                |
+| `-c, --check`                | `push restart`                    | `--check`                |
+| `-f, --filename-filter`      | `push schedules`                  | `--filename-filter`      |
+| `-f, --filenameFilter`       | `push scripts`                    | `--filenameFilter`       |
+
+`-d, --dry-run` is new on `delete oauth-cimd-profiles`, `delete oauth-issuers`,
+`delete oauth-software-publishers`, `delete schedules`, `delete secret-mappings`
+and `push secrets`, where only `--dry-run` existed, so `-d` is the dry run on
+every `config-manager` command that has one. A cluster of short letters that
+holds a removed letter has to be split: `-p provisional-report -uid 'a report'`
+becomes `-P provisional-report -uI --description 'a report'`, and `-cD dir`
+becomes `--clean -D dir`.
+
+Three commands outside the group give up a letter as well, so that `-d` and `-C`
+mean one thing in the group; their long forms are unchanged:
+
+| Removed            | Command               | Write          |
+| ------------------ | --------------------- | -------------- |
+| `-C, --clean`      | `config import`       | `--clean`      |
+| `-d, --draft-only` | `iga workflow delete` | `--draft-only` |
+| `-C, --clean`      | `service import`      | `--clean`      |
+
+**Selectors of the `config-manager` commands are `-i, --<type>-id` and `-n,
+--<type>-name`, and `-n` and `--name` keep working**: inside `frodo
+config-manager` an object is selected by its identifier with `-i, --<type>-id`
+(a value that cannot be chosen freely or changed later: a journey name is one)
+and, for a type whose objects have a name that can change, by that name with
+`-n, --<type>-name`. A command that has both declares them mutually exclusive,
+so `-i a -n b` fails before it connects to anything. The rule is in
+[options of the configuration commands](https://github.com/rockcarver/frodo-cli/blob/main/docs/decisions/0057-options-of-the-configuration-commands.md).
+This is the third of three steps: the tables below are the `pull`, the `push`
+and the `delete` commands.
+
+Nothing is removed. On a command that took `-n, --name <name>` for an
+identifier, `-i, --<type>-id` is the option now, and `-n` and `--name` are
+spellings of the same option (the help ends its description with `(alias: -n,
+--name)`). On a command whose objects have a name that can change, `-n` is `-n,
+--<type>-name` and `--name` is its alias. These aliases are permanent: a script
+that passes `-n`, `--name` or a cluster of short letters that ends in `-n` keeps
+working and gets the same result. A selector that is given twice on a command
+that has the identifier only (`-i a -n b`) uses the last one, as any repeated
+option does. A default that was saved with `--prompt --save-defaults` for the
+option `name` of one of these commands is not read any more; save it again for
+the new option.
+
+| Command                          | Select by                                  | Still works      |
+| -------------------------------- | ------------------------------------------ | ---------------- |
+| `pull applications`              | `-i, --app-id`, `-n, --app-name`           | `--name`         |
+| `pull oauth-cimd-profiles`       | `-i, --profile-id`                         | `-n`, `--name`   |
+| `pull connector-definitions`     | `-i, --connector-id`                       | `-n`, `--name`   |
+| `pull connector-mappings`        | `-i, --connector-mapping-id`               | new              |
+| `pull custom-nodes`              | `-i, --node-id`, `-n, --node-name`         | `--name`         |
+| `pull email-templates`           | `-i, --template-id`                        | `-n`, `--name`   |
+| `pull endpoints`                 | `-i, --endpoint-id`                        | `-n`, `--name`   |
+| `pull internal-roles`            | `-i, --role-id`, `-n, --role-name`         | `--name`         |
+| `pull journeys`                  | `-i, --journey-id`                         | `-n`, `--name`   |
+| `pull locales`                   | `-i, --locale-id`                          | `-n`, `--name`   |
+| `pull managed-objects`           | `-i, --managed-object-id`                  | `-n`, `--name`   |
+| `pull org-privileges`            | `-i, --org-privileges-id`                  | `-n`, `--name`   |
+| `pull remote-proxies`            | `-i, --proxy-id`                           | `-n`, `--name`   |
+| `pull schedules`                 | `-i, --schedule-id`                        | `-n`, `--name`   |
+| `pull scripts`                   | `-i, --script-id`, `-n, --script-name`     | `-n` (as before) |
+| `pull secrets`                   | `-i, --secret-id`                          | new              |
+| `pull secret-mappings`           | `-i, --secret-mapping-id`                  | `-n`, `--name`   |
+| `pull services`                  | `-i, --service-id`                         | `-n`, `--name`   |
+| `pull themes`                    | `-i, --theme-id`, `-n, --theme-name`       | new              |
+| `pull telemetry`                 | `-i, --exporter-id`                        | `-n`, `--name`   |
+| `pull oauth-issuers`             | `-i, --issuer-id`                          | `-n`, `--name`   |
+| `pull oauth-software-publishers` | `-i, --software-publisher-id`              | `-n`, `--name`   |
+| `pull variables`                 | `-i, --variable-id`                        | new              |
+| `pull iga-workflows`             | `-i, --workflow-id`, `-n, --workflow-name` | `--name`         |
+
+`pull themes` takes `-n, --theme-name` for the first time, and
+`pull connector-mappings`, `pull secrets` and `pull variables` take `-i` for the
+first time: they pulled everything before and still do without it. `-i` on
+`pull applications`, `pull custom-nodes`, `pull iga-workflows`,
+`pull internal-roles`, `pull scripts` and `pull themes` selects by the id of the
+object, which these commands could not do before (their `-n` selects by name as
+before). `pull scripts -i` cannot be combined with `-n` or with `-p`, the
+prefix, as `-n` could not be combined with `-p` before. `pull csp` and
+`pull terms-and-conditions` take no selector: their file is the whole entity,
+and a file that held a part of it would replace the whole entity when it is
+pushed.
+
+| Command                          | Select by                                  | Still works    |
+| -------------------------------- | ------------------------------------------ | -------------- |
+| `push applications`              | `-i, --app-id`, `-n, --app-name`           | `--name`       |
+| `push connector-definitions`     | `-i, --connector-id`                       | `-n`, `--name` |
+| `push connector-mappings`        | `-i, --connector-mapping-id`               | `-n`, `--name` |
+| `push custom-nodes`              | `-i, --node-id`, `-n, --node-name`         | `--name`       |
+| `push email-templates`           | `-i, --template-id`                        | `-n`, `--name` |
+| `push endpoints`                 | `-i, --endpoint-id`                        | `-n`, `--name` |
+| `push iga-workflows`             | `-i, --workflow-id`, `-n, --workflow-name` | `--name`       |
+| `push internal-roles`            | `-i, --role-id`, `-n, --role-name`         | `--name`       |
+| `push journeys`                  | `-i, --journey-id`                         | `-n`, `--name` |
+| `push locales`                   | `-i, --locale-id`                          | `-n`, `--name` |
+| `push managed-objects`           | `-i, --managed-object-id`                  | `-n`, `--name` |
+| `push oauth-cimd-profiles`       | `-i, --profile-id`                         | `-n`, `--name` |
+| `push oauth-issuers`             | `-i, --issuer-id`                          | `-n`, `--name` |
+| `push oauth-software-publishers` | `-i, --software-publisher-id`              | `-n`, `--name` |
+| `push org-privileges`            | `-i, --org-privileges-id`                  | `-n`, `--name` |
+| `push remote-proxies`            | `-i, --proxy-id`                           | `-n`, `--name` |
+| `push saml`                      | `-i, --entity-id`                          | `-n`, `--name` |
+| `push schedules`                 | `-i, --schedule-id`                        | `-n`, `--name` |
+| `push scripts`                   | `-i, --script-id`, `-n, --script-name`     | `--name`       |
+| `push secret-mappings`           | `-i, --secret-mapping-id`                  | `-n`, `--name` |
+| `push secrets`                   | `-i, --secret-id`                          | `-n`, `--name` |
+| `push services`                  | `-i, --service-id`                         | `-n`, `--name` |
+| `push telemetry`                 | `-i, --exporter-id`                        | `-n`, `--name` |
+| `push themes`                    | `-i, --theme-id`, `-n, --theme-name`       | new            |
+| `push variables`                 | `-i, --variable-id`                        | `-n`, `--name` |
+
+`push themes` takes `-i, --theme-id` and `-n, --theme-name` for the first time:
+it pushed every theme of the realm before and still does without them, and with
+one of them the library merges that theme into the themes of the realm and
+leaves the others alone, except that a theme that is the default one becomes the
+only default theme of the realm. `-i` on `push applications`, `push custom-nodes`,
+`push iga-workflows`, `push internal-roles`, `push scripts` and `push themes`
+selects by the id of the object, which these commands could not do before (their
+`-n` selects by name as before): the id is the `_id` in the file of the object
+(the `id` of a workflow file), and a file with another id is not pushed. The
+files of `pull applications` hold no id, so `push applications -i` takes the id
+that the application has on the tenant, reads the applications of the realm
+once, and pushes the folder of the application that has that id. A push matches
+an application by its name, so when two applications of a realm share a name,
+`push applications` refuses that name (`-i`, `-n` and a push of every folder
+alike) and writes nothing for it instead of updating the first of them. `push
+applications`, `push scripts` and `push themes` need a single realm for a
+selector, as `-n` did; `push custom-nodes`, `push iga-workflows` and
+`push internal-roles` take no realm. Each of the six fails when the object is
+not there. `push csp` keeps its own `-n, --name`, the name of one
+of its two policies (`enforced` or `report-only`), and takes no `-i`: each
+policy is replaced whole, and the other one is not touched; an empty value of
+that `-n` is refused too, because it would write both policies.
+`push terms-and-conditions` takes no selector: the versions are one
+configuration entity and a push that wrote only one version would replace the
+entity and drop the others.
+
+| Command                            | Select by                              | Still works    |
+| ---------------------------------- | -------------------------------------- | -------------- |
+| `delete applications`              | `-i, --app-id`, `-n, --app-name`       | `--name`       |
+| `delete custom-nodes`              | `-i, --node-id`, `-n, --node-name`     | `--name`       |
+| `delete endpoints`                 | `-i, --endpoint-id`                    | `-n`, `--name` |
+| `delete scripts`                   | `-i, --script-id`, `-n, --script-name` | `--name`       |
+| `delete themes`                    | `-i, --theme-id`, `-n, --theme-name`   | `--name`       |
+| `delete email-templates`           | `-i, --template-id`                    | `-n`, `--name` |
+| `delete secrets`                   | `-i, --secret-id`                      | `-n`, `--name` |
+| `delete terms-and-conditions`      | `-i, --version-id`                     | `-n`, `--name` |
+| `delete variables`                 | `-i, --variable-id`                    | `-n`, `--name` |
+| `delete locales`                   | `-i, --locale-id`                      | `-n`, `--name` |
+| `delete oauth-cimd-profiles`       | `-i, --profile-id`                     | `-n`, `--name` |
+| `delete oauth-issuers`             | `-i, --issuer-id`                      | `-n`, `--name` |
+| `delete oauth-software-publishers` | `-i, --software-publisher-id`          | `-n`, `--name` |
+| `delete schedules`                 | `-i, --schedule-id`                    | `-n`, `--name` |
+| `delete secret-mappings`           | `-i, --secret-mapping-id`              | `-n`, `--name` |
+| `delete telemetry`                 | `-i, --exporter-id`                    | `-n`, `--name` |
+
+`delete applications`, `delete custom-nodes`, `delete scripts` and
+`delete themes` take `-i` for the first time: it selects by the id of the object
+(the `_id`; for an application the id it has on the tenant), which these
+commands could not do before, and their `-n` selects by name as before. A
+default script is never deleted, by id or by name. `-i` cannot be combined with
+`-n`, and on `delete scripts` not with `-p`, the prefix (`-n` with `-p` is
+accepted as before, and the prefix is ignored). `delete applications -i` and
+`delete scripts -i` need a single realm, as their `-n` does. `delete themes -i`
+fails with exit code 1 when the realm that was given, or every realm when none
+was given, lacks the id, also with `--allow-failures`, because the id names one
+theme; `delete themes -n` keeps its behaviour: a warning for each realm that
+lacks the name when no realm was given, and `--allow-failures` as before.
+`delete terms-and-conditions -i, --version-id` is the version to delete, as
+`-n` named it: a single version can be deleted, and `pull` and `push` of the
+type take no selector.
+
+A delete that names one object, with `-i`, `-n` or `--name`, never asks and
+never needs `-y`, as `-n` never did. The delete guard
+([a command that can delete more than the one object it names asks first](https://github.com/rockcarver/frodo-cli/blob/main/docs/decisions/0037-a-command-that-can-delete-more-than-the-one-object-it-names-asks-first.md))
+applies to a delete without a selector only, and that did not change: it asks on
+a terminal and refuses without one unless `-y` is given.
+
+An empty value of a selector (`-i ""`, `-n ""`, `--name ""`, or a variable that
+expands to nothing) is refused with exit code 1 before the command connects to
+anything, and never means all objects: commander says which option was given an
+empty value. This changes the commands that had `-n` and took `-n ""` as no
+selector and pulled everything; leave the option out to pull everything.
+
+The same holds for the `push` commands: `-n ""` pushed everything before, and an
+empty `-i`, `-n` or `--name` is refused now; leave the option out to push
+everything. The prefix of `pull scripts` is refused when it is empty too
+(`pull scripts -p ""`): it would match every script.
+
+And for the `delete` commands: `-n ""` and `--name ""` selected all objects on
+`delete applications`, `delete custom-nodes`, `delete email-templates`,
+`delete endpoints`, `delete scripts` and `delete themes`, which then asked, or
+deleted all of them with `-y`; the other `delete` commands refused an empty name
+in their own words, or took it for a name that no object has. An empty `-i`,
+`-n` or `--name` is refused now on every `delete` command, with exit code 1,
+before the command connects and before it asks, so a script that passes an empty
+variable deletes nothing; leave the option out to delete all objects, after the
+question or with `-y`. The prefix of `delete scripts` is refused when it is empty
+(`delete scripts -p ""`): it matches every script, and `-y` would have deleted
+all of them. A name that is only blanks is still refused by the command in its
+own words.
+
+In the root realm of a Cloud tenant, which has no scripts, no applications and
+no themes, a selector on `pull scripts`, `pull applications` or `pull themes`
+prints one warning that there is nothing to pull for it (the exit code is still
+0). `pull scripts -n` and `pull applications -n` were silent before.
+
+**`authn export` and `authn import` exit 1 after a failure**: in 4.x both
+commands printed the error and exited with code 0 when the export or the import
+failed, because they checked the result before the operation had finished. In
+5.x they wait for the operation and exit with code 1, so a script or a pipeline
+that runs them sees the failure. Each runs a single operation, so
+`--allow-failures` does not apply.
+
+**`describe` commands of agents exit 1 when the agent is not there**: in 4.x
+`frodo agent describe -i`, `agent gateway describe -i`, `agent java describe -i`,
+`agent web describe -i` and `agent ai describe -i` printed the error and exited
+with code 0 when the agent did not exist or could not be read, and wrote an
+empty line to standard output. In 5.x they print the error on standard error and
+exit with code 1, so a script that checks for an agent by describing it can tell
+a missing agent from a found one. `frodo aiagent describe -i` is the same
+command as `agent ai describe`. The typed commands (`agent gateway|java|web
+describe`, `aiagent describe`) also refuse to run without `-i`, with a message
+that says so and exit code 1, instead of asking the tenant for an agent called
+`undefined`. `frodo agent describe` without `-i` still describes all the agents.
+A script that relied on exit code 0 for a missing agent has to treat exit code 1
+as "not found", or add `|| true`.
+
+**`realm describe` exits 1 when there is nothing to describe, and `log key
+describe` describes**: in 4.x `frodo realm describe` printed `Realm <name> not
+found!` and exited with code 0 for a realm that did not exist, and printed the
+same for a realm list it could not read. In 5.x it exits with code 1 for a realm
+that is not there, and for a read that failed it prints that error instead of
+"not found" and exits with code 1. `frodo log key describe` was registered in
+4.x but did nothing: it logged in, printed nothing and exited with code 0 for
+any key. In 5.x `log key describe -i <key-id>` prints the key (its id, its name
+and when it was created; the secret of a key is shown only when the key is
+created) and `log key describe` without `-i` prints every key, both with
+`--json` as an option. Both exit with code 1 for a key that is not there or a
+read that failed. A script that relied on exit code 0 for a missing realm has to
+treat exit code 1 as "not found", or add `|| true`. `frodo conn describe` for a
+host without a saved profile already ended with exit code 1 and is unchanged.
+
+**`conn save` with `--sa-id` and `--sa-jwk-file` exits 1 and saves nothing when
+the key cannot be used**: in 4.x `frodo conn save <host> --sa-id <id>
+--sa-jwk-file <file>` printed an error when the key file could not be read or the
+tenant refused the key, and then saved the profile anyway, with the service
+account id (and the key, when it could be read) and exit code 0. In 5.x the
+command ends with exit code 1 and does not save the profile, so a script cannot
+mistake a profile without a working service account for a saved one. The same
+holds with `--no-validate` when the key file cannot be read. A script that
+relied on exit code 0 has to fix the key file, or save the profile without
+`--sa-id` and `--sa-jwk-file` and add the service account afterwards.
+
+**`feature install -i aiagent` refuses when the definitions of the feature are
+in the tenant but differ from the original**: `frodo feature install` asked only
+the registry whether the feature was installed. The registry reads "not
+installed" also when the definitions of the feature are in the tenant but are
+not the original (a trailing newline, a changed title), and installing then adds
+them a second time
+([frodo-cli#1332](https://github.com/rockcarver/frodo-cli/issues/1332)). For
+`aiagent` the command now asks the diagnosis first and, when it finds such
+definitions, refuses (with `-y` too): it prints what differs, names `frodo
+feature validate -i aiagent` and `frodo feature validate -i aiagent --repair`,
+sends nothing to the install endpoint and exits with code 1. A script that
+installed `aiagent` on such a tenant repairs it first. A tenant without the
+definitions, and every other feature, are installed as before.
+
+**`feature validate -i aiagent` exits 1 when the AI agents feature does not work,
+and prints a diagnosis**: in 4.x and in earlier 5.x versions `frodo feature
+validate` printed `Valid` or `Invalid` and exited with code 0 whenever the check
+ran. For the feature `aiagent` it now prints a diagnosis of the tenant first (the
+registry, the definitions, the OAuth 2.0 provider of each realm, the AM gate, the
+secret store mappings and the AI agents) and the validation after it, and exits
+with code 1 when the diagnosis finds a functional problem, so that a pipeline can
+use it as a health check. The sentence that says that failures of the form
+"already present" mean that the configuration is in the tenant is printed on
+stdout, after the failures, instead of on stderr. Cosmetic findings are warnings and exit with code 0. Other features
+print what they printed before and exit with code 0, and `--json` prints the
+diagnosis as JSON. A script that ran `validate -i aiagent` only to ask whether
+the feature can be installed adds `|| true`, or reads the exit code as "the
+feature is not healthy". The new option `--repair` fixes what the diagnosis
+found repairable, after a backup (`--backup-dir`, required) and one
+confirmation (`-y, --yes` skips it). A repair leaves every definition it had to
+align aligned with the original, so that the registry reads the feature
+installed; a customization (a changed title of a definition, an added mapping
+property) is replaced, listed in the plan and kept in the backup, and
+`--restore-customizations` puts it back after the repair (white space is never
+put back); see
+[a repair leaves the feature installed and puts customizations back only on request](https://github.com/rockcarver/frodo-cli/blob/main/docs/decisions/0052-a-repair-leaves-the-feature-installed-and-puts-customizations-back-only-on-request.md).
+
+**`aiagent import -f` imports only the first agent of the file**: in 4.x
+`frodo agent ai import -f <file>` (and `frodo aiagent import -f <file>` in 5.x
+before this change) printed that it imported the first AI agent of the file but
+imported every agent in it. It now imports only the first one, as its message
+says. A script that relied on the old behaviour to load a whole file uses `-a`
+(`import -a -f <file>`), which imports every agent of the file and is unchanged.
+
+**`app import -f` and `role import -f` import only the first item of the file**:
+`frodo app import -f <file>` and `frodo role import -f <file>` print that they
+import the first application or the first internal role of the file, but the
+library methods behind them imported every item in it. They now import only the
+first one, as their messages say. A script that relied on the old behaviour to
+load a whole file uses `-a` (`import -a -f <file>`), which imports every item of
+the file and is unchanged.
+
+**`config export` names a script type that cannot be read**: for each script
+type, `frodo config export` (`-a` and `-A`) reads its engine configuration and
+its context. When one of the two could not be read, the command printed a line
+(`Unable to get engine configuration for script type '<id>': ...`), exported the
+script type without that part and exited with code 0. The script type is now a
+failed item: it is named in the summary of the failed items, it is not part of
+the export, the other script types are exported, and the command exits with code
+1. A script that accepts an incomplete export adds `--allow-failures`: the
+failures are still printed and summarised, but do not set the exit code.
 
 **Commands that run several operations now run them all and exit 1 if any
 failed**: `frodo config-manager pull all` and `pull all-static` carried on after
@@ -616,6 +1062,290 @@ of an application from its old path has to read it from the application folder
 after the migration; one that never migrates is not affected. See
 [config-manager keeps everything an application owns in one folder](https://github.com/rockcarver/frodo-cli/blob/main/docs/decisions/0042-config-manager-keeps-everything-an-application-owns-in-one-folder.md).
 
+**`config-manager pull oauth2-agents` and `push oauth2-agents` leave CIMD
+profiles, trusted JWT issuers and software publishers to their own kinds
+(experimental)**:
+`config-manager pull oauth-cimd-profiles`, `push oauth-cimd-profiles` and `delete
+oauth-cimd-profiles` work with the CIMD profiles of a tenant (the agent type
+`CIMDProfile`: the allow-list of client ID URL patterns for OAuth 2.0 clients
+that identify themselves with a Client ID Metadata Document),
+`pull oauth-issuers`, `push oauth-issuers` and `delete oauth-issuers` work with
+the OAuth2 trusted JWT issuers (the agent type `TrustedJwtIssuer`), and
+`pull oauth-software-publishers`, `push oauth-software-publishers` and `delete
+oauth-software-publishers` work with the OAuth2 software publishers (the agent
+type `SoftwarePublisher`: the publishers whose signed software statements an
+OAuth 2.0 provider accepts when a client registers itself). `pull all` includes
+all three. They write the files where `oauth2-agents` wrote them
+(`realms/<realm>/realm-config/agents/CIMDProfile/<name>.json`,
+`realms/<realm>/realm-config/agents/TrustedJwtIssuer/<name>.json` and
+`realms/<realm>/realm-config/agents/SoftwarePublisher/<name>.json`), so an
+existing tree is still valid; the files are written in the plain shape that the
+next entry describes. To give each object one writer, `pull oauth2-agents` and `push oauth2-agents` no longer
+handle these three types: an entry of type `CIMDProfile`, `TrustedJwtIssuer` or
+`SoftwarePublisher` in `oauth2-agents.json`, and the folder `CIMDProfile`,
+`TrustedJwtIssuer` or `SoftwarePublisher` of a tree, are skipped with one
+warning per realm and type
+that names the new command. Your config files are inputs and are never edited,
+nothing in the skipped folder is read or changed, and the exit code does not
+change: a pipeline that pushed profiles, issuers or publishers with `push
+oauth2-agents` keeps exiting 0 and no longer pushes them, so it adds `push
+oauth-cimd-profiles`, `push oauth-issuers` or `push oauth-software-publishers`.
+The `overrides` of such an entry are not applied by `pull oauth2-agents` any
+more; move them to the overrides file of `pull oauth-cimd-profiles`, `pull
+oauth-issuers` or `pull oauth-software-publishers` (`--config-file`, for example
+`oauth-issuers.json`), where the entries of a realm are a list without the type
+level: `"alpha": [ { "id": "zion-issuer", "overrides": { ... } } ]`. The
+overrides are merged into the file as it is written, so a value is given as it
+is in the file: `"cimdClientIdUrlPatterns": ["https://${HOST}/*"]`. In a tree
+that uses one folder per application, a realm that has only entries of these
+three types in `oauth2-agents.json` no longer makes the command read the
+applications of the realm. See
+[config-manager keeps everything an application owns in one folder](https://github.com/rockcarver/frodo-cli/blob/main/docs/decisions/0042-config-manager-keeps-everything-an-application-owns-in-one-folder.md)
+for the rule that an object has one writer in a tree.
+
+**Agent files are written without the `{ inherited, value }` wrapper
+(experimental)**: `config-manager pull oauth2-agents` (every agent type it
+handles, OAuth2 clients included), `pull oauth-cimd-profiles`,
+`pull oauth-issuers`, `pull oauth-software-publishers` and the OAuth2 client file
+of `pull applications` (`oauth2-client.json` in the application folder) write
+each file with the plain value of every property that is set on the object, and
+nothing for a property that is unset, inherited from an agent group or a default,
+or `null`. Before, they wrote what AM answers a read of one object with: every
+property as `{ "inherited": false, "value": ... }`, and `{ "inherited": false }`
+for one that is not set. The files get about 60 percent shorter (the committed
+examples go from 4331 to 1748 lines), and a version-control diff shows what is
+set on the object and no longer what a group or a default changes. The first
+`pull` over a tree that was written before this change shows that difference
+once, in every agent file. A `push` is not changed and accepts both shapes, so an
+older tree still pushes as it is. An overrides file written for the wrapped
+files (a value given as `{ "value": ... }` or as `{ "inherited": false, "value":
+... }`) still works: an override in that form is read as its value. A group
+whose members are all left out stays in the file as an empty object. The CIMD
+profile pull makes one request for a realm and none per profile, because the
+list answer, with its `null` for what is not set, gives the same file. See
+[a config-manager object has one writer and agent files are written in the plain shape](https://github.com/rockcarver/frodo-cli/blob/main/docs/decisions/0054-a-config-manager-object-has-one-writer-and-agent-files-are-written-in-the-plain-shape.md).
+
+**A pull no longer writes a key set that holds a private or secret key
+(experimental)**: `config-manager pull oauth2-agents` (remote consent agents and
+OAuth2 clients, whose key set is the `jwkSet` of the agent and the one in its
+signing and encryption settings), `pull oauth-issuers` and `pull
+oauth-software-publishers` replace a `jwkSet` that holds a private or a symmetric
+key (a member `d`, `p`, `q`, `dp`, `dq`, `qi`, `oth` or `k`) with the placeholder
+`${<ID>_JWKSET}`, the id of the object in upper case, and say so in one warning
+that never prints the key. Before, the key was written to the file with a warning.
+A key set with public keys only is written as before. A `push` of such a file
+fills the placeholder from the variable (`-E`, `--env-file` or the environment of
+the process), which holds the key set as JSON text; without the variable that file
+fails and names it, and nothing is sent for it. A script that relied on the key in
+the file now sets the variable instead. See
+[a pull never writes private or secret key material into an agent file](https://github.com/rockcarver/frodo-cli/blob/main/docs/decisions/0055-a-pull-never-writes-private-or-secret-key-material-into-an-agent-file.md).
+
+**The OAuth2 client of an application no longer holds a private key set
+(experimental)**: `config-manager pull applications` (and `migrate applications`,
+which pulls the application again) replace the `jwkSet` in the signing and
+encryption settings of the OAuth2 client in `oauth2-client.json`, when it holds a
+private or a symmetric key, with the placeholder `${APP_<NAME>_JWKSET}`: the
+name of the application in upper case, every run of other characters as one
+underscore, the way `APP_<NAME>_CLIENT_SECRET` is named. One warning says so and
+never prints the key. A key set with public keys only is written as before. A
+`push applications` fills the placeholder from the variable (`-E`, `--env-file`
+or the environment of the process), which holds the key set as JSON text; an
+application whose variable is not set is not imported, and the push names the
+variable. Before, the key was written to the file. See
+[a pull never writes private or secret key material into an agent file](https://github.com/rockcarver/frodo-cli/blob/main/docs/decisions/0055-a-pull-never-writes-private-or-secret-key-material-into-an-agent-file.md).
+
+**Header overrides are stored encrypted**: a connection profile kept the values
+of `--authentication-header-overrides` and `--configuration-header-overrides`
+in `Connections.json` in the clear. Now both maps are encrypted with the master
+key, like the password. A profile saved with plain maps by an earlier version is
+read as it is and is not rewritten by reading it; the next save of that profile
+(any `conn save` or `conn set` for it) encrypts them. In the other direction, an
+earlier version reads only the profile fields it knows, so it does not see the
+encrypted maps: it sends no override headers, and a gateway that needs them
+refuses the request. For such a run set `FRODO_AUTHENTICATION_HEADER_OVERRIDES`
+and `FRODO_CONFIGURATION_HEADER_OVERRIDES`, or use the newer version.
+
+**Trusted JWT issuers and CIMD profiles are not agents of the generic agent
+commands any more**: `frodo agent list`, `agent describe`, `agent export` and
+`agent delete` leave out the agent types `TrustedJwtIssuer` and `CIMDProfile`,
+as they always left out `OAuth2Client`; each of these types is handled only by
+its own commands. Until now the generic commands listed, exported and deleted
+them together with the other agents. Now `agent list` does not show them, `agent
+describe -i <id>`, `agent export -i` and `agent delete -i` answer that the agent
+is not found (the last two exit with code 1), `agent export -a` and `-A` do not
+write them, and `agent delete -a` does not delete them. That last change matters
+most for trusted JWT issuers: a JWT signed by an issuer is accepted as a grant,
+so "delete all agents" no longer removes them. Use `frodo
+oauth issuer list|describe|export|import|delete` for trusted JWT issuers and
+`frodo oauth cimd list|describe|export|import|delete` for CIMD profiles. A
+script that relied on `agent export -A` or `agent delete -a` to include them
+adds `frodo oauth issuer export -A` (files `<id>.oauth2.issuer.json`) or `frodo
+oauth issuer delete -a --yes`, and `frodo oauth cimd export -A` (files
+`<id>.oauth2.cimd.json`) or `frodo oauth cimd delete -a --yes`. Files that an
+earlier `agent export` wrote with such objects in them (`<id>.agent.json`) still
+import with `frodo agent import`. `frodo oauth issuer import -f` reads them
+too; `frodo oauth cimd import` does not: it says so and names `frodo agent
+import`.
+
+**`frodo config export` writes each trusted JWT issuer once, and CIMD profiles
+under a key of their own**: a full export used to write every trusted JWT issuer
+twice, under `agent` and under `trustedJwtIssuer` (with `-A`:
+`realm/root-<realm>/agent/<id>.agent.json` and
+`realm/root-<realm>/trustedJwtIssuer/<id>.trustedJwtIssuer.json`), and on a
+deployment that offers the agent type every CIMD profile under `agent`. Now an
+issuer is only in `trustedJwtIssuer`, and a CIMD profile is in its own section
+`cimdProfile` (with `-A`: `realm/root-<realm>/cimdProfile/<id>.cimdProfile.json`).
+The `cimdProfile` key is left out for a realm that has no profile or whose
+deployment does not offer the type, so the export of such a realm is unchanged.
+A script, or a tree under version control, that reads issuers or profiles from
+`agent` reads them from `trustedJwtIssuer` and `cimdProfile` instead; the
+`agent/<id>.agent.json` files of issuers that an old tree still holds can be
+deleted. `config import` reads both layouts and writes each issuer and each
+profile once. A profile that the target deployment cannot hold is skipped with
+a message (`Skipped 1 CIMD profile: the alpha realm of this deployment does not
+offer CIMD profiles.`) and does not fail the import.
+
+**`frodo promote` does not carry trusted JWT issuers or CIMD profiles**: a full
+export keeps them in `trustedJwtIssuer/` and `cimdProfile/`, which `frodo
+promote` does not read, so a change to either is not applied. A tree exported
+before 5.0.0-38 also holds issuers under `agent/`; where a comparison counts such
+a file as deleted, `promote` deletes it as an agent, which ends with an "agent
+not found" error and exit code 1 (export the tree again). Use `frodo oauth
+issuer` and `frodo oauth cimd`, or the config-manager commands, for these
+objects.
+
+**`frodo idm import` refuses a file without the `idm` wrapper, and `idm export`
+and `idm import` take `--raw`**: since 3.0 `idm export` writes every
+configuration object inside an `idm` wrapper (`{ "idm": { "sync": { ... } } }`)
+and `idm import` reads that format. A file that holds the object as IDM serves
+it (what 2.x exported as `sync.json`, or a file of the `conf` directory of IDM)
+made `idm import -i <id>`, `-f`, `-a -f` and `-A` fail with "Cannot convert
+undefined or null to object", and `idm import -i sync` and `-i managed` read it
+as a configuration object without mappings or without managed objects and wrote
+that to the tenant, with exit code 0 (frodo-cli#476). They now name the file,
+say that it has no `idm` wrapper and that `--raw` imports it, write nothing and
+exit 1; with `-A` the other files are still imported and the command exits 1.
+`idm import -i sync` or `-i managed` with a wrapped file that holds no such
+object fails the same way instead of importing an empty one. New: `idm export
+-i <id> --raw` writes the object as IDM serves it, without the wrapper, without
+metadata and with the scripts inline, to `<id>.json` (`provisioner.openicf/xyz`
+becomes `provisioner.openicf-xyz.json`, as in the `conf` directory of IDM), and
+`idm import --raw` imports such a file: `-i <id>` names the object (with no `-f`
+the file is `<id>.json`), or `-f` alone names it by the `_id` in the file. A file
+whose `_id` is another object than the one `-i` names, and a file that has the
+wrapper, are refused. `--raw` works for one object at a time and cannot be used
+with `-a`, `-A` or `-e`.
+
+**Four options that did nothing are removed**: each of them was declared and
+never read, so a command line that passed one was accepted and did what it would
+have done without it
+([frodo-cli#1217](https://github.com/rockcarver/frodo-cli/issues/1217)). A
+command line that passes one is now rejected as an unknown option, with exit
+code 1, before the command connects. Drop the option from the script:
+
+| Removed option                                  | Why dropping it changes nothing                                                                                                                                                                      |
+| ----------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `-l, --long` of `frodo esv secret version list` | The table already shows every field the server returns for a version (version, status, loaded, created).                                                                                             |
+| `--no-deep` of `frodo esv variable delete`      | The command has no deep delete: it deleted the same with or without the option.                                                                                                                      |
+| `--no-deep` of `frodo oauth client delete`      | The command has no deep delete: it deleted the same with or without the option.                                                                                                                      |
+| `--target <host url>` of `frodo promote`        | The option was copied from the export commands, where it encrypts secret values for another environment. `promote` never read it, so a script that passed it got no encryption for that environment. |
+
+**`frodo promote` is deprecated and will be removed in 5.0.0** (cli#1263): the
+command never ran a promotion of Advanced Identity Cloud. It compares two local
+directories of a frodo export (a master export and a current export) and runs
+the ordinary import and delete for the files that differ; the platform's
+promotion (lock, dry run, promote, status, reports, rollback, unlock) is
+`frodo config-manager promote`, which exists since 5.0.0-19. In the 5.x
+prereleases `frodo promote` keeps working as it did and prints a deprecation
+notice; it gets no new options and no new kinds. To replace it:
+
+| What you used it for                                | Use instead                                                                                                                      |
+| --------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
+| Run the promotion of the platform                   | `frodo config-manager promote run-promotion <connection>` (and `run-dryrun-promotion`, `rollback`, `check-promotion-status`, ...) |
+| Bring a tenant to a tree of files                   | `frodo config import -A -D <master> <connection>` (add `--static` for what a promotion carries), or the `frodo config-manager push` commands |
+| Delete what was removed from a tree                 | `frodo config-manager delete <type> -i <id>`                                                                                     |
+
+There is no replacement yet for the automatic delete of the files that
+disappeared from the tree, and for the report of the differences (see
+[the restructuring of the config-manager commands](https://github.com/rockcarver/frodo-cli/issues/1264)).
+
+**`frodo mcp server`: a list or search result says whether it is complete** (the
+group is experimental): the result of a list or search now has `truncated`,
+`returned` and `total` in front of `data`, and `nextPageOffset` or
+`nextPageToken` and `warning` when `truncated` is `true`. `data` is unchanged, so
+a client that ignores the new fields keeps working; a client that reads them can
+tell a cut list from a complete one. A capability that cannot tell whether it
+stopped at a limit of its own (a log search that removes duplicate events
+afterwards) gives `returned` and a `warning` but no `truncated` and no `total`;
+that is not a complete result, so read the `warning`. These fields come from
+frodo-lib: they appear with the library release that includes
+[frodo-lib#1117](https://github.com/rockcarver/frodo-lib/pull/1117), so a CLI
+release must pin that library first. A result larger than the inline limit of the
+server (256 KiB of indented JSON, 2 MiB for the catalog detail of
+`frodo_discover`) was already replaced by `data: { "_truncated": true, ... }`; the
+CLI now also says `truncated: true` and `returned: 0` at the top level, keeps the
+`total` when it is known, and leaves out any pointer to a next page, in front of
+`data` and in `metadata.pagination`, because that page was never delivered.
+
+**`config-manager pull test`, `push test` and `delete test` are removed**: the
+three commands were `frodo conn test` mounted under each group, the same code
+with the same options. They tested a connection and the login and neither read
+nor wrote any configuration, and `frodo conn test` does the same for every
+command group
+([the configuration command group](https://github.com/rockcarver/frodo-cli/blob/main/docs/decisions/0056-the-configuration-command-group.md):
+no `test` commands, `frodo conn test` tests a connection for every group). A
+command line that still runs one of them is rejected with `error: unknown
+command 'test'` and exit code 1, before any connection is made. Replace the
+command in the script; the only visible difference is that `frodo conn test`
+does not print the experimental notice of the config-manager group:
+
+| Removed command                    | Use instead       |
+| ---------------------------------- | ----------------- |
+| `frodo config-manager pull test`   | `frodo conn test` |
+| `frodo config-manager push test`   | `frodo conn test` |
+| `frodo config-manager delete test` | `frodo conn test` |
+
+**`config-manager push direct-control-init`, `-apply`, `-abort` and `-state` are
+removed**: direct control had two implementations, these four commands and
+`frodo dcc session`, which has the same four calls and now the one option that
+only the old commands had, `-w, --wait`
+([the configuration command group](https://github.com/rockcarver/frodo-cli/blob/main/docs/decisions/0056-the-configuration-command-group.md):
+`frodo dcc session` is the one implementation of direct control). The group
+`config-manager` is experimental, so the old spellings have no alias and print no
+notice: a command line that still runs one of them is rejected with `error:
+unknown command 'direct-control-init'` (or `-apply`, `-abort`, `-state`) and
+exit code 1, before any connection is made. Replace the command in the script:
+
+| Removed command                                  | Use instead               |
+| ------------------------------------------------ | ------------------------- |
+| `frodo config-manager push direct-control-init`  | `frodo dcc session init`  |
+| `frodo config-manager push direct-control-apply` | `frodo dcc session apply` |
+| `frodo config-manager push direct-control-abort` | `frodo dcc session abort` |
+| `frodo config-manager push direct-control-state` | `frodo dcc session state` |
+
+`frodo config-manager push direct-control-apply -w` becomes `frodo dcc session
+apply --wait` (or `-w`): it asks the tenant to apply, then reads the state every
+10 seconds until the session is applied, prints `Status: <status>` to stderr for
+each read, and still has no timeout. What differs from the old commands:
+
+- **The result is a sentence on stderr, not the state on stdout.** The old
+  commands printed the state object on stdout. Use `--json` for the same object
+  on stdout; a script that parsed the old stdout needs it. With `--wait --json`
+  stdout holds one document, the final state (the old command printed the answer
+  of the apply call first, then the `Status:` lines).
+- **Without `--json` the exit code is 1 when the answer contradicts the
+  action**: `init` when no session is active afterwards, `apply` and `abort`
+  when the session is still active. The old commands exited 0 whenever the call
+  worked. With `--json` the exit codes of `init`, `apply` and `abort` are those
+  of `frodo dcc session` before: 0 whatever the answer says (making them follow
+  the answer is left for a later change). Waiting is the one exception:
+  `apply --wait`, with or without `--json`, exits 1 at once, without waiting,
+  when the apply call reports the session as still active, and exits 1 when the
+  session reaches the state `ERROR`.
+- **The notice on stderr is the one of a preview command.** `frodo dcc
+  session` prints `Preview feature in use`, not the experimental notice of the
+  config-manager group.
+
 ### Node.js version matrix changes in 5.x
 
 - 5.x is tested on Node.js 26 only, and building frodo from source (the npm
@@ -643,11 +1373,18 @@ no longer exists and is rejected. This affects `config export`,
 | `frodo config export -A -x ...` | `frodo config export -A ...`    |
 | `frodo config export -A ...`    | `frodo config export -A -x ...` |
 
-**Removed option**:
+**Removed options**:
 
-| Removed option                                            | Replacement                                                      |
-| --------------------------------------------------------- | ---------------------------------------------------------------- |
-| `-s, --separate-mappings` (`config export`, `idm export`) | None needed: sync mappings are always written to separate files. |
+| Removed option                                            | Replacement                                                                                                                                                          |
+| --------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `-s, --separate-mappings` (`config export`, `idm export`) | None needed: sync mappings are always written to separate files.                                                                                                     |
+| `-o, --separate-objects` (`config export`, `idm export`)  | None needed: managed objects are written to separate files whenever extraction is on, which is the default; `-x, --no-extract` keeps them in one `managed.idm.json`. |
+
+Both options are gone from every 4.x release and from 5.x, and a command line
+that passes one is rejected as an unknown option. The 5.0.0 prereleases
+5.0.0-15 to 5.0.0-25 declared them on `config export` again by mistake: the
+command accepted them and did nothing with them. To get separate files from
+`config export`, use `-A` (with `-D <directory>`).
 
 ---
 
@@ -660,6 +1397,13 @@ When a release removes or deprecates a command, alias, or option:
 2. Keep the README's breaking-changes summary in
    [.github/README.md](.github/README.md) as a short list that links here
    for the full detail.
-3. Verify against the built binary before publishing: every listed alias
-   should actually be rejected (`frodo <alias> -h` falls through to root
-   help).
+3. Verify against the built binary before publishing: every alias listed
+   as removed should actually be rejected (`frodo <alias> -h` falls through
+   to root help).
+4. When a release renames a command, keep the old name as a transition alias
+   (`withAlias('old-name', 'transition')`, see
+   [record 0049](docs/decisions/0049-an-alias-is-named-in-the-description-and-the-old-name-of-a-renamed-command-stays-as-a-transition-alias.md))
+   and list the rename as a table row: old name, new name, and that the old
+   name is still accepted. The help shows `(formerly: old-name)` and typing
+   the old name prints a notice on stderr. When a later major release removes
+   the alias, move the row to the removed aliases and verify it as in step 3.

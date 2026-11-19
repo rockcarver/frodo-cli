@@ -4,6 +4,7 @@ import { configManagerImportEndpoints } from '../../../configManagerOps/FrConfig
 import { getTokens } from '../../../ops/AuthenticateOps';
 import { verboseMessage } from '../../../utils/Console';
 import { FrodoCommand } from '../../FrodoCommand';
+import { selectorOption } from '../../SelectorOption';
 
 const { CLOUD_DEPLOYMENT_TYPE_KEY, FORGEOPS_DEPLOYMENT_TYPE_KEY } =
   frodo.utils.constants;
@@ -23,14 +24,15 @@ export default function setup() {
   program
     .description('Import custom endpoints objects.')
     .addOption(
-      new Option(
-        '-n, --name <name>',
-        'Endpoint name, import only specified endpoint'
+      selectorOption(
+        '-i, --endpoint-id <id>',
+        'Endpoint id, import only the specified endpoint',
+        ['-n', '--name']
       )
     )
     .addOption(
       new Option(
-        '-f, --filename-filter <filenameFilter>',
+        '--filename-filter <filenameFilter>',
         'Combine multiple files using comma, use ~ prefix on entry for wildcard match'
       )
     )
@@ -48,7 +50,7 @@ export default function setup() {
       if (await getTokens(false, true, deploymentTypes)) {
         verboseMessage('Importing config entity endpoints');
         const outcome = await configManagerImportEndpoints(
-          options.name,
+          options.endpointId,
           options.filenameFilter,
           options.allowFailures
         );

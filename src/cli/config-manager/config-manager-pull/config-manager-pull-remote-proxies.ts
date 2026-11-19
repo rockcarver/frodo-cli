@@ -1,11 +1,11 @@
 import { frodo } from '@rockcarver/frodo-lib';
-import { Option } from 'commander';
 import * as s from '../../../help/SampleData';
 import { getTokens } from '../../../ops/AuthenticateOps';
 import { configManagerExportRemoteProxies } from '../../../ops/RemoteProxyOps';
 import c from '../../../utils/ColorTheme';
 import { verboseMessage } from '../../../utils/Console';
 import { FrodoCommand } from '../../FrodoCommand';
+import { selectorOption } from '../../SelectorOption';
 
 const { CLOUD_DEPLOYMENT_TYPE_KEY } = frodo.utils.constants;
 
@@ -23,9 +23,10 @@ export default function setup() {
       'Export IDM remote proxies: one file remote-proxies/<name>.json for each.'
     )
     .addOption(
-      new Option(
-        '-n, --name <name>',
-        'Remote proxy name. If specified, pulls only the remote proxy with the given name.'
+      selectorOption(
+        '-i, --proxy-id <id>',
+        'Remote proxy id. If specified, pulls only the remote proxy with the given id.',
+        ['-n', '--name']
       )
     )
     .addHelpText(
@@ -37,7 +38,7 @@ export default function setup() {
         ) +
         `  Pull one remote proxy:\n` +
         c.command(
-          `  $ frodo config-manager pull remote-proxies -n ${s.remoteProxyId} ${s.connId}\n`
+          `  $ frodo config-manager pull remote-proxies -i ${s.remoteProxyId} ${s.connId}\n`
         )
     )
     .multiOp()
@@ -54,7 +55,7 @@ export default function setup() {
       if (await getTokens(false, true, deploymentTypes)) {
         verboseMessage('Exporting remote proxies.');
         const outcome = await configManagerExportRemoteProxies(
-          options.name,
+          options.proxyId,
           false,
           options.allowFailures
         );

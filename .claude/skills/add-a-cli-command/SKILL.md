@@ -10,6 +10,7 @@ The rules live in other files; this skill is the order to do things in. Read the
 - [.github/instructions/cli-commands.instructions.md](../../../.github/instructions/cli-commands.instructions.md) and "Writing a command" in [docs/CONTRIBUTE.md](../../../docs/CONTRIBUTE.md)
 - cli records [0007](../../../docs/decisions/0007-layers-and-the-thin-wrapper-in-the-cli.md) (layers), [0008](../../../docs/decisions/0008-every-command-is-a-thin-frodocommand-file-with-the-usual-verbs.md) (a command is a thin `FrodoCommand` file), [0009](../../../docs/decisions/0009-ops-functions-are-named-after-the-command-verb.md) (ops names), [0010](../../../docs/decisions/0010-output-goes-through-console-and-colours-through-colortheme.md) (output), [0016](../../../docs/decisions/0016-option-requirements-are-declared-not-coded.md) (option requirements), [0033](../../../docs/decisions/0033-code-sets-the-exit-code-and-returns-instead-of-exiting.md) (exit codes), [0002](../../../docs/decisions/0002-usage-examples-run-as-written-and-open-no-prompt.md) and [0006](../../../docs/decisions/0006-every-new-command-ships-usage-examples.md) (usage examples), [0036](../../../docs/decisions/0036-the-library-holds-common-functions-and-the-cli-composes-them.md) (what is the library's and what the CLI composes)
 - core 0001, [the library is the brain, the CLI is a thin wrapper](../../../docs/decisions/core/0001-library-is-the-brain-cli-is-a-thin-wrapper.md), and core 0007, [the public API is only the frodo facade](../../../docs/decisions/core/0007-public-api-only-through-the-frodo-facade.md)
+- core 0022, [a configuration type has one owner in every layer](../../../docs/decisions/core/0022-a-configuration-type-has-one-owner-in-every-layer.md) (a type that frodo-lib handles in its own module has one command family and one config-manager kind)
 
 ## 1. Check the library has what the command needs
 
@@ -18,6 +19,7 @@ A command wraps a method of the `frodo` facade. Look for it in the `@rockcarver/
 - **It exists:** go on.
 - **It does not, and a script or the MCP server would also call it on its own** (a domain rule, an API call, data handling): stop. New capability is built in frodo-lib first, released, then wrapped here (core 0001). Say so in the issue or pull request. Do not reimplement the logic in `src/ops/`, and do not import anything from the library except `frodo`, `state`, `FrodoError` and types (ESLint rejects it).
 - **It does not, because the command strings existing library functions into a workflow** (the order of the steps, work across connections, defaults, confirmation, dry run, progress): go on and compose them in `src/ops/` ([0036](../../../docs/decisions/0036-the-library-holds-common-functions-and-the-cli-composes-them.md)).
+- **It exists, in a module of its own for a configuration type** (for agent types, a type on `AGENT_TYPES_WITH_OWN_MODULE` in the library): the command goes into that type's one command family, and the generic commands of its family and the generic config-manager kinds leave the type to it (core 0022, above).
 
 ## 2. Copy the template
 
@@ -35,7 +37,7 @@ Use the usual verbs (`list`, `describe`, `export`, `import`, `delete`) and copy 
 
 ## 3. Keep the command file thin
 
-A verb file exports `setup()` as its default. Its action does four things, in this order: `command.handleDefaultArgsAndOpts(host, realm, user, password, options, command)`, `await getTokens()`, one call to an ops function, and, when login or the operation fails, `process.exitCode = 1;` followed by `return;`. Never call `process.exit()`, in a command or in the ops code it calls (cli record 0033): it can cut off pending output, and lint rejects it. Read `src/cli/journey/journey-list.ts` for the shape. Print through `printMessage`, `verboseMessage` and `printError` from `src/utils/Console.ts`, colours from `src/utils/ColorTheme.ts`, never `console.log` (cli record 0010).
+A verb file exports `setup()` as its default. Its action does four things, in this order: `command.handleDefaultArgsAndOpts(host, realm, user, password, options, command)`, `await getTokens()`, one call to an ops function, and, when login or the operation fails, `process.exitCode = 1;` followed by `return;`. Await the ops call and test its result (`const outcome = await ...; if (!outcome) process.exitCode = 1;`): a promise is always truthy, so a missing `await` exits 0 after a failure, and lint (`@typescript-eslint/no-floating-promises` and `no-misused-promises`) rejects it in `src/cli/`. Never call `process.exit()`, in a command or in the ops code it calls (cli record 0033): it can cut off pending output, and lint rejects it. Read `src/cli/journey/journey-list.ts` for the shape. Print through `printMessage`, `verboseMessage` and `printError` from `src/utils/Console.ts`, colours from `src/utils/ColorTheme.ts`, never `console.log` (cli record 0010).
 
 Declare what the command needs instead of coding it (cli record 0016): `requireOneOf({ options, purpose })` for "at least one of" and `requireAllOf(...)` for "all together". A new command needs no "unrecognized combination" branch, and a command file contains no prompt code: interactivity attaches to the command by itself (cli record 0014).
 
@@ -53,6 +55,10 @@ Put it in `src/ops/<Thing>Ops.ts`. It adapts the library for the terminal: map a
 ## 5. Register it
 
 Add `program.addCommand(ListCmd().name('list'))` (with `import ListCmd from './widget-list.js';`) to the group file. A new group is imported and added in `src/app.ts` (`program.addCommand(widget())`, next to the others; `.helpGroup(...)` only for the "Utilities" or "Continuous integration" headings).
+
+An alias goes through `withAlias`, never `.alias()` (lint rejects it in `src/cli/`): `.withAlias('add')` for a second spelling that stays, `.withAlias('old-name', 'transition')` for the old name of a command you renamed ([cli record 0049](../../../docs/decisions/0049-an-alias-is-named-in-the-description-and-the-old-name-of-a-renamed-command-stays-as-a-transition-alias.md)). The help then shows the preferred name only and ends the description with `(alias: add)` or `(formerly: old-name)`, and typing the old name prints one notice on stderr. The old name stays until a major release removes it; list the rename in [MIGRATION.md](../../../MIGRATION.md).
+
+An option that selects one object in a `config-manager` command is `-i, --<type>-id` (an identifier) or `-n, --<type>-name` (a name that can change), mutually exclusive when a command has both ([options of the configuration commands](https://github.com/rockcarver/frodo-cli/blob/main/docs/decisions/0057-options-of-the-configuration-commands.md)). Make the option with `selectorOption(flags, description, aliases)` from `src/cli/SelectorOption.ts`: it refuses an empty value while the command line is parsed, so that an empty variable never selects all objects. `-n, --name` stays as a permanent alias on the commands that took it: pass `['-n', '--name']` as `aliases` (the helper `withOptionAlias` in `src/cli/OptionAlias.ts` does the aliasing), which ends the description with `(alias: -n, --name)`; never declare a second option on `-n`.
 
 ```console
 npx tsdown

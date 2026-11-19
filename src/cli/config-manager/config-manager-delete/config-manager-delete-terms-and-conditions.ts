@@ -10,6 +10,7 @@ import {
 import c from '../../../utils/ColorTheme';
 import { verboseMessage } from '../../../utils/Console';
 import { FrodoCommand } from '../../FrodoCommand';
+import { selectorOption } from '../../SelectorOption';
 
 const { CLOUD_DEPLOYMENT_TYPE_KEY, FORGEOPS_DEPLOYMENT_TYPE_KEY } =
   frodo.utils.constants;
@@ -28,9 +29,10 @@ export default function setup() {
   program
     .description('Delete terms and conditions versions.')
     .addOption(
-      new Option(
-        '-n, --name <name>',
-        'Version identifier; deletes only the specified terms and conditions version.'
+      selectorOption(
+        '-i, --version-id <version>',
+        'Version identifier; deletes only the specified terms and conditions version.',
+        ['-n', '--name']
       )
     )
     .addOption(
@@ -42,7 +44,7 @@ export default function setup() {
     .addOption(
       new Option(
         '-y, --yes',
-        'Do not ask for confirmation before deleting more than one terms and conditions version (no -n). Required without a terminal.'
+        'Do not ask for confirmation before deleting more than one terms and conditions version (no -i). Required without a terminal.'
       )
     )
     .addHelpText(
@@ -58,11 +60,11 @@ export default function setup() {
         ) +
         `  Delete a specific version:\n` +
         c.command(
-          `  $ frodo config-manager delete terms-and-conditions -n 0.1 ${s.connId}\n`
+          `  $ frodo config-manager delete terms-and-conditions -i 0.1 ${s.connId}\n`
         ) +
         `  Preview deletion of a specific version:\n` +
         c.command(
-          `  $ frodo config-manager delete terms-and-conditions -n 0.1 -d ${s.connId}\n`
+          `  $ frodo config-manager delete terms-and-conditions -i 0.1 -d ${s.connId}\n`
         )
     )
     .multiOp()
@@ -76,9 +78,10 @@ export default function setup() {
         command
       );
       // a run that nobody can be asked about is refused before the login; an
-      // empty name is not "all" and is reported by the delete itself
+      // empty version is refused while the command line is parsed, so it is
+      // never "all"
       const what = 'all terms and conditions versions';
-      const deletesAll = options.name === undefined;
+      const deletesAll = options.versionId === undefined;
       if (
         deletesAll &&
         !checkBulkDelete({ what, yes: options.yes, dryRun: options.dryRun })
@@ -105,7 +108,7 @@ export default function setup() {
       }
       verboseMessage('Deleting terms and conditions versions');
       const outcome = await configManagerDeleteTermsAndConditions(
-        options.name,
+        options.versionId,
         options.dryRun,
         options.allowFailures
       );

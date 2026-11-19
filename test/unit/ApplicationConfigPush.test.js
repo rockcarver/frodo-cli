@@ -39,6 +39,7 @@ let world;
 let calls;
 let bodies;
 let userLayout;
+let libEnv;
 
 function dir(rel) {
   const target = path.join(tmp, rel);
@@ -61,6 +62,17 @@ jest.unstable_mockModule('@rockcarver/frodo-lib', () => {
       setRealm: (realm) => {
         currentRealm = realm;
       },
+      // the values that -E/--env and --env-file put into the state of the library, and the switch that
+      // lets a push fill a placeholder from the environment of the process as well
+      getEnv: (key) => libEnv[key],
+      getEnvs: () => libEnv,
+      setEnv: (key, value) => {
+        libEnv[key] = value;
+      },
+      setEnvs: (env, clear) => {
+        libEnv = clear ? { ...env } : { ...libEnv, ...env };
+      },
+      getUseProcessEnvironmentForPlaceholders: () => true,
     },
     frodo: {
       utils: {
@@ -84,7 +96,7 @@ jest.unstable_mockModule('@rockcarver/frodo-lib', () => {
             (p) => !p.startsWith('\\\\')
           )) {
             const variable = placeholder.replace(/\${(.*)}/, '$1');
-            const value = process.env[variable];
+            const value = libEnv[variable] ?? process.env[variable];
             if (value === undefined) {
               throw new FrodoError(
                 `No value found for placeholder "${variable}"`
@@ -364,6 +376,7 @@ beforeEach(() => {
   deployment = 'cloud';
   currentRealm = undefined;
   userLayout = 'folders';
+  libEnv = {};
   calls = [];
   bodies = {};
   world = {
@@ -375,12 +388,14 @@ beforeEach(() => {
   delete process.env.APP_ZION_PORTAL_CLIENT_SECRET;
   delete process.env.APP_SVC_CLIENT_SECRET;
   delete process.env.APP_OTHER_CLIENT_SECRET;
+  delete process.env.APP_ZION_PORTAL_JWKSET;
 });
 afterEach(() => {
   fs.rmSync(tmp, { recursive: true, force: true });
   delete process.env.APP_ZION_PORTAL_CLIENT_SECRET;
   delete process.env.APP_SVC_CLIENT_SECRET;
   delete process.env.APP_OTHER_CLIENT_SECRET;
+  delete process.env.APP_ZION_PORTAL_JWKSET;
 });
 
 // ---- the order of the steps ------------------------------------------------
@@ -678,6 +693,126 @@ describe('the record is matched by name', () => {
   });
 });
 
+// ---- a key set that a pull replaced by a variable (record 0055) -------------------
+
+describe('the key set of the OAuth2 client, filled from a variable', () => {
+  // a key set is JSON text: it has quotes, so the push has to put it into the string of the file as it is
+  const keySet = JSON.stringify({
+    keys: [
+      {
+        kty: 'RSA',
+        kid: 'portal',
+        n: 'zion-modulus',
+        e: 'AQAB',
+        d: 'zion-private-exponent-d',
+      },
+    ],
+  });
+  const withKeySet = (extra = {}) =>
+    writeApp('alpha', 'Zion Portal', {
+      record: webRecord('Zion Portal', 'zion-portal'),
+      client: client('zion-portal', {
+        userpassword: '${APP_ZION_PORTAL_CLIENT_SECRET}',
+        signEncOAuth2ClientConfig: { jwkSet: '${APP_ZION_PORTAL_JWKSET}' },
+        ...extra,
+      }),
+    });
+  const sentKeySet = () =>
+    bodies.agent.data.agent['zion-portal'].signEncOAuth2ClientConfig.jwkSet;
+
+  test('the key set comes from the environment of the process as JSON text, with its quotes, and goes into the client as it is', async () => {
+    withKeySet();
+    process.env.APP_ZION_PORTAL_CLIENT_SECRET = 's3cret';
+    process.env.APP_ZION_PORTAL_JWKSET = keySet;
+
+    expect(await configManagerImportApplications(undefined, 'alpha')).toBe(
+      true
+    );
+
+    expect(sentKeySet()).toBe(keySet);
+    expect(bodies.agent.data.agent['zion-portal'].userpassword).toBe('s3cret');
+    expect(calls.map((c) => c.replace(UUID, '<id>'))).toEqual([
+      'agent:zion-portal',
+      'app:create:<id>',
+    ]);
+  });
+
+  test('the key set comes from -E too, and the values of the library are as they were afterwards', async () => {
+    withKeySet();
+    process.env.APP_ZION_PORTAL_CLIENT_SECRET = 's3cret';
+    libEnv.APP_ZION_PORTAL_JWKSET = keySet;
+
+    expect(await configManagerImportApplications(undefined, 'alpha')).toBe(
+      true
+    );
+
+    expect(sentKeySet()).toBe(keySet);
+    // the escaped copy that the push put into the state for the read is gone
+    expect(libEnv).toEqual({ APP_ZION_PORTAL_JWKSET: keySet });
+  });
+
+  test('a value that somebody escaped by hand still works', async () => {
+    withKeySet();
+    process.env.APP_ZION_PORTAL_CLIENT_SECRET = 's3cret';
+    process.env.APP_ZION_PORTAL_JWKSET = JSON.stringify(keySet).slice(1, -1);
+
+    expect(await configManagerImportApplications(undefined, 'alpha')).toBe(
+      true
+    );
+
+    expect(sentKeySet()).toBe(keySet);
+  });
+
+  test('a variable without a value fails that application, names the variable and sends nothing for it; the placeholder is never stored', async () => {
+    withKeySet();
+    process.env.APP_ZION_PORTAL_CLIENT_SECRET = 's3cret';
+    writeApp('alpha', 'Other', {
+      record: webRecord('Other', 'other'),
+      client: client('other'),
+    });
+
+    expect(await configManagerImportApplications(undefined, 'alpha')).toBe(
+      false
+    );
+
+    expect(summary()).toMatch(/1 of 2 applications failed/);
+    expect(summary()).toMatch(/alpha\/Zion Portal/);
+    expect(summary()).toMatch(/APP_ZION_PORTAL_JWKSET/);
+    // only the other application was pushed
+    expect(calls.map((c) => c.replace(UUID, '<id>'))).toEqual([
+      'agent:other',
+      'app:create:<id>',
+    ]);
+    expect(JSON.stringify(bodies)).not.toContain('APP_ZION_PORTAL_JWKSET');
+  });
+
+  test('a key set with public keys only is in the file as it is and is pushed as it is', async () => {
+    const publicOnly = JSON.stringify({
+      keys: [{ kty: 'RSA', kid: 'portal', n: 'zion-modulus', e: 'AQAB' }],
+    });
+    withKeySet({ signEncOAuth2ClientConfig: { jwkSet: publicOnly } });
+    process.env.APP_ZION_PORTAL_CLIENT_SECRET = 's3cret';
+
+    expect(await configManagerImportApplications(undefined, 'alpha')).toBe(
+      true
+    );
+
+    expect(sentKeySet()).toBe(publicOnly);
+  });
+
+  test('a variable that is not a JSON object is filled as it is, as before', async () => {
+    withKeySet();
+    process.env.APP_ZION_PORTAL_CLIENT_SECRET = 's3cret';
+    process.env.APP_ZION_PORTAL_JWKSET = 'not-a-key-set';
+
+    expect(await configManagerImportApplications(undefined, 'alpha')).toBe(
+      true
+    );
+
+    expect(sentKeySet()).toBe('not-a-key-set');
+  });
+});
+
 // ---- what fails an application ---------------------------------------------
 
 describe('what fails an application, and what does not', () => {
@@ -922,6 +1057,235 @@ describe('what the command line asks for', () => {
       'agent:zion-portal',
       'app:create:<id>',
     ]);
+  });
+
+  test('-i pushes the application that has that id on the tenant: the folder of that name, found by the name in its record, with one read of the applications', async () => {
+    world.apps.alpha = [
+      existingApp('Zion Portal', 'id-zion'),
+      existingApp('Other', 'id-other'),
+    ];
+    writeApp('alpha', 'Zion_Portal', {
+      record: webRecord('Zion Portal', 'zion-portal'),
+      client: client('zion-portal'),
+    });
+    writeApp('alpha', 'Other', {
+      record: webRecord('Other', 'other'),
+      client: client('other'),
+    });
+
+    expect(
+      await configManagerImportApplications(
+        undefined,
+        'alpha',
+        false,
+        'id-zion'
+      )
+    ).toBe(true);
+
+    expect(calls).toEqual(['agent:zion-portal', 'app:update:id-zion']);
+    expect(frodo.app.readApplications).toHaveBeenCalledTimes(1);
+  });
+
+  test('-i is not a name: the application that is named like the id of another one is not pushed by it', async () => {
+    // the id of One is 'Two', the name of the other application is 'Two', and that one is listed first: a lookup that also compared the name would find it
+    world.apps.alpha = [existingApp('Two', 'id-2'), existingApp('One', 'Two')];
+    writeApp('alpha', 'One', {
+      record: webRecord('One', 'one'),
+      client: client('one'),
+    });
+    writeApp('alpha', 'Two', {
+      record: webRecord('Two', 'two'),
+      client: client('two'),
+    });
+
+    expect(
+      await configManagerImportApplications(undefined, 'alpha', false, 'Two')
+    ).toBe(true);
+
+    expect(calls).toEqual(['agent:one', 'app:update:Two']);
+  });
+
+  test('-i with an id that the tenant does not have fails whatever --allow-failures says, names the id and the realm, and pushes nothing', async () => {
+    world.apps.alpha = [existingApp('Zion Portal', 'id-zion')];
+    writeApp('alpha', 'Zion_Portal', {
+      record: webRecord('Zion Portal', 'zion-portal'),
+      client: client('zion-portal'),
+    });
+
+    for (const allowFailures of [false, true]) {
+      expect(
+        await configManagerImportApplications(
+          undefined,
+          'alpha',
+          allowFailures,
+          'id-missing'
+        )
+      ).toBe(false);
+    }
+
+    expect(calls).toEqual([]);
+    expect(messages()).toMatch(
+      /Application with id 'id-missing' not found in realm 'alpha'/
+    );
+    // said once: the id was not found, which is not a missing folder
+    expect(messages()).not.toMatch(/has no folder/);
+  });
+
+  test('-i with the id of an application of the tenant that has no folder fails, and names the id', async () => {
+    world.apps.alpha = [existingApp('Zion Portal', 'id-zion')];
+    writeApp('alpha', 'Other', { record: webRecord('Other', 'other') });
+
+    expect(
+      await configManagerImportApplications(undefined, 'alpha', true, 'id-zion')
+    ).toBe(false);
+
+    expect(calls).toEqual([]);
+    expect(messages()).toMatch(
+      /Application with id 'id-zion' has no folder in realm alpha/
+    );
+  });
+
+  test('-i with the id of an application whose name another application of the realm shares is refused: a push by name would update the first one', async () => {
+    world.apps.alpha = [
+      existingApp('Zion Portal', 'id-a'),
+      existingApp('Zion Portal', 'id-b'),
+    ];
+    writeApp('alpha', 'Zion_Portal', {
+      record: webRecord('Zion Portal', 'zion-portal'),
+      client: client('zion-portal'),
+    });
+
+    for (const allowFailures of [false, true]) {
+      expect(
+        await configManagerImportApplications(
+          undefined,
+          'alpha',
+          allowFailures,
+          'id-b'
+        )
+      ).toBe(false);
+    }
+
+    expect(calls).toEqual([]);
+    expect(messages()).toMatch(/Application with id 'id-b' of realm 'alpha'/);
+    expect(messages()).toMatch(
+      /2 applications of the realm are named 'Zion Portal' \(ids 'id-a', 'id-b'\)/
+    );
+    expect(messages()).toMatch(/ambiguous/);
+  });
+
+  test('-n with a name that two applications of the realm share is refused too, whatever --allow-failures says, and writes nothing', async () => {
+    world.apps.alpha = [
+      existingApp('Zion Portal', 'id-a'),
+      existingApp('Zion Portal', 'id-b'),
+    ];
+    writeApp('alpha', 'Zion_Portal', {
+      record: webRecord('Zion Portal', 'zion-portal'),
+      client: client('zion-portal'),
+    });
+
+    for (const allowFailures of [false, true]) {
+      expect(
+        await configManagerImportApplications(
+          'Zion Portal',
+          'alpha',
+          allowFailures
+        )
+      ).toBe(false);
+    }
+
+    expect(calls).toEqual([]);
+    expect(messages()).toMatch(
+      /2 applications of the realm are named 'Zion Portal'/
+    );
+    expect(messages()).toMatch(/ambiguous/);
+  });
+
+  test('a push of every folder fails the application whose name is shared, before anything is written for it, and pushes the others', async () => {
+    world.apps.alpha = [
+      existingApp('Zion Portal', 'id-a'),
+      existingApp('Zion Portal', 'id-b'),
+      existingApp('Other', 'id-other'),
+    ];
+    writeApp('alpha', 'Zion_Portal', {
+      record: webRecord('Zion Portal', 'zion-portal'),
+      client: client('zion-portal'),
+    });
+    writeApp('alpha', 'Other', {
+      record: webRecord('Other', 'other'),
+      client: client('other'),
+    });
+
+    expect(await configManagerImportApplications(undefined, 'alpha')).toBe(
+      false
+    );
+
+    expect(calls).toEqual(['agent:other', 'app:update:id-other']);
+    expect(summary()).toMatch(/1 of 2 applications failed/);
+    expect(summary()).toMatch(/Zion Portal/);
+    expect(errors() + messages()).toMatch(/ambiguous/);
+  });
+
+  test('a name that one application of the realm has is not ambiguous: -i and -n push it as before', async () => {
+    world.apps.alpha = [
+      existingApp('Zion Portal', 'id-a'),
+      existingApp('Other', 'id-b'),
+    ];
+    writeApp('alpha', 'Zion_Portal', {
+      record: webRecord('Zion Portal', 'zion-portal'),
+      client: client('zion-portal'),
+    });
+
+    expect(
+      await configManagerImportApplications(undefined, 'alpha', false, 'id-a')
+    ).toBe(true);
+    expect(await configManagerImportApplications('Zion Portal', 'alpha')).toBe(
+      true
+    );
+
+    expect(calls).toEqual([
+      'agent:zion-portal',
+      'app:update:id-a',
+      'agent:zion-portal',
+      'app:update:id-a',
+    ]);
+  });
+
+  test('-i needs a single realm, like -n', async () => {
+    writeApp('alpha', 'A', { record: { name: 'A' } });
+    writeApp('bravo', 'A', { record: { name: 'A' } });
+
+    expect(
+      await configManagerImportApplications(undefined, undefined, false, 'x')
+    ).toBe(false);
+
+    expect(calls).toEqual([]);
+    expect(frodo.app.readApplications).not.toHaveBeenCalled();
+    expect(messages()).toMatch(/specify a single realm/);
+  });
+
+  test('an empty id selects nothing and is not found: it never means all applications', async () => {
+    world.apps.alpha = [existingApp('A', 'id-a')];
+    writeApp('alpha', 'A', { record: webRecord('A', 'a') });
+
+    expect(
+      await configManagerImportApplications(undefined, 'alpha', false, '')
+    ).toBe(false);
+
+    expect(calls).toEqual([]);
+  });
+
+  test('-i with a realm whose applications cannot be read fails and names the realm', async () => {
+    world.listFails.add('alpha');
+    writeApp('alpha', 'A', { record: webRecord('A', 'a') });
+
+    expect(
+      await configManagerImportApplications(undefined, 'alpha', false, 'id-a')
+    ).toBe(false);
+
+    expect(calls).toEqual([]);
+    expect(summary()).toMatch(/1 of 1 application failed/);
+    expect(summary()).toMatch(/realm alpha/);
   });
 
   test('-n with a name that has no folder fails whatever --allow-failures says', async () => {

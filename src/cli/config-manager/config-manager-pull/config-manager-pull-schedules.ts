@@ -1,9 +1,9 @@
 import { frodo } from '@rockcarver/frodo-lib';
-import { Option } from 'commander';
 import { configManagerExportSchedules } from '../../../configManagerOps/FrConfigSchedulesOps';
 import { getTokens } from '../../../ops/AuthenticateOps';
 import { verboseMessage } from '../../../utils/Console';
 import { FrodoCommand } from '../../FrodoCommand';
+import { selectorOption } from '../../SelectorOption';
 
 const { CLOUD_DEPLOYMENT_TYPE_KEY, FORGEOPS_DEPLOYMENT_TYPE_KEY } =
   frodo.utils.constants;
@@ -24,9 +24,10 @@ export default function setup() {
 
     .description('Export schedules.')
     .addOption(
-      new Option(
-        '-n, --name <name>',
-        'Schedule name. If specified, only exports the schedule with the specified name.'
+      selectorOption(
+        '-i, --schedule-id <id>',
+        'Schedule id. If specified, only exports the schedule with the specified id.',
+        ['-n', '--name']
       )
     )
     .multiOp()
@@ -43,7 +44,7 @@ export default function setup() {
       if (await getTokens(false, true, deploymentTypes)) {
         verboseMessage('Exporting schedules...');
         const outcome = await configManagerExportSchedules(
-          options.name,
+          options.scheduleId,
           options.allowFailures
         );
         if (!outcome) process.exitCode = 1;

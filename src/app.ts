@@ -10,6 +10,7 @@ import { frodo, state } from '@rockcarver/frodo-lib';
 // commands
 import admin from './cli/admin/admin';
 import agent from './cli/agent/agent';
+import aiagent from './cli/aiagent/aiagent';
 import app from './cli/app/app';
 import authn from './cli/authn/authn';
 import authz from './cli/authz/authz';
@@ -53,6 +54,8 @@ import session from './cli/session/session';
 import settings from './cli/settings/settings';
 import shell from './cli/shell/shell';
 import theme from './cli/theme/theme';
+import { applyAirGapSwitchToState } from './ops/AirGapOps';
+import { enableTemplateCatalogCache } from './utils/ApplicationTemplateSource';
 import {
   debugMessage,
   printError,
@@ -85,6 +88,12 @@ process.argv = normalizeExpandedHelpArgv(process.argv);
     state.setErrorHandler(printError);
     state.setDebugHandler(debugMessage);
     state.setVerboseHandler(verboseMessage);
+    // Air-gapped mode (FRODO_AIRGAPPED or `frodo settings airgap`): tell the
+    // library before any command runs, `frodo mcp server start` included.
+    applyAirGapSwitchToState();
+    // keep the application template catalog between runs, so that a catalog
+    // that did not change is not downloaded again
+    enableTemplateCatalogCache();
     await ensureThemeDetectedIfNeeded();
     activatePersistedTheme();
 
@@ -106,6 +115,7 @@ process.argv = normalizeExpandedHelpArgv(process.argv);
 
     program.addCommand(admin().helpGroup(utilitiesCommandsHeading));
     program.addCommand(agent());
+    program.addCommand(aiagent());
     program.addCommand(authn());
     program.addCommand(authz());
     program.addCommand(app());

@@ -25,9 +25,14 @@ Deployment: Cloud-only
 
 Options:
   --json            Output in JSON format.
+  -w, --wait        Wait for the direct configuration session to reach an
+                    applied state before exiting. Checks every 10 seconds and
+                    has no timeout.
   -h, --help        Help
   -hh, --help-more  Help with all options.
   -hhh, --help-all  Help with all options, environment variables, and usage
                     examples.
+
+Not available with --browser or --device: needs a service account (Direct configuration session). See https://github.com/rockcarver/frodo-cli/blob/main/docs/BROWSER_LOGIN.md#what-a-browser-or-device-login-can-do
 "
 `;

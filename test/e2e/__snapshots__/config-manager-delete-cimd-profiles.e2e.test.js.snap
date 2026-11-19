@@ -1,0 +1,9 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`frodo config-manager delete oauth-cimd-profiles "frodo config-manager delete oauth-cimd-profiles -n zz-e2e-cimd": should delete the CIMD profile zz-e2e-cimd from the alpha realm 1`] = `""`;
+
+exports[`frodo config-manager delete oauth-cimd-profiles "frodo config-manager delete oauth-cimd-profiles -n zz-e2e-cimd": should delete the CIMD profile zz-e2e-cimd from the alpha realm 2`] = `
+"Experimental feature in use: 'frodo config-manager delete oauth-cimd-profiles'. This feature may change without notice.
+Deleted CIMD profile: alpha/zz-e2e-cimd
+"
+`;

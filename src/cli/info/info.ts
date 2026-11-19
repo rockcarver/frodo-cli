@@ -2,6 +2,10 @@ import { frodo, state } from '@rockcarver/frodo-lib';
 import { Option } from 'commander';
 import * as s from '../../help/SampleData';
 import { getTokens } from '../../ops/AuthenticateOps';
+import {
+  accessNoticeLines,
+  isInteractiveFlow,
+} from '../../utils/AccessProfileText';
 import c from '../../utils/ColorTheme';
 import {
   createObjectTable,
@@ -43,6 +47,12 @@ export default function setup() {
       command.handleDefaultArgsAndOpts(host, user, password, options, command);
       if (await getTokens()) {
         const info = await getInfo();
+        // What an interactive login can do (browser or device): the library's
+        // access profile of the session. A service account or a user session
+        // prints what it always printed.
+        const profile = frodo.login.getAccessProfile();
+        const accessProfile =
+          profile && isInteractiveFlow(profile.flow) ? profile : undefined;
         if (!options.scriptFriendly && !options.json) {
           verboseMessage('Printing info, versions, and tokens...');
           delete info.sessionToken;
@@ -70,8 +80,20 @@ export default function setup() {
             printMessage(`\nBearer token:`, 'info');
             printMessage(`${state.getBearerToken()}`);
           }
+          if (accessProfile) {
+            const [heading, ...rest] = accessNoticeLines(accessProfile);
+            printMessage(`\n${heading}`, 'info');
+            for (const line of rest) printMessage(line);
+          }
         } else {
-          printMessage(JSON.stringify(info, null, 2), 'data');
+          printMessage(
+            JSON.stringify(
+              accessProfile ? { ...info, accessProfile } : info,
+              null,
+              2
+            ),
+            'data'
+          );
         }
       } else {
         process.exitCode = 1;

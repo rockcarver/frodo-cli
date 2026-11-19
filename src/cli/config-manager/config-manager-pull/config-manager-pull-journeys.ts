@@ -4,6 +4,7 @@ import { getTokens } from '../../../ops/AuthenticateOps';
 import { verboseMessage } from '../../../utils/Console';
 import { realmOfRun } from '../../../utils/interactive/PositionalArgs';
 import { FrodoCommand } from '../../FrodoCommand';
+import { selectorOption } from '../../SelectorOption';
 
 export default function setup() {
   const program = new FrodoCommand('frodo config-manager pull journeys');
@@ -11,14 +12,15 @@ export default function setup() {
   program
     .description('Export journeys.')
     .addOption(
-      new Option(
-        '-n, --name <name>',
-        'Journey name. If specified, only exports the journey with the specified name.'
+      selectorOption(
+        '-i, --journey-id <id>',
+        'Journey id. If specified, only exports the journey with the specified id.',
+        ['-n', '--name']
       )
     )
-    .addOption(new Option('-d, --pull-dependencies', 'Pull dependencies.'))
+    .addOption(new Option('--pull-dependencies', 'Pull dependencies.'))
     .addOption(
-      new Option('-c, --clean', 'Clear existing configuration before pull.')
+      new Option('--clean', 'Clear existing configuration before pull.')
     )
     .multiOp()
     .usesRealm()
@@ -35,7 +37,7 @@ export default function setup() {
       if (await getTokens()) {
         verboseMessage('Exporting journeys...');
         const outcome = await configManagerExportJourneys(
-          options.name,
+          options.journeyId,
           realmOfRun(command, realm),
           options.pullDependencies,
           options.clean,

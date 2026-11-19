@@ -1,6 +1,9 @@
 import { afterEach, describe, expect, it } from '@jest/globals';
 import { Command } from 'commander';
-import { setPositionalValue } from '../utils/interactive/PositionalArgs';
+import {
+  replacePositionalValue,
+  setPositionalValue,
+} from '../utils/interactive/PositionalArgs';
 
 // The write-back helper lives in a zero-import module (PositionalArgs,
 // split from ResolveInteractiveInputs so Jest can load it -- the resolver's
@@ -68,5 +71,36 @@ describe('setPositionalValue (realm pick write-back)', () => {
     command.parse([], { from: 'user' });
     expect(() => setPositionalValue(command, 'nonexistent', 'x')).not.toThrow();
     expect(command.processedArgs).toEqual([undefined, undefined]);
+  });
+});
+
+describe('replacePositionalValue (connection page edits)', () => {
+  // setPositionalValue fills a gap and keeps what the user typed in `args`; a
+  // row of the connection page that is edited after it was filled has to
+  // replace it, or handleDefaultArgsAndOpts re-feeds the old host to the state.
+  it('replaces a value on both surfaces, where setPositionalValue keeps the first one in args', () => {
+    const command = makeCommand();
+    command.parse(['matrix'], { from: 'user' });
+    setPositionalValue(command, 'host', 'zion');
+    expect(command.processedArgs?.[0]).toBe('zion');
+    expect(command.args[0]).toBe('matrix');
+    replacePositionalValue(command, 'host', 'zion');
+    expect(command.processedArgs?.[0]).toBe('zion');
+    expect(command.args[0]).toBe('zion');
+  });
+
+  it('fills an empty position and pads the ones before it, as setPositionalValue does', () => {
+    const command = makeCommand();
+    command.parse([], { from: 'user' });
+    replacePositionalValue(command, 'realm', 'bravo');
+    expect(command.processedArgs?.[1]).toBe('bravo');
+    expect(command.args).toEqual([null, 'bravo']);
+  });
+
+  it('does nothing for a positional the command does not declare', () => {
+    const command = makeCommand();
+    command.parse(['matrix'], { from: 'user' });
+    replacePositionalValue(command, 'password', 'secret');
+    expect(command.args).toEqual(['matrix']);
   });
 });

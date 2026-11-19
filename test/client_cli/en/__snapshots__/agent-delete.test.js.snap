@@ -3,7 +3,9 @@
 exports[`CLI help interface for 'agent delete' should be expected english 1`] = `
 "Usage: frodo agent delete [options] [host] [realm] [username] [password]
 
-Delete agents.
+Delete agents. OAuth2 clients, trusted JWT issuers and CIMD profiles are not
+agents of this command: see frodo oauth client, frodo oauth issuer and frodo
+oauth cimd.
 
 Arguments:
   host                       AM base URL, e.g.: https://cdk.iam.example.com/am.
@@ -22,7 +24,11 @@ Arguments:
   password                   Password.
 
 Options:
-  -a, --all                  Delete all agents. Cannot be used with -i.
+  -a, --all                  Delete all agents. Cannot be used with -i. OAuth2
+                             clients, trusted JWT issuers and CIMD profiles are
+                             not deleted: use frodo oauth client delete -a,
+                             frodo oauth issuer delete -a and frodo oauth cimd
+                             delete -a.
   --allow-failures           Report operations that fail, but still exit with
                              code 0. Without this option the command runs every
                              operation, prints a summary of what failed and

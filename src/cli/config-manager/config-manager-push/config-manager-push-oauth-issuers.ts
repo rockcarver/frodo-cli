@@ -1,0 +1,77 @@
+import * as s from '../../../help/SampleData';
+import { getTokens } from '../../../ops/AuthenticateOps';
+import { configManagerImportTrustedJwtIssuers } from '../../../ops/OAuth2TrustedJwtIssuerConfigOps';
+import c from '../../../utils/ColorTheme';
+import { verboseMessage } from '../../../utils/Console';
+import { realmOfRun } from '../../../utils/interactive/PositionalArgs';
+import { KEY_SET_PUSH_SENTENCE } from '../../../utils/PlaceholderValues';
+import { FrodoCommand } from '../../FrodoCommand';
+import { selectorOption } from '../../SelectorOption';
+
+export default function setup() {
+  const program = new FrodoCommand('frodo config-manager push oauth-issuers');
+
+  program
+    .summary('Import trusted JWT issuers from the files written by pull.')
+    .description(
+      'Import OAuth2 trusted JWT issuers from the files realms/<realm>/realm-config/agents/TrustedJwtIssuer/<name>.json that "pull oauth-issuers" and "pull oauth2-agents" write, from the working directory (-D). An issuer that does not exist is created and one that does is replaced by the file. When the server refuses an attribute of a file (it does not know the attribute), the issuer stays stored without it, nothing is rolled back, the push names the attributes and fails with exit code 1 unless --allow-failures is given. Each ${NAME} in a file is filled from -E/--env NAME=value, else from --env-file, else from the environment variable NAME of the process (a file that names a variable copies its value into what is pushed). ' +
+        `${KEY_SET_PUSH_SENTENCE} ` +
+        'No issuer is ever deleted. A trusted JWT issuer is a trust anchor: a JWT signed by it is accepted as a grant, so read the files before you push them.'
+    )
+    .addOption(
+      selectorOption(
+        '-i, --issuer-id <id>',
+        'Trusted JWT issuer id (the id of the object, not its iss URL). If specified, pushes only the issuer of the file with that id. Needs a single realm.',
+        ['-n', '--name']
+      )
+    )
+    .addHelpText(
+      'after',
+      `Usage Examples:\n` +
+        `  Push all trusted JWT issuer files of all realms from the working directory to the tenant:\n` +
+        c.command(`  $ frodo config-manager push oauth-issuers ${s.connId}\n`) +
+        `  Push the trusted JWT issuer files of one realm:\n` +
+        c.command(
+          `  $ frodo config-manager push oauth-issuers ${s.connId} ${s.realm}\n`
+        ) +
+        `  Push one trusted JWT issuer of a realm:\n` +
+        c.command(
+          `  $ frodo config-manager push oauth-issuers -i ${s.trustedJwtIssuerId} ${s.connId} ${s.realm}\n`
+        ) +
+        `  Push from a config directory other than the working directory:\n` +
+        c.command(
+          `  $ frodo config-manager push oauth-issuers -D ./config ${s.connId}\n`
+        )
+    )
+    .multiOp()
+    .usesRealm()
+    .action(async (host, realm, user, password, options, command) => {
+      command.handleDefaultArgsAndOpts(
+        host,
+        realm,
+        user,
+        password,
+        options,
+        command
+      );
+
+      if (await getTokens()) {
+        verboseMessage(
+          options.issuerId
+            ? `Importing trusted JWT issuer "${options.issuerId}".`
+            : 'Importing trusted JWT issuers.'
+        );
+        const outcome = await configManagerImportTrustedJwtIssuers(
+          options.issuerId,
+          realmOfRun(command, realm),
+          options.allowFailures
+        );
+        if (!outcome) process.exitCode = 1;
+      } else {
+        // getTokens() failed (any option combination is valid here).
+        process.exitCode = 1;
+      }
+    });
+
+  return program;
+}

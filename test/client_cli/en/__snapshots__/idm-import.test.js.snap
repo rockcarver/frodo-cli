@@ -42,6 +42,14 @@ Options:
   -i, --entity-id <id>                 Config entity id/name. E.g. "managed",
                                        "sync", "provisioner-<connector-name>",
                                        etc. Cannot be used with -e, -a or -A.
+  -r, --raw                            Import a file that holds the
+                                       configuration object as IDM serves it,
+                                       without the "idm" wrapper (what "idm
+                                       export --raw" writes). The object is
+                                       named by -i, or by its _id when only -f
+                                       is given; with -i and no -f the file is
+                                       <id>.json. Cannot be used with -a, -A or
+                                       -e.
   -h, --help                           Help
   -hh, --help-more                     Help with all options.
   -hhh, --help-all                     Help with all options, environment

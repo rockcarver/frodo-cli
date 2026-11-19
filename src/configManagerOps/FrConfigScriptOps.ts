@@ -62,14 +62,18 @@ export function exportScriptToFiles(script: ScriptSkeleton, realm: string) {
  * @param {string} realm Designates the specific realm to pull from
  * @param {string} name only exports specifically named script
  * @param {boolean} allowFailures True to succeed although some scripts could not be exported (the failures are still summarised)
- * @returns {boolean} True if export was successful. A script or a realm that cannot be exported does not stop the others; the result is false if any failed, unless failures are allowed. A named script that cannot be read, or that is not a JavaScript script, fails the command whatever the option says.
+ * @param {string} id only exports the script with this id (`_id`); an empty id selects nothing, so it is not found (the command refuses an empty value before it connects). Needs a single realm, like a name; the id is looked for in the list that an export of all scripts reads, so no other request is made.
+ * @returns {boolean} True if export was successful. A script or a realm that cannot be exported does not stop the others; the result is false if any failed, unless failures are allowed. A named script (by name or by id) that cannot be read, that does not exist, or that is not a JavaScript script, fails the command whatever the option says.
  */
 export async function configManagerExportScripts(
   prefixes: string[] = [],
   realm?: string,
   name?: string,
-  allowFailures: boolean = false
+  allowFailures: boolean = false,
+  id?: string
 ): Promise<boolean> {
+  // what the command line names: an id, or a name (an empty name means all scripts)
+  const selected = id ?? name;
   const indicatorId = createProgressIndicator(
     'indeterminate',
     0,
@@ -78,7 +82,7 @@ export async function configManagerExportScripts(
   try {
     const realms =
       realm && realm !== DEFAULT_REALM_KEY ? [realm] : await realmList();
-    if (name && realms.length !== 1) {
+    if (selected && realms.length !== 1) {
       stopProgressIndicator(
         indicatorId,
         'Error: for a named script, specify a single realm',
@@ -92,18 +96,38 @@ export async function configManagerExportScripts(
       if (
         currentRealm === '/' &&
         state.getDeploymentType() === CLOUD_DEPLOYMENT_TYPE_KEY
-      )
+      ) {
+        if (selected) {
+          printMessage(
+            `The root realm of a Cloud tenant has no scripts: nothing to pull for '${selected}'.`,
+            'warn'
+          );
+        }
         continue;
+      }
       state.setRealm(currentRealm);
       let scripts: ScriptSkeleton[];
       try {
-        scripts = name ? [await readScriptByName(name)] : await readScripts();
+        scripts =
+          id !== undefined
+            ? (await readScripts()).filter((script) => script._id === id)
+            : name
+              ? [await readScriptByName(name)]
+              : await readScripts();
+        if (id !== undefined && scripts.length === 0) {
+          printMessage(
+            `Script with id '${id}' not found in realm '${currentRealm}'.`,
+            'error'
+          );
+          cannotExportNamed = true;
+          continue;
+        }
       } catch (error) {
-        if (name) {
+        if (selected) {
           // the one script that was asked for: nothing for the flag to allow
           printError(
             error,
-            `Error reading script '${name}' in realm '${currentRealm}'`
+            `Error reading script '${selected}' in realm '${currentRealm}'`
           );
           cannotExportNamed = true;
         } else {
@@ -117,15 +141,15 @@ export async function configManagerExportScripts(
       }
       for (const s of scripts) {
         if (
-          !name &&
+          !selected &&
           prefixes.length &&
           !prefixes.some((p) => s.name.startsWith(p))
         )
           continue;
         if (s.language !== 'JAVASCRIPT') {
-          if (name) {
+          if (selected) {
             printMessage(
-              `Script '${name}' is not a JavaScript script and cannot be exported.`,
+              `Script '${selected}' is not a JavaScript script and cannot be exported.`,
               'error'
             );
             cannotExportNamed = true;
@@ -205,14 +229,18 @@ export async function importScriptFromFiles(
  * @param {string} name option to import a specific script by name
  * @param {string} filenameFilter option to filter imported scripts
  * @param {boolean} allowFailures True to succeed although some scripts could not be imported (the failures are still summarised)
- * @returns True if Import was successful. A script that cannot be imported does not stop the others; the result is false if any failed, unless failures are allowed. A named script that is not in the config folder, a named realm without script config, and a config folder without a realms folder fail the command whatever the option says; a realm folder without script config is skipped with a warning.
+ * @param {string} id option to import the script with this id (`_id` of its config file) instead of a name. Needs a single realm, like a name; an empty id selects nothing, so it is not found (the command refuses an empty value before it connects).
+ * @returns True if Import was successful. A script that cannot be imported does not stop the others; the result is false if any failed, unless failures are allowed. A named script (by name or by id) that is not in the config folder, a named realm without script config, and a config folder without a realms folder fail the command whatever the option says; a realm folder without script config is skipped with a warning.
  */
 export async function configManagerImportScripts(
   realm?: string,
   name?: string,
   filenameFilter?: string,
-  allowFailures: boolean = false
+  allowFailures: boolean = false,
+  id?: string
 ): Promise<boolean> {
+  // what the command line names: an id (an empty id selects nothing), or a name (an empty name means all scripts)
+  const asked = id !== undefined || !!name;
   const indicatorId = createProgressIndicator(
     'indeterminate',
     0,
@@ -240,7 +268,7 @@ export async function configManagerImportScripts(
         .map((entry) => entry.name);
     }
 
-    if (name && realms.length !== 1) {
+    if (asked && realms.length !== 1) {
       stopProgressIndicator(
         indicatorId,
         'For a named script, specify a single realm',
@@ -304,7 +332,12 @@ export async function configManagerImportScripts(
             continue;
           }
 
-          if (name && importData.name !== name) continue;
+          if (
+            id !== undefined
+              ? importData._id !== id
+              : name && importData.name !== name
+          )
+            continue;
           scriptFound = true;
 
           const fullScriptPath = getFilePath(
@@ -333,10 +366,12 @@ export async function configManagerImportScripts(
     }
 
     const notFound =
-      !!name && !scriptFound && !missingNamedConfig && !run.hasFailures;
+      asked && !scriptFound && !missingNamedConfig && !run.hasFailures;
     if (notFound) {
       printMessage(
-        `Script "${name}" not found in the script config of realm ${realms[0]}.`,
+        id !== undefined
+          ? `Script with id '${id}' not found in the script config of realm ${realms[0]}.`
+          : `Script "${name}" not found in the script config of realm ${realms[0]}.`,
         'error'
       );
     }
@@ -370,6 +405,7 @@ export async function configManagerImportScripts(
  * @param {string} name Optional exact name of a script to delete.
  * @param {boolean} dryRun Preview matching scripts without deleting them. For unnamed previews, show counts by context.
  * @param {boolean} allowFailures True to succeed although some scripts could not be deleted (the failures are still summarised)
+ * @param {string} id Optional id (`_id`) of the one script to delete instead of a name (needs a single realm too, and the prefixes are ignored, as for a name). The id is looked for in the list of scripts that a delete of all reads, so no other request is made. An empty id selects nothing, so it is not found (the command refuses an empty value before it connects); an id that no script has fails the command, and so does the id of a default script.
  * @returns {Promise<boolean>} True if the operation succeeds, otherwise false. A script that cannot be deleted does not stop the others; the result is false if any failed, unless failures are allowed. A realm whose scripts cannot be read ends the run.
  */
 export async function configManagerDeleteScripts(
@@ -377,14 +413,22 @@ export async function configManagerDeleteScripts(
   realm?: string,
   name?: string,
   dryRun: boolean = false,
-  allowFailures: boolean = false
+  allowFailures: boolean = false,
+  id?: string
 ): Promise<boolean> {
   const run = new OperationRun({ unit: 'script', allowFailures });
+  // what the command line names: an id, or a name (an empty name means all scripts)
+  const selected = id ?? name;
+  const named = id !== undefined || !!name;
+  const selectedText = id !== undefined ? `id: ${id}` : `name: ${name}`;
   try {
     const realms =
       realm && realm !== DEFAULT_REALM_KEY ? [realm] : await realmList();
-    if (name && realms.length !== 1) {
-      printMessage('For a script name, specify a single realm.', 'error');
+    if (named && realms.length !== 1) {
+      printMessage(
+        `For a script ${id !== undefined ? 'id' : 'name'}, specify a single realm.`,
+        'error'
+      );
       return false;
     }
     const scriptCountsByContext = new Map<string, number>();
@@ -399,24 +443,26 @@ export async function configManagerDeleteScripts(
       state.setRealm(currentRealm);
       const scripts = await readScripts();
       const matching = scripts.filter((script) =>
-        name
-          ? script.name === name
-          : script.language === 'JAVASCRIPT' &&
-            (prefixes.length === 0 ||
-              prefixes.some((prefix) => script.name.startsWith(prefix)))
+        id !== undefined
+          ? script._id === id
+          : name
+            ? script.name === name
+            : script.language === 'JAVASCRIPT' &&
+              (prefixes.length === 0 ||
+                prefixes.some((prefix) => script.name.startsWith(prefix)))
       );
-      if (name && matching.length !== 1) {
+      if (named && matching.length !== 1) {
         printMessage(
           matching.length === 0
-            ? `No script found with name: ${name}`
-            : `Multiple scripts found with name: ${name}`,
+            ? `No script found with ${selectedText}`
+            : `Multiple scripts found with ${selectedText}`,
           'error'
         );
         return false;
       }
-      if (name && matching[0].default) {
+      if (named && matching[0].default) {
         printMessage(
-          `Script ${name} is a default script and cannot be deleted.`,
+          `Script ${selected} is a default script and cannot be deleted.`,
           'error'
         );
         return false;
@@ -448,7 +494,7 @@ export async function configManagerDeleteScripts(
     }
     if (eligible === 0) {
       printMessage('No scripts found to delete.');
-    } else if (dryRun && !name) {
+    } else if (dryRun && !named) {
       let summary = '--- Scripts Deletion Summary by Type ---';
       for (const [context, count] of scriptCountsByContext) {
         summary += `\n- ${context}: ${count}`;

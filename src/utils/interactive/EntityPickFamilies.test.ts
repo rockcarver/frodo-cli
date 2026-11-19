@@ -133,6 +133,14 @@ describe('the receiving tenant picker', () => {
     ).toBeUndefined();
   });
 
+  it('reads the saved profiles of this machine, so the pass opens it without logging in; the proxy picker needs the login', () => {
+    expect(targetPick('setup')!.needsLogin).toBe(false);
+    const proxy = familyEntityPicks(
+      commandAt(['idm', 'remote-proxy', 'teardown'])
+    ).find((candidate) => candidate.name === 'proxyId')!;
+    expect(proxy.needsLogin).toBeUndefined();
+  });
+
   it('leaves the proxy name picker off setup, which names a new proxy', () => {
     const command = commandAt(['idm', 'remote-proxy', 'setup']);
     expect(

@@ -14,6 +14,7 @@ import c from '../../../utils/ColorTheme';
 import { verboseMessage } from '../../../utils/Console';
 import { realmOfRun } from '../../../utils/interactive/PositionalArgs';
 import { FrodoCommand } from '../../FrodoCommand';
+import { selectorOption } from '../../SelectorOption';
 
 const { CLOUD_DEPLOYMENT_TYPE_KEY, FORGEOPS_DEPLOYMENT_TYPE_KEY } =
   frodo.utils.constants;
@@ -36,10 +37,17 @@ export default function setup() {
       'Delete applications: the application record first, then the objects it owns (the OAuth2 client, the SAML providers, the connector and its mappings). An owned object that another application still names is kept. The scripts and circles of trust that an application uses are never deleted. An application whose connector is active is not deleted: switch it off first with "frodo app disable". The glossary values and request forms of Identity Governance tenants are not handled by this command.'
     )
     .addOption(
-      new Option(
-        '-n, --name <name>',
-        'Application name. If specified, deletes only the application with the given name, without asking. Needs a single realm.'
-      )
+      selectorOption(
+        '-i, --app-id <id>',
+        'Application id: the id that the application has on the tenant. If specified, deletes only that application, without asking. Needs a single realm. Cannot be used with -n.'
+      ).conflicts(['appName'])
+    )
+    .addOption(
+      selectorOption(
+        '-n, --app-name <name>',
+        'Application name. If specified, deletes only the application with the given name, without asking. Needs a single realm. Cannot be used with -i.',
+        ['--name']
+      ).conflicts(['appId'])
     )
     .addOption(
       new Option(
@@ -50,7 +58,7 @@ export default function setup() {
     .addOption(
       new Option(
         '-y, --yes',
-        'Do not ask for confirmation before deleting more than one application (no -n). Required without a terminal.'
+        'Do not ask for confirmation before deleting more than one application (no -i or -n). Required without a terminal.'
       )
     )
     .addHelpText(
@@ -71,6 +79,10 @@ export default function setup() {
         `  Preview the deletion of one application:\n` +
         c.command(
           `  $ frodo config-manager delete applications -n "${s.pullApplicationName}" -d ${s.connId} ${s.realm}\n`
+        ) +
+        `  Delete one application by the id that it has on the tenant:\n` +
+        c.command(
+          `  $ frodo config-manager delete applications -i 9c2e5a14-7f60-4b3d-a8e1-0d4c6b2f9a57 ${s.connId} ${s.realm}\n`
         )
     )
     .multiOp()
@@ -85,12 +97,15 @@ export default function setup() {
         command
       );
 
-      // all applications of a realm can be many, so only a single name is
-      // deleted without a question (cli record 0037); a run that nobody can be
-      // asked about is refused before the login
+      // all applications of a realm can be many, so only a single application
+      // (by id or by name) is deleted without a question, as for a command that
+      // can delete more than the one object it names (https://github.com/rockcarver/frodo-cli/blob/main/docs/decisions/0037-a-command-that-can-delete-more-than-the-one-object-it-names-asks-first.md); a run that nobody can
+      // be asked about is refused before the login
+      const named =
+        options.appId !== undefined || options.appName !== undefined;
       const what = 'all applications and the objects they own';
       if (
-        !options.name &&
+        !named &&
         !checkBulkDelete({ what, yes: options.yes, dryRun: options.dryRun })
       ) {
         process.exitCode = 1;
@@ -102,13 +117,13 @@ export default function setup() {
       }
 
       if (
-        !options.name &&
+        !named &&
         !(await confirmBulkDelete({
           what,
           yes: options.yes,
           dryRun: options.dryRun,
           showPlan: () =>
-            showApplicationDeletePlan(options.name, realmOfRun(command, realm)),
+            showApplicationDeletePlan(undefined, realmOfRun(command, realm)),
         }))
       ) {
         process.exitCode = 1;
@@ -116,15 +131,18 @@ export default function setup() {
       }
 
       verboseMessage(
-        options.name
-          ? `Deleting application "${options.name}".`
-          : 'Deleting applications.'
+        options.appId !== undefined
+          ? `Deleting application with id "${options.appId}".`
+          : options.appName !== undefined
+            ? `Deleting application "${options.appName}".`
+            : 'Deleting applications.'
       );
       const outcome = await configManagerDeleteApplications(
-        options.name,
+        options.appName,
         realmOfRun(command, realm),
         options.dryRun,
-        options.allowFailures
+        options.allowFailures,
+        options.appId
       );
       if (!outcome) process.exitCode = 1;
     });

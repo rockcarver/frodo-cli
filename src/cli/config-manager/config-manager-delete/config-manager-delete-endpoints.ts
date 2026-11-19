@@ -10,6 +10,7 @@ import {
 import c from '../../../utils/ColorTheme';
 import { verboseMessage } from '../../../utils/Console';
 import { FrodoCommand } from '../../FrodoCommand';
+import { selectorOption } from '../../SelectorOption';
 
 const { CLOUD_DEPLOYMENT_TYPE_KEY, FORGEOPS_DEPLOYMENT_TYPE_KEY } =
   frodo.utils.constants;
@@ -29,9 +30,10 @@ export default function setup() {
   program
     .description('Delete custom endpoint objects.')
     .addOption(
-      new Option(
-        '-n, --name <name>',
-        'Endpoint name. If omitted, deletes all eligible endpoints.'
+      selectorOption(
+        '-i, --endpoint-id <id>',
+        'Endpoint id; deletes only the specified endpoint. If omitted, deletes all eligible endpoints.',
+        ['-n', '--name']
       )
     )
     .addOption(
@@ -57,13 +59,13 @@ export default function setup() {
         c.command(
           `  $ frodo config-manager delete endpoints -d ${s.connId}\n`
         ) +
-        `  Delete a custom endpoint by name:\n` +
+        `  Delete a custom endpoint by id:\n` +
         c.command(
-          `  $ frodo config-manager delete endpoints -n Javascript ${s.connId}\n`
+          `  $ frodo config-manager delete endpoints -i Javascript ${s.connId}\n`
         ) +
         `  Preview deletion of a custom endpoint without deleting it:\n` +
         c.command(
-          `  $ frodo config-manager delete endpoints -n Javascript -d ${s.connId}\n`
+          `  $ frodo config-manager delete endpoints -i Javascript -d ${s.connId}\n`
         )
     )
     .multiOp()
@@ -76,9 +78,10 @@ export default function setup() {
         options,
         command
       );
+      const named = options.endpointId !== undefined;
       // a run that nobody can be asked about is refused before the login
       if (
-        !options.name &&
+        !named &&
         !checkBulkDelete({
           what: 'all eligible custom endpoints',
           yes: options.yes,
@@ -98,7 +101,7 @@ export default function setup() {
         return;
       }
       if (
-        !options.name &&
+        !named &&
         !(await confirmBulkDelete({
           what: 'all eligible custom endpoints',
           yes: options.yes,
@@ -111,7 +114,7 @@ export default function setup() {
       }
       verboseMessage('Deleting custom endpoints');
       const outcome = await configManagerDeleteEndpoints(
-        options.name,
+        options.endpointId,
         options.dryRun,
         options.allowFailures
       );

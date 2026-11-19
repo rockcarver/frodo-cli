@@ -16,7 +16,8 @@ Runtime Options:
                     FRODO_NO_PROMPT).
 
 Commands:
-  ai                Manage AI agents.
+  ai                [Deprecated] Deprecated: use frodo aiagent. Manage AI
+                    agents.
   delete            Delete agents.
   describe          Describe agents.
   export            Export agents.

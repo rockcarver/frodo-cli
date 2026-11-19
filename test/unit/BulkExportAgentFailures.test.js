@@ -11,7 +11,7 @@ import {
 } from '@jest/globals';
 
 /**
- * Decision record 0040 for the agent exports: `agent export`, `agent ai export`,
+ * Decision record 0040 for the agent exports: `agent export`, `aiagent export`,
  * `agent gateway export`, `agent java export` and `agent web export`. With -A
  * (every agent to a file of its own) an agent that cannot be exported (its
  * export cannot be built or its file cannot be saved) is printed and named in
@@ -80,7 +80,7 @@ const CASES = [
     readArgs: [true],
   },
   {
-    name: 'agent ai export',
+    name: 'aiagent export',
     read: 'readAIAgents',
     exportAll: 'exportAIAgents',
     exportOne: 'exportAIAgent',

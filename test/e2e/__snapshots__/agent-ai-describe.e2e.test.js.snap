@@ -571,6 +571,16 @@ exports[`frodo agent ai describe "frodo agent ai describe -i banking-assistant -
 "
 `;
 
-exports[`frodo agent ai describe "frodo agent ai describe -i banking-assistant": should describe AI agent in table format 1`] = `""`;
+exports[`frodo agent ai describe "frodo agent ai describe -i banking-assistant": should describe AI agent in table format 1`] = `
+"Property│Value            
+Agent Id│banking-assistant
+Status  │Active           
+Type    │AI Agents        
+"
+`;
 
-exports[`frodo agent ai describe "frodo agent ai describe -i does-not-exist": should fail for non-existing AI agent 1`] = `undefined`;
+exports[`frodo agent ai describe "frodo agent ai describe -i does-not-exist": should fail for non-existing AI agent 1`] = `
+"Deprecated feature in use: 'frodo agent ai describe'. Use 'frodo aiagent' instead: the commands and options are the same. 'frodo agent ai' keeps working in 5.x and may be removed in a later major release.
+AI agent 'does-not-exist' not found.
+"
+`;

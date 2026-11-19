@@ -7,7 +7,8 @@ import { fullName, loadCommandTree } from '../utils/CommandExamples.js';
  * value, and commander then passes `true`. Almost nothing in this CLI gives
  * that meaning: `--scope` crashed on `true.split(' ')`, `--description` stored
  * "true", `conn set --password` set the password to `true`. Those declarations
- * were wrong from the start and were never caught (cli record 0034).
+ * were wrong from the start and were never caught; correcting them is a fix for
+ * a defect (record 0048).
  *
  * So an optional value is allowed only where a bare flag means something, and
  * each of those is listed here with what it means. A new one needs a line in

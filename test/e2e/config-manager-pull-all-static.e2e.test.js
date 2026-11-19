@@ -2,13 +2,13 @@
 
 /*
 // Cloud
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_REALM=alpha FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo config-manager pull all-static -D allStaticDir1
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_REALM=alpha FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_TEST_NAME=0_D frodo config-manager pull all-static -D allStaticDir1
 
 // Cloud, all realms (no realm given, so nothing is filtered)
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_TEST_NAME=allRealms FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo config-manager pull all-static -D allStaticDir3
 
 // ForgeOps
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://nightly.gcp.forgeops.com/am frodo config-manager pull all-static -D allStaticDir2 -m forgeops
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://nightly.gcp.forgeops.com/am FRODO_TEST_NAME=0_D_m frodo config-manager pull all-static -D allStaticDir2 -m forgeops
 */
 
 import { getEnv, testExport } from './utils/TestUtils';
@@ -20,11 +20,16 @@ process.env['FRODO_CONNECTION_PROFILES_PATH'] =
 const env = getEnv(c);
 const forgeopsEnv = getEnv(fc);
 
+// Each FRODO_TEST_NAME below pins the recording identity of its command (the args id it was recorded under, or a fixed label); test/unit/E2eRecordingIdentity.test.js checks every pin.
 describe('frodo config-manager pull all-static', () => {
+  // The agent kinds with a command of their own, oauth-cimd-profiles, oauth-issuers and oauth-software-publishers, are
+  // dynamic configuration: they are steps of pull all and NOT steps of pull all-static (frodo-cli#1250, #1257,
+  // #1343), so none of these replays runs them and no file of an agent kind is written or compared here. A live check
+  // against a development tenant (frodo-cli#1260) confirmed it: a pull all-static wrote no agents folder at all.
   test('"frodo config-manager pull all-static -D allStaticDir1": should export the all-static in fr-config-manager style"', async () => {
     const dirName = 'allStaticDir1';
     const CMD = `frodo config-manager pull all-static -D ${dirName}`;
-    await testExport(CMD, { env: {...env.env, FRODO_REALM: 'alpha' } }, undefined, undefined, dirName, false);
+    await testExport(CMD, { env: {...env.env, FRODO_REALM: 'alpha', FRODO_TEST_NAME: '0_D' } }, undefined, undefined, dirName, false);
   });
   test('"frodo config-manager pull all-static -D allStaticDir3": should export the all-static of all realms in fr-config-manager style"', async () => {
     const dirName = 'allStaticDir3';
@@ -43,6 +48,6 @@ describe('frodo config-manager pull all-static', () => {
   test('"frodo config-manager pull all-static -D allStaticDir2 -m forgeops": should export the all-static in fr-config-manager style"', async () => {
     const dirName = 'allStaticDir2';
     const CMD = `frodo config-manager pull all-static -D ${dirName} -m forgeops`;
-    await testExport(CMD, forgeopsEnv, undefined, undefined, dirName, false, false, true);
+    await testExport(CMD, { ...forgeopsEnv, env: { ...forgeopsEnv.env, FRODO_TEST_NAME: '0_D_m' } }, undefined, undefined, dirName, false, false, true);
   });
 });

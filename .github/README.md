@@ -105,6 +105,17 @@ alias of `frodo conn save` is retained. Full detail in the
 - `details` → use `frodo realm describe`
 - `ig` → use `frodo agent gateway`
 
+**5.0.0 deprecates `frodo agent ai`**: AI agents have a command group of their
+own, `frodo aiagent`, with the same commands and options (`import` needs `-f` or
+`-A`). `frodo agent ai` is frozen: it keeps working through 5.x as it did and
+prints a notice that names the new command; its removal is proposed for 6.0.0.
+See the [Migration Guide](../MIGRATION.md).
+
+**5.0.0 removes `frodo config-manager push direct-control-init`, `-apply`,
+`-abort` and `-state`**: direct control has one implementation, `frodo dcc
+session init|apply|abort|state`, which gains `-w, --wait` and prints the state
+on stdout only with `--json`. See the [Migration Guide](../MIGRATION.md).
+
 ### New in 4.x (carried forward)
 
 #### `frodo config-manager`
@@ -140,10 +151,12 @@ which sub-commands each family offers.
 
 | Command                    | Since | Description                                                           |        Del         |        Des         |        Exp         |        Imp         |        Lst         | Other                                     |
 | :------------------------- | :---: | --------------------------------------------------------------------- | :----------------: | :----------------: | :----------------: | :----------------: | :----------------: | ----------------------------------------- |
-| `frodo agent`              | 1.0.0 | Manage agents.                                                        | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | `ai`                                      |
+| `frodo agent`              | 1.0.0 | Manage agents.                                                        | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: |                                           |
+| &emsp;`ai`                 | 4.0.0 | [Deprecated] Use `frodo aiagent`.                                     | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: |                                           |
 | &emsp;`gateway`            | 1.0.0 | Manage gateway agents.                                                | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: |                                           |
 | &emsp;`java`               | 1.0.0 | Manage java agents.                                                   | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: |                                           |
 | &emsp;`web`                | 1.0.0 | Manage web agents.                                                    | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: |                                           |
+| `frodo aiagent`            | 5.0.0 | Manage AI agents.                                                     | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: |                                           |
 | `frodo app`                | 2.0.0 | Manage applications.                                                  | :white_check_mark: |                    | :white_check_mark: | :white_check_mark: | :white_check_mark: |                                           |
 | `frodo authn`              | 2.0.0 | Manage authentication settings.                                       |                    | :white_check_mark: | :white_check_mark: | :white_check_mark: |                    |                                           |
 | `frodo authz`              | 1.0.0 | Manage authorization policies, policy sets, and resource types.       |                    |                    |                    |                    |                    |                                           |
@@ -164,8 +177,10 @@ which sub-commands each family offers.
 | `frodo mapping`            | 2.0.0 | Manage IDM mappings.                                                  | :white_check_mark: |                    | :white_check_mark: | :white_check_mark: | :white_check_mark: | `rename`                                  |
 | `frodo node`               | 4.0.0 | Manage custom nodes.                                                  | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: |                                           |
 | &emsp;`type`               | 4.0.0 | Manage node types.                                                    |                    | :white_check_mark: |                    |                    | :white_check_mark: |                                           |
-| `frodo oauth`              | 2.0.0 | Manage OAuth2 clients and providers.                                  |                    |                    |                    |                    |                    |                                           |
+| `frodo oauth`              | 2.0.0 | Manage OAuth2 clients, CIMD profiles, trusted JWT issuers and providers. |                    |                    |                    |                    |                    |                                           |
+| &emsp;`cimd`               | 5.0.0 | Manage CIMD profiles.                                                 | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: |                                           |
 | &emsp;`client`             | 2.0.0 | Manage OAuth2 clients.                                                | :white_check_mark: |                    | :white_check_mark: | :white_check_mark: | :white_check_mark: |                                           |
+| &emsp;`issuer`             | 5.0.0 | Manage OAuth2 trusted JWT issuers.                                    | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: |                                           |
 | `frodo realm`              | 1.0.0 | Manage realms.                                                        |                    | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | `add-custom-domain, remove-custom-domain` |
 | `frodo role`               | 3.0.1 | Manage internal (authorization) roles.                                |                    |                    | :white_check_mark: | :white_check_mark: | :white_check_mark: |                                           |
 | `frodo saml`               | 1.0.0 | Manage SAML entity providers and circles of trust.                    | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: |                                           |
@@ -224,6 +239,7 @@ gets its own row.
 | `frodo settings`    | 4.9.0  | Manage CLI settings (color theme).                                                                                                                                 |
 | &emsp;`theme`       | 4.9.0  | Manage the CLI color theme (background, contrast, detection, preview).                                                                                             |
 | `frodo shell`       | 2.0.0  | [Experimental] Launch the frodo JS console (add `--web` to serve it as a local web page) — see [The frodo JS shell](../docs/SHELL.md).                              |
+| &emsp;`update-check`| 5.0.0  | Persist the switch for the automatic update check (show, enable, disable).                                                                                         |
 | `frodo mcp`         | 4.0.0  | [Experimental] Manage Model Context Protocol (MCP) integrations — see [MCP Server](#mcp-server).                                                                   |
 | &emsp;`server`      | 4.0.0  | Manage Frodo MCP server lifecycle and metadata.                                                                                                                    |
 | &emsp;&emsp;`start` | 4.0.0  | Start an MCP server session from frodo-lib capabilities.                                                                                                           |
@@ -249,20 +265,23 @@ The CI commands integrate frodo into automated pipelines:
 `config-manager` wraps [fr-config-manager](https://github.com/rockcarver/fr-config-manager)
 for pull/push of tenant configuration as code, `dcc` manages staged,
 session-based configuration changes that can be reviewed and applied (or
-aborted) in one step, and `promote` prepares a lower environment's
-configuration for promotion into another (e.g. dev -> uat -> prod).
+aborted) in one step. The promotion of Advanced Identity Cloud itself
+(dev -> uat -> prod: lock, dry run, promote, status, reports, rollback, unlock) is
+`config-manager promote`. The root `promote` command does not run it: it only
+compares two local directories of a frodo export and imports and deletes what
+differs; it is deprecated and will be removed in 5.0.0.
 
 | Command                |  Since  | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
 | :--------------------- | :-----: | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `frodo config-manager` | `4.0.0` | [Experimental] Manage cloud configuration using fr-config-manager.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
-| &emsp;`pull`           | `4.0.0` | Export cloud configuration using fr-config-manager, by object type: access-config, all, all-static, audit, authentication, authz-policies, connector-definitions, connector-mappings, cookie-domains, cors, csp, custom-nodes, email-provider, email-templates, endpoints, internal-roles, journeys, kba, locales, managed-objects, oauth2-agents, org-privileges, password-policy, raw, remote-servers, saml, schedules, scripts, secret-mappings, secrets, service-objects, services, terms-and-conditions, test, themes, ui-config, variables. |
-| &emsp;`push`           | `4.0.0` | Import configuration optimized for CI/CD pipelines (format compatible with fr-config-manager), by object type: access-config, audit, authentication, connector-definitions, cookie-domains, email-provider, email-templates, endpoints, internal-roles, kba, locales, managed-objects, org-privileges, password-policy, schedules, service-objects, terms-and-conditions, themes, ui-config.                                                                                                                                                      |
+| &emsp;`pull`           | `4.0.0` | Export cloud configuration using fr-config-manager, by object type: access-config, all, all-static, audit, authentication, authz-policies, connector-definitions, connector-mappings, cookie-domains, cors, csp, custom-nodes, email-provider, email-templates, endpoints, internal-roles, journeys, kba, locales, managed-objects, oauth-cimd-profiles, oauth-issuers, oauth-software-publishers, oauth2-agents, org-privileges, password-policy, raw, remote-servers, saml, schedules, scripts, secret-mappings, secrets, service-objects, services, terms-and-conditions, themes, ui-config, variables. |
+| &emsp;`push`           | `4.0.0` | Import configuration optimized for CI/CD pipelines (format compatible with fr-config-manager), by object type: access-config, audit, authentication, connector-definitions, cookie-domains, email-provider, email-templates, endpoints, internal-roles, kba, locales, managed-objects, oauth-cimd-profiles, oauth-issuers, oauth-software-publishers, org-privileges, password-policy, schedules, service-objects, terms-and-conditions, themes, ui-config.                                                                                                                           |
 | `frodo dcc session`    |  4.0.0  | [Cloud-only] [Preview] Manage direct configuration sessions.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
 | &emsp;`abort`          |  4.0.0  | [Cloud-only] [Preview] Abort a direct configuration session.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
 | &emsp;`apply`          |  4.0.0  | [Cloud-only] [Preview] Apply configuration and end a direct configuration session.                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
 | &emsp;`init`           |  4.0.0  | [Cloud-only] [Preview] Initialize a direct configuration session.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
 | &emsp;`state`          |  4.0.0  | [Preview] Retrieve the state of the direct configuration session.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
-| `frodo promote`        |  3.0.1  | Prepares a tenant to be promoted.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
+| `frodo promote`        |  3.0.1  | [Deprecated] Compares two local directories of a frodo export and imports and deletes what differs. It does not run a platform promotion (use `frodo config-manager promote`) and will be removed in 5.0.0.                                                                                                                                                                                                                                                                                                                                       |
 
 **Key:** `[Cloud-only]` runs only against Identity Cloud.
 
@@ -545,6 +564,16 @@ $ frodo settings theme detect
 
 Run `frodo settings` or `frodo settings theme` with no further arguments for an interactive picker (Escape backs out a level instead of requiring Ctrl+C). `frodo settings theme show` renders a realistic sample of frodo-cli output in the active theme -- the quickest way to check whether it actually works on your terminal. Themes are plain JSON files under `~/.frodo/themes/` -- copy one there under a new name to define your own.
 
+For air-gapped installs, persistently disable the automatic update check:
+
+```console
+$ frodo settings update-check disable
+$ frodo settings update-check show
+$ frodo settings update-check enable
+```
+
+The preference is stored in `~/.frodo/UpdateCheck.json` (`{"enabled": false}` disables it), or in the directory selected by `FRODO_CONFIG_PATH`. Missing, unreadable or invalid files leave the check enabled. Either this setting or a truthy `FRODO_NO_UPDATE_CHECK` disables the check: no start-up requests to GitHub or npm, no version-cache access and no update notices. `show` reports the effective state and whether it comes from the setting, the environment variable or both. `enable` changes only the persisted preference; it cannot override the environment opt-out. `frodo -v` and `frodo --version` still print installed versions when checks are disabled.
+
 ### cli options
 
 You interact with `frodo` using commands and options. You can see the list of options by using the `help` command
@@ -573,7 +602,7 @@ Commands:
   journey                                               Manage journeys/trees.
   log|logs                                              List/View Identity Cloud logs
   mapping                                               Manage IDM mappings.
-  oauth                                                 Manage OAuth2 clients and providers.
+  oauth                                                 Manage OAuth2 clients, CIMD profiles, trusted JWT issuers and providers.
   realm                                                 Manage realms.
   saml                                                  Manage SAML entity providers and circles of trust.
   script                                                Manage scripts.
@@ -656,7 +685,7 @@ Environment Variables:
   FRODO_SA_ID: Service account uuid. Overrides '--sa-id' option.
   FRODO_SA_JWK: Service account JWK. Overrides '--sa-jwk-file' option but takes the actual JWK as a value, not a file name.
   FRODO_NO_CACHE: Disable token cache. Same as '--no-cache' option.
-  FRODO_NO_UPDATE_CHECK: Set to 1, true, yes, or on (case-insensitive) to disable update checks, the only outbound call frodo makes on its own. Skips the version cache and update notices.
+  FRODO_NO_UPDATE_CHECK: Set to 1, true, yes, or on (case-insensitive) to disable update checks, the only outbound call frodo makes on its own. Skips the version cache and update notices. Persist this preference with frodo settings update-check disable; either control disables the check.
   FRODO_TOKEN_CACHE_PATH: Use this token cache location instead of '~/.frodo/TokenCache.json'. The entries are kept in the directory with the same name without its extension.
   FRODO_CONNECTION_PROFILES_PATH: Use this connection profiles file instead of '~/.frodo/Connections.json'.
   FRODO_AUTHENTICATION_SERVICE: Name of a login journey to use.
@@ -686,10 +715,10 @@ A policy is the safety posture applied to every skill before it can be exposed: 
 
 | Policy      | Default | Can do                                                    | Cannot do                                                                    | Tools (canonical + discovery) | Active skills / inventory |
 | ----------- | ------- | --------------------------------------------------------- | ---------------------------------------------------------------------------- | ----------------------------- | ------------------------- |
-| `read-only` |         | count, read, search, list                                 | create, update, delete, import, export; critical-risk skills; special skills | 5 (4 + 1)                     | 189 / 679                 |
-| `agentic`   | yes     | create, count, read, update, search, list; special skills | delete, import, export; critical-risk skills                                 | 5 (4 + 1)                     | 332 / 679                 |
-| `standard`  |         | everything `agentic` allows, plus export                  | delete, import; critical-risk skills                                         | 5 (4 + 1)                     | 418 / 679                 |
-| `admin`     |         | every operation and risk class, including special skills  | nothing                                                                      | 5 (4 + 1)                     | 679 / 679                 |
+| `read-only` |         | count, read, search, list                                 | create, update, delete, import, export; critical-risk skills; special skills | 5 (4 + 1)                     | 213 / 751                 |
+| `agentic`   | yes     | create, count, read, update, search, list; special skills | delete, import, export; critical-risk skills                                 | 5 (4 + 1)                     | 382 / 751                 |
+| `standard`  |         | everything `agentic` allows, plus export                  | delete, import; critical-risk skills                                         | 5 (4 + 1)                     | 473 / 751                 |
+| `admin`     |         | every operation and risk class, including special skills  | nothing                                                                      | 5 (4 + 1)                     | 751 / 751                 |
 
 Counts measured with the default `all` profile and no tenant connection (`frodo mcp server info --policy <preset> --profile all`); they scale down with a narrower profile, so check `info` for your exact combination. "Inventory" is the profile's unfiltered skill pool; "active skills" is what survives the policy and backs the tools (frodo reports the same number as "backing skills"). The five-tool surface is fixed at every policy -- `frodo_dispatch` stays registered even under `read-only`; it just has no mutating skills to reach.
 
@@ -701,16 +730,22 @@ A profile scopes the surface by _subject area_ instead of by danger: it selects 
 
 | Profile           | Default | Scopes the surface to                                                                                                           | Typical use                                | Active skills / inventory (agentic policy) |
 | ----------------- | ------- | ------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------ | ------------------------------------------ |
-| `all`             | yes     | [Cloud-only] every non-disabled domain -- the full derived universe                                                             | broad agent sessions; exploratory work     | 332 / 679                                  |
-| `authentication`  |         | journeys, nodes, OAuth/OIDC, login, sessions (`authn`, `oauth2oidc`, `login`, `session`)                                        | end-to-end authentication administration   | 42 / 86                                    |
-| `journey-dev`     |         | journey engineering only: journeys, nodes, journey settings (`authn.journey`, `authn.node`, `authn.settings`)                   | building and tuning login journeys         | 26 / 42                                    |
+| `all`             | yes     | [Cloud-only] every non-disabled domain -- the full derived universe                                                             | broad agent sessions; exploratory work     | 382 / 751                                  |
+| `authentication`  |         | journeys, nodes, OAuth/OIDC, login, sessions (`authn`, `oauth2oidc`, `login`, `session`)                                        | end-to-end authentication administration   | 56 / 108                                   |
+| `journey-dev`     |         | journey engineering only: journeys, nodes, journey settings (`authn.journey`, `authn.node`, `authn.settings`)                   | building and tuning login journeys         | 27 / 43                                    |
 | `authorization`   |         | access control, policy sets, resource types, roles, user-adjacent operations (`authz`, `role`, `user`)                          | access-control administration              | 25 / 63                                    |
-| `federation`      |         | SAML, WS-Federation, admin federation (`saml2`, `cloud.adminFed`, `cloud.wsfed`)                                                | trust and federation configuration         | 36 / 236                                   |
-| `iga`             |         | certifications, events, glossary, request forms/types, workflows (`cloud.iga`)                                                  | identity-governance operations             | 31 / 212                                   |
-| `apps`            |         | application lifecycle, SSO/provisioning apps, AI-agent app workflows (`app`, `cloud.env.enableAIAgentFeature`, `cloud.feature`) | app onboarding and access-app workflows    | 10 / 229                                   |
-| `managed-objects` |         | IDM object model and lifecycle: managed objects, mappings, recon, connectors, organization, config, system, script (`idm.*`)    | identity data modeling and synchronization | 60 / 118                                   |
+| `federation`      |         | SAML, WS-Federation, admin federation (`saml2`, `cloud.adminFed`, `cloud.wsfed`)                                                | trust and federation configuration         | 36 / 247                                   |
+| `iga`             |         | certifications, events, glossary, request forms/types, workflows (`cloud.iga`)                                                  | identity-governance operations             | 31 / 223                                   |
+| `apps`            |         | application lifecycle, SSO/provisioning apps, AI-agent app workflows (`app`, `cloud.env.enableAIAgentFeature`, `cloud.feature`) | app onboarding and access-app workflows    | 26 / 259                                   |
+| `managed-objects` |         | IDM object model and lifecycle: managed objects, mappings, recon, connectors, organization, config, system, script (`idm.*`)    | identity data modeling and synchronization | 64 / 138                                   |
 
 Counts use the default `agentic` policy and no tenant connection (`frodo mcp server info --profile <profile>`); the pool behind each profile (the inventory number) is larger than what a policy activates. Internal frodo domains (`state`, `cache`, `factory`, `utils`) are never exposed by any profile -- `--include-domains` and `--exclude-domains` override the profile's top-level domain selection, and `--include-utils` affects the inventory pool only; no profile or policy exposes utils skills.
+
+### Large results
+
+A list or search result says whether it is complete, in the fields that come before `data`: `truncated`, `returned` and `total`, and, when `truncated` is `true`, `nextPageOffset` (pass it as `pageOffset`) or `nextPageToken` (pass it as `pageToken`) and a `warning`. The server cuts a list or search result to a size limit, so a list can hold fewer items than exist even when the client asked for more with `pageSize`: do not count a truncated page, and do not conclude from it that an item does not exist. A capability that cannot tell whether it stopped at a limit of its own (a log search that removes duplicate events afterwards) gives `returned` and a `warning` but no `truncated` and no `total`: a missing `truncated` is not a sign that the result is complete, so read the `warning`. Read on with `pageOffset` or `pageToken`, or use a count capability for the exact total. A semantic count adds up every realm-qualified type of a family; a list reads one type. Compare a list with a count of the same type and filter; `total` of a list result is that count.
+
+This server also replaces a result whose indented JSON is larger than 256 KiB (2 MiB for the catalog detail of `frodo_discover`) by a note: `data` is `{ "_truncated": true, "message": ... }`, and the top-level fields say `truncated: true`, `returned: 0`, the `total` when it is known, and what to do (repeat the request with a smaller `pageSize`, or read a single large item with a more specific read). `metadata.pagination` agrees with it: nothing returned, `isPartial: true`, and no pointer to a next page, because that page was not delivered. The rule that a result which was cut says so in its first fields is recorded in [A result that was cut says so in the first fields of the result](https://github.com/rockcarver/frodo-cli/blob/main/docs/decisions/core/0025-a-result-that-was-cut-says-so-in-the-first-fields-of-the-result.md).
 
 ### Deployment modes
 

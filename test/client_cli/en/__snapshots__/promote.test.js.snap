@@ -3,7 +3,8 @@
 exports[`CLI help interface for 'app' should be expected english 1`] = `
 "Usage: frodo promote [options] [host] [realm] [username] [password]
 
-Prepares a tenant to be promoted
+[Deprecated] Deprecated: this command does not run a platform promotion; use
+frodo config-manager promote run-promotion. Will be removed in 5.0.0.
 
 Arguments:
   host                                AM base URL, e.g.:
@@ -55,13 +56,6 @@ Options:
   -S --effect-secrets                 Will effect the secrets, otherwise we will
                                       not change the secrets but will compare
                                       them (default: false)
-  --target <host url>                 Host URL of the environment to perform
-                                      secret value encryption. The URL must
-                                      resolve to an existing connection profile.
-                                      Use this option to generate an export that
-                                      can be imported into the target
-                                      environment without requiring admin access
-                                      to the source environment.
   -W --wait-secrets                   When secrets are effected we need to run a
                                       refresh on the enviornment. This will
                                       cause the command to wait until the
@@ -78,5 +72,7 @@ Options:
   -hh, --help-more                    Help with all options.
   -hhh, --help-all                    Help with all options, environment
                                       variables, and usage examples.
+
+Not available with --browser or --device: needs a service account (Configuration promotion). See https://github.com/rockcarver/frodo-cli/blob/main/docs/BROWSER_LOGIN.md#what-a-browser-or-device-login-can-do
 "
 `;

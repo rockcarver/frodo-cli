@@ -1,68 +1,47 @@
 import fs from 'fs';
-import {
-  frodo,
-  FrodoError,
-  state,
-  type RetryStrategy,
-} from '@rockcarver/frodo-lib';
+import { frodo, FrodoError, state, type RetryStrategy } from '@rockcarver/frodo-lib';
 import { AddHelpTextContext, Argument, Command, Help, Option } from 'commander';
 import propertiesReader from 'properties-reader';
-import {
-  setCredentialOverride,
-  setForceLoginAsUser,
-  setOpenBrowser,
-  setUseDeviceFlow,
-} from '../ops/AuthenticateOps.js';
-import {
-  cleanupProgressIndicators,
-  createProgressIndicator,
-  curlirizeMessage,
-  debugMessage,
-  printError,
-  printMessage,
-  stopProgressIndicator,
-  updateProgressIndicator,
-  verboseMessage,
-} from '../utils/Console.js';
+import { setCredentialOverride, setForceLoginAsUser, setOpenBrowser, setUseDeviceFlow } from '../ops/AuthenticateOps.js';
+import { accessFootnote } from '../utils/AccessCommandAreas.js';
+import { cleanupProgressIndicators, createProgressIndicator, curlirizeMessage, debugMessage, printError, printMessage, stopProgressIndicator, updateProgressIndicator, verboseMessage } from '../utils/Console.js';
 import { isTruthyOptInValue } from '../utils/EnvFlags.js';
 import { flushAuthoringPrint } from '../utils/interactive/AuthoringPrintState.js';
 // Type-only: the credential vocabulary lives in the interactive layer
 // (see docs/INTERACTIVE-COMMANDS.md, layering).
 import type { CredentialOverrideType } from '../utils/interactive/ConnectionProfilePickers';
+import { markNeverSaved } from '../utils/interactive/DefaultsStore.js';
 import { getEntityPicks } from '../utils/interactive/EntityPickers.js';
 import { registerEntityPickFamilies } from '../utils/interactive/EntityPickFamilies.js';
-import {
-  escapableSelect,
-  ESCAPE,
-  RIGHT,
-} from '../utils/interactive/EscapableSelectPrompt.js';
+import { escapableSelect, ESCAPE, RIGHT } from '../utils/interactive/EscapableSelectPrompt.js';
 import { EXIT_ALL, EXIT_ALL_SIGNAL } from '../utils/interactive/ExitAll.js';
+import { passStateApplied } from '../utils/interactive/PassLogin.js';
 import { canPrompt, setNeverPrompt } from '../utils/interactive/PromptGate.js';
-import {
-  declareRealmPickerOnlyWith,
-  declareRealmUse,
-} from '../utils/interactive/RealmUse.js';
-import {
-  markSecret,
-  SECRET_OPTION_HELP,
-} from '../utils/interactive/SecretOptions.js';
-import {
-  ALLOW_FAILURES_HELP,
-  ALLOW_FAILURES_OPTION,
-} from '../utils/OperationRun.js';
+import { declareRealmPickerOnlyWith, declareRealmUse } from '../utils/interactive/RealmUse.js';
+import { markSecret, SECRET_OPTION_HELP } from '../utils/interactive/SecretOptions.js';
+import { setMachineOutput } from '../utils/MachineOutput.js';
+import { ALLOW_FAILURES_HELP, ALLOW_FAILURES_OPTION } from '../utils/OperationRun.js';
 import { activatePersistedTheme } from '../utils/ThemeConfig.js';
-import {
-  deferMissingMandatoryOption,
-  deferOneOfGroups,
-  deferSkipConnectionPrompts,
-  getOneOfGroups,
-  resolveInteractiveInputs,
-  setActiveActionCommand,
-  type OptionRequirementSpec,
-} from './ResolveInteractiveInputs.js';
+import { assertAliasesFree, copyOptionAliases } from './OptionAlias.js';
+import { deferMissingMandatoryOption, deferOneOfGroups, deferSkipConnectionPrompts, getOneOfGroups, resolveInteractiveInputs, setActiveActionCommand, type OptionRequirementSpec } from './ResolveInteractiveInputs.js';
+
 
 // The command families that have a registered entity picker (record 0038)
 registerEntityPickFamilies();
+
+/**
+ * The path of a command without the program name, for example `iga workflow list`.
+ * @param command A command of the tree.
+ * @returns The names from the command up to the program, in order.
+ */
+function commandPathOf(command: Command): string {
+  const names: string[] = [];
+  for (let c: Command | null = command; c; c = c.parent) {
+    names.unshift(c.name());
+  }
+  if (names[0] === 'frodo') names.shift();
+  return names.join(' ');
+}
 
 // Frodo constants
 const constants = frodo.utils.constants;
@@ -156,6 +135,12 @@ export type StabilityGateConfig = {
 type StabilityMetadata = {
   level: StabilityIndicator;
   gate?: StabilityGateConfig;
+  /**
+   * Replaces the generic sentence of the notice a run prints ("This command is
+   * deprecated and may be removed in a future release."). A deprecated command
+   * uses it to name its replacement.
+   */
+  message?: string;
 };
 
 const stabilityLevelPriority: Record<StabilityIndicator, number> = {
@@ -322,6 +307,73 @@ function setStabilityMetadata(
 }
 
 /**
+ * Why an alias exists. A convenience alias is a second spelling that stays
+ * (`frodo conn save` and `frodo conn add`); a transition alias is the OLD name
+ * of a renamed command, kept so existing command lines keep running until a
+ * major release removes it (record 0048).
+ */
+export type AliasKind = 'convenience' | 'transition';
+
+/** The kind of each alias, recorded by `withAlias` on the command that owns it. */
+const aliasKinds = new WeakMap<Command, Map<string, AliasKind>>();
+
+/**
+ * The kind `withAlias` recorded for an alias of a command. Undefined for an
+ * alias that was added with plain `.alias()` (lint rejects that in src/cli);
+ * the help renders such an alias as a convenience alias.
+ * @param command Command that owns the alias.
+ * @param alias The alias.
+ * @returns The recorded kind, if any.
+ */
+export function getAliasKind(
+  command: Command,
+  alias: string
+): AliasKind | undefined {
+  return aliasKinds.get(command)?.get(alias);
+}
+
+/**
+ * The fixed trailing note that names the aliases of a command in its
+ * description: `(alias: add)`, `(aliases: a, b)`, and `(formerly: old)` for
+ * the old name of a renamed command. Empty when the command has no alias.
+ * Parseable with /\((alias(es)?|formerly): [^)]+\)$/ (a command with both kinds
+ * has both notes, the transition note last).
+ * @param command Command to describe.
+ * @returns The note, or an empty string.
+ */
+function aliasNote(command: Command): string {
+  const aliases = command.aliases();
+  const former = aliases.filter(
+    (alias) => getAliasKind(command, alias) === 'transition'
+  );
+  const kept = aliases.filter(
+    (alias) => getAliasKind(command, alias) !== 'transition'
+  );
+  const notes: string[] = [];
+  if (kept.length > 0) {
+    notes.push(
+      `(${kept.length > 1 ? 'aliases' : 'alias'}: ${kept.join(', ')})`
+    );
+  }
+  if (former.length > 0) {
+    notes.push(`(formerly: ${former.join(', ')})`);
+  }
+  return notes.join(' ');
+}
+
+/**
+ * Appends the alias note of a command to its description.
+ * @param description Description, possibly decorated with badges.
+ * @param command Command that owns the description.
+ * @returns The description followed by the alias note, if the command has aliases.
+ */
+function withAliasNote(description: string, command: Command): string {
+  const note = aliasNote(command);
+  if (!note) return description;
+  return description ? `${description} ${note}` : note;
+}
+
+/**
  * Reads raw stability metadata as explicitly configured on the target.
  * @param target Annotated command, option, or argument.
  * @returns Explicit metadata if present, otherwise undefined.
@@ -350,6 +402,7 @@ function getStabilityMetadata(
  * Behavior:
  * - level: strongest level found in the command ancestry
  * - gate: nearest required opt-in gate found in the ancestry
+ * - message: the nearest message declared at that level
  *
  * This allows declaring stability once at a stub command (command tree root)
  * and having it apply to all descendants.
@@ -361,6 +414,7 @@ function getEffectiveCommandStabilityMetadata(
 ): StabilityMetadata {
   let level: StabilityIndicator = 'stable';
   let gate: StabilityGateConfig | undefined;
+  let message: string | undefined;
 
   let current: Command | null = command;
   while (current) {
@@ -370,6 +424,9 @@ function getEffectiveCommandStabilityMetadata(
         stabilityLevelPriority[metadata.level] > stabilityLevelPriority[level]
       ) {
         level = metadata.level;
+        message = metadata.message;
+      } else if (metadata.level === level && !message) {
+        message = metadata.message;
       }
 
       if (!gate && metadata.gate?.requiredOptIn) {
@@ -379,7 +436,11 @@ function getEffectiveCommandStabilityMetadata(
     current = current.parent || null;
   }
 
-  return gate ? { level, gate } : { level };
+  return {
+    level,
+    ...(gate ? { gate } : {}),
+    ...(message ? { message } : {}),
+  };
 }
 
 /**
@@ -550,6 +611,10 @@ function cloneOption(option: Option): Option {
   setStabilityMetadata(cloned, getStabilityMetadata(option));
   const category = getOptionCategory(option);
   if (category) setOptionCategory(cloned, category);
+  // the extra spellings of an option (the permanent alias of the selectors,
+  // https://github.com/rockcarver/frodo-cli/blob/main/docs/decisions/0057-options-of-the-configuration-commands.md)
+  // are own properties that the spread above does not copy
+  copyOptionAliases(option, cloned);
   return cloned;
 }
 
@@ -1003,9 +1068,26 @@ const debugOption = withHelpGroup(
 );
 
 const curlirizeOption = withHelpGroup(
-  new Option('--curlirize', 'Output all network calls in curl format.'),
+  new Option(
+    '--curlirize',
+    'Output all network calls in curl format. The values of credentials (Authorization and Cookie headers, API keys, header overrides, and passwords, tokens and secrets in request bodies) are replaced with <redacted> and the header names stay; add --curlirize-secrets to see the values.'
+  ),
   OUTPUT_OPTIONS_HEADING,
   OptionCategory.Output
+);
+
+// Opt-in to real credentials in the curl output. Never saved as a default
+// (markNeverSaved), not part of a connection profile, and not offered to the
+// MCP server: it is a decision for one run.
+const curlirizeSecretsOption = markNeverSaved(
+  withHelpGroup(
+    new Option(
+      '--curlirize-secrets',
+      'With --curlirize, print the real values of credentials in the curl commands, so that a command can be copied and run. The output then contains valid credentials: do not share it. Never saved as a default. Can also be switched on with the environment variable FRODO_CURLIRIZE_SECRETS.'
+    ),
+    OUTPUT_OPTIONS_HEADING,
+    OptionCategory.Output
+  )
 );
 
 // Categorized as Authentication (not Runtime, despite rendering under
@@ -1102,6 +1184,7 @@ const defaultOpts = [
   verboseOption,
   debugOption,
   curlirizeOption,
+  curlirizeSecretsOption,
   noCacheOption,
   flushCacheOption,
   retryOption,
@@ -1203,6 +1286,8 @@ const stateMap = {
   [debugOption.attributeName()]: (debug: boolean) => state.setDebug(debug),
   [curlirizeOption.attributeName()]: (curlirize: boolean) =>
     state.setCurlirize(curlirize),
+  [curlirizeSecretsOption.attributeName()]: (curlirizeSecrets: boolean) =>
+    state.setCurlirizeSecrets(curlirizeSecrets),
   [noCacheOption.attributeName()]: (cache: boolean) =>
     state.setUseTokenCache(cache),
   [useRealmPrefixOnManagedObjects.attributeName()]: () =>
@@ -1424,9 +1509,15 @@ const environmentVariables: EnvironmentVariableDescriptor[] = [
       command.hasDefaultOption(noCacheOption.attributeName()),
   },
   {
+    name: 'FRODO_AIRGAPPED',
+    description:
+      'Set to 1, true, yes, or on (case-insensitive) to switch on air-gapped mode: frodo makes no request to a host you did not name. The tenant and the hosts and URLs you give stay allowed; the update check and the application template catalog are not made. This also disables the update check. Persist this preference with frodo settings airgap enable.',
+    group: RUNTIME_ENVIRONMENT_VARIABLES_HEADING,
+  },
+  {
     name: 'FRODO_NO_UPDATE_CHECK',
     description:
-      'Set to 1, true, yes, or on (case-insensitive) to disable update checks, the only outbound call frodo makes on its own. Skips the version cache and update notices.',
+      'Set to 1, true, yes, or on (case-insensitive) to disable update checks, the only outbound call frodo makes on its own. Skips the version cache and update notices. Persist this preference with frodo settings update-check disable; either control disables the check.',
     group: RUNTIME_ENVIRONMENT_VARIABLES_HEADING,
   },
   {
@@ -1450,13 +1541,13 @@ const environmentVariables: EnvironmentVariableDescriptor[] = [
   {
     name: 'FRODO_AUTHENTICATION_HEADER_OVERRIDES',
     description:
-      'Map of headers: \'{"host":"am.example.com:8081"}\'. These headers are sent with all requests and can be used to override default behavior, for example to set a custom host header for Proxy Connect-protected PingOne Advanced Identity Cloud environments.',
+      'Map of headers: \'{"host":"am.example.com:8081"}\'. These headers are sent with all requests and can be used to override default behavior, for example to set a custom host header for Proxy Connect-protected PingOne Advanced Identity Cloud environments. The values are secrets: a connection profile stores them encrypted.',
     group: AUTHENTICATION_ENVIRONMENT_VARIABLES_HEADING,
   },
   {
     name: 'FRODO_CONFIGURATION_HEADER_OVERRIDES',
     description:
-      'Map of headers: \'{"X-Configuration-Type":"mutable"}\'. These headers are sent with all configuration requests and can be used to override default behavior, for example to set a custom configuration header for mutable PingOne Advanced Identity Cloud environments.',
+      'Map of headers: \'{"X-Configuration-Type":"mutable"}\'. These headers are sent with all configuration requests and can be used to override default behavior, for example to set a custom configuration header for mutable PingOne Advanced Identity Cloud environments. The values are secrets: a connection profile stores them encrypted.',
     group: RUNTIME_ENVIRONMENT_VARIABLES_HEADING,
   },
   {
@@ -1464,6 +1555,14 @@ const environmentVariables: EnvironmentVariableDescriptor[] = [
     description: "Set to any value to enable debug output. Same as '--debug'.",
     group: OUTPUT_ENVIRONMENT_VARIABLES_HEADING,
     include: (command) => command.hasDefaultOption(debugOption.attributeName()),
+  },
+  {
+    name: 'FRODO_CURLIRIZE_SECRETS',
+    description:
+      "Set to 1, true, yes, or on (case-insensitive) to print the real values of credentials in the '--curlirize' output. Same as '--curlirize-secrets'. The output then contains valid credentials.",
+    group: OUTPUT_ENVIRONMENT_VARIABLES_HEADING,
+    include: (command) =>
+      command.hasDefaultOption(curlirizeSecretsOption.attributeName()),
   },
   {
     name: 'FRODO_IGA',
@@ -2334,13 +2433,15 @@ function enforceStabilityAndWarn(actionCommand: Command): void {
   }
 
   if (!warnedStabilityCommands.has(commandPath)) {
-    const gateSuffix = metadata.gate?.requiredOptIn
-      ? metadata.level === 'deprecated'
-        ? ' This command is opt-in, deprecated, and may be removed in a future release.'
-        : ' This feature is opt-in and may change without notice.'
-      : metadata.level === 'deprecated'
-        ? ' This command is deprecated and may be removed in a future release.'
-        : ' This feature may change without notice.';
+    const gateSuffix = metadata.message
+      ? ` ${metadata.message}`
+      : metadata.gate?.requiredOptIn
+        ? metadata.level === 'deprecated'
+          ? ' This command is opt-in, deprecated, and may be removed in a future release.'
+          : ' This feature is opt-in and may change without notice.'
+        : metadata.level === 'deprecated'
+          ? ' This command is deprecated and may be removed in a future release.'
+          : ' This feature may change without notice.';
     if (
       !(actionCommand as Command & StabilityAnnotated)[
         SUPPRESS_STABILITY_WARNING_KEY
@@ -2370,6 +2471,12 @@ interface CommandInternal extends Command {
   _actionHandler: ((...args: unknown[]) => unknown) | null;
   _getHelpCommand: () => Command | undefined;
   _parseCommand: (operands: string[], unknown: string[]) => unknown;
+  _findCommand: (name: string) => Command | undefined;
+  _dispatchSubcommand: (
+    commandName: string,
+    operands: string[],
+    unknown: string[]
+  ) => unknown;
   _hidden: boolean;
 }
 
@@ -2444,6 +2551,22 @@ const commanderParseCommand = (Command.prototype as unknown as CommandInternal)
   operands: string[],
   unknown: string[]
 ) => unknown;
+
+/**
+ * commander's own _dispatchSubcommand, captured from Command.prototype once at
+ * module load for the same reason as commanderParseCommand.
+ */
+const commanderDispatchSubcommand = (
+  Command.prototype as unknown as CommandInternal
+)._dispatchSubcommand as (
+  this: Command,
+  commandName: string,
+  operands: string[],
+  unknown: string[]
+) => unknown;
+
+/** Transition aliases already announced in this process, by the command path typed. */
+const warnedTransitionAliases = new Set<string>();
 
 /**
  * Thrown by a nested sub-command picker when its user pressed ESC (see
@@ -2672,6 +2795,14 @@ export class FrodoStubCommand extends Command {
     this.hook('preAction', (_thisCommand, actionCommand) => {
       enforceStabilityAndWarn(actionCommand);
       adoptPromptingFromActionStub(actionCommand);
+      // `--json` and `--scriptFriendly` mean a program reads the output: the
+      // notes that are meant for a person (what a new login can do) stay silent.
+      if (
+        actionCommand.getOptionValue('json') === true ||
+        actionCommand.getOptionValue('scriptFriendly') === true
+      ) {
+        setMachineOutput(true);
+      }
       // The prompting switch is a dual option pair sharing the `prompt`
       // attribute (undefined = prompting allowed when input is missing);
       // --no-prompt sets it false. Set once per process, before the
@@ -2717,13 +2848,82 @@ export class FrodoStubCommand extends Command {
   }
 
   /**
+   * Adds an alias and records why it exists. Use this instead of
+   * `.alias()`, which lint rejects in src/cli. The help names the preferred
+   * name only and ends the description with the alias: `(alias: add)` for a
+   * convenience alias, `(formerly: old)` for a transition alias.
+   * @param name The alias.
+   * @param kind `'convenience'` (the default) for a second spelling that
+   *   stays; `'transition'` for the old name of a renamed command.
+   * @returns This command for chaining.
+   */
+  withAlias(name: string, kind: AliasKind = 'convenience'): this {
+    // eslint-disable-next-line no-restricted-syntax -- the one place that adds an alias, so that its kind is recorded
+    this.alias(name);
+    const kinds = aliasKinds.get(this) ?? new Map<string, AliasKind>();
+    kinds.set(name, kind);
+    aliasKinds.set(this, kinds);
+    return this;
+  }
+
+  /**
+   * commander's _dispatchSubcommand, entered with the word the user typed: the
+   * only place that still knows whether it was the name or an alias (by the
+   * time an action runs, the command knows only its preferred name). When the
+   * word is a transition alias, prints one notice on stderr, once per process
+   * and alias: stdout and the exit code do not change. The interactive picker
+   * dispatches by the preferred name, so it never prints the notice.
+   * Not marked `override`: commander's typings omit the method (as for
+   * `_parseCommand`); verified against commander 15.0.0 lib/command.js.
+   * @param commandName The word typed after this command.
+   * @param operands Operands that follow it.
+   * @param unknown Unclassified arguments that follow it.
+   * @returns What commander returns: the action's result, possibly a promise.
+   */
+  _dispatchSubcommand(
+    commandName: string,
+    operands: string[],
+    unknown: string[]
+  ): unknown {
+    const sub = (this as unknown as CommandInternal)._findCommand(commandName);
+    if (
+      sub &&
+      sub.name() !== commandName &&
+      getAliasKind(sub, commandName) === 'transition'
+    ) {
+      const names: string[] = [this.name(), commandName];
+      for (let c = this.parent; c; c = c.parent) names.unshift(c.name());
+      const typed = names.join(' ');
+      if (!warnedTransitionAliases.has(typed)) {
+        warnedTransitionAliases.add(typed);
+        printMessage(
+          `'${commandName}' is now called '${sub.name()}'. The old name still works and will be removed in a future major release.`,
+          'warn'
+        );
+      }
+    }
+    return commanderDispatchSubcommand.call(
+      this,
+      commandName,
+      operands,
+      unknown
+    );
+  }
+
+  /**
    * Marks a command stability level and optionally requires explicit opt-in.
    * Stable is the default and requires no call sites.
    * @param level Stability indicator.
    * @param gate Optional gate configuration for high-risk features.
+   * @param message Optional sentence that replaces the generic one in the
+   *   notice a run prints. A deprecated command names its replacement with it.
    * @returns This command for chaining.
    */
-  withStability(level: StabilityIndicator, gate?: StabilityGateConfig): this {
+  withStability(
+    level: StabilityIndicator,
+    gate?: StabilityGateConfig,
+    message?: string
+  ): this {
     const normalizedGate = gate?.requiredOptIn
       ? {
           requiredOptIn: true,
@@ -2734,7 +2934,11 @@ export class FrodoStubCommand extends Command {
         }
       : gate;
 
-    setStabilityMetadata(this, { level, gate: normalizedGate });
+    setStabilityMetadata(this, {
+      level,
+      gate: normalizedGate,
+      ...(message ? { message } : {}),
+    });
 
     if (normalizedGate?.requiredOptIn) {
       const optionName = normalizedGate.optionName || 'enable-preview';
@@ -3438,7 +3642,10 @@ class FrodoStubHelp extends Help {
    * @returns Possibly decorated description.
    */
   override commandDescription(cmd: Command): string {
-    return decorateDescriptionWithStability(super.commandDescription(cmd), cmd);
+    return withAliasNote(
+      decorateDescriptionWithStability(super.commandDescription(cmd), cmd),
+      cmd
+    );
   }
 
   /**
@@ -3447,8 +3654,8 @@ class FrodoStubHelp extends Help {
    * @returns Possibly decorated description.
    */
   override subcommandDescription(cmd: Command): string {
-    return decorateDescriptionWithStability(
-      super.subcommandDescription(cmd),
+    return withAliasNote(
+      decorateDescriptionWithStability(super.subcommandDescription(cmd), cmd),
       cmd
     );
   }
@@ -3481,9 +3688,9 @@ class FrodoStubHelp extends Help {
       super.optionDescription(option),
       option
     );
-    // "(pick from <kind>)": the option has an entity picker registered
-    // (deferEntityPicks), so an interactive session offers a dropdown of
-    // the live system's entities for it.
+    // "(pick from <kind>)": the option has an entity picker registered by
+    // its command family (EntityPickFamilies.ts), so an interactive session
+    // offers a dropdown of the live system's entities for it.
     const pick = (
       this.renderedCommand ? getEntityPicks(this.renderedCommand) : []
     ).find((candidate) => candidate.name === option.attributeName());
@@ -3614,13 +3821,26 @@ class FrodoStubHelp extends Help {
   }
 
   /**
-   * Renders subcommand term with first alias, if present.
+   * Renders the subcommand term: the preferred name only. The aliases are
+   * named at the end of the description (see aliasNote), so the list teaches
+   * the preferred name.
    * @param cmd Subcommand.
    * @returns Display label for command list row.
    */
   subcommandTerm(cmd: Command) {
-    const aliases = cmd.aliases();
-    return cmd.name() + (aliases[0] ? '|' + aliases[0] : '');
+    return cmd.name();
+  }
+
+  /**
+   * Renders the usage line with the preferred name only (commander appends
+   * the first alias as `name|alias`).
+   * @param cmd Command being rendered.
+   * @returns Usage line: ancestors, name and the command's own usage.
+   */
+  override commandUsage(cmd: Command): string {
+    const names: string[] = [];
+    for (let c: Command | null = cmd; c; c = c.parent) names.unshift(c.name());
+    return `${names.join(' ')} ${cmd.usage()}`;
   }
 }
 
@@ -3650,6 +3870,13 @@ export class FrodoCommand extends FrodoStubCommand {
     this.connectionArgsOptional = true;
     return this;
   }
+  /**
+   * Whether this command lets the `${NAME}` placeholders of the files it reads
+   * fall back to the environment variables of the process (see
+   * `fillsPlaceholdersFromProcessEnvironment`). Off for every command unless it
+   * is turned on.
+   */
+  private placeholdersFromProcessEnvironment = false;
 
   /**
    * Deferred mandatory handling (see FrodoStubCommand's implementation
@@ -3704,6 +3931,14 @@ export class FrodoCommand extends FrodoStubCommand {
           commandOmits.add(opt.name());
         }
       }
+    }
+
+    // The option that shows the credentials in the curl output means nothing
+    // on a command that has no curl output, and a command that does not take
+    // part (the MCP server is run by a client that must not be able to see
+    // them) never gets it.
+    if (commandOmits.has(curlirizeOption.name())) {
+      commandOmits.add(curlirizeSecretsOption.name());
     }
 
     // Cloud-only commands do not need Amster private key defaults.
@@ -3776,6 +4011,13 @@ export class FrodoCommand extends FrodoStubCommand {
     this.addHelpText('after', () =>
       isFullHelpRequested() ? formatEnvironmentVariables(this) : ''
     );
+
+    // A command that always needs an area that no browser or device login
+    // reaches says so, at every help level (the table is in AccessCommandAreas).
+    this.addHelpText('after', (context) => {
+      const note = accessFootnote(commandPathOf(context.command));
+      return note ? `\n${note}` : '';
+    });
   }
 
   /**
@@ -3786,6 +4028,8 @@ export class FrodoCommand extends FrodoStubCommand {
   override addOption(option: Option) {
     // Clone to avoid mutating shared default option instances.
     const commandOption = cloneOption(option);
+    // commander compares the flags of the new option, not its alias spellings
+    assertAliasesFree(this, commandOption);
 
     if (!commandOption.helpGroupHeading) {
       commandOption.helpGroup(COMMAND_OPTIONS_HEADING);
@@ -3872,6 +4116,32 @@ export class FrodoCommand extends FrodoStubCommand {
   }
 
   /**
+   * Lets the `${NAME}` placeholders of the files this command pushes be filled
+   * from the environment variables of the process when `-E/--env` and
+   * `--env-file` hold no value for the name (frodo-lib#1109: the switch of the
+   * library's state is off unless a command turns it on). Used for the
+   * config-manager push commands, where a pipeline hands its values over as
+   * environment variables. No other command reads the process environment for a
+   * placeholder: a file that names a variable copies the value of that variable
+   * into whatever it is pushed to, so it is a decision per command family. The
+   * export direction of the library never reads the process environment.
+   * @returns This command for chaining.
+   */
+  fillsPlaceholdersFromProcessEnvironment(): this {
+    this.placeholdersFromProcessEnvironment = true;
+    return this;
+  }
+
+  /**
+   * Whether this command fills placeholders from the process environment (see
+   * `fillsPlaceholdersFromProcessEnvironment`).
+   * @returns true if the command turns the library's switch on
+   */
+  readsProcessEnvironmentForPlaceholders(): boolean {
+    return this.placeholdersFromProcessEnvironment;
+  }
+
+  /**
    * Declares that the command uses its realm positional and reads "no realm"
    * as "every realm" (the `config-manager` commands that loop over realms).
    * The post-auth realm picker then offers an `All realms` row first and makes
@@ -3893,7 +4163,7 @@ export class FrodoCommand extends FrodoStubCommand {
    * realm limits `frodo config export` with `-r`, `--realm-only`, and changes
    * nothing without it), so the post-auth realm picker may open only then. The
    * picker is the ordinary one and keeps every other condition (records 0001
-   * and 0030): it opens for a command line that was incomplete, never for a
+   * and 0047): it opens for a command line that was incomplete, never for a
    * complete one. Call it after the option is added.
    * See src/utils/interactive/RealmUse.ts.
    * @param option The attribute name of the option, for example `realmOnly` for `-r, --realm-only`.
@@ -3919,9 +4189,17 @@ export class FrodoCommand extends FrodoStubCommand {
   handleDefaultArgsAndOpts(...args: any) {
     const command = args.pop();
     const options = args.pop();
+    // When the resolution pass wrote the connection into the state already (it
+    // does so before it logs in for a picker, record 0044), the action must not
+    // write it again: the login has replaced the alias of the host by the
+    // tenant's URL and the sentinel realm by the deployment's realm, the
+    // credentials of the profile are in the state, and putting the typed values
+    // back would break the login the command is about to use. Only the options
+    // are applied again, for the ones a later step of the pass committed.
+    const writtenByPass = passStateApplied();
 
     // handle arguments first
-    for (const [i, v] of command.args.entries()) {
+    for (const [i, v] of writtenByPass ? [] : command.args.entries()) {
       if (!command._args[i]) {
         printMessage(
           `${command.args.length} arguments supplied but command only supports ${command._args.length}.`,
@@ -3953,6 +4231,8 @@ export class FrodoCommand extends FrodoStubCommand {
       if (k2 === envOption.attributeName()) return 1;
       return 0;
     })) {
+      // `--flush-cache` empties the cache once; the pass did it already
+      if (writtenByPass && k === flushCacheOption.attributeName()) continue;
       // handle only default options
       if (Object.keys(stateMap).includes(k)) {
         debugMessage(
@@ -3968,8 +4248,31 @@ export class FrodoCommand extends FrodoStubCommand {
       }
     }
 
-    // fail fast if an incompatible deployment type option (-m or --type) was provided
+    // The library reads the environment variables of the process for a
+    // placeholder only when its state says so: the config-manager push commands
+    // say so, no other command does. The answer is set on every call, so that a
+    // command never inherits the switch of another one that ran before it in
+    // the same process (tests do that).
+    state.setUseProcessEnvironmentForPlaceholders(
+      command.readsProcessEnvironmentForPlaceholders?.() === true
+    );
+
+    // FRODO_CURLIRIZE_SECRETS does what --curlirize-secrets does, for the
+    // commands that have the option. Only the library setting changes: nothing
+    // is saved, and a value other than 1, true, yes or on leaves it off.
     if (
+      command.hasDefaultOption?.(curlirizeSecretsOption.attributeName()) &&
+      isTruthyOptInValue(process.env.FRODO_CURLIRIZE_SECRETS)
+    ) {
+      state.setCurlirizeSecrets(true);
+    }
+
+    // fail fast if an incompatible deployment type option (-m or --type) was
+    // provided. After the pass wrote the connection (and logged in), the type is
+    // known from the login, and getTokens() refuses a type the command does not
+    // support with the library's own error.
+    if (
+      !writtenByPass &&
       state.getDeploymentType() &&
       !this.types.includes(state.getDeploymentType())
     ) {

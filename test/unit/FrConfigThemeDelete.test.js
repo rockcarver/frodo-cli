@@ -79,6 +79,34 @@ jest.unstable_mockModule('@rockcarver/frodo-lib', () => ({
         deleted.push(`${currentRealm}:${name}`);
         return found;
       },
+      readTheme: async (id) => {
+        const found = (themesByRealm[currentRealm] ?? []).find(
+          (t) => t._id === id
+        );
+        if (!found)
+          throw libraryError(
+            `Error reading ${currentRealm} realm theme ${id}`,
+            `Theme with id '${id}' not found in realm '${currentRealm}'!`
+          );
+        return found;
+      },
+      deleteTheme: async (id) => {
+        if (failingRealms.has(currentRealm))
+          throw libraryError(
+            `Error deleting ${currentRealm} realm theme`,
+            'Request failed with status code 500'
+          );
+        const found = (themesByRealm[currentRealm] ?? []).find(
+          (t) => t._id === id
+        );
+        if (!found)
+          throw libraryError(
+            `Error deleting ${currentRealm} realm theme`,
+            `'${id}' not found in realm '${currentRealm}'`
+          );
+        deleted.push(`${currentRealm}:${found.name}`);
+        return found;
+      },
       deleteThemes: async (realm) => {
         if (failingRealms.has(realm))
           throw libraryError(
@@ -303,5 +331,257 @@ describe('one theme by name', () => {
     expect(messages('error').join('\n')).toContain(
       "Theme 'Mine' not found in realm 'bravo'"
     );
+  });
+});
+
+describe('one theme by id', () => {
+  // the ids are the ones of the tenant: two themes of one name have two ids
+  beforeEach(() => {
+    themesByRealm = {
+      '/': [theme('Root Theme')],
+      alpha: [
+        { _id: 'id-mine', name: 'Mine' },
+        { _id: 'id-test-alpha', name: 'Test' },
+      ],
+      bravo: [{ _id: 'id-test-bravo', name: 'Test' }],
+    };
+  });
+
+  test('only the theme that has the id is deleted, in the one realm that is given, and no other theme of that name', async () => {
+    expect(
+      await configManagerDeleteThemes(
+        undefined,
+        'alpha',
+        false,
+        false,
+        'id-test-alpha'
+      )
+    ).toBe(true);
+
+    expect(deleted).toEqual(['alpha:Test']);
+    expect(realmsVisited).toEqual(['alpha']);
+    expect(messages(undefined)).toEqual([
+      "Deleting theme 'Test' in realm 'alpha'",
+    ]);
+  });
+
+  test('an id never deletes all themes of the realm', async () => {
+    await configManagerDeleteThemes(undefined, 'alpha', false, false, 'id-mine');
+
+    expect(deleted).toEqual(['alpha:Mine']);
+  });
+
+  test('an id that is not in the one realm that is given is an error, and nothing is deleted', async () => {
+    expect(
+      await configManagerDeleteThemes(
+        undefined,
+        'bravo',
+        false,
+        false,
+        'id-mine'
+      )
+    ).toBe(false);
+
+    expect(deleted).toEqual([]);
+    expect(messages('error').join('\n')).toContain(
+      "'id-mine' not found in realm 'bravo'"
+    );
+  });
+
+  test('across several realms, a realm without it is a warning that names the id and the others are processed', async () => {
+    expect(
+      await configManagerDeleteThemes(
+        undefined,
+        undefined,
+        false,
+        false,
+        'id-mine'
+      )
+    ).toBe(true);
+
+    expect(deleted).toEqual(['alpha:Mine']);
+    expect(messages('warn')).toEqual([
+      "Theme with id 'id-mine' not found in realm '/'.",
+      "Theme with id 'id-mine' not found in realm 'bravo'.",
+    ]);
+    expect(messages('error')).toEqual([]);
+  });
+
+  test('an id that no realm has is an error across several realms, which is not the heritage of a name: nothing is deleted and the id is named', async () => {
+    expect(
+      await configManagerDeleteThemes(
+        undefined,
+        undefined,
+        false,
+        false,
+        'id-nowhere'
+      )
+    ).toBe(false);
+
+    expect(deleted).toEqual([]);
+    // each realm says it, and one error says that no realm has the id
+    expect(messages('warn')).toEqual([
+      "Theme with id 'id-nowhere' not found in realm '/'.",
+      "Theme with id 'id-nowhere' not found in realm 'alpha'.",
+      "Theme with id 'id-nowhere' not found in realm 'bravo'.",
+    ]);
+    expect(messages('error')).toEqual([
+      "Theme with id 'id-nowhere' not found in any realm.",
+    ]);
+  });
+
+  test.each([
+    ['a delete', false],
+    ['a dry run', true],
+  ])('%s of an id that the one realm that is given lacks fails whatever --allow-failures says, with the one error of the realm', async (_, dryRun) => {
+    for (const allowFailures of [false, true]) {
+      printed.length = 0;
+      deleted.length = 0;
+
+      expect(
+        await configManagerDeleteThemes(
+          undefined,
+          'bravo',
+          dryRun,
+          allowFailures,
+          'id-mine'
+        )
+      ).toBe(false);
+
+      expect(deleted).toEqual([]);
+      expect(messages('error').join('\n')).toContain(
+        "'id-mine' not found in realm 'bravo'"
+      );
+      // the realm said it, and no second error says it again
+      expect(messages('error').join('\n')).not.toContain('not found in any realm');
+      expect(messages('error')).toHaveLength(1);
+    }
+  });
+
+  test('an id that the one realm that is given has is deleted, and --allow-failures changes nothing', async () => {
+    for (const allowFailures of [false, true]) {
+      deleted.length = 0;
+
+      expect(
+        await configManagerDeleteThemes(
+          undefined,
+          'alpha',
+          false,
+          allowFailures,
+          'id-mine'
+        )
+      ).toBe(true);
+
+      expect(deleted).toEqual(['alpha:Mine']);
+    }
+  });
+
+  test('an id that one of several realms has is still deleted there with --allow-failures, and the others only warn', async () => {
+    expect(
+      await configManagerDeleteThemes(undefined, undefined, false, true, 'id-mine')
+    ).toBe(true);
+
+    expect(deleted).toEqual(['alpha:Mine']);
+    expect(messages('error')).toEqual([]);
+  });
+
+  test('a name that the one realm that is given lacks keeps its heritage: --allow-failures lets it pass', async () => {
+    expect(
+      await configManagerDeleteThemes('Mine', 'bravo', false, true)
+    ).toBe(true);
+  });
+
+  test('--allow-failures does not turn an id that no realm has into a success', async () => {
+    expect(
+      await configManagerDeleteThemes(
+        undefined,
+        undefined,
+        false,
+        true,
+        'id-nowhere'
+      )
+    ).toBe(false);
+  });
+
+  test('the dry run of an id that no realm has fails too', async () => {
+    expect(
+      await configManagerDeleteThemes(
+        undefined,
+        undefined,
+        true,
+        false,
+        'id-nowhere'
+      )
+    ).toBe(false);
+    expect(messages('error')).toEqual([
+      "Theme with id 'id-nowhere' not found in any realm.",
+    ]);
+  });
+
+  test('a name that no realm has keeps its heritage: warnings and a success', async () => {
+    expect(
+      await configManagerDeleteThemes('Nowhere', undefined, false, false)
+    ).toBe(true);
+
+    expect(deleted).toEqual([]);
+    expect(messages('error')).toEqual([]);
+  });
+
+  test('a realm that fails is the one error, not a second one for the id', async () => {
+    failingRealms = new Set(['alpha']);
+
+    expect(
+      await configManagerDeleteThemes(
+        undefined,
+        undefined,
+        false,
+        false,
+        'id-mine'
+      )
+    ).toBe(false);
+    expect(messages('error').join('\n')).not.toContain('not found in any realm');
+  });
+
+  test('a failure other than "not found" is an error even across several realms', async () => {
+    failingRealms = new Set(['alpha']);
+
+    expect(
+      await configManagerDeleteThemes(
+        undefined,
+        undefined,
+        false,
+        false,
+        'id-mine'
+      )
+    ).toBe(false);
+
+    expect(deleted).toEqual([]);
+    expect(messages('error').join('\n')).toContain(
+      "Error deleting themes in realm 'alpha'"
+    );
+  });
+
+  test('the dry run deletes nothing and follows the same rules', async () => {
+    expect(
+      await configManagerDeleteThemes(undefined, undefined, true, false, 'id-mine')
+    ).toBe(true);
+    expect(deleted).toEqual([]);
+    expect(messages(undefined)).toEqual([
+      "Dry run: Deleting theme 'Mine' in realm 'alpha'",
+    ]);
+
+    printed.length = 0;
+    expect(
+      await configManagerDeleteThemes('Test', 'bravo', true, false, 'id-mine')
+    ).toBe(false);
+    expect(messages('error').join('\n')).toContain(
+      "Theme with id 'id-mine' not found in realm 'bravo'"
+    );
+  });
+
+  test('the id is used when a name is handed over too, as the command never does', async () => {
+    await configManagerDeleteThemes('Test', 'alpha', false, false, 'id-mine');
+
+    expect(deleted).toEqual(['alpha:Mine']);
   });
 });

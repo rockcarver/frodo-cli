@@ -16,6 +16,7 @@ Runtime Options:
 
 Commands:
   agent             Manage agents.
+  aiagent           Manage AI agents.
   app               Manage applications.
   authn             Manage authentication settings.
   authz             Manage authorization policies, policy sets, and resource
@@ -33,7 +34,8 @@ Commands:
   journey           Manage journeys/trees.
   mapping           Manage IDM mappings.
   node              Manage custom nodes.
-  oauth             Manage OAuth2 clients and providers.
+  oauth             Manage OAuth2 clients, CIMD profiles, trusted JWT issuers
+                    and providers.
   realm             Manage realms.
   role              Manage internal (authorization) roles.
   saml              Manage SAML entity providers and circles of trust.
@@ -66,7 +68,9 @@ Continuous integration:
                     pipelines (format compatible with fr-config-manager).
   dcc               [Preview] [Cloud-only] Direct Configuration Control (DCC)
                     commands.
-  promote           Prepares a tenant to be promoted
+  promote           [Deprecated] Deprecated: this command does not run a
+                    platform promotion; use frodo config-manager promote
+                    run-promotion. Will be removed in 5.0.0.
 
 
 Run without a sub-command to enter interactive mode."
