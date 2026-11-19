@@ -28,7 +28,8 @@ import {
  * (options of the configuration commands). The first block checks the rules on
  * hand-built commands (a seeded defect for each rule); the second reads the
  * real command tree and the real files, without a build: the rows of the
- * commands that have been renamed (C4a: the pull commands), that each command
+ * commands that have been renamed (C4a: the pull commands, C4b: the push
+ * commands), that each command
  * declares exactly those options, that every spelling parses to the attribute
  * of its option, that a selector is never mandatory and never in a one-of
  * group (so that no picker is needed), that MIGRATION.md lists each command and
@@ -583,6 +584,69 @@ describe('findOldSpellingProblems', () => {
     );
   });
 
+  describe('the record header lines', () => {
+    const header = (
+      args,
+      flags = 'FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_TEST_NAME=0_n_D'
+    ) => `${flags} frodo config-manager pull journeys ${args}`;
+
+    it('accepts a header line that types the new spelling, and counts it', () => {
+      const { problems, checked } = findOldSpellingProblems(
+        [file([header('-i Login -D testDir1')])],
+        [ROW_I],
+        []
+      );
+
+      expect(problems).toEqual([]);
+      expect(checked.headerLines).toBe(1);
+    });
+
+    it.each([
+      ['-n', '-n Login -D testDir1'],
+      ['--name', '--name Login'],
+      ['-n at the end of a cluster', '-Dn dir Login'],
+    ])(
+      'fails a header line that types %s while the CMD line types the new spelling',
+      (_label, args) => {
+        const { problems } = findOldSpellingProblems(
+          [file([header(args), cmd('-i Login -D ${dirName}')])],
+          [ROW_I],
+          []
+        );
+
+        expect(problems).toHaveLength(1);
+        expect(problems[0]).toContain('the record line types');
+        expect(problems[0]).toContain('--journey-id');
+      }
+    );
+
+    it('leaves the header line of a command that the file keeps on purpose, and a line that is no record line, and a command with a name of its own', () => {
+      const entry = {
+        file: 'config-manager-pull-journeys.e2e.test.js',
+        cmd: 'frodo config-manager pull journeys -n Login',
+        why: 'covers the alias',
+      };
+      const lines = [
+        header('-n Login -D testDir1'),
+        cmd('-n Login'),
+        '// frodo config-manager pull journeys -n Login',
+        'FRODO_MOCK=record frodo config-manager pull applications -n Zion',
+      ];
+
+      const kept = findOldSpellingProblems(
+        [file(lines)],
+        [ROW_I, ROW_N],
+        [entry]
+      );
+      expect(kept.problems).toEqual([]);
+      expect(kept.checked.headerLines).toBe(1);
+
+      // without the entry the header line fails as well as the CMD line
+      const not = findOldSpellingProblems([file(lines)], [ROW_I, ROW_N], []);
+      expect(not.problems).toHaveLength(2);
+    });
+  });
+
   it('fails an entry without a reason', () => {
     const { problems } = findOldSpellingProblems(
       [file([cmd('-n Login')])],
@@ -600,6 +664,20 @@ describe('findOldSpellingProblems', () => {
     );
   });
 });
+
+/**
+ * The options with the letter of a selector that no row names: the two promote
+ * options, and the option that a command without a selector declared before
+ * the selectors and keeps (`push csp -n, --name`), each with its reason.
+ */
+const ALL_STRAYS = [
+  ...STRAY_SELECTOR_OPTIONS,
+  ...NO_SELECTOR_COMMANDS.filter((entry) => entry.ownOption).map((entry) => ({
+    command: entry.command,
+    long: entry.ownOption.long,
+    why: entry.ownOption.why,
+  })),
+];
 
 describe('the selectors of the configuration commands', () => {
   let groupLeaves;
@@ -631,40 +709,44 @@ describe('the selectors of the configuration commands', () => {
     ({ problems, checked } = findSelectorProblems({
       groupLeaves,
       rows: EXPECTED_SELECTORS,
-      strays: STRAY_SELECTOR_OPTIONS,
+      strays: ALL_STRAYS,
       pendingVerbs: PENDING_VERBS,
     }));
   }, 120000);
 
-  it('lists the commands that have been renamed: the 24 pull commands of C4a, and every row is a command', () => {
-    // a floor that grows with each step: 24 (pull), then the push and delete commands
-    expect(EXPECTED_SELECTORS.length).toBeGreaterThanOrEqual(24);
+  it('lists the commands that have been renamed: the 24 pull commands of C4a and the 25 push commands of C4b, and every row is a command', () => {
+    // a floor that grows with each step: 24 (pull), 49 (push), then the delete commands
+    expect(EXPECTED_SELECTORS.length).toBeGreaterThanOrEqual(49);
     expect(checked.rows).toBe(EXPECTED_SELECTORS.length);
     expect(checked.rowsMatched).toBe(EXPECTED_SELECTORS.length);
     expect(
       EXPECTED_SELECTORS.filter((row) => row.command.includes(' pull ')).length
     ).toBe(24);
+    expect(
+      EXPECTED_SELECTORS.filter((row) => row.command.includes(' push ')).length
+    ).toBe(25);
   });
 
   it('has the options of every row, and nothing else on -i and -n: one -i, a -n of its own only for a name that can change, the conflicts in both directions', () => {
     expect(problems.rows).toEqual([]);
-    // 6 commands have both options: applications, custom-nodes, internal-roles, iga-workflows, scripts, themes
-    expect(checked.pairs).toBe(6);
+    // 12 commands have both options: applications, custom-nodes, internal-roles, iga-workflows, scripts, themes, on pull and on push
+    expect(checked.pairs).toBe(12);
     // 20 commands have the alias (-n, --name on -i, or --name on -n)
     expect(checked.aliased).toBe(
       EXPECTED_SELECTORS.filter((row) => row.aliases.length > 0).length
     );
   });
 
-  it('knows every other -i and -n of the group: the two promote options, and the verbs that have no rows yet', () => {
+  it('knows every other -i and -n of the group: the two promote options, the option that push csp keeps, and the verbs that have no rows yet', () => {
     expect(problems.strays).toEqual([]);
     expect(problems.entries).toEqual([]);
-    expect(checked.strays).toBe(STRAY_SELECTOR_OPTIONS.length);
+    expect(ALL_STRAYS).toHaveLength(3);
+    expect(checked.strays).toBe(ALL_STRAYS.length);
     expect(checked.pendingVerbs).toBe(PENDING_VERBS.length);
   });
 
   it.each(NO_SELECTOR_COMMANDS.map((entry) => [entry.command, entry]))(
-    '%s takes no selector: no -i, no -n, no alias and no --<type>-id or --<type>-name option',
+    '%s takes no selector: no -i, no -n, no alias and no --<type>-id or --<type>-name option, except the option that the entry says it keeps',
     (name, entry) => {
       const leaf = groupLeaves.find((l) => l.name === name);
       // a command that selects nothing: its options are the ones of every command
@@ -685,20 +767,51 @@ describe('the selectors of the configuration commands', () => {
           (!known.has(o.long) &&
             /^--(?:[a-z]+-)*(?:id|name)$/.test(o.long ?? ''))
       );
-      expect(selectorLike.map((o) => o.long)).toEqual([]);
+      if (entry.ownOption) {
+        // the one option that the command declared before the selectors and keeps: with a reason, exactly as declared, and nothing else
+        expect(entry.ownOption.why).toMatch(/\S/);
+        expect(selectorLike.map((o) => [o.short, o.long, o.aliases])).toEqual([
+          [entry.ownOption.short, entry.ownOption.long, []],
+        ]);
+      } else {
+        expect(selectorLike.map((o) => o.long)).toEqual([]);
+      }
     }
   );
 
-  it('has no plain --name option on a command of a verb that has its rows', () => {
+  it('lists push csp and push terms-and-conditions as commands without a selector, and no row names them', () => {
+    const names = NO_SELECTOR_COMMANDS.map((entry) => entry.command);
+
+    expect(names).toEqual(
+      expect.arrayContaining([
+        'frodo config-manager push csp',
+        'frodo config-manager push terms-and-conditions',
+      ])
+    );
+    expect(
+      EXPECTED_SELECTORS.filter((row) => names.includes(row.command))
+    ).toEqual([]);
+    // push csp keeps the -n it declared; push terms-and-conditions never had one
+    expect(
+      NO_SELECTOR_COMMANDS.filter((entry) => entry.ownOption).map(
+        (entry) => entry.command
+      )
+    ).toEqual(['frodo config-manager push csp']);
+  });
+
+  it('has no plain --name option on a command of a verb that has its rows, except the one that push csp keeps', () => {
     const done = new Set(
       EXPECTED_SELECTORS.map((row) => row.command.split(' ')[2])
     );
+    const kept = NO_SELECTOR_COMMANDS.filter(
+      (entry) => entry.ownOption?.long === '--name'
+    ).map((entry) => entry.command);
     const plain = groupLeaves
       .filter((l) => done.has(l.name.split(' ')[2]))
       .filter((l) => l.options.some((o) => o.long === '--name'))
       .map((l) => l.name);
 
-    expect(plain).toEqual([]);
+    expect(plain).toEqual(kept);
   });
 
   describe('the spellings', () => {
@@ -835,7 +948,7 @@ describe('the selectors of the configuration commands', () => {
 
     it('rejects -i with -n on a command with a name that can change, before anything runs', () => {
       const rows = EXPECTED_SELECTORS.filter((row) => row.name !== null);
-      expect(rows.length).toBe(6);
+      expect(rows.length).toBe(12);
       for (const row of rows) {
         const fresh = new Command('x').exitOverride();
         fresh.configureOutput({ writeErr: () => {}, writeOut: () => {} });
