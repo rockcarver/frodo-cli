@@ -1,0 +1,133 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`frodo config-manager delete journeys "frodo config-manager delete journeys --dry-run -m forgeops": should print a dry-run message deleting all journeys across all realms" 1`] = `""`;
+
+exports[`frodo config-manager delete journeys "frodo config-manager delete journeys --dry-run -m forgeops": should print a dry-run message deleting all journeys across all realms" 2`] = `
+"Experimental feature in use: 'frodo config-manager delete journeys'. This feature may change without notice.
+Dry run: Deleting journey Agent in realm /.
+Dry run: Deleting journey amsterService in realm /.
+Dry run: Deleting journey ForgottenUsername in realm /.
+Dry run: Deleting journey InnerTest in realm /.
+Dry run: Deleting journey ldapService in realm /.
+Dry run: Deleting journey Login in realm /.
+Dry run: Deleting journey ProgressiveProfile in realm /.
+Dry run: Deleting journey Registration in realm /.
+Dry run: Deleting journey ResetPassword in realm /.
+Dry run: Deleting journey Test in realm /.
+Dry run: Deleting journey UpdatePassword in realm /.
+Cleanup orphaned nodes
+✔ 62 total nodes
+✔ 61 active nodes
+✔ 1 orphaned nodes
+✔ Removed 1 orphaned nodes.
+Dry run: Deleting orphan node 939ed48c-ba4e-49bc-b97b-bf65589fb76e of type InnerTreeEvaluatorNode version undefined.
+Dry run: Deleting journey Agent in realm alpha.
+Dry run: Deleting journey amsterService in realm alpha.
+Dry run: Deleting journey ForgottenUsername in realm alpha.
+Dry run: Deleting journey ldapService in realm alpha.
+Dry run: Deleting journey Login in realm alpha.
+Dry run: Deleting journey ProgressiveProfile in realm alpha.
+Dry run: Deleting journey Registration in realm alpha.
+Dry run: Deleting journey ResetPassword in realm alpha.
+Dry run: Deleting journey Test in realm alpha.
+Dry run: Deleting journey UpdatePassword in realm alpha.
+Cleanup orphaned nodes
+✔ 56 total nodes
+✔ 56 active nodes
+✔ 0 orphaned nodes
+✔ Removed 0 orphaned nodes.
+Dry run: Deleting journey Agent in realm bravo.
+Dry run: Deleting journey amsterService in realm bravo.
+Dry run: Deleting journey ForgottenUsername in realm bravo.
+Dry run: Deleting journey ldapService in realm bravo.
+Dry run: Deleting journey Login in realm bravo.
+Dry run: Deleting journey ProgressiveProfile in realm bravo.
+Dry run: Deleting journey Registration in realm bravo.
+Dry run: Deleting journey ResetPassword in realm bravo.
+Dry run: Deleting journey Test in realm bravo.
+Dry run: Deleting journey UpdatePassword in realm bravo.
+Cleanup orphaned nodes
+✔ 56 total nodes
+✔ 56 active nodes
+✔ 0 orphaned nodes
+✔ Removed 0 orphaned nodes.
+--- Journey and Nodes Deletion Summary ---
+Journeys deleted: 31
+Nodes deleted: 173
+Orphan Nodes deleted: 1
+"
+`;
+
+exports[`frodo config-manager delete journeys "frodo config-manager delete journeys -d -n Test -m forgeops": should print a dry-run message deleting a specific journey by name in a specific realm" 1`] = `""`;
+
+exports[`frodo config-manager delete journeys "frodo config-manager delete journeys -d -n Test -m forgeops": should print a dry-run message deleting a specific journey by name in a specific realm" 2`] = `
+"Experimental feature in use: 'frodo config-manager delete journeys'. This feature may change without notice.
+Dry run: Deleting journey Test in realm alpha.
+"
+`;
+
+exports[`frodo config-manager delete journeys "frodo config-manager delete journeys -n Test -m forgeops": should delete a specific journey by name in a specific realm" 1`] = `""`;
+
+exports[`frodo config-manager delete journeys "frodo config-manager delete journeys -n Test -m forgeops": should delete a specific journey by name in a specific realm" 2`] = `
+"Experimental feature in use: 'frodo config-manager delete journeys'. This feature may change without notice.
+Deleting journey Test in realm alpha.
+"
+`;
+
+exports[`frodo config-manager delete journeys "frodo config-manager delete journeys -y -m forgeops": should delete all journeys across every realm" 1`] = `
+"Experimental feature in use: 'frodo config-manager delete journeys'. This feature may change without notice.
+• Deleted 2/11 / realm journeys.
+Failed to delete journey ResetPassword in realm '/'.
+Failed to delete journey Agent in realm '/'.
+Deleting journey InnerTest in realm /.
+Failed to delete journey amsterService in realm '/'.
+Deleting journey Test in realm /.
+Failed to delete journey Registration in realm '/'.
+Failed to delete journey ProgressiveProfile in realm '/'.
+Failed to delete journey ldapService in realm '/'.
+Failed to delete journey ForgottenUsername in realm '/'.
+Failed to delete journey UpdatePassword in realm '/'.
+Failed to delete journey Login in realm '/'.
+Cleanup orphaned nodes
+✔ 51 total nodes
+✔ 51 active nodes
+✔ 0 orphaned nodes
+✔ Removed 0 orphaned nodes.
+• Deleted 10/10 alpha realm journeys.
+Deleting journey ResetPassword in realm alpha.
+Deleting journey Agent in realm alpha.
+Deleting journey amsterService in realm alpha.
+Deleting journey Test in realm alpha.
+Deleting journey Registration in realm alpha.
+Deleting journey ProgressiveProfile in realm alpha.
+Deleting journey ldapService in realm alpha.
+Deleting journey ForgottenUsername in realm alpha.
+Deleting journey UpdatePassword in realm alpha.
+Deleting journey Login in realm alpha.
+Cleanup orphaned nodes
+✔ 0 total nodes
+✔ 0 active nodes
+✔ 0 orphaned nodes
+✔ Removed 0 orphaned nodes.
+• Deleted 10/10 bravo realm journeys.
+Deleting journey ResetPassword in realm bravo.
+Deleting journey Agent in realm bravo.
+Deleting journey amsterService in realm bravo.
+Deleting journey Test in realm bravo.
+Deleting journey Registration in realm bravo.
+Deleting journey ProgressiveProfile in realm bravo.
+Deleting journey ldapService in realm bravo.
+Deleting journey ForgottenUsername in realm bravo.
+Deleting journey UpdatePassword in realm bravo.
+Deleting journey Login in realm bravo.
+Cleanup orphaned nodes
+✔ 0 total nodes
+✔ 0 active nodes
+✔ 0 orphaned nodes
+✔ Removed 0 orphaned nodes.
+1 of 3 realms failed:
+  - /: Failed to delete journey ResetPassword in realm '/'.
+"
+`;
+
+exports[`frodo config-manager delete journeys "frodo config-manager delete journeys -y -m forgeops": should delete all journeys across every realm" 2`] = `1`;

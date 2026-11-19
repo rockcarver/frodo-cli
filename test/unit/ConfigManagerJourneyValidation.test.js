@@ -2,6 +2,9 @@ import fs from 'fs';
 import os from 'os';
 import path from 'path';
 import { jest } from '@jest/globals';
+import {
+  FrodoError,
+} from '../utils/LibErrorShapes.js';
 
 let workingDirectory;
 let currentRealm;
@@ -21,6 +24,9 @@ jest.unstable_mockModule('@rockcarver/frodo-lib', () => ({
         exportJourneys: jest.fn(),
         importJourneys,
       },
+      node: {
+        findOrphanedNodes: () => []
+      }
     },
     script: { exportScript: jest.fn() },
     utils: {
@@ -40,6 +46,7 @@ jest.unstable_mockModule('@rockcarver/frodo-lib', () => ({
       currentRealm = realm;
     },
   },
+  FrodoError
 }));
 
 jest.unstable_mockModule('../../src/utils/Config', () => ({
