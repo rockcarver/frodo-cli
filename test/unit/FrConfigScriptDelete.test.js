@@ -297,6 +297,8 @@ describe('one script by id', () => {
 
     expect(deletedIds).toEqual([]);
     expect(messages(undefined).join('\n')).toContain('Dry run: Deleting script Mine (id-Mine) in realm /alpha');
+    // one named script is not counted by type: the summary is for the preview of many
+    expect(messages(undefined).join('\n')).not.toContain('Scripts Deletion Summary');
   });
 
   test('a script that cannot be deleted fails the command, and the id is in the summary', async () => {

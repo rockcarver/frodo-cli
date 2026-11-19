@@ -6,7 +6,8 @@ import { EXPECTED_SELECTORS } from './ConfigManagerSelectorRows.js';
  * The delete guard and the wiring of the selectors of the `config-manager
  * delete` commands, for every row of the selectors: the action of each command
  * runs with the selector typed in every spelling, and the REAL bulk-delete
- * guard (cli record 0037:
+ * guard (a command that can delete more than the one object it names asks
+ * first:
  * https://github.com/rockcarver/frodo-cli/blob/main/docs/decisions/0037-a-command-that-can-delete-more-than-the-one-object-it-names-asks-first.md)
  * decides, with no terminal and no -y:
  *
@@ -382,23 +383,39 @@ describe('the delete commands: an empty selector is refused before anything, a b
     }
   );
 
+  /** The commands that check a value of blanks themselves: they say so in their own words and go no further. */
+  const REFUSES_BLANKS = new Set([
+    'secrets',
+    'oauth-cimd-profiles',
+    'oauth-issuers',
+    'oauth-software-publishers',
+    'locales',
+    'schedules',
+    'secret-mappings',
+    'telemetry',
+  ]);
+
   it.each(deleteRows.map((row) => [typeOf(row), row]))(
-    '%s: a value of blanks is never "all": the command refuses it, or the ops function gets the blanks as the one thing to delete',
-    async (type, row) => {
+    '%s: a value of blanks is never "all": the command refuses it in its own words, or the ops function gets the blanks as the one thing to delete',
+    async (type) => {
       const { id } = WIRING[type];
 
       const call = await run(type, ['-i', '  ', '-y']);
 
-      if (call !== undefined) {
-        expect(call[id]).toBe('  ');
-      } else {
+      if (REFUSES_BLANKS.has(type)) {
+        // refused before the login and before the ops function, with the exit code 1
+        expect(call).toBeUndefined();
+        expect(getTokens).not.toHaveBeenCalled();
         expect(process.exitCode).toBe(1);
         expect(printMessage).toHaveBeenCalledWith(
           expect.stringContaining('must not be empty'),
           'error'
         );
+        expect(refusals()).toHaveLength(0);
+      } else {
+        // the blanks name one object, which the ops function does not find: never all
+        expect(call?.[id]).toBe('  ');
       }
-      expect(row.id).toBeDefined();
     }
   );
 

@@ -893,6 +893,8 @@ describe('one application by id', () => {
     expect(outcome).toBe(false);
     expect(order()).toEqual([]);
     expect(output()).toContain('frodo app disable -n "Zion Portal"');
+    // the refusal names the connector that is active, as the refusal by name does
+    expect(output()).toContain('ZionDirectory');
   });
 
   test('the dry run sends no delete and shows the plan of that one application', async () => {
