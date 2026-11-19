@@ -118,25 +118,28 @@ describe('frodo config-manager delete locales', () => {
   });
 
   test('logs in for Cloud and ForgeOps', async () => {
-    await run('-n', 'en');
+    await run('-i', 'en');
 
     expect(getTokens).toHaveBeenCalledWith(false, true, ['cloud', 'forgeops']);
   });
 
-  test('its help says what happens without -n, and its examples never open a prompt', async () => {
+  test('its help says what happens without -i, and its examples never open a prompt', async () => {
     const program = setup();
     let help = '';
     program.configureOutput({ writeOut: (text) => (help += text) });
     program.outputHelp();
 
-    expect(help).toContain('If omitted, all locales are deleted');
+    // the help wraps its lines
+    expect(help.replace(/\s+/g, ' ')).toContain(
+      'If omitted, all locales are deleted'
+    );
     expect(help).not.toMatch(/eligible/i);
     const examples = help
       .split('\n')
       .filter((line) => line.includes('$ frodo config-manager delete locales'));
     expect(examples).toHaveLength(4);
     // every example that can delete more than one locale carries -y or -d
-    for (const example of examples.filter((line) => !/ -n /.test(line))) {
+    for (const example of examples.filter((line) => !/ -i /.test(line))) {
       expect(example).toMatch(/ -[yd] /);
     }
   });
@@ -264,9 +267,9 @@ describe('deleting all locales', () => {
   });
 });
 
-describe('deleting one locale by name', () => {
+describe('deleting one locale by id', () => {
   test('is deleted without a check and without a question', async () => {
-    await run('-n', 'en', 'matrix');
+    await run('-i', 'en', 'matrix');
 
     expect(checkBulkDelete).not.toHaveBeenCalled();
     expect(confirmBulkDelete).not.toHaveBeenCalled();
@@ -280,7 +283,7 @@ describe('deleting one locale by name', () => {
   });
 
   test('the dry run and --allow-failures reach the ops function', async () => {
-    await run('-n', 'en', '-d', '--allow-failures', 'matrix');
+    await run('-i', 'en', '-d', '--allow-failures', 'matrix');
 
     expect(configManagerDeleteLocales).toHaveBeenCalledWith('en', true, true);
   });
@@ -288,7 +291,7 @@ describe('deleting one locale by name', () => {
   test('a failed login exits 1 and deletes nothing', async () => {
     getTokens.mockResolvedValue(false);
 
-    await run('-n', 'en', 'matrix');
+    await run('-i', 'en', 'matrix');
 
     expect(configManagerDeleteLocales).not.toHaveBeenCalled();
     expect(process.exitCode).toBe(1);
@@ -297,20 +300,20 @@ describe('deleting one locale by name', () => {
   test('a delete that fails, or a locale that is not there, exits 1', async () => {
     configManagerDeleteLocales.mockResolvedValue(false);
 
-    await run('-n', 'en', 'matrix');
+    await run('-i', 'en', 'matrix');
 
     expect(process.exitCode).toBe(1);
   });
 });
 
-describe('an empty name is not "all locales"', () => {
-  test.each([[''], ['  ']])(
-    'the name %j is an error before the check, the login and the delete',
+describe('a blank id is not "all locales"', () => {
+  test.each([['  ']])(
+    'the id %j is an error before the check, the login and the delete',
     async (name) => {
-      await run('-n', name, '-y', 'matrix');
+      await run('-i', name, '-y', 'matrix');
 
       expect(printMessage).toHaveBeenCalledWith(
-        'The locale name (-n) must not be empty. To delete all locales, leave out -n.',
+        'The locale id (-i) must not be empty. To delete all locales, leave out -i.',
         'error'
       );
       expect(events).toEqual([]);
@@ -322,17 +325,16 @@ describe('an empty name is not "all locales"', () => {
     }
   );
 
-  test('also in a dry run, and as --name=', async () => {
-    await run('-n', '', '-d', 'matrix');
-    await run('--name=', 'matrix');
+  test('also in a dry run', async () => {
+    await run('-i', '  ', '-d', 'matrix');
 
     expect(configManagerDeleteLocales).not.toHaveBeenCalled();
     expect(getTokens).not.toHaveBeenCalled();
     expect(process.exitCode).toBe(1);
   });
 
-  test('a name that is given is never taken for a delete of all locales', async () => {
-    await run('-n', 'en', 'matrix');
+  test('an id that is given is never taken for a delete of all locales', async () => {
+    await run('-i', 'en', 'matrix');
 
     expect(checkBulkDelete).not.toHaveBeenCalled();
     expect(confirmBulkDelete).not.toHaveBeenCalled();

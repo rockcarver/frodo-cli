@@ -29,7 +29,7 @@ import {
  * hand-built commands (a seeded defect for each rule); the second reads the
  * real command tree and the real files, without a build: the rows of the
  * commands that have been renamed (C4a: the pull commands, C4b: the push
- * commands), that each command
+ * commands, C4c: the delete commands), that each command
  * declares exactly those options, that every spelling parses to the attribute
  * of its option, that a selector is never mandatory and never in a one-of
  * group (so that no picker is needed), that MIGRATION.md lists each command and
@@ -471,6 +471,17 @@ describe('findSelectorMigrationProblems', () => {
     expect(checked.rows).toBe(2);
   });
 
+  it('accepts a word in the third cell for a command that had no --name, and counts it', () => {
+    const row = { ...ROW_I, aliases: [] };
+    const { problems, checked } = findSelectorMigrationProblems(
+      '| `pull journeys` | `-i, --journey-id` | new |',
+      [row]
+    );
+
+    expect(problems).toEqual([]);
+    expect(checked.rows).toBe(1);
+  });
+
   it('fails a command that is not listed, naming it', () => {
     const { problems } = findSelectorMigrationProblems(
       table.replace('`pull journeys`', '`pull journey`'),
@@ -478,21 +489,82 @@ describe('findSelectorMigrationProblems', () => {
     );
 
     expect(problems).toEqual([
-      'frodo config-manager pull journeys :: MIGRATION.md has no line with `pull journeys` and `-i, --journey-id`: add the command to the table of the selectors',
+      'frodo config-manager pull journeys :: MIGRATION.md has no table row of three cells for `pull journeys`: add the command to the table of the selectors',
     ]);
   });
 
-  it('fails a line that lacks the name option, or an alias spelling', () => {
+  it('does not count a sentence of the prose that names the command and its options: the table row is what is checked', () => {
+    // the sentence holds everything the old check looked for, the row is gone
+    const prose =
+      'text\n`pull journeys` takes `-i, --journey-id` for the first time, and `-n`, `--name` keep working.\n';
+    const { problems } = findSelectorMigrationProblems(
+      prose + table.split('\n')[1],
+      [ROW_I]
+    );
+
+    expect(problems).toEqual([
+      'frodo config-manager pull journeys :: MIGRATION.md has no table row of three cells for `pull journeys`: add the command to the table of the selectors',
+    ]);
+  });
+
+  it('does not count a row of another table that has another shape (two or four cells)', () => {
+    const { problems } = findSelectorMigrationProblems(
+      [
+        '| `pull journeys` | `-i, --journey-id` |',
+        '| `pull journeys` | `-i, --journey-id` | `-n`, `--name` | extra |',
+      ].join('\n'),
+      [ROW_I]
+    );
+
+    expect(problems).toHaveLength(1);
+    expect(problems[0]).toMatch(/no table row of three cells/);
+  });
+
+  it('fails a second cell that is not exactly the options of the row: the name option left out, one that is not the row\'s, or an extra one', () => {
     expect(
       findSelectorMigrationProblems(table.replace(', `-n, --app-name`', ''), [
         ROW_N,
-      ]).problems[0]
-    ).toMatch(/does not hold `-n, --app-name`/);
+      ]).problems
+    ).toEqual([
+      'frodo config-manager pull applications :: the row of MIGRATION.md says `-i, --app-id` in its second cell, expected `-i, --app-id`, `-n, --app-name`',
+    ]);
+    expect(
+      findSelectorMigrationProblems(
+        table.replace('`-i, --journey-id`', '`-i, --journey-name`'),
+        [ROW_I]
+      ).problems[0]
+    ).toMatch(/says `-i, --journey-name` in its second cell/);
+    expect(
+      findSelectorMigrationProblems(
+        table.replace('`-i, --journey-id`', '`-i, --journey-id`, `-n, --x`'),
+        [ROW_I]
+      ).problems[0]
+    ).toMatch(/in its second cell, expected `-i, --journey-id`$/);
+  });
+
+  it('fails a third cell that lacks an alias spelling, or is empty', () => {
     expect(
       findSelectorMigrationProblems(table.replace('`-n`, `--name`', '`-n`'), [
         ROW_I,
       ]).problems[0]
-    ).toMatch(/does not hold `--name`/);
+    ).toMatch(/does not hold `--name` in its third cell/);
+    expect(
+      findSelectorMigrationProblems(
+        '| `pull journeys` | `-i, --journey-id` |  |',
+        [{ ...ROW_I, aliases: [] }]
+      ).problems[0]
+    ).toMatch(/third cell .* is empty/);
+  });
+
+  it('fails a command that has two rows', () => {
+    const { problems } = findSelectorMigrationProblems(
+      `${table}\n${table.split('\n')[0]}`,
+      [ROW_I]
+    );
+
+    expect(problems).toEqual([
+      'frodo config-manager pull journeys :: MIGRATION.md has 2 table rows for `pull journeys`: one row for each command',
+    ]);
   });
 
   it('throws on a text that is empty', () => {
@@ -714,9 +786,9 @@ describe('the selectors of the configuration commands', () => {
     }));
   }, 120000);
 
-  it('lists the commands that have been renamed: the 24 pull commands of C4a and the 25 push commands of C4b, and every row is a command', () => {
-    // a floor that grows with each step: 24 (pull), 49 (push), then the delete commands
-    expect(EXPECTED_SELECTORS.length).toBeGreaterThanOrEqual(49);
+  it('lists the commands that have been renamed: the 24 pull commands of C4a, the 25 push commands of C4b and the 16 delete commands of C4c, and every row is a command', () => {
+    // a floor that grew with each step: 24 (pull), 49 (push), 65 (delete)
+    expect(EXPECTED_SELECTORS.length).toBeGreaterThanOrEqual(65);
     expect(checked.rows).toBe(EXPECTED_SELECTORS.length);
     expect(checked.rowsMatched).toBe(EXPECTED_SELECTORS.length);
     expect(
@@ -725,19 +797,23 @@ describe('the selectors of the configuration commands', () => {
     expect(
       EXPECTED_SELECTORS.filter((row) => row.command.includes(' push ')).length
     ).toBe(25);
+    expect(
+      EXPECTED_SELECTORS.filter((row) => row.command.includes(' delete '))
+        .length
+    ).toBe(16);
   });
 
   it('has the options of every row, and nothing else on -i and -n: one -i, a -n of its own only for a name that can change, the conflicts in both directions', () => {
     expect(problems.rows).toEqual([]);
-    // 12 commands have both options: applications, custom-nodes, internal-roles, iga-workflows, scripts, themes, on pull and on push
-    expect(checked.pairs).toBe(12);
+    // 16 commands have both options: applications, custom-nodes, internal-roles, iga-workflows, scripts, themes, on pull and on push, and applications, custom-nodes, scripts, themes on delete
+    expect(checked.pairs).toBe(16);
     // 20 commands have the alias (-n, --name on -i, or --name on -n)
     expect(checked.aliased).toBe(
       EXPECTED_SELECTORS.filter((row) => row.aliases.length > 0).length
     );
   });
 
-  it('knows every other -i and -n of the group: the two promote options, the option that push csp keeps, and the verbs that have no rows yet', () => {
+  it('knows every other -i and -n of the group: the two promote options and the option that push csp keeps, and no verb is pending any more', () => {
     expect(problems.strays).toEqual([]);
     expect(problems.entries).toEqual([]);
     expect(ALL_STRAYS).toHaveLength(3);
@@ -935,6 +1011,46 @@ describe('the selectors of the configuration commands', () => {
       expect(parse(name, ['-p', 'a', '--prefix=b']).prefix).toEqual(['a', 'b']);
     });
 
+    it('refuses an empty prefix of delete scripts, which would match every script, and takes repeated prefixes; -i and -p cannot be combined', () => {
+      const name = 'frodo config-manager delete scripts';
+
+      for (const args of [['-p', ''], ['--prefix', ''], ['--prefix=']]) {
+        const error = failure(name, args);
+
+        expect([args.join(' '), error?.code, error?.exitCode]).toEqual([
+          args.join(' '),
+          'commander.invalidArgument',
+          1,
+        ]);
+        expect(error.message).toContain("option '-p, --prefix <prefix>'");
+        expect(error.message).toContain(
+          'An empty value never selects all objects'
+        );
+      }
+      expect(failure(name, ['-p', 'a', '-p', ''])).toBeDefined();
+      expect(failure(name, ['-p', 'a'])).toBeUndefined();
+      expect(parse(name, ['-p', 'a', '--prefix=b']).prefix).toEqual(['a', 'b']);
+      // a new selector next to a prefix would leave the prefix silently unused
+      expect(failure(name, ['-i', 'a', '-p', 'b'])?.message).toMatch(
+        /cannot be used with option/
+      );
+      expect(failure(name, ['-p', 'b', '-i', 'a'])?.message).toMatch(
+        /cannot be used with option/
+      );
+      // -n with a prefix is accepted as it always was (the prefix is ignored)
+      expect(failure(name, ['-n', 'a', '-p', 'b'])).toBeUndefined();
+    });
+
+    it('declares the conflict of -i and -p of delete scripts on both options, as the record on mutually exclusive options asks', () => {
+      const options = commands.get('frodo config-manager delete scripts').options;
+      const conflictsOf = (long) =>
+        [...(options.find((option) => option.long === long)?.conflictsWith ?? [])].sort();
+
+      expect(conflictsOf('--script-id')).toEqual(['prefix', 'scriptName']);
+      expect(conflictsOf('--script-name')).toEqual(['scriptId']);
+      expect(conflictsOf('--prefix')).toEqual(['scriptId']);
+    });
+
     it('refuses an empty -n of push csp, which would write both policies, and still takes a policy name as it did', () => {
       const name = 'frodo config-manager push csp';
 
@@ -972,7 +1088,7 @@ describe('the selectors of the configuration commands', () => {
 
     it('rejects -i with -n on a command with a name that can change, before anything runs', () => {
       const rows = EXPECTED_SELECTORS.filter((row) => row.name !== null);
-      expect(rows.length).toBe(12);
+      expect(rows.length).toBe(16);
       for (const row of rows) {
         const fresh = new Command('x').exitOverride();
         fresh.configureOutput({ writeErr: () => {}, writeOut: () => {} });

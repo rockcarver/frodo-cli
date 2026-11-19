@@ -129,18 +129,18 @@ describe('frodo config-manager delete oauth-cimd-profiles', () => {
   });
 
   test('logs in without a list of deployment types', async () => {
-    await run('-n', 'zion-agents');
+    await run('-i', 'zion-agents');
 
     expect(getTokens).toHaveBeenCalledWith();
   });
 
-  test('has -n, -d, --dry-run and -y, and no mandatory option', async () => {
+  test('has -i, -d, --dry-run and -y, and no mandatory option', async () => {
     const program = await run('-y');
     const flags = program.options.map((option) => option.flags);
 
     expect(flags).toEqual(
       expect.arrayContaining([
-        '-n, --name <name>',
+        '-i, --profile-id <id>',
         '-d, --dry-run',
         '-y, --yes',
         '--allow-failures',
@@ -264,9 +264,9 @@ describe('deleting all CIMD profiles', () => {
   });
 });
 
-describe('deleting one CIMD profile by name', () => {
+describe('deleting one CIMD profile by id', () => {
   test('is deleted without a check and without a question', async () => {
-    await run('-n', 'zion-agents', 'matrix', 'alpha');
+    await run('-i', 'zion-agents', 'matrix', 'alpha');
 
     expect(checkBulkDelete).not.toHaveBeenCalled();
     expect(confirmBulkDelete).not.toHaveBeenCalled();
@@ -282,7 +282,7 @@ describe('deleting one CIMD profile by name', () => {
 
   test('the dry run and --allow-failures reach the ops function', async () => {
     await run(
-      '-n',
+      '-i',
       'zion-agents',
       '--dry-run',
       '--allow-failures',
@@ -301,7 +301,7 @@ describe('deleting one CIMD profile by name', () => {
   test('a failed login exits 1 and deletes nothing', async () => {
     getTokens.mockResolvedValue(false);
 
-    await run('-n', 'zion-agents', 'matrix', 'alpha');
+    await run('-i', 'zion-agents', 'matrix', 'alpha');
 
     expect(configManagerDeleteCIMDProfiles).not.toHaveBeenCalled();
     expect(process.exitCode).toBe(1);
@@ -310,20 +310,20 @@ describe('deleting one CIMD profile by name', () => {
   test('a delete that fails, or a profile that is not there, exits 1', async () => {
     configManagerDeleteCIMDProfiles.mockResolvedValue(false);
 
-    await run('-n', 'zion-agents', 'matrix', 'alpha');
+    await run('-i', 'zion-agents', 'matrix', 'alpha');
 
     expect(process.exitCode).toBe(1);
   });
 });
 
-describe('an empty name is not "all CIMD profiles"', () => {
-  test.each([[''], ['  ']])(
-    'the name %j is an error before the check, the login and the delete',
+describe('a blank id is not "all CIMD profiles"', () => {
+  test.each([['  ']])(
+    'the id %j is an error before the check, the login and the delete',
     async (name) => {
-      await run('-n', name, '-y', 'matrix', 'alpha');
+      await run('-i', name, '-y', 'matrix', 'alpha');
 
       expect(printMessage).toHaveBeenCalledWith(
-        'The CIMD profile name must not be empty. To delete all CIMD profiles, leave out -n.',
+        'The CIMD profile id (-i) must not be empty. To delete all CIMD profiles, leave out -i.',
         'error'
       );
       expect(events).toEqual([]);

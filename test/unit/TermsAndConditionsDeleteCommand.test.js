@@ -203,7 +203,7 @@ describe('frodo config-manager delete terms-and-conditions', () => {
   });
 
   test('a named version is deleted without a check and without a question', async () => {
-    await run('-n', '0.1', 'matrix');
+    await run('-i', '0.1', 'matrix');
 
     expect(checkBulkDelete).not.toHaveBeenCalled();
     expect(confirmBulkDelete).not.toHaveBeenCalled();
@@ -215,16 +215,16 @@ describe('frodo config-manager delete terms-and-conditions', () => {
     );
   });
 
-  test('an empty name is not "all": nothing is asked, and the ops function gets the empty name and decides', async () => {
+  test('a blank version is not "all": nothing is asked, and the ops function gets the blank version and decides (an empty one is refused by the parser)', async () => {
     configManagerDeleteTermsAndConditions.mockResolvedValue(false);
 
-    await run('-n', '', 'matrix');
+    await run('-i', '  ', 'matrix');
 
     expect(checkBulkDelete).not.toHaveBeenCalled();
     expect(confirmBulkDelete).not.toHaveBeenCalled();
     expect(configManagerDeleteTermsAndConditions).toHaveBeenCalledTimes(1);
     expect(configManagerDeleteTermsAndConditions).toHaveBeenCalledWith(
-      '',
+      '  ',
       undefined,
       undefined
     );
@@ -232,7 +232,7 @@ describe('frodo config-manager delete terms-and-conditions', () => {
   });
 
   test('logs in for those deployment types', async () => {
-    await run('-n', '0.1', 'matrix');
+    await run('-i', '0.1', 'matrix');
 
     expect(getTokens).toHaveBeenCalledWith(false, true, ['cloud', 'forgeops']);
   });
@@ -250,7 +250,7 @@ describe('frodo config-manager delete terms-and-conditions', () => {
   test('a failed login exits 1 and deletes nothing', async () => {
     getTokens.mockResolvedValue(false);
 
-    await run('-n', '0.1', 'matrix');
+    await run('-i', '0.1', 'matrix');
 
     expect(configManagerDeleteTermsAndConditions).not.toHaveBeenCalled();
     expect(process.exitCode).toBe(1);
@@ -259,7 +259,7 @@ describe('frodo config-manager delete terms-and-conditions', () => {
   test('a delete that fails exits 1', async () => {
     configManagerDeleteTermsAndConditions.mockResolvedValue(false);
 
-    await run('-n', '0.1', 'matrix');
+    await run('-i', '0.1', 'matrix');
 
     expect(process.exitCode).toBe(1);
   });

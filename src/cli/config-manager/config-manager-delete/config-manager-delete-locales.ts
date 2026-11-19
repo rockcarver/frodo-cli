@@ -10,6 +10,7 @@ import {
 import c from '../../../utils/ColorTheme';
 import { printMessage, verboseMessage } from '../../../utils/Console';
 import { FrodoCommand } from '../../FrodoCommand';
+import { selectorOption } from '../../SelectorOption';
 
 const { CLOUD_DEPLOYMENT_TYPE_KEY, FORGEOPS_DEPLOYMENT_TYPE_KEY } =
   frodo.utils.constants;
@@ -29,9 +30,10 @@ export default function setup() {
   program
     .description('Delete locale objects.')
     .addOption(
-      new Option(
-        '-n, --name <name>',
-        'Locale name (for example en), matched exactly; delete only the specified locale. If omitted, all locales are deleted, after a confirmation or with -y.'
+      selectorOption(
+        '-i, --locale-id <id>',
+        'Locale id (for example en), matched exactly; delete only the specified locale. If omitted, all locales are deleted, after a confirmation or with -y.',
+        ['-n', '--name']
       )
     )
     .addOption(
@@ -40,7 +42,7 @@ export default function setup() {
     .addOption(
       new Option(
         '-y, --yes',
-        'Do not ask for confirmation before deleting more than one locale (no -n). Required without a terminal.'
+        'Do not ask for confirmation before deleting more than one locale (no -i). Required without a terminal.'
       )
     )
     .addHelpText(
@@ -50,13 +52,13 @@ export default function setup() {
         c.command(`  $ frodo config-manager delete locales -y ${s.connId}\n`) +
         `  Preview the deletion of all locales:\n` +
         c.command(`  $ frodo config-manager delete locales -d ${s.connId}\n`) +
-        `  Delete a locale by name:\n` +
+        `  Delete a locale by id:\n` +
         c.command(
-          `  $ frodo config-manager delete locales -n en ${s.connId}\n`
+          `  $ frodo config-manager delete locales -i en ${s.connId}\n`
         ) +
-        `  Preview deletion of a locale by name:\n` +
+        `  Preview deletion of a locale by id:\n` +
         c.command(
-          `  $ frodo config-manager delete locales -n en -d ${s.connId}\n`
+          `  $ frodo config-manager delete locales -i en -d ${s.connId}\n`
         )
     )
     .multiOp()
@@ -69,12 +71,13 @@ export default function setup() {
         options,
         command
       );
-      // an empty name must never mean "all": "not given" and "given but empty"
-      // are different (-n "$UNSET" gives an empty name)
-      const named = options.name !== undefined;
-      if (named && options.name.trim() === '') {
+      // an empty id must never mean "all": "not given" and "given but empty"
+      // are different (-i "$UNSET" gives an empty id); an empty value is
+      // refused while the command line is parsed, so this is a blank one
+      const named = options.localeId !== undefined;
+      if (named && options.localeId.trim() === '') {
         printMessage(
-          'The locale name (-n) must not be empty. To delete all locales, leave out -n.',
+          'The locale id (-i) must not be empty. To delete all locales, leave out -i.',
           'error'
         );
         process.exitCode = 1;
@@ -110,7 +113,7 @@ export default function setup() {
 
       verboseMessage('Deleting locales');
       const outcome = await configManagerDeleteLocales(
-        options.name,
+        options.localeId,
         options.dryRun,
         options.allowFailures
       );

@@ -405,6 +405,7 @@ export async function configManagerImportScripts(
  * @param {string} name Optional exact name of a script to delete.
  * @param {boolean} dryRun Preview matching scripts without deleting them. For unnamed previews, show counts by context.
  * @param {boolean} allowFailures True to succeed although some scripts could not be deleted (the failures are still summarised)
+ * @param {string} id Optional id (`_id`) of the one script to delete instead of a name (needs a single realm too, and the prefixes are ignored, as for a name). The id is looked for in the list of scripts that a delete of all reads, so no other request is made. An empty id selects nothing, so it is not found (the command refuses an empty value before it connects); an id that no script has fails the command, and so does the id of a default script.
  * @returns {Promise<boolean>} True if the operation succeeds, otherwise false. A script that cannot be deleted does not stop the others; the result is false if any failed, unless failures are allowed. A realm whose scripts cannot be read ends the run.
  */
 export async function configManagerDeleteScripts(
@@ -412,14 +413,22 @@ export async function configManagerDeleteScripts(
   realm?: string,
   name?: string,
   dryRun: boolean = false,
-  allowFailures: boolean = false
+  allowFailures: boolean = false,
+  id?: string
 ): Promise<boolean> {
   const run = new OperationRun({ unit: 'script', allowFailures });
+  // what the command line names: an id, or a name (an empty name means all scripts)
+  const selected = id ?? name;
+  const named = id !== undefined || !!name;
+  const selectedText = id !== undefined ? `id: ${id}` : `name: ${name}`;
   try {
     const realms =
       realm && realm !== DEFAULT_REALM_KEY ? [realm] : await realmList();
-    if (name && realms.length !== 1) {
-      printMessage('For a script name, specify a single realm.', 'error');
+    if (named && realms.length !== 1) {
+      printMessage(
+        `For a script ${id !== undefined ? 'id' : 'name'}, specify a single realm.`,
+        'error'
+      );
       return false;
     }
     const scriptCountsByContext = new Map<string, number>();
@@ -434,24 +443,26 @@ export async function configManagerDeleteScripts(
       state.setRealm(currentRealm);
       const scripts = await readScripts();
       const matching = scripts.filter((script) =>
-        name
-          ? script.name === name
-          : script.language === 'JAVASCRIPT' &&
-            (prefixes.length === 0 ||
-              prefixes.some((prefix) => script.name.startsWith(prefix)))
+        id !== undefined
+          ? script._id === id
+          : name
+            ? script.name === name
+            : script.language === 'JAVASCRIPT' &&
+              (prefixes.length === 0 ||
+                prefixes.some((prefix) => script.name.startsWith(prefix)))
       );
-      if (name && matching.length !== 1) {
+      if (named && matching.length !== 1) {
         printMessage(
           matching.length === 0
-            ? `No script found with name: ${name}`
-            : `Multiple scripts found with name: ${name}`,
+            ? `No script found with ${selectedText}`
+            : `Multiple scripts found with ${selectedText}`,
           'error'
         );
         return false;
       }
-      if (name && matching[0].default) {
+      if (named && matching[0].default) {
         printMessage(
-          `Script ${name} is a default script and cannot be deleted.`,
+          `Script ${selected} is a default script and cannot be deleted.`,
           'error'
         );
         return false;
@@ -483,7 +494,7 @@ export async function configManagerDeleteScripts(
     }
     if (eligible === 0) {
       printMessage('No scripts found to delete.');
-    } else if (dryRun && !name) {
+    } else if (dryRun && !named) {
       let summary = '--- Scripts Deletion Summary by Type ---';
       for (const [context, count] of scriptCountsByContext) {
         summary += `\n- ${context}: ${count}`;

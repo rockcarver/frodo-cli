@@ -10,6 +10,7 @@ import c from '../../../utils/ColorTheme';
 import { verboseMessage } from '../../../utils/Console';
 import { realmOfRun } from '../../../utils/interactive/PositionalArgs';
 import { FrodoCommand } from '../../FrodoCommand';
+import { selectorOption } from '../../SelectorOption';
 
 const { CLOUD_DEPLOYMENT_TYPE_KEY, FORGEOPS_DEPLOYMENT_TYPE_KEY } =
   frodo.utils.constants;
@@ -27,13 +28,25 @@ export default function setup() {
   );
   program
     .description(
-      'Delete themes by name or delete all themes in the selected realms.'
+      'Delete themes by id or by name, or delete all themes in the selected realms.'
     )
-    .option('-n, --name <name>', 'Name of the theme to delete.')
+    .addOption(
+      selectorOption(
+        '-i, --theme-id <id>',
+        'Id of the theme to delete. Cannot be used with -n.'
+      ).conflicts(['themeName'])
+    )
+    .addOption(
+      selectorOption(
+        '-n, --theme-name <name>',
+        'Name of the theme to delete. Cannot be used with -i.',
+        ['--name']
+      ).conflicts(['themeId'])
+    )
     .option('-d, --dry-run', 'Show which themes would be deleted.')
     .option(
       '-y, --yes',
-      'Do not ask for confirmation before deleting more than one theme (no -n). Required without a terminal.'
+      'Do not ask for confirmation before deleting more than one theme (no -i or -n). Required without a terminal.'
     )
     .addHelpText(
       'after',
@@ -49,6 +62,10 @@ export default function setup() {
         `  Preview deletion of a theme by name:\n` +
         c.command(
           `  $ frodo config-manager delete themes -n 'Example Theme' -d ${s.connId}\n`
+        ) +
+        `  Delete a theme by id:\n` +
+        c.command(
+          `  $ frodo config-manager delete themes -i a7f3c0de-2b41-4c1e-8d52-6e9b4a1c7f30 ${s.connId}\n`
         )
     )
     .multiOp()
@@ -63,10 +80,14 @@ export default function setup() {
         command
       );
 
-      // a run that nobody can be asked about is refused before the login
+      // a single theme (by id or by name) is deleted without a question, as for
+      // a command that can delete more than the one object it names (https://github.com/rockcarver/frodo-cli/blob/main/docs/decisions/0037-a-command-that-can-delete-more-than-the-one-object-it-names-asks-first.md); a run
+      // that nobody can be asked about is refused before the login
+      const named =
+        options.themeId !== undefined || options.themeName !== undefined;
       const what = 'all themes in the selected realms';
       if (
-        !options.name &&
+        !named &&
         !checkBulkDelete({ what, yes: options.yes, dryRun: options.dryRun })
       ) {
         process.exitCode = 1;
@@ -77,7 +98,7 @@ export default function setup() {
         return;
       }
       if (
-        !options.name &&
+        !named &&
         !(await confirmBulkDelete({
           what,
           yes: options.yes,
@@ -96,10 +117,11 @@ export default function setup() {
 
       verboseMessage('Deleting themes');
       const outcome = await configManagerDeleteThemes(
-        options.name,
+        options.themeName,
         realmOfRun(command, realm),
         options.dryRun,
-        options.allowFailures
+        options.allowFailures,
+        options.themeId
       );
       if (!outcome) process.exitCode = 1;
     });

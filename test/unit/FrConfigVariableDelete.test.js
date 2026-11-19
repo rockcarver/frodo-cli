@@ -508,7 +508,7 @@ describe('frodo config-manager delete variables (the command)', () => {
   });
 
   test('a variable named by its id is deleted without a check and without a question', async () => {
-    await run('-n', 'esv-bravo-two');
+    await run('-i', 'esv-bravo-two');
 
     expect(checkBulkDelete).not.toHaveBeenCalled();
     expect(confirmBulkDelete).not.toHaveBeenCalled();
@@ -518,7 +518,7 @@ describe('frodo config-manager delete variables (the command)', () => {
   });
 
   test('a variable that does not exist exits 1 and deletes nothing', async () => {
-    await run('-n', 'esv-matrix-missing');
+    await run('-i', 'esv-matrix-missing');
 
     expect(deleted()).toEqual([]);
     expect(messages('error')).toEqual([
@@ -527,8 +527,8 @@ describe('frodo config-manager delete variables (the command)', () => {
     expect(process.exitCode).toBe(1);
   });
 
-  test('an empty name is not "delete all": it is not asked about, deletes nothing and exits 1', async () => {
-    await run('-n', '');
+  test('a blank id is not "delete all": it is not asked about, deletes nothing and exits 1 (an empty one is refused by the parser)', async () => {
+    await run('-i', '  ');
 
     expect(checkBulkDelete).not.toHaveBeenCalled();
     expect(confirmBulkDelete).not.toHaveBeenCalled();
@@ -544,14 +544,14 @@ describe('frodo config-manager delete variables (the command)', () => {
     expect(process.exitCode).toBe(1);
 
     process.exitCode = undefined;
-    await run('-n', 'esv-bravo-two');
+    await run('-i', 'esv-bravo-two');
     expect(calls).toEqual([]);
     expect(process.exitCode).toBe(1);
     expect(confirmBulkDelete).not.toHaveBeenCalled();
   });
 
   test('logs in for Cloud only', async () => {
-    await run('-n', 'esv-bravo-two');
+    await run('-i', 'esv-bravo-two');
 
     expect(getTokens).toHaveBeenCalledWith(false, true, ['cloud']);
   });

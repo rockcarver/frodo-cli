@@ -5,7 +5,7 @@
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://nightly.gcp.forgeops.com/am FRODO_TEST_NAME=0_y_m frodo config-manager delete locales -y -m forgeops
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://nightly.gcp.forgeops.com/am FRODO_TEST_NAME=0_n_m frodo config-manager delete locales -n fr -m forgeops
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://nightly.gcp.forgeops.com/am FRODO_TEST_NAME=0_dry-run_m frodo config-manager delete locales --dry-run -m forgeops
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://nightly.gcp.forgeops.com/am FRODO_TEST_NAME=0_d_n_m frodo config-manager delete locales -d -n fr -m forgeops
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://nightly.gcp.forgeops.com/am FRODO_TEST_NAME=0_d_n_m frodo config-manager delete locales -d -i fr -m forgeops
 */
 
 import { getEnv, testSuccess } from './utils/TestUtils';
@@ -29,7 +29,7 @@ describe('frodo config-manager delete locales', () => {
         await testSuccess(CMD, { ...forgeopsEnv, env: { ...forgeopsEnv.env, FRODO_TEST_NAME: '0_dry-run_m' } });
     });
     test(`"frodo config-manager delete locales -d -n fr -m forgeops": should print a dryrun message for a specific locale by name in forgeops"`, async () => {
-        const CMD = `frodo config-manager delete locales -d -n fr -m forgeops`;
+        const CMD = `frodo config-manager delete locales -d -i fr -m forgeops`;
         await testSuccess(CMD, { ...forgeopsEnv, env: { ...forgeopsEnv.env, FRODO_TEST_NAME: '0_d_n_m' } });
     });
 });

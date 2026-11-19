@@ -10,6 +10,7 @@ import {
 import c from '../../../utils/ColorTheme';
 import { verboseMessage } from '../../../utils/Console';
 import { FrodoCommand } from '../../FrodoCommand';
+import { selectorOption } from '../../SelectorOption';
 
 const { CLOUD_DEPLOYMENT_TYPE_KEY } = frodo.utils.constants;
 
@@ -25,9 +26,10 @@ export default function setup() {
   program
     .description('Delete variables.')
     .addOption(
-      new Option(
-        '-n, --name <name>',
-        'Variable id, the whole id (for example esv-example); delete only that variable. If omitted, all variables are deleted.'
+      selectorOption(
+        '-i, --variable-id <id>',
+        'Variable id, the whole id (for example esv-example); delete only that variable. If omitted, all variables are deleted.',
+        ['-n', '--name']
       )
     )
     .addOption(
@@ -39,7 +41,7 @@ export default function setup() {
     .addOption(
       new Option(
         '-y, --yes',
-        'Do not ask for confirmation before deleting more than one variable (no -n). Required without a terminal.'
+        'Do not ask for confirmation before deleting more than one variable (no -i). Required without a terminal.'
       )
     )
     .addHelpText(
@@ -55,11 +57,11 @@ export default function setup() {
         ) +
         `  Delete a variable by its id:\n` +
         c.command(
-          `  $ frodo config-manager delete variables -n esv-example ${s.connId}\n`
+          `  $ frodo config-manager delete variables -i esv-example ${s.connId}\n`
         ) +
         `  Preview the deletion of a variable by its id:\n` +
         c.command(
-          `  $ frodo config-manager delete variables -n esv-example -d ${s.connId}\n`
+          `  $ frodo config-manager delete variables -i esv-example -d ${s.connId}\n`
         )
     )
     .multiOp()
@@ -72,9 +74,10 @@ export default function setup() {
         options,
         command
       );
-      // Deleting all variables is the form without a name; a name that is
-      // given but empty (an unset shell variable) is not "all".
-      const deletesAll = options.name === undefined;
+      // Deleting all variables is the form without an id; an id that is given
+      // but empty (an unset shell variable) is refused while the command line
+      // is parsed, so it is never "all".
+      const deletesAll = options.variableId === undefined;
       const what = 'all variables';
       // a run that nobody can be asked about is refused before the login
       if (
@@ -102,7 +105,7 @@ export default function setup() {
       }
       verboseMessage('Deleting variables');
       const outcome = await configManagerDeleteVariables(
-        options.name,
+        options.variableId,
         options.dryRun,
         options.allowFailures
       );

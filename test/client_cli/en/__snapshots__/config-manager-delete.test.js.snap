@@ -35,8 +35,8 @@ Commands:
                              exporters.
   terms-and-conditions       [Experimental] Delete terms and conditions
                              versions.
-  themes                     [Experimental] Delete themes by name or delete all
-                             themes in the selected realms.
+  themes                     [Experimental] Delete themes by id or by name, or
+                             delete all themes in the selected realms.
   variables                  [Experimental] [Cloud-only] Delete variables.
 
 Utilities:

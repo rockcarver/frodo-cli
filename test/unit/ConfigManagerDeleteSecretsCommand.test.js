@@ -124,7 +124,7 @@ describe('frodo config-manager delete secrets', () => {
   });
 
   test('logs in for Cloud only', async () => {
-    await run('-n', 'esv-example');
+    await run('-i', 'esv-example');
 
     expect(getTokens).toHaveBeenCalledWith(false, true, ['cloud']);
   });
@@ -238,9 +238,9 @@ describe('deleting all secrets', () => {
   });
 });
 
-describe('deleting one secret by name', () => {
+describe('deleting one secret by id', () => {
   test('is deleted without a check and without a question', async () => {
-    await run('-n', 'esv-example', 'matrix');
+    await run('-i', 'esv-example', 'matrix');
 
     expect(checkBulkDelete).not.toHaveBeenCalled();
     expect(confirmBulkDelete).not.toHaveBeenCalled();
@@ -254,7 +254,7 @@ describe('deleting one secret by name', () => {
   });
 
   test('the dry run and --allow-failures reach the ops function', async () => {
-    await run('-n', 'esv-example', '-d', '--allow-failures', 'matrix');
+    await run('-i', 'esv-example', '-d', '--allow-failures', 'matrix');
 
     expect(configManagerDeleteSecrets).toHaveBeenCalledWith(
       'esv-example',
@@ -266,7 +266,7 @@ describe('deleting one secret by name', () => {
   test('a failed login exits 1 and deletes nothing', async () => {
     getTokens.mockResolvedValue(false);
 
-    await run('-n', 'esv-example', 'matrix');
+    await run('-i', 'esv-example', 'matrix');
 
     expect(configManagerDeleteSecrets).not.toHaveBeenCalled();
     expect(process.exitCode).toBe(1);
@@ -275,20 +275,20 @@ describe('deleting one secret by name', () => {
   test('a delete that fails, or a secret that is not there, exits 1', async () => {
     configManagerDeleteSecrets.mockResolvedValue(false);
 
-    await run('-n', 'esv-example', 'matrix');
+    await run('-i', 'esv-example', 'matrix');
 
     expect(process.exitCode).toBe(1);
   });
 });
 
-describe('an empty name is not "all secrets"', () => {
-  test.each([[''], ['  ']])(
-    'the name %j is an error before the check, the login and the delete',
+describe('a blank id is not "all secrets"', () => {
+  test.each([['  ']])(
+    'the id %j is an error before the check, the login and the delete',
     async (name) => {
-      await run('-n', name, '-y', 'matrix');
+      await run('-i', name, '-y', 'matrix');
 
       expect(printMessage).toHaveBeenCalledWith(
-        'The secret name (-n) must not be empty. To delete all secrets, leave out -n.',
+        'The secret id (-i) must not be empty. To delete all secrets, leave out -i.',
         'error'
       );
       expect(events).toEqual([]);
@@ -301,14 +301,14 @@ describe('an empty name is not "all secrets"', () => {
   );
 
   test('also in a dry run', async () => {
-    await run('-n', '', '-d', 'matrix');
+    await run('-i', '  ', '-d', 'matrix');
 
     expect(configManagerDeleteSecrets).not.toHaveBeenCalled();
     expect(process.exitCode).toBe(1);
   });
 
-  test('a name that is given is never taken for a delete of all secrets', async () => {
-    await run('-n', 'esv-example', 'matrix');
+  test('an id that is given is never taken for a delete of all secrets', async () => {
+    await run('-i', 'esv-example', 'matrix');
 
     expect(checkBulkDelete).not.toHaveBeenCalled();
     expect(confirmBulkDelete).not.toHaveBeenCalled();

@@ -2,8 +2,8 @@
 
 /*
 // Cloud
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_TEST_NAME=0_dry-run_n frodo config-manager delete variables --dry-run -n esv-josh-delete-test
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_TEST_NAME=0_n frodo config-manager delete variables -n esv-josh-delete-test
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_TEST_NAME=0_dry-run_n frodo config-manager delete variables --dry-run -i esv-josh-delete-test
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_TEST_NAME=0_n frodo config-manager delete variables -i esv-josh-delete-test
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_TEST_NAME=0_d frodo config-manager delete variables -d
 */
 
@@ -20,11 +20,11 @@ const cloudEnv = getEnv(c);
 // (test/client_cli/en/config-manager-delete-guard.test.js) cover it.
 describe('Should delete variables from cloud', () => {
     test(`"frodo config-manager delete variables --dry-run -n esv-josh-delete-test": should print a dryrun message deleting by name from cloud."`, async () => {
-        const CMD = `frodo config-manager delete variables --dry-run -n esv-josh-delete-test`;
+        const CMD = `frodo config-manager delete variables --dry-run -i esv-josh-delete-test`;
         await testSuccess(CMD, { ...cloudEnv, env: { ...cloudEnv.env, FRODO_TEST_NAME: '0_dry-run_n' } });
     });
     test(`"frodo config-manager delete variables -n esv-josh-delete-test": should delete a specific variable by name from cloud."`, async () => {
-        const CMD = `frodo config-manager delete variables -n esv-josh-delete-test`;
+        const CMD = `frodo config-manager delete variables -i esv-josh-delete-test`;
         await testSuccess(CMD, { ...cloudEnv, env: { ...cloudEnv.env, FRODO_TEST_NAME: '0_n' } });
     });
     test(`"frodo config-manager delete variables -d": should print a dryrun message listing all variables from cloud."`, async () => {

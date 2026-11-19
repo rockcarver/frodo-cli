@@ -10,6 +10,7 @@ import {
 import c from '../../../utils/ColorTheme';
 import { printMessage, verboseMessage } from '../../../utils/Console';
 import { FrodoCommand } from '../../FrodoCommand';
+import { selectorOption } from '../../SelectorOption';
 
 const { CLOUD_DEPLOYMENT_TYPE_KEY } = frodo.utils.constants;
 
@@ -31,9 +32,10 @@ export default function setup() {
       ).choices(['otlp', 'splunk'])
     )
     .addOption(
-      new Option(
-        '-n, --name <name>',
-        'Name (id) of a single exporter to delete, matched exactly. Requires --category.'
+      selectorOption(
+        '-i, --exporter-id <id>',
+        'Id of a single exporter to delete, matched exactly. Requires --category.',
+        ['-n', '--name']
       )
     )
     .addOption(
@@ -63,9 +65,9 @@ export default function setup() {
         c.command(
           `  $ frodo config-manager delete telemetry -c otlp -y ${s.connId}\n`
         ) +
-        `  Delete a specific OTLP exporter by name:\n` +
+        `  Delete a specific OTLP exporter by id:\n` +
         c.command(
-          `  $ frodo config-manager delete telemetry -c otlp -n test-otlp ${s.connId}\n`
+          `  $ frodo config-manager delete telemetry -c otlp -i test-otlp ${s.connId}\n`
         )
     )
     .multiOp()
@@ -78,17 +80,21 @@ export default function setup() {
         options,
         command
       );
-      // an empty name must never mean "all": "not given" and "given but empty"
-      // are different (-n "$UNSET" gives an empty name)
-      if (options.name !== undefined && options.name.trim() === '') {
+      // an empty id must never mean "all": "not given" and "given but empty"
+      // are different (-i "$UNSET" gives an empty id); an empty value is
+      // refused while the command line is parsed, so this is a blank one
+      if (
+        options.exporterId !== undefined &&
+        options.exporterId.trim() === ''
+      ) {
         printMessage(
-          'The telemetry exporter name (-n) must not be empty.',
+          'The telemetry exporter id (-i) must not be empty.',
           'error'
         );
         process.exitCode = 1;
         return;
       }
-      if (options.name !== undefined && !options.category) {
+      if (options.exporterId !== undefined && !options.category) {
         printMessage(
           'Named telemetry config requires category (e.g. --category otlp)',
           'error'
@@ -96,7 +102,7 @@ export default function setup() {
         process.exitCode = 1;
         return;
       }
-      const bulk = options.name === undefined;
+      const bulk = options.exporterId === undefined;
       const what = options.category
         ? `all telemetry exporters in category '${options.category}'`
         : 'all telemetry exporters';
@@ -127,7 +133,7 @@ export default function setup() {
       verboseMessage('Deleting telemetry.');
       const outcome = await configManagerDeleteTelemetry(
         options.category,
-        options.name,
+        options.exporterId,
         options.dryRun,
         options.allowFailures
       );
