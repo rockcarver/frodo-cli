@@ -220,3 +220,94 @@ describe('one script by name', () => {
     expect(messages('error').join('\n')).toContain('specify a single realm');
   });
 });
+
+describe('one script by id', () => {
+  test('is deleted in the one realm that is given, and only that script', async () => {
+    expect(
+      await configManagerDeleteScripts([], '/alpha', undefined, false, false, 'id-Mine')
+    ).toBe(true);
+
+    expect(deletedIds).toEqual(['/alpha:id-Mine']);
+    expect(messages('error')).toEqual([]);
+  });
+
+  test('an id that is the name of a script, or the id of a prefix, selects nothing: it is matched exactly', async () => {
+    expect(
+      await configManagerDeleteScripts([], '/alpha', undefined, false, false, 'Mine')
+    ).toBe(false);
+    expect(
+      await configManagerDeleteScripts([], '/alpha', undefined, false, false, 'id-Mi')
+    ).toBe(false);
+
+    expect(deletedIds).toEqual([]);
+    expect(messages('error').join('\n')).toContain('No script found with id: Mine');
+  });
+
+  test('the prefixes are ignored, as they are for a name', async () => {
+    expect(
+      await configManagerDeleteScripts(['Mine Too'], '/alpha', undefined, false, false, 'id-Mine')
+    ).toBe(true);
+
+    expect(deletedIds).toEqual(['/alpha:id-Mine']);
+  });
+
+  test('a default script is refused with a clear message and nothing is deleted', async () => {
+    expect(
+      await configManagerDeleteScripts(
+        [],
+        '/alpha',
+        undefined,
+        false,
+        false,
+        'id-OIDC Claims Script'
+      )
+    ).toBe(false);
+
+    expect(deletedIds).toEqual([]);
+    expect(messages('error').join('\n')).toContain(
+      'Script id-OIDC Claims Script is a default script and cannot be deleted.'
+    );
+  });
+
+  test('a script that does not exist is an error whatever --allow-failures says', async () => {
+    for (const allowFailures of [false, true]) {
+      printed.length = 0;
+      expect(
+        await configManagerDeleteScripts([], '/alpha', undefined, false, allowFailures, 'id-Nothing')
+      ).toBe(false);
+
+      expect(messages('error').join('\n')).toContain('No script found with id: id-Nothing');
+    }
+    expect(deletedIds).toEqual([]);
+  });
+
+  test('without a single realm there is no deleting by id', async () => {
+    expect(
+      await configManagerDeleteScripts([], undefined, undefined, false, false, 'id-Mine')
+    ).toBe(false);
+
+    expect(deletedIds).toEqual([]);
+    expect(messages('error').join('\n')).toContain('For a script id, specify a single realm.');
+  });
+
+  test('the dry run sends no request and names the script', async () => {
+    expect(
+      await configManagerDeleteScripts([], '/alpha', undefined, true, false, 'id-Mine')
+    ).toBe(true);
+
+    expect(deletedIds).toEqual([]);
+    expect(messages(undefined).join('\n')).toContain('Dry run: Deleting script Mine (id-Mine) in realm /alpha');
+  });
+
+  test('a script that cannot be deleted fails the command, and the id is in the summary', async () => {
+    failingIds = new Set(['id-Mine']);
+
+    expect(
+      await configManagerDeleteScripts([], '/alpha', undefined, false, false, 'id-Mine')
+    ).toBe(false);
+
+    expect(deletedIds).toEqual([]);
+    expect(messages('error').join('\n')).toContain('Mine');
+  });
+});
+

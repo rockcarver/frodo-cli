@@ -11,6 +11,7 @@ import c from '../../../utils/ColorTheme';
 import { printMessage, verboseMessage } from '../../../utils/Console';
 import { realmOfRun } from '../../../utils/interactive/PositionalArgs';
 import { FrodoCommand } from '../../FrodoCommand';
+import { selectorOption } from '../../SelectorOption';
 
 const { CLOUD_DEPLOYMENT_TYPE_KEY, DEFAULT_REALM_KEY } = frodo.utils.constants;
 
@@ -26,9 +27,10 @@ export default function setup() {
   program
     .description('Delete secret mappings.')
     .addOption(
-      new Option(
-        '-n, --name <name>',
-        'Secret mapping ID (the secret id of the mapping, for example am.example.secret.id), matched exactly; delete only the specified mapping. Needs a single realm. If omitted, all secret mappings of the selected realms are deleted, after a confirmation or with -y.'
+      selectorOption(
+        '-i, --secret-mapping-id <id>',
+        'Secret mapping id (the secret id of the mapping, for example am.example.secret.id), matched exactly; delete only the specified mapping. Needs a single realm. If omitted, all secret mappings of the selected realms are deleted, after a confirmation or with -y.',
+        ['-n', '--name']
       )
     )
     .addOption(
@@ -40,7 +42,7 @@ export default function setup() {
     .addOption(
       new Option(
         '-y, --yes',
-        'Do not ask for confirmation before deleting more than one secret mapping (no -n). Required without a terminal.'
+        'Do not ask for confirmation before deleting more than one secret mapping (no -i). Required without a terminal.'
       )
     )
     .addHelpText(
@@ -56,11 +58,11 @@ export default function setup() {
         ) +
         `  Delete a secret mapping by ID in the alpha realm:\n` +
         c.command(
-          `  $ frodo config-manager delete secret-mappings -n example.secret.id ${s.connId} alpha\n`
+          `  $ frodo config-manager delete secret-mappings -i example.secret.id ${s.connId} alpha\n`
         ) +
         `  Preview the deletion of a secret mapping by ID in the alpha realm:\n` +
         c.command(
-          `  $ frodo config-manager delete secret-mappings -n example.secret.id --dry-run ${s.connId} alpha\n`
+          `  $ frodo config-manager delete secret-mappings -i example.secret.id --dry-run ${s.connId} alpha\n`
         )
     )
     .multiOp()
@@ -75,12 +77,13 @@ export default function setup() {
         command
       );
 
-      // an empty ID must never mean "all": "not given" and "given but empty"
-      // are different (-n "$UNSET" gives an empty ID)
-      const named = options.name !== undefined;
-      if (named && options.name.trim() === '') {
+      // an empty id must never mean "all": "not given" and "given but empty"
+      // are different (-i "$UNSET" gives an empty id); an empty value is
+      // refused while the command line is parsed, so this is a blank one
+      const named = options.secretMappingId !== undefined;
+      if (named && options.secretMappingId.trim() === '') {
         printMessage(
-          'The secret mapping ID (-n) must not be empty. To delete all secret mappings, leave out -n.',
+          'The secret mapping id (-i) must not be empty. To delete all secret mappings, leave out -i.',
           'error'
         );
         process.exitCode = 1;
@@ -98,14 +101,14 @@ export default function setup() {
       }
       if (named && (!realm || realm === DEFAULT_REALM_KEY)) {
         printMessage(
-          'The -n/--name option requires a realm argument to be specified.',
+          'The -i, --secret-mapping-id option requires a realm argument to be specified.',
           'error'
         );
         process.exitCode = 1;
         return;
       }
 
-      // only a single ID is deleted without a question (cli record 0037); a
+      // only a single id is deleted without a question (cli record 0037); a
       // run that nobody can be asked about is refused before the login
       const what = 'all secret mappings in the selected realms';
       if (
@@ -137,7 +140,7 @@ export default function setup() {
 
       verboseMessage('Deleting secret mappings configuration.');
       const outcome = await configManagerDeleteSecretMappings(
-        options.name,
+        options.secretMappingId,
         selectedRealm,
         options.dryRun,
         options.allowFailures

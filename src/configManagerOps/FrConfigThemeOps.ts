@@ -21,7 +21,9 @@ const {
 } = frodo.utils;
 const {
   readThemes,
+  readTheme,
   readThemeByName,
+  deleteTheme,
   deleteThemeByName,
   importThemes,
   deleteThemes,
@@ -354,14 +356,18 @@ function isNothingToDelete(error: unknown): boolean {
  * @param {string} realm Optional realm to process.
  * @param {boolean} dryRun Show which themes would be deleted without deleting them.
  * @param {boolean} allowFailures True to succeed although some realms could not be processed (the failures are still summarised)
+ * @param {string} id Optional id (`_id`) of the one theme to target instead of a name, with the same rules as a name: an error when the realm was given and has no such theme, a warning when all realms are processed. An empty id selects nothing (the command refuses an empty value before it connects).
  * @returns {Promise<boolean>} False if a realm could not be processed (unless failures are allowed); otherwise true.
  */
 export async function configManagerDeleteThemes(
   name?: string,
   realm?: string,
   dryRun: boolean = false,
-  allowFailures: boolean = false
+  allowFailures: boolean = false,
+  id?: string
 ): Promise<boolean> {
+  // what the command line names: an id, or a name (an empty name means all themes)
+  const selected = id ?? (name || undefined);
   try {
     const oneRealm = realm && realm !== DEFAULT_REALM_KEY;
     const realms = oneRealm ? [realm] : await realmList();
@@ -376,12 +382,16 @@ export async function configManagerDeleteThemes(
       state.setRealm(currentRealm);
       try {
         const themes = dryRun
-          ? name
-            ? [await readThemeByName(name)]
-            : await readThemes()
-          : name
-            ? [await deleteThemeByName(name)]
-            : await deleteThemes(currentRealm);
+          ? id !== undefined
+            ? [await readTheme(id)]
+            : name
+              ? [await readThemeByName(name)]
+              : await readThemes()
+          : id !== undefined
+            ? [await deleteTheme(id)]
+            : name
+              ? [await deleteThemeByName(name)]
+              : await deleteThemes(currentRealm);
         if (themes.length === 0) {
           printMessage(
             `No themes found to delete in realm '${currentRealm}'.`,
@@ -397,10 +407,10 @@ export async function configManagerDeleteThemes(
         }
         run.recordSuccess();
       } catch (error) {
-        if (isNothingToDelete(error) && (!name || !oneRealm)) {
+        if (isNothingToDelete(error) && (selected === undefined || !oneRealm)) {
           printMessage(
-            name
-              ? `Theme '${name}' not found in realm '${currentRealm}'.`
+            selected !== undefined
+              ? `Theme ${id !== undefined ? 'with id ' : ''}'${selected}' not found in realm '${currentRealm}'.`
               : `No themes found to delete in realm '${currentRealm}'.`,
             'warn'
           );

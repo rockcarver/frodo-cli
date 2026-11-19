@@ -130,7 +130,7 @@ describe('frodo config-manager delete oauth-issuers', () => {
   });
 
   test('logs in without a list of deployment types', async () => {
-    await run('-n', 'zion-issuer');
+    await run('-i', 'zion-issuer');
 
     expect(getTokens).toHaveBeenCalledWith();
   });
@@ -141,7 +141,7 @@ describe('frodo config-manager delete oauth-issuers', () => {
 
     expect(flags).toEqual(
       expect.arrayContaining([
-        '-n, --name <name>',
+        '-i, --issuer-id <id>',
         '-d, --dry-run',
         '-y, --yes',
         '--allow-failures',
@@ -268,9 +268,9 @@ describe('deleting all trusted JWT issuers', () => {
   });
 });
 
-describe('deleting one trusted JWT issuer by name', () => {
+describe('deleting one trusted JWT issuer by id', () => {
   test('is deleted without a check and without a question', async () => {
-    await run('-n', 'zion-issuer', 'matrix', 'alpha');
+    await run('-i', 'zion-issuer', 'matrix', 'alpha');
 
     expect(checkBulkDelete).not.toHaveBeenCalled();
     expect(confirmBulkDelete).not.toHaveBeenCalled();
@@ -286,7 +286,7 @@ describe('deleting one trusted JWT issuer by name', () => {
 
   test('the dry run and --allow-failures reach the ops function', async () => {
     await run(
-      '-n',
+      '-i',
       'zion-issuer',
       '--dry-run',
       '--allow-failures',
@@ -305,7 +305,7 @@ describe('deleting one trusted JWT issuer by name', () => {
   test('a failed login exits 1 and deletes nothing', async () => {
     getTokens.mockResolvedValue(false);
 
-    await run('-n', 'zion-issuer', 'matrix', 'alpha');
+    await run('-i', 'zion-issuer', 'matrix', 'alpha');
 
     expect(configManagerDeleteTrustedJwtIssuers).not.toHaveBeenCalled();
     expect(process.exitCode).toBe(1);
@@ -314,20 +314,20 @@ describe('deleting one trusted JWT issuer by name', () => {
   test('a delete that fails, or an issuer that is not there, exits 1', async () => {
     configManagerDeleteTrustedJwtIssuers.mockResolvedValue(false);
 
-    await run('-n', 'zion-issuer', 'matrix', 'alpha');
+    await run('-i', 'zion-issuer', 'matrix', 'alpha');
 
     expect(process.exitCode).toBe(1);
   });
 });
 
 describe('an empty name is not "all trusted JWT issuers"', () => {
-  test.each([[''], ['  ']])(
-    'the name %j is an error before the check, the login and the delete',
+  test.each([['  ']])(
+    'the id %j is an error before the check, the login and the delete',
     async (name) => {
-      await run('-n', name, '-y', 'matrix', 'alpha');
+      await run('-i', name, '-y', 'matrix', 'alpha');
 
       expect(printMessage).toHaveBeenCalledWith(
-        'The trusted JWT issuer name must not be empty. To delete all trusted JWT issuers, leave out -n.',
+        'The trusted JWT issuer id (-i) must not be empty. To delete all trusted JWT issuers, leave out -i.',
         'error'
       );
       expect(events).toEqual([]);

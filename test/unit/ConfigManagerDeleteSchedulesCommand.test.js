@@ -125,12 +125,12 @@ describe('frodo config-manager delete schedules', () => {
   });
 
   test('logs in for Cloud and ForgeOps', async () => {
-    await run('-n', 'taskscan_activate');
+    await run('-i', 'taskscan_activate');
 
     expect(getTokens).toHaveBeenCalledWith(false, true, ['cloud', 'forgeops']);
   });
 
-  test('its help says what happens without -n, and its examples never open a prompt', async () => {
+  test('its help says what happens without -i, and its examples never open a prompt', async () => {
     const program = setup();
     let help = '';
     program.configureOutput({ writeOut: (text) => (help += text) });
@@ -148,7 +148,7 @@ describe('frodo config-manager delete schedules', () => {
       );
     expect(examples).toHaveLength(4);
     // every example that can delete more than one schedule carries -y or --dry-run
-    for (const example of examples.filter((line) => !/ -n /.test(line))) {
+    for (const example of examples.filter((line) => !/ -i /.test(line))) {
       expect(example).toMatch(/ (-y|--dry-run) /);
     }
   });
@@ -310,9 +310,9 @@ describe('deleting all schedules', () => {
   });
 });
 
-describe('deleting one schedule by name', () => {
+describe('deleting one schedule by id', () => {
   test('is deleted without a check and without a question', async () => {
-    await run('-n', 'taskscan_activate', 'matrix');
+    await run('-i', 'taskscan_activate', 'matrix');
 
     expect(checkBulkDelete).not.toHaveBeenCalled();
     expect(confirmBulkDelete).not.toHaveBeenCalled();
@@ -327,7 +327,7 @@ describe('deleting one schedule by name', () => {
 
   test('the dry run and --allow-failures reach the ops function', async () => {
     await run(
-      '-n',
+      '-i',
       'taskscan_activate',
       '--dry-run',
       '--allow-failures',
@@ -344,7 +344,7 @@ describe('deleting one schedule by name', () => {
   test('a failed login exits 1 and deletes nothing', async () => {
     getTokens.mockResolvedValue(false);
 
-    await run('-n', 'taskscan_activate', 'matrix');
+    await run('-i', 'taskscan_activate', 'matrix');
 
     expect(configManagerDeleteSchedules).not.toHaveBeenCalled();
     expect(process.exitCode).toBe(1);
@@ -353,20 +353,20 @@ describe('deleting one schedule by name', () => {
   test('a delete that fails, or a schedule that is not there, exits 1', async () => {
     configManagerDeleteSchedules.mockResolvedValue(false);
 
-    await run('-n', 'taskscan_activate', 'matrix');
+    await run('-i', 'taskscan_activate', 'matrix');
 
     expect(process.exitCode).toBe(1);
   });
 });
 
-describe('an empty name is not "all schedules"', () => {
-  test.each([[''], ['  ']])(
-    'the name %j is an error before the check, the login and the delete',
+describe('a blank id is not "all schedules"', () => {
+  test.each([['  ']])(
+    'the id %j is an error before the check, the login and the delete',
     async (name) => {
-      await run('-n', name, '-y', 'matrix');
+      await run('-i', name, '-y', 'matrix');
 
       expect(printMessage).toHaveBeenCalledWith(
-        'The schedule name (-n) must not be empty. To delete all schedules, leave out -n.',
+        'The schedule id (-i) must not be empty. To delete all schedules, leave out -i.',
         'error'
       );
       expect(events).toEqual([]);
@@ -378,17 +378,16 @@ describe('an empty name is not "all schedules"', () => {
     }
   );
 
-  test('also in a dry run, and as --name=', async () => {
-    await run('-n', '', '--dry-run', 'matrix');
-    await run('--name=', 'matrix');
+  test('also in a dry run', async () => {
+    await run('-i', '  ', '--dry-run', 'matrix');
 
     expect(configManagerDeleteSchedules).not.toHaveBeenCalled();
     expect(getTokens).not.toHaveBeenCalled();
     expect(process.exitCode).toBe(1);
   });
 
-  test('a name that is given is never taken for a delete of all schedules', async () => {
-    await run('-n', 'taskscan_activate', 'matrix');
+  test('an id that is given is never taken for a delete of all schedules', async () => {
+    await run('-i', 'taskscan_activate', 'matrix');
 
     expect(checkBulkDelete).not.toHaveBeenCalled();
     expect(confirmBulkDelete).not.toHaveBeenCalled();

@@ -13,6 +13,7 @@ import c from '../../../utils/ColorTheme';
 import { printMessage, verboseMessage } from '../../../utils/Console';
 import { realmOfRun } from '../../../utils/interactive/PositionalArgs';
 import { FrodoCommand } from '../../FrodoCommand';
+import { selectorOption } from '../../SelectorOption';
 
 export default function setup() {
   const program = new FrodoCommand('frodo config-manager delete oauth-issuers');
@@ -20,12 +21,13 @@ export default function setup() {
   program
     .summary('Delete trusted JWT issuers.')
     .description(
-      'Delete OAuth2 trusted JWT issuers from the tenant, by name or all of the selected realms. A trusted JWT issuer is a trust anchor: a JWT signed by it is accepted as a grant, and once it is deleted that JWT is rejected until an issuer for it exists again. There is no undo; a tree in version control holds the files to push back.'
+      'Delete OAuth2 trusted JWT issuers from the tenant, by id or all of the selected realms. A trusted JWT issuer is a trust anchor: a JWT signed by it is accepted as a grant, and once it is deleted that JWT is rejected until an issuer for it exists again. There is no undo; a tree in version control holds the files to push back.'
     )
     .addOption(
-      new Option(
-        '-n, --name <name>',
-        'Trusted JWT issuer name (the name of the object, not its iss URL). If specified, deletes only that issuer, without asking. Needs a single realm.'
+      selectorOption(
+        '-i, --issuer-id <id>',
+        'Trusted JWT issuer id (the id of the object, not its iss URL). If specified, deletes only that issuer, without asking. Needs a single realm.',
+        ['-n', '--name']
       )
     )
     .addOption(
@@ -37,7 +39,7 @@ export default function setup() {
     .addOption(
       new Option(
         '-y, --yes',
-        'Do not ask for confirmation before deleting more than one trusted JWT issuer (no -n). Required without a terminal.'
+        'Do not ask for confirmation before deleting more than one trusted JWT issuer (no -i). Required without a terminal.'
       )
     )
     .addHelpText(
@@ -53,11 +55,11 @@ export default function setup() {
         ) +
         `  Delete one trusted JWT issuer of a realm:\n` +
         c.command(
-          `  $ frodo config-manager delete oauth-issuers -n ${s.trustedJwtIssuerId} ${s.connId} ${s.realm}\n`
+          `  $ frodo config-manager delete oauth-issuers -i ${s.trustedJwtIssuerId} ${s.connId} ${s.realm}\n`
         ) +
         `  Preview the deletion of one trusted JWT issuer:\n` +
         c.command(
-          `  $ frodo config-manager delete oauth-issuers -n ${s.trustedJwtIssuerId} --dry-run ${s.connId} ${s.realm}\n`
+          `  $ frodo config-manager delete oauth-issuers -i ${s.trustedJwtIssuerId} --dry-run ${s.connId} ${s.realm}\n`
         )
     )
     .multiOp()
@@ -72,18 +74,19 @@ export default function setup() {
         command
       );
 
-      // an empty name must never mean "all": "not given" and "given but empty"
-      // are different (-n "$UNSET" gives an empty name)
-      const named = options.name !== undefined;
-      if (named && options.name.trim() === '') {
+      // an empty id must never mean "all": "not given" and "given but empty"
+      // are different (-i "$UNSET" gives an empty id); an empty value is
+      // refused while the command line is parsed, so this is a blank one
+      const named = options.issuerId !== undefined;
+      if (named && options.issuerId.trim() === '') {
         printMessage(
-          'The trusted JWT issuer name must not be empty. To delete all trusted JWT issuers, leave out -n.',
+          'The trusted JWT issuer id (-i) must not be empty. To delete all trusted JWT issuers, leave out -i.',
           'error'
         );
         process.exitCode = 1;
         return;
       }
-      // only a single name is deleted without a question (cli record 0037); a
+      // only a single id is deleted without a question (cli record 0037); a
       // run that nobody can be asked about is refused before the login
       const what = 'all trusted JWT issuers in the selected realms';
       if (
@@ -105,7 +108,7 @@ export default function setup() {
           dryRun: options.dryRun,
           showPlan: () =>
             showTrustedJwtIssuerDeletePlan(
-              options.name,
+              options.issuerId,
               realmOfRun(command, realm)
             ),
         }))
@@ -116,11 +119,11 @@ export default function setup() {
 
       verboseMessage(
         named
-          ? `Deleting trusted JWT issuer "${options.name}".`
+          ? `Deleting trusted JWT issuer "${options.issuerId}".`
           : 'Deleting trusted JWT issuers.'
       );
       const outcome = await configManagerDeleteTrustedJwtIssuers(
-        options.name,
+        options.issuerId,
         realmOfRun(command, realm),
         options.dryRun,
         options.allowFailures

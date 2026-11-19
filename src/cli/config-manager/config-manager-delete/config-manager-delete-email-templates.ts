@@ -10,6 +10,7 @@ import {
 import c from '../../../utils/ColorTheme';
 import { verboseMessage } from '../../../utils/Console';
 import { FrodoCommand } from '../../FrodoCommand';
+import { selectorOption } from '../../SelectorOption';
 
 const { CLOUD_DEPLOYMENT_TYPE_KEY, FORGEOPS_DEPLOYMENT_TYPE_KEY } =
   frodo.utils.constants;
@@ -29,9 +30,10 @@ export default function setup() {
   program
     .description('Delete email template objects.')
     .addOption(
-      new Option(
-        '-n, --name <name>',
-        'Email template name; deletes only the email template with the specified name.'
+      selectorOption(
+        '-i, --template-id <id>',
+        'Email template id; deletes only the email template with the specified id.',
+        ['-n', '--name']
       )
     )
     .addOption(
@@ -43,7 +45,7 @@ export default function setup() {
     .addOption(
       new Option(
         '-y, --yes',
-        'Do not ask for confirmation before deleting more than one email template (no -n). Required without a terminal.'
+        'Do not ask for confirmation before deleting more than one email template (no -i). Required without a terminal.'
       )
     )
     .addHelpText(
@@ -57,13 +59,13 @@ export default function setup() {
         c.command(
           `  $ frodo config-manager delete email-templates -d ${s.connId}\n`
         ) +
-        `  Delete an email template by name:\n` +
+        `  Delete an email template by id:\n` +
         c.command(
-          `  $ frodo config-manager delete email-templates -n 'Example Template' ${s.connId}\n`
+          `  $ frodo config-manager delete email-templates -i welcome ${s.connId}\n`
         ) +
-        `  Preview deletion of an email template by name:\n` +
+        `  Preview deletion of an email template by id:\n` +
         c.command(
-          `  $ frodo config-manager delete email-templates -n 'Example Template' -d ${s.connId}\n`
+          `  $ frodo config-manager delete email-templates -i welcome -d ${s.connId}\n`
         )
     )
     .multiOp()
@@ -76,10 +78,11 @@ export default function setup() {
         options,
         command
       );
+      const named = options.templateId !== undefined;
       // a run that nobody can be asked about is refused before the login
       const what = 'all email templates';
       if (
-        !options.name &&
+        !named &&
         !checkBulkDelete({ what, yes: options.yes, dryRun: options.dryRun })
       ) {
         process.exitCode = 1;
@@ -90,7 +93,7 @@ export default function setup() {
         return;
       }
       if (
-        !options.name &&
+        !named &&
         !(await confirmBulkDelete({
           what,
           yes: options.yes,
@@ -103,7 +106,7 @@ export default function setup() {
       }
       verboseMessage('Deleting email templates');
       const outcome = await configManagerDeleteEmailTemplates(
-        options.name,
+        options.templateId,
         options.dryRun,
         options.allowFailures
       );

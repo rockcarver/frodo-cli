@@ -13,6 +13,7 @@ import {
 import c from '../../../utils/ColorTheme';
 import { printMessage, verboseMessage } from '../../../utils/Console';
 import { FrodoCommand } from '../../FrodoCommand';
+import { selectorOption } from '../../SelectorOption';
 
 const { CLOUD_DEPLOYMENT_TYPE_KEY } = frodo.utils.constants;
 
@@ -28,9 +29,10 @@ export default function setup() {
   program
     .description('Delete secrets.')
     .addOption(
-      new Option(
-        '-n, --name <name>',
-        'Secret name, which is its id (for example esv-example) and is matched exactly; delete only the specified secret. If omitted, all secrets are deleted.'
+      selectorOption(
+        '-i, --secret-id <id>',
+        'Secret id (for example esv-example), matched exactly; delete only the specified secret. If omitted, all secrets are deleted.',
+        ['-n', '--name']
       )
     )
     .addOption(
@@ -42,19 +44,19 @@ export default function setup() {
     .addOption(
       new Option(
         '-y, --yes',
-        'Do not ask for confirmation before deleting more than one secret (no -n). Required without a terminal.'
+        'Do not ask for confirmation before deleting more than one secret (no -i). Required without a terminal.'
       )
     )
     .addHelpText(
       'after',
       `Usage Examples:\n` +
-        `  Delete a secret by name, which is its id:\n` +
+        `  Delete a secret by id:\n` +
         c.command(
-          `  $ frodo config-manager delete secrets -n esv-example ${s.connId}\n`
+          `  $ frodo config-manager delete secrets -i esv-example ${s.connId}\n`
         ) +
-        `  Preview deletion of a secret by name:\n` +
+        `  Preview deletion of a secret by id:\n` +
         c.command(
-          `  $ frodo config-manager delete secrets -n esv-example -d ${s.connId}\n`
+          `  $ frodo config-manager delete secrets -i esv-example -d ${s.connId}\n`
         ) +
         `  Preview the deletion of all secrets:\n` +
         c.command(`  $ frodo config-manager delete secrets -d ${s.connId}\n`) +
@@ -71,12 +73,13 @@ export default function setup() {
         options,
         command
       );
-      // an empty name must never mean "all": "not given" and "given but empty"
-      // are different (-n "$UNSET" gives an empty name)
-      const named = options.name !== undefined;
-      if (named && options.name.trim() === '') {
+      // an empty id must never mean "all": "not given" and "given but empty"
+      // are different (-i "$UNSET" gives an empty id); an empty value is
+      // refused while the command line is parsed, so this is a blank one
+      const named = options.secretId !== undefined;
+      if (named && options.secretId.trim() === '') {
         printMessage(
-          'The secret name (-n) must not be empty. To delete all secrets, leave out -n.',
+          'The secret id (-i) must not be empty. To delete all secrets, leave out -i.',
           'error'
         );
         process.exitCode = 1;
@@ -110,7 +113,7 @@ export default function setup() {
       }
       verboseMessage('Deleting secrets from cloud');
       const outcome = await configManagerDeleteSecrets(
-        options.name,
+        options.secretId,
         options.dryRun,
         options.allowFailures
       );

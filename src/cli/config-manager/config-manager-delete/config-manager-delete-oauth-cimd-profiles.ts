@@ -13,6 +13,7 @@ import c from '../../../utils/ColorTheme';
 import { printMessage, verboseMessage } from '../../../utils/Console';
 import { realmOfRun } from '../../../utils/interactive/PositionalArgs';
 import { FrodoCommand } from '../../FrodoCommand';
+import { selectorOption } from '../../SelectorOption';
 
 export default function setup() {
   const program = new FrodoCommand(
@@ -22,12 +23,13 @@ export default function setup() {
   program
     .summary('Delete CIMD profiles.')
     .description(
-      'Delete the CIMD profiles (the allow-list of client ID URL patterns) from the tenant, by name or all of the selected realms. A client that identifies itself with a Client ID Metadata Document that only a deleted profile allowed is rejected until a profile for it exists again. A realm or a deployment that does not offer CIMD profiles has nothing to delete.'
+      'Delete the CIMD profiles (the allow-list of client ID URL patterns) from the tenant, by id or all of the selected realms. A client that identifies itself with a Client ID Metadata Document that only a deleted profile allowed is rejected until a profile for it exists again. A realm or a deployment that does not offer CIMD profiles has nothing to delete.'
     )
     .addOption(
-      new Option(
-        '-n, --name <name>',
-        'CIMD profile name. If specified, deletes only the profile with the given name, without asking. Needs a single realm.'
+      selectorOption(
+        '-i, --profile-id <id>',
+        'CIMD profile id. If specified, deletes only the profile with the given id, without asking. Needs a single realm.',
+        ['-n', '--name']
       )
     )
     .addOption(
@@ -39,7 +41,7 @@ export default function setup() {
     .addOption(
       new Option(
         '-y, --yes',
-        'Do not ask for confirmation before deleting more than one CIMD profile (no -n). Required without a terminal.'
+        'Do not ask for confirmation before deleting more than one CIMD profile (no -i). Required without a terminal.'
       )
     )
     .addHelpText(
@@ -55,11 +57,11 @@ export default function setup() {
         ) +
         `  Delete one CIMD profile of a realm:\n` +
         c.command(
-          `  $ frodo config-manager delete oauth-cimd-profiles -n ${s.cimdProfileId} ${s.connId} ${s.realm}\n`
+          `  $ frodo config-manager delete oauth-cimd-profiles -i ${s.cimdProfileId} ${s.connId} ${s.realm}\n`
         ) +
         `  Preview the deletion of one CIMD profile:\n` +
         c.command(
-          `  $ frodo config-manager delete oauth-cimd-profiles -n ${s.cimdProfileId} --dry-run ${s.connId} ${s.realm}\n`
+          `  $ frodo config-manager delete oauth-cimd-profiles -i ${s.cimdProfileId} --dry-run ${s.connId} ${s.realm}\n`
         )
     )
     .multiOp()
@@ -74,18 +76,19 @@ export default function setup() {
         command
       );
 
-      // an empty name must never mean "all": "not given" and "given but empty"
-      // are different (-n "$UNSET" gives an empty name)
-      const named = options.name !== undefined;
-      if (named && options.name.trim() === '') {
+      // an empty id must never mean "all": "not given" and "given but empty"
+      // are different (-i "$UNSET" gives an empty id); an empty value is
+      // refused while the command line is parsed, so this is a blank one
+      const named = options.profileId !== undefined;
+      if (named && options.profileId.trim() === '') {
         printMessage(
-          'The CIMD profile name must not be empty. To delete all CIMD profiles, leave out -n.',
+          'The CIMD profile id (-i) must not be empty. To delete all CIMD profiles, leave out -i.',
           'error'
         );
         process.exitCode = 1;
         return;
       }
-      // only a single name is deleted without a question (cli record 0037); a
+      // only a single id is deleted without a question (cli record 0037); a
       // run that nobody can be asked about is refused before the login
       const what = 'all CIMD profiles in the selected realms';
       if (
@@ -106,7 +109,10 @@ export default function setup() {
           yes: options.yes,
           dryRun: options.dryRun,
           showPlan: () =>
-            showCIMDProfileDeletePlan(options.name, realmOfRun(command, realm)),
+            showCIMDProfileDeletePlan(
+              options.profileId,
+              realmOfRun(command, realm)
+            ),
         }))
       ) {
         process.exitCode = 1;
@@ -115,11 +121,11 @@ export default function setup() {
 
       verboseMessage(
         named
-          ? `Deleting CIMD profile "${options.name}".`
+          ? `Deleting CIMD profile "${options.profileId}".`
           : 'Deleting CIMD profiles.'
       );
       const outcome = await configManagerDeleteCIMDProfiles(
-        options.name,
+        options.profileId,
         realmOfRun(command, realm),
         options.dryRun,
         options.allowFailures

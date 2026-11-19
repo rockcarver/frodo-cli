@@ -136,12 +136,12 @@ describe('frodo config-manager delete secret-mappings', () => {
   });
 
   test('logs in for Cloud', async () => {
-    await run('-n', 'am.example.secret.id', 'matrix', 'alpha');
+    await run('-i', 'am.example.secret.id', 'matrix', 'alpha');
 
     expect(getTokens).toHaveBeenCalledWith(false, true, ['cloud']);
   });
 
-  test('its help says what happens without -n, and its examples never open a prompt', async () => {
+  test('its help says what happens without -i, and its examples never open a prompt', async () => {
     const program = setup();
     let help = '';
     program.configureOutput({ writeOut: (text) => (help += text) });
@@ -161,7 +161,7 @@ describe('frodo config-manager delete secret-mappings', () => {
       );
     expect(examples).toHaveLength(4);
     // every example that can delete more than one mapping carries -y or --dry-run
-    for (const example of examples.filter((line) => !/ -n /.test(line))) {
+    for (const example of examples.filter((line) => !/ -i /.test(line))) {
       expect(example).toMatch(/ (-y|--dry-run) /);
     }
   });
@@ -342,9 +342,9 @@ describe('deleting all secret mappings', () => {
   });
 });
 
-describe('deleting one secret mapping by ID', () => {
+describe('deleting one secret mapping by id', () => {
   test('is deleted without a check and without a question', async () => {
-    await run('-n', 'am.example.secret.id', 'matrix', 'alpha');
+    await run('-i', 'am.example.secret.id', 'matrix', 'alpha');
 
     expect(checkBulkDelete).not.toHaveBeenCalled();
     expect(confirmBulkDelete).not.toHaveBeenCalled();
@@ -360,7 +360,7 @@ describe('deleting one secret mapping by ID', () => {
 
   test('the dry run and --allow-failures reach the ops function', async () => {
     await run(
-      '-n',
+      '-i',
       'am.example.secret.id',
       '--dry-run',
       '--allow-failures',
@@ -382,10 +382,10 @@ describe('deleting one secret mapping by ID', () => {
   ])(
     'needs a realm: %s is an error before the check and the login',
     async (_, args) => {
-      await run('-n', 'am.example.secret.id', ...args);
+      await run('-i', 'am.example.secret.id', ...args);
 
       expect(printMessage).toHaveBeenCalledWith(
-        'The -n/--name option requires a realm argument to be specified.',
+        'The -i, --secret-mapping-id option requires a realm argument to be specified.',
         'error'
       );
       expect(getTokens).not.toHaveBeenCalled();
@@ -397,7 +397,7 @@ describe('deleting one secret mapping by ID', () => {
   test('a failed login exits 1 and deletes nothing', async () => {
     getTokens.mockResolvedValue(false);
 
-    await run('-n', 'am.example.secret.id', 'matrix', 'alpha');
+    await run('-i', 'am.example.secret.id', 'matrix', 'alpha');
 
     expect(configManagerDeleteSecretMappings).not.toHaveBeenCalled();
     expect(process.exitCode).toBe(1);
@@ -406,7 +406,7 @@ describe('deleting one secret mapping by ID', () => {
   test('a delete that fails, or a mapping that is not there, exits 1', async () => {
     configManagerDeleteSecretMappings.mockResolvedValue(false);
 
-    await run('-n', 'am.example.secret.id', 'matrix', 'alpha');
+    await run('-i', 'am.example.secret.id', 'matrix', 'alpha');
 
     expect(process.exitCode).toBe(1);
   });
@@ -415,7 +415,7 @@ describe('deleting one secret mapping by ID', () => {
 describe('the root realm has no secret mappings', () => {
   test.each([
     ['all mappings', ['-y']],
-    ['a named mapping', ['-n', 'am.example.secret.id']],
+    ['a named mapping', ['-i', 'am.example.secret.id']],
     ['a dry run', ['--dry-run']],
   ])(
     'naming it for %s is an error before the check and the login',
@@ -434,14 +434,14 @@ describe('the root realm has no secret mappings', () => {
   );
 });
 
-describe('an empty ID is not "all secret mappings"', () => {
-  test.each([[''], ['  ']])(
-    'the ID %j is an error before the check, the login and the delete',
+describe('a blank id is not "all secret mappings"', () => {
+  test.each([['  ']])(
+    'the id %j is an error before the check, the login and the delete',
     async (name) => {
-      await run('-n', name, '-y', 'matrix', 'alpha');
+      await run('-i', name, '-y', 'matrix', 'alpha');
 
       expect(printMessage).toHaveBeenCalledWith(
-        'The secret mapping ID (-n) must not be empty. To delete all secret mappings, leave out -n.',
+        'The secret mapping id (-i) must not be empty. To delete all secret mappings, leave out -i.',
         'error'
       );
       expect(events).toEqual([]);
@@ -453,18 +453,17 @@ describe('an empty ID is not "all secret mappings"', () => {
     }
   );
 
-  test('also in a dry run, without a realm, and as --name=', async () => {
-    await run('-n', '', '--dry-run', 'matrix', 'alpha');
-    await run('-n', '', 'matrix');
-    await run('--name=', 'matrix', 'alpha');
+  test('also in a dry run, and without a realm', async () => {
+    await run('-i', '  ', '--dry-run', 'matrix', 'alpha');
+    await run('-i', '  ', 'matrix');
 
     expect(configManagerDeleteSecretMappings).not.toHaveBeenCalled();
     expect(getTokens).not.toHaveBeenCalled();
     expect(process.exitCode).toBe(1);
   });
 
-  test('an ID that is given is never taken for a delete of all secret mappings', async () => {
-    await run('-n', 'am.example.secret.id', 'matrix', 'alpha');
+  test('an id that is given is never taken for a delete of all secret mappings', async () => {
+    await run('-i', 'am.example.secret.id', 'matrix', 'alpha');
 
     expect(checkBulkDelete).not.toHaveBeenCalled();
     expect(confirmBulkDelete).not.toHaveBeenCalled();

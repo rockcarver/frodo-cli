@@ -10,6 +10,7 @@ import c from '../../../utils/ColorTheme';
 import { verboseMessage } from '../../../utils/Console';
 import { realmOfRun } from '../../../utils/interactive/PositionalArgs';
 import { FrodoCommand, ListOption } from '../../FrodoCommand';
+import { refuseEmptySelector, selectorOption } from '../../SelectorOption';
 
 export default function setup() {
   const program = new FrodoCommand('frodo config-manager delete scripts');
@@ -17,13 +18,29 @@ export default function setup() {
   program
     .description('Delete AM scripts. Default scripts are never deleted.')
     .addOption(
-      new Option('-n, --name <name>', 'Delete a specific script by name.')
+      selectorOption(
+        '-i, --script-id <id>',
+        'Delete a specific script by id. Cannot be used with -n or -p.'
+      ).conflicts(['scriptName', 'prefix'])
+    )
+    .addOption(
+      selectorOption(
+        '-n, --script-name <name>',
+        'Delete a specific script by name. Cannot be used with -i.',
+        ['--name']
+      ).conflicts(['scriptId'])
     )
     .addOption(
       new ListOption(
         '-p, --prefix <prefix>',
-        'Delete all eligible scripts that start with a prefix. Repetition of this flag is allowed. Ignored with -n'
+        'Delete all eligible scripts that start with a prefix. Repetition of this flag is allowed. An empty prefix is refused: it would match every script. Ignored with -n. Cannot be used with -i.'
       )
+        // an empty variable must not mean all scripts, as for a selector
+        .argParser((value: string, previous: string[] = []) => [
+          ...previous,
+          refuseEmptySelector(value),
+        ])
+        .conflicts(['scriptId'])
     )
     .addOption(
       new Option(
@@ -34,7 +51,7 @@ export default function setup() {
     .addOption(
       new Option(
         '-y, --yes',
-        'Do not ask for confirmation before deleting more than one script (no -n). Required without a terminal.'
+        'Do not ask for confirmation before deleting more than one script (no -i or -n). Required without a terminal.'
       )
     )
     .addHelpText(
@@ -69,16 +86,18 @@ export default function setup() {
         command
       );
 
-      // a prefix can match many scripts, so only a single name is deleted
-      // without a question (cli record 0037); a run that nobody can be asked
-      // about is refused before the login
+      // a prefix can match many scripts, so only a single script (by id or by
+      // name) is deleted without a question (cli record 0037); a run that
+      // nobody can be asked about is refused before the login
+      const named =
+        options.scriptId !== undefined || options.scriptName !== undefined;
       const what = options.prefix?.length
         ? `all eligible scripts that start with ${options.prefix
             .map((prefix: string) => `"${prefix}"`)
             .join(' or ')}`
         : 'all eligible scripts';
       if (
-        !options.name &&
+        !named &&
         !checkBulkDelete({ what, yes: options.yes, dryRun: options.dryRun })
       ) {
         process.exitCode = 1;
@@ -91,7 +110,7 @@ export default function setup() {
       }
 
       if (
-        !options.name &&
+        !named &&
         !(await confirmBulkDelete({
           what,
           yes: options.yes,
@@ -110,14 +129,19 @@ export default function setup() {
       }
 
       verboseMessage(
-        options.name ? `Deleting script "${options.name}".` : 'Deleting scripts'
+        options.scriptId !== undefined
+          ? `Deleting script with id "${options.scriptId}".`
+          : options.scriptName !== undefined
+            ? `Deleting script "${options.scriptName}".`
+            : 'Deleting scripts'
       );
       const outcome = await configManagerDeleteScripts(
         options.prefix,
         realmOfRun(command, realm),
-        options.name,
+        options.scriptName,
         options.dryRun,
-        options.allowFailures
+        options.allowFailures,
+        options.scriptId
       );
 
       if (!outcome) process.exitCode = 1;

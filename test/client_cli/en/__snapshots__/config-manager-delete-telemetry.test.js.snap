@@ -34,8 +34,8 @@ Options:
                              "splunk")
   -d, --dry-run              Preview telemetry exporters that would be deleted
                              without deleting them.
-  -n, --name <name>          Name (id) of a single exporter to delete, matched
-                             exactly. Requires --category.
+  -i, --exporter-id <id>     Id of a single exporter to delete, matched exactly.
+                             Requires --category. (alias: -n, --name)
   -y, --yes                  Skip confirmation for bulk deletion. Required for
                              bulk deletion without a terminal.
   -h, --help                 Help

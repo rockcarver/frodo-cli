@@ -10,6 +10,7 @@ import {
 import c from '../../../utils/ColorTheme';
 import { printMessage, verboseMessage } from '../../../utils/Console';
 import { FrodoCommand } from '../../FrodoCommand';
+import { selectorOption } from '../../SelectorOption';
 
 const { CLOUD_DEPLOYMENT_TYPE_KEY, FORGEOPS_DEPLOYMENT_TYPE_KEY } =
   frodo.utils.constants;
@@ -29,9 +30,10 @@ export default function setup() {
   program
     .description('Delete schedules.')
     .addOption(
-      new Option(
-        '-n, --name <name>',
-        'Schedule name, the part of its id after schedule/ (for example taskscan_activate), matched exactly; delete only the specified schedule. If omitted, all schedules are deleted, after a confirmation or with -y.'
+      selectorOption(
+        '-i, --schedule-id <id>',
+        'Schedule id, the part of its id after schedule/ (for example taskscan_activate), matched exactly; delete only the specified schedule. If omitted, all schedules are deleted, after a confirmation or with -y.',
+        ['-n', '--name']
       )
     )
     .addOption(
@@ -43,7 +45,7 @@ export default function setup() {
     .addOption(
       new Option(
         '-y, --yes',
-        'Do not ask for confirmation before deleting more than one schedule (no -n). Required without a terminal.'
+        'Do not ask for confirmation before deleting more than one schedule (no -i). Required without a terminal.'
       )
     )
     .addHelpText(
@@ -59,11 +61,11 @@ export default function setup() {
         ) +
         `  Delete a schedule by name:\n` +
         c.command(
-          `  $ frodo config-manager delete schedules -n taskscan_activate ${s.connId}\n`
+          `  $ frodo config-manager delete schedules -i taskscan_activate ${s.connId}\n`
         ) +
         `  Preview deletion of a schedule by name:\n` +
         c.command(
-          `  $ frodo config-manager delete schedules -n taskscan_activate --dry-run ${s.connId}\n`
+          `  $ frodo config-manager delete schedules -i taskscan_activate --dry-run ${s.connId}\n`
         )
     )
     .multiOp()
@@ -76,12 +78,13 @@ export default function setup() {
         options,
         command
       );
-      // an empty name must never mean "all": "not given" and "given but empty"
-      // are different (-n "$UNSET" gives an empty name)
-      const named = options.name !== undefined;
-      if (named && options.name.trim() === '') {
+      // an empty id must never mean "all": "not given" and "given but empty"
+      // are different (-i "$UNSET" gives an empty id); an empty value is
+      // refused while the command line is parsed, so this is a blank one
+      const named = options.scheduleId !== undefined;
+      if (named && options.scheduleId.trim() === '') {
         printMessage(
-          'The schedule name (-n) must not be empty. To delete all schedules, leave out -n.',
+          'The schedule id (-i) must not be empty. To delete all schedules, leave out -i.',
           'error'
         );
         process.exitCode = 1;
@@ -116,7 +119,7 @@ export default function setup() {
 
       verboseMessage('Deleting schedules');
       const outcome = await configManagerDeleteSchedules(
-        options.name,
+        options.scheduleId,
         options.dryRun,
         options.allowFailures
       );

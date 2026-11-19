@@ -211,16 +211,34 @@ function nodeNameOf(error: FrodoError): string | undefined {
  * @param {string} name Optional display name. If omitted, all custom nodes are targeted.
  * @param {boolean} dryRun Show matching nodes without deleting them.
  * @param {boolean} allowFailures True to succeed although some nodes could not be deleted (the failures are still summarised)
+ * @param {string} id Optional id (`_id`) of the one custom node to delete instead of a display name. The id is looked for in the list of custom nodes that a delete of all reads, so no other request is made, and it must match exactly. An empty id selects nothing, so it is not found (the command refuses an empty value before it connects); an id that no custom node has fails the command whatever `allowFailures` says.
  * @returns {Promise<boolean>} False if the nodes cannot be read or a node cannot be deleted (unless failures are allowed).
  */
 export async function configManagerDeleteCustomNodes(
   name?: string,
   dryRun: boolean = false,
-  allowFailures: boolean = false
+  allowFailures: boolean = false,
+  id?: string
 ): Promise<boolean> {
   const run = new OperationRun({ unit: 'custom node', allowFailures });
   try {
-    if (dryRun) {
+    if (id !== undefined) {
+      const node = (await readCustomNodes()).find((n) => n._id === id);
+      if (!node) {
+        printMessage(`Custom node with id '${id}' not found.`, 'error');
+        return false;
+      }
+      if (dryRun) {
+        printMessage(
+          `Dry run: Deleting node with displayName ${node.displayName}`
+        );
+      } else {
+        await run.run(id, async () => {
+          await deleteCustomNode(node._id);
+          printMessage(`Deleting node with id: ${id}`);
+        });
+      }
+    } else if (dryRun) {
       const nodes = name
         ? [await readCustomNode(undefined, name)]
         : await readCustomNodes();

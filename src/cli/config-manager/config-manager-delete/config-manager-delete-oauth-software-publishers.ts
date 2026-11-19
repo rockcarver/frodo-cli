@@ -13,6 +13,7 @@ import c from '../../../utils/ColorTheme';
 import { printMessage, verboseMessage } from '../../../utils/Console';
 import { realmOfRun } from '../../../utils/interactive/PositionalArgs';
 import { FrodoCommand } from '../../FrodoCommand';
+import { selectorOption } from '../../SelectorOption';
 
 export default function setup() {
   const program = new FrodoCommand(
@@ -22,12 +23,13 @@ export default function setup() {
   program
     .summary('Delete software publishers.')
     .description(
-      'Delete OAuth2 software publishers from the tenant, by name or all of the selected realms. A software publisher is a trust anchor: a software statement it signs is accepted when a client registers itself, and once it is deleted such a registration is rejected until a publisher for it exists again. A realm that does not offer the agent type has nothing to delete. There is no undo; a tree in version control holds the files to push back.'
+      'Delete OAuth2 software publishers from the tenant, by id or all of the selected realms. A software publisher is a trust anchor: a software statement it signs is accepted when a client registers itself, and once it is deleted such a registration is rejected until a publisher for it exists again. A realm that does not offer the agent type has nothing to delete. There is no undo; a tree in version control holds the files to push back.'
     )
     .addOption(
-      new Option(
-        '-n, --name <name>',
-        'Software publisher name (the name of the object). If specified, deletes only that publisher, without asking. Needs a single realm.'
+      selectorOption(
+        '-i, --software-publisher-id <id>',
+        'Software publisher id (the id of the object). If specified, deletes only that publisher, without asking. Needs a single realm.',
+        ['-n', '--name']
       )
     )
     .addOption(
@@ -39,7 +41,7 @@ export default function setup() {
     .addOption(
       new Option(
         '-y, --yes',
-        'Do not ask for confirmation before deleting more than one software publisher (no -n). Required without a terminal.'
+        'Do not ask for confirmation before deleting more than one software publisher (no -i). Required without a terminal.'
       )
     )
     .addHelpText(
@@ -55,11 +57,11 @@ export default function setup() {
         ) +
         `  Delete one software publisher of a realm:\n` +
         c.command(
-          `  $ frodo config-manager delete oauth-software-publishers -n ${s.softwarePublisherId} ${s.connId} ${s.realm}\n`
+          `  $ frodo config-manager delete oauth-software-publishers -i ${s.softwarePublisherId} ${s.connId} ${s.realm}\n`
         ) +
         `  Preview the deletion of one software publisher:\n` +
         c.command(
-          `  $ frodo config-manager delete oauth-software-publishers -n ${s.softwarePublisherId} --dry-run ${s.connId} ${s.realm}\n`
+          `  $ frodo config-manager delete oauth-software-publishers -i ${s.softwarePublisherId} --dry-run ${s.connId} ${s.realm}\n`
         )
     )
     .multiOp()
@@ -74,18 +76,19 @@ export default function setup() {
         command
       );
 
-      // an empty name must never mean "all": "not given" and "given but empty"
-      // are different (-n "$UNSET" gives an empty name)
-      const named = options.name !== undefined;
-      if (named && options.name.trim() === '') {
+      // an empty id must never mean "all": "not given" and "given but empty"
+      // are different (-i "$UNSET" gives an empty id); an empty value is
+      // refused while the command line is parsed, so this is a blank one
+      const named = options.softwarePublisherId !== undefined;
+      if (named && options.softwarePublisherId.trim() === '') {
         printMessage(
-          'The software publisher name must not be empty. To delete all software publishers, leave out -n.',
+          'The software publisher id (-i) must not be empty. To delete all software publishers, leave out -i.',
           'error'
         );
         process.exitCode = 1;
         return;
       }
-      // only a single name is deleted without a question (cli record 0037); a
+      // only a single id is deleted without a question (cli record 0037); a
       // run that nobody can be asked about is refused before the login
       const what = 'all software publishers in the selected realms';
       if (
@@ -107,7 +110,7 @@ export default function setup() {
           dryRun: options.dryRun,
           showPlan: () =>
             showSoftwarePublisherDeletePlan(
-              options.name,
+              options.softwarePublisherId,
               realmOfRun(command, realm)
             ),
         }))
@@ -118,11 +121,11 @@ export default function setup() {
 
       verboseMessage(
         named
-          ? `Deleting software publisher "${options.name}".`
+          ? `Deleting software publisher "${options.softwarePublisherId}".`
           : 'Deleting software publishers.'
       );
       const outcome = await configManagerDeleteSoftwarePublishers(
-        options.name,
+        options.softwarePublisherId,
         realmOfRun(command, realm),
         options.dryRun,
         options.allowFailures

@@ -766,3 +766,138 @@ describe('which realms and which applications', () => {
     expect(order()).toEqual(['deleteApplication a1 deep=false']);
   });
 });
+
+describe('one application by id', () => {
+  test('is deleted with the objects it owns, and no other application, by the id that the list of the realm gives it', async () => {
+    world.apps.alpha = [
+      app('a1', 'Zion Portal', [ref('oauth2Client', 'c1')]),
+      app('a2', 'Zion Portal Copy', [ref('oauth2Client', 'c2')]),
+    ];
+
+    const outcome = await configManagerDeleteApplications(
+      undefined,
+      'alpha',
+      false,
+      false,
+      'a2'
+    );
+
+    expect(outcome).toBe(true);
+    expect(order()).toEqual([
+      'deleteApplication a2 deep=false',
+      'deleteApplicationOwnedObjects Zion Portal Copy',
+      '  delete oauth2Client c2',
+    ]);
+    // the id is looked for in the list that a delete of all reads, and the status is the one of that application
+    expect(calls).toContain('readApplications alpha');
+    expect(calls).toContain('readApplicationStatus a2');
+    expect(calls.some((c) => c.startsWith('readApplicationByName'))).toBe(
+      false
+    );
+    expect(calls).not.toContain('readApplicationStatuses alpha');
+  });
+
+  test('an id never deletes all applications of the realm', async () => {
+    world.apps.alpha = [app('a1', 'One'), app('a2', 'Two'), app('a3', 'Three')];
+
+    await configManagerDeleteApplications(undefined, 'alpha', false, false, 'a3');
+
+    expect(calls.filter((c) => c.startsWith('deleteApplication '))).toEqual([
+      'deleteApplication a3 deep=false',
+    ]);
+  });
+
+  test('an id is matched exactly: the name of an application, or a prefix of an id, selects nothing', async () => {
+    world.apps.alpha = [app('a1', 'a2'), app('a22', 'Other')];
+
+    for (const id of ['a2', 'a', 'A1']) {
+      printed = [];
+      expect(
+        await configManagerDeleteApplications(undefined, 'alpha', false, false, id)
+      ).toBe(false);
+      expect(output()).toContain(`application '${id}' in realm 'alpha'`);
+    }
+    expect(order()).toEqual([]);
+  });
+
+  test.each([false, true])(
+    'an id that the realm does not have exits 1 whatever --allow-failures says (allow=%s)',
+    async (allowFailures) => {
+      world.apps.alpha = [app('a1', 'Neo Portal')];
+
+      const outcome = await configManagerDeleteApplications(
+        undefined,
+        'alpha',
+        false,
+        allowFailures,
+        'a9'
+      );
+
+      expect(outcome).toBe(false);
+      expect(order()).toEqual([]);
+      expect(output()).toContain("Application with id 'a9' not found");
+    }
+  );
+
+  test('an id needs a single realm, as a name does', async () => {
+    world.realms = ['alpha', 'bravo'];
+
+    const outcome = await configManagerDeleteApplications(
+      undefined,
+      undefined,
+      false,
+      false,
+      'a1'
+    );
+
+    expect(outcome).toBe(false);
+    expect(output()).toContain(
+      'for a named application, specify a single realm'
+    );
+    expect(order()).toEqual([]);
+  });
+
+  test('an active application is refused by id as by name, and nothing of it is deleted', async () => {
+    world.apps.alpha = [
+      app('a1', 'Zion Portal', [ref('connector', 'ZionDirectory')], 'ZionDirectory'),
+    ];
+    world.status.a1 = 'active';
+
+    const outcome = await configManagerDeleteApplications(
+      undefined,
+      'alpha',
+      false,
+      false,
+      'a1'
+    );
+
+    expect(outcome).toBe(false);
+    expect(order()).toEqual([]);
+    expect(output()).toContain('frodo app disable -n "Zion Portal"');
+  });
+
+  test('the dry run sends no delete and shows the plan of that one application', async () => {
+    world.apps.alpha = [
+      app('a1', 'Zion Portal', [ref('oauth2Client', 'c1')]),
+      app('a2', 'Neo Portal', [ref('oauth2Client', 'c2')]),
+    ];
+
+    expect(
+      await configManagerDeleteApplications(undefined, 'alpha', true, false, 'a1')
+    ).toBe(true);
+
+    expect(order()).toEqual([]);
+    expect(output()).toContain('Dry run: application "Zion Portal"');
+    expect(output()).not.toContain('Neo Portal');
+  });
+
+  test('the dry run of an id that the realm does not have fails', async () => {
+    world.apps.alpha = [app('a1', 'Zion Portal')];
+
+    expect(
+      await configManagerDeleteApplications(undefined, 'alpha', true, true, 'a9')
+    ).toBe(false);
+    expect(output()).toContain("Application with id 'a9' not found");
+  });
+});
+

@@ -783,7 +783,7 @@ describe('frodo config-manager delete telemetry (the command)', () => {
   });
 
   test('an exporter named by its id is deleted without a check and without a question', async () => {
-    await run('-c', 'otlp', '-n', 'otlp-two');
+    await run('-c', 'otlp', '-i', 'otlp-two');
 
     expect(checkBulkDelete).not.toHaveBeenCalled();
     expect(confirmBulkDelete).not.toHaveBeenCalled();
@@ -794,7 +794,7 @@ describe('frodo config-manager delete telemetry (the command)', () => {
   });
 
   test('an exporter that does not exist exits 1 and deletes nothing', async () => {
-    await run('-c', 'otlp', '-n', 'NOPE');
+    await run('-c', 'otlp', '-i', 'NOPE');
 
     expect(deleteCalls()).toEqual([]);
     expect(messages('error')).toEqual([
@@ -803,8 +803,8 @@ describe('frodo config-manager delete telemetry (the command)', () => {
     expect(process.exitCode).toBe(1);
   });
 
-  test('a name without a category is an error before the check and the login, and nothing is deleted', async () => {
-    await run('-n', 'otlp-one');
+  test('an id without a category is an error before the check and the login, and nothing is deleted', async () => {
+    await run('-i', 'otlp-one');
 
     expect(events).toEqual([]);
     expect(calls).toEqual([]);
@@ -814,24 +814,24 @@ describe('frodo config-manager delete telemetry (the command)', () => {
     expect(process.exitCode).toBe(1);
   });
 
-  test.each([[''], ['  ']])(
-    'an empty or blank name (%j) is not "delete all": it is not asked about, deletes nothing and exits 1',
+  test.each([['  ']])(
+    'a blank id (%j) is not "delete all": it is not asked about, deletes nothing and exits 1 (an empty one is refused by the parser)',
     async (blank) => {
-      await run('-c', 'otlp', '-n', blank);
+      await run('-c', 'otlp', '-i', blank);
 
       expect(events).toEqual([]);
       expect(checkBulkDelete).not.toHaveBeenCalled();
       expect(confirmBulkDelete).not.toHaveBeenCalled();
       expect(calls).toEqual([]);
       expect(messages('error')).toEqual([
-        'The telemetry exporter name (-n) must not be empty.',
+        'The telemetry exporter id (-i) must not be empty.',
       ]);
       expect(process.exitCode).toBe(1);
     }
   );
 
-  test('an empty name without a category is an error too', async () => {
-    await run('-n', '');
+  test('a blank id without a category is an error too', async () => {
+    await run('-i', '  ');
 
     expect(events).toEqual([]);
     expect(calls).toEqual([]);
@@ -867,14 +867,14 @@ describe('frodo config-manager delete telemetry (the command)', () => {
     expect(process.exitCode).toBe(1);
 
     process.exitCode = undefined;
-    await run('-c', 'otlp', '-n', 'otlp-one');
+    await run('-c', 'otlp', '-i', 'otlp-one');
     expect(calls).toEqual([]);
     expect(process.exitCode).toBe(1);
     expect(confirmBulkDelete).not.toHaveBeenCalled();
   });
 
   test('logs in for Cloud only', async () => {
-    await run('-c', 'otlp', '-n', 'otlp-one');
+    await run('-c', 'otlp', '-i', 'otlp-one');
 
     expect(getTokens).toHaveBeenCalledWith(false, true, ['cloud']);
   });
