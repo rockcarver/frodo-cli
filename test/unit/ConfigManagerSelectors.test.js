@@ -801,6 +801,27 @@ describe('the selectors of the configuration commands', () => {
       }
     );
 
+    it('refuses an empty prefix of pull scripts, which would match every script, and takes repeated prefixes', () => {
+      const name = 'frodo config-manager pull scripts';
+
+      for (const args of [['-p', ''], ['--prefix', ''], ['--prefix=']]) {
+        const error = failure(name, args);
+
+        expect([args.join(' '), error?.code, error?.exitCode]).toEqual([
+          args.join(' '),
+          'commander.invalidArgument',
+          1,
+        ]);
+        expect(error.message).toContain("option '-p, --prefix <prefix>'");
+        expect(error.message).toContain(
+          'An empty value never selects all objects'
+        );
+      }
+      expect(failure(name, ['-p', 'a', '-p', ''])).toBeDefined();
+      expect(failure(name, ['-p', 'a'])).toBeUndefined();
+      expect(parse(name, ['-p', 'a', '--prefix=b']).prefix).toEqual(['a', 'b']);
+    });
+
     it('keeps the letters of the other options: -n is no letter of another option on a renamed command', () => {
       for (const row of EXPECTED_SELECTORS) {
         const others = commands

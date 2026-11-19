@@ -31,8 +31,9 @@ Options:
   -n, --script-name <name>  Export specific script using filename. Omit file
                             extension. Cannot be used with -i or -p.
   -p, --prefix <prefix>     Export all scripts that start with a certain prefix.
-                            Repetition of this flag is allowed. Cannot be used
-                            with -i or -n. (default: [])
+                            Repetition of this flag is allowed. An empty prefix
+                            is refused: it would match every script. Cannot be
+                            used with -i or -n. (default: [])
   -h, --help                Help
   -hh, --help-more          Help with all options.
   -hhh, --help-all          Help with all options, environment variables, and

@@ -29,9 +29,10 @@ Options:
                                    with code 0. Without this option the command
                                    runs every operation, prints a summary of
                                    what failed and exits with code 1.
-  -i, --connector-mapping-id <id>  Connector mapping id (the name of the
-                                   mapping). If specified, only exports the
-                                   mapping with the specified id.
+  -i, --connector-mapping-id <id>  Connector mapping id: the name of the
+                                   mapping, without the sync/ prefix. If
+                                   specified, only exports the mapping with the
+                                   specified id.
   -h, --help                       Help
   -hh, --help-more                 Help with all options.
   -hhh, --help-all                 Help with all options, environment variables,
