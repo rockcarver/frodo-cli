@@ -494,6 +494,29 @@ question or with `-y`. The prefix of `delete scripts` is refused when it is empt
 all of them. A name that is only blanks is still refused by the command in its
 own words.
 
+A selector is an id or a name, never a path
+([a selector is an id or a name, never a path](https://github.com/rockcarver/frodo-cli/blob/main/docs/decisions/0059-a-selector-is-an-id-or-a-name-never-a-path.md)).
+The selector (`-i`, `-n`, `--name`) of the nine `push` commands that turn it into
+a file (`connector-definitions`, `connector-mappings`, `managed-objects`,
+`org-privileges`, `remote-proxies`, `journeys`, `oauth-issuers`,
+`oauth-cimd-profiles` and `oauth-software-publishers`) finds the file that `pull`
+writes for that id or name: a `/` is written `%2F`, so `-i a/b` is the file
+`a%2Fb.json`, and `-i ../x` is a name that no file has, which fails with exit
+code 1 also with `--allow-failures`. The three agent types no longer find a file
+that was named by hand with a character left as it is (`a*b.json` for the id
+`a*b`): rename it the way `pull` writes it (`ab.json`). They find an id of more
+than 250 bytes by the shortened name that `pull` writes.
+
+A realm that is not `/`, a name or a path of names such as `/parent/child` (for
+example `..`, `../alpha`, `a\b`, or a name with `?`, `#` or `%`) is refused with
+exit code 1 before the command connects, also when it comes from `FRODO_REALM`,
+on every `config-manager` command that runs in a realm.
+
+`delete secret-mappings -i` reads the list of the mappings first and deletes the
+mapping that has exactly that id. An id that is not a mapping, or that differs in
+case, exits with code 1 whatever `--allow-failures` says, and `--dry-run` reads
+the list the same way.
+
 In the root realm of a Cloud tenant, which has no scripts, no applications and
 no themes, a selector on `pull scripts`, `pull applications` or `pull themes`
 prints one warning that there is nothing to pull for it (the exit code is still
