@@ -113,7 +113,10 @@
  * FAKE_AM_SECRET_STORES_FILE=<path> names a JSON file `{ stores: [{ _id, type }],
  * mappings: { <store id>: [{ secretId, aliases }] } }` the fake serves the secret
  * stores of the realm (`.../secrets/stores?_action=nextdescendents`) and their
- * mappings from; creating or replacing a mapping is answered `200`.
+ * mappings from; creating or replacing a mapping is answered `200`, and a `DELETE`
+ * of one mapping removes it (`404` for an id that the store does not hold; ids are
+ * matched exactly); a `DELETE` of any other path under a store is answered `404`
+ * like every path the fake does not know.
  * FAKE_AM_TREES=<name,name,...> makes the journey list of the realm
  * (`.../authenticationtrees/trees`) answer with trees of those names; an empty
  * value is a realm without journeys. Without it the list answers 404. The
@@ -975,6 +978,15 @@ const server = http.createServer((req, res) => {
           : send(404, { code: 404, message: 'not found' });
       }
       if (mapping && req.method === 'PUT') return send(200, {});
+      if (mapping && req.method === 'DELETE') {
+        const held = secretStores.mappings?.[mapping[1]] ?? [];
+        const index = held.findIndex(
+          ({ secretId }) => secretId === decodeURIComponent(mapping[2])
+        );
+        if (index === -1) return send(404, { code: 404, message: 'not found' });
+        const [removed] = held.splice(index, 1);
+        return send(200, { _id: removed.secretId, ...removed });
+      }
     }
     if (trees && pathname.endsWith('/authenticationtrees/trees')) {
       return send(200, {
