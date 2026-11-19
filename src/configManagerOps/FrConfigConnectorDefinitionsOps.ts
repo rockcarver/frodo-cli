@@ -1,4 +1,5 @@
 import fs from 'fs';
+import { basename } from 'path';
 import { frodo, type ConnectorSkeleton } from '@rockcarver/frodo-lib';
 import {
   objectNameInFile,
@@ -6,6 +7,7 @@ import {
   OwnedObjects,
   skipsOwnedObjects,
 } from '../ops/ApplicationOwnedObjects';
+import { objectFilePath } from '../utils/ConfigTreePath';
 import { printError, printMessage } from '../utils/Console';
 import { causeOf } from '../utils/ErrorCause';
 import { countItems, importItemsOfFile } from '../utils/ImportItems';
@@ -105,9 +107,10 @@ export async function configManagerImportConnectors(
   const run = new OperationRun({ unit: 'connector', allowFailures });
   try {
     const connectorDir = `${getWorkingDirectory()}/sync/connectors`;
-    if (name && !fs.existsSync(`${connectorDir}/${name}.json`)) {
+    const namedFile = name ? objectFilePath(connectorDir, name) : undefined;
+    if (namedFile && !fs.existsSync(namedFile)) {
       printMessage(
-        `Connector definition file ${name}.json not found in ${connectorDir}.`,
+        `Connector definition file ${basename(namedFile)} not found in ${connectorDir}.`,
         'error'
       );
       return false;
@@ -119,8 +122,8 @@ export async function configManagerImportConnectors(
       );
       return false;
     }
-    const connMappingFiles = name
-      ? [`${name}.json`]
+    const connMappingFiles = namedFile
+      ? [basename(namedFile)]
       : fs.readdirSync(connectorDir);
     if (connMappingFiles.length === 0) {
       printMessage(

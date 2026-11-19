@@ -8,6 +8,7 @@ import {
   skipsOwnedObjects,
 } from '../ops/ApplicationOwnedObjects';
 import { extractFrConfigDataToFile } from '../utils/Config';
+import { objectFilePath, objectFolderPath } from '../utils/ConfigTreePath';
 import { printError, printMessage, verboseMessage } from '../utils/Console';
 import { isNotFoundError } from '../utils/ErrorCause';
 import { OperationRun } from '../utils/OperationRun';
@@ -199,7 +200,10 @@ export async function configManagerImportMappings(
       return true;
     };
     if (name) {
-      const jsonFilePath = getFilePath(`sync/mappings/${name}/${name}.json`);
+      const jsonFilePath = objectFilePath(
+        objectFolderPath(getFilePath('sync/mappings'), name),
+        name
+      );
       if (skipIfOwned(name, jsonFilePath)) return true;
       const importData = getConnectorMappingImportData(jsonFilePath) as any;
       await importSubConfigEntity('sync', importData);

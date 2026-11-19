@@ -5,6 +5,7 @@ import {
   type FrodoError,
   type IdObjectSkeletonInterface,
 } from '@rockcarver/frodo-lib';
+import { objectFilePath } from '../utils/ConfigTreePath';
 import { printError, printMessage, verboseMessage } from '../utils/Console';
 import { realmList } from '../utils/FrConfig';
 import { OperationRun } from '../utils/OperationRun';
@@ -150,7 +151,7 @@ export async function configManagerImportOrgPrivileges(
   try {
     const run = new OperationRun({ unit: 'configuration', allowFailures });
     if (name !== undefined) {
-      const file = getFilePath(`org-privileges/${name}.json`);
+      const file = objectFilePath(getFilePath('org-privileges'), name);
       if (!fs.existsSync(file)) {
         printMessage(
           `Organization privileges file not found: ${file}`,

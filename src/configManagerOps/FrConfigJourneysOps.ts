@@ -12,6 +12,7 @@ import {
   wantsJourneyFindingsHint,
 } from '../ops/JourneyFindingsHint';
 import { extractFrConfigDataToFile } from '../utils/Config';
+import { objectFilePath, objectFolderPath } from '../utils/ConfigTreePath';
 import { printError, printMessage } from '../utils/Console';
 import { causeOf } from '../utils/ErrorCause';
 import { existScript, realmList, safeFileName } from '../utils/FrConfig';
@@ -306,8 +307,9 @@ function processJourneyImport(
   }
   processedJourneys.add(journeyName);
 
+  const journeyDir = objectFolderPath(journeysBaseDir, journeyName);
   const tree = readJsonFile(
-    `${journeysBaseDir}/${journeyName}/${journeyName}.json`
+    objectFilePath(journeyDir, journeyName)
   ) as TreeSkeleton;
 
   const journeyData = createSingleTreeExportTemplate();
@@ -315,7 +317,7 @@ function processJourneyImport(
 
   const innerTreeNames: string[] = [];
 
-  const nodesDir = `${journeysBaseDir}/${journeyName}/nodes`;
+  const nodesDir = `${journeyDir}/nodes`;
   if (fs.existsSync(nodesDir)) {
     const entries = fs.readdirSync(nodesDir, { withFileTypes: true });
 
@@ -429,8 +431,8 @@ export async function configManagerImportJourneys(
       const processed = new Set<string>();
 
       for (const journeyName of journeyNames) {
-        const journeyDir = `${journeysBaseDir}/${journeyName}`;
-        if (!fs.existsSync(journeyDir)) continue;
+        if (!fs.existsSync(objectFolderPath(journeysBaseDir, journeyName)))
+          continue;
         found = true;
 
         try {
