@@ -152,7 +152,7 @@ async function everythingOfAgents(
       `Agent or OAuth2 client '${agentId}' not found in realm '${realms[0]}'. The agent types that have a command of their own (${Object.values(
         DEDICATED_AGENT_KINDS
       )
-        .map((kind) => kind.kind)
+        .map((entry) => entry.kind)
         .join(', ')}) are not looked up here.`,
       'error'
     );
