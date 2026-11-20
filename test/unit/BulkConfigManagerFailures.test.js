@@ -324,7 +324,8 @@ const CSP_FILE = 'src/configManagerOps/FrConfigCspOps.ts';
 const FILES = new Set([...PULLS, ...PUSHES].map((c) => c.file)).add(CSP_FILE);
 
 // every relative import of the modules under test becomes spies, except the
-// run tracker, the import helpers, the cause helper and the modules themselves
+// run tracker, the import helpers, the cause helper, the helper that makes a
+// selector a file name (pure) and the modules themselves
 const modulesUnderTest = new Set(
   [...FILES].map((file) => path.resolve(root, file).replace(/\.ts$/, ''))
 );
@@ -340,7 +341,8 @@ for (const file of FILES) {
       modulesUnderTest.has(target) ||
       target.endsWith('/utils/OperationRun') ||
       target.endsWith('/utils/ImportItems') ||
-      target.endsWith('/utils/ErrorCause')
+      target.endsWith('/utils/ErrorCause') ||
+      target.endsWith('/utils/ConfigTreePath')
     ) {
       continue;
     }

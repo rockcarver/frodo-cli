@@ -21,7 +21,8 @@ import {
  *
  * Same technique as ConfigManagerDeleteFailures.test.js: the library is a deep
  * stub and every relative import of the modules under test is a set of spies,
- * while OperationRun, ErrorCause and the modules themselves stay real. The push
+ * while OperationRun, ErrorCause, the path helper ConfigTreePath (pure) and the modules
+ * themselves stay real. The push
  * commands read the file system, so they run on a folder in the temp
  * directory.
  */
@@ -475,8 +476,9 @@ const CASES = [
 
 // every relative import of the modules under test becomes spies, except the
 // run tracker, the cause helper, the function that writes an agent in the plain
-// shape and the one that replaces a key set with private key material (all pure:
-// the modules under test need their results) and the modules under test themselves
+// shape, the one that replaces a key set with private key material and the one that
+// makes a selector a file name (all pure: the modules under test need their results)
+// and the modules under test themselves
 const modulesUnderTest = new Set(
   CASES.map((c) => path.resolve(root, c.file).replace(/\.ts$/, ''))
 );
@@ -492,6 +494,7 @@ for (const file of new Set(CASES.map((c) => c.file))) {
       modulesUnderTest.has(target) ||
       target.endsWith('/utils/OperationRun') ||
       target.endsWith('/utils/ErrorCause') ||
+      target.endsWith('/utils/ConfigTreePath') ||
       target.endsWith('/ops/AgentFileShape') ||
       target.endsWith('/ops/AgentKeySets')
     ) {

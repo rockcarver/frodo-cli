@@ -2,6 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import { frodo } from '@rockcarver/frodo-lib';
 import { extractFrConfigDataToFile } from '../utils/Config';
+import { objectFilePath, objectFolderPath } from '../utils/ConfigTreePath';
 import { printError, printMessage } from '../utils/Console';
 import { OperationRun } from '../utils/OperationRun';
 
@@ -184,8 +185,9 @@ export async function configManagerImportManagedObjects(
 ): Promise<boolean> {
   try {
     if (objectName) {
-      const filePath = getFilePath(
-        `managed-objects/${objectName}/${objectName}.json`
+      const filePath = objectFilePath(
+        objectFolderPath(getFilePath('managed-objects'), objectName),
+        objectName
       );
       const importData = getManagedObjectImportData(filePath) as any;
       await importSubConfigEntity('managed', importData);

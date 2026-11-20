@@ -13,14 +13,16 @@
  *   command line names must exist whatever `--allow-failures` says (decision record 0041).
  */
 import fs from 'fs';
+import { basename } from 'path';
 import { frodo, FrodoError, state } from '@rockcarver/frodo-lib';
+import {
+  fileNameOf,
+  objectFilePath,
+  realmFolderOf,
+} from '../utils/ConfigTreePath';
 import { printError, printMessage, verboseMessage } from '../utils/Console';
 import { causeOf } from '../utils/ErrorCause';
-import {
-  clearOperationalAttributes,
-  realmList,
-  safeFileName,
-} from '../utils/FrConfig';
+import { clearOperationalAttributes, realmList } from '../utils/FrConfig';
 import { OperationRun } from '../utils/OperationRun';
 import { leftOutMessage, plainOverrides, toPlainShape } from './AgentFileShape';
 import {
@@ -64,14 +66,6 @@ export type KindOverrides = Record<
 >;
 
 /**
- * The folder of a realm in a config tree: `root` for the root realm.
- * @param {string} realm the realm, as the state names it
- * @returns {string} the folder name
- */
-export const realmDirOf = (realm: string): string =>
-  realm === '/' ? 'root' : realm;
-
-/**
  * The realm that a realm folder of a tree stands for.
  * @param {string} realmDir the folder name
  * @returns {string} the realm, as the state names it
@@ -91,7 +85,7 @@ export function agentKindFilePath(
   realm: string,
   fileName: string
 ): string {
-  return `realms/${realmDirOf(realm)}/realm-config/agents/${agentType}/${fileName}.json`;
+  return `realms/${realmFolderOf(realm)}/realm-config/agents/${agentType}/${fileName}.json`;
 }
 
 /**
@@ -135,27 +129,6 @@ export async function realmsToVisit(realm?: string): Promise<string[]> {
   return state.getDeploymentType() === CLOUD_DEPLOYMENT_TYPE_KEY
     ? realms.filter((r) => r !== '/')
     : realms;
-}
-
-/** The longest file name, 255 bytes on the usual file systems, less the extension `.json`. */
-const MAX_FILE_NAME_BYTES = 250;
-
-/**
- * The file name (without the extension) of an object: its id made safe for a file system, and cut
- * to what a file name can hold. The servers accept ids of thousands of characters, and the file
- * name function of the library cuts at 255 bytes, which leaves no room for the extension.
- * @param {string} id the id of the object
- * @returns {string} the file name without the extension
- */
-function fileNameOf(id: string): string {
-  const name = safeFileName(id);
-  if (Buffer.byteLength(name) <= MAX_FILE_NAME_BYTES) return name;
-  // cut at a byte count, then drop the half character the cut may leave and what a file name cannot end with
-  return Buffer.from(name)
-    .subarray(0, MAX_FILE_NAME_BYTES)
-    .toString('utf8')
-    .replace(/\uFFFD+$/, '')
-    .replace(/[. ]+$/, '');
 }
 
 /**
@@ -406,7 +379,7 @@ export async function pullAgentKind(
     for (const currentRealm of realms) {
       state.setRealm(currentRealm);
       visited.add(currentRealm);
-      const realmDir = realmDirOf(currentRealm);
+      const realmDir = realmFolderOf(currentRealm);
 
       if (hooks.isAvailable) {
         let available: boolean;
@@ -613,8 +586,8 @@ function idOfFile(file: string): string {
 }
 
 /**
- * The files of a folder that a push reads: every `*.json`, sorted; with a name only its file
- * (the name made safe for a file system, otherwise the plain name).
+ * The files of a folder that a push reads: every `*.json`, sorted; with a name only its file, the
+ * file name of that id (a name is an id, never a path: `a/b` is the file `a%2Fb.json`).
  * @param {string} dir the folder of the type in one realm
  * @param {string} name optional name
  * @returns {string[]} the file names, none if the named file does not exist
@@ -626,9 +599,8 @@ function filesToPush(dir: string, name?: string): string[] {
       .filter((file) => file.endsWith('.json'))
       .sort();
   }
-  return [`${safeFileName(name)}.json`, `${name}.json`]
-    .filter((file) => fs.existsSync(`${dir}/${file}`))
-    .slice(0, 1);
+  const file = objectFilePath(dir, fileNameOf(name));
+  return fs.existsSync(file) ? [basename(file)] : [];
 }
 
 /**
@@ -693,7 +665,7 @@ export async function pushAgentKind(
     const capital = `${kind.label.charAt(0).toUpperCase()}${kind.label.slice(1)}`;
 
     for (const currentRealm of realms) {
-      const realmDir = realmDirOf(currentRealm);
+      const realmDir = realmFolderOf(currentRealm);
       const dir = getFilePath(
         `realms/${realmDir}/realm-config/agents/${kind.agentType}`
       );
@@ -701,7 +673,7 @@ export async function pushAgentKind(
       if (files.length === 0) {
         if (name) {
           printMessage(
-            `No ${kind.label} file '${name}.json' in ${dir}.`,
+            `No ${kind.label} file '${fileNameOf(name)}.json' in ${dir}.`,
             'error'
           );
           namedFailed = true;
@@ -899,7 +871,7 @@ async function selectAgentKindToDelete(
   let namedFailed = false;
   for (const currentRealm of realms) {
     state.setRealm(currentRealm);
-    const realmDir = realmDirOf(currentRealm);
+    const realmDir = realmFolderOf(currentRealm);
     try {
       if (hooks.isAvailable && !(await hooks.isAvailable())) {
         if (name) {
