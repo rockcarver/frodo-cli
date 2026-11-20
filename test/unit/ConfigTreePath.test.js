@@ -3,6 +3,7 @@ import { describe, expect, it } from '@jest/globals';
 import {
   assertInside,
   fileNameOf,
+  isOneSafeSegment,
   objectFilePath,
   objectFolderPath,
   realmFolderOf,
@@ -294,5 +295,46 @@ describe('realmFolderOf', () => {
     expect(() => realmFolderOf(realm)).toThrow(
       `The realm '${realm}' is not '/', a name or a path of names.`
     );
+  });
+});
+
+describe('isOneSafeSegment', () => {
+  it.each([
+    ['x'],
+    ['zion-a'],
+    ['a b'],
+    ['a.b'],
+    ['..foo'],
+    ['foo..'],
+    ['a..b'],
+    ['...'],
+    ['%2e%2e'],
+    ['a%2Fb'],
+    ['2.2_Agent'],
+    ['a:b'],
+    ['a?b'],
+    ['\u00e9'],
+  ])('%j is one safe segment', (candidate) => {
+    expect(isOneSafeSegment(candidate)).toBe(true);
+  });
+
+  it.each([
+    [''],
+    ['.'],
+    ['..'],
+    ['a/b'],
+    ['/a'],
+    ['a/'],
+    ['../x'],
+    ['x/..'],
+    ['a\\b'],
+    ['..\\x'],
+    ['a\u0000b'],
+    ['a\tb'],
+    ['a\nb'],
+    ['a\u007fb'],
+    ['a\u0085b'],
+  ])('%j is not', (candidate) => {
+    expect(isOneSafeSegment(candidate)).toBe(false);
   });
 });
