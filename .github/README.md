@@ -84,6 +84,19 @@ framed event feed; scroll up to review history, back down to re-follow.
 See [docs/INTERACTIVE-COMMANDS.md](../docs/INTERACTIVE-COMMANDS.md) for the
 architecture behind these surfaces.
 
+### The frodo JS shell
+
+`frodo shell` is a JavaScript console for working with a connected
+environment: type expressions, get results immediately, with authentication
+attached. The `openidm` and `am` bindings expose the IDM scripting functions
+and the AM realm APIs, `$` sends credentialed REST calls, and tab completion
+is driven by a catalog enriched from the tenant's live configuration, so
+suggestions match the environment you are connected to. Ctrl+R searches
+history, Ctrl+O opens any result as a collapsible tree, and `--web` serves
+the same console as a local browser page behind a one-time sign-in link.
+
+See [The frodo JS shell](../docs/SHELL.md) for the full guide.
+
 ### Based on Frodo Library 5.x
 
 [Frodo Library 5.x](https://github.com/rockcarver/frodo-lib?tab=readme-ov-file#frodo-library-5x---rockcarverfrodo-lib)
