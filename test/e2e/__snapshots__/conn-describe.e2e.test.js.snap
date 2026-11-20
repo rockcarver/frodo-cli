@@ -12,22 +12,22 @@ Amster Private Key    │[present]
 `;
 
 exports[`frodo conn describe Cloud "frodo conn describe https://openam-frodo-dev.forgeblocks.com/am": should describe the connection 1`] = `
-"Host                 │https://openam-frodo-dev.forgeblocks.com/am
-Deployment Type      │cloud                                      
-isIGA                │false                                      
-Service Account Name │Frodo-SA-1758728043147                     
-Service Account Id   │912dcd07-421b-4ba9-b019-edbfe66a89be       
-Service Account JWK  │[present]                                  
-Service Account Scope│fr:am:*                                    
-                     │fr:idc:analytics:*                         
-                     │fr:idc:certificate:*                       
-                     │fr:idc:content-security-policy:*           
-                     │fr:idc:cookie-domain:*                     
-                     │fr:idc:custom-domain:*                     
-                     │fr:idc:esv:*                               
-                     │fr:idc:promotion:*                         
-                     │fr:idc:release:*                           
-                     │fr:idc:sso-cookie:*                        
-                     │fr:idm:*                                   
+"Host                 │https://openam-frodo-dev.forgeblocks.com/am                       
+Deployment Type      │cloud                                                             
+isIGA                │false                                                             
+Service Account Name │frodo-sandeep.chaturvedi@pingidentity.com-2026-11-20T15:51:01.281Z
+Service Account Id   │912dcd07-421b-4ba9-b019-edbfe66a89be                              
+Service Account JWK  │[present]                                                         
+Service Account Scope│fr:am:*                                                           
+                     │fr:idc:analytics:*                                                
+                     │fr:idc:certificate:*                                              
+                     │fr:idc:content-security-policy:*                                  
+                     │fr:idc:cookie-domain:*                                            
+                     │fr:idc:custom-domain:*                                            
+                     │fr:idc:esv:*                                                      
+                     │fr:idc:promotion:*                                                
+                     │fr:idc:release:*                                                  
+                     │fr:idc:sso-cookie:*                                               
+                     │fr:idm:*                                                          
 "
 `;

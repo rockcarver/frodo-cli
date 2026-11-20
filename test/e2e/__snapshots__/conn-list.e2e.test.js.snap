@@ -1,16 +1,16 @@
 // Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
 exports[`frodo conn list "frodo conn list --long": should list the connection hosts, service accounts, usernames, and log API keys. 1`] = `
-"Host                                       │Alias │Service Account       │Username│Log API Key│Authentication Service
-http://openam-frodo-dev.amster.com:8080/am │amster│                      │amadmin │           │MockAmsterService     
-https://openam-frodo-dev.forgeblocks.com/am│      │Frodo-SA-1758728043147│        │           │                      
+"Host                                       │Alias │Service Account                                                   │Username│Log API Key│Authentication Service
+http://openam-frodo-dev.amster.com:8080/am │amster│                                                                  │amadmin │           │MockAmsterService     
+https://openam-frodo-dev.forgeblocks.com/am│      │frodo-sandeep.chaturvedi@pingidentity.com-2026-11-20T15:51:01.281Z│        │           │                      
 "
 `;
 
 exports[`frodo conn list "frodo conn list -l": should list the connection hosts, service accounts, usernames, and log API keys. 1`] = `
-"Host                                       │Alias │Service Account       │Username│Log API Key│Authentication Service
-http://openam-frodo-dev.amster.com:8080/am │amster│                      │amadmin │           │MockAmsterService     
-https://openam-frodo-dev.forgeblocks.com/am│      │Frodo-SA-1758728043147│        │           │                      
+"Host                                       │Alias │Service Account                                                   │Username│Log API Key│Authentication Service
+http://openam-frodo-dev.amster.com:8080/am │amster│                                                                  │amadmin │           │MockAmsterService     
+https://openam-frodo-dev.forgeblocks.com/am│      │frodo-sandeep.chaturvedi@pingidentity.com-2026-11-20T15:51:01.281Z│        │           │                      
 "
 `;
 
