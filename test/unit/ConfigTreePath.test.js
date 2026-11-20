@@ -77,6 +77,10 @@ const FILE_NAMES = [
   [['a', 300], 'a'.repeat(250)],
   [['é', 200], 'é'.repeat(125)],
   [['😀', 70], '😀'.repeat(62)],
+  // what the cut leaves at the end of a name is cut again: a file name does not end with dots or spaces
+  ['a'.repeat(249) + '.b', 'a'.repeat(249)],
+  ['a'.repeat(249) + ' b', 'a'.repeat(249)],
+  ['a'.repeat(248) + '. b', 'a'.repeat(248)],
 ];
 
 describe('safeFileName', () => {

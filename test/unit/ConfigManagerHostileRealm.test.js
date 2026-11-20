@@ -47,11 +47,19 @@ const HOSTILE = [
 ];
 
 let gated = [];
+/** The config-manager commands that take a realm argument and do not declare usesRealm(): they ignore it. */
+let ignoring = [];
 
 beforeAll(async () => {
   const leaves = await loadLeafCommands();
   gated = leaves.filter(
     (leaf) => isConfigManagerCommand(leaf) && realmUseOf(leaf) !== undefined
+  );
+  ignoring = leaves.filter(
+    (leaf) =>
+      isConfigManagerCommand(leaf) &&
+      realmUseOf(leaf) === undefined &&
+      leaf.registeredArguments.some((argument) => argument.name() === 'realm')
   );
 });
 
@@ -158,5 +166,24 @@ describe('the commands that use their realm refuse a realm that is a path', () =
       if (acted) acting++;
     }
     expect(acting).toBeGreaterThan(gated.length / 2);
+  });
+
+  it('the check reaches only the commands that declare usesRealm(): a command that ignores its realm argument is not refused', async () => {
+    expect(ignoring.length).toBeGreaterThan(0);
+
+    let acting = 0;
+    for (const leaf of ignoring) {
+      for (const realm of ['../../alpha', 'a\\b']) {
+        const { acted, error } = await parse(leaf, [HOST, realm]);
+
+        expect([fullName(leaf), realm, refusesTheRealm(error)]).toEqual([
+          fullName(leaf),
+          realm,
+          false,
+        ]);
+        if (acted) acting++;
+      }
+    }
+    expect(acting).toBeGreaterThan(0);
   });
 });

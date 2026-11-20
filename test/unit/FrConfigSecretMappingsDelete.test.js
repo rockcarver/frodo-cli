@@ -78,7 +78,11 @@ jest.unstable_mockModule('@rockcarver/frodo-lib', () => ({
             500
           );
         }
-        return (tenant[currentRealm] ?? []).map((id) => ({ _id: id }));
+        // every mapping has an alias, as the store lists it: it is not an id
+        return (tenant[currentRealm] ?? []).map((id) => ({
+          _id: id,
+          aliases: [`${id}-alias`],
+        }));
       },
       readSecretStoreMapping: async (storeId, storeType, id) => {
         calls.push({ call: 'read', realm: currentRealm, id });
@@ -393,6 +397,9 @@ describe('an ID is an ID, never a path', () => {
     ['am.tw'],
     ['am.thre'],
     ['am.on'],
+    // the alias of a listed mapping is not its id
+    ['am.two-alias'],
+    ['am.one-alias'],
   ])('%j is not a mapping: one list read, no delete, an error', async (id) => {
     for (const [dryRun, allowFailures] of [
       [false, false],

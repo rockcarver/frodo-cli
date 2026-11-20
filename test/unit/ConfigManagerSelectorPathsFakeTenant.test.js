@@ -201,6 +201,8 @@ suite('a selector is an id or a name, never a path (fake tenant)', () => {
           // strict prefixes of listed ids (am.zion.one, am.zion.two): an id is matched whole
           'am.zion',
           'am.zion.tw',
+          // the alias of a listed mapping is not its id
+          'zion-two',
         ]) {
           for (const extra of [[], ['--dry-run'], ['--allow-failures']]) {
             forget();

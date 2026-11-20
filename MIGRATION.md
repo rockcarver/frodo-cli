@@ -517,8 +517,10 @@ For `oauth-issuers`, `oauth-cimd-profiles` and `oauth-software-publishers`, `-i`
 finds the file by the id with a character that a file name cannot hold written as
 `%XX` (`/` is `%2F`), so `-i a/b` is `a%2Fb.json`. A file that was named by hand
 with such a character left as it is (`a*b.json` for the id `a*b`) is no longer
-found: rename it `ab.json`. An id of more than 250 bytes is found by its name cut
-at 250 bytes.
+found: rename it `ab.json`. A file that was named by hand for a name that Windows
+reserves (`con.json` for the id `con`) is no longer found either: the id `con` is
+the file `.json`. An id of more than 250 bytes is found by its name cut at 250
+bytes.
 
 A realm that is not `/`, a name or a path of names such as `/parent/child` (for
 example `..`, `../alpha`, `a\b`, or a name with `?`, `#` or `%`) is refused with
