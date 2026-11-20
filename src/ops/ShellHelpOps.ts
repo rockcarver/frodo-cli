@@ -88,12 +88,24 @@ function findModulePath(
   return null;
 }
 
-export function createHelpContext(frodoInstance: object): {
+export function createHelpContext(
+  frodoInstance: object,
+  // Where help text goes; defaults to the terminal. The web console passes a
+  // function that sends it to the browser instead.
+  print: (line: string) => void = (line) => console.log(line),
+  // Docs for the shell's own objects (openidm.*), in the same shape as
+  // frodo-lib's help metadata: help() treats openidm.read like
+  // frodo.idm.managed.readManagedObject.
+  extraDocs: MethodHelpDoc[] = []
+): {
   help: (target?: unknown) => void;
 } {
   const alphaSort = (a: string, b: string): number => a.localeCompare(b);
 
-  const metadata = getHelpMetadataFromInstance(frodoInstance);
+  const metadata = [
+    ...getHelpMetadataFromInstance(frodoInstance),
+    ...extraDocs,
+  ];
   cachedIndex = null;
 
   function getMethodNames(obj: object): string[] {
@@ -155,46 +167,91 @@ export function createHelpContext(frodoInstance: object): {
       const sortedFns = [...fns].sort(alphaSort);
       const sortedMods = [...mods].sort(alphaSort);
 
-      console.log(`${BOLD}${CYAN}Frodo Shell - Help System${RESET}`);
-      console.log('');
-      console.log(`  ${GREEN}help()${RESET}  ${DIM}this overview${RESET}`);
-      console.log(
+      print(`${BOLD}${CYAN}Frodo Shell - Help System${RESET}`);
+      print('');
+      print(`  ${GREEN}help()${RESET}  ${DIM}this overview${RESET}`);
+      print(
         `  ${GREEN}help(frodo.<module>)${RESET}  ${DIM}list all methods and modules in <module>${RESET}`
       );
-      console.log(
+      print(
         `  ${GREEN}help(frodo.<module>.<method>)${RESET}  ${DIM}full signature + docs for a method${RESET}`
       );
-      console.log(
+      print(
         `  ${GREEN}help("methodName")${RESET}  ${DIM}search for a method across all modules${RESET}`
       );
-      console.log('');
+      print('');
       const modulesCountLabel =
         sortedMods.length > 0
           ? ` (${sortedMods.length} ${sortedMods.length === 1 ? 'module' : 'modules'})`
           : '';
-      console.log(`${BOLD}Modules${modulesCountLabel}:${RESET}`);
+      print(`${BOLD}Modules${modulesCountLabel}:${RESET}`);
       for (const k of sortedMods) {
         const val = (frodoInstance as Record<string, unknown>)[k];
         if (typeof val === 'object' && val !== null) {
           const methodCount = getMethodNames(val as object).length;
           const subModuleCount = getSubModuleNames(val as object).length;
           const countSuffix = formatCountSuffix(methodCount, subModuleCount);
-          console.log(
+          print(
             `  frodo.${GREEN}${k}${RESET}${countSuffix ? `  ${DIM}${countSuffix}${RESET}` : ''}`
           );
         }
       }
       if (sortedFns.length > 0) {
-        console.log('');
-        console.log(`${BOLD}Factory helpers:${RESET}`);
+        print('');
+        print(`${BOLD}Factory helpers:${RESET}`);
         for (const fn of sortedFns) {
           const docs = idx.get(fn);
           const sigHint = docs?.length
             ? `  ${DIM}${docs[0].signature}${RESET}`
             : '';
-          console.log(`  frodo.${GREEN}${fn}${RESET}${sigHint}`);
+          print(`  frodo.${GREEN}${fn}${RESET}${sigHint}`);
         }
       }
+      print('');
+      print(`${BOLD}REST facade ${GREEN}$${RESET}${BOLD}:${RESET}`);
+      print(
+        `  ${GREEN}$.get(url)${RESET}  ${DIM}GET; likewise $.post(url, data), $.put, $.patch, $.delete, $.head${RESET}`
+      );
+      print(
+        `  ${GREEN}$.ajax(url, {method, data, headers})${RESET}  ${DIM}any verb and options${RESET}`
+      );
+      print(
+        `  ${GREEN}$.last${RESET}  ${DIM}the last response: status, headers, data${RESET}`
+      );
+      print(
+        `  ${DIM}urls resolve against the connected environment (AM or IDM); headers are an optional trailing argument${RESET}`
+      );
+      print('');
+      print(`${BOLD}IDM functions ${GREEN}openidm${RESET}${BOLD}:${RESET}`);
+      print(
+        `  ${GREEN}openidm.read(path)${RESET}  ${DIM}also create, update, patch, delete, query, action${RESET}`
+      );
+      print(
+        `  ${GREEN}openidm.encrypt(value)${RESET}  ${DIM}also decrypt, hash, matches, isEncrypted, isHashed${RESET}`
+      );
+      print(
+        `  ${DIM}the IDM scripting functions, async: await openidm.read('managed/user/jdoe')${RESET}`
+      );
+      print(
+        `  ${DIM}crypto helpers run through the IDM script endpoint; CRUD talks REST directly${RESET}`
+      );
+      print('');
+      print(`${BOLD}AM functions ${GREEN}am${RESET}${BOLD}:${RESET}`);
+      print(
+        `  ${GREEN}am.users.query({_queryFilter: 'userName sw "a"'})${RESET}  ${DIM}also read, create, update, delete; same for am.groups${RESET}`
+      );
+      print(
+        `  ${GREEN}am.groups.addMember(groupId, userId)${RESET}  ${DIM}also removeMember${RESET}`
+      );
+      print(
+        `  ${GREEN}am.devices.list(userId, 'oath')${RESET}  ${DIM}registered MFA devices: binding, oath, push, webauthn, profile, trusted${RESET}`
+      );
+      print(
+        `  ${GREEN}am.sessions.info()${RESET}  ${DIM}also validate, refresh, logout${RESET}`
+      );
+      print(
+        `  ${DIM}AM realm JSON APIs, realm-aware: paths compose from the session's realm${RESET}`
+      );
       return;
     }
 
@@ -204,14 +261,12 @@ export function createHelpContext(frodoInstance: object): {
 
       const matches = idx.get(methodName);
       if (!matches || matches.length === 0) {
-        console.log(
-          `${YELLOW}No documentation found for "${methodName}".${RESET}`
-        );
+        print(`${YELLOW}No documentation found for "${methodName}".${RESET}`);
         return;
       }
       for (const doc of matches) {
-        console.log('');
-        console.log(formatMethodDoc(doc, true));
+        print('');
+        print(formatMethodDoc(doc, true));
       }
       return;
     }
@@ -219,25 +274,25 @@ export function createHelpContext(frodoInstance: object): {
     if (typeof target === 'function') {
       const fnName = (target as { name?: string }).name;
       if (!fnName) {
-        console.log(
+        print(
           `${YELLOW}Cannot determine function name from this reference.${RESET}`
         );
         return;
       }
       const matches = idx.get(fnName);
       if (!matches || matches.length === 0) {
-        console.log(`${YELLOW}No documentation found for "${fnName}".${RESET}`);
+        print(`${YELLOW}No documentation found for "${fnName}".${RESET}`);
         return;
       }
       if (matches.length === 1) {
-        console.log(formatMethodDoc(matches[0], true));
+        print(formatMethodDoc(matches[0], true));
       } else {
-        console.log(
+        print(
           `${YELLOW}Found "${fnName}" in ${matches.length} module types:${RESET}`
         );
         for (const doc of matches) {
-          console.log('');
-          console.log(formatMethodDoc(doc, true));
+          print('');
+          print(formatMethodDoc(doc, true));
         }
       }
       return;
@@ -257,14 +312,14 @@ export function createHelpContext(frodoInstance: object): {
           ''
         ) || 'Module';
 
-      console.log(
+      print(
         `${BOLD}${CYAN}${moduleType}${formatCountLabel(methodCount, subModuleCount)}${RESET}`
       );
-      console.log('');
+      print('');
 
       if (sortedMethods.length === 0) {
         if (sortedSubMods.length > 0) {
-          console.log(
+          print(
             `${BOLD}Modules (${subModuleCount} ${subModuleCount === 1 ? 'module' : 'modules'}):${RESET}`
           );
           for (const subModule of sortedSubMods) {
@@ -278,17 +333,17 @@ export function createHelpContext(frodoInstance: object): {
                 ? getSubModuleNames(subModuleObj as object).length
                 : 0;
             const countSuffix = formatCountSuffix(subMethods, nestedSubMods);
-            console.log(
+            print(
               `  ${GREEN}${subModule}${RESET}${countSuffix ? `  ${DIM}${countSuffix}${RESET}` : ''}`
             );
           }
           const subModPath =
             findModulePath(frodoInstance, target as object) ?? 'frodo.X';
-          console.log(
+          print(
             `Use ${GREEN}help(${subModPath}.<module>)${RESET} to explore further.`
           );
         } else {
-          console.log(`${YELLOW}No methods found on this object.${RESET}`);
+          print(`${YELLOW}No methods found on this object.${RESET}`);
         }
         return;
       }
@@ -309,7 +364,7 @@ export function createHelpContext(frodoInstance: object): {
       }
 
       if (sortedSubMods.length > 0) {
-        console.log(
+        print(
           `${BOLD}Modules (${subModuleCount} ${subModuleCount === 1 ? 'module' : 'modules'}):${RESET}`
         );
         for (const subModule of sortedSubMods) {
@@ -323,16 +378,16 @@ export function createHelpContext(frodoInstance: object): {
               ? getSubModuleNames(subModuleObj as object).length
               : 0;
           const countSuffix = formatCountSuffix(subMethods, nestedSubMods);
-          console.log(
+          print(
             `  ${GREEN}${subModule}${RESET}${countSuffix ? `  ${DIM}${countSuffix}${RESET}` : ''}`
           );
         }
-        console.log('');
+        print('');
       }
-      console.log(
+      print(
         `${BOLD}${CYAN}${bestType || moduleType}${formatCountLabel(methodCount, subModuleCount)}:${RESET}`
       );
-      console.log('');
+      print('');
       for (const methodName of sortedMethods) {
         const docs = idx.get(methodName);
         const doc = docs?.find((d) => d.typeName === bestType) ?? docs?.[0];
@@ -341,28 +396,28 @@ export function createHelpContext(frodoInstance: object): {
             doc.signature.length > 100
               ? doc.signature.slice(0, 97) + '...'
               : doc.signature;
-          console.log(`  ${YELLOW}${sig}${RESET}`);
+          print(`  ${YELLOW}${sig}${RESET}`);
           if (doc.description) {
             const desc =
               doc.description.length > 110
                 ? doc.description.slice(0, 107) + '...'
                 : doc.description;
-            console.log(`    ${DIM}${desc}${RESET}`);
+            print(`    ${DIM}${desc}${RESET}`);
           }
         } else {
-          console.log(`  ${YELLOW}${methodName}(...)${RESET}`);
+          print(`  ${YELLOW}${methodName}(...)${RESET}`);
         }
-        console.log('');
+        print('');
       }
       const modPath =
         findModulePath(frodoInstance, target as object) ?? 'frodo.X';
-      console.log(
+      print(
         `Tip: ${GREEN}help(${modPath}.<method name>)${RESET} shows full parameter documentation.`
       );
       return;
     }
 
-    console.log(
+    print(
       `${YELLOW}Usage: help() | help(frodo.<module>) | help(frodo.<module>.<method name>) | help("methodName")${RESET}`
     );
   }

@@ -3921,6 +3921,23 @@ export class FrodoCommand extends FrodoStubCommand {
   types: string[];
 
   /**
+   * The command runs without a connection (its host argument is a
+   * convenience, not a requirement), so the resolution pass must not
+   * prompt for one: set by `runsUnconnected()`, read by
+   * ResolveInteractiveInputs.
+   */
+  connectionArgsOptional = false;
+
+  /**
+   * Declare that this command can run with no connection at all, so the
+   * resolution pass never prompts for a host (or credentials): the
+   * command handles an unconnected state itself.
+   */
+  runsUnconnected(): this {
+    this.connectionArgsOptional = true;
+    return this;
+  }
+  /**
    * Whether this command lets the `${NAME}` placeholders of the files it reads
    * fall back to the environment variables of the process (see
    * `fillsPlaceholdersFromProcessEnvironment`). Off for every command unless it

@@ -33,6 +33,7 @@ const fakeAmPath = fileURLToPath(new URL('./FakeAm.mjs', import.meta.url));
  * @param {{ stores: { _id: string, type: string }[], mappings?: Record<string, { secretId: string, aliases?: string[] }[]> }} [options.secretStores] the secret stores of the realm and their mappings (default: they answer 404)
  * @param {string[]} [options.trees] journey names the journey list of the realm answers with; an empty array is a realm without journeys (default: it answers 404)
  * @param {object[]} [options.users] managed users the fake serves under /openidm/managed/ (`_id`, `userName`, `givenName`, `sn`, `mail`)
+ * @param {string[]} [options.managedTypes] managed object type names the fake's config entity answers with (for catalog enrichment)
  * @param {string[]} [options.realms] realm names the realm list answers with (default: it answers 404)
  * @param {{method: string, path: string}[]} [options.failRequests] requests that answer with HTTP 500 (path is a URL fragment)
  * @param {object[]} [options.logApiKeys] keys returned by the log API key list
@@ -56,6 +57,7 @@ export async function startFakeAm({
   trustedIssuers,
   aiAgents,
   users,
+  managedTypes,
   oauth2Clients,
   oauthCimdProfiles,
   oauthIssuers,
@@ -110,6 +112,9 @@ export async function startFakeAm({
         ? { FAKE_AM_AI_AGENTS_FILE: written('ai-agents.json', aiAgents) }
         : {}),
       ...(users ? { FAKE_AM_USERS_FILE: written('users.json', users) } : {}),
+      ...(managedTypes
+        ? { FAKE_AM_MANAGED_TYPES: managedTypes.join(',') }
+        : {}),
       ...(oauth2Clients
         ? { FAKE_AM_OAUTH2_CLIENTS: oauth2Clients.join(',') }
         : {}),

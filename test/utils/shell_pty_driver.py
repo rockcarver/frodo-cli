@@ -17,6 +17,7 @@ KEYS = {
     "right": "\x1b[C",
     "left": "\x1b[D",
     "ctrl_d": "\x04",
+    "ctrl_r": "\x12",
     "enter": "\r",
     "ctrl_e": "\x05",
     "ctrl_u": "\x15",

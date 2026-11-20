@@ -58,7 +58,10 @@ Utilities:
                     integrations.
   session           Manage sessions.
   settings          Manage CLI settings.
-  shell             [Experimental] Launch the frodo interactive shell.
+  shell             [Experimental] Launch the frodo JS console, a
+                    browser-console-style environment for running JavaScript and
+                    REST calls against the connected environment. Add --web to
+                    serve the same console as a local web page.
 
 Continuous integration:
   config-manager    [Experimental] Manage configuration optimized for CI/CD

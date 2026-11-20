@@ -3,7 +3,9 @@
 exports[`CLI help interface for 'shell' should be expected english 1`] = `
 "Usage: frodo shell [options] [host] [realm] [username] [password]
 
-[Experimental] Launch the frodo interactive shell.
+[Experimental] Launch the frodo JS console, a browser-console-style environment
+for running JavaScript and REST calls against the connected environment. Add
+--web to serve the same console as a local web page.
 
 Arguments:
   host              AM base URL, e.g.: https://cdk.iam.example.com/am. To use a
@@ -21,7 +23,8 @@ Arguments:
   password          Password.
 
 Options:
-  --allow-await     Allows top-level awaits to be used in the shell.
+  --web             Serve the JS console as a local web page and open it in a
+                    browser.
   -h, --help        Help
   -hh, --help-more  Help with all options.
   -hhh, --help-all  Help with all options, environment variables, and usage

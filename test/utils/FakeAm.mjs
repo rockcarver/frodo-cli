@@ -1185,6 +1185,18 @@ const server = http.createServer((req, res) => {
       }
       return send(200, { result: 'Successfully logged out' });
     }
+    if (users && req.url.includes('/openidm/config/managed')) {
+      // The managed config entity, for readManagedObjectTypes: the type
+      // names come from FAKE_AM_MANAGED_TYPES (comma-separated), so the
+      // catalog enrichment sees a tenant with configured types.
+      const names = (process.env.FAKE_AM_MANAGED_TYPES ?? '')
+        .split(',')
+        .filter(Boolean);
+      return send(200, {
+        _id: 'managed',
+        objects: names.map((name) => ({ name })),
+      });
+    }
     if (req.url.includes('getSessionInfo')) {
       if (plainLogin) {
         return send(200, {
