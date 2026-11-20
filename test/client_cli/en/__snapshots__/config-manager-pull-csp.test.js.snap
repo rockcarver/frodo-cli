@@ -6,30 +6,31 @@ exports[`CLI help interface for 'config-manager pull csp' should be expected eng
 [Experimental] [Cloud-only] Export content security policy.
 
 Arguments:
-  host               AM base URL, e.g.: https://cdk.iam.example.com/am. To use a
-                     connection profile, just specify a unique substring or
-                     alias.
-  realm              Realm. Specify realm as '/' for the root realm or 'realm'
-                     or '/parent/child' otherwise. (default: "alpha" for
-                     Identity Cloud tenants, "/" otherwise.)
-  username           Username to login with. Must be an admin user with
-                     appropriate rights to manage authentication journeys/trees.
-                     If given without a password, and it matches the username
-                     already stored in the connection profile for the target
-                     host, frodo uses that profile's stored password instead of
-                     requiring it on the command line.
-  password           Password.
+  host                  AM base URL, e.g.: https://cdk.iam.example.com/am. To
+                        use a connection profile, just specify a unique
+                        substring or alias.
+  realm                 Realm. Specify realm as '/' for the root realm or
+                        'realm' or '/parent/child' otherwise. (default: "alpha"
+                        for Identity Cloud tenants, "/" otherwise.)
+  username              Username to login with. Must be an admin user with
+                        appropriate rights to manage authentication
+                        journeys/trees. If given without a password, and it
+                        matches the username already stored in the connection
+                        profile for the target host, frodo uses that profile's
+                        stored password instead of requiring it on the command
+                        line.
+  password              Password.
 
 Deployment: Cloud-only
 
 Options:
-  -f, --file <file>  The CSP_OVERRIDES json file. ex:
-                     "/home/trivir/Documents/csp-overrides.json", or
-                     "csp-overrides.json"
-  -h, --help         Help
-  -hh, --help-more   Help with all options.
-  -hhh, --help-all   Help with all options, environment variables, and usage
-                     examples.
+  --config-file <file>  The CSP_OVERRIDES json file. ex:
+                        "/home/trivir/Documents/csp-overrides.json", or
+                        "csp-overrides.json"
+  -h, --help            Help
+  -hh, --help-more      Help with all options.
+  -hhh, --help-all      Help with all options, environment variables, and usage
+                        examples.
 
 Not available with --browser or --device: needs a service account (Content security policy). See https://github.com/rockcarver/frodo-cli/blob/main/docs/BROWSER_LOGIN.md#what-a-browser-or-device-login-can-do
 "

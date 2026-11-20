@@ -1021,6 +1021,35 @@ describe('findLetterProblems on hand-built commands', () => {
       expect(checked.dryRunAdded).toBe(0);
     });
 
+    it('reads the removed spelling with the long name that the option had before, when the row says so', () => {
+      const renamed = [
+        {
+          command: 'frodo config-manager pull saml',
+          long: '--config-file',
+          short: null,
+          was: '-f',
+          wasLong: '--file',
+        },
+      ];
+      const row = '| `-f, --file` | `pull saml` | `--config-file` |';
+
+      expect(find({ expected: renamed, migration: row }).migration).toEqual([]);
+      // the new long name is not the removed spelling
+      const wrong = find({
+        expected: renamed,
+        migration: row.replace('`-f, --file`', '`-f, --config-file`'),
+      }).migration;
+      expect(wrong).toHaveLength(1);
+      expect(wrong[0]).toContain('`-f, --file`');
+      // without wasLong the spelling is the one of the long name, as before
+      expect(
+        find({
+          expected: [{ ...renamed[0], wasLong: undefined }],
+          migration: row.replace('`-f, --file`', '`-f, --config-file`'),
+        }).migration
+      ).toEqual([]);
+    });
+
     it('counts the spellings it found and the dry runs it saw announced', () => {
       expect(run({ expected, migration: text }).checked).toMatchObject({
         spellings: 2,
@@ -1085,10 +1114,9 @@ describe('the options of the configuration commands', () => {
     expect(problems.letters).toEqual([]);
   });
 
-  it('keeps exactly one letter that two long names share, with a reason and an end', () => {
-    // -i and -n are the selectors of the group (below), -f goes with C5
-    expect(SAME_MEANING.map((e) => e.letter)).toEqual(['-f']);
-    expect(checked.sameMeaning).toBe(1);
+  it('keeps no letter that two long names share: -i and -n are the selectors of the group (below), and -f is gone with C5', () => {
+    expect(SAME_MEANING).toEqual([]);
+    expect(checked.sameMeaning).toBe(0);
     expect(
       problems.entries.filter((e) => e.startsWith('SAME_MEANING'))
     ).toEqual([]);
@@ -1156,9 +1184,9 @@ describe('the options of the configuration commands', () => {
   });
 
   it('declares the short forms that the record decided', () => {
-    // 34 different rows, and every one of them is what the tree declares
-    expect(checked.rows).toBe(34);
-    expect(checked.rowsMatched).toBe(34);
+    // 40 different rows, and every one of them is what the tree declares
+    expect(checked.rows).toBe(40);
+    expect(checked.rowsMatched).toBe(40);
     expect(problems.shortForms).toEqual([]);
   });
 
@@ -1208,9 +1236,9 @@ describe('the options of the configuration commands', () => {
   });
 
   it('lists every removed spelling in MIGRATION.md', () => {
-    // 28 removed spellings found on a line with their command, and the 6 dry
+    // 34 removed spellings found on a line with their command, and the 6 dry
     // runs that got -d named in the paragraph that announces them
-    expect(checked.spellings).toBe(28);
+    expect(checked.spellings).toBe(34);
     expect(checked.dryRunAdded).toBe(6);
     expect(problems.migration).toEqual([]);
   });

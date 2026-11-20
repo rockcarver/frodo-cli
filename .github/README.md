@@ -129,6 +129,13 @@ See the [Migration Guide](../MIGRATION.md).
 session init|apply|abort|state`, which gains `-w, --wait` and prints the state
 on stdout only with `--json`. See the [Migration Guide](../MIGRATION.md).
 
+**5.0.0 names the config file of the `frodo config-manager pull` commands
+`--config-file`**: `pull authz-policies`, `pull csp`, `pull oauth2-agents`,
+`pull raw`, `pull saml` and `pull service-objects` no longer take `-f` or
+`--file`, and `pull saml`, `pull authz-policies` and `pull oauth2-agents` need no
+file: without one they pull every object of every realm, or of the realm given.
+See the [Migration Guide](../MIGRATION.md).
+
 ### New in 4.x (carried forward)
 
 #### `frodo config-manager`

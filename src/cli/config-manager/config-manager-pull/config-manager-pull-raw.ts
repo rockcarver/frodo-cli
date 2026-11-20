@@ -11,7 +11,7 @@ export default function setup() {
     .description('Export raw configurations from the tenant.')
     .addOption(
       new Option(
-        '-f, --config-file <file>',
+        '--config-file <file>',
         'The file path of the service object config file. '
       ).makeOptionMandatory()
     )
@@ -19,7 +19,7 @@ export default function setup() {
       'after',
       'HELP MESSAGE:\n' +
         'Make sure to create an export config file: raw.json to run this command.\n' +
-        `Example command: frodo config-manager pull raw -f raw.json -D ../testDir ${s.connId}\n\n` +
+        `Example command: frodo config-manager pull raw --config-file raw.json -D ../testDir ${s.connId}\n\n` +
         `Config file example:\n` +
         '------------  Example Oauth2 agents export config for oauth2-agents.json file -----------\n' +
         '[\n' +

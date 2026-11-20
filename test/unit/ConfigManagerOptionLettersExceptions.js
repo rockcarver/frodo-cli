@@ -15,7 +15,8 @@
  *   the type is. A pattern per letter, with the reason.
  * - EXPECTED_SHORT_FORMS: every option whose short form the record changed, as
  *   it is now (`short` null: a long form only) and as it was (`was` null: the
- *   option had no short form). MIGRATION.md has to list each `was` spelling.
+ *   option had no short form). MIGRATION.md has to list each `was` spelling,
+ *   with the long name that the option had (`wasLong`, when it is not `long`).
  * - HERITAGE_OVERLAPS: the letters of the group that a heritage command (any
  *   command outside the group) uses for an option with another long name, one
  *   entry per letter, with the reason why a mix-up is harmless: the concepts
@@ -30,14 +31,7 @@
  * meaning. `longs` are the names, `why` says why they are one meaning, `until`
  * which step of the program removes one of them.
  */
-export const SAME_MEANING = [
-  {
-    letter: '-f',
-    longs: ['--file', '--config-file'],
-    why: 'both name the file that a pull reads (a data file of pull raw, the config file of the other pulls); the config file is long-only from the step that renames it',
-    until: 'C5 of cli#1264 (written 2026-11-18)',
-  },
-];
+export const SAME_MEANING = [];
 
 /**
  * The selectors of the group: `-i, --<type>-id` names an object by its
@@ -160,6 +154,20 @@ export const EXPECTED_SHORT_FORMS = [
     was: '-d',
   },
   {
+    command: 'frodo config-manager pull authz-policies',
+    long: '--config-file',
+    short: null,
+    was: '-f',
+    wasLong: '--file',
+  },
+  {
+    command: 'frodo config-manager pull csp',
+    long: '--config-file',
+    short: null,
+    was: '-f',
+    wasLong: '--file',
+  },
+  {
     command: 'frodo config-manager pull iga-workflows',
     long: '--include-immutable',
     short: null,
@@ -182,6 +190,33 @@ export const EXPECTED_SHORT_FORMS = [
     long: '--custom-relationships',
     short: null,
     was: '-u',
+  },
+  {
+    command: 'frodo config-manager pull oauth2-agents',
+    long: '--config-file',
+    short: null,
+    was: '-f',
+    wasLong: '--file',
+  },
+  {
+    command: 'frodo config-manager pull raw',
+    long: '--config-file',
+    short: null,
+    was: '-f',
+  },
+  {
+    command: 'frodo config-manager pull saml',
+    long: '--config-file',
+    short: null,
+    was: '-f',
+    wasLong: '--file',
+  },
+  {
+    command: 'frodo config-manager pull service-objects',
+    long: '--config-file',
+    short: null,
+    was: '-f',
+    wasLong: '--file',
   },
   {
     command: 'frodo config-manager pull variables',
@@ -283,11 +318,6 @@ export const HERITAGE_OVERLAPS = [
     letter: '-d',
     longs: ['--default', '--defaults', '--domain'],
     why: 'no heritage command has a destructive -d any more (iga workflow delete gave up --draft-only); what is left selects what is exported, imported or read (--default, --defaults) or takes a value against the dry run flag (--domain)',
-  },
-  {
-    letter: '-f',
-    longs: ['--force', '--query-filter'],
-    why: 'a flag and a value against the value of the file option, so a mix-up fails loudly (idm schema object delete --force, log fetch --query-filter)',
   },
   {
     letter: '-i',

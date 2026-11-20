@@ -398,7 +398,8 @@ function checkMigration(text, expected, problems, checked) {
   for (const row of expected) {
     const words = commandWords(row.command);
     if (row.was) {
-      const spelling = `\`${row.was}, ${row.long}\``;
+      // the spelling that was removed: `wasLong` when the option had another long name before
+      const spelling = `\`${row.was}, ${row.wasLong ?? row.long}\``;
       const found = lines.some(
         (line) => line.includes(spelling) && line.includes(`\`${words}\``)
       );
@@ -470,9 +471,10 @@ function requireInputs(input) {
  *   makes every long name that the pattern matches one meaning (`-i` with
  *   `--<type>-id`, `-n` with `--<type>-name`), and the entry fails when no letter
  *   has two such names;
- * - `shortForms`: every row `{ command, long, short, was }` of `expected` is
- *   what the command declares (`short` null: a long form only), and no row
- *   stands twice;
+ * - `shortForms`: every row `{ command, long, short, was, wasLong }` of
+ *   `expected` is what the command declares (`short` null: a long form only),
+ *   and no row stands twice (`wasLong` is the long name that the removed
+ *   spelling had, when it is not `long`);
  * - `dryRun`: `--dry-run` has `-d` on every leaf of the group;
  * - `heritage`: a heritage leaf that takes a letter of the group for an option
  *   with another long name needs a `heritageOverlaps` entry `{ letter, longs,
@@ -481,7 +483,7 @@ function requireInputs(input) {
  *   unless a `descriptionLetters` entry `{ command, letter, why }` says it is
  *   not an option;
  * - `migration`: the text of MIGRATION.md lists each removed spelling (`was`)
- *   with its command and long name, and names each command that got `-d` in
+ *   with its command and its long name (`wasLong` if it had another), and names each command that got `-d` in
  *   the paragraph that holds `-d, --dry-run`;
  * - `entries`: every entry has its reasons and is still needed.
  * @param {object} input the data of the checks

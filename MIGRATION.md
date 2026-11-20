@@ -281,10 +281,16 @@ These options have a long form only now:
 | `-d, --description`          | `promote rollback`                | `--description`          |
 | `-d, --description`          | `promote run-dryrun-promotion`    | `--description`          |
 | `-d, --description`          | `promote run-promotion`           | `--description`          |
+| `-f, --file`                 | `pull authz-policies`             | `--config-file`          |
+| `-f, --file`                 | `pull csp`                        | `--config-file`          |
 | `-i, --include-immutable`    | `pull iga-workflows`              | `--include-immutable`    |
 | `-c, --clean`                | `pull journeys`                   | `--clean`                |
 | `-d, --pull-dependencies`    | `pull journeys`                   | `--pull-dependencies`    |
 | `-u, --custom-relationships` | `pull managed-objects`            | `--custom-relationships` |
+| `-f, --file`                 | `pull oauth2-agents`              | `--config-file`          |
+| `-f, --config-file`          | `pull raw`                        | `--config-file`          |
+| `-f, --file`                 | `pull saml`                       | `--config-file`          |
+| `-f, --file`                 | `pull service-objects`            | `--config-file`          |
 | `-u, --dump`                 | `pull variables`                  | `--dump`                 |
 | `-f, --filename-filter`      | `push custom-nodes`               | `--filename-filter`      |
 | `-f, --filename-filter`      | `push endpoints`                  | `--filename-filter`      |
@@ -303,6 +309,47 @@ every `config-manager` command that has one. A cluster of short letters that
 holds a removed letter has to be split: `-p provisional-report -uid 'a report'`
 becomes `-P provisional-report -uI --description 'a report'`, and `-cD dir`
 becomes `--clean -D dir`.
+
+**The config file of a `pull` command is `--config-file`, with no short form**:
+`pull authz-policies`, `pull csp`, `pull oauth2-agents`, `pull raw`, `pull saml`
+and `pull service-objects` took their config file as `-f, --file` (`pull raw`:
+`-f, --config-file`). It is `--config-file` now, as it already was on `pull
+oauth-cimd-profiles`, `pull oauth-issuers` and `pull oauth-software-publishers`,
+and `-f` means nothing in `frodo config-manager` any more (`-f, --file` stays on
+the commands outside the group that read or write a data file). A script that
+still passes `-f` or `--file` to one of the six fails before it connects to
+anything, with `error: unknown option '-f'` and exit code 1. The option is
+mandatory on `pull service-objects` and `pull raw`, which cannot guess what to
+pull, and optional on the other four. The rule is in
+[options of the configuration commands](https://github.com/rockcarver/frodo-cli/blob/main/docs/decisions/0057-options-of-the-configuration-commands.md).
+
+**`pull saml`, `pull authz-policies` and `pull oauth2-agents` need no config
+file any more**: without `--config-file` they pull everything, as a file that
+lists everything would. `pull saml` pulls every SAML provider and every circle of
+trust, `pull authz-policies` every policy set with its policies and the resource
+types they use, and `pull oauth2-agents` every agent and every OAuth2 client
+(the three agent types that have a command of their own, `oauth-cimd-profiles`,
+`oauth-issuers` and `oauth-software-publishers`, are left to it). Until now a
+command line without the file failed. The realm argument narrows a pull without a
+file to one realm (these three commands declare that they use their realm, so
+the realm picker of the interactive mode can offer it); without a realm every
+realm of the tenant is pulled, and the root realm of an Identity Cloud tenant is
+left out by `pull saml` and `pull oauth2-agents`, which have nothing there, and
+visited by `pull authz-policies`. With a file the realms of the file are pulled
+and the realm argument is not used, as before: to keep a pull of today's
+selection, give the file. An object whose id is not one name that a file can
+have (an id that holds `/` or `\`, is empty, or is `.` or `..`) is skipped with a
+warning that names it and its realm, and a realm whose lists cannot be read is
+one failed operation: the others are still pulled, and the command exits with 1
+unless `--allow-failures` is given, as
+[a command that runs many operations runs them all, then fails if any failed](https://github.com/rockcarver/frodo-cli/blob/main/docs/decisions/0040-a-command-that-runs-many-operations-runs-them-all-then-fails-if-any-failed.md)
+asks. An empty value (`--config-file ""`) is refused before the command connects
+to anything, with exit code 1: it never means "no file". A pull of `oauth2-agents`
+without a file reads every OAuth2 client of the realm, the ones that the platform
+manages included; a later `push oauth2-agents` would send them back, so give a
+file, or select one with `-i`, to pull fewer. `pull all` pulls these three in
+full when the config folder does not have `authz-policies.json`,
+`oauth2-agents.json` or `saml.json` (see below), so its output grows.
 
 Three commands outside the group give up a letter as well, so that `-d` and `-C`
 mean one thing in the group; their long forms are unchanged:
@@ -664,10 +711,14 @@ that failed and exit with code 1:
 A script or CI job that must keep going after a failed step adds
 `--allow-failures`: the failures are still printed, as a warning, and the exit
 code stays 0. A config file that exists but cannot be read is a failed step. A
-config file that is not in the config folder given with `-C` (`saml.json`,
-`authz-policies.json`, `oauth2-agents.json` or `service-objects.json`) is not:
-there is nothing for that step to export, so it is skipped with a warning and
-the exit code is not affected. The step names in the summary are the names of
+config file that is not in the config folder given with `-C` is not:
+`service-objects.json` is the one file that a step cannot do without, so its
+step is skipped with a warning and the exit code is not affected, while the steps
+of `authz-policies.json`, `oauth2-agents.json` and `saml.json` pull everything
+when their file is not there (a file that is there still selects what is pulled).
+A config folder that does not exist or is not a folder, usually a mistyped path,
+is said once, and the warning names `service-objects` as skipped and the three
+others as pulled in full. The step names in the summary are the names of
 the `config-manager pull` commands, so you can run one of them to see its error
 again. Other commands that run several operations follow in later releases; each
 one that changes is added here, and the option is shown in its `-h`. So far
@@ -921,10 +972,10 @@ name, a script whose content file is missing and a file that is not JSON (or,
 for `push password-policy`, is not a password policy) used to stop the whole
 command; each is one failed item now. What the command line names must exist,
 and when it does not the command says so in plain words and fails whatever
-`--allow-failures` says: the file of `pull raw -f` and `pull saml -f` (both
-options are mandatory now; without one the command failed with `The "path"
-argument must be of type string`), the `raw` folder of `push raw` and the
-`realms` folder of `push password-policy`, `push scripts` and `push saml` (the
+`--allow-failures` says: the file of `pull raw --config-file` (the option is
+mandatory now; without one the command failed with `The "path" argument must be
+of type string`; `pull saml` needs no file any more, see above), the `raw` folder
+of `push raw` and the `realms` folder of `push password-policy`, `push scripts` and `push saml` (the
 file-system error is gone), a realm given as an argument whose password policy,
 script config, SAML config or secret-mappings folder is missing, a name that is
 in no file or not in the tenant (`push scripts -n` printed a warning and exited

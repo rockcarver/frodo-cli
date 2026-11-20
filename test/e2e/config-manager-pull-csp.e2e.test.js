@@ -2,7 +2,7 @@
 
 /*
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_TEST_NAME=0_D frodo config-manager pull csp -D configManagerExportCspDir0
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_TEST_NAME=0_directory_f frodo config-manager pull csp --directory configManagerExportCspDir1 -f test/e2e/fr-config-manager-pull-config/csp-overrides.json;
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_TEST_NAME=0_directory_f frodo config-manager pull csp --directory configManagerExportCspDir1 --config-file test/e2e/fr-config-manager-pull-config/csp-overrides.json;
 
 */
 import { getEnv, testExport } from './utils/TestUtils';
@@ -24,7 +24,7 @@ describe('frodo config-manager pull csp', () => {
     });
     test(`"frodo config-manager pull csp --directory configManagerExportCspDir1 -f ${configFile}": should export the content security policy with overrides defined in the config file.`, async () => {
         const dirName = 'configManagerExportCspDir1';
-        const CMD = `frodo config-manager pull csp --directory ${dirName} -f ${configFile}`;
+        const CMD = `frodo config-manager pull csp --directory ${dirName} --config-file ${configFile}`;
         await testExport(CMD, { ...env, env: { ...env.env, FRODO_TEST_NAME: '0_directory_f' } }, undefined, undefined, dirName, false);
     });
 });

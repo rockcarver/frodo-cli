@@ -118,8 +118,9 @@ const COMMANDS = [
     name: 'config-manager pull authz-policies',
     file: 'config-manager-pull/config-manager-pull-authz-policies',
     fn: 'configManagerExportAuthzPolicySets',
-    options: { file: 'authz-policies.json' },
-    args: (allowFailures) => ['authz-policies.json', allowFailures],
+    options: { configFile: 'authz-policies.json' },
+    // the file, the failures, and the realm that narrows a pull without a file
+    args: (allowFailures) => ['authz-policies.json', allowFailures, 'alpha'],
   },
   {
     name: 'config-manager push authz-policies',
@@ -146,8 +147,14 @@ const COMMANDS = [
     name: 'config-manager pull oauth2-agents',
     file: 'config-manager-pull/config-manager-pull-oauth2-agents',
     fn: 'configManagerExportOAuth2Agents',
-    options: { file: 'oauth2-agents.json' },
-    args: (allowFailures) => ['oauth2-agents.json', allowFailures],
+    options: { configFile: 'oauth2-agents.json' },
+    // the file, the failures, no layout of the tree, and the realm that narrows a pull without a file
+    args: (allowFailures) => [
+      'oauth2-agents.json',
+      allowFailures,
+      undefined,
+      'alpha',
+    ],
   },
   {
     name: 'config-manager push oauth2-agents',
