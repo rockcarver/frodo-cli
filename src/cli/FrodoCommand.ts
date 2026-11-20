@@ -1,10 +1,30 @@
 import fs from 'fs';
-import { frodo, FrodoError, state, type RetryStrategy } from '@rockcarver/frodo-lib';
+import {
+  frodo,
+  FrodoError,
+  state,
+  type RetryStrategy,
+} from '@rockcarver/frodo-lib';
 import { AddHelpTextContext, Argument, Command, Help, Option } from 'commander';
 import propertiesReader from 'properties-reader';
-import { setCredentialOverride, setForceLoginAsUser, setOpenBrowser, setUseDeviceFlow } from '../ops/AuthenticateOps.js';
+import {
+  setCredentialOverride,
+  setForceLoginAsUser,
+  setOpenBrowser,
+  setUseDeviceFlow,
+} from '../ops/AuthenticateOps.js';
 import { accessFootnote } from '../utils/AccessCommandAreas.js';
-import { cleanupProgressIndicators, createProgressIndicator, curlirizeMessage, debugMessage, printError, printMessage, stopProgressIndicator, updateProgressIndicator, verboseMessage } from '../utils/Console.js';
+import {
+  cleanupProgressIndicators,
+  createProgressIndicator,
+  curlirizeMessage,
+  debugMessage,
+  printError,
+  printMessage,
+  stopProgressIndicator,
+  updateProgressIndicator,
+  verboseMessage,
+} from '../utils/Console.js';
 import { isTruthyOptInValue } from '../utils/EnvFlags.js';
 import { flushAuthoringPrint } from '../utils/interactive/AuthoringPrintState.js';
 // Type-only: the credential vocabulary lives in the interactive layer
@@ -13,18 +33,38 @@ import type { CredentialOverrideType } from '../utils/interactive/ConnectionProf
 import { markNeverSaved } from '../utils/interactive/DefaultsStore.js';
 import { getEntityPicks } from '../utils/interactive/EntityPickers.js';
 import { registerEntityPickFamilies } from '../utils/interactive/EntityPickFamilies.js';
-import { escapableSelect, ESCAPE, RIGHT } from '../utils/interactive/EscapableSelectPrompt.js';
+import {
+  escapableSelect,
+  ESCAPE,
+  RIGHT,
+} from '../utils/interactive/EscapableSelectPrompt.js';
 import { EXIT_ALL, EXIT_ALL_SIGNAL } from '../utils/interactive/ExitAll.js';
 import { passStateApplied } from '../utils/interactive/PassLogin.js';
 import { canPrompt, setNeverPrompt } from '../utils/interactive/PromptGate.js';
-import { declareRealmPickerOnlyWith, declareRealmUse } from '../utils/interactive/RealmUse.js';
-import { markSecret, SECRET_OPTION_HELP } from '../utils/interactive/SecretOptions.js';
+import {
+  declareRealmPickerOnlyWith,
+  declareRealmUse,
+} from '../utils/interactive/RealmUse.js';
+import {
+  markSecret,
+  SECRET_OPTION_HELP,
+} from '../utils/interactive/SecretOptions.js';
 import { setMachineOutput } from '../utils/MachineOutput.js';
-import { ALLOW_FAILURES_HELP, ALLOW_FAILURES_OPTION } from '../utils/OperationRun.js';
+import {
+  ALLOW_FAILURES_HELP,
+  ALLOW_FAILURES_OPTION,
+} from '../utils/OperationRun.js';
 import { activatePersistedTheme } from '../utils/ThemeConfig.js';
 import { assertAliasesFree, copyOptionAliases } from './OptionAlias.js';
-import { deferMissingMandatoryOption, deferOneOfGroups, deferSkipConnectionPrompts, getOneOfGroups, resolveInteractiveInputs, setActiveActionCommand, type OptionRequirementSpec } from './ResolveInteractiveInputs.js';
-
+import {
+  deferMissingMandatoryOption,
+  deferOneOfGroups,
+  deferSkipConnectionPrompts,
+  getOneOfGroups,
+  resolveInteractiveInputs,
+  setActiveActionCommand,
+  type OptionRequirementSpec,
+} from './ResolveInteractiveInputs.js';
 
 // The command families that have a registered entity picker (record 0038)
 registerEntityPickFamilies();

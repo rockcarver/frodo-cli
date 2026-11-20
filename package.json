@@ -171,7 +171,8 @@
   "allowScripts": {
     "fsevents@2.3.3": true,
     "esbuild@0.28.1": true,
-    "esbuild@0.27.7": true
+    "esbuild@0.27.7": true,
+    "@rockcarver/frodo-lib@5.0.0-47": true
   },
   "overrides": {
     "argparse": "^2.0.1",
