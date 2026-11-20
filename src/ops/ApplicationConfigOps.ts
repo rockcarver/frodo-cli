@@ -16,6 +16,7 @@ import {
   exportScriptToFiles,
   importScriptFromFiles,
 } from '../configManagerOps/FrConfigScriptOps';
+import { realmFolderOf } from '../utils/ConfigTreePath';
 import { printError, printMessage, verboseMessage } from '../utils/Console';
 import { causeOf } from '../utils/ErrorCause';
 import { clearOperationalAttributes, realmList } from '../utils/FrConfig';
@@ -354,7 +355,7 @@ export function applicationFolderPath(
   realm: string,
   folderName: string
 ): string {
-  return `realms/${realm === '/' ? 'root' : realm}/applications/${folderName}`;
+  return `realms/${realmFolderOf(realm)}/applications/${folderName}`;
 }
 
 /**
@@ -787,7 +788,7 @@ export async function configManagerImportApplications(
     const named = !!realm && realm !== DEFAULT_REALM_KEY;
     let realmDirs: string[];
     if (named) {
-      realmDirs = [realm === '/' ? 'root' : realm];
+      realmDirs = [realmFolderOf(realm)];
     } else if (fs.existsSync(realmsDir)) {
       realmDirs = fs
         .readdirSync(realmsDir, { withFileTypes: true })

@@ -8,6 +8,7 @@ import {
   type RemoteProxySkeleton,
 } from '@rockcarver/frodo-lib';
 import c from '../utils/ColorTheme';
+import { objectFilePath } from '../utils/ConfigTreePath';
 import {
   createProgressIndicator,
   createTable,
@@ -1076,7 +1077,7 @@ export async function configManagerImportRemoteProxies(
   try {
     const directory = getFilePath(CONFIG_MANAGER_DIRECTORY);
     const files = name
-      ? [`${name}.json`]
+      ? [path.basename(objectFilePath(directory, name))]
       : fs.existsSync(directory)
         ? fs
             .readdirSync(directory)

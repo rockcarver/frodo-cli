@@ -297,7 +297,7 @@ jest.unstable_mockModule(
   })
 );
 
-const { configManagerImportApplications } = await import(
+const { applicationFolderPath, configManagerImportApplications } = await import(
   src('ops/ApplicationConfigOps.ts')
 );
 const { frodo } = await import('@rockcarver/frodo-lib');
@@ -1346,6 +1346,34 @@ describe('what the command line asks for', () => {
 
     expect(calls).toHaveLength(1);
     expect(currentRealm).toBe('/');
+  });
+
+  test('a realm is a name or a path of names, not a path of the file system: the folder of a realm that is `../decoy` is not read', async () => {
+    deployment = 'forgeops';
+    // <tree>/decoy/applications/D, which the path realms/../decoy/applications/D names
+    writeApp('../decoy', 'D', { record: { name: 'D' } });
+
+    expect(await configManagerImportApplications(undefined, '../decoy')).toBe(
+      false
+    );
+
+    expect(calls).toEqual([]);
+  });
+
+  test('the folder of a realm in the tree: the root realm is root, a leading slash and a sub-realm are written as the path of names', () => {
+    expect(applicationFolderPath('alpha', 'x')).toBe(
+      'realms/alpha/applications/x'
+    );
+    expect(applicationFolderPath('/alpha', 'x')).toBe(
+      'realms/alpha/applications/x'
+    );
+    expect(applicationFolderPath('/', 'x')).toBe('realms/root/applications/x');
+    expect(applicationFolderPath('/parent/child', 'x')).toBe(
+      'realms/parent/child/applications/x'
+    );
+    expect(() => applicationFolderPath('../alpha', 'x')).toThrow(
+      "The realm '../alpha' is not '/', a name or a path of names."
+    );
   });
 
   test('nothing to push is not a failure: no realms folder, no applications folder in a named realm', async () => {

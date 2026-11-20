@@ -11,11 +11,7 @@ export async function realmList(): Promise<string[]> {
   return realms.map((r) => r.name);
 }
 
-export function safeFileName(filename: string): string {
-  return sanitize(filename, {
-    replacement: (character) => encodeURIComponent(character),
-  });
-}
+export { safeFileName } from './ConfigTreePath';
 
 export function safeFileNameUnderscore(filename: string): string {
   return sanitize(filename, {
