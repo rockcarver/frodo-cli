@@ -27,6 +27,7 @@ import {
   skippedFilesMessage,
   skippedForDedicatedKind,
 } from '../ops/DedicatedAgentKinds';
+import { isOneSafeSegment, realmFolderOf } from '../utils/ConfigTreePath';
 import {
   createProgressIndicator,
   printError,
@@ -35,11 +36,11 @@ import {
   verboseMessage,
 } from '../utils/Console';
 import { causeOf } from '../utils/ErrorCause';
-import { clearOperationalAttributes } from '../utils/FrConfig';
+import { clearOperationalAttributes, realmList } from '../utils/FrConfig';
 import { OperationRun } from '../utils/OperationRun';
 import type { ApplicationLayoutDecision } from '../utils/TreeLayout';
 
-const { CLOUD_DEPLOYMENT_TYPE_KEY } = frodo.utils.constants;
+const { CLOUD_DEPLOYMENT_TYPE_KEY, DEFAULT_REALM_KEY } = frodo.utils.constants;
 const {
   getFilePath,
   saveJsonToFile,
@@ -48,10 +49,88 @@ const {
   escapePlaceholders,
 } = frodo.utils;
 const { mergeDeep } = frodo.utils.json;
-const { readAgentByTypeAndId, importAgent } = frodo.agent;
+const { readAgentByTypeAndId, readAgents, importAgent } = frodo.agent;
 
 /**
- * Export all agents based on values in provided config file.
+ * What a config file for `configManagerExportOAuth2Agents` would hold if it listed every agent
+ * and every OAuth2 client of the realms: for each realm, the ids of its agents and OAuth2 clients
+ * by type, read from the tenant. The realms are the one that was given, or every realm of the
+ * tenant; the root realm of an Identity Cloud tenant has no agents and is left out. The agent types
+ * that have a config-manager command of their own are not listed. A realm whose agents cannot be
+ * read is one failed operation of the run and has no entry. An agent or an OAuth2 client whose type
+ * or id is not one name that a file can have (empty, `.`, `..`, or a name with `/`, `\` or a
+ * control character) is skipped with a warning that names it and the realm, and so is a realm whose
+ * name is not a name or a path of names; a skip is not an operation.
+ * @param {OperationRun} run the run of the command, which records the realms that cannot be read
+ * @param {string} onlyRealm the realm to read; default: every realm
+ * @returns {Promise<Record<string, Record<string, { id: string }[]>>>} the content of the file: for each realm, the ids of each agent type
+ */
+async function everythingOfAgents(
+  run: OperationRun,
+  onlyRealm?: string
+): Promise<Record<string, Record<string, { id: string }[]>>> {
+  const everything: Record<string, Record<string, { id: string }[]>> = {};
+  const realms =
+    onlyRealm && onlyRealm !== DEFAULT_REALM_KEY
+      ? [onlyRealm]
+      : await realmList();
+  for (const currentRealm of realms) {
+    if (
+      currentRealm === '/' &&
+      state.getDeploymentType() === CLOUD_DEPLOYMENT_TYPE_KEY
+    )
+      continue;
+    let realmDir: string;
+    try {
+      realmDir = realmFolderOf(currentRealm);
+    } catch {
+      printMessage(
+        `Skipping realm '${currentRealm}': its name is not '/', a name or a path of names.`,
+        'warn'
+      );
+      continue;
+    }
+    state.setRealm(currentRealm);
+    try {
+      const found = new Map<string, Set<string>>();
+      const add = (agentType: string, id: string): void => {
+        if (skippedForDedicatedKind(agentType)) return;
+        if (!isOneSafeSegment(agentType) || !isOneSafeSegment(id)) {
+          printMessage(
+            `Skipping agent '${id}' of type '${agentType}' of realm '${currentRealm}': its type or its id is not one name that a file can have.`,
+            'warn'
+          );
+          return;
+        }
+        found.set(agentType, (found.get(agentType) ?? new Set()).add(id));
+      };
+      for (const agent of await readAgents(false)) {
+        add(String(agent._type?._id ?? ''), String(agent._id ?? ''));
+      }
+      for (const client of await frodo.oauth2oidc.client.readOAuth2Clients()) {
+        add('OAuth2Client', String(client._id ?? ''));
+      }
+      everything[currentRealm] = Object.fromEntries(
+        [...found.keys()]
+          .sort()
+          .map((agentType) => [
+            agentType,
+            [...found.get(agentType)].sort().map((id) => ({ id })),
+          ])
+      );
+    } catch (error) {
+      printError(error, `Error reading the agents of realm '${currentRealm}'`);
+      run.recordFailure(`realm ${realmDir}`, causeOf(error));
+    }
+  }
+  return everything;
+}
+
+/**
+ * Export all agents based on values in provided config file, or, without a config file (`null`),
+ * every agent and OAuth2 client of the realm that was given or of every realm of the tenant (see
+ * {@link everythingOfAgents}). With a file, the file selects what is exported and the realm is not
+ * used.
  * In a tree that uses the application layout (decision record 0042) an OAuth2 client that an
  * application owns is not exported here: `pull applications` writes it into the folder of the
  * application. It is named and skipped, which is not a failure, and the config file is not
@@ -63,19 +142,24 @@ const { readAgentByTypeAndId, importAgent } = frodo.agent;
  * skip is not an operation, so it changes neither the result nor what `allowFailures` does, and the
  * config file is never changed; the applications of a realm are not read for the sake of such
  * entries alone.
- * @param {string} configFile The path to the file
+ * @param {string | null} configFile The path to the file; null to export every agent
  * @param {boolean} allowFailures True to succeed although some agents could not be exported (the failures are still summarised)
  * @param {ApplicationLayoutDecision} layout The layout of the tree, when `pull all` has decided it before its first step; default: read from the marker of the tree
+ * @param {string} onlyRealm Without a file: the realm to export; default: every realm
  * @returns False if the config file cannot be read or an agent cannot be exported (unless failures are allowed), true otherwise
  */
 export async function configManagerExportOAuth2Agents(
-  configFile: string,
+  configFile: string | null,
   allowFailures: boolean = false,
-  layout?: ApplicationLayoutDecision
+  layout?: ApplicationLayoutDecision,
+  onlyRealm?: string
 ): Promise<boolean> {
   try {
-    const configFileData = readJsonFile(configFile, false);
     const run = new OperationRun({ unit: 'agent', allowFailures });
+    const configFileData =
+      configFile === null
+        ? await everythingOfAgents(run, onlyRealm)
+        : readJsonFile(configFile, false);
     const owned = skipsOwnedObjects(layout) ? new OwnedObjects() : undefined;
     // what the files do not hold: the properties that are not set on their agents
     let leftOut = 0;

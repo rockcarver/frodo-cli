@@ -7,6 +7,7 @@ import {
   type PolicySkeleton,
   type ResourceTypeSkeleton,
 } from '@rockcarver/frodo-lib';
+import { isOneSafeSegment, realmFolderOf } from '../utils/ConfigTreePath';
 import {
   createProgressIndicator,
   printError,
@@ -14,28 +15,98 @@ import {
   stopProgressIndicator,
   updateProgressIndicator,
 } from '../utils/Console';
-import { clearOperationalAttributes } from '../utils/FrConfig';
+import { causeOf } from '../utils/ErrorCause';
+import { clearOperationalAttributes, realmList } from '../utils/FrConfig';
 import { OperationRun } from '../utils/OperationRun';
 
 const { getFilePath, saveJsonToFile, getWorkingDirectory, readJsonFile } =
   frodo.utils;
-const { importPolicySets, readPolicySet } = frodo.authz.policySet;
+const { importPolicySets, readPolicySet, readPolicySets } =
+  frodo.authz.policySet;
 const { readPoliciesByPolicySet, importPolicies } = frodo.authz.policy;
 const { readResourceType, importResourceTypes } = frodo.authz.resourceType;
 
 /**
- * Export policy sets for all realms
- * @param {string} configFile required reference file for what sets to export
+ * What a config file for `configManagerExportAuthzPolicySets` would hold if it listed every
+ * policy set of the realms: for each realm, the names of its policy sets, read from the tenant. The
+ * realms are the one that was given, or every realm of the tenant (the root realm of an Identity
+ * Cloud tenant included). A realm whose policy sets cannot be read is one failed operation of the
+ * run and has no entry. A policy set whose name is not one name that a file can have (empty, `.`,
+ * `..`, or a name with `/`, `\` or a control character) is skipped with a warning that names the
+ * name and the realm, and so is a realm whose name is not a name or a path of names; a skip is not
+ * an operation.
+ * @param {OperationRun} run the run of the command, which records the realms that cannot be read
+ * @param {string} onlyRealm the realm to read; default: every realm
+ * @returns {Promise<Record<string, string[]>>} the content of the file: the policy set names of each realm
+ */
+async function everythingOfAuthz(
+  run: OperationRun,
+  onlyRealm?: string
+): Promise<Record<string, string[]>> {
+  const everything: Record<string, string[]> = {};
+  const realms =
+    onlyRealm && onlyRealm !== frodo.utils.constants.DEFAULT_REALM_KEY
+      ? [onlyRealm]
+      : await realmList();
+  for (const currentRealm of realms) {
+    let realmDir: string;
+    try {
+      realmDir = realmFolderOf(currentRealm);
+    } catch {
+      printMessage(
+        `Skipping realm '${currentRealm}': its name is not '/', a name or a path of names.`,
+        'warn'
+      );
+      continue;
+    }
+    state.setRealm(currentRealm);
+    try {
+      const names: string[] = [];
+      for (const name of (await readPolicySets())
+        .map((policySet) => policySet.name)
+        .sort()) {
+        if (isOneSafeSegment(name)) {
+          names.push(name);
+        } else {
+          printMessage(
+            `Skipping policy set '${name}' of realm '${currentRealm}': its name is not one name that a file can have.`,
+            'warn'
+          );
+        }
+      }
+      everything[currentRealm] = names;
+    } catch (error) {
+      printError(
+        error,
+        `Error reading the policy sets of realm '${currentRealm}'`
+      );
+      run.recordFailure(`realm ${realmDir}`, causeOf(error));
+    }
+  }
+  return everything;
+}
+
+/**
+ * Export policy sets. Without a config file (`null`) every policy set of the realm that was given,
+ * or of every realm of the tenant, is exported (see {@link everythingOfAuthz}); with a file, the
+ * file selects what is exported and the realm is not used.
+ * @param {string | null} configFile reference file for what sets to export; null to export every policy set
  * @param {boolean} allowFailures True to succeed although some policy sets could not be exported (the failures are still summarised)
+ * @param {string} onlyRealm Without a file: the realm to export; default: every realm
  * @returns {Promise<boolean>} false if the config file cannot be read or a policy set cannot be exported (unless failures are allowed), true otherwise
  */
 export async function configManagerExportAuthzPolicySets(
-  configFile: string,
-  allowFailures: boolean = false
+  configFile: string | null,
+  allowFailures: boolean = false,
+  onlyRealm?: string
 ): Promise<boolean> {
   let indicatorId;
   try {
-    const policySets = readJsonFile(configFile, false);
+    const run = new OperationRun({ unit: 'policy set', allowFailures });
+    const policySets =
+      configFile === null
+        ? await everythingOfAuthz(run, onlyRealm)
+        : readJsonFile(configFile, false);
     indicatorId = createProgressIndicator(
       'determinate',
       Object.values(policySets as Record<string, object[]>).reduce(
@@ -44,7 +115,6 @@ export async function configManagerExportAuthzPolicySets(
       ),
       'Exporting policy sets...'
     );
-    const run = new OperationRun({ unit: 'policy set', allowFailures });
     for (const realm of Object.keys(policySets)) {
       for (const setName of policySets[realm]) {
         await run.run(
