@@ -22,14 +22,20 @@ export default function setup() {
     )
     .addHelpText(
       'after',
-      'The following entities read a config file to know what to export:\n' +
+      'The following entities read a config file from the config folder to know what to export:\n' +
         '- authz-policies\n' +
         '- oauth2-agents\n' +
         '- saml\n' +
         '- service-objects\n\n' +
-        'An entity whose config file is not in the config folder is skipped with a\n' +
-        'warning, and the others are still exported. A config file that exists but\n' +
-        'cannot be read is a failed step.\n\n' +
+        'authz-policies, oauth2-agents and saml need no config file: when the config\n' +
+        'folder has authz-policies.json, oauth2-agents.json or saml.json, the file\n' +
+        'selects what is exported; when it does not, everything is exported, for the\n' +
+        'realm that was given or for every realm. service-objects cannot export\n' +
+        'anything without its file: it is skipped with a warning when\n' +
+        'service-objects.json is not in the config folder, and the others are still\n' +
+        'exported. A config file that exists but cannot be read is a failed step. A\n' +
+        'config folder that does not exist is said once: service-objects is skipped\n' +
+        'and the other three are exported in full.\n\n' +
         'oauth-cimd-profiles, oauth-issuers and oauth-software-publishers need no\n' +
         'config file. If the config folder has an oauth-cimd-profiles.json, an\n' +
         'oauth-issuers.json or an oauth-software-publishers.json, its overrides are\n' +

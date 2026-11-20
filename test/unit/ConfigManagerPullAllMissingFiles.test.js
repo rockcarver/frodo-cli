@@ -5,13 +5,17 @@ import { fileURLToPath } from 'node:url';
 import { beforeEach, describe, expect, jest, test } from '@jest/globals';
 
 /**
- * Decision record 0040 for the steps of `config-manager pull all` that read a
- * file from the config folder (authz-policies.json, oauth2-agents.json,
- * saml.json, service-objects.json): a file that is not in the folder means
- * there is nothing for that step to export, so the step is skipped with a
- * warning and does not fail the command. A file that is there and cannot be
- * processed still fails its step, and so does any other step. `pull all-static`
- * reads no config file at all.
+ * The steps of `config-manager pull all` that read a file from the config folder
+ * (authz-policies.json, oauth2-agents.json, saml.json, service-objects.json).
+ * Three of them need no file: a file that is not in the folder means that the
+ * step pulls everything (its exporter gets `null` and the realm of the command),
+ * which is what a file that lists everything would do, and a file that is there
+ * still selects what is pulled. The fourth, service-objects.json, lists what
+ * cannot be guessed: without it there is nothing for that step to export, so
+ * the step is skipped with a warning and does not fail the command (decision
+ * record 0040). A file that is there and cannot be processed still fails its
+ * step, and so does any other step. `pull all-static` reads no config file at
+ * all.
  *
  * The real import graph of the exporters pulls in all of frodo-lib, whose
  * bundled ESM cannot load under jest's ESM runtime, so the library is a stub
@@ -79,12 +83,17 @@ const {
   deploymentMapAllStatic,
 } = await import(allOps);
 
-/** The four steps that read a conventional file, with their exporters. */
+/**
+ * The four steps that read a conventional file, with their exporters. `everything`: the step
+ * pulls everything when the file is not there, and the arguments of its exporter after the
+ * file (the failures flag, the layout where the exporter takes one, and the realm).
+ */
 const FILE_STEPS = [
   {
     step: 'authz-policies',
     file: 'authz-policies.json',
     label: 'Authz Policy Sets',
+    everything: [false, undefined],
     exporter: () =>
       exporter(
         'FrConfigAuthzPoliciesOps',
@@ -95,6 +104,7 @@ const FILE_STEPS = [
     step: 'oauth2-agents',
     file: 'oauth2-agents.json',
     label: 'OAuth2 agents',
+    everything: [false, undefined, undefined],
     exporter: () =>
       exporter('FrConfigOauth2AgentOps', 'configManagerExportOAuth2Agents'),
   },
@@ -102,6 +112,7 @@ const FILE_STEPS = [
     step: 'saml',
     file: 'saml.json',
     label: 'SAML',
+    everything: [false, undefined, undefined],
     exporter: () => exporter('FrConfigSamlOps', 'configManagerExportSaml'),
   },
   {
@@ -169,7 +180,11 @@ describe.each(['cloud', 'forgeops', 'classic'])(
       expect(fileSteps.length).toBeGreaterThanOrEqual(3);
     });
 
-    test('skips each file step with a warning when the config folder has none of the files, and succeeds', async () => {
+    // the steps of this deployment that skip when their file is not there, and the ones that pull everything
+    const skipping = fileSteps.filter(({ everything }) => !everything);
+    const pulling = fileSteps.filter(({ everything }) => everything);
+
+    test('pulls everything for the steps that need no file, and skips the others with a warning, when the config folder has none of the files, and succeeds', async () => {
       const folder = configFolder();
 
       expect(
@@ -177,14 +192,19 @@ describe.each(['cloud', 'forgeops', 'classic'])(
       ).toBe(true);
 
       expect(warnings().sort()).toEqual(
-        fileSteps
+        skipping
           .map(
             ({ file, label }) => `Skipping ${label}: no ${file} in '${folder}'.`
           )
           .sort()
       );
-      for (const { exporter: of } of fileSteps) {
+      for (const { exporter: of } of skipping) {
         expect(of()).not.toHaveBeenCalled();
+      }
+      // no file: the exporter gets null, then the arguments of a pull of everything (no realm here)
+      for (const { exporter: of, everything } of pulling) {
+        expect(of()).toHaveBeenCalledTimes(1);
+        expect(of()).toHaveBeenCalledWith(null, ...everything);
       }
       // everything else still ran, and nothing was reported as failed
       expect(scriptsExporter()).toHaveBeenCalledTimes(1);
@@ -194,7 +214,22 @@ describe.each(['cloud', 'forgeops', 'classic'])(
       expect(warnings().join('\n')).not.toMatch(/raw/);
     });
 
-    test('runs the steps whose file is there and skips the others', async () => {
+    test('hands the realm of the command to the steps that pull everything, which it narrows', async () => {
+      await configManagerExportAllWithConfigFolder({
+        configFolder: configFolder(),
+        realm: 'alpha',
+      });
+
+      for (const { exporter: of, everything } of pulling) {
+        const args = of().mock.calls[0];
+        expect(args[0]).toBeNull();
+        // the file, then the arguments of a pull of everything, and the realm is the last
+        expect(args).toHaveLength(1 + everything.length);
+        expect(args[args.length - 1]).toBe('alpha');
+      }
+    });
+
+    test('runs the steps whose file is there and pulls everything or skips for the others', async () => {
       const folder = configFolder('saml.json', 'authz-policies.json');
 
       expect(
@@ -202,18 +237,54 @@ describe.each(['cloud', 'forgeops', 'classic'])(
       ).toBe(true);
 
       const [authz, oauth, saml] = FILE_STEPS;
-      // on Cloud and ForgeOps the step also hands the exporter the allow-failures default and the layout
-      // decision of `pull all` (none here: the decision is faked), see PullAllHandsLayoutToStandaloneKinds.test.js
+      // the file, the failures flag, the layout decision of `pull all` where the exporter takes one (none
+      // here: the decision is faked, see PullAllHandsLayoutToStandaloneKinds.test.js) and the realm (none)
       expect(saml.exporter()).toHaveBeenCalledWith(
-        ...(deployment === 'classic'
-          ? [`${folder}/saml.json`]
-          : [`${folder}/saml.json`, false, undefined])
+        `${folder}/saml.json`,
+        ...saml.everything
       );
       expect(authz.exporter()).toHaveBeenCalledWith(
-        `${folder}/authz-policies.json`
+        `${folder}/authz-policies.json`,
+        ...authz.everything
       );
-      expect(oauth.exporter()).not.toHaveBeenCalled();
-      expect(warnings()).toHaveLength(fileSteps.length - 2);
+      // the step without its file pulls everything
+      expect(oauth.exporter()).toHaveBeenCalledWith(null, ...oauth.everything);
+      expect(warnings()).toHaveLength(skipping.length);
+    });
+
+    test('a file that is there and cannot be processed fails its step, and the step is not pulled in full instead', async () => {
+      const folder = configFolder('saml.json');
+      const [, , saml] = FILE_STEPS;
+      saml.exporter().mockImplementation(async () => false);
+
+      expect(
+        await configManagerExportAllWithConfigFolder({ configFolder: folder })
+      ).toBe(false);
+
+      expect(errors()).toHaveLength(1);
+      expect(errors()[0]).toMatch(/- saml$/);
+      expect(saml.exporter()).toHaveBeenCalledTimes(1);
+      expect(saml.exporter()).toHaveBeenCalledWith(
+        `${folder}/saml.json`,
+        ...saml.everything
+      );
+    });
+
+    test('an exporter that throws while pulling everything is one failed step, and the others still run', async () => {
+      const [authz] = FILE_STEPS;
+      authz.exporter().mockImplementation(async () => {
+        throw new Error('boom');
+      });
+
+      expect(
+        await configManagerExportAllWithConfigFolder({
+          configFolder: configFolder(),
+        })
+      ).toBe(false);
+
+      expect(errors()).toHaveLength(1);
+      expect(errors()[0]).toMatch(/- authz-policies$/);
+      expect(scriptsExporter()).toHaveBeenCalledTimes(1);
     });
   }
 );
@@ -297,7 +368,7 @@ describe.each(['cloud', 'forgeops', 'classic'])(
 describe('pull all, mixed outcomes (cloud)', () => {
   const stepCount = deploymentMapAll.cloud.length;
 
-  test('a file that is there and fails its step fails the command; the skipped steps are not in the summary', async () => {
+  test('a file that is there and fails its step fails the command; the skipped step and the steps that pull everything are not in the summary', async () => {
     const folder = configFolder('saml.json');
     exporter('FrConfigSamlOps', 'configManagerExportSaml').mockImplementation(
       async () => false // an unreadable or unparseable file: the exporter says so
@@ -308,7 +379,7 @@ describe('pull all, mixed outcomes (cloud)', () => {
     ).toBe(false);
 
     expect(errors()).toEqual([`1 of ${stepCount} steps failed:\n  - saml`]);
-    expect(warnings()).toHaveLength(3); // authz-policies, oauth2-agents, service-objects
+    expect(warnings()).toHaveLength(1); // service-objects: the others pull everything
   });
 
   test('another step that fails still fails the command while the files are missing', async () => {
@@ -321,10 +392,10 @@ describe('pull all, mixed outcomes (cloud)', () => {
     ).toBe(false);
 
     expect(errors()).toEqual([`1 of ${stepCount} steps failed:\n  - scripts`]);
-    expect(warnings()).toHaveLength(4);
+    expect(warnings()).toHaveLength(1); // service-objects
   });
 
-  test('--allow-failures keeps the exit successful for that failure and still skips the missing files', async () => {
+  test('--allow-failures keeps the exit successful for that failure and still skips the file that is missing', async () => {
     scriptsExporter().mockImplementation(async () => false);
 
     expect(
@@ -340,7 +411,7 @@ describe('pull all, mixed outcomes (cloud)', () => {
         ([text, level]) => level === 'warn' && /steps? failed/.test(text)
       )
     ).toHaveLength(1);
-    expect(warnings()).toHaveLength(5); // the four skips and the summary
+    expect(warnings()).toHaveLength(2); // the skip of service-objects and the summary
   });
 });
 
@@ -392,24 +463,41 @@ describe.each(['cloud', 'forgeops', 'classic'])(
       deploymentType = deployment;
     });
 
-    test('says so once, naming the steps that read a file, and the steps are skipped without failing', async () => {
+    const skipping = fileSteps.filter(({ everything }) => !everything);
+    const pulling = fileSteps.filter(({ everything }) => everything);
+
+    test('says so once, naming the steps that are skipped and the steps that pull everything, and nothing fails', async () => {
       const folder = missing();
 
       expect(
         await configManagerExportAllWithConfigFolder({ configFolder: folder })
       ).toBe(true);
 
-      expect(warnings()).toEqual([
-        `The config folder '${folder}' does not exist, so the steps that read a file from it are skipped: ${fileSteps
+      const names = (steps) =>
+        steps
           .map(({ step }) => step)
           .sort()
-          .join(', ')}.`,
+          .join(', ');
+      const said = [
+        ...(skipping.length > 0
+          ? [
+              `the steps that need a file from it are skipped (${names(skipping)})`,
+            ]
+          : []),
+        `the steps that can pull everything without a file do so (${names(pulling)})`,
+      ];
+      expect(warnings()).toEqual([
+        `The config folder '${folder}' does not exist, so ${said.join(' and ')}.`,
       ]);
-      for (const { exporter: of } of fileSteps) {
+      for (const { exporter: of } of skipping) {
         expect(of()).not.toHaveBeenCalled();
       }
+      // the steps that need no file pull everything: the one warning is the only word about the folder
+      for (const { exporter: of, everything } of pulling) {
+        expect(of()).toHaveBeenCalledWith(null, ...everything);
+      }
       // the per-step lines are still there for whoever asks for the details
-      for (const { file, label } of fileSteps) {
+      for (const { file, label } of skipping) {
         expect(verboseMessage).toHaveBeenCalledWith(
           `Skipping ${label}: no ${file} in the config folder.`
         );
@@ -456,32 +544,43 @@ describe.each(['cloud', 'forgeops', 'classic'])(
       );
     });
 
-    test('a folder that is there keeps one warning per missing file and does not say the folder is missing', async () => {
+    test('a folder that is there keeps one warning per missing file of a step that skips and does not say the folder is missing', async () => {
       const folder = configFolder();
 
       await configManagerExportAllWithConfigFolder({ configFolder: folder });
 
-      expect(warnings()).toHaveLength(fileSteps.length);
+      expect(warnings()).toHaveLength(skipping.length);
       expect(warnings().join('\n')).not.toMatch(/config folder '/);
-      // the steps warned on their own, so nothing of theirs is a quiet skip (raw config always is)
+      // the steps that skip warned on their own, so nothing of theirs is a quiet skip (raw config always is);
+      // the others say in the verbose output that they pull everything
       expect(
         verboseMessage.mock.calls
           .map(([text]) => text)
           .filter((text) => !/raw config/.test(text))
+          .filter((text) => !/pulling everything for/.test(text))
       ).toEqual([]);
+      expect(
+        verboseMessage.mock.calls
+          .map(([text]) => text)
+          .filter((text) => /pulling everything for/.test(text))
+      ).toHaveLength(pulling.length);
     });
   }
 );
 
 describe('pull all, without a config folder in the options', () => {
-  test('keeps the warning of every step and does not claim that a folder is missing', async () => {
+  test('keeps the warning of the step that skips, pulls everything for the others and does not claim that a folder is missing', async () => {
     deploymentType = 'cloud';
 
     expect(await configManagerExportAllWithConfigFolder({})).toBe(true);
 
-    expect(warnings()).toHaveLength(4);
-    expect(warnings().join('\n')).toMatch(/in the config folder\.$/m);
+    expect(warnings()).toEqual([
+      'Skipping service objects: no service-objects.json in the config folder.',
+    ]);
     expect(warnings().join('\n')).not.toMatch(/does not exist|not a folder/);
+    expect(
+      exporter('FrConfigSamlOps', 'configManagerExportSaml')
+    ).toHaveBeenCalledWith(null, false, undefined, undefined);
   });
 });
 

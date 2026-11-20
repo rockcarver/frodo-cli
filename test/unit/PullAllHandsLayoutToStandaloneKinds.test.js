@@ -55,6 +55,8 @@ jest.unstable_mockModule('@rockcarver/frodo-lib', () => {
       getDeploymentType: () => 'cloud',
       getRealm: () => 'alpha',
       setRealm: () => undefined,
+      // a step that pulls everything says so in the verbose output
+      getVerbose: () => false,
     },
     frodo: new Proxy(frodo, {
       get: (target, prop) => {
@@ -141,15 +143,18 @@ describe.each(['cloud', 'forgeops'])('the steps of `pull all` (%s)', (type) => {
       options({ applicationLayout: FOLDERS_NEW })
     );
 
+    // the file, the failures flag, the layout decision and the realm that narrows a pull without a file (none)
     expect(calls.oauth2).toHaveBeenCalledWith(
       `${tmp}/oauth2-agents.json`,
       false,
-      FOLDERS_NEW
+      FOLDERS_NEW,
+      undefined
     );
     expect(calls.saml).toHaveBeenCalledWith(
       `${tmp}/saml.json`,
       false,
-      FOLDERS_NEW
+      FOLDERS_NEW,
+      undefined
     );
   });
 
@@ -176,20 +181,21 @@ describe.each(['cloud', 'forgeops'])('the steps of `pull all` (%s)', (type) => {
     expect(calls.oauth2).toHaveBeenCalledWith(
       `${tmp}/oauth2-agents.json`,
       false,
+      undefined,
       undefined
     );
     expect(calls.mappings).toHaveBeenCalledWith(undefined, false, undefined);
   });
 
-  test('a config folder without the file still skips the step with a warning, as before', async () => {
+  test('a config folder without the file pulls everything: the exporter gets no file, and the layout decision and the realm', async () => {
     fs.rmSync(path.join(tmp, 'saml.json'));
 
     const outcome = await stepNamed(deploymentMapAll, 'saml').run(
-      options({ applicationLayout: FOLDERS_NEW })
+      options({ applicationLayout: FOLDERS_NEW, realm: 'alpha' })
     );
 
     expect(outcome).toBe(true);
-    expect(calls.saml).not.toHaveBeenCalled();
+    expect(calls.saml).toHaveBeenCalledWith(null, false, FOLDERS_NEW, 'alpha');
   });
 
   test('the steps of `pull all-static` are unchanged: they read the marker themselves', async () => {

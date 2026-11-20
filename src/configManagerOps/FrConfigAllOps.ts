@@ -75,25 +75,32 @@ const step = (name: string, run: ExportStep['run']): ExportStep => ({
 });
 
 /**
- * A step that reads a file from the config folder, like {@link configFileStep}, and hands the layout
- * decision of `pull all` to the exporter (decision record 0042): the standalone kinds that the
- * decision concerns leave out what an application owns.
+ * A step that reads a file from the config folder, like {@link configFileStep}, and pulls everything
+ * when the file is not there: the file selects what is pulled, and without it the exporter gets
+ * `null`. The exporter also gets the options of the run: the realm that narrows a pull without a
+ * file, and the layout decision of `pull all` (decision record 0042), which the standalone commands
+ * that the decision concerns use to leave out what an application owns.
  */
-const layoutFileStep = (
+const everythingFileStep = (
   label: string,
   fileName: string,
   exporter: (
-    filePath: string,
-    layout?: ApplicationLayoutDecision
+    filePath: string | null,
+    options: ConfigManagerAllOptions
   ) => Promise<boolean>
 ): ExportStep['run'] =>
   Object.assign(
     (options: ConfigManagerAllOptions) =>
-      configFileStep(label, fileName, (filePath) =>
-        exporter(filePath, options.applicationLayout)
+      configFileStep(
+        label,
+        fileName,
+        (filePath) => exporter(filePath, options),
+        {
+          absentMeansAll: true,
+        }
       )(options),
     // what a step made by configFileStep says about itself, see withConfigFolderCheck
-    { configFile: { fileName, optional: false } }
+    { configFile: { fileName, optional: false, absentMeansAll: true } }
   );
 
 export const deploymentMapAll: Record<string, ExportStep[]> = {
@@ -105,10 +112,11 @@ export const deploymentMapAll: Record<string, ExportStep[]> = {
     ),
     step(
       'authz-policies',
-      configFileStep(
+      everythingFileStep(
         'Authz Policy Sets',
         'authz-policies.json',
-        configManagerExportAuthzPolicySets
+        (file, options) =>
+          configManagerExportAuthzPolicySets(file, false, options.realm)
       )
     ),
     step('cors', () => configManagerExportCors()),
@@ -206,8 +214,16 @@ export const deploymentMapAll: Record<string, ExportStep[]> = {
     ),
     step(
       'oauth2-agents',
-      layoutFileStep('OAuth2 agents', 'oauth2-agents.json', (file, layout) =>
-        configManagerExportOAuth2Agents(file, false, layout)
+      everythingFileStep(
+        'OAuth2 agents',
+        'oauth2-agents.json',
+        (file, options) =>
+          configManagerExportOAuth2Agents(
+            file,
+            false,
+            options.applicationLayout,
+            options.realm
+          )
       )
     ),
     step('connector-mappings', (options) =>
@@ -215,8 +231,13 @@ export const deploymentMapAll: Record<string, ExportStep[]> = {
     ),
     step(
       'saml',
-      layoutFileStep('SAML', 'saml.json', (file, layout) =>
-        configManagerExportSaml(file, false, layout)
+      everythingFileStep('SAML', 'saml.json', (file, options) =>
+        configManagerExportSaml(
+          file,
+          false,
+          options.applicationLayout,
+          options.realm
+        )
       )
     ),
     // The last step: it writes the marker of a new tree.
@@ -238,10 +259,11 @@ export const deploymentMapAll: Record<string, ExportStep[]> = {
     ),
     step(
       'authz-policies',
-      configFileStep(
+      everythingFileStep(
         'Authz Policy Sets',
         'authz-policies.json',
-        configManagerExportAuthzPolicySets
+        (file, options) =>
+          configManagerExportAuthzPolicySets(file, false, options.realm)
       )
     ),
     step('cookie-domains', () => configManagerExportCookieDomains()),
@@ -355,8 +377,16 @@ export const deploymentMapAll: Record<string, ExportStep[]> = {
     ),
     step(
       'oauth2-agents',
-      layoutFileStep('OAuth2 agents', 'oauth2-agents.json', (file, layout) =>
-        configManagerExportOAuth2Agents(file, false, layout)
+      everythingFileStep(
+        'OAuth2 agents',
+        'oauth2-agents.json',
+        (file, options) =>
+          configManagerExportOAuth2Agents(
+            file,
+            false,
+            options.applicationLayout,
+            options.realm
+          )
       )
     ),
     step('connector-mappings', (options) =>
@@ -364,8 +394,13 @@ export const deploymentMapAll: Record<string, ExportStep[]> = {
     ),
     step(
       'saml',
-      layoutFileStep('SAML', 'saml.json', (file, layout) =>
-        configManagerExportSaml(file, false, layout)
+      everythingFileStep('SAML', 'saml.json', (file, options) =>
+        configManagerExportSaml(
+          file,
+          false,
+          options.applicationLayout,
+          options.realm
+        )
       )
     ),
     // The last step: it writes the marker of a new tree.
@@ -385,18 +420,25 @@ export const deploymentMapAll: Record<string, ExportStep[]> = {
     ),
     step(
       'authz-policies',
-      configFileStep(
+      everythingFileStep(
         'Authz Policy Sets',
         'authz-policies.json',
-        configManagerExportAuthzPolicySets
+        (file, options) =>
+          configManagerExportAuthzPolicySets(file, false, options.realm)
       )
     ),
     step(
       'oauth2-agents',
-      configFileStep(
+      everythingFileStep(
         'OAuth2 agents',
         'oauth2-agents.json',
-        configManagerExportOAuth2Agents
+        (file, options) =>
+          configManagerExportOAuth2Agents(
+            file,
+            false,
+            options.applicationLayout,
+            options.realm
+          )
       )
     ),
     step('cors', () => configManagerExportCors()),
@@ -410,7 +452,17 @@ export const deploymentMapAll: Record<string, ExportStep[]> = {
         optional: true,
       })
     ),
-    step('saml', configFileStep('SAML', 'saml.json', configManagerExportSaml)),
+    step(
+      'saml',
+      everythingFileStep('SAML', 'saml.json', (file, options) =>
+        configManagerExportSaml(
+          file,
+          false,
+          options.applicationLayout,
+          options.realm
+        )
+      )
+    ),
     step('scripts', (options) =>
       configManagerExportScripts(undefined, options.realm)
     ),
@@ -619,9 +671,10 @@ async function runSteps(
 
 /**
  * Say once that the config folder is not there, instead of once per step that reads a file from it. A
- * config folder that does not exist is almost always a mistyped path. The steps still skip and still
- * succeed (decision record 0040): they just do not repeat the warning. A folder that exists but lacks a
- * file keeps one warning per missing file.
+ * config folder that does not exist is almost always a mistyped path. The steps that cannot do without
+ * their file still skip and still succeed (decision record 0040), and the steps that pull everything
+ * when their file is not there do so: the one warning names both. They just do not repeat the warning.
+ * A folder that exists but lacks a file keeps one warning per missing file for the steps that skip.
  * @param {ExportStep[]} steps the steps of the deployment
  * @param {ConfigManagerAllOptions} options what the command was given
  * @returns {ConfigManagerAllOptions} the options for the steps
@@ -632,18 +685,33 @@ function withConfigFolderCheck(
 ): ConfigManagerAllOptions {
   const problem = configFolderProblem(options.configFolder);
   if (!problem) return options;
-  const skipped = steps
-    .filter(({ run }) => {
-      const file = configFileOf(run);
-      return file && !file.optional;
-    })
-    .map(({ name }) => name)
-    .sort();
-  if (skipped.length > 0) {
+  const reading = steps
+    .map(({ name, run }) => ({ name, file: configFileOf(run) }))
+    .filter(({ file }) => file && !file.optional);
+  const namesOf = (everything: boolean): string[] =>
+    reading
+      .filter(({ file }) => Boolean(file.absentMeansAll) === everything)
+      .map(({ name }) => name)
+      .sort();
+  const skipped = namesOf(false);
+  const inFull = namesOf(true);
+  const said = [
+    ...(skipped.length > 0
+      ? [
+          `the steps that need a file from it are skipped (${skipped.join(', ')})`,
+        ]
+      : []),
+    ...(inFull.length > 0
+      ? [
+          `the steps that can pull everything without a file do so (${inFull.join(', ')})`,
+        ]
+      : []),
+  ];
+  if (said.length > 0) {
     printMessage(
       `The config folder '${options.configFolder}' ${
         problem === 'missing' ? 'does not exist' : 'is not a folder'
-      }, so the steps that read a file from it are skipped: ${skipped.join(', ')}.`,
+      }, so ${said.join(' and ')}.`,
       'warn'
     );
   }
