@@ -383,6 +383,18 @@ describe('the second selector, the exclusions and the empty values of saml, auth
     }
   );
 
+  it.each([
+    ['saml', 3],
+    ['authz-policies', 2],
+    ['oauth2-agents', 3],
+  ])(
+    '%s: the realm of the command goes to position %i, which narrows a pull without a file',
+    async (type, position) => {
+      expect((await run(type, []))[position]).toBe('alpha');
+      expect((await run(type, ['-i', 'x']))[position]).toBe('alpha');
+    }
+  );
+
   it.each(['saml', 'authz-policies', 'oauth2-agents'])(
     '%s: --config-file goes to the position of the file, and no file gives null',
     async (type) => {

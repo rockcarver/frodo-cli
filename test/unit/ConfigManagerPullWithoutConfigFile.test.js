@@ -670,6 +670,10 @@ describe('pull authz-policies without a config file', () => {
     expect(
       paths().every((p) => p.startsWith('realms/bravo/authorization/'))
     ).toBe(true);
+    // the policies are read in the realm that was given, so the one of that realm is written
+    expect(paths()).toContain(
+      'realms/bravo/authorization/policy-sets/bravo-set/policies/bravo-policy.json'
+    );
   });
 
   test('with a file the realm that was given is not used and no list is read', async () => {
