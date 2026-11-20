@@ -30,7 +30,15 @@ Options:
                         every policy set of every realm is pulled. The realm
                         argument narrows a pull without a file; with a file the
                         realms of the file are pulled and the realm argument is
-                        not used.
+                        not used. Cannot be used with -i or --set-id.
+  -i, --policy-id <id>  Policy id. If specified, pulls only that policy, the
+                        resource type it uses and the definition of its policy
+                        set. Needs a single realm (the realm argument). Cannot
+                        be used with --set-id or --config-file.
+  --set-id <id>         Policy set name. If specified, pulls only that policy
+                        set, its policies and the resource types they use. Needs
+                        a single realm (the realm argument). Cannot be used with
+                        -i or --config-file.
   -h, --help            Help
   -hh, --help-more      Help with all options.
   -hhh, --help-all      Help with all options, environment variables, and usage

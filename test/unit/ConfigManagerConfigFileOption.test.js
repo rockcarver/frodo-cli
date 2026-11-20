@@ -189,4 +189,74 @@ describe('the config file of the pull commands', () => {
       expect(text).toContain('--config-file');
     }
   );
+  /** The selectors of the three commands that pull everything without a file, by attribute. */
+  const SELECTORS = {
+    saml: [
+      ['entityId', '-i, --entity-id <id>'],
+      ['cotId', '--cot-id <id>'],
+    ],
+    'authz-policies': [
+      ['policyId', '-i, --policy-id <id>'],
+      ['setId', '--set-id <id>'],
+    ],
+    'oauth2-agents': [['agentId', '-i, --agent-id <id>']],
+  };
+  const optionOf = (verb, attribute) =>
+    leafOf(verb).options.find((o) => o.attributeName() === attribute);
+
+  test.each(Object.entries(SELECTORS))(
+    'pull %s: the selectors and --config-file cannot be combined, and each side of every pair says so',
+    (verb, selectors) => {
+      const file = optionOf(verb, 'configFile');
+      const attributes = selectors.map(([attribute]) => attribute);
+
+      // the file refuses every selector, and every selector refuses the file and the other selector
+      expect([...file.conflictsWith].sort()).toEqual([...attributes].sort());
+      for (const [attribute, flags] of selectors) {
+        const option = optionOf(verb, attribute);
+        expect(option.flags).toBe(flags);
+        expect(option.conflictsWith).toContain('configFile');
+        for (const other of attributes.filter((a) => a !== attribute)) {
+          expect(option.conflictsWith).toContain(other);
+        }
+        // a selector is a filter: the command works without it
+        expect(option.mandatory).toBe(false);
+        // the description says what it cannot be combined with
+        expect(option.description).toContain('Cannot be used with');
+        expect(option.description).toContain('--config-file');
+      }
+      expect(file.description).toContain('Cannot be used with');
+    }
+  );
+
+  test('the selectors have no short form but -i, and no alias: the id is the name', () => {
+    const shorts = Object.entries(SELECTORS).flatMap(([verb, selectors]) =>
+      selectors.map(([attribute]) => [
+        `${verb} ${attribute}`,
+        optionOf(verb, attribute).short ?? null,
+      ])
+    );
+
+    expect(Object.fromEntries(shorts)).toEqual({
+      'saml entityId': '-i',
+      'saml cotId': null,
+      'authz-policies policyId': '-i',
+      'authz-policies setId': null,
+      'oauth2-agents agentId': '-i',
+    });
+    // pull csp and pull raw take no selector
+    for (const verb of ['csp', 'raw']) {
+      expect(leafOf(verb).options.filter((o) => o.short === '-i')).toEqual([]);
+    }
+  });
+
+  test('the selectors refuse an empty value, as the file does', () => {
+    for (const [verb, selectors] of Object.entries(SELECTORS)) {
+      for (const [attribute] of selectors) {
+        expect(() => optionOf(verb, attribute).parseArg('', undefined)).toThrow(
+          'An empty value never selects all objects'
+        );
+      }
+    }
+  });
 });

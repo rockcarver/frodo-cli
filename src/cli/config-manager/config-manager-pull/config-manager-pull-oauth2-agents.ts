@@ -8,7 +8,7 @@ import { verboseMessage } from '../../../utils/Console';
 import { realmOfRun } from '../../../utils/interactive/PositionalArgs';
 import { KEY_SET_PULL_SENTENCE } from '../../../utils/PlaceholderValues';
 import { FrodoCommand } from '../../FrodoCommand';
-import { refuseEmptySelector } from '../../SelectorOption';
+import { refuseEmptySelector, selectorOption } from '../../SelectorOption';
 
 export default function setup() {
   const program = new FrodoCommand('frodo config-manager pull oauth2-agents');
@@ -16,10 +16,18 @@ export default function setup() {
   program
     .description('Export OAuth2 Agents')
     .addOption(
+      selectorOption(
+        '-i, --agent-id <id>',
+        'Agent or OAuth2 client id. If specified, pulls only that object. Needs a single realm (the realm argument); an id that more than one object of the realm has fails and names them. Cannot be used with --config-file.'
+      ).conflicts(['configFile'])
+    )
+    .addOption(
       new Option(
         '--config-file <file>',
-        'A JSON file that lists the agents to pull for each realm, with overrides. ex: "oauth2-agents.json". Without it, every agent and OAuth2 client of every realm is pulled. The realm argument narrows a pull without a file; with a file the realms of the file are pulled and the realm argument is not used.'
-      ).argParser(refuseEmptySelector)
+        'A JSON file that lists the agents to pull for each realm, with overrides. ex: "oauth2-agents.json". Without it, every agent and OAuth2 client of every realm is pulled. The realm argument narrows a pull without a file; with a file the realms of the file are pulled and the realm argument is not used. Cannot be used with -i.'
+      )
+        .argParser(refuseEmptySelector)
+        .conflicts(['agentId'])
     )
     .addHelpText(
       'after',
@@ -46,7 +54,7 @@ export default function setup() {
     .addHelpText(
       'after',
       'HELP MESSAGE:\n' +
-        'Without a config file, every agent and every OAuth2 client of every realm is pulled, or of the realm that is given (the three agent types that have a command of their own are left to it). To pull only some of them, or to apply overrides, create a config file such as oauth2-agents.json and pass it with --config-file.\n' +
+        'Without a config file, every agent and every OAuth2 client of every realm is pulled, or of the realm that is given (the three agent types that have a command of their own are left to it). To pull one of them (-i), name the realm too. To pull only some of them, or to apply overrides, create a config file such as oauth2-agents.json and pass it with --config-file.\n' +
         `Example command: frodo config-manager pull oauth2-agents --config-file oauth2-agents.json -D ../testDir ${s.connId}\n\n` +
         `Config file example:\n` +
         '------------  Example Oauth2 agents export config for oauth2-agents.json file -----------\n' +
@@ -136,14 +144,19 @@ export default function setup() {
         process.exitCode = 1;
         return;
       }
-      verboseMessage('Exporting OAuth2 agents.');
+      verboseMessage(
+        options.agentId
+          ? `Exporting agent or OAuth2 client "${options.agentId}".`
+          : 'Exporting OAuth2 agents.'
+      );
       // With a file the realms of the file are pulled and the realm is not used;
       // without one, the realm narrows the pull (see configManagerExportOAuth2Agents).
       const outcome = await configManagerExportOAuth2Agents(
         options.configFile ?? null,
         options.allowFailures,
         undefined,
-        realmOfRun(command, realm)
+        realmOfRun(command, realm),
+        options.agentId
       );
       if (!outcome) process.exitCode = 1;
     });

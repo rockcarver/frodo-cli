@@ -23,6 +23,7 @@ import {
   skipsOwnedObjects,
 } from '../ops/ApplicationOwnedObjects';
 import {
+  DEDICATED_AGENT_KINDS,
   skippedEntriesMessage,
   skippedFilesMessage,
   skippedForDedicatedKind,
@@ -61,19 +62,36 @@ const { readAgentByTypeAndId, readAgents, importAgent } = frodo.agent;
  * or id is not one name that a file can have (empty, `.`, `..`, or a name with `/`, `\` or a
  * control character) is skipped with a warning that names it and the realm, and so is a realm whose
  * name is not a name or a path of names; a skip is not an operation.
+ *
+ * With an id the lists are filtered: the agent or OAuth2 client whose listed id is exactly the one
+ * given is what the content holds. That needs a single realm. The listed type and id are used, never
+ * the selector itself. An id that the lists do not hold, an id that more than one object holds (they
+ * are named, and nothing is guessed), lists that cannot be read and a name that needs a single realm
+ * fail the command: there is nothing for `--allow-failures` to allow.
  * @param {OperationRun} run the run of the command, which records the realms that cannot be read
  * @param {string} onlyRealm the realm to read; default: every realm
- * @returns {Promise<Record<string, Record<string, { id: string }[]>>>} the content of the file: for each realm, the ids of each agent type
+ * @param {string} agentId pull only the agent or OAuth2 client with this id
+ * @returns {Promise<Record<string, Record<string, { id: string }[]>> | undefined>} the content of the file: for each realm, the ids of each agent type; undefined when the command cannot go on (the reason is printed)
  */
 async function everythingOfAgents(
   run: OperationRun,
-  onlyRealm?: string
-): Promise<Record<string, Record<string, { id: string }[]>>> {
+  onlyRealm?: string,
+  agentId?: string
+): Promise<Record<string, Record<string, { id: string }[]>> | undefined> {
   const everything: Record<string, Record<string, { id: string }[]>> = {};
   const realms =
     onlyRealm && onlyRealm !== DEFAULT_REALM_KEY
       ? [onlyRealm]
       : await realmList();
+  if (agentId !== undefined && realms.length !== 1) {
+    printMessage(
+      'Error: for a named agent or OAuth2 client, specify a single realm',
+      'error'
+    );
+    return undefined;
+  }
+  // the types of the objects whose listed id is the one that was asked for
+  const holders = new Set<string>();
   for (const currentRealm of realms) {
     if (
       currentRealm === '/' &&
@@ -95,6 +113,10 @@ async function everythingOfAgents(
       const found = new Map<string, Set<string>>();
       const add = (agentType: string, id: string): void => {
         if (skippedForDedicatedKind(agentType)) return;
+        if (agentId !== undefined) {
+          if (id !== agentId) return;
+          holders.add(agentType);
+        }
         if (!isOneSafeSegment(agentType) || !isOneSafeSegment(id)) {
           printMessage(
             `Skipping agent '${id}' of type '${agentType}' of realm '${currentRealm}': its type or its id is not one name that a file can have.`,
@@ -120,8 +142,34 @@ async function everythingOfAgents(
       );
     } catch (error) {
       printError(error, `Error reading the agents of realm '${currentRealm}'`);
+      // the one object that was asked for: nothing for the flag to allow
+      if (agentId !== undefined) return undefined;
       run.recordFailure(`realm ${realmDir}`, causeOf(error));
     }
+  }
+  if (agentId !== undefined && holders.size === 0) {
+    printMessage(
+      `Agent or OAuth2 client '${agentId}' not found in realm '${realms[0]}'. The agent types that have a command of their own (${Object.values(
+        DEDICATED_AGENT_KINDS
+      )
+        .map((kind) => kind.kind)
+        .join(', ')}) are not looked up here.`,
+      'error'
+    );
+    return undefined;
+  }
+  if (agentId !== undefined && holders.size > 1) {
+    printMessage(
+      `More than one object of realm '${realms[0]}' has the id '${agentId}': ${[
+        ...holders,
+      ]
+        .sort()
+        .join(
+          ', '
+        )}. None is pulled; name the one you mean, with its type, in a config file.`,
+      'error'
+    );
+    return undefined;
   }
   return everything;
 }
@@ -129,8 +177,8 @@ async function everythingOfAgents(
 /**
  * Export all agents based on values in provided config file, or, without a config file (`null`),
  * every agent and OAuth2 client of the realm that was given or of every realm of the tenant (see
- * {@link everythingOfAgents}). With a file, the file selects what is exported and the realm is not
- * used.
+ * {@link everythingOfAgents}); an id narrows that to the one agent or OAuth2 client, in a single
+ * realm. With a file, the file selects what is exported and the realm is not used.
  * In a tree that uses the application layout (decision record 0042) an OAuth2 client that an
  * application owns is not exported here: `pull applications` writes it into the folder of the
  * application. It is named and skipped, which is not a failure, and the config file is not
@@ -146,20 +194,23 @@ async function everythingOfAgents(
  * @param {boolean} allowFailures True to succeed although some agents could not be exported (the failures are still summarised)
  * @param {ApplicationLayoutDecision} layout The layout of the tree, when `pull all` has decided it before its first step; default: read from the marker of the tree
  * @param {string} onlyRealm Without a file: the realm to export; default: every realm
+ * @param {string} agentId Without a file: export only the agent or OAuth2 client with this id (needs a single realm)
  * @returns False if the config file cannot be read or an agent cannot be exported (unless failures are allowed), true otherwise
  */
 export async function configManagerExportOAuth2Agents(
   configFile: string | null,
   allowFailures: boolean = false,
   layout?: ApplicationLayoutDecision,
-  onlyRealm?: string
+  onlyRealm?: string,
+  agentId?: string
 ): Promise<boolean> {
   try {
     const run = new OperationRun({ unit: 'agent', allowFailures });
     const configFileData =
       configFile === null
-        ? await everythingOfAgents(run, onlyRealm)
+        ? await everythingOfAgents(run, onlyRealm, agentId)
         : readJsonFile(configFile, false);
+    if (!configFileData) return false;
     const owned = skipsOwnedObjects(layout) ? new OwnedObjects() : undefined;
     // what the files do not hold: the properties that are not set on their agents
     let leftOut = 0;

@@ -5,7 +5,7 @@ import { getTokens } from '../../../ops/AuthenticateOps';
 import { verboseMessage } from '../../../utils/Console';
 import { realmOfRun } from '../../../utils/interactive/PositionalArgs';
 import { FrodoCommand } from '../../FrodoCommand';
-import { refuseEmptySelector } from '../../SelectorOption';
+import { refuseEmptySelector, selectorOption } from '../../SelectorOption';
 
 export default function setup() {
   const program = new FrodoCommand('frodo config-manager pull authz-policies');
@@ -13,15 +13,29 @@ export default function setup() {
   program
     .description('Export authorization policies.')
     .addOption(
+      selectorOption(
+        '-i, --policy-id <id>',
+        'Policy id. If specified, pulls only that policy, the resource type it uses and the definition of its policy set. Needs a single realm (the realm argument). Cannot be used with --set-id or --config-file.'
+      ).conflicts(['setId', 'configFile'])
+    )
+    .addOption(
+      selectorOption(
+        '--set-id <id>',
+        'Policy set name. If specified, pulls only that policy set, its policies and the resource types they use. Needs a single realm (the realm argument). Cannot be used with -i or --config-file.'
+      ).conflicts(['policyId', 'configFile'])
+    )
+    .addOption(
       new Option(
         '--config-file <file>',
-        'A JSON file that lists the policy sets to pull for each realm. ex: "/Documents/policy-sets.json". Without it, every policy set of every realm is pulled. The realm argument narrows a pull without a file; with a file the realms of the file are pulled and the realm argument is not used.'
-      ).argParser(refuseEmptySelector)
+        'A JSON file that lists the policy sets to pull for each realm. ex: "/Documents/policy-sets.json". Without it, every policy set of every realm is pulled. The realm argument narrows a pull without a file; with a file the realms of the file are pulled and the realm argument is not used. Cannot be used with -i or --set-id.'
+      )
+        .argParser(refuseEmptySelector)
+        .conflicts(['policyId', 'setId'])
     )
     .addHelpText(
       'after',
       'HELP MESSAGE:\n' +
-        'Without a config file, every policy set of every realm is pulled, or of the realm that is given. To pull only some of them, create a config file such as authz-policies.json and pass it with --config-file.\n' +
+        'Without a config file, every policy set of every realm is pulled, or of the realm that is given. To pull one policy (-i) or one policy set (--set-id), name the realm too. To pull only some policy sets, create a config file such as authz-policies.json and pass it with --config-file.\n' +
         `Example command: frodo config-manager pull authz-policies --config-file authz-policies.json -D policiesDir ${s.connId}\n\n` +
         `Config file example:\n` +
         '-----------------------  Example authz policies export config for authz-policies.json file ------------------------\n' +
@@ -61,14 +75,20 @@ export default function setup() {
       verboseMessage(
         options.configFile
           ? 'Exporting all policy sets in the provided config file.'
-          : 'Exporting all policy sets.'
+          : options.policyId
+            ? `Exporting policy "${options.policyId}".`
+            : options.setId
+              ? `Exporting policy set "${options.setId}".`
+              : 'Exporting all policy sets.'
       );
       // With a file the realms of the file are pulled and the realm is not used;
       // without one, the realm narrows the pull (see configManagerExportAuthzPolicySets).
       const outcome = await configManagerExportAuthzPolicySets(
         options.configFile ?? null,
         options.allowFailures,
-        realmOfRun(command, realm)
+        realmOfRun(command, realm),
+        options.policyId,
+        options.setId
       );
       if (!outcome) process.exitCode = 1;
     });

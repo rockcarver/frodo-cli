@@ -30,7 +30,14 @@ Options:
                         provider and every circle of trust of every realm is
                         pulled. The realm argument narrows a pull without a
                         file; with a file the realms of the file are pulled and
-                        the realm argument is not used.
+                        the realm argument is not used. Cannot be used with -i
+                        or --cot-id.
+  --cot-id <id>         Circle of trust id. If specified, pulls only that circle
+                        of trust. Needs a single realm (the realm argument).
+                        Cannot be used with -i or --config-file.
+  -i, --entity-id <id>  SAML provider entity id. If specified, pulls only that
+                        provider. Needs a single realm (the realm argument).
+                        Cannot be used with --cot-id or --config-file.
   -h, --help            Help
   -hh, --help-more      Help with all options.
   -hhh, --help-all      Help with all options, environment variables, and usage

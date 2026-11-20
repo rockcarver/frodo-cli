@@ -23,8 +23,31 @@ const { getFilePath, saveJsonToFile, getWorkingDirectory, readJsonFile } =
   frodo.utils;
 const { importPolicySets, readPolicySet, readPolicySets } =
   frodo.authz.policySet;
-const { readPoliciesByPolicySet, importPolicies } = frodo.authz.policy;
+const { readPoliciesByPolicySet, readPolicies, importPolicies } =
+  frodo.authz.policy;
 const { readResourceType, importResourceTypes } = frodo.authz.resourceType;
+
+/**
+ * The realm of a pull that selects one object, which needs a single realm: the realm that was given,
+ * or the only realm of the tenant.
+ * @param {string} what what the selector names, for the message
+ * @param {string} onlyRealm the realm that was given
+ * @returns {Promise<string | undefined>} the realm; undefined, after the reason was printed, when there is not exactly one
+ */
+async function singleRealm(
+  what: string,
+  onlyRealm?: string
+): Promise<string | undefined> {
+  const realms =
+    onlyRealm && onlyRealm !== frodo.utils.constants.DEFAULT_REALM_KEY
+      ? [onlyRealm]
+      : await realmList();
+  if (realms.length !== 1) {
+    printMessage(`Error: for a named ${what}, specify a single realm`, 'error');
+    return undefined;
+  }
+  return realms[0];
+}
 
 /**
  * What a config file for `configManagerExportAuthzPolicySets` would hold if it listed every
@@ -35,19 +58,34 @@ const { readResourceType, importResourceTypes } = frodo.authz.resourceType;
  * `..`, or a name with `/`, `\` or a control character) is skipped with a warning that names the
  * name and the realm, and so is a realm whose name is not a name or a path of names; a skip is not
  * an operation.
+ *
+ * With the name of a policy set the list is filtered: the policy set whose listed name is exactly
+ * the one given is what the content holds. That needs a single realm. The listed name is used, never
+ * the selector itself. A name that the list does not hold, a list that cannot be read and a name
+ * that needs a single realm fail the command: there is nothing for `--allow-failures` to allow.
  * @param {OperationRun} run the run of the command, which records the realms that cannot be read
  * @param {string} onlyRealm the realm to read; default: every realm
- * @returns {Promise<Record<string, string[]>>} the content of the file: the policy set names of each realm
+ * @param {string} setId pull only the policy set with this name
+ * @returns {Promise<Record<string, string[]> | undefined>} the content of the file: the policy set names of each realm; undefined when the command cannot go on (the reason is printed)
  */
 async function everythingOfAuthz(
   run: OperationRun,
-  onlyRealm?: string
-): Promise<Record<string, string[]>> {
+  onlyRealm?: string,
+  setId?: string
+): Promise<Record<string, string[]> | undefined> {
   const everything: Record<string, string[]> = {};
   const realms =
     onlyRealm && onlyRealm !== frodo.utils.constants.DEFAULT_REALM_KEY
       ? [onlyRealm]
       : await realmList();
+  if (setId !== undefined && realms.length !== 1) {
+    printMessage(
+      'Error: for a named policy set, specify a single realm',
+      'error'
+    );
+    return undefined;
+  }
+  let found = false;
   for (const currentRealm of realms) {
     let realmDir: string;
     try {
@@ -64,7 +102,9 @@ async function everythingOfAuthz(
       const names: string[] = [];
       for (const name of (await readPolicySets())
         .map((policySet) => policySet.name)
+        .filter((listed) => setId === undefined || listed === setId)
         .sort()) {
+        found = true;
         if (isOneSafeSegment(name)) {
           names.push(name);
         } else {
@@ -80,33 +120,147 @@ async function everythingOfAuthz(
         error,
         `Error reading the policy sets of realm '${currentRealm}'`
       );
+      // the one policy set that was asked for: nothing for the flag to allow
+      if (setId !== undefined) return undefined;
       run.recordFailure(`realm ${realmDir}`, causeOf(error));
     }
+  }
+  if (setId !== undefined && !found) {
+    printMessage(
+      `Policy set '${setId}' not found in realm '${realms[0]}'.`,
+      'error'
+    );
+    return undefined;
   }
   return everything;
 }
 
 /**
+ * Export one policy: the policy, the resource type that it uses and the definition of the policy
+ * set that it is in, nothing else, with the same files as `configManagerExportAuthzPolicySets`
+ * writes for a policy set. The policy is looked up by its id in the list of the realm (which needs
+ * a single realm) and the listed policy is what is written, so its policy set comes from the policy
+ * itself. A policy that the list does not hold, a list that cannot be read and a missing single realm
+ * fail the command whatever `allowFailures` says; a policy or a resource type that cannot be
+ * written is one failed operation. A policy whose policy set does not have a name that a file can
+ * have is skipped with a warning.
+ * @param {boolean} allowFailures True to succeed although the policy could not be exported (the failure is still summarised)
+ * @param {string} onlyRealm the realm of the policy
+ * @param {string} policyId the id of the policy
+ * @returns {Promise<boolean>} false if the policy is not found or cannot be exported (unless failures are allowed), true otherwise
+ */
+async function exportOnePolicy(
+  allowFailures: boolean,
+  onlyRealm: string | undefined,
+  policyId: string
+): Promise<boolean> {
+  try {
+    const realm = await singleRealm('policy', onlyRealm);
+    if (realm === undefined) return false;
+    try {
+      realmFolderOf(realm);
+    } catch {
+      printMessage(
+        `The realm '${realm}' is not '/', a name or a path of names.`,
+        'error'
+      );
+      return false;
+    }
+    state.setRealm(realm);
+    const policy = (await readPolicies()).find(
+      (listed) => listed._id === policyId
+    );
+    if (!policy) {
+      printMessage(
+        `Policy '${policyId}' not found in realm '${realm}'.`,
+        'error'
+      );
+      return false;
+    }
+    const setName = policy.applicationName;
+    if (!isOneSafeSegment(setName)) {
+      printMessage(
+        `Skipping policy '${policyId}' of realm '${realm}': the name of its policy set, '${setName}', is not one name that a file can have.`,
+        'warn'
+      );
+      return true;
+    }
+    const run = new OperationRun({ unit: 'policy', allowFailures });
+    await run.run(`${realm === '/' ? 'root' : realm}/${policyId}`, async () => {
+      const policySet = await readPolicySet(setName);
+      policySet._id = policySet.name;
+      const resourceType = await readResourceType(policy.resourceTypeUuid);
+      resourceType._id = resourceType.uuid;
+      const authzDir = `realms/${realm === '/' ? 'root' : realm}/authorization`;
+      saveJsonToFile(
+        policySet,
+        getFilePath(
+          `${authzDir}/policy-sets/${policySet.name}/${policySet.name}.json`,
+          true
+        ),
+        false,
+        true,
+        true
+      );
+      saveJsonToFile(
+        policy,
+        getFilePath(
+          `${authzDir}/policy-sets/${policySet.name}/policies/${policy.name}.json`,
+          true
+        ),
+        false,
+        true,
+        true
+      );
+      saveJsonToFile(
+        resourceType,
+        getFilePath(
+          `${authzDir}/resource-types/${resourceType.name}.json`,
+          true
+        ),
+        false,
+        true,
+        true
+      );
+    });
+    return run.finish();
+  } catch (error) {
+    printError(error, 'Error exporting the policy');
+    return false;
+  }
+}
+
+/**
  * Export policy sets. Without a config file (`null`) every policy set of the realm that was given,
- * or of every realm of the tenant, is exported (see {@link everythingOfAuthz}); with a file, the
- * file selects what is exported and the realm is not used.
+ * or of every realm of the tenant, is exported (see {@link everythingOfAuthz}); the name of a policy
+ * set narrows that to the one policy set, and the id of a policy to the one policy (see
+ * {@link exportOnePolicy}), both in a single realm. With a file, the file selects what is exported
+ * and the realm is not used.
  * @param {string | null} configFile reference file for what sets to export; null to export every policy set
  * @param {boolean} allowFailures True to succeed although some policy sets could not be exported (the failures are still summarised)
  * @param {string} onlyRealm Without a file: the realm to export; default: every realm
+ * @param {string} policyId Without a file: export only the policy with this id (needs a single realm)
+ * @param {string} setId Without a file: export only the policy set with this name (needs a single realm)
  * @returns {Promise<boolean>} false if the config file cannot be read or a policy set cannot be exported (unless failures are allowed), true otherwise
  */
 export async function configManagerExportAuthzPolicySets(
   configFile: string | null,
   allowFailures: boolean = false,
-  onlyRealm?: string
+  onlyRealm?: string,
+  policyId?: string,
+  setId?: string
 ): Promise<boolean> {
+  if (configFile === null && policyId !== undefined) {
+    return exportOnePolicy(allowFailures, onlyRealm, policyId);
+  }
   let indicatorId;
   try {
     const run = new OperationRun({ unit: 'policy set', allowFailures });
     const policySets =
       configFile === null
-        ? await everythingOfAuthz(run, onlyRealm)
+        ? await everythingOfAuthz(run, onlyRealm, setId)
         : readJsonFile(configFile, false);
+    if (!policySets) return false;
     indicatorId = createProgressIndicator(
       'determinate',
       Object.values(policySets as Record<string, object[]>).reduce(

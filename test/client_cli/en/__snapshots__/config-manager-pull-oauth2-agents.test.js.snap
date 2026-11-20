@@ -30,7 +30,11 @@ Options:
                         it, every agent and OAuth2 client of every realm is
                         pulled. The realm argument narrows a pull without a
                         file; with a file the realms of the file are pulled and
-                        the realm argument is not used.
+                        the realm argument is not used. Cannot be used with -i.
+  -i, --agent-id <id>   Agent or OAuth2 client id. If specified, pulls only that
+                        object. Needs a single realm (the realm argument); an id
+                        that more than one object of the realm has fails and
+                        names them. Cannot be used with --config-file.
   -h, --help            Help
   -hh, --help-more      Help with all options.
   -hhh, --help-all      Help with all options, environment variables, and usage

@@ -174,6 +174,24 @@ export const EXPECTED_SELECTORS = [
     aliases: ['--name'],
   },
   {
+    command: 'frodo config-manager pull saml',
+    id: '--entity-id',
+    name: null,
+    aliases: [],
+  },
+  {
+    command: 'frodo config-manager pull authz-policies',
+    id: '--policy-id',
+    name: null,
+    aliases: [],
+  },
+  {
+    command: 'frodo config-manager pull oauth2-agents',
+    id: '--agent-id',
+    name: null,
+    aliases: [],
+  },
+  {
     command: 'frodo config-manager push applications',
     id: '--app-id',
     name: '--app-name',

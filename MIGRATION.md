@@ -409,6 +409,9 @@ the new option.
 | `pull oauth-software-publishers` | `-i, --software-publisher-id`              | `-n`, `--name`   |
 | `pull variables`                 | `-i, --variable-id`                        | new              |
 | `pull iga-workflows`             | `-i, --workflow-id`, `-n, --workflow-name` | `--name`         |
+| `pull saml`                      | `-i, --entity-id`                          | new              |
+| `pull authz-policies`            | `-i, --policy-id`                          | new              |
+| `pull oauth2-agents`             | `-i, --agent-id`                           | new              |
 
 `pull themes` takes `-n, --theme-name` for the first time, and
 `pull connector-mappings`, `pull secrets` and `pull variables` take `-i` for the
@@ -421,6 +424,20 @@ prefix, as `-n` could not be combined with `-p` before. `pull csp` and
 `pull terms-and-conditions` take no selector: their file is the whole entity,
 and a file that held a part of it would replace the whole entity when it is
 pushed.
+
+`pull saml`, `pull authz-policies` and `pull oauth2-agents` take `-i` for the
+first time (`--entity-id`, `--policy-id` and `--agent-id`), and two more
+selectors that name a group: `pull saml --cot-id` pulls one circle of trust, and
+`pull authz-policies --set-id` pulls one policy set with its policies and the
+resource types they use. `pull authz-policies -i` writes the policy, the
+resource type it uses and the definition of its policy set, with the same files
+as a pull of the set, so the folder can be pushed back. Each selector needs a
+single realm (the realm argument), and the two of one command cannot be combined
+with each other or with `--config-file`; they work on the lists of the realm: an
+id that the realm does not hold fails the command whatever `--allow-failures`
+says, and `pull oauth2-agents -i` fails and names the objects when an agent and
+an OAuth2 client have the same id. `--cot-id` and `--set-id` have no `-n` and no
+other spelling.
 
 | Command                          | Select by                                  | Still works    |
 | -------------------------------- | ------------------------------------------ | -------------- |

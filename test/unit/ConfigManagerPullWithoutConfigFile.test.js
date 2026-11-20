@@ -167,7 +167,7 @@ jest.unstable_mockModule('@rockcarver/frodo-lib', () => {
             name,
             resourceTypeUuids: ['rt-1'],
           })),
-          importPolicySets: jest.fn(),
+          importPolicySets: jest.fn(async () => []),
         },
         policy: {
           readPoliciesByPolicySet: jest.fn(async (setName) =>
@@ -180,14 +180,27 @@ jest.unstable_mockModule('@rockcarver/frodo-lib', () => {
               })
             )
           ),
-          importPolicies: jest.fn(),
+          readPolicies: jest.fn(async () => {
+            listing('policies');
+            return Object.entries(world.policies)
+              .filter(([key]) => key.startsWith(`${currentRealm}/`))
+              .flatMap(([key, names]) =>
+                names.map((name) => ({
+                  _id: name,
+                  name,
+                  applicationName: key.slice(currentRealm.length + 1),
+                  resourceTypeUuid: 'rt-1',
+                }))
+              );
+          }),
+          importPolicies: jest.fn(async () => []),
         },
         resourceType: {
           readResourceType: jest.fn(async (uuid) => ({
             uuid,
             name: `type-${uuid}`,
           })),
-          importResourceTypes: jest.fn(),
+          importResourceTypes: jest.fn(async () => []),
         },
       },
     },
@@ -215,9 +228,8 @@ jest.unstable_mockModule(src('utils/Config'), () => ({
 const { configManagerExportSaml } = await import(
   src('configManagerOps/FrConfigSamlOps.ts')
 );
-const { configManagerExportAuthzPolicySets } = await import(
-  src('configManagerOps/FrConfigAuthzPoliciesOps.ts')
-);
+const { configManagerExportAuthzPolicySets, configManagerImportAuthzPolicies } =
+  await import(src('configManagerOps/FrConfigAuthzPoliciesOps.ts'));
 const { configManagerExportOAuth2Agents } = await import(
   src('configManagerOps/FrConfigOauth2AgentOps.ts')
 );
@@ -1081,5 +1093,678 @@ describe('pull oauth2-agents without a config file', () => {
       'WebAgent/a-web',
       'WebAgent/b-web',
     ]);
+  });
+});
+
+// ---- the selectors ---------------------------------------------------------------
+
+/**
+ * `-i` and the second selector of a command (`--cot-id`, `--set-id`) filter the list of the realm:
+ * the object whose listed id is exactly the one given is read and written, and a selector never
+ * reaches a path or a request by itself. They need a single realm, and an id that no list holds, a
+ * list that cannot be read and a missing realm fail the command whatever --allow-failures says.
+ */
+describe('a selector of pull saml', () => {
+  test('-i pulls exactly that provider and reads no list of circles of trust', async () => {
+    expect(
+      await configManagerExportSaml(
+        null,
+        false,
+        undefined,
+        'alpha',
+        'urn:zion:idp'
+      )
+    ).toBe(true);
+
+    expect(paths()).toEqual([
+      'realms/alpha/realm-config/saml/remote/urn_zion_idp.json',
+    ]);
+    expect(listCalls).toEqual(['providers@alpha']);
+    expect(
+      frodo.saml2.entityProvider.exportSaml2Provider
+    ).toHaveBeenCalledTimes(1);
+  });
+
+  test('the file of the provider is the one that the pull of everything writes', async () => {
+    await configManagerExportSaml(null, false, undefined, 'alpha');
+    const everything = tree();
+    wipe();
+
+    await configManagerExportSaml(null, false, undefined, 'alpha', SAML_URL);
+
+    const written = tree();
+    expect(Object.keys(written)).toHaveLength(1);
+    for (const [file, content] of Object.entries(written)) {
+      expect(everything[file]).toBe(content);
+    }
+  });
+
+  test('--cot-id pulls exactly that circle of trust and reads no list of providers', async () => {
+    expect(
+      await configManagerExportSaml(
+        null,
+        false,
+        undefined,
+        'alpha',
+        undefined,
+        'zion-cot'
+      )
+    ).toBe(true);
+
+    expect(paths()).toEqual([
+      'realms/alpha/realm-config/saml/COT/zion-cot.json',
+    ]);
+    expect(listCalls).toEqual(['circles@alpha']);
+    expect(
+      frodo.saml2.entityProvider.exportSaml2Provider
+    ).not.toHaveBeenCalled();
+  });
+
+  test.each([
+    ['-i', ['urn:zion:IDP'], 'SAML provider'],
+    ['-i', ['../../etc/passwd'], 'SAML provider'],
+    ['--cot-id', ['ZION-COT'], 'Circle of trust'],
+    ['--cot-id', ['../../outside'], 'Circle of trust'],
+  ])(
+    '%s with an id that the list does not hold (%j) fails whatever --allow-failures says, and nothing is read or written for it',
+    async (option, [id], what) => {
+      for (const allowFailures of [false, true]) {
+        jest.clearAllMocks();
+        const args = option === '-i' ? [id, undefined] : [undefined, id];
+
+        expect(
+          await configManagerExportSaml(
+            null,
+            allowFailures,
+            undefined,
+            'alpha',
+            ...args
+          )
+        ).toBe(false);
+
+        expect(errorMessages()).toEqual([
+          `${what} '${id}' not found in realm 'alpha'.`,
+        ]);
+        expect(paths()).toEqual([]);
+        expect(
+          frodo.saml2.entityProvider.exportSaml2Provider
+        ).not.toHaveBeenCalled();
+        expect(
+          frodo.saml2.circlesOfTrust.exportCircleOfTrust
+        ).not.toHaveBeenCalled();
+      }
+    }
+  );
+
+  test('a selector needs a single realm: without one the command fails whatever --allow-failures says, and no list is read', async () => {
+    for (const allowFailures of [false, true]) {
+      jest.clearAllMocks();
+      listCalls = [];
+
+      expect(
+        await configManagerExportSaml(
+          null,
+          allowFailures,
+          undefined,
+          undefined,
+          'urn:zion:idp'
+        )
+      ).toBe(false);
+      expect(
+        await configManagerExportSaml(
+          null,
+          allowFailures,
+          undefined,
+          undefined,
+          undefined,
+          'zion-cot'
+        )
+      ).toBe(false);
+
+      expect(errorMessages()).toEqual([
+        'Error: for a named SAML provider, specify a single realm',
+        'Error: for a named circle of trust, specify a single realm',
+      ]);
+      expect(listCalls).toEqual([]);
+      expect(paths()).toEqual([]);
+    }
+  });
+
+  test('a list that cannot be read fails the command whatever --allow-failures says', async () => {
+    world.unreadable.add('alpha');
+
+    expect(
+      await configManagerExportSaml(
+        null,
+        true,
+        undefined,
+        'alpha',
+        'urn:zion:idp'
+      )
+    ).toBe(false);
+
+    expect(printedErrors().join('\n')).toContain(
+      "Error reading the SAML providers and circles of trust of realm 'alpha'"
+    );
+    expect(paths()).toEqual([]);
+  });
+
+  test('the root realm of an Identity Cloud tenant has none: the provider is not found there', async () => {
+    deployment = 'cloud';
+
+    expect(
+      await configManagerExportSaml(null, false, undefined, '/', 'urn:root:sp')
+    ).toBe(false);
+
+    expect(errorMessages()).toEqual([
+      "SAML provider 'urn:root:sp' not found in realm '/'.",
+    ]);
+    expect(listCalls).toEqual([]);
+  });
+
+  test('a provider that another provider of the realm is a prefix of is not matched by the prefix', async () => {
+    world.providers.alpha = ['urn:zion:idp', 'urn:zion:idp-two'];
+
+    await configManagerExportSaml(
+      null,
+      false,
+      undefined,
+      'alpha',
+      'urn:zion:idp'
+    );
+
+    expect(paths()).toEqual([
+      'realms/alpha/realm-config/saml/remote/urn_zion_idp.json',
+    ]);
+  });
+
+  test('a circle of trust that is listed with an id that is not one name is skipped with a warning, as without a selector', async () => {
+    world.circles.alpha = ['a/b'];
+
+    expect(
+      await configManagerExportSaml(
+        null,
+        false,
+        undefined,
+        'alpha',
+        undefined,
+        'a/b'
+      )
+    ).toBe(true);
+
+    expect(warnings()).toEqual([
+      "Skipping circle of trust 'a/b' of realm 'alpha': its id is not one name that a file can have.",
+    ]);
+    expect(paths()).toEqual([]);
+  });
+
+  test('a provider with a failing export is one failed operation, and the exit follows --allow-failures', async () => {
+    frodo.saml2.entityProvider.exportSaml2Provider.mockImplementationOnce(
+      async () => {
+        throw new Error('refused');
+      }
+    );
+
+    expect(
+      await configManagerExportSaml(
+        null,
+        false,
+        undefined,
+        'alpha',
+        'urn:zion:idp'
+      )
+    ).toBe(false);
+  });
+});
+
+describe('a selector of pull authz-policies', () => {
+  /** The three files that a pull of the policy writes. */
+  const SET = 'realms/alpha/authorization/policy-sets/zion-policies';
+  const ONE_POLICY = [
+    `${SET}/policies/allow-zion.json`,
+    `${SET}/zion-policies.json`,
+    'realms/alpha/authorization/resource-types/type-rt-1.json',
+  ];
+
+  test('--set-id pulls exactly that policy set, with its policies and the resource types, and reads only the list of policy sets', async () => {
+    expect(
+      await configManagerExportAuthzPolicySets(
+        null,
+        false,
+        'alpha',
+        undefined,
+        'zion-policies'
+      )
+    ).toBe(true);
+
+    expect(paths()).toEqual([
+      `${SET}/policies/allow-zion.json`,
+      `${SET}/policies/deny-matrix.json`,
+      `${SET}/zion-policies.json`,
+      'realms/alpha/authorization/resource-types/type-rt-1.json',
+    ]);
+    expect(listCalls).toEqual(['policySets@alpha']);
+  });
+
+  test('-i pulls the policy, the resource type that it uses and its policy set, and nothing else', async () => {
+    expect(
+      await configManagerExportAuthzPolicySets(
+        null,
+        false,
+        'alpha',
+        'allow-zion'
+      )
+    ).toBe(true);
+
+    expect(paths()).toEqual(ONE_POLICY);
+    // the policy is looked up in the list of the realm, then the set that it names is read
+    expect(listCalls).toEqual(['policies@alpha']);
+    expect(frodo.authz.policySet.readPolicySet).toHaveBeenCalledWith(
+      'zion-policies'
+    );
+    expect(frodo.authz.policy.readPoliciesByPolicySet).not.toHaveBeenCalled();
+  });
+
+  test('the files of one policy are the files that a pull of its policy set writes, byte for byte', async () => {
+    await configManagerExportAuthzPolicySets(
+      null,
+      false,
+      'alpha',
+      undefined,
+      'zion-policies'
+    );
+    const wholeSet = tree();
+    wipe();
+
+    await configManagerExportAuthzPolicySets(
+      null,
+      false,
+      'alpha',
+      'allow-zion'
+    );
+
+    const one = tree();
+    expect(Object.keys(one)).toEqual(ONE_POLICY);
+    for (const [file, content] of Object.entries(one)) {
+      expect(wholeSet[file]).toBe(content);
+    }
+  });
+
+  test('a tree that a pull of one policy wrote is read by the push as it reads any tree: the set, the policy and the resource type are all there', async () => {
+    await configManagerExportAuthzPolicySets(
+      null,
+      false,
+      'alpha',
+      'allow-zion'
+    );
+
+    expect(await configManagerImportAuthzPolicies()).toBe(true);
+
+    const [types] = frodo.authz.resourceType.importResourceTypes.mock.calls[0];
+    expect(Object.keys(types.resourcetype)).toEqual(['rt-1']);
+    const [sets] = frodo.authz.policySet.importPolicySets.mock.calls[0];
+    expect(Object.keys(sets.policyset)).toEqual(['zion-policies']);
+    const [policies] = frodo.authz.policy.importPolicies.mock.calls[0];
+    expect(Object.keys(policies.policy)).toEqual(['allow-zion']);
+    expect(printedErrors()).toEqual([]);
+  });
+
+  test.each([
+    ['-i', 'allow-ZION', 'Policy'],
+    ['-i', '../../outside', 'Policy'],
+    ['--set-id', 'ZION-POLICIES', 'Policy set'],
+    ['--set-id', '../../outside', 'Policy set'],
+  ])(
+    '%s with an id that the list does not hold (%s) fails whatever --allow-failures says, and nothing is read or written for it',
+    async (option, id, what) => {
+      for (const allowFailures of [false, true]) {
+        jest.clearAllMocks();
+        const args = option === '-i' ? [id, undefined] : [undefined, id];
+
+        expect(
+          await configManagerExportAuthzPolicySets(
+            null,
+            allowFailures,
+            'alpha',
+            ...args
+          )
+        ).toBe(false);
+
+        expect(errorMessages()).toEqual([
+          `${what} '${id}' not found in realm 'alpha'.`,
+        ]);
+        expect(paths()).toEqual([]);
+        expect(frodo.authz.policySet.readPolicySet).not.toHaveBeenCalled();
+      }
+    }
+  );
+
+  test('a selector needs a single realm: without one the command fails whatever --allow-failures says, and no list is read', async () => {
+    for (const allowFailures of [false, true]) {
+      jest.clearAllMocks();
+      listCalls = [];
+
+      expect(
+        await configManagerExportAuthzPolicySets(
+          null,
+          allowFailures,
+          undefined,
+          'allow-zion'
+        )
+      ).toBe(false);
+      expect(
+        await configManagerExportAuthzPolicySets(
+          null,
+          allowFailures,
+          undefined,
+          undefined,
+          'zion-policies'
+        )
+      ).toBe(false);
+
+      expect(errorMessages()).toEqual([
+        'Error: for a named policy, specify a single realm',
+        'Error: for a named policy set, specify a single realm',
+      ]);
+      expect(listCalls).toEqual([]);
+      expect(paths()).toEqual([]);
+    }
+  });
+
+  test('a list that cannot be read fails the command whatever --allow-failures says', async () => {
+    world.unreadable.add('alpha');
+
+    expect(
+      await configManagerExportAuthzPolicySets(
+        null,
+        true,
+        'alpha',
+        undefined,
+        'zion-policies'
+      )
+    ).toBe(false);
+    expect(
+      await configManagerExportAuthzPolicySets(
+        null,
+        true,
+        'alpha',
+        'allow-zion'
+      )
+    ).toBe(false);
+    expect(paths()).toEqual([]);
+  });
+
+  test('a policy whose policy set has a name that is not one name is skipped with a warning, and nothing is written', async () => {
+    world.policies['alpha/a/b'] = ['odd-policy'];
+
+    expect(
+      await configManagerExportAuthzPolicySets(
+        null,
+        false,
+        'alpha',
+        'odd-policy'
+      )
+    ).toBe(true);
+
+    expect(warnings()).toEqual([
+      "Skipping policy 'odd-policy' of realm 'alpha': the name of its policy set, 'a/b', is not one name that a file can have.",
+    ]);
+    expect(paths()).toEqual([]);
+    expect(frodo.authz.policySet.readPolicySet).not.toHaveBeenCalled();
+  });
+
+  test('a policy set that cannot be read is one failed operation, nothing is written, and the exit follows --allow-failures', async () => {
+    frodo.authz.policySet.readPolicySet.mockImplementation(async () => {
+      throw new Error('refused');
+    });
+
+    expect(
+      await configManagerExportAuthzPolicySets(
+        null,
+        false,
+        'alpha',
+        'allow-zion'
+      )
+    ).toBe(false);
+    expect(paths()).toEqual([]);
+    expect(summaries()).toHaveLength(1);
+
+    jest.clearAllMocks();
+    expect(
+      await configManagerExportAuthzPolicySets(
+        null,
+        true,
+        'alpha',
+        'allow-zion'
+      )
+    ).toBe(true);
+  });
+
+  test('the root realm of an Identity Cloud tenant is looked in, as without a selector', async () => {
+    deployment = 'cloud';
+
+    expect(
+      await configManagerExportAuthzPolicySets(
+        null,
+        false,
+        '/',
+        'root-scope-policy'
+      )
+    ).toBe(true);
+
+    expect(paths()).toEqual([
+      'realms/root/authorization/policy-sets/oauth2Scopes/oauth2Scopes.json',
+      'realms/root/authorization/policy-sets/oauth2Scopes/policies/root-scope-policy.json',
+      'realms/root/authorization/resource-types/type-rt-1.json',
+    ]);
+  });
+});
+
+describe('a selector of pull oauth2-agents', () => {
+  test('-i pulls exactly that agent, and reads the lists of the realm once', async () => {
+    expect(
+      await configManagerExportOAuth2Agents(
+        null,
+        false,
+        undefined,
+        'alpha',
+        'zion-web'
+      )
+    ).toBe(true);
+
+    expect(paths()).toEqual([
+      'realms/alpha/realm-config/agents/WebAgent/zion-web.json',
+    ]);
+    expect(listCalls).toEqual(['agents@alpha', 'clients@alpha']);
+    expect(frodo.agent.readAgentByTypeAndId).toHaveBeenCalledTimes(1);
+    expect(frodo.agent.readAgentByTypeAndId).toHaveBeenCalledWith(
+      'WebAgent',
+      'zion-web'
+    );
+  });
+
+  test('-i pulls an OAuth2 client as well, with its type', async () => {
+    expect(
+      await configManagerExportOAuth2Agents(
+        null,
+        false,
+        undefined,
+        'alpha',
+        'zion-client'
+      )
+    ).toBe(true);
+
+    expect(paths()).toEqual([
+      'realms/alpha/realm-config/agents/OAuth2Client/zion-client.json',
+    ]);
+  });
+
+  test('the file of the object is the one that the pull of everything writes', async () => {
+    await configManagerExportOAuth2Agents(null, false, undefined, 'alpha');
+    const everything = tree();
+    wipe();
+
+    await configManagerExportOAuth2Agents(
+      null,
+      false,
+      undefined,
+      'alpha',
+      'zion-ig'
+    );
+
+    const written = tree();
+    expect(Object.keys(written)).toEqual([
+      'realms/alpha/realm-config/agents/IdentityGatewayAgent/zion-ig.json',
+    ]);
+    for (const [file, content] of Object.entries(written)) {
+      expect(everything[file]).toBe(content);
+    }
+  });
+
+  test('an id that an agent and an OAuth2 client both have fails and names both types, and nothing is guessed', async () => {
+    world.clients.alpha = ['zion-web'];
+
+    for (const allowFailures of [false, true]) {
+      jest.clearAllMocks();
+
+      expect(
+        await configManagerExportOAuth2Agents(
+          null,
+          allowFailures,
+          undefined,
+          'alpha',
+          'zion-web'
+        )
+      ).toBe(false);
+
+      expect(errorMessages()).toEqual([
+        "More than one object of realm 'alpha' has the id 'zion-web': OAuth2Client, WebAgent. None is pulled; name the one you mean, with its type, in a config file.",
+      ]);
+      expect(paths()).toEqual([]);
+      expect(frodo.agent.readAgentByTypeAndId).not.toHaveBeenCalled();
+    }
+  });
+
+  test('an object that is listed once, with the same id in another type, is not mistaken for it when the id differs in case', async () => {
+    world.clients.alpha = ['Zion-Web'];
+
+    expect(
+      await configManagerExportOAuth2Agents(
+        null,
+        false,
+        undefined,
+        'alpha',
+        'zion-web'
+      )
+    ).toBe(true);
+
+    expect(paths()).toEqual([
+      'realms/alpha/realm-config/agents/WebAgent/zion-web.json',
+    ]);
+  });
+
+  test.each([
+    ['ZION-WEB'],
+    ['../../outside'],
+    ['zion-issuer'],
+    ['zion-profile'],
+    ['zion-publisher'],
+  ])(
+    '-i %s: an id that the lists do not hold, or that an agent type of its own command has, fails whatever --allow-failures says, and nothing is read or written for it',
+    async (id) => {
+      for (const allowFailures of [false, true]) {
+        jest.clearAllMocks();
+
+        expect(
+          await configManagerExportOAuth2Agents(
+            null,
+            allowFailures,
+            undefined,
+            'alpha',
+            id
+          )
+        ).toBe(false);
+
+        expect(errorMessages()).toHaveLength(1);
+        expect(errorMessages()[0]).toContain(
+          `Agent or OAuth2 client '${id}' not found in realm 'alpha'.`
+        );
+        expect(paths()).toEqual([]);
+        expect(frodo.agent.readAgentByTypeAndId).not.toHaveBeenCalled();
+      }
+    }
+  );
+
+  test('a selector needs a single realm: without one the command fails whatever --allow-failures says, and no list is read', async () => {
+    for (const allowFailures of [false, true]) {
+      jest.clearAllMocks();
+      listCalls = [];
+
+      expect(
+        await configManagerExportOAuth2Agents(
+          null,
+          allowFailures,
+          undefined,
+          undefined,
+          'zion-web'
+        )
+      ).toBe(false);
+
+      expect(errorMessages()).toEqual([
+        'Error: for a named agent or OAuth2 client, specify a single realm',
+      ]);
+      expect(listCalls).toEqual([]);
+    }
+  });
+
+  test('lists that cannot be read fail the command whatever --allow-failures says', async () => {
+    world.unreadable.add('alpha');
+
+    expect(
+      await configManagerExportOAuth2Agents(
+        null,
+        true,
+        undefined,
+        'alpha',
+        'zion-web'
+      )
+    ).toBe(false);
+    expect(paths()).toEqual([]);
+  });
+
+  test('an agent that is listed with an id that is not one name is skipped with a warning, as without a selector', async () => {
+    world.agents.alpha = [{ _id: 'a/b', _type: { _id: 'WebAgent' } }];
+    world.clients.alpha = [];
+
+    expect(
+      await configManagerExportOAuth2Agents(
+        null,
+        false,
+        undefined,
+        'alpha',
+        'a/b'
+      )
+    ).toBe(true);
+
+    expect(warnings()).toEqual([
+      "Skipping agent 'a/b' of type 'WebAgent' of realm 'alpha': its type or its id is not one name that a file can have.",
+    ]);
+    expect(paths()).toEqual([]);
+  });
+
+  test('the root realm of an Identity Cloud tenant has no agents: the object is not found there', async () => {
+    deployment = 'cloud';
+
+    expect(
+      await configManagerExportOAuth2Agents(
+        null,
+        false,
+        undefined,
+        '/',
+        'root-agent'
+      )
+    ).toBe(false);
+
+    expect(listCalls).toEqual([]);
   });
 });
