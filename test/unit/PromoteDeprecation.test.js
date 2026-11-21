@@ -151,10 +151,15 @@ describe('the replacements that the notice names exist', () => {
         line,
         found: true,
       });
-      // an option on a command group is an option of every command of the group (config-manager delete <kind> -n)
+      // an option on a command group is an option of every command of the group (config-manager delete <kind> -n),
+      // except `tenant-config`: it deletes all ESV secrets and all ESV variables, is no `<kind>` that the notice names
+      // and takes no name or id on purpose
       const targets =
         command.commands.length > 0
-          ? leafCommands(command).filter((leaf) => leaf.name() !== 'test')
+          ? leafCommands(command).filter(
+              (leaf) =>
+                leaf.name() !== 'test' && leaf.name() !== 'tenant-config'
+            )
           : [command];
       expect(targets.length).toBeGreaterThan(0);
       for (const flag of flags) {
