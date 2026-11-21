@@ -63,7 +63,10 @@ export function assertInside(root: string, target: string): void {
 
 /**
  * Whether a value is one name that a file or a folder of a tree can have: it is not empty, it is
- * not `.` or `..`, and it holds no `/`, no `\` and no control character.
+ * not `.` or `..`, and it holds no `/`, no `\`, no `:` and no control character. The library
+ * rewrites a path after it is built (it reads `\` as `/` and removes every `C:`, so `..C:` becomes
+ * `..`), so a colon is refused anywhere: a value that holds one is not a name that a file has, and a
+ * caller that needs a file for it uses {@link fileNameOf}, which writes the colon as `%3A`.
  * @param {string} value the id or the name
  * @returns {boolean} true if the value is one safe segment of a path
  */
@@ -72,14 +75,14 @@ export function isOneSafeSegment(value: string): boolean {
     value !== '' &&
     value !== '.' &&
     value !== '..' &&
-    !/[/\\\p{Cc}]/u.test(value)
+    !/[/\\:\p{Cc}]/u.test(value)
   );
 }
 
 /**
  * The name that an id or a name has in a folder of a tree. A value that is one name (no separator,
- * not `.` or `..`, no control character) is that name, as before; any other value is turned into
- * the file name of an id, {@link fileNameOf}.
+ * no colon, not `.` or `..`, no control character) is that name, as before; any other value is turned
+ * into the file name of an id, {@link fileNameOf}.
  * @param {string} value the id or the name
  * @returns {string} the name without the extension
  */
@@ -137,7 +140,7 @@ export function objectFolderPath(folder: string, value: string): string {
  * parts go). A realm is a name or a path of names, never a path of the file system.
  * @param {string} realm the realm, as the command line or the state names it
  * @returns {string} the folder, relative to the `realms` folder
- * @throws {Error} if the realm is empty, or a part of it is `.` or `..` or holds a backslash, a control character, `?`, `#` or `%`
+ * @throws {Error} if the realm is empty, or a part of it is `.` or `..` or holds a backslash, a colon, a control character, `?`, `#` or `%`
  */
 export function realmFolderOf(realm: string): string {
   if (realm === '/') return 'root';
@@ -145,7 +148,7 @@ export function realmFolderOf(realm: string): string {
   if (
     parts.length === 0 ||
     parts.some(
-      (part) => part === '.' || part === '..' || /[\\?#%\p{Cc}]/u.test(part)
+      (part) => part === '.' || part === '..' || /[\\?#%:\p{Cc}]/u.test(part)
     )
   ) {
     throw new Error(
@@ -160,10 +163,12 @@ export function realmFolderOf(realm: string): string {
  * the folder it is relative to (a script, a theme field, an email template, a mapping). A reference
  * is a relative path of the folder it is found in, and the file it names is in that folder or below
  * it: a reference that leaves the folder (`..` as a segment that goes above it), is empty, is an
- * absolute path, starts with a drive letter, or holds a control character is not a file of the
- * folder. The test is on the text of the path, so a file system link is not followed or looked at
- * (a real-path check of the whole tree is a separate step). A backslash separates on every
- * platform. A name that merely holds two dots (`a..b.js`, `..foo.js`) is a name.
+ * absolute path, holds a colon (a drive letter, `a:b.js`) or holds a control character is not a file
+ * of the folder. The library rewrites a path after it is built (it reads `\` as `/` and removes
+ * every `C:`, so `..C:/x` would become `../x`), so the test is made on the reference with `\` read
+ * as `/`, and a colon is refused anywhere: what the library reads is what was tested. The test is on
+ * the text of the path, so a file system link is not followed or looked at (a real-path check of the
+ * whole tree is a separate step). A name that merely holds two dots (`a..b.js`, `..foo.js`) is a name.
  * @param {string} folder the folder that the reference is relative to
  * @param {string} reference the reference, as the file holds it (`./x`, `sub/x.js`, `scripts-content/<context>/<name>.js`)
  * @returns {string} the path of the file, `folder` joined to the reference
@@ -185,9 +190,7 @@ export function referencedFilePath(folder: string, reference: string): string {
   };
   if (typeof reference !== 'string') throw refused();
   const text = reference.replaceAll('\\', '/');
-  if (/\p{Cc}/u.test(text) || text.startsWith('/') || /^[A-Za-z]:/.test(text)) {
-    throw refused();
-  }
+  if (/[:\p{Cc}]/u.test(text) || text.startsWith('/')) throw refused();
   const candidate = path.join(folder, text);
   try {
     assertInside(folder, candidate);
