@@ -6,8 +6,6 @@ const launchArgs = [
   // '--inspect-brk=2000',
   '--no-warnings',
   '--enable-source-maps',
-  '--experimental-loader',
-  new URL('./loader.cjs', import.meta.url).href,
   fileURLToPath(new URL('./app.cjs', import.meta.url)),
 ];
 const frodoArgs = process.argv.slice(2);
