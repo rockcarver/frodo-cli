@@ -605,6 +605,26 @@ mapping that has exactly that id. An id that is not a mapping, or that differs i
 case, exits with code 1 whatever `--allow-failures` says, and `--dry-run` reads
 the list the same way.
 
+A file reference must stay inside the config folder
+([a file reference must stay inside the config folder](https://github.com/rockcarver/frodo-cli/blob/main/docs/decisions/0061-a-file-reference-must-stay-inside-the-config-folder.md)).
+A `push` command that follows a reference in a file of the config tree (the
+`file` of a script, a theme field, an email template, a mapping, a managed
+object, a schedule, an endpoint, a workflow step or the script of a journey node,
+and the version and language of terms and conditions) joins it to the folder of
+the object and refuses a reference that leaves that folder, such as
+`../shared.js` or `..\x.js`, also when the file it names is still in the tree.
+The object is not pushed, the command says
+`The file reference '<reference>' must stay inside the config folder.`, and it
+exits with code 1 like a file that cannot be read: the other objects of the run
+are still pushed, and `--allow-failures` acts as for an unreadable file. A backslash separates on every
+platform, so `sub\x.js` is `sub/x.js` on macOS and Linux too. What pull writes
+(`scripts-content/<context>/<name>.js`, `<field>/<locale>.html`) is unchanged.
+An id that a file of the tree gives as the name of another object (the id of the
+script of a journey node or of a script that an application uses, the id of a
+circle of trust, the id of a mapping that an application owns) is a name, not a
+path, as a selector is: `a/b` is the file `a%2Fb.json`. A link of the file system
+inside the folder is not followed or checked: it is read as before.
+
 In the root realm of a Cloud tenant, which has no scripts, no applications and
 no themes, a selector on `pull scripts`, `pull applications` or `pull themes`
 prints one warning that there is nothing to pull for it (the exit code is still
