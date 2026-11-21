@@ -35,7 +35,7 @@ const fakeAmPath = fileURLToPath(new URL('./FakeAm.mjs', import.meta.url));
  * @param {object[]} [options.users] managed users the fake serves under /openidm/managed/ (`_id`, `userName`, `givenName`, `sn`, `mail`)
  * @param {string[]} [options.managedTypes] managed object type names the fake's config entity answers with (for catalog enrichment)
  * @param {string[]} [options.realms] realm names the realm list answers with (default: it answers 404)
- * @param {{method: string, path: string}[]} [options.failRequests] requests that answer with HTTP 500 (path is a URL fragment)
+ * @param {{method: string, path: string, echo?: {text: string, padding?: number}}[]} [options.failRequests] requests that answer with HTTP 500 (path is a URL fragment); `echo` adds a `detail.echo` of that text, `@PADDING@` in it replaced by `padding` characters
  * @param {object[]} [options.logApiKeys] keys returned by the log API key list
  * @param {string[]} [options.agentTypes] ids the agent type list of the realm answers with; an empty array is a realm that offers no type (default: it answers 404)
  * @param {object[]} [options.cimdProfiles] CIMD profiles in the plain shape the fake serves, stores and deletes (default: the type's endpoints answer 404)
@@ -43,6 +43,9 @@ const fakeAmPath = fileURLToPath(new URL('./FakeAm.mjs', import.meta.url));
  * @param {object[]} [options.features] IDM features the registry serves (`_id`, `installedVersion`, `availableVersions`, `validate`: the body the validate action answers with), reads and validate only (default: the registry answers 404)
  * @param {{ managed?: object, 'repo.ds'?: object }} [options.idmConfig] the IDM configuration `config/managed` and `config/repo.ds` answer with on a read; a write to them answers 500 (default: they answer 404)
  * @param {Record<string, object>} [options.idmEntities] IDM configuration objects by config id (`sync`, `provisioner.openicf/xyz`, ...) the fake serves on a read and replaces on a write, `_id` taken from the URL; the request log holds every body (default: they answer 404)
+ * @param {Record<string, Record<string, string>>} [options.journeys] journeys the fake serves, reads and deletes, as `{ <journey>: { <node id>: <node type> } }` (default: the routes answer 404)
+ * @param {string} [options.accessToken] the `access_token` that the service-account journey answers a token request with (default: `fake-service-account-token`)
+ * @param {string} [options.sessionToken] the `tokenId` that a plain login ends with (default: `fake-token`)
  * @param {boolean} [options.emptyCollections] answers every collection query the fake has no route for as an empty collection (`GET` with a `_queryFilter`, `POST` with `_action=nextdescendents`: `200` with no result), so a command that reads many kinds of configuration runs through on an empty tenant (default: they answer 404)
  * @param {{ apply?: object, states?: object[] }} [options.directConfiguration] makes the fake serve the direct configuration session of a Cloud tenant (init, apply, abort and state, and the service account scopes a login reads): `apply` is what the apply call answers (default `{ editable: false }`), `states` what the state reads answer one after the other, the last one again after that (default `[{ editable: false }]`); the request log shows every call (default: the session API answers 404)
  * @param {boolean} [options.cimdRootDenied] makes the root realm answer the type list and the profiles with the Cloud `403` "This operation is not available in PingOne Advanced Identity Cloud."
@@ -82,6 +85,9 @@ export async function startFakeAm({
   idmConfig,
   idmEntities,
   emptyCollections,
+  journeys,
+  accessToken,
+  sessionToken,
   directConfiguration,
 } = {}) {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'fake-am-'));
@@ -178,6 +184,11 @@ export async function startFakeAm({
           }
         : {}),
       ...(emptyCollections ? { FAKE_AM_EMPTY_COLLECTIONS: '1' } : {}),
+      ...(journeys
+        ? { FAKE_AM_JOURNEYS_FILE: written('journeys.json', journeys) }
+        : {}),
+      ...(accessToken ? { FAKE_AM_ACCESS_TOKEN: accessToken } : {}),
+      ...(sessionToken ? { FAKE_AM_SESSION_TOKEN: sessionToken } : {}),
       ...(directConfiguration
         ? {
             FAKE_AM_DIRECT_CONFIGURATION_FILE: written(
