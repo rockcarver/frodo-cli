@@ -113,8 +113,10 @@ export async function readSamlProviderForFile(entityId: string): Promise<{
  * With an entity id, or the id of a circle of trust, the lists are filtered: the one provider, or
  * the one circle of trust, whose listed id is exactly the one given, is what the content holds. That
  * needs a single realm. What the selector names is looked up in the list and the listed id is used,
- * never the selector itself. An id that the list does not hold, a list that cannot be read and a
- * name that needs a single realm fail the command: there is nothing for `--allow-failures` to allow.
+ * never the selector itself. An id that the list does not hold, an id that is not one name that a
+ * file can have (the circle of trust exists, but is not skipped quietly), a list that cannot be read
+ * and a name that needs a single realm fail the command: there is nothing for `--allow-failures` to
+ * allow.
  * @param {OperationRun} run the run of the command, which records the realms that cannot be read
  * @param {string} onlyRealm the realm to read; default: every realm
  * @param {string} entityId pull only the provider with this entity id
@@ -183,6 +185,13 @@ async function everythingOfSaml(
         .sort()) {
         if (isOneSafeSegment(cot)) {
           cots.push(cot);
+        } else if (cotId !== undefined) {
+          // the one circle of trust that was asked for: nothing for the flag to allow
+          printMessage(
+            `Circle of trust '${cot}' of realm '${currentRealm}' cannot be pulled: its id is not one name that a file can have.`,
+            'error'
+          );
+          return undefined;
         } else {
           printMessage(
             `Skipping circle of trust '${cot}' of realm '${currentRealm}': its id is not one name that a file can have.`,

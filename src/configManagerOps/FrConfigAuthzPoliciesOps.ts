@@ -61,8 +61,9 @@ async function singleRealm(
  *
  * With the name of a policy set the list is filtered: the policy set whose listed name is exactly
  * the one given is what the content holds. That needs a single realm. The listed name is used, never
- * the selector itself. A name that the list does not hold, a list that cannot be read and a name
- * that needs a single realm fail the command: there is nothing for `--allow-failures` to allow.
+ * the selector itself. A name that the list does not hold, a name that is not one name that a file
+ * can have (the policy set exists, but is not skipped quietly), a list that cannot be read and a
+ * name that needs a single realm fail the command: there is nothing for `--allow-failures` to allow.
  * @param {OperationRun} run the run of the command, which records the realms that cannot be read
  * @param {string} onlyRealm the realm to read; default: every realm
  * @param {string} setId pull only the policy set with this name
@@ -107,6 +108,13 @@ async function everythingOfAuthz(
         found = true;
         if (isOneSafeSegment(name)) {
           names.push(name);
+        } else if (setId !== undefined) {
+          // the one policy set that was asked for: nothing for the flag to allow
+          printMessage(
+            `Policy set '${name}' of realm '${currentRealm}' cannot be pulled: its name is not one name that a file can have.`,
+            'error'
+          );
+          return undefined;
         } else {
           printMessage(
             `Skipping policy set '${name}' of realm '${currentRealm}': its name is not one name that a file can have.`,
@@ -140,14 +148,13 @@ async function everythingOfAuthz(
  * set that it is in, nothing else, with the same files as `configManagerExportAuthzPolicySets`
  * writes for a policy set. The policy is looked up by its id in the list of the realm (which needs
  * a single realm) and the listed policy is what is written, so its policy set comes from the policy
- * itself. A policy that the list does not hold, a list that cannot be read and a missing single realm
- * fail the command whatever `allowFailures` says; a policy or a resource type that cannot be
- * written is one failed operation. A policy whose policy set does not have a name that a file can
- * have is skipped with a warning.
+ * itself. A policy that the list does not hold, a policy whose policy set does not have a name that
+ * a file can have, a list that cannot be read and a missing single realm fail the command whatever
+ * `allowFailures` says; a policy or a resource type that cannot be written is one failed operation.
  * @param {boolean} allowFailures True to succeed although the policy could not be exported (the failure is still summarised)
  * @param {string} onlyRealm the realm of the policy
  * @param {string} policyId the id of the policy
- * @returns {Promise<boolean>} false if the policy is not found or cannot be exported (unless failures are allowed), true otherwise
+ * @returns {Promise<boolean>} false if the policy is not found, its policy set has no name that a file can have, or the policy cannot be exported (unless failures are allowed), true otherwise
  */
 async function exportOnePolicy(
   allowFailures: boolean,
@@ -179,11 +186,12 @@ async function exportOnePolicy(
     }
     const setName = policy.applicationName;
     if (!isOneSafeSegment(setName)) {
+      // the one policy that was asked for: nothing for the flag to allow
       printMessage(
-        `Skipping policy '${policyId}' of realm '${realm}': the name of its policy set, '${setName}', is not one name that a file can have.`,
-        'warn'
+        `Policy '${policyId}' of realm '${realm}' cannot be pulled: the name of its policy set, '${setName}', is not one name that a file can have.`,
+        'error'
       );
-      return true;
+      return false;
     }
     const run = new OperationRun({ unit: 'policy', allowFailures });
     await run.run(`${realm === '/' ? 'root' : realm}/${policyId}`, async () => {

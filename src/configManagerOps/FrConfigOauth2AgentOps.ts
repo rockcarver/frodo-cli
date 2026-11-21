@@ -66,8 +66,9 @@ const { readAgentByTypeAndId, readAgents, importAgent } = frodo.agent;
  * With an id the lists are filtered: the agent or OAuth2 client whose listed id is exactly the one
  * given is what the content holds. That needs a single realm. The listed type and id are used, never
  * the selector itself. An id that the lists do not hold, an id that more than one object holds (they
- * are named, and nothing is guessed), lists that cannot be read and a name that needs a single realm
- * fail the command: there is nothing for `--allow-failures` to allow.
+ * are named, and nothing is guessed), an object whose type or id is not one name that a file can
+ * have (it exists, but is not skipped quietly), lists that cannot be read and a name that needs a
+ * single realm fail the command: there is nothing for `--allow-failures` to allow.
  * @param {OperationRun} run the run of the command, which records the realms that cannot be read
  * @param {string} onlyRealm the realm to read; default: every realm
  * @param {string} agentId pull only the agent or OAuth2 client with this id
@@ -92,6 +93,8 @@ async function everythingOfAgents(
   }
   // the types of the objects whose listed id is the one that was asked for
   const holders = new Set<string>();
+  // an object that was asked for exists but has no type or id that a file can have
+  let refused = false;
   for (const currentRealm of realms) {
     if (
       currentRealm === '/' &&
@@ -118,10 +121,19 @@ async function everythingOfAgents(
           holders.add(agentType);
         }
         if (!isOneSafeSegment(agentType) || !isOneSafeSegment(id)) {
-          printMessage(
-            `Skipping agent '${id}' of type '${agentType}' of realm '${currentRealm}': its type or its id is not one name that a file can have.`,
-            'warn'
-          );
+          if (agentId !== undefined) {
+            // the one object that was asked for: nothing for the flag to allow
+            printMessage(
+              `Agent '${id}' of type '${agentType}' of realm '${currentRealm}' cannot be pulled: its type or its id is not one name that a file can have.`,
+              'error'
+            );
+            refused = true;
+          } else {
+            printMessage(
+              `Skipping agent '${id}' of type '${agentType}' of realm '${currentRealm}': its type or its id is not one name that a file can have.`,
+              'warn'
+            );
+          }
           return;
         }
         found.set(agentType, (found.get(agentType) ?? new Set()).add(id));
@@ -147,6 +159,7 @@ async function everythingOfAgents(
       run.recordFailure(`realm ${realmDir}`, causeOf(error));
     }
   }
+  if (refused) return undefined;
   if (agentId !== undefined && holders.size === 0) {
     printMessage(
       `Agent or OAuth2 client '${agentId}' not found in realm '${realms[0]}'. The agent types that have a command of their own (${Object.values(
