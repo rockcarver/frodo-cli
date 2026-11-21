@@ -1,6 +1,7 @@
 import fs from 'fs';
 import { frodo } from '@rockcarver/frodo-lib';
 import { extractFrConfigDataToFile } from '../utils/Config';
+import { referencedFilePath } from '../utils/ConfigTreePath';
 import { printError, printMessage, verboseMessage } from '../utils/Console';
 import { causeOf, isNotFoundError } from '../utils/ErrorCause';
 import { OperationRun } from '../utils/OperationRun';
@@ -52,9 +53,12 @@ export async function configManagerImportTermsAndConditions(): Promise<boolean> 
     ) as any;
     for (const version of termsAndConditions.versions) {
       for (const [language] of Object.entries(version.termsTranslations)) {
-        const languageFileName = `${version.version}/${language}.html`;
         const directoryName = `terms-conditions`;
-        const fileDir = getFilePath(`${directoryName}/${languageFileName}`);
+        // the version is a folder of the terms, the language a file of that folder
+        const versionDir = referencedFilePath(directoryName, version.version);
+        const fileDir = getFilePath(
+          referencedFilePath(versionDir, `${language}.html`)
+        );
         version.termsTranslations[language] = fs.readFileSync(fileDir, 'utf8');
       }
     }

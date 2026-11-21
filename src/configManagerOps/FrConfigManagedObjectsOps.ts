@@ -2,7 +2,11 @@ import fs from 'fs';
 import path from 'path';
 import { frodo } from '@rockcarver/frodo-lib';
 import { extractFrConfigDataToFile } from '../utils/Config';
-import { objectFilePath, objectFolderPath } from '../utils/ConfigTreePath';
+import {
+  objectFilePath,
+  objectFolderPath,
+  referencedFilePath,
+} from '../utils/ConfigTreePath';
 import { printError, printMessage } from '../utils/Console';
 import { OperationRun } from '../utils/OperationRun';
 
@@ -153,7 +157,7 @@ function getExtractedFiles(obj: any, managedObjectDirectory: string): void {
   for (const key of Object.keys(obj)) {
     const value = obj[key];
     if (value?.type === 'text/javascript' && value.file) {
-      const scriptPath = path.join(managedObjectDirectory, value.file);
+      const scriptPath = referencedFilePath(managedObjectDirectory, value.file);
       if (fs.existsSync(scriptPath)) {
         value.source = fs.readFileSync(scriptPath, { encoding: 'utf-8' });
         delete value.file;

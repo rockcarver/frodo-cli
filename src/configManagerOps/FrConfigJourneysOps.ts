@@ -12,7 +12,11 @@ import {
   wantsJourneyFindingsHint,
 } from '../ops/JourneyFindingsHint';
 import { extractFrConfigDataToFile } from '../utils/Config';
-import { objectFilePath, objectFolderPath } from '../utils/ConfigTreePath';
+import {
+  objectFilePath,
+  objectFolderPath,
+  referencedFilePath,
+} from '../utils/ConfigTreePath';
 import { printError, printMessage } from '../utils/Console';
 import { causeOf } from '../utils/ErrorCause';
 import { existScript, realmList, safeFileName } from '../utils/FrConfig';
@@ -265,7 +269,10 @@ function readNodeScript(
     return;
 
   const baseDir = getFilePath(`realms/${realmDir}/scripts`);
-  const scriptConfigFile = `${baseDir}/scripts-config/${node.script}.json`;
+  const scriptConfigFile = objectFilePath(
+    `${baseDir}/scripts-config`,
+    node.script
+  );
   if (!fs.existsSync(scriptConfigFile)) {
     printMessage(`Script config not found: ${scriptConfigFile}`, 'error');
     return;
@@ -274,7 +281,7 @@ function readNodeScript(
   const script = readJsonFile(scriptConfigFile) as any;
 
   if (script.script?.file) {
-    const contentFile = `${baseDir}/${script.script.file}`;
+    const contentFile = referencedFilePath(baseDir, script.script.file);
     if (!fs.existsSync(contentFile)) {
       printMessage(`Script content not found: ${contentFile}`, 'error');
       return;

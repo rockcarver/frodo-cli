@@ -5,6 +5,7 @@ import {
   type FrodoError,
 } from '@rockcarver/frodo-lib';
 import { extractFrConfigDataToFile } from '../utils/Config';
+import { referencedFilePath } from '../utils/ConfigTreePath';
 import { printError, printMessage } from '../utils/Console';
 import { causeOf } from '../utils/ErrorCause';
 import { fileFilter } from '../utils/FrConfig';
@@ -141,7 +142,7 @@ export async function configManagerImportEndpoints(
 
         if (endpoint.file) {
           const scriptPath = getFilePath(
-            `endpoints/${endpointsFile}/${endpoint.file}`
+            referencedFilePath(`endpoints/${endpointsFile}`, endpoint.file)
           );
           endpoint.source = fs.readFileSync(scriptPath, 'utf8');
           delete endpoint.file;

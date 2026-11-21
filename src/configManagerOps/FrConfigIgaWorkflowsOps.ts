@@ -2,6 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import { frodo, type ScriptTask } from '@rockcarver/frodo-lib';
 import { extractFrConfigDataToFile } from '../utils/Config';
+import { referencedFilePath } from '../utils/ConfigTreePath';
 import { printError, printMessage } from '../utils/Console';
 import { causeOf } from '../utils/ErrorCause';
 import { safeFileName } from '../utils/FrConfig';
@@ -157,7 +158,7 @@ export async function configManagerImportIgaWorkflows(
               (step.scriptTask as ScriptTask).script &&
               (step.scriptTask as any).script.file
             ) {
-              const filePath = path.join(
+              const filePath = referencedFilePath(
                 stepDir,
                 (step.scriptTask as any).script.file
               );

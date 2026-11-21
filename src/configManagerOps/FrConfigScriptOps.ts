@@ -1,5 +1,6 @@
 import fs from 'fs';
 import { frodo, state, type ScriptSkeleton } from '@rockcarver/frodo-lib';
+import { objectFilePath, referencedFilePath } from '../utils/ConfigTreePath';
 import {
   createProgressIndicator,
   printError,
@@ -206,7 +207,9 @@ export async function importScriptFromFiles(
 ): Promise<void> {
   const realmDir = realm === '/' ? 'root' : realm;
   const importData = readJsonFile(
-    getFilePath(`realms/${realmDir}/scripts/scripts-config/${scriptId}.json`)
+    getFilePath(
+      objectFilePath(`realms/${realmDir}/scripts/scripts-config`, scriptId)
+    )
   ) as any;
   if (!importData.name || importData.name.trim() === '') {
     throw new Error(
@@ -214,7 +217,7 @@ export async function importScriptFromFiles(
     );
   }
   const fullScriptPath = getFilePath(
-    `realms/${realmDir}/scripts/${importData.script.file}`
+    referencedFilePath(`realms/${realmDir}/scripts`, importData.script.file)
   );
   importData.script = fs.readFileSync(fullScriptPath, 'utf8');
   const importedScript = await updateScript(importData._id, importData);
@@ -341,7 +344,10 @@ export async function configManagerImportScripts(
           scriptFound = true;
 
           const fullScriptPath = getFilePath(
-            `realms/${currentRealm}/scripts/${importData.script.file}`
+            referencedFilePath(
+              `realms/${currentRealm}/scripts`,
+              importData.script.file
+            )
           );
           delete importData.script.file;
           importData.script = fs.readFileSync(fullScriptPath, 'utf8');

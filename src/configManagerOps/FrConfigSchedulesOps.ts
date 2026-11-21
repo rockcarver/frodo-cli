@@ -5,6 +5,7 @@ import {
   type IdObjectSkeletonInterface,
 } from '@rockcarver/frodo-lib';
 import { extractFrConfigDataToFile } from '../utils/Config';
+import { referencedFilePath } from '../utils/ConfigTreePath';
 import { printError, printMessage } from '../utils/Console';
 import { causeOf } from '../utils/ErrorCause';
 import { fileFilter } from '../utils/FrConfig';
@@ -141,7 +142,10 @@ export async function configManagerImportSchedules(
             continue;
           }
           const scriptPath = getFilePath(
-            `schedules/${schedulesFile}/${importData.invokeContext.script.file}`
+            referencedFilePath(
+              `schedules/${schedulesFile}`,
+              importData.invokeContext.script.file
+            )
           );
           importData.invokeContext.script.source = fs.readFileSync(
             scriptPath,
@@ -161,7 +165,10 @@ export async function configManagerImportSchedules(
             continue;
           }
           const scriptPath = getFilePath(
-            `schedules/${schedulesFile}/${importData.invokeContext.task.script.file}`
+            referencedFilePath(
+              `schedules/${schedulesFile}`,
+              importData.invokeContext.task.script.file
+            )
           );
           importData.invokeContext.task.script.source = fs.readFileSync(
             scriptPath,
