@@ -616,13 +616,16 @@ folder of the object and refuses a reference that:
 - leaves that folder, such as `../shared.js` or `..\x.js`, also when the file it
   names is still in the tree;
 - is an absolute path (`/shared.js`), which was joined to the folder before;
-- holds a drive letter or any other colon (`C:\x.js`, `a:b.js`, `..C:/x.js`);
-  `C:\x.js` was joined to the folder before;
+- starts with a drive letter (`C:\x.js`, `a:b.js`), which was joined to the
+  folder before;
+- holds `C:` anywhere (`..C:/x.js`, `ABC:x.js`), because the library removes
+  every `C:` from a path;
 - is empty, or holds a control character.
 
-A hand-made terms and conditions file whose version is a number instead of text
-is refused too, because a version is the name of a folder and the tenant writes
-it as text.
+Any other colon is an ordinary character: `sub/a:b.js` and
+`Login:SSO.onCreate.js` are read as they were. A hand-made terms and conditions
+file whose version is a number instead of text is refused too, because a version
+is the name of a folder and the tenant writes it as text.
 
 A refused reference is not pushed: the command says
 `The file reference '<reference>' must stay inside the config folder.`
@@ -632,17 +635,18 @@ backslash separates on every platform, so `sub\x.js` is `sub/x.js` on macOS and
 Linux too. What pull writes (`scripts-content/<context>/<name>.js`,
 `<field>/<locale>.html`) is unchanged.
 
-A colon is not part of a name either. An id that a file of the tree gives as the
-name of another object (the id of the script of a journey node or of a script
-that an application uses, the id of a circle of trust, the id of a mapping that
-an application owns), and an id or a name given with `-i` or `-n`, is a name,
-not a path, as a selector is: `a/b` is the file `a%2Fb.json`, and `a:b` is the
-file `a%3Ab.json`; a file that was named by hand with the colon (`a:b.json`) is
-no longer found. A realm that holds a colon is refused like any realm that is
-not a name or a path of names, and `pull` skips a circle of trust, a policy set
-or an agent whose id holds a colon with the warning that a name which is not one
-name already has. A link of the file system inside the folder is not followed or
-checked: it is read as before.
+The same holds for the names that a file of the tree gives as the name of
+another object (the id of the script of a journey node or of a script that an
+application uses, the id of a circle of trust, the id of a mapping that an
+application owns) and for an id or a name given with `-i` or `-n`: a name that
+holds `C:` or a backslash is not one name, and is looked up as the file name of
+an id (`ABC:x` is the file `ABC%3Ax.json`, as `a/b` is `a%2Fb.json`). A realm
+that holds `C:` is refused like any realm that is not a name or a path of names,
+and a `pull` of everything skips a circle of trust, a policy set or an agent
+whose id holds `C:` with the warning that a name which is not one name already
+has. Any other colon (`Login:SSO`) is an ordinary character of a name, as
+before. A link of the file system inside the folder is not followed or checked:
+it is read as before.
 
 In the root realm of a Cloud tenant, which has no scripts, no applications and
 no themes, a selector on `pull scripts`, `pull applications` or `pull themes`
