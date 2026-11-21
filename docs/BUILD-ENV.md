@@ -20,7 +20,7 @@ TypeScript sources (src/)
   │
   ├─ jest 30 .............. test (8,500 snapshots, Polly-recorded HTTP)
   │
-  ├─ tsdown (rolldown) .... bundle src/{app,launch,loader}.ts -> dist/*.cjs
+  ├─ tsdown (rolldown) .... bundle src/{app,launch}.ts -> dist/*.cjs
   ├─ tsc .................. type check gate (no emit)
   │
   ├─ node --build-sea ..... dist-sea/app.cjs + Node 26 -> single binaries (5 platforms)
@@ -38,13 +38,16 @@ Release automation:
 
 ## 2. Bundler: tsdown (replaced tsup 2026-10)
 
-**What it does**: bundles the three TypeScript entries into CJS outputs:
+**What it does**: bundles the TypeScript entries into CJS outputs:
 
-| Entry           | Output            | Role                                                                                     |
-| --------------- | ----------------- | ---------------------------------------------------------------------------------------- |
-| `src/launch.ts` | `dist/launch.cjs` | npm `bin` entry; spawns `app.cjs` with the module-resolution loader and forwards signals |
-| `src/loader.ts` | `dist/loader.cjs` | module-resolution loader for the app                                                     |
-| `src/app.ts`    | `dist/app.cjs`    | the CLI itself (~10 MB, self-contained)                                                  |
+| Entry           | Output            | Role                                                |
+| --------------- | ----------------- | --------------------------------------------------- |
+| `src/launch.ts` | `dist/launch.cjs` | npm `bin` entry; spawns `app.cjs`, forwards signals |
+| `src/app.ts`    | `dist/app.cjs`    | the CLI itself (~10 MB, self-contained)             |
+
+There is no module-resolution loader: the bundle resolves everything at build
+time, so Node's own resolver is all that runs (the `--experimental-loader` hook
+that older releases passed to the app process was removed on 2026-11-21).
 
 **Why tsdown and not tsup**: tsup is unmaintained (last release Nov 2025) and
 had a real defect we hit in production CI (see §2.1). tsdown is the
@@ -476,4 +479,5 @@ pkg→SEA migration (it builds `dist/` from source).
 | 2026-11-10 | Proof that proxy support works in the shipped bundle (frodo-lib#982): `test/unit/ProxySupport.test.js` runs `dist/launch.cjs` and, when it exists, `dist-sea/frodo` against a fake tenant with a forward proxy in the test process (`HTTP_PROXY`, a `CONNECT` tunnel for `HTTPS_PROXY`, `NO_PROXY`, credentials in the proxy URL, a proxy nobody listens on), and the `Proxy Tests` step of the live job ends with a negative control (`frodo info` with `HTTPS_PROXY=http://127.0.0.1:9` must fail); `test/unit/PipelineClassification.test.js` runs the step's shell for each outcome | — |
 | 2026-11-14 | A pull request that changes only `.github/dependabot.yml` or `.github/workflows/dependabot-auto-merge.yml` runs `Validate guidance` instead of nothing: both are in `GUIDANCE` of the classifier (still non-code), and `tools/run-guidance-tests.mjs` lists `DependabotAutoMerge.test.js` and `DependabotPolicy.test.js` (core 0023). `scripts/dependabot-auto-merge.mjs` stays code, so `Test` runs its tests. Required checks unchanged | #1321 |
 | 2026-11-15 | The Dependabot auto-merge policy of core 0023 is decided by the shared action `gearsnlevers/dependabot-auto-merge-action` (pinned by full SHA in `dependabot-auto-merge.yml`), the same one frodo-lib uses; `scripts/dependabot-auto-merge.mjs` and its test are gone. `test/unit/DependabotPolicy.test.js` stays, with its own matcher and manual-name rule, and now pins the workflow's properties; `tools/run-guidance-tests.mjs` lists it alone. The classifier's `GUIDANCE` is unchanged (`dependabot.yml` and the workflow are still read by that test). The workflow gets a `dry-run` input for `workflow_dispatch`. |
+| 2026-11-21 | The ESM loader is removed (`src/loader.ts`, `dist/loader.cjs`, the `--experimental-loader` argument of `src/launch.ts`, the `resolve` devDependency): it was written in 2023 for unbundled ESM with extensionless imports, and the bundle has no runtime resolution left (the hook was asked about one specifier per run, the entry file, and Node's own resolver answers the same). `frodo -v` from the npm package starts about a third faster; the SEA binary never had a loader. The launcher, its flags and its second process are unchanged. |
 | planned    | Polly→nock (library repo) — DEFERRED 2026-10-04 (deep record-harness coupling; revisit on Node 28 or real breakage)                                                                                                                                                                                                                                                                                                                                                                                                                                                 | —                            |

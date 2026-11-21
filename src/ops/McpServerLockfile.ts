@@ -199,6 +199,11 @@ function argvLooksLikeFrodo(argv: string[]): boolean {
       base === 'app.cjs' ||
       base === 'launch.cjs' ||
       base === 'app.js' ||
+      // Releases before the one that removed the ESM loader started the app
+      // process as `node ... --experimental-loader file:///.../loader.cjs
+      // .../app.cjs ...`. A server started by such a release can still be
+      // running when a newer `frodo mcp server stop` looks at it, so the name
+      // stays recognised for one release after the loader was removed.
       base === 'loader.cjs'
     );
   });
