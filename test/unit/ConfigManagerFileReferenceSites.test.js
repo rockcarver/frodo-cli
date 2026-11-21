@@ -75,21 +75,8 @@ const EXEMPT = [
   },
 ];
 
-const BOOLEAN_STEPS = new Set([
-  ts.SyntaxKind.ParenthesizedExpression,
-  ts.SyntaxKind.NonNullExpression,
-  ts.SyntaxKind.AsExpression,
-]);
-const COMPARISONS = new Set([
-  ts.SyntaxKind.EqualsEqualsEqualsToken,
-  ts.SyntaxKind.ExclamationEqualsEqualsToken,
-  ts.SyntaxKind.EqualsEqualsToken,
-  ts.SyntaxKind.ExclamationEqualsToken,
-]);
-const LOGICAL = new Set([
-  ts.SyntaxKind.AmpersandAmpersandToken,
-  ts.SyntaxKind.BarBarToken,
-]);
+const COMPARISONS = new Set(['===', '!==', '==', '!=']);
+const LOGICAL = new Set(['&&', '||']);
 
 const calleeName = (call) =>
   ts.isIdentifier(call.expression)
@@ -103,23 +90,27 @@ function isTest(node) {
   let current = node;
   while (current.parent) {
     const parent = current.parent;
-    if (BOOLEAN_STEPS.has(parent.kind)) {
+    if (
+      ts.isParenthesizedExpression(parent) ||
+      ts.isNonNullExpression(parent) ||
+      ts.isAsExpression(parent)
+    ) {
       current = parent;
     } else if (
       ts.isPrefixUnaryExpression(parent) &&
-      parent.operator === ts.SyntaxKind.ExclamationToken
+      parent.getFirstToken()?.getText() === '!'
     ) {
       return true;
     } else if (ts.isTypeOfExpression(parent)) {
       return true;
     } else if (
       ts.isBinaryExpression(parent) &&
-      COMPARISONS.has(parent.operatorToken.kind)
+      COMPARISONS.has(parent.operatorToken.getText())
     ) {
       return true;
     } else if (
       ts.isBinaryExpression(parent) &&
-      LOGICAL.has(parent.operatorToken.kind)
+      LOGICAL.has(parent.operatorToken.getText())
     ) {
       // the value of `a && b` is b: it only decides when the whole expression is a test itself
       current = parent;
@@ -154,7 +145,7 @@ function holderOf(node) {
 
 /**
  * Every read of a property named `file` in the source, and what it is.
- * @returns {{ line: number, kind: string, text: string }[]} `kind` is `guarded`, `test`, `filter`, `delete`, `assigned`, or `unguarded`
+ * @returns {{ line: number, verdict: string, text: string }[]} `verdict` is `guarded`, `test`, `filter`, `delete`, `assigned`, or `unguarded`
  */
 function readsOfFile(source) {
   const sourceFile = ts.createSourceFile(
@@ -178,7 +169,7 @@ function readsOfFile(source) {
         node.getStart()
       );
       const text = holderOf(node).getText();
-      let kind = 'unguarded';
+      let verdict = 'unguarded';
       const insideCall = (name) => {
         for (let up = node.parent; up; up = up.parent) {
           if (ts.isCallExpression(up) && calleeName(up) === name) return true;
@@ -190,23 +181,23 @@ function readsOfFile(source) {
         isAccess &&
         ts.isBinaryExpression(node.parent) &&
         node.parent.left === node &&
-        node.parent.operatorToken.kind === ts.SyntaxKind.EqualsToken
+        node.parent.operatorToken.getText() === '='
       ) {
-        kind = 'assigned';
+        verdict = 'assigned';
       } else if (
         ts.isDeleteExpression(node.parent) ||
         (ts.isParenthesizedExpression(node.parent) &&
           ts.isDeleteExpression(node.parent.parent))
       ) {
-        kind = 'delete';
+        verdict = 'delete';
       } else if (insideCall('referencedFilePath')) {
-        kind = 'guarded';
+        verdict = 'guarded';
       } else if (insideCall('fileFilter')) {
-        kind = 'filter';
+        verdict = 'filter';
       } else if (isAccess && isTest(node)) {
-        kind = 'test';
+        verdict = 'test';
       }
-      found.push({ line: line + 1, kind, text });
+      found.push({ line: line + 1, verdict, text });
     }
     ts.forEachChild(node, visit);
   };
@@ -254,7 +245,7 @@ describe('the scan itself', () => {
       }
     `);
 
-    expect(reads.map((read) => read.kind)).toEqual([
+    expect(reads.map((read) => read.verdict)).toEqual([
       'unguarded',
       'unguarded',
       'unguarded',
@@ -276,7 +267,7 @@ describe('the scan itself', () => {
       }
     `);
 
-    expect(reads.map((read) => read.kind)).toEqual([
+    expect(reads.map((read) => read.verdict)).toEqual([
       'test',
       'guarded',
       'filter',
@@ -325,7 +316,7 @@ describe('the reads of a file reference in the push code of the config tree', ()
     (module) => {
       const unguarded = readsOfFile(sourceOf(module)).filter(
         (read) =>
-          read.kind === 'unguarded' &&
+          read.verdict === 'unguarded' &&
           !EXEMPT.some(
             (exempt) =>
               exempt.module === module && read.text.includes(exempt.text)
@@ -339,7 +330,8 @@ describe('the reads of a file reference in the push code of the config tree', ()
   test('every exemption is still needed, and says why', () => {
     for (const exempt of EXEMPT) {
       const used = readsOfFile(sourceOf(exempt.module)).filter(
-        (read) => read.kind === 'unguarded' && read.text.includes(exempt.text)
+        (read) =>
+          read.verdict === 'unguarded' && read.text.includes(exempt.text)
       );
 
       expect({ exempt: exempt.text, used: used.length }).toEqual({
@@ -352,7 +344,7 @@ describe('the reads of a file reference in the push code of the config tree', ()
 
   test('the places that read a file reference are found: at least 15 reads go through the helper', () => {
     const guarded = modules.flatMap((module) =>
-      readsOfFile(sourceOf(module)).filter((read) => read.kind === 'guarded')
+      readsOfFile(sourceOf(module)).filter((read) => read.verdict === 'guarded')
     );
 
     // S1 to S15 read a `.file` (S16 keeps the reference as `textFile`, S22 builds the name of the file from the version and the language)
