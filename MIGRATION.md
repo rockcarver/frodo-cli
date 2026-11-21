@@ -13,6 +13,47 @@ listed here, is decided by
 
 ### From 4.x
 
+**The text of an MCP tool result is scrubbed of known values**: as its last
+step, the text of a tool result of `frodo mcp server start` has the values that
+the connection holds replaced by `<redacted>`: the access and session values,
+the cookie value, the refresh and ID values, the log API secret, the password
+and the keys (each when it is at least 16 characters long), the values of the
+configuration header overrides whose names say they are secrets (16 or more
+characters), the values of all authentication header overrides, whatever the
+header is called (8 or more characters), and the values of the request in the
+resource-server mode, and the user info of the host URL of the connection
+(8 or more characters each). The password in the user info of any URL
+(`scheme://user:password@host`) is replaced as well, whatever its length: the
+user info goes up to the last at sign before the authority ends (at a slash, `?`,
+`#`, a backslash, white space or a quote), so a password may hold `, ; | ) ] } &`,
+and an address that follows without a space (`http://u:p@h,mail@y`) is read as
+part of the password. A value shorter than 16 characters that the connection did
+not provide as a credential is not matched by value.
+`Bearer` followed by a JSON web token or by 16 or more characters is written as
+`Bearer <redacted>` as well, and so are a JSON web token anywhere, the line of a
+sensitive header (`Authorization: ...`, at the start of a line) and the string
+value of a key that is named like one. A JSON
+text stays JSON: the value of such a key that is an object, a list, a number, a
+boolean or `null` is left as it is. In the text of an error (not in the data of a result), the password of a user
+info that has no scheme (`user:password@host`) is replaced as well.
+A key in single quotes takes a value in single quotes and a key in double quotes
+one in double quotes: a pair with mixed quotes (`{'cookie': "a=b"}`) is not
+replaced, because reading across two kinds of quotes would break the JSON text
+of a result. A value that is shorter than the length it
+is looked for at is not looked for in the text (an ordinary word would be
+replaced in every result); the line of the header that carries it is replaced
+by the name of the header.
+
+**`frodo journey delete` says more when the journey itself cannot be deleted**:
+the error text now starts with `Error deleting <realm> realm journey <id>` and
+goes on with the network error (URL, status, code, reason and message), where it
+used to print `HTTP client error` with the code, the status and the message. The
+library hands the command a `FrodoError` instead of the error of the request.
+
+**`--curlirize` prints the `authId` of a login as `<redacted>`**: the curl command
+that is printed for a request that carries an `authId` prints `<redacted>` in
+its place. `--curlirize-secrets` prints the value.
+
 **`frodo log tail` retries failed polls**: the tail used to end silently after
 one failed poll with exit code 0. It now keeps following, with increasing pauses,
 and gives up after 5 failures in a row with exit code 1. The new `--keep-trying`

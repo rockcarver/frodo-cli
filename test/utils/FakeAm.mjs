@@ -121,6 +121,15 @@
  * (`.../authenticationtrees/trees`) answer with trees of those names; an empty
  * value is a realm without journeys. Without it the list answers 404. The
  * trees themselves are not served, so a command that reads one fails on it.
+ * FAKE_AM_JOURNEYS_FILE=<path> names a JSON object `{ "<journey>": { "<node id>": "<node type>" } }`
+ * the fake serves as journeys that can be read and deleted: a read of one
+ * (`.../authenticationtrees/trees/<journey>`) answers it with its nodes (`404` once it was
+ * deleted), `DELETE` of it removes it and answers it as AM does (`200`, with its nodes),
+ * and `DELETE .../authenticationtrees/nodes/<type>/<id>` answers `200`. The failing answers
+ * come from FAKE_AM_FAIL_REQUESTS.
+ * FAKE_AM_ACCESS_TOKEN=<text> is the `access_token` that the token endpoint of the service-account
+ * journey answers with (default: `fake-service-account-token`). FAKE_AM_SESSION_TOKEN=<text> is
+ * the `tokenId` that a plain login ends with (default: `fake-token`).
  * FAKE_AM_SESSION_TTL_SECONDS=<n> gives the session of a plain login a lifetime
  * of n seconds from the lookup (default: it expires in 2099).
  * The logout call (`POST .../sessions?_action=logout`) is answered like AM
@@ -139,7 +148,10 @@
  * `500` with the message `fake tenant operation failed`. It is checked before
  * every other route, after the request was recorded, so a test sees the failing
  * request in the request log and the CLI sees a failed operation behind a login
- * that worked.
+ * that worked. An entry that has `"echo": {"text": "...@PADDING@...", "padding": 70000}`
+ * answers with a `detail.echo` of that text, `@PADDING@` replaced by that many `x`
+ * (the answer of a tenant that echoes what it was sent; it is too long for the
+ * environment, so the fake writes it).
  * FAKE_AM_FEATURES_FILE=<path> names a JSON array of IDM tenant-configuration features
  * (`_id`, `installedVersion`, `availableVersions`, and `validate`, the body the validate
  * action answers with: default `{ status: 200, success: true, message: 'Validate
@@ -331,6 +343,15 @@ function wrapCimdProfile(profile) {
   }
   return wrapped;
 }
+const journeys = (() => {
+  const wanted = readJson(process.env.FAKE_AM_JOURNEYS_FILE);
+  return wanted
+    ? new Map(Object.entries(wanted).map(([id, nodes]) => [id, { ...nodes }]))
+    : undefined;
+})();
+const accessToken =
+  process.env.FAKE_AM_ACCESS_TOKEN ?? 'fake-service-account-token';
+const sessionToken = process.env.FAKE_AM_SESSION_TOKEN ?? 'fake-token';
 let cimdRevision = 0;
 const trees =
   process.env.FAKE_AM_TREES === undefined
@@ -464,15 +485,24 @@ const server = http.createServer((req, res) => {
         answer();
       }
     };
-    if (
-      failRequests.some(
-        ({ method, path }) => req.method === method && req.url.includes(path)
-      )
-    ) {
+    const failing = failRequests.find(
+      ({ method, path }) => req.method === method && req.url.includes(path)
+    );
+    if (failing) {
       return send(500, {
         code: 500,
         reason: 'Internal Server Error',
         message: 'fake tenant operation failed',
+        ...(failing.echo
+          ? {
+              detail: {
+                echo: failing.echo.text.replace(
+                  '@PADDING@',
+                  'x'.repeat(failing.echo.padding ?? 0)
+                ),
+              },
+            }
+          : {}),
       });
     }
     if (logApiKeys && req.method === 'GET' && req.url === '/keys') {
@@ -502,7 +532,7 @@ const server = http.createServer((req, res) => {
         });
       }
       return send(200, {
-        access_token: 'fake-service-account-token',
+        access_token: accessToken,
         token_type: 'Bearer',
         expires_in: 3600,
       });
@@ -988,6 +1018,31 @@ const server = http.createServer((req, res) => {
         return send(200, { _id: removed.secretId, ...removed });
       }
     }
+    if (journeys) {
+      const treeRoute = pathname.match(/\/authenticationtrees\/trees\/([^/]+)$/);
+      const nodeRoute = pathname.match(
+        /\/authenticationtrees\/nodes\/[^/]+(?:\/[^/]+)?\/([^/]+)$/
+      );
+      if (treeRoute) {
+        const id = decodeURIComponent(treeRoute[1]);
+        const nodes = journeys.get(id);
+        if (!nodes || !['GET', 'DELETE'].includes(req.method)) {
+          return send(404, { code: 404, reason: 'Not Found', message: 'Not Found' });
+        }
+        if (req.method === 'DELETE') journeys.delete(id);
+        return send(200, {
+          _id: id,
+          entryNodeId: Object.keys(nodes)[0],
+          nodes: Object.fromEntries(
+            Object.entries(nodes).map(([nodeId, nodeType]) => [
+              nodeId,
+              { nodeType, displayName: nodeId, x: 0, y: 0, connections: {} },
+            ])
+          ),
+        });
+      }
+      if (nodeRoute && req.method === 'DELETE') return send(200, {});
+    }
     if (trees && pathname.endsWith('/authenticationtrees/trees')) {
       return send(200, {
         result: trees.map((_id) => ({ _id })),
@@ -1168,7 +1223,7 @@ const server = http.createServer((req, res) => {
           callbacks: [nameCallback('Enter verification code')],
         });
       }
-      return send(200, { tokenId: 'fake-token', successUrl: '/', realm: '/' });
+      return send(200, { tokenId: sessionToken, successUrl: '/', realm: '/' });
     }
     if (
       req.method === 'POST' &&
