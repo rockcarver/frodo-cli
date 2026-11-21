@@ -61,6 +61,11 @@ import {
 import { z } from 'zod';
 import { printMessage } from '../utils/Console.js';
 import { errorHintFor } from '../utils/ErrorCodeHints.js';
+import {
+  liveSecrets,
+  scrubKnownValues,
+  sensitiveNames,
+} from '../utils/McpResultScrub.js';
 import { getUseDeviceFlow } from './AuthenticateOps.js';
 import {
   resolveServiceAccountForClaims,
@@ -566,8 +571,8 @@ export function buildMcpServer(
         tool.name,
         { description: tool.description, inputSchema: DISCOVERY_SHAPE },
         async (args, ctx) => {
-          try {
-            const result = await service.executeTool({
+          return replyToTool(async () => {
+            return service.executeTool({
               toolName: tool.name,
               arguments: args,
               context: buildRequestContext(
@@ -576,10 +581,7 @@ export function buildMcpServer(
                 ctx.http?.authInfo
               ),
             });
-            return buildSuccessResult(result);
-          } catch (err) {
-            return buildErrorResult(err);
-          }
+          }, ctx.http?.authInfo);
         }
       );
     } else if (isFindSkills) {
@@ -591,8 +593,8 @@ export function buildMcpServer(
           annotations,
         },
         async (args, ctx) => {
-          try {
-            const result = await service.executeTool({
+          return replyToTool(async () => {
+            return service.executeTool({
               toolName: tool.name,
               arguments: args,
               context: buildRequestContext(
@@ -601,10 +603,7 @@ export function buildMcpServer(
                 ctx.http?.authInfo
               ),
             });
-            return buildSuccessResult(result);
-          } catch (err) {
-            return buildErrorResult(err);
-          }
+          }, ctx.http?.authInfo);
         }
       );
     } else if (isDescribeSkill) {
@@ -616,8 +615,8 @@ export function buildMcpServer(
           annotations,
         },
         async (args, ctx) => {
-          try {
-            const result = await service.executeTool({
+          return replyToTool(async () => {
+            return service.executeTool({
               toolName: tool.name,
               arguments: args,
               context: buildRequestContext(
@@ -626,10 +625,7 @@ export function buildMcpServer(
                 ctx.http?.authInfo
               ),
             });
-            return buildSuccessResult(result);
-          } catch (err) {
-            return buildErrorResult(err);
-          }
+          }, ctx.http?.authInfo);
         }
       );
     } else if (isDispatchTool) {
@@ -641,12 +637,12 @@ export function buildMcpServer(
           annotations,
         },
         async (args, ctx) => {
-          try {
+          return replyToTool(async () => {
             const realm =
               args && typeof args === 'object'
                 ? ((args as { realm?: unknown }).realm as string | undefined)
                 : undefined;
-            const result = await service.executeTool({
+            return service.executeTool({
               toolName: tool.name,
               arguments: args,
               context: buildRequestContext(
@@ -655,10 +651,7 @@ export function buildMcpServer(
                 ctx.http?.authInfo
               ),
             });
-            return buildSuccessResult(result);
-          } catch (err) {
-            return buildErrorResult(err);
-          }
+          }, ctx.http?.authInfo);
         }
       );
     } else {
@@ -670,8 +663,8 @@ export function buildMcpServer(
           annotations,
         },
         async (args, ctx) => {
-          try {
-            const result = await service.executeTool({
+          return replyToTool(async () => {
+            return service.executeTool({
               toolName: tool.name,
               arguments: args,
               context: buildRequestContext(
@@ -680,10 +673,7 @@ export function buildMcpServer(
                 ctx.http?.authInfo
               ),
             });
-            return buildSuccessResult(result);
-          } catch (err) {
-            return buildErrorResult(err);
-          }
+          }, ctx.http?.authInfo);
         }
       );
     }
@@ -3487,10 +3477,13 @@ function writeJsonRpcErrorResponse(
  * @param {unknown} result what the tool runtime of the library returned
  * @returns {{content: {type: 'text'; text: string}[]}} the result to send to the MCP client
  */
-export function buildSuccessResult(result: unknown): {
+export function buildSuccessResult(
+  result: unknown,
+  secrets: readonly unknown[] = []
+): {
   content: { type: 'text'; text: string }[];
 } {
-  const serialized = safeJsonStringify(result);
+  const serialized = scrubResultText(safeJsonStringify(result), secrets);
   const payloadSizeBytes = Buffer.byteLength(serialized, 'utf8');
   const inlineLimitBytes = getInlineResultLimitBytes(result);
   if (payloadSizeBytes <= inlineLimitBytes) {
@@ -3513,7 +3506,7 @@ export function buildSuccessResult(result: unknown): {
     content: [
       {
         type: 'text' as const,
-        text: safeJsonStringify(truncatedPayload),
+        text: scrubResultText(safeJsonStringify(truncatedPayload), secrets),
       },
     ],
   };
@@ -3704,6 +3697,63 @@ function buildTruncatedSuccessPayload(
 }
 
 /**
+ * Runs one tool call and writes what came of it as the result the client
+ * receives: the value the call returned, or the error it raised, each as text
+ * that is scrubbed of known values (see `scrubResultText`).
+ * @param {() => Promise<unknown>} run the tool call
+ * @param {AuthInfo | undefined} authInfo what the verified request carried (the resource-server mode)
+ * @returns {Promise<object>} the result of the tool, for the MCP client
+ */
+export async function replyToTool(
+  run: () => Promise<unknown>,
+  authInfo?: AuthInfo
+): Promise<
+  ReturnType<typeof buildSuccessResult> | ReturnType<typeof buildErrorResult>
+> {
+  try {
+    return buildSuccessResult(await run(), requestSecrets(authInfo));
+  } catch (err) {
+    return buildErrorResult(err, requestSecrets(authInfo));
+  }
+}
+
+/**
+ * The values of one request that the state does not hold: what the verified
+ * request of the caller carried (its access value, its session value and the key of the
+ * service account its claims were mapped to), in the resource-server mode.
+ * @param {AuthInfo | undefined} authInfo what the verified request carried
+ * @returns {unknown[]} the values to look for, with the state, in the text of a result
+ */
+function requestSecrets(authInfo?: AuthInfo): unknown[] {
+  return [
+    authInfo?.token,
+    authInfo?.extra?.sessionToken,
+    authInfo?.extra?.resolvedServiceAccountJwk,
+  ];
+}
+
+/**
+ * The last step before a tool result leaves the process: the known values of
+ * the connection and of the request, and `Bearer` values, are replaced by
+ * `<redacted>` (see `utils/McpResultScrub.ts`).
+ * @param {string} text the text of the result
+ * @param {readonly unknown[]} secrets the values of the request, besides the state
+ * @returns {string} the text that may be sent
+ */
+function scrubResultText(
+  text: string,
+  secrets: readonly unknown[],
+  errorText = false
+): string {
+  return scrubKnownValues(
+    text,
+    liveSecrets(state, ...secrets),
+    sensitiveNames(state),
+    { errorText }
+  );
+}
+
+/**
  * Safely stringifies a payload for MCP transport output.
  */
 function safeJsonStringify(payload: unknown): string {
@@ -3731,9 +3781,13 @@ function formatByteSize(bytes: number): string {
  * The result of an MCP tool that failed: the error of the library, then the advice of this command line for
  * the conditions that have a code (ErrorCodeHints), then the note for a session that needs re-authentication.
  * @param {unknown} err the error that the tool raised
+ * @param {readonly unknown[]} secrets the values of the request that the state does not hold, which are scrubbed from the text as well
  * @returns {{content: {type: 'text'; text: string}[]; isError: true}} the result to send to the MCP client
  */
-export function buildErrorResult(err: unknown): {
+export function buildErrorResult(
+  err: unknown,
+  secrets: readonly unknown[] = []
+): {
   content: { type: 'text'; text: string }[];
   isError: true;
 } {
@@ -3780,7 +3834,7 @@ export function buildErrorResult(err: unknown): {
     content: [
       {
         type: 'text' as const,
-        text: errorText,
+        text: scrubResultText(errorText, secrets, true),
       },
     ],
     isError: true as const,

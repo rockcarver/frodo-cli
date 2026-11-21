@@ -34,6 +34,8 @@ let mockStateHost;
 // Overridable per-test; buildErrorResult's note for a session that needs re-authentication.
 let mockNeedsReauthentication = false;
 let mockStateDeploymentType;
+// Overridable per-test; the tests of the text of a tool result set these.
+let mockStateSecrets = {};
 // Overridable per-test; external-IDP verifier/resolver tests reassign these.
 let mockVerifyJwtAgainstJwks = async () => {
   throw new Error('verifyJwtAgainstJwks mock not configured');
@@ -76,7 +78,15 @@ jest.unstable_mockModule('@rockcarver/frodo-lib', () => ({
     getServiceAccountId: () => undefined,
     getServiceAccountJwk: () => undefined,
     getUsername: () => undefined,
-    getPassword: () => undefined,
+    getPassword: () => mockStateSecrets.password,
+    getCookieName: () => mockStateSecrets.cookieName,
+    getAuthenticationHeaderOverrides: () =>
+      mockStateSecrets.authenticationOverrides,
+    getConfigurationHeaderOverrides: () =>
+      mockStateSecrets.configurationOverrides,
+    getBearerToken: () => mockStateSecrets.bearer,
+    getPfBearerToken: () => mockStateSecrets.pfBearer,
+    getCookieValue: () => mockStateSecrets.cookie,
     getDeploymentType: () => mockStateDeploymentType,
     getAllowInsecureConnection: () => false,
     getDebug: () => false,
@@ -112,11 +122,13 @@ const {
   buildDcrRegistrationResponse,
   buildErrorResult,
   buildExternalIdpVerifier,
+  buildMcpServer,
   buildRequestContext,
   buildSuccessResult,
   computeHttpAllowedHosts,
   isLoopbackBindHost,
   registerServerCrashHandlers,
+  replyToTool,
   resolveFrodoForMcpRequest,
   resolveForwardedResourceValue,
   resolveResourceServerUrl,
@@ -4759,6 +4771,397 @@ describe('buildErrorResult: the error of a tool that failed, and the advice of t
     expect(text.indexOf('FRODO_LOG_KEY')).toBeLessThan(
       text.indexOf('needs re-authentication')
     );
+  });
+});
+
+describe('the text of a tool result is scrubbed of the known values of the connection', () => {
+  const VALUE_A = 'MARKER-A-000000001';
+  const VALUE_PF = 'MARKER-PF-0000000001';
+  const VALUE_B = 'MARKER-B-000000001';
+  const VALUE_CALLER = 'MARKER-CALLER-000000001';
+
+  /** The shape of an error that holds the config of its request, as the library wrote it before. */
+  function errorWithConfig(authorization = `Bearer ${VALUE_A}`) {
+    return {
+      status: 'error',
+      nodes: {
+        n1: {
+          status: 'error',
+          error: {
+            name: 'AxiosError',
+            message: 'Request failed with status code 409',
+            config: {
+              url: 'https://tenant.example.com/am/json/x',
+              headers: {
+                Accept: 'application/json',
+                Authorization: authorization,
+              },
+              extra: authorization,
+            },
+          },
+        },
+      },
+    };
+  }
+
+  beforeEach(() => {
+    mockStateSecrets = { bearer: VALUE_A, pfBearer: VALUE_PF, cookie: VALUE_B };
+    mockNeedsReauthentication = false;
+  });
+  afterEach(() => {
+    mockStateSecrets = {};
+  });
+
+  test('1: a success result is written with the value redacted and the header kept', () => {
+    const { text } = buildSuccessResult({ data: errorWithConfig() }).content[0];
+
+    expect(text).not.toContain(VALUE_A);
+    expect(text).toContain('"Authorization": "Bearer <redacted>"');
+    expect(text).toContain('"url": "https://tenant.example.com/am/json/x"');
+    // the rest of the result is as it was
+    expect(JSON.parse(text).data.nodes.n1.error.message).toBe(
+      'Request failed with status code 409'
+    );
+  });
+
+  test.each([
+    ['the first value of the state', VALUE_A],
+    ['the second value of the state', VALUE_PF],
+    ['the third value of the state', VALUE_B],
+  ])(
+    '2: %s is replaced wherever it stands in a success result',
+    (_name, value) => {
+      const { text } = buildSuccessResult({
+        data: { deep: [{ list: [`prefix-${value}-suffix`] }], [value]: value },
+      }).content[0];
+
+      expect(text).not.toContain(value);
+      expect(JSON.parse(text).data.deep[0].list[0]).toBe(
+        'prefix-<redacted>-suffix'
+      );
+    }
+  );
+
+  test('3: a value that is in no state is found by its shape after Bearer', () => {
+    const { text } = buildSuccessResult({
+      data: errorWithConfig('Bearer someOtherValue-999999'),
+    }).content[0];
+
+    expect(text).not.toContain('someOtherValue-999999');
+    expect(text).toContain('Bearer <redacted>');
+  });
+
+  test('4: the values of the request are replaced as well', () => {
+    const { text } = buildSuccessResult({ data: { echoed: VALUE_CALLER } }, [
+      VALUE_CALLER,
+      undefined,
+    ]).content[0];
+
+    expect(text).not.toContain(VALUE_CALLER);
+    expect(JSON.parse(text).data.echoed).toBe('<redacted>');
+  });
+
+  test('5: a result that is too large for the answer is cut, and what stays is scrubbed', () => {
+    const { text } = buildSuccessResult({
+      toolName: 'frodo_dispatch',
+      itemResults: {
+        failures: [{ message: `Authorization: Bearer ${VALUE_A}` }],
+      },
+      data: 'x'.repeat(300 * 1024),
+    }).content[0];
+
+    const written = JSON.parse(text);
+    expect(written.data._truncated).toBe(true);
+    expect(text).not.toContain(VALUE_A);
+    expect(written.itemResults.failures[0].message).toBe(
+      'Authorization: Bearer <redacted>'
+    );
+  });
+
+  test('6: a result that holds nothing to replace is written as it was', () => {
+    const result = {
+      toolName: 'frodo_dispatch',
+      data: {
+        name: 'journey one',
+        note: 'Bearer authentication is used',
+        word: 'password',
+      },
+    };
+
+    expect(buildSuccessResult(result).content[0].text).toBe(
+      JSON.stringify(result, null, 2)
+    );
+  });
+
+  test('7: an error result is written with the values redacted as well', () => {
+    const error = Object.assign(new Error('Error deleting node'), {
+      name: 'FrodoError',
+      originalErrors: [],
+      getCombinedMessage: () =>
+        `Error deleting node\n  headers: {"Authorization":"Bearer ${VALUE_A}","Cookie":"iPlanetDirectoryPro=${VALUE_B}"}\n  other: Bearer unknownValue123456789`,
+    });
+
+    const result = buildErrorResult(error);
+    const { text } = result.content[0];
+
+    expect(result.isError).toBe(true);
+    expect(text).not.toContain(VALUE_A);
+    expect(text).not.toContain(VALUE_B);
+    expect(text).not.toContain('unknownValue123456789');
+    expect(text).toContain('"Authorization":"Bearer <redacted>"');
+    // the Cookie line is replaced as a whole
+    expect(text).toContain('"Cookie":"<redacted>"');
+  });
+
+  test('8: an error result is written without the values of the request', () => {
+    const { text } = buildErrorResult(
+      new Error(`failed with ${VALUE_CALLER}`),
+      [VALUE_CALLER]
+    ).content[0];
+
+    expect(text).toBe('Error: failed with <redacted>');
+  });
+
+  test('9: the advice and the note of the error result are kept', () => {
+    mockNeedsReauthentication = true;
+
+    const { text } = buildErrorResult(new Error(`value ${VALUE_A}`)).content[0];
+
+    expect(text).toContain('Error: value <redacted>');
+    expect(text).toContain('needs re-authentication');
+  });
+
+  test('10: a short value of the state is not looked for, so that a word is not replaced', () => {
+    mockStateSecrets = { bearer: 'password', cookie: 'changeit' };
+
+    const { text } = buildSuccessResult({
+      data: { password: 'password', note: 'changeit' },
+    }).content[0];
+
+    expect(JSON.parse(text).data).toEqual({
+      password: 'password',
+      note: 'changeit',
+    });
+  });
+
+  test('11: the truncated envelope is scrubbed of the values of the request too', () => {
+    const { text } = buildSuccessResult(
+      {
+        toolName: 'frodo_dispatch',
+        itemResults: {
+          failures: [{ message: `the caller ${VALUE_CALLER} was rejected` }],
+        },
+        data: 'x'.repeat(300 * 1024),
+      },
+      [VALUE_CALLER]
+    ).content[0];
+
+    const written = JSON.parse(text);
+    expect(written.data._truncated).toBe(true);
+    expect(text).not.toContain(VALUE_CALLER);
+    expect(written.itemResults.failures[0].message).toBe(
+      'the caller <redacted> was rejected'
+    );
+  });
+
+  test('12: an authentication override with a neutral name and a value of 10 characters is replaced, as it is, JSON-escaped and URL-encoded', () => {
+    const value = 'ab"c\\d12/+';
+    mockStateSecrets = {
+      authenticationOverrides: { 'X-Neutral-Name': value },
+    };
+
+    const { text } = buildSuccessResult({
+      data: {
+        plain: `echo ${value} end`,
+        escaped: `echo ${JSON.stringify(value).slice(1, -1)} end`,
+        encoded: `echo ${encodeURIComponent(value)} end`,
+        exact: value,
+      },
+    }).content[0];
+
+    expect(text).not.toContain(value);
+    expect(text).not.toContain(JSON.stringify(value).slice(1, -1));
+    expect(text).not.toContain(encodeURIComponent(value));
+    expect(JSON.parse(text).data).toEqual({
+      plain: 'echo <redacted> end',
+      escaped: 'echo <redacted> end',
+      encoded: 'echo <redacted> end',
+      exact: '<redacted>',
+    });
+  });
+
+  test('13: a configuration override with a neutral name and a short benign value is not replaced', () => {
+    mockStateSecrets = {
+      configurationOverrides: {
+        'X-Neutral-Setting': 'en-US',
+        'Accept-Language': 'application/json',
+      },
+    };
+    const result = { data: { language: 'en-US', type: 'application/json' } };
+
+    expect(buildSuccessResult(result).content[0].text).toBe(
+      JSON.stringify(result, null, 2)
+    );
+  });
+
+  test('14: the password of the profile, 12 characters long, is replaced in the line of the header that carries it and nowhere else', () => {
+    mockStateSecrets = { password: 'Passw0rd-123' };
+
+    const { text } = buildSuccessResult({
+      data: {
+        headers: 'X-OpenAM-Username: admin\nX-OpenAM-Password: Passw0rd-123',
+        sentence: 'the Passw0rd-123 stays in prose',
+      },
+    }).content[0];
+
+    const written = JSON.parse(text).data;
+    expect(written.headers).toBe(
+      'X-OpenAM-Username: admin\nX-OpenAM-Password: <redacted>'
+    );
+    expect(written.sentence).toBe('the Passw0rd-123 stays in prose');
+  });
+
+  test('15b: the text of an error has a user info without a scheme replaced, and the text of a result does not (it is data)', () => {
+    const message =
+      'connect user:ZQXpass9876@host.example then //u2:ZQXpass9876@h2.example/x';
+    const error = buildErrorResult(new Error(message));
+    expect(error.isError).toBe(true);
+    expect(error.content[0].text).toBe(
+      'Error: connect user:<redacted>@host.example then //u2:<redacted>@h2.example/x'
+    );
+    // the same words in the data of a result are the data
+    const success = buildSuccessResult({
+      data: { note: 'Contact:john@example.com' },
+    });
+    expect(success.content[0].text).toContain('Contact:john@example.com');
+    // a URL with a scheme is replaced in both
+    expect(
+      buildSuccessResult({ data: { url: 'http://u:ZQXpass9876@h/x' } })
+        .content[0].text
+    ).toContain('http://u:<redacted>@h/x');
+  });
+
+  test('15: the session cookie: the value, a header named like the cookie and a Cookie line are replaced', () => {
+    const cookie = 'MARKER-COOKIE-00000001';
+    mockStateSecrets = { cookie, cookieName: 'customSession' };
+
+    const { text } = buildSuccessResult({
+      data: {
+        free: `the session ${cookie} was refused`,
+        encoded: `q=${encodeURIComponent(cookie + '"x')}`,
+        line: `Cookie: a=b; customSession=${cookie}`,
+        named: 'customSession: abc12',
+      },
+    }).content[0];
+
+    expect(text).not.toContain(cookie);
+    const written = JSON.parse(text).data;
+    expect(written.free).toBe('the session <redacted> was refused');
+    expect(written.line).toBe('Cookie: <redacted>');
+    expect(written.named).toBe('customSession: <redacted>');
+  });
+});
+
+describe('every tool of the MCP server writes its result through the scrub, with the values of its request', () => {
+  const CALLER = 'MARKER-CALLER-000000001';
+  const CALLER_SESSION = 'MARKER-CALLERSESSION-0001';
+  const CALLER_KEY = 'MARKER-CALLERKEY-0000001';
+  const TOOLS = [
+    'frodo_discover',
+    'frodo_find_skills',
+    'frodo_describe_skill',
+    'frodo_dispatch',
+    'frodo_dispatch_read_only',
+    'frodo_other',
+  ];
+
+  beforeEach(() => {
+    mockNeedsReauthentication = false;
+  });
+
+  const authInfo = {
+    token: CALLER,
+    clientId: 'client',
+    scopes: [],
+    extra: {
+      sessionToken: CALLER_SESSION,
+      resolvedServiceAccountJwk: { kty: 'RSA', d: CALLER_KEY },
+    },
+  };
+
+  /** The server of the CLI over a service that echoes what it is given, or fails with it. */
+  function toolsOf(executeTool) {
+    const service = {
+      listTools: () => TOOLS.map((name) => ({ name, description: name })),
+      executeTool,
+    };
+    return buildMcpServer(service)._registeredTools;
+  }
+  const echo = async ({ arguments: args }) => {
+    if (args?.fail) {
+      throw new Error(
+        `failed with ${CALLER} and ${CALLER_SESSION} and Bearer ${CALLER}`
+      );
+    }
+    return {
+      echoed: [CALLER, CALLER_SESSION],
+      key: JSON.stringify({ d: CALLER_KEY }),
+    };
+  };
+
+  test.each(TOOLS)(
+    '%s: a result is written without the values of the caller',
+    async (name) => {
+      const tools = toolsOf(echo);
+
+      const result = await tools[name].handler({}, { http: { authInfo } });
+      const { text } = result.content[0];
+
+      expect(result.isError).toBeUndefined();
+      for (const value of [CALLER, CALLER_SESSION, CALLER_KEY]) {
+        expect(text).not.toContain(value);
+      }
+      expect(JSON.parse(text).echoed).toEqual(['<redacted>', '<redacted>']);
+    }
+  );
+
+  test.each(TOOLS)(
+    '%s: an error is written without the values of the caller',
+    async (name) => {
+      const tools = toolsOf(echo);
+
+      const result = await tools[name].handler(
+        { fail: true },
+        { http: { authInfo } }
+      );
+
+      expect(result.isError).toBe(true);
+      expect(result.content[0].text).toBe(
+        'Error: failed with <redacted> and <redacted> and Bearer <redacted>'
+      );
+    }
+  );
+
+  test('a call that carries no request values still works', async () => {
+    const tools = toolsOf(echo);
+
+    const result = await tools.frodo_dispatch.handler({}, {});
+
+    expect(JSON.parse(result.content[0].text).echoed).toEqual([
+      CALLER,
+      CALLER_SESSION,
+    ]);
+  });
+
+  test('replyToTool: the value, the error, and an error from the writing of the value', async () => {
+    const value = await replyToTool(async () => ({ a: 1 }), authInfo);
+    expect(JSON.parse(value.content[0].text)).toEqual({ a: 1 });
+
+    const failed = await replyToTool(async () => {
+      throw new Error(`no ${CALLER}`);
+    }, authInfo);
+    expect(failed.isError).toBe(true);
+    expect(failed.content[0].text).toBe('Error: no <redacted>');
   });
 });
 
