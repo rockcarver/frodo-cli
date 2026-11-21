@@ -28,6 +28,12 @@ Deployment: Cloud-only
 
 Options:
   --description <description>         Description of the promotion.
+  --full                              Run the full promotion workflow: lock
+                                      tenants, run the promotion, and unlock
+                                      tenants, waiting for each step to
+                                      complete. --wait and --unlock-after will
+                                      automatically be set if --full is
+                                      provided.
   -I, --ignore-encrypted-secrets      Ignore encrypted secrets during promotion.
   -P, --promoter <name>               Name of the person performing the
                                       promotion.

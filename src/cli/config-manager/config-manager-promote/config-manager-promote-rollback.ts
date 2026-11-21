@@ -53,6 +53,12 @@ export default function setup() {
         'Specify a timeout in seconds how long the tool should wait for the rollback to complete. Requires --wait.'
       ).argParser(parseTimeoutSeconds)
     )
+    .addOption(
+      new Option(
+        '--full',
+        'Run the full rollback workflow: lock tenants, roll back the promotion, and unlock tenants, waiting for each step to complete. --wait and --unlock-after will automatically be set if --full is provided.'
+      )
+    )
     .addHelpText(
       'after',
       `Usage Examples:\n` +
@@ -98,6 +104,7 @@ export default function setup() {
         unlockAfter: options.unlockAfter,
         wait: options.wait,
         timeout: options.timeout,
+        full: options.full,
       });
       if (!outcome) process.exitCode = 1;
     });

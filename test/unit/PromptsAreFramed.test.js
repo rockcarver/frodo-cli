@@ -65,6 +65,8 @@ const PACKAGED_CONFIRMS = [
   'src/ops/FeatureOps.ts',
   'src/ops/IdmOps.ts',
   'src/utils/BulkDeleteGuard.ts',
+  // -y, --yes is not necessary for promotion since the `--ignore-encrypted-secrets` does the same thing
+  'src/ops/cloud/EnvPromotionOps.ts'
 ];
 
 /** The source without its comments, so a mention in prose does not count as use. */

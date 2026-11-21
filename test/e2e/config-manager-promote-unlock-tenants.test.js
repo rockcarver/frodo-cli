@@ -2,7 +2,7 @@
 
 /*
 // Cloud
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_TEST_NAME=0_i frodo config-manager promote unlock-tenants -i bb757dc6-0646-47d7-b63c-c7c6b5668ad7
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_MOCK_HOSTS=https://openam-frodo-promo-prd.forgeblocks.com FRODO_HOST=https://openam-frodo-promo-prd.forgeblocks.com/am FRODO_TEST_NAME=0_i frodo config-manager promote unlock-tenants -i 97b37332-a293-4052-a3cc-4a421fd59557
 */
 
 import { getEnv, testSuccess } from './utils/TestUtils';
@@ -13,8 +13,8 @@ process.env['FRODO_MOCK'] ||= '1';
 const cloudEnv = getEnv(c);
 
 describe('frodo config-manager promote unlock-tenants', () => {
-    test(`"frodo config-manager promote unlock-tenants -i bb757dc6-0646-47d7-b63c-c7c6b5668ad7": unlock tenants if tenants are locked"`, async () => {
-        const CMD = `frodo config-manager promote unlock-tenants -i bb757dc6-0646-47d7-b63c-c7c6b5668ad7`;
+    test(`"frodo config-manager promote unlock-tenants -i 97b37332-a293-4052-a3cc-4a421fd59557": unlock tenants if tenants are locked"`, async () => {
+        const CMD = `frodo config-manager promote unlock-tenants -i 97b37332-a293-4052-a3cc-4a421fd59557`;
         await testSuccess(CMD, { ...cloudEnv, env: { ...cloudEnv.env, FRODO_TEST_NAME: '0_i' } });
     });
 });

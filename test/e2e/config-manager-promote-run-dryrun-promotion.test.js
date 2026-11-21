@@ -13,10 +13,13 @@
 
 /*
 // Cloud
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_TEST_NAME=0 frodo config-manager promote run-dryrun-promotion
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_TEST_NAME=0_p_uid_t frodo config-manager promote run-dryrun-promotion -P provisional-report -uI --description 'provisional report' -t ticket
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_TEST_NAME=0_wait frodo config-manager promote run-dryrun-promotion --wait
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_TEST_NAME=0_wait_timeout frodo config-manager promote run-dryrun-promotion --wait --timeout 6
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_MOCK_HOSTS=https://openam-frodo-promo-prd.forgeblocks.com FRODO_HOST=https://openam-frodo-promo-prd.forgeblocks.com/am FRODO_TEST_NAME=0 frodo config-manager promote run-dryrun-promotion
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_MOCK_HOSTS=https://openam-frodo-promo-prd.forgeblocks.com FRODO_HOST=https://openam-frodo-promo-prd.forgeblocks.com/am FRODO_TEST_NAME=0_p_uid_t frodo config-manager promote run-dryrun-promotion -P provisional-report -uI --description 'provisional report' -t ticket
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_MOCK_HOSTS=https://openam-frodo-promo-prd.forgeblocks.com FRODO_HOST=https://openam-frodo-promo-prd.forgeblocks.com/am FRODO_TEST_NAME=0_wait frodo config-manager promote run-dryrun-promotion --wait
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_MOCK_HOSTS=https://openam-frodo-promo-prd.forgeblocks.com FRODO_HOST=https://openam-frodo-promo-prd.forgeblocks.com/am FRODO_TEST_NAME=0_wait_timeout frodo config-manager promote run-dryrun-promotion --wait --timeout 6
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_MOCK_HOSTS=https://openam-frodo-promo-prd.forgeblocks.com FRODO_HOST=https://openam-frodo-promo-prd.forgeblocks.com/am FRODO_TEST_NAME=missingEsvError frodo config-manager promote run-dryrun-promotion --wait
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_MOCK_HOSTS=https://openam-frodo-promo-prd.forgeblocks.com FRODO_HOST=https://openam-frodo-promo-prd.forgeblocks.com/am FRODO_TEST_NAME=encryptedSecretsWarningContinue frodo config-manager promote run-dryrun-promotion --full
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_MOCK_HOSTS=https://openam-frodo-promo-prd.forgeblocks.com FRODO_HOST=https://openam-frodo-promo-prd.forgeblocks.com/am FRODO_TEST_NAME=0_full frodo config-manager promote run-dryrun-promotion --full
 */
 
 import { getEnv, testSuccess, testFail } from './utils/TestUtils';
@@ -31,7 +34,7 @@ describe('frodo config-manager promote run-dryrun-promotion', () => {
         const CMD = `frodo config-manager promote run-dryrun-promotion`;
         await testSuccess(CMD, { ...cloudEnv, env: { ...cloudEnv.env, FRODO_TEST_NAME: '0' } });
     });
-    test(`"frodo config-manager promote run-dryrun-promotion -p provisional-report -uid 'provisional report' -t ticket": Will run dry-run promotion with promoter, description, ignoring encrpted secrets, unlocking after, and Zendesk ticket"`, async () => {
+    test(`"frodo config-manager promote run-dryrun-promotion -P provisional-report -uI --description 'provisional report' -t ticket": Will run dry-run promotion with promoter, description, ignoring encrpted secrets, unlocking after, and Zendesk ticket"`, async () => {
         const CMD = `frodo config-manager promote run-dryrun-promotion -P provisional-report -uI --description 'provisional report' -t ticket`;
         await testSuccess(CMD, { ...cloudEnv, env: { ...cloudEnv.env, FRODO_TEST_NAME: '0_p_uid_t' } });
     });
@@ -42,5 +45,35 @@ describe('frodo config-manager promote run-dryrun-promotion', () => {
     test(`"frodo config-manager promote run-dryrun-promotion --wait --timeout 6": Should time out waiting for dry-run promotion`, async () => {
         const CMD = `frodo config-manager promote run-dryrun-promotion --wait --timeout 6`;
         await testFail(CMD, { ...cloudEnv, env: { ...cloudEnv.env, FRODO_TEST_NAME: '0_wait_timeout' } });
+    });
+    test(`"frodo config-manager promote run-dryrun-promotion --wait": Should fail due to missing ESVs`, async () => {
+        const CMD = `frodo config-manager promote run-dryrun-promotion --wait`;
+        await testFail(CMD, {
+            ...cloudEnv,
+            env: {
+                ...cloudEnv.env,
+                FRODO_TEST_NAME: 'missingEsvError',
+            },
+        });
+    });
+    test(`"frodo config-manager promote run-dryrun-promotion --full": Should continue after encrypted secrets warning`, async () => {
+        const CMD = `frodo config-manager promote run-dryrun-promotion --full`;
+        await testSuccess(CMD, {
+            ...cloudEnv,
+            env: {
+                ...cloudEnv.env,
+                FRODO_TEST_NAME: 'encryptedSecretsWarningContinue',
+            },
+        }, undefined, 'y');
+    });
+    test(`"frodo config-manager promote run-dryrun-promotion --full": Should run full dry-run promotion without errors`, async () => {
+        const CMD = `frodo config-manager promote run-dryrun-promotion --full`;
+        await testSuccess(CMD, {
+            ...cloudEnv,
+            env: {
+                ...cloudEnv.env,
+                FRODO_TEST_NAME: '0_full',
+            },
+        });
     });
 });

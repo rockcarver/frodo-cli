@@ -13,10 +13,12 @@
 
 /*
 // Cloud
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_TEST_NAME=0 frodo config-manager promote rollback
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_TEST_NAME=0_p_ud_t frodo config-manager promote rollback -P provisional-report -u --description 'provisional report' -t ticket
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_TEST_NAME=0_wait frodo config-manager promote rollback --wait
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_TEST_NAME=0_wait_timeout frodo config-manager promote rollback --wait --timeout 6
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_MOCK_HOSTS=https://openam-frodo-promo-prd.forgeblocks.com FRODO_HOST=https://openam-frodo-promo-prd.forgeblocks.com/am FRODO_TEST_NAME=0 frodo config-manager promote rollback
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_MOCK_HOSTS=https://openam-frodo-promo-prd.forgeblocks.com FRODO_HOST=https://openam-frodo-promo-prd.forgeblocks.com/am FRODO_TEST_NAME=0_p_ud_t frodo config-manager promote rollback -P provisional-report -u --description 'provisional report' -t ticket
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_MOCK_HOSTS=https://openam-frodo-promo-prd.forgeblocks.com FRODO_HOST=https://openam-frodo-promo-prd.forgeblocks.com/am FRODO_TEST_NAME=0_wait frodo config-manager promote rollback --wait
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_MOCK_HOSTS=https://openam-frodo-promo-prd.forgeblocks.com FRODO_HOST=https://openam-frodo-promo-prd.forgeblocks.com/am FRODO_TEST_NAME=0_wait_timeout frodo config-manager promote rollback --wait --timeout 6
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_MOCK_HOSTS=https://openam-frodo-promo-prd.forgeblocks.com FRODO_HOST=https://openam-frodo-promo-prd.forgeblocks.com/am FRODO_TEST_NAME=missingEsvError frodo config-manager promote rollback --full
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_MOCK_HOSTS=https://openam-frodo-promo-prd.forgeblocks.com FRODO_HOST=https://openam-frodo-promo-prd.forgeblocks.com/am FRODO_TEST_NAME=0_full frodo config-manager promote rollback --full
 */
 
 import { getEnv, testSuccess, testFail } from './utils/TestUtils';
@@ -31,16 +33,37 @@ describe('frodo config-manager promote rollback', () => {
         const CMD = `frodo config-manager promote rollback`;
         await testSuccess(CMD, { ...cloudEnv, env: { ...cloudEnv.env, FRODO_TEST_NAME: '0' } });
     });
-    test(`"frodo config-manager promote rollback -p provisional-report -ud 'provisional report' -t ticket": Will run rollback with promoter, description, unlocking after, and Zendesk ticket"`, async () => {
+    test(`"frodo config-manager promote rollback -P provisional-report -u --description 'provisional report' -t ticket": Will run rollback with promoter, description, unlocking after, and Zendesk ticket"`, async () => {
         const CMD = `frodo config-manager promote rollback -P provisional-report -u --description 'provisional report' -t ticket`;
         await testSuccess(CMD, { ...cloudEnv, env: { ...cloudEnv.env, FRODO_TEST_NAME: '0_p_ud_t' } });
     });
     test(`"frodo config-manager promote rollback --wait": Should wait for rollback to complete`, async () => {
         const CMD = `frodo config-manager promote rollback --wait`;
         await testSuccess(CMD, { ...cloudEnv, env: { ...cloudEnv.env, FRODO_TEST_NAME: '0_wait' } });
-      });
+    });
     test(`"frodo config-manager promote rollback --wait --timeout 6": Should time out waiting for rollback`, async () => {
         const CMD = `frodo config-manager promote rollback --wait --timeout 6`;
         await testFail(CMD, { ...cloudEnv, env: { ...cloudEnv.env, FRODO_TEST_NAME: '0_wait_timeout' } });
+    });
+    // Was unable to reproduce the missing ESV error on a rollback. Ping documentation says it is possible, so we are leaving this skipped for now: https://docs.pingidentity.com/pingoneaic/tenants/self-service-promotions.html#configuration-integrity-checks
+    test.skip(`"frodo config-manager promote rollback --full": Should fail due to missing ESVs`, async () => {
+        const CMD = `frodo config-manager promote rollback --full`;
+        await testFail(CMD, {
+            ...cloudEnv,
+            env: {
+                ...cloudEnv.env,
+                FRODO_TEST_NAME: 'missingEsvError',
+            },
+        });
+    });
+    test(`"frodo config-manager promote rollback --full": Should run full rollback without errors`, async () => {
+        const CMD = `frodo config-manager promote rollback --full`;
+        await testSuccess(CMD, {
+            ...cloudEnv,
+            env: {
+                ...cloudEnv.env,
+                FRODO_TEST_NAME: '0_full',
+            },
+        });
     });
 });

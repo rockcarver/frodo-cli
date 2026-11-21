@@ -30,6 +30,6 @@ describe('frodo config-manager push restart', () => {
     });
     test(`"frodo config-manager push restart -w": should restart the cloud tenant and wait until restart is complete to exit command."`, async () => {
         const CMD = `frodo config-manager push restart -w`;
-        await testSuccess(CMD, { ...cloudEnv, env: { ...cloudEnv.env, FRODO_TEST_NAME: '0_w' } }, 5000);
+        await testSuccess(CMD, { ...cloudEnv, env: { ...cloudEnv.env, FRODO_TEST_NAME: '0_w' } });
     });
 });
