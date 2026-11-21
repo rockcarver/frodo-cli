@@ -1,6 +1,9 @@
 import { frodo } from '@rockcarver/frodo-lib';
 import { Option } from 'commander';
-import { configManagerDeleteSecrets } from '../../../configManagerOps/FrConfigSecretOps';
+import {
+  configManagerDeleteSecrets,
+  showSecretDeletePlan,
+} from '../../../configManagerOps/FrConfigSecretOps';
 import { configManagerDeleteVariables } from '../../../configManagerOps/FrConfigVariableOps';
 import * as s from '../../../help/SampleData';
 import { getTokens } from '../../../ops/AuthenticateOps';
@@ -9,7 +12,7 @@ import {
   confirmBulkDelete,
 } from '../../../utils/BulkDeleteGuard';
 import c from '../../../utils/ColorTheme';
-import { verboseMessage } from '../../../utils/Console';
+import { printMessage, verboseMessage } from '../../../utils/Console';
 import { FrodoCommand } from '../../FrodoCommand';
 
 const { CLOUD_DEPLOYMENT_TYPE_KEY } = frodo.utils.constants;
@@ -24,28 +27,28 @@ export default function setup() {
 
   program
     .description(
-      'Delete all secrets and variables from the tenant.'
+      'Delete all ESV secrets and all ESV variables of the tenant, and nothing else. Deleted secret values cannot be recovered.'
     )
     .addOption(
       new Option(
         '-d, --dry-run',
-        'Show which secrets and variables would be deleted without deleting them.'
+        'Show which ESV secrets and ESV variables would be deleted without deleting them.'
       )
     )
     .addOption(
       new Option(
         '-y, --yes',
-        'Skip confirmation before deleting all secrets and variables. Required without a terminal.'
+        'Skip confirmation before deleting all ESV secrets and all ESV variables. Required without a terminal.'
       )
     )
     .addHelpText(
       'after',
       `Usage Examples:\n` +
-        `  Preview deletion of all secrets and variables:\n` +
+        `  Preview the deletion of all ESV secrets and all ESV variables:\n` +
         c.command(
           `  $ frodo config-manager delete tenant-config --dry-run ${s.connId}\n`
         ) +
-        `  Delete all secrets and variables without prompting:\n` +
+        `  Delete all ESV secrets and all ESV variables without asking, which is required without a terminal (without -y a terminal is asked first). The values of a deleted secret cannot be recovered, and nothing else is deleted:\n` +
         c.command(
           `  $ frodo config-manager delete tenant-config -y ${s.connId}\n`
         )
@@ -61,7 +64,7 @@ export default function setup() {
         command
       );
 
-      const what = 'all secrets and variables';
+      const what = 'all ESV secrets and all ESV variables';
       if (
         !checkBulkDelete({ what, yes: options.yes, dryRun: options.dryRun })
       ) {
@@ -80,12 +83,18 @@ export default function setup() {
           yes: options.yes,
           dryRun: options.dryRun,
           showPlan: async () => {
-            const secretsOk = await configManagerDeleteSecrets(undefined, true);
+            // the plan of the secrets also says that their values cannot be
+            // recovered; both lists are read so that both failures are shown
+            const secretsOk = await showSecretDeletePlan();
             const variablesOk = await configManagerDeleteVariables(
               undefined,
               true
             );
-            return secretsOk && variablesOk;
+            if (!secretsOk || !variablesOk) return false;
+            printMessage(
+              'Only ESV secrets and ESV variables are deleted, nothing else.'
+            );
+            return true;
           },
         }))
       ) {

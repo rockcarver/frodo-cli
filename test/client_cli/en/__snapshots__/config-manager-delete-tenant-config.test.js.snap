@@ -3,8 +3,8 @@
 exports[`CLI help interface for 'config-manager delete tenant-config' should be expected english 1`] = `
 "Usage: frodo config-manager delete tenant-config [options] [host] [realm] [username] [password]
 
-[Experimental] [Cloud-only] Delete all secrets and variables from the tenant.
-Deleted secret values cannot be recovered.
+[Experimental] [Cloud-only] Delete all ESV secrets and all ESV variables of the
+tenant, and nothing else. Deleted secret values cannot be recovered.
 
 Arguments:
   host              AM base URL, e.g.: https://cdk.iam.example.com/am. To use a
@@ -27,10 +27,10 @@ Options:
   --allow-failures  Report operations that fail, but still exit with code 0.
                     Without this option the command runs every operation, prints
                     a summary of what failed and exits with code 1.
-  -d, --dry-run     Show which secrets and variables would be deleted without
-                    deleting them.
-  -y, --yes         Skip confirmation before deleting all secrets and variables.
-                    Required without a terminal.
+  -d, --dry-run     Show which ESV secrets and ESV variables would be deleted
+                    without deleting them.
+  -y, --yes         Skip confirmation before deleting all ESV secrets and all
+                    ESV variables. Required without a terminal.
   -h, --help        Help
   -hh, --help-more  Help with all options.
   -hhh, --help-all  Help with all options, environment variables, and usage

@@ -271,6 +271,21 @@ named object never asks. This affects `frodo agent delete -a` and
 `theme delete -a`. It is a safety guard added in a major release: see
 [a command that can delete more than the one object it names asks first](https://github.com/rockcarver/frodo-cli/blob/main/docs/decisions/0037-a-command-that-can-delete-more-than-the-one-object-it-names-asks-first.md).
 
+**New command: `frodo config-manager delete tenant-config`** deletes all ESV
+secrets and all ESV variables of a Cloud tenant, and nothing else: no journeys,
+scripts, realms, applications or other configuration. The values of a deleted
+secret cannot be recovered. On a terminal it shows both lists, says so, and
+asks, with the answer defaulting to no. Without a terminal it refuses before it
+connects and exits with code 1, unless you pass `-y`/`--yes`; `-d`/`--dry-run`
+only shows what would be deleted. It takes no selector (to delete one secret or
+one variable, use `config-manager delete secrets -i` or `delete variables -i`).
+It deletes the secrets, then the variables, tries every one of them, prints a
+summary of what failed and exits with code 1 if any failed;
+`--allow-failures` makes the exit code 0. See
+[a command that can delete more than the one object it names asks first](https://github.com/rockcarver/frodo-cli/blob/main/docs/decisions/0037-a-command-that-can-delete-more-than-the-one-object-it-names-asks-first.md)
+and
+[a command that runs many operations runs them all, then fails if any failed](https://github.com/rockcarver/frodo-cli/blob/main/docs/decisions/0040-a-command-that-runs-many-operations-runs-them-all-then-fails-if-any-failed.md).
+
 **`config-manager push secrets --prune` asks before it deletes, and `-p` is
 gone**: `--prune` deletes the old versions of every secret it pushes, and in 4.x
 it did so without asking. In 5.x, on a terminal, it reads the tenant, shows the
