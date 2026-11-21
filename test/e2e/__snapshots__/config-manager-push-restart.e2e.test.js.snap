@@ -21,6 +21,7 @@ exports[`frodo config-manager push restart "frodo config-manager push restart -w
 
 exports[`frodo config-manager push restart "frodo config-manager push restart -w": should restart the cloud tenant and wait until restart is complete to exit command." 2`] = `
 "Experimental feature in use: 'frodo config-manager push restart'. This feature may change without notice.
+✔ Updates applied in 15s with final status: ready
 "
 `;
 

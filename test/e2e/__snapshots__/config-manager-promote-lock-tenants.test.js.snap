@@ -3,7 +3,7 @@
 exports[`frodo config-manager promote lock-tenants "frodo config-manager promote lock-tenants": lock tenants if tenants are unlocked" 1`] = `
 "{
   status: 'locked',
-  promotionId: 'bb757dc6-0646-47d7-b63c-c7c6b5668ad7'
+  promotionId: 'fc1d5c4a-ad4a-4a8e-8ea3-0d6730f0c8de'
 }
 "
 `;

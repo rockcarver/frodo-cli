@@ -28,6 +28,12 @@ Deployment: Cloud-only
 
 Options:
   --description <description>         Description of the rollback.
+  --full                              Run the full rollback workflow: lock
+                                      tenants, roll back the promotion, and
+                                      unlock tenants, waiting for each step to
+                                      complete. --wait and --unlock-after will
+                                      automatically be set if --full is
+                                      provided.
   -P, --promoter <name>               Name of the person performing the
                                       rollback.
   -t, --ticket-reference <reference>  Zendesk ticket reference.

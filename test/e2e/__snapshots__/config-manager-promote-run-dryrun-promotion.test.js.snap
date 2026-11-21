@@ -1,5 +1,35 @@
 // Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
+exports[`frodo config-manager promote run-dryrun-promotion "frodo config-manager promote run-dryrun-promotion --full": Should continue after encrypted secrets warning 1`] = `
+"[34m?[39m [1mContinue promotion without fixing?[22m [2m(y/N)[22m[44G[45G[2K[G[34m?[39m [1mContinue promotion without fixing?[22m [2m(y/N)[22m y[45G
+[G[?25h"
+`;
+
+exports[`frodo config-manager promote run-dryrun-promotion "frodo config-manager promote run-dryrun-promotion --full": Should continue after encrypted secrets warning 2`] = `
+"Experimental feature in use: 'frodo config-manager promote run-dryrun-promotion'. This feature may change without notice.
+✔ Environment locked after 20s
+✖ Dry-run promotion error (elapsed time: 10s): Found encrypted values in the AM/IDM configuration
+Promotion Failed
+It is recommended that you cancel this promotion and add ESVs for the following encrypted secrets in your configuration before proceeding.
+Encrypted Secrets:
+* am/services/realm/root-alpha/socialidentityproviders/1.0/organizationconfig/default/oidcconfig/joshtest.json:9
+User force closed the prompt with 0 null
+"
+`;
+
+exports[`frodo config-manager promote run-dryrun-promotion "frodo config-manager promote run-dryrun-promotion --full": Should run full dry-run promotion without errors 1`] = `
+"{ result: 'Promotion process initiated successfully' }
+"
+`;
+
+exports[`frodo config-manager promote run-dryrun-promotion "frodo config-manager promote run-dryrun-promotion --full": Should run full dry-run promotion without errors 2`] = `
+"Experimental feature in use: 'frodo config-manager promote run-dryrun-promotion'. This feature may change without notice.
+✔ Environment locked after 0s
+✔ Dry-run promotion completed in 10s with final message: Promotion completed
+✔ Environment unlocked after 30s
+"
+`;
+
 exports[`frodo config-manager promote run-dryrun-promotion "frodo config-manager promote run-dryrun-promotion --wait --timeout 6": Should time out waiting for dry-run promotion 1`] = `
 "Experimental feature in use: 'frodo config-manager promote run-dryrun-promotion'. This feature may change without notice.
 ⚠ Dry-run promotion timed out after 6s with final message: Clone repos
@@ -9,23 +39,29 @@ Error promoting configuration
 
 exports[`frodo config-manager promote run-dryrun-promotion "frodo config-manager promote run-dryrun-promotion --wait --timeout 6": Should time out waiting for dry-run promotion 2`] = `1`;
 
-exports[`frodo config-manager promote run-dryrun-promotion "frodo config-manager promote run-dryrun-promotion --wait": Should wait for dry-run promotion to complete 1`] = `
-"{ result: 'Promotion process initiated successfully' }
+exports[`frodo config-manager promote run-dryrun-promotion "frodo config-manager promote run-dryrun-promotion --wait": Should fail due to missing ESVs 1`] = `
+"Experimental feature in use: 'frodo config-manager promote run-dryrun-promotion'. This feature may change without notice.
+✖ Dry-run promotion error (elapsed time: 0s): Missing ESVs required for promotion
+Error promoting configuration
 "
 `;
+
+exports[`frodo config-manager promote run-dryrun-promotion "frodo config-manager promote run-dryrun-promotion --wait": Should fail due to missing ESVs 2`] = `1`;
+
+exports[`frodo config-manager promote run-dryrun-promotion "frodo config-manager promote run-dryrun-promotion --wait": Should wait for dry-run promotion to complete 1`] = `""`;
 
 exports[`frodo config-manager promote run-dryrun-promotion "frodo config-manager promote run-dryrun-promotion --wait": Should wait for dry-run promotion to complete 2`] = `
 "Experimental feature in use: 'frodo config-manager promote run-dryrun-promotion'. This feature may change without notice.
-✔ Dry-run promotion completed in 30s with final message: Promotion completed
+✔ Dry-run promotion completed in 10s with final message: Promotion completed
 "
 `;
 
-exports[`frodo config-manager promote run-dryrun-promotion "frodo config-manager promote run-dryrun-promotion -p provisional-report -uid 'provisional report' -t ticket": Will run dry-run promotion with promoter, description, ignoring encrpted secrets, unlocking after, and Zendesk ticket" 1`] = `
+exports[`frodo config-manager promote run-dryrun-promotion "frodo config-manager promote run-dryrun-promotion -P provisional-report -uI --description 'provisional report' -t ticket": Will run dry-run promotion with promoter, description, ignoring encrpted secrets, unlocking after, and Zendesk ticket" 1`] = `
 "{ result: 'Promotion process initiated successfully' }
 "
 `;
 
-exports[`frodo config-manager promote run-dryrun-promotion "frodo config-manager promote run-dryrun-promotion -p provisional-report -uid 'provisional report' -t ticket": Will run dry-run promotion with promoter, description, ignoring encrpted secrets, unlocking after, and Zendesk ticket" 2`] = `
+exports[`frodo config-manager promote run-dryrun-promotion "frodo config-manager promote run-dryrun-promotion -P provisional-report -uI --description 'provisional report' -t ticket": Will run dry-run promotion with promoter, description, ignoring encrpted secrets, unlocking after, and Zendesk ticket" 2`] = `
 "Experimental feature in use: 'frodo config-manager promote run-dryrun-promotion'. This feature may change without notice.
 ✔ Dry-run promotion in progress.
 "
