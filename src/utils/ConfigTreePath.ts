@@ -154,3 +154,45 @@ export function realmFolderOf(realm: string): string {
   }
   return parts.join('/');
 }
+
+/**
+ * The path of the file that a file reference in a file of the tree names: the reference joined to
+ * the folder it is relative to (a script, a theme field, an email template, a mapping). A reference
+ * is a relative path of the folder it is found in, and the file it names is in that folder or below
+ * it: a reference that leaves the folder (`..` as a segment that goes above it), is empty, is an
+ * absolute path, starts with a drive letter, or holds a control character is not a file of the
+ * folder. The test is on the text of the path, so a file system link is not followed or looked at
+ * (a real-path check of the whole tree is a separate step). A backslash separates on every
+ * platform. A name that merely holds two dots (`a..b.js`, `..foo.js`) is a name.
+ * @param {string} folder the folder that the reference is relative to
+ * @param {string} reference the reference, as the file holds it (`./x`, `sub/x.js`, `scripts-content/<context>/<name>.js`)
+ * @returns {string} the path of the file, `folder` joined to the reference
+ * @throws {Error} if the reference is not a string, or does not name a file inside the folder
+ */
+export function referencedFilePath(folder: string, reference: string): string {
+  const refused = (): Error => {
+    const shown =
+      typeof reference === 'string'
+        ? reference.replace(
+            /\p{Cc}/gu,
+            (character) =>
+              `\\u${(character.codePointAt(0) as number).toString(16).padStart(4, '0')}`
+          )
+        : (JSON.stringify(reference) ?? String(reference));
+    return new Error(
+      `The file reference '${shown}' must stay inside the config folder.`
+    );
+  };
+  if (typeof reference !== 'string' || reference === '') throw refused();
+  const text = reference.replaceAll('\\', '/');
+  if (/\p{Cc}/u.test(text) || text.startsWith('/') || /^[A-Za-z]:/.test(text)) {
+    throw refused();
+  }
+  const candidate = path.join(folder, text);
+  try {
+    assertInside(folder, candidate);
+  } catch {
+    throw refused();
+  }
+  return candidate;
+}

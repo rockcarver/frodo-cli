@@ -7,6 +7,7 @@ import {
   objectFilePath,
   objectFolderPath,
   realmFolderOf,
+  referencedFilePath,
   safeFileName,
 } from '../../src/utils/ConfigTreePath.ts';
 
@@ -336,5 +337,199 @@ describe('isOneSafeSegment', () => {
     ['a\u0085b'],
   ])('%j is not', (candidate) => {
     expect(isOneSafeSegment(candidate)).toBe(false);
+  });
+});
+
+describe('referencedFilePath', () => {
+  // the folder a file reference is relative to, as a mapping keeps its files
+  const BASE = '/w/tree/sync/mappings/m';
+
+  /** [reference, the path that is read] */
+  const INSIDE = [
+    ['x.js', `${BASE}/x.js`],
+    ['./x.js', `${BASE}/x.js`],
+    ['sub/x.js', `${BASE}/sub/x.js`],
+    ['sub/../x.js', `${BASE}/x.js`],
+    ['a/b/../c.js', `${BASE}/a/c.js`],
+    // a path that goes above the folder and comes back is the file that it names
+    ['../m/x.js', `${BASE}/x.js`],
+    ['sub/../../m/x.js', `${BASE}/x.js`],
+    // two dots that do not make a segment of their own are a name
+    ['a..b.js', `${BASE}/a..b.js`],
+    ['..foo.js', `${BASE}/..foo.js`],
+    ['foo..', `${BASE}/foo..`],
+    ['...', `${BASE}/...`],
+    ['.hidden', `${BASE}/.hidden`],
+    ['%2e%2e/x', `${BASE}/%2e%2e/x`],
+    ['..%2Fx.js', `${BASE}/..%2Fx.js`],
+    // a backslash separates on every platform
+    ['sub\\x.js', `${BASE}/sub/x.js`],
+    ['.\\x.js', `${BASE}/x.js`],
+    // what pull writes
+    ['m.source.js', `${BASE}/m.source.js`],
+    [
+      'scripts-content/AUTHENTICATION_TREE_DECISION_NODE/a%2Fb.js',
+      `${BASE}/scripts-content/AUTHENTICATION_TREE_DECISION_NODE/a%2Fb.js`,
+    ],
+    ['logo/en.html', `${BASE}/logo/en.html`],
+    ['welcome.en.html', `${BASE}/welcome.en.html`],
+    ['0.1/en.html', `${BASE}/0.1/en.html`],
+    // the result is the folder joined to the reference, as before
+    ['é.js', `${BASE}/é.js`],
+    ['a b.js', `${BASE}/a b.js`],
+    ['ab:c.js', `${BASE}/ab:c.js`],
+  ];
+
+  it.each(INSIDE)('the reference %j is the file %s', (reference, expected) => {
+    expect(referencedFilePath(BASE, reference)).toBe(expected);
+  });
+
+  it('gives what path.join gave for a reference that has no backslash', () => {
+    for (const [reference] of INSIDE.filter(([r]) => !r.includes('\\'))) {
+      expect(referencedFilePath(BASE, reference)).toBe(
+        path.join(BASE, reference)
+      );
+    }
+  });
+
+  it('keeps a relative folder relative, and a folder with a trailing slash', () => {
+    expect(
+      referencedFilePath('email-templates/welcome', 'welcome.en.html')
+    ).toBe('email-templates/welcome/welcome.en.html');
+    expect(referencedFilePath(`${BASE}/`, 'x.js')).toBe(`${BASE}/x.js`);
+    expect(() => referencedFilePath('email-templates/welcome', '../x')).toThrow(
+      "The file reference '../x' must stay inside the config folder."
+    );
+  });
+
+  /** [what is wrong with the reference, the reference] */
+  const REFUSED = [
+    ['one level up', '../x.js'],
+    ['two levels up', '../../x.js'],
+    ['many levels up', '../../../../../../etc/passwd'],
+    ['up, after going down', 'a/../../x.js'],
+    ['a sibling folder', '../m2/x.js'],
+    ['the parent', '..'],
+    ['the parent with a slash', '../'],
+    ['the folder itself', '.'],
+    ['the folder itself with a slash', './'],
+    ['the folder itself by way of a sub folder', 'sub/..'],
+    ['a backslash for the slash', '..\\x.js'],
+    ['two backslashes', '..\\..\\x.js'],
+    ['a backslash that starts the path', '\\..\\x.js'],
+    ['a backslash after a folder', 'a\\..\\..\\x.js'],
+    ['both separators', '..\\../x.js'],
+    ['an absolute path', '/etc/passwd'],
+    ['an absolute path that names a file of the folder', `${BASE}/x.js`],
+    ['a path of the root', '/'],
+    ['a network path', '\\\\server\\share\\x.js'],
+    ['a network path with slashes', '//server/share/x.js'],
+    ['a drive letter and a backslash', 'C:\\x.js'],
+    ['a drive letter and a slash', 'C:/x.js'],
+    ['a drive letter and a relative name', 'c:x.js'],
+    ['an empty reference', ''],
+    ['a NUL character', 'x\u0000.js'],
+    ['a NUL character after a folder that goes up', '../x\u0000'],
+    ['a line feed', 'a\nb.js'],
+    ['a tab', 'a\tb.js'],
+    ['an escape character', '\u001b[31mx.js'],
+    ['a DEL character', 'a\u007fb.js'],
+    ['a control character of the C1 block', 'a\u0085b.js'],
+  ];
+
+  it.each(REFUSED)('refuses %s: %j', (_, reference) => {
+    expect(() => referencedFilePath(BASE, reference)).toThrow(
+      /^The file reference '.*' must stay inside the config folder\.$/
+    );
+  });
+
+  it.each([[undefined], [null], [5], [true], [{ file: 'x.js' }], [['x.js']]])(
+    'refuses a reference that is not a string: %j',
+    (reference) => {
+      expect(() => referencedFilePath(BASE, reference)).toThrow(
+        /^The file reference '.*' must stay inside the config folder\.$/
+      );
+    }
+  );
+
+  it('says what it refused: the message holds the reference as it was written', () => {
+    expect(() => referencedFilePath(BASE, '../../x.js')).toThrow(
+      "The file reference '../../x.js' must stay inside the config folder."
+    );
+    expect(() => referencedFilePath(BASE, '..\\x.js')).toThrow(
+      "The file reference '..\\x.js' must stay inside the config folder."
+    );
+    expect(() => referencedFilePath(BASE, '')).toThrow(
+      "The file reference '' must stay inside the config folder."
+    );
+    expect(() => referencedFilePath(BASE, undefined)).toThrow(
+      "The file reference 'undefined' must stay inside the config folder."
+    );
+  });
+
+  it('shows a control character as an escape, so that the message cannot carry one', () => {
+    let message = '';
+    try {
+      referencedFilePath(BASE, '../x\u001b[2Jy\u0000');
+    } catch (error) {
+      message = error.message;
+    }
+
+    expect(message).toBe(
+      "The file reference '../x\\u001b[2Jy\\u0000' must stay inside the config folder."
+    );
+    // eslint-disable-next-line no-control-regex
+    expect(message).not.toMatch(/[\u0000-\u001f]/);
+  });
+
+  it('answers a path inside the folder for every reference it does not refuse', () => {
+    const references = [
+      ...INSIDE.map(([reference]) => reference),
+      'a/./b.js',
+      'a//b.js',
+      'a/b/c/d/../../e.js',
+    ];
+    for (const reference of references) {
+      expect(() =>
+        assertInside(BASE, referencedFilePath(BASE, reference))
+      ).not.toThrow();
+    }
+  });
+
+  it('never answers a path that is outside the folder, for any reference made of these parts', () => {
+    const parts = ['..', '.', 'a', '..a', 'a..', '', '\\', '/', 'C:', '%2e%2e'];
+    const outside = [];
+    let answered = 0;
+    let refused = 0;
+    for (const first of parts) {
+      for (const second of parts) {
+        for (const third of parts) {
+          for (const separator of ['/', '\\']) {
+            const reference = [first, second, third].join(separator);
+            let answer;
+            try {
+              answer = referencedFilePath(BASE, reference);
+            } catch {
+              refused++;
+              continue;
+            }
+            answered++;
+            const relative = path.relative(BASE, answer);
+            if (
+              relative === '' ||
+              path.isAbsolute(relative) ||
+              relative.split(path.sep)[0] === '..'
+            ) {
+              outside.push(reference);
+            }
+          }
+        }
+      }
+    }
+
+    expect(outside).toEqual([]);
+    // the table is not empty on either side
+    expect(answered).toBeGreaterThan(100);
+    expect(refused).toBeGreaterThan(100);
   });
 });
