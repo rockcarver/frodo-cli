@@ -646,6 +646,55 @@ mapping that has exactly that id. An id that is not a mapping, or that differs i
 case, exits with code 1 whatever `--allow-failures` says, and `--dry-run` reads
 the list the same way.
 
+A file reference must stay inside the config folder
+([a file reference must stay inside the config folder](https://github.com/rockcarver/frodo-cli/blob/main/docs/decisions/0061-a-file-reference-must-stay-inside-the-config-folder.md)).
+A `push` command that follows a reference in a file of the config tree (the
+`file` of a script, a theme field, an email template, a mapping, a managed
+object, a schedule, an endpoint, a workflow step or the script of a journey
+node, and the version and language of terms and conditions) joins it to the
+folder of the object and refuses a reference that:
+
+- leaves that folder, such as `../shared.js` or `..\x.js`, also when the file it
+  names is still in the tree;
+- is an absolute path (`/shared.js`), which was joined to the folder before;
+- starts with a drive letter (`C:\x.js`, `a:b.js`), which was joined to the
+  folder before;
+- holds `C:` anywhere (`..C:/x.js`, `ABC:x.js`), because the library removes
+  every `C:` from a path;
+- is empty, or holds a control character.
+
+Any other colon is an ordinary character: `sub/a:b.js` and
+`Login:SSO.onCreate.js` are read as they were. A reference that starts like a
+drive letter (one letter, then a colon) is refused, so a name such as `a:b` still
+does not round-trip as a reference inside a file: `a:b.onCreate.js` is refused,
+`Login:SSO.onCreate.js` is read. A hand-made terms and conditions file whose
+version is a number instead of text is refused too, because a version is the
+name of a folder and the tenant writes it as text.
+
+A refused reference is not pushed: the command says
+`The file reference '<reference>' must stay inside the config folder.`
+and exits with code 1 like a file that cannot be read. The other objects of the
+run are still pushed, and `--allow-failures` acts as for an unreadable file. A
+backslash separates on every platform, so `sub\x.js` is `sub/x.js` on macOS and
+Linux too. What pull writes (`scripts-content/<context>/<name>.js`,
+`<field>/<locale>.html`) is unchanged.
+
+The same holds for the names that a file of the tree gives as the name of
+another object (the id of the script of a journey node or of a script that an
+application uses, the id of a circle of trust, the id of a mapping that an
+application owns) and for an id or a name given with `-i` or `-n`: a name that
+holds `C:` or a backslash is not one name, and is looked up as the file name of
+an id (`ABC:x` is the file `ABC%3Ax.json`, as `a/b` is `a%2Fb.json`). A realm
+that holds `C:` is refused like any realm that is not a name or a path of names,
+and a `pull` of everything skips a circle of trust, a policy set or an agent
+whose id holds `C:` with the warning that a name which is not one name already
+has. Any other colon (`Login:SSO`) is an ordinary character of a name, as
+before. On Windows a colon in a file name is not an ordinary character (the file
+system reads it as the start of an alternate data stream; this comes from its
+documentation and was not tested here), so a pulled name with a plain colon does
+not round-trip there, as before this change. A link of the file system inside
+the folder is not followed or checked: it is read as before.
+
 In the root realm of a Cloud tenant, which has no scripts, no applications and
 no themes, a selector on `pull scripts`, `pull applications` or `pull themes`
 prints one warning that there is nothing to pull for it (the exit code is still

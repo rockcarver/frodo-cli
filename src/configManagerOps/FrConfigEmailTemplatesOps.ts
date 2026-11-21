@@ -1,6 +1,7 @@
 import fs from 'fs';
 import { frodo } from '@rockcarver/frodo-lib';
 import { extractFrConfigDataToFile } from '../utils/Config';
+import { referencedFilePath } from '../utils/ConfigTreePath';
 import { printError, printMessage } from '../utils/Console';
 import { causeOf } from '../utils/ErrorCause';
 import { countItems, importItemsOfFile } from '../utils/ImportItems';
@@ -140,7 +141,10 @@ export async function configManagerImportEmailTemplates(
         if (importData.html && typeof importData.html === 'object') {
           for (const locale in importData.html) {
             const htmlFilePath = getFilePath(
-              `email-templates/${templateFile}/${importData.html[locale].file}`
+              referencedFilePath(
+                `email-templates/${templateFile}`,
+                importData.html[locale].file
+              )
             );
             importData.html[locale] = fs.readFileSync(htmlFilePath, 'utf8');
           }
@@ -148,7 +152,10 @@ export async function configManagerImportEmailTemplates(
         if (importData.message && typeof importData.message === 'object') {
           for (const locale in importData.message) {
             const messageFilePath = getFilePath(
-              `email-templates/${templateFile}/${importData.message[locale].file}`
+              referencedFilePath(
+                `email-templates/${templateFile}`,
+                importData.message[locale].file
+              )
             );
             importData.message[locale] = fs.readFileSync(
               messageFilePath,
@@ -158,7 +165,10 @@ export async function configManagerImportEmailTemplates(
         }
         if (importData.styles && typeof importData.styles === 'object') {
           const stylesFilePath = getFilePath(
-            `email-templates/${templateFile}/${importData.styles.file}`
+            referencedFilePath(
+              `email-templates/${templateFile}`,
+              importData.styles.file
+            )
           );
           importData.styles = fs.readFileSync(stylesFilePath, 'utf8');
         }

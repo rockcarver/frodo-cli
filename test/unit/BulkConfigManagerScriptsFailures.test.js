@@ -51,7 +51,7 @@ const state = deepStub();
 jest.unstable_mockModule('@rockcarver/frodo-lib', () => ({ frodo, state }));
 
 // every relative import of the module under test becomes spies, except the run
-// tracker and the cause helper
+// tracker, the cause helper and the helper that makes a file reference a path (pure)
 const mocked = new Map();
 {
   const source = fs.readFileSync(path.resolve(root, FILE), 'utf8');
@@ -62,7 +62,8 @@ const mocked = new Map();
     const target = path.resolve(importer, from).replace(/\.(js|ts)$/, '');
     if (
       target.endsWith('/utils/OperationRun') ||
-      target.endsWith('/utils/ErrorCause')
+      target.endsWith('/utils/ErrorCause') ||
+      target.endsWith('/utils/ConfigTreePath')
     ) {
       continue;
     }

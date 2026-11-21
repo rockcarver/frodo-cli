@@ -13,7 +13,11 @@ import {
   OwnedObjects,
   skipsOwnedObjects,
 } from '../ops/ApplicationOwnedObjects';
-import { isOneSafeSegment, realmFolderOf } from '../utils/ConfigTreePath';
+import {
+  isOneSafeSegment,
+  objectFilePath,
+  realmFolderOf,
+} from '../utils/ConfigTreePath';
 import {
   createProgressIndicator,
   printError,
@@ -466,7 +470,10 @@ export async function importCircleOfTrustFromFile(
 ): Promise<void> {
   const realmDir = realm === '/' ? 'root' : realm;
   const cot = readJsonFile(
-    `${getWorkingDirectory()}/realms/${realmDir}/realm-config/saml/COT/${cotId}.json`
+    objectFilePath(
+      `${getWorkingDirectory()}/realms/${realmDir}/realm-config/saml/COT`,
+      cotId
+    )
   ) as CircleOfTrustSkeleton;
   await importCirclesOfTrust({
     script: {},
