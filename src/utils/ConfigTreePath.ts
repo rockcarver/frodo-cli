@@ -183,7 +183,7 @@ export function referencedFilePath(folder: string, reference: string): string {
       `The file reference '${shown}' must stay inside the config folder.`
     );
   };
-  if (typeof reference !== 'string' || reference === '') throw refused();
+  if (typeof reference !== 'string') throw refused();
   const text = reference.replaceAll('\\', '/');
   if (/\p{Cc}/u.test(text) || text.startsWith('/') || /^[A-Za-z]:/.test(text)) {
     throw refused();
