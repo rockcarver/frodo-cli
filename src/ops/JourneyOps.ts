@@ -1260,28 +1260,48 @@ export async function pruneOrphanedNodes(
 }
 
 /**
- * Enable a journey
+ * Enable or disable a journey and say how it went: a progress line that ends in
+ * a success or a failure line, and, when the library fails, the cause of the
+ * failure (the reason the tenant gave, not only that it failed). Enabling and
+ * disabling share this function so that they cannot report differently.
  * @param {string} journeyId id/name of journey
+ * @param {boolean} enable true to enable the journey, false to disable it
  * @returns {Promise<boolean>} a promise resolving to true if successful, false otherwise
  */
-export async function enableJourney(journeyId: string): Promise<boolean> {
+async function switchJourney(
+  journeyId: string,
+  enable: boolean
+): Promise<boolean> {
+  const { switchOne, doing, done, failed } = enable
+    ? {
+        switchOne: _enableJourney,
+        doing: 'Enabling',
+        done: 'Enabled',
+        failed: 'enabling',
+      }
+    : {
+        switchOne: _disableJourney,
+        doing: 'Disabling',
+        done: 'Disabled',
+        failed: 'disabling',
+      };
   const indicatorId = createProgressIndicator(
     'indeterminate',
     0,
-    `Enabling journey ${journeyId}...`
+    `${doing} journey ${journeyId}...`
   );
   try {
-    await _enableJourney(journeyId);
+    await switchOne(journeyId);
     stopProgressIndicator(
       indicatorId,
-      `Enabled journey ${journeyId}.`,
+      `${done} journey ${journeyId}.`,
       'success'
     );
     return true;
   } catch (error) {
     stopProgressIndicator(
       indicatorId,
-      `Error enabling journey ${journeyId}`,
+      `Error ${failed} journey ${journeyId}`,
       'fail'
     );
     printError(error);
@@ -1290,32 +1310,21 @@ export async function enableJourney(journeyId: string): Promise<boolean> {
 }
 
 /**
+ * Enable a journey
+ * @param {string} journeyId id/name of journey
+ * @returns {Promise<boolean>} a promise resolving to true if successful, false otherwise
+ */
+export async function enableJourney(journeyId: string): Promise<boolean> {
+  return switchJourney(journeyId, true);
+}
+
+/**
  * Disable a journey
  * @param {string} journeyId id/name of journey
  * @returns {Promise<boolean>} a promise resolving to true if successful, false otherwise
  */
 export async function disableJourney(journeyId: string): Promise<boolean> {
-  const indicatorId = createProgressIndicator(
-    'indeterminate',
-    0,
-    `Disabling journey ${journeyId}...`
-  );
-  try {
-    await _disableJourney(journeyId);
-    stopProgressIndicator(
-      indicatorId,
-      `Disabled journey ${journeyId}.`,
-      'success'
-    );
-    return true;
-  } catch {
-    stopProgressIndicator(
-      indicatorId,
-      `Error disabling journey ${journeyId}`,
-      'fail'
-    );
-  }
-  return false;
+  return switchJourney(journeyId, false);
 }
 
 /**
