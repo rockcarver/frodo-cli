@@ -1281,6 +1281,28 @@ describe('a selector of pull saml', () => {
     ]);
   });
 
+  test('--cot-id with an id that is a prefix of the id of another circle of trust is only that circle of trust', async () => {
+    world.circles.alpha = ['zion-cot-two', 'zion-cot', 'zion-cot-three'];
+
+    expect(
+      await configManagerExportSaml(
+        null,
+        false,
+        undefined,
+        'alpha',
+        undefined,
+        'zion-cot'
+      )
+    ).toBe(true);
+
+    expect(paths()).toEqual([
+      'realms/alpha/realm-config/saml/COT/zion-cot.json',
+    ]);
+    expect(
+      frodo.saml2.circlesOfTrust.exportCircleOfTrust
+    ).toHaveBeenCalledTimes(1);
+  });
+
   test.each([['a/b'], ['..'], ['.'], [''], ['a\\b'], ['a\tb']])(
     '--cot-id names a circle of trust that exists with the id %j, which is not one name that a file can have: the command fails whatever --allow-failures says, and nothing is read or written',
     async (id) => {
@@ -1581,6 +1603,52 @@ describe('a selector of pull authz-policies', () => {
       expect(paths()).toEqual([]);
       expect(frodo.authz.policySet.readPolicySet).not.toHaveBeenCalled();
     }
+  });
+
+  test('--set-id with a name that is a prefix of the name of another policy set is only that policy set', async () => {
+    world.policySets.alpha = ['zion-policies-two', 'zion-policies'];
+    world.policies['alpha/zion-policies-two'] = ['other-policy'];
+
+    expect(
+      await configManagerExportAuthzPolicySets(
+        null,
+        false,
+        'alpha',
+        undefined,
+        'zion-policies'
+      )
+    ).toBe(true);
+
+    expect(frodo.authz.policySet.readPolicySet).toHaveBeenCalledTimes(1);
+    expect(frodo.authz.policySet.readPolicySet).toHaveBeenCalledWith(
+      'zion-policies'
+    );
+    expect(paths().some((file) => file.includes('zion-policies-two'))).toBe(
+      false
+    );
+  });
+
+  test('-i with an id that is a prefix of the id of another policy is only that policy, whatever the order of the list', async () => {
+    world.policies['alpha/zion-policies'] = [
+      'allow-zion-two',
+      'allow-zion',
+      'allow-zion-three',
+    ];
+
+    expect(
+      await configManagerExportAuthzPolicySets(
+        null,
+        false,
+        'alpha',
+        'allow-zion'
+      )
+    ).toBe(true);
+
+    expect(paths()).toEqual([
+      'realms/alpha/authorization/policy-sets/zion-policies/policies/allow-zion.json',
+      'realms/alpha/authorization/policy-sets/zion-policies/zion-policies.json',
+      'realms/alpha/authorization/resource-types/type-rt-1.json',
+    ]);
   });
 
   test.each([['a/b'], ['..'], ['.'], ['a\\b'], ['a\tb']])(
@@ -1982,6 +2050,29 @@ describe('a selector of pull oauth2-agents', () => {
       }
     }
   );
+
+  test('-i with an id that is a prefix of the id of another agent is only that agent', async () => {
+    world.agents.alpha = [
+      { _id: 'zion-web-two', _type: { _id: 'WebAgent' } },
+      { _id: 'zion-web', _type: { _id: 'WebAgent' } },
+    ];
+    world.clients.alpha = ['zion-web-client'];
+
+    expect(
+      await configManagerExportOAuth2Agents(
+        null,
+        false,
+        undefined,
+        'alpha',
+        'zion-web'
+      )
+    ).toBe(true);
+
+    expect(paths()).toEqual([
+      'realms/alpha/realm-config/agents/WebAgent/zion-web.json',
+    ]);
+    expect(frodo.agent.readAgentByTypeAndId).toHaveBeenCalledTimes(1);
+  });
 
   test('-i with an id that is a prefix or a substring of the id of a listed agent or OAuth2 client finds nothing: only the exact id is the one', async () => {
     for (const id of ['zion', 'ion-we', 'web', 'zion-cl', 'client']) {
