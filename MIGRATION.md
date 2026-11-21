@@ -664,9 +664,12 @@ folder of the object and refuses a reference that:
 - is empty, or holds a control character.
 
 Any other colon is an ordinary character: `sub/a:b.js` and
-`Login:SSO.onCreate.js` are read as they were. A hand-made terms and conditions
-file whose version is a number instead of text is refused too, because a version
-is the name of a folder and the tenant writes it as text.
+`Login:SSO.onCreate.js` are read as they were. A reference that starts like a
+drive letter (one letter, then a colon) is refused, so a name such as `a:b` still
+does not round-trip as a reference inside a file: `a:b.onCreate.js` is refused,
+`Login:SSO.onCreate.js` is read. A hand-made terms and conditions file whose
+version is a number instead of text is refused too, because a version is the
+name of a folder and the tenant writes it as text.
 
 A refused reference is not pushed: the command says
 `The file reference '<reference>' must stay inside the config folder.`
@@ -686,8 +689,11 @@ that holds `C:` is refused like any realm that is not a name or a path of names,
 and a `pull` of everything skips a circle of trust, a policy set or an agent
 whose id holds `C:` with the warning that a name which is not one name already
 has. Any other colon (`Login:SSO`) is an ordinary character of a name, as
-before. A link of the file system inside the folder is not followed or checked:
-it is read as before.
+before. On Windows a colon in a file name is not an ordinary character (the file
+system reads it as the start of an alternate data stream; this comes from its
+documentation and was not tested here), so a pulled name with a plain colon does
+not round-trip there, as before this change. A link of the file system inside
+the folder is not followed or checked: it is read as before.
 
 In the root realm of a Cloud tenant, which has no scripts, no applications and
 no themes, a selector on `pull scripts`, `pull applications` or `pull themes`
