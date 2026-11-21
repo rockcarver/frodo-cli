@@ -50,6 +50,12 @@ goes on with the network error (URL, status, code, reason and message), where it
 used to print `HTTP client error` with the code, the status and the message. The
 library hands the command a `FrodoError` instead of the error of the request.
 
+**`frodo journey disable` prints the cause of a failure**: when a journey cannot
+be disabled, the command used to print only `Error disabling journey <id>`. It
+now goes on to print the error that the library reports (the network error with
+URL, status, code, reason and message), the way `frodo journey enable` does. The
+exit codes are unchanged.
+
 **`--curlirize` prints the `authId` of a login as `<redacted>`**: the curl command
 that is printed for a request that carries an `authId` prints `<redacted>` in
 its place. `--curlirize-secrets` prints the value.
