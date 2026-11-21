@@ -87,11 +87,11 @@ jest.unstable_mockModule('@rockcarver/frodo-lib', () => {
           CLOUD_DEPLOYMENT_TYPE_KEY: 'cloud',
           FORGEOPS_DEPLOYMENT_TYPE_KEY: 'forgeops',
         },
-        getWorkingDirectory: () => tmp,
+        getWorkingDirectory: () => realLib.frodo.utils.getWorkingDirectory(),
         getFilePath: (rel) => realLib.frodo.utils.getFilePath(rel, true),
         saveJsonToFile: (data, file) =>
           fs.writeFileSync(file, JSON.stringify(data, null, 2)),
-        readJsonFile: (file) => JSON.parse(fs.readFileSync(file, 'utf8')),
+        readJsonFile: (file) => realLib.frodo.utils.readJsonFile(file),
         escapePlaceholders: (content) => content,
         findFilesByName: () => [],
         isBase64Encoded: () => false,
@@ -503,7 +503,7 @@ describe('pull saml without a config file', () => {
     ['..C:'],
     ['.C:.'],
     ['C:'],
-    ['a:b'],
+    ['ABC:x'],
   ])(
     'a circle of trust with the id %j is skipped with a warning that names the id and the realm, and nothing is written for it',
     async (id) => {
@@ -537,6 +537,22 @@ describe('pull saml without a config file', () => {
     }
   );
 
+  test('a colon that the library does not rewrite is an ordinary character: a circle of trust `Login:SSO` is pulled as it is', async () => {
+    world.circles.alpha = ['zion-cot', 'Login:SSO'];
+
+    expect(await configManagerExportSaml(null, false, undefined, 'alpha')).toBe(
+      true
+    );
+
+    expect(warnings()).toEqual([]);
+    expect(
+      paths().filter((p) => p.startsWith('realms/alpha/realm-config/saml/COT/'))
+    ).toEqual([
+      'realms/alpha/realm-config/saml/COT/Login:SSO.json',
+      'realms/alpha/realm-config/saml/COT/zion-cot.json',
+    ]);
+  });
+
   test('a skipped id does not change the exit result, with or without --allow-failures', async () => {
     world.circles.alpha = ['a/b'];
 
@@ -564,7 +580,17 @@ describe('pull saml without a config file', () => {
     );
   });
 
-  test.each([['..C:'], ['.C:.'], ['a/..C:'], ['C:'], ['a:b']])(
+  test('a colon that the library does not rewrite is an ordinary character: a realm `a:b` is pulled into the folder realms/a:b', async () => {
+    world.realms = ['alpha', 'a:b', 'bravo'];
+    world.providers['a:b'] = ['urn:colon:sp'];
+
+    expect(await configManagerExportSaml(null)).toBe(true);
+
+    expect(warnings()).toEqual([]);
+    expect(paths().filter((p) => p.startsWith('realms/a:b/'))).not.toEqual([]);
+  });
+
+  test.each([['..C:'], ['.C:.'], ['a/..C:'], ['C:'], ['ABC:x']])(
     'a realm named %j is skipped with a warning, and nothing is written for it',
     async (realm) => {
       world.realms = ['alpha', realm, 'bravo'];
@@ -755,7 +781,7 @@ describe('pull authz-policies without a config file', () => {
     ['..C:'],
     ['.C:.'],
     ['C:'],
-    ['a:b'],
+    ['ABC:x'],
   ])(
     'a policy set with the name %j is skipped with a warning that names the name and the realm, and nothing is written for it',
     async (name) => {
@@ -798,7 +824,23 @@ describe('pull authz-policies without a config file', () => {
     );
   });
 
-  test.each([['..C:'], ['.C:.'], ['a/..C:'], ['C:'], ['a:b']])(
+  test('a colon that the library does not rewrite is an ordinary character: a policy set `a:b` is pulled as it is', async () => {
+    world.policySets.alpha = ['oauth2Scopes', 'a:b'];
+
+    expect(await configManagerExportAuthzPolicySets(null, false, 'alpha')).toBe(
+      true
+    );
+
+    expect(warnings()).toEqual([]);
+    expect(frodo.authz.policySet.readPolicySet).toHaveBeenCalledWith('a:b');
+    expect(
+      paths().some((p) =>
+        p.startsWith('realms/alpha/authorization/policy-sets/a:b/')
+      )
+    ).toBe(true);
+  });
+
+  test.each([['..C:'], ['.C:.'], ['a/..C:'], ['C:'], ['ABC:x']])(
     'a realm named %j is skipped with a warning, and nothing is written for it',
     async (realm) => {
       world.realms = ['alpha', realm, 'bravo'];
@@ -960,7 +1002,7 @@ describe('pull oauth2-agents without a config file', () => {
     ['..C:'],
     ['.C:.'],
     ['C:'],
-    ['a:b'],
+    ['ABC:x'],
   ])(
     'an agent with the id %j is skipped with a warning that names the id, the type and the realm, and nothing is written for it',
     async (id) => {
@@ -986,6 +1028,22 @@ describe('pull oauth2-agents without a config file', () => {
     }
   );
 
+  test('a colon that the library does not rewrite is an ordinary character: an agent `urn:x:y` is pulled under its own id', async () => {
+    world.agents.alpha = [
+      { _id: 'zion-web', _type: { _id: 'WebAgent' } },
+      { _id: 'urn:x:y', _type: { _id: 'WebAgent' } },
+    ];
+    world.clients.alpha = [];
+
+    await configManagerExportOAuth2Agents(null, false, undefined, 'alpha');
+
+    expect(warnings()).toEqual([]);
+    expect(paths()).toEqual([
+      'realms/alpha/realm-config/agents/WebAgent/urn:x:y.json',
+      'realms/alpha/realm-config/agents/WebAgent/zion-web.json',
+    ]);
+  });
+
   test('an OAuth2 client with an id that is not one name is skipped the same way', async () => {
     world.clients.alpha = ['zion-client', 'a/b'];
 
@@ -1002,7 +1060,7 @@ describe('pull oauth2-agents without a config file', () => {
     );
   });
 
-  test.each([['a/b'], ['..'], [''], ['..C:'], ['a:b']])(
+  test.each([['a/b'], ['..'], [''], ['..C:'], ['ABC:x']])(
     'an agent of the type %j is skipped with a warning, and nothing is written for it',
     async (type) => {
       world.agents.alpha = [
@@ -1035,7 +1093,7 @@ describe('pull oauth2-agents without a config file', () => {
     );
   });
 
-  test.each([['..C:'], ['.C:.'], ['a/..C:'], ['C:'], ['a:b']])(
+  test.each([['..C:'], ['.C:.'], ['a/..C:'], ['C:'], ['ABC:x']])(
     'a realm named %j is skipped with a warning, and nothing is written for it',
     async (realm) => {
       world.realms = ['alpha', realm, 'bravo'];

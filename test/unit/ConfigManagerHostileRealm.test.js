@@ -24,7 +24,17 @@ import { fullName, loadLeafCommands } from '../utils/CommandExamples.js';
 const HOST = 'https://matrix.example.com/am';
 
 /** What a realm that is not refused is typed as: a name, a path from the root, a sub-realm, the root. */
-const VALID = ['alpha', '/alpha', 'bravo', '/parent/child', '/'];
+const VALID = [
+  'alpha',
+  '/alpha',
+  'bravo',
+  '/parent/child',
+  '/',
+  // a colon is an ordinary character, as long as it is not the `C:` that the library removes
+  'a:b',
+  'c:x',
+  '/parent/Login:SSO',
+];
 
 const HOSTILE = [
   '..',
@@ -50,8 +60,7 @@ const HOSTILE = [
   'a/..C:',
   '/..C:/alpha',
   'C:',
-  'c:x',
-  'a:b',
+  'ABC:x',
 ];
 
 let gated = [];

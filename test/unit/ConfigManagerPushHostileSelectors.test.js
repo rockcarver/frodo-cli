@@ -66,8 +66,8 @@ const lib = {
     },
     getFilePath: (file, mkdirs = false) =>
       realLib.frodo.utils.getFilePath(file, mkdirs),
-    getWorkingDirectory: () => tree,
-    readJsonFile: (file) => JSON.parse(fs.readFileSync(file, 'utf8')),
+    getWorkingDirectory: () => realLib.frodo.utils.getWorkingDirectory(),
+    readJsonFile: (file) => realLib.frodo.utils.readJsonFile(file),
     saveJsonToFile: (data, file) => {
       fs.mkdirSync(path.dirname(file), { recursive: true });
       fs.writeFileSync(file, JSON.stringify(data));
@@ -346,7 +346,7 @@ const HOSTILE = [
   ['..C:', '..C%3A'],
   ['.C:.', '.C%3A'],
   ['C:', 'C%3A'],
-  ['a:b', 'a%3Ab'],
+  ['ABC:x', 'ABC%3Ax'],
   ['..C:/decoy-1', '..C%3A%2Fdecoy-1'],
 ];
 
@@ -419,8 +419,8 @@ describe.each(COMMANDS.filter((c) => c.object))(
   (c) => {
     test.each([
       ['a/b', 'a%2Fb'],
-      ['a:b', 'a%3Ab'],
       ['..C:', '..C%3A'],
+      ['ABC:x', 'ABC%3Ax'],
     ])(
       '`%s` is looked up as the file %s.json, and that file is pushed',
       async (name, derived) => {
@@ -430,6 +430,26 @@ describe.each(COMMANDS.filter((c) => c.object))(
             : path.join(tree, c.folder, derived, `${derived}.json`);
         fs.mkdirSync(path.dirname(file), { recursive: true });
         // a file of org privileges holds the id that its name says
+        const object =
+          c.object._id === 'a/b' ? { ...c.object, _id: name } : c.object;
+        fs.writeFileSync(file, JSON.stringify(object));
+
+        expect(await c.run(name)).toBe(true);
+
+        expect(
+          libCalls.filter((call) => /\.(import|update|create)\w*$/i.test(call))
+        ).not.toEqual([]);
+      }
+    );
+
+    test.each([['a:b'], ['Login:SSO'], ['urn:x:y'], ['c:x']])(
+      '`%s` holds a colon that the library does not rewrite: it is an ordinary name, and the file of that name is pushed',
+      async (name) => {
+        const file =
+          c.shape === 'file'
+            ? path.join(tree, c.folder, `${name}.json`)
+            : path.join(tree, c.folder, name, `${name}.json`);
+        fs.mkdirSync(path.dirname(file), { recursive: true });
         const object =
           c.object._id === 'a/b' ? { ...c.object, _id: name } : c.object;
         fs.writeFileSync(file, JSON.stringify(object));

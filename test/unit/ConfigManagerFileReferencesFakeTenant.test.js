@@ -51,6 +51,7 @@ const colon = (levels) => [
   `${'..C:\\'.repeat(levels)}decoy-e${levels}.txt`,
   `C:${'..\\'.repeat(levels)}decoy-f${levels}.txt`,
   'a:b.js',
+  `ABC:x${levels}.js`,
 ];
 /** The references that go up with `/` and with `\`, two levels. */
 const up2 = ['../../decoy-two.txt', '..\\..\\decoy-three.txt'];
@@ -207,6 +208,9 @@ const COMMANDS = [
         },
       };
     },
+    colonFile: command.includes('version')
+      ? 'terms-conditions/sub/a:b.js/en.html'
+      : 'terms-conditions/0.1/sub/a:b.js.html',
     control: {
       ref: command.includes('version') ? '0.1' : 'en',
       file: 'terms-conditions/0.1/en.html',
@@ -250,11 +254,12 @@ suite(
     });
 
     /** Starts the fake and runs the CLI once against it, without a terminal. */
-    async function runAgainst(entities, args) {
+    async function runAgainst(entities, args, fakeOptions = {}) {
       fakeAm = await startFakeAm({
         journey: 'service-account',
         recordPath: record,
         idmEntities: structuredClone(entities),
+        ...fakeOptions,
       });
       return new Promise((resolve, reject) => {
         const child = cp.spawn(
@@ -370,6 +375,123 @@ suite(
               : 'CONTROL-TEXT-3e9a'
           );
           expect(code).toBe(c.controlExit ?? 0);
+        },
+        TIMEOUT
+      );
+
+      it(
+        'a colon that is not a drive letter or `C:` is an ordinary character of a reference: the file is read',
+        async () => {
+          write(c.files('sub/a:b.js'));
+          write({
+            [c.colonFile ?? path.posix.join(c.folder, 'sub/a:b.js')]:
+              'CONTROL-TEXT-3e9a',
+          });
+
+          const { code, output } = await push();
+
+          expect(output).not.toContain('must stay inside the config folder');
+          expect(JSON.stringify(writes())).toContain(
+            c.control.base64
+              ? Buffer.from('CONTROL-TEXT-3e9a').toString('base64')
+              : 'CONTROL-TEXT-3e9a'
+          );
+          expect(code).toBe(c.controlExit ?? 0);
+        },
+        TIMEOUT
+      );
+    });
+
+    /** A journey as pull writes it: the folder, the file of the journey and one node. */
+    const journey = (name) => ({
+      [`realms/alpha/journeys/${name}/${name}.json`]: {
+        _id: name,
+        entryNodeId: 'n1',
+        nodes: {
+          n1: {
+            displayName: 'n1',
+            nodeType: 'ScriptedDecisionNode',
+            x: 0,
+            y: 0,
+            connections: {},
+          },
+        },
+        staticNodes: {},
+      },
+      [`realms/alpha/journeys/${name}/nodes/n1.json`]: {
+        _id: 'n1',
+        _type: { _id: 'ScriptedDecisionNode' },
+        script: 'none',
+        outcomes: ['true'],
+        inputs: ['*'],
+        outputs: ['*'],
+      },
+    });
+
+    // a colon that the library does not rewrite is part of a name, which a pull writes as it is: what
+    // a pull writes is pushed, also by a push of everything (the folder is found, not skipped)
+    describe.each([
+      {
+        command: 'managed-objects',
+        args: ['-i', 'Login:SSO'],
+        entities: { managed: { _id: 'managed', objects: [] } },
+        files: {
+          'managed-objects/Login:SSO/Login:SSO.json': {
+            name: 'Login:SSO',
+            schema: { type: 'object', properties: {} },
+          },
+        },
+      },
+      {
+        command: 'connector-mappings',
+        args: ['-i', 'Login:SSO'],
+        entities: { sync: { _id: 'sync', mappings: [] } },
+        files: {
+          'sync/mappings/Login:SSO/Login:SSO.json': {
+            name: 'Login:SSO',
+            source: 'managed/alpha_user',
+            target: 'system/ldap/account',
+          },
+        },
+      },
+      {
+        command: 'journeys',
+        args: [],
+        entities: {},
+        files: { ...journey('Plain'), ...journey('Login:SSO') },
+        exit: 1,
+        attempted: [
+          '2 of 2 journeys failed',
+          'journey Login:SSO',
+          'journey Plain',
+        ],
+        // the fake tenant answers the lists that a push of journeys reads as empty
+        fakeOptions: { emptyCollections: true },
+      },
+    ])('push $command, a name with a colon', (c) => {
+      it(
+        'is found as it is, and not skipped',
+        async () => {
+          write(c.files);
+
+          const { code, output } = await runAgainst(
+            c.entities,
+            ['config-manager', 'push', c.command, ...c.args],
+            c.fakeOptions
+          );
+
+          expect(output).not.toContain('No journey files found');
+          if (c.attempted) {
+            // the fake tenant has no routes for the nodes of a journey, so every journey fails on the
+            // tenant: what counts is that both were attempted, and the folder with the colon was not skipped
+            expect(output).not.toContain('No journey files found');
+            for (const text of c.attempted) expect(output).toContain(text);
+          } else {
+            expect(decodeURIComponent(JSON.stringify(writes()))).toContain(
+              'Login:SSO'
+            );
+          }
+          expect(code).toBe(c.exit ?? 0);
         },
         TIMEOUT
       );

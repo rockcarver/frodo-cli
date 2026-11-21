@@ -283,8 +283,8 @@ const up = (levels, name = `decoy-${levels}.txt`) =>
   `${'../'.repeat(levels)}${name}`;
 /**
  * References that the library reads as references that go up if the check lets them through: it
- * removes every `C:` from a path after the check, and a backslash is a slash. The last one is a
- * name that holds a colon, which the check refuses as well.
+ * removes every `C:` from a path after the check, and a backslash is a slash. `a:b.js` starts with a
+ * drive letter, and `ABC:x` holds a `C:`: both are refused as well.
  */
 const colon = (levels) => [
   `${'..C:/'.repeat(levels)}decoy-c${levels}.txt`,
@@ -293,6 +293,7 @@ const colon = (levels) => [
   `C:${'..\\'.repeat(levels)}decoy-f${levels}.txt`,
   `c:${'..\\'.repeat(levels)}decoy-g${levels}.txt`,
   'a:b.js',
+  `ABC:x${levels}.js`,
 ];
 /** The same, with the backslash. */
 const upBackslash = (levels, name = `decoy-b${levels}.txt`) =>
@@ -776,7 +777,7 @@ const ROW_LIST = [
       '../../../decoy-3',
       '..C:',
       '.C:.',
-      'a:b',
+      'ABC:x',
     ],
     decoyContent: JSON.stringify({
       _id: 'decoy',
@@ -818,7 +819,7 @@ const ROW_LIST = [
     }),
     run: (allowFailures) =>
       configManagerImportJourneys('j1', 'alpha', true, true, allowFailures),
-    hostile: ['../decoy-1', '../../decoy-2', '..C:', '.C:.', 'a:b'],
+    hostile: ['../decoy-1', '../../decoy-2', '..C:', '.C:.', 'ABC:x'],
     ...folderDecoys('realms/alpha/journeys'),
     outcome: false,
     says: (ref) => `${derived(ref)}.json`,
@@ -837,7 +838,7 @@ const ROW_LIST = [
     run: (allowFailures) =>
       configManagerImportApplications('app1', 'alpha', allowFailures),
     // `../../decoy-2` would be taken for an application of the realm, the folder above `applications`
-    hostile: ['../decoy-1', '../../../decoy-3', '..C:', '.C:.', 'a:b'],
+    hostile: ['../decoy-1', '../../../decoy-3', '..C:', '.C:.', 'ABC:x'],
     ...folderDecoys('realms/alpha/applications/app1/mappings'),
     outcome: false,
     says: (ref) => `mappings/${derived(ref)}/${derived(ref)}.json`,
@@ -864,7 +865,7 @@ const ROW_LIST = [
       // what the application push does with the mapping: it sends it
       await lib.idm.mapping.importMapping('mapping/m1', mapping);
     },
-    hostile: ['../decoy-1', '../../decoy-2', '..C:', '.C:.', 'a:b'],
+    hostile: ['../decoy-1', '../../decoy-2', '..C:', '.C:.', 'ABC:x'],
     decoyContent: JSON.stringify({ name: 'decoy', note: MARKER }),
     outcome: 'rejects',
     allowFailures: false,
@@ -886,7 +887,7 @@ const ROW_LIST = [
     suffix: '.json',
     tree: () => ({}),
     run: (ref) => importScriptFromFiles(ref, 'alpha'),
-    hostile: ['../decoy-1', '../../decoy-2', '..C:', '.C:.', 'a:b'],
+    hostile: ['../decoy-1', '../../decoy-2', '..C:', '.C:.', 'ABC:x'],
     // the file the old code reads for the id, which holds a script that is a file of the folder of the scripts
     decoys: (ref) => ({
       [path.posix.normalize(`realms/alpha/scripts/scripts-config/${ref}.json`)]:
@@ -921,7 +922,7 @@ const ROW_LIST = [
     suffix: '.json',
     tree: () => ({}),
     run: (ref) => importCircleOfTrustFromFile(ref, 'alpha'),
-    hostile: ['../decoy-1', '../../decoy-2', '..C:', '.C:.', 'a:b'],
+    hostile: ['../decoy-1', '../../decoy-2', '..C:', '.C:.', 'ABC:x'],
     decoyContent: JSON.stringify({ _id: 'decoy', note: MARKER }),
     outcome: 'rejects',
     says: (ref) => `${derived(ref)}.json`,
@@ -943,6 +944,7 @@ const ROW_LIST = [
     what: 'the version of terms and conditions, which names a folder of the terms (`push terms-and-conditions`)',
     container: 'terms-conditions',
     suffix: '/en.html',
+    colonFile: 'terms-conditions/sub/a:b.js/en.html',
     tree: (ref) => ({
       'terms-conditions/terms-conditions.json': {
         _id: 'selfservice.terms',
@@ -968,6 +970,68 @@ const ROW_LIST = [
   },
 ];
 
+/** A name with a colon that the library does not rewrite: an ordinary name, found as it is (what a pull writes). */
+const COLON_NAME = 'Login:SSO';
+const COLON_CONTROLS = {
+  S17: {
+    ref: COLON_NAME,
+    extra: {
+      'realms/alpha/scripts/scripts-config/Login:SSO.json': {
+        _id: COLON_NAME,
+        name: 'CONTROL-COLON',
+        script: ['CONTROL-COLON'],
+      },
+    },
+  },
+  S18: {
+    ref: COLON_NAME,
+    extra: {
+      'realms/alpha/journeys/Login:SSO/Login:SSO.json': {
+        _id: COLON_NAME,
+        note: 'CONTROL-COLON',
+      },
+    },
+  },
+  S19: {
+    ref: COLON_NAME,
+    extra: {
+      'realms/alpha/applications/app1/mappings/Login:SSO/Login:SSO.json': {
+        name: COLON_NAME,
+        note: 'CONTROL-COLON',
+      },
+    },
+  },
+  S19b: {
+    ref: COLON_NAME,
+    extra: {
+      'sync/mappings/m1/Login:SSO.json': {
+        name: COLON_NAME,
+        note: 'CONTROL-COLON',
+      },
+    },
+  },
+  S20: {
+    ref: COLON_NAME,
+    extra: {
+      'realms/alpha/scripts/scripts-config/Login:SSO.json': {
+        _id: COLON_NAME,
+        name: COLON_NAME,
+        script: { file: 'scripts-content/colon.js' },
+      },
+      'realms/alpha/scripts/scripts-content/colon.js': 'CONTROL-COLON',
+    },
+  },
+  S21: {
+    ref: COLON_NAME,
+    extra: {
+      'realms/alpha/realm-config/saml/COT/Login:SSO.json': {
+        _id: COLON_NAME,
+        note: 'CONTROL-COLON',
+      },
+    },
+  },
+};
+
 const TAKE_ALLOW_FAILURES = new Set([
   'S4',
   'S5',
@@ -988,6 +1052,8 @@ const ROWS = ROW_LIST.map((row) => ({
   // the message of a refused reference, unless the row says what is looked for instead
   says: (reference) => refused(reference),
   allowFailures: TAKE_ALLOW_FAILURES.has(row.site),
+  colonControl:
+    COLON_CONTROLS[row.site === 'S19' && row.byId ? 'S19b' : row.site],
   ...row,
 }));
 
@@ -1101,6 +1167,36 @@ describe.each(ROWS.map((row) => [`${row.site} ${row.what}`, row]))(
         expect(order).toEqual(['libs', 's1']);
       }
     });
+
+    if (row.colonControl) {
+      test('a name that holds a colon that the library does not rewrite is an ordinary name: the file is found as it is', async () => {
+        const { colonControl } = row;
+        write(row.tree(colonControl.ref));
+        write(colonControl.extra);
+
+        const outcome = await attempt(() => runRow(colonControl.ref));
+
+        expect(outcome.error).toBeUndefined();
+        expect(sentHas('CONTROL-COLON')).toBe(true);
+        expect(shown(outcome)).not.toContain('does not name an object');
+      });
+    }
+
+    if (!row.byId && !row.colonControl && row.control.files.length > 0) {
+      test('a colon that is not a drive letter or `C:` is an ordinary character of a reference: the file is read', async () => {
+        const reference = 'sub/a:b.js';
+        const file =
+          row.colonFile ?? path.posix.join(row.container, 'sub/a:b.js');
+        write(row.tree(reference));
+        write({ [file]: 'CONTROL-COLON' });
+
+        const outcome = await attempt(() => runRow(reference));
+
+        expect(outcome.error).toBeUndefined();
+        expect(sentHas('CONTROL-COLON')).toBe(true);
+        expect(shown(outcome)).not.toContain('must stay inside');
+      });
+    }
 
     if (row.missing?.result === 'skipped') {
       test('a reference to a file that is not there is skipped, as before: the object is still imported', async () => {
