@@ -12,11 +12,10 @@ import { FrodoError, httpError } from '../utils/LibErrorShapes.js';
  * `frodo journey enable` and `frodo journey disable`: when the tenant refuses to
  * save the journey, the command prints the cause, once, after the line that says
  * the journey could not be enabled or disabled, and fails. `disable` used to
- * print only that line and swallow the cause (an empty `catch`), which the
- * decision record
- * https://github.com/rockcarver/frodo-cli/blob/main/docs/decisions/0040-a-command-that-runs-many-operations-runs-them-all-then-fails-if-any-failed.md
- * (a command that runs many operations runs them all, then fails if any failed)
- * forbids in an ops function.
+ * print only that line: its `catch` block did not print the error the library
+ * had thrown, so the reason the tenant gave was lost (it still returned false
+ * and the command still exited 1). It now prints the cause, as `enable` always
+ * did, and the tests below hold both commands to the same output.
  *
  * The functions under test are the ones of src/ops/JourneyOps.ts. The library is
  * a double (its bundled ESM cannot load under jest's ESM runtime) and so are
