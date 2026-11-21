@@ -2,7 +2,7 @@
 
 /*
 // ForgeOps
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://nightly.gcp.forgeops.com/am FRODO_TEST_NAME=0_D_f_m frodo config-manager pull oauth2-agents -D configManagerExportOauth2AgentsDir0 -f test/e2e/fr-config-manager-pull-config/oauth2-agents.json -m forgeops
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://nightly.gcp.forgeops.com/am FRODO_TEST_NAME=0_D_f_m frodo config-manager pull oauth2-agents -D configManagerExportOauth2AgentsDir0 --config-file test/e2e/fr-config-manager-pull-config/oauth2-agents.json -m forgeops
 */
 
 import { getEnv, testExport } from './utils/TestUtils';
@@ -27,7 +27,7 @@ describe('frodo config-manager pull oauth2-agents', () => {
     // GET of each publisher stays in the recording unused.
     test(`"frodo config-manager pull oauth2-agents -D configManagerExportOauth2AgentsDir0 -f ${configFile} -m forgeops": should export all agents from all realms in fr-config manager style.`, async () => {
         const dirName = 'configManagerExportOauth2AgentsDir0';
-        const CMD = `frodo config-manager pull oauth2-agents -D ${dirName} -f ${configFile} -m forgeops`;
+        const CMD = `frodo config-manager pull oauth2-agents -D ${dirName} --config-file ${configFile} -m forgeops`;
         await testExport(CMD, { ...env, env: { ...env.env, FRODO_TEST_NAME: '0_D_f_m' } }, undefined, undefined, dirName, false);
     });
 });

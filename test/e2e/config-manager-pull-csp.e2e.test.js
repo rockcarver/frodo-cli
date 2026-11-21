@@ -24,7 +24,7 @@ describe('frodo config-manager pull csp', () => {
     });
     test(`"frodo config-manager pull csp --directory configManagerExportCspDir1 -f ${configFile}": should export the content security policy with overrides defined in the config file.`, async () => {
         const dirName = 'configManagerExportCspDir1';
-        const CMD = `frodo config-manager pull csp --directory ${dirName} -f ${configFile}`;
+        const CMD = `frodo config-manager pull csp --directory ${dirName} --config-file ${configFile}`;
         await testExport(CMD, { ...env, env: { ...env.env, FRODO_TEST_NAME: '0_directory_f' } }, undefined, undefined, dirName, false);
     });
 });

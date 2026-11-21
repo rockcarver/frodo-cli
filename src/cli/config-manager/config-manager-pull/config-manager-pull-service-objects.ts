@@ -25,7 +25,7 @@ export default function setup() {
     .description('Export service objects.')
     .addOption(
       new Option(
-        '-f, --file <file>',
+        '--config-file <file>',
         'The file path of the service object config file. '
       ).makeOptionMandatory()
     )
@@ -33,7 +33,7 @@ export default function setup() {
       'after',
       'HELP MESSAGE:\n' +
         'Make sure to create the export config file: service-objects.json to run this command.\n' +
-        `Example command: frodo config-manager pull service-objects -f service-objects.json -D ../testDir ${s.connId}\n\n` +
+        `Example command: frodo config-manager pull service-objects --config-file service-objects.json -D ../testDir ${s.connId}\n\n` +
         `Config file example:\n` +
         '------------  Example service object export config for service-objects.json file -----------\n' +
         '{\n' +
@@ -91,7 +91,7 @@ export default function setup() {
       if (await getTokens(false, true, deploymentTypes)) {
         verboseMessage('Exporting service objects');
         const outcome = await configManagerExportServiceObjectsFromFile(
-          options.file,
+          options.configFile,
           options.allowFailures
         );
         if (!outcome) process.exitCode = 1;

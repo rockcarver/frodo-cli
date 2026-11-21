@@ -786,14 +786,14 @@ describe('the selectors of the configuration commands', () => {
     }));
   }, 120000);
 
-  it('lists the commands that have been renamed: the 24 pull commands of C4a, the 25 push commands of C4b and the 16 delete commands of C4c, and every row is a command', () => {
-    // a floor that grew with each step: 24 (pull), 49 (push), 65 (delete)
-    expect(EXPECTED_SELECTORS.length).toBeGreaterThanOrEqual(65);
+  it('lists the commands that have been renamed: the 24 pull commands of C4a, the 25 push commands of C4b and the 16 delete commands of C4c, and the three pull commands that got a selector with C5, and every row is a command', () => {
+    // a floor that grew with each step: 24 (pull), 49 (push), 65 (delete), 68 (the three pulls of C5)
+    expect(EXPECTED_SELECTORS.length).toBeGreaterThanOrEqual(68);
     expect(checked.rows).toBe(EXPECTED_SELECTORS.length);
     expect(checked.rowsMatched).toBe(EXPECTED_SELECTORS.length);
     expect(
       EXPECTED_SELECTORS.filter((row) => row.command.includes(' pull ')).length
-    ).toBe(24);
+    ).toBe(27);
     expect(
       EXPECTED_SELECTORS.filter((row) => row.command.includes(' push ')).length
     ).toBe(25);

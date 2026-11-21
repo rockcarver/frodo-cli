@@ -83,31 +83,15 @@ export const PATH_OPTIONS: Readonly<Record<string, PathOptionSpec>> = {
 
 /**
  * Where a command means something else by an option of the table, keyed by
- * the command path without `frodo` and the long name: `config-manager pull saml --file`.
+ * the command path without `frodo` and the long name: `app template download --file`.
  * What is set here replaces what the table says for that command.
  */
 export const PATH_OPTION_OVERRIDES: Readonly<
   Record<string, Partial<PathOptionSpec>>
 > = {
-  // the config-manager pull commands that take -f read a config file that says
-  // what to export; the exported files go to the working directory
-  'config-manager pull authz-policies --file': {
-    access: 'read',
-    extensions: JSON_FILES,
-  },
-  'config-manager pull csp --file': { access: 'read', extensions: JSON_FILES },
-  'config-manager pull oauth2-agents --file': {
-    access: 'read',
-    extensions: JSON_FILES,
-  },
-  'config-manager pull saml --file': { access: 'read', extensions: JSON_FILES },
   // `app template download` writes the catalog to the file; a verb that is not
   // `export` or `pull` would make it a file to read
   'app template download --file': { access: 'write', extensions: JSON_FILES },
-  'config-manager pull service-objects --file': {
-    access: 'read',
-    extensions: JSON_FILES,
-  },
 };
 
 /**

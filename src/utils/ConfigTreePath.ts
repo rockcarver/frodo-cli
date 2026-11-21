@@ -61,8 +61,13 @@ export function assertInside(root: string, target: string): void {
   }
 }
 
-/** Whether a value is one name: no separator, not `.` or `..`, no control character. */
-function isOneSafeSegment(value: string): boolean {
+/**
+ * Whether a value is one name that a file or a folder of a tree can have: it is not empty, it is
+ * not `.` or `..`, and it holds no `/`, no `\` and no control character.
+ * @param {string} value the id or the name
+ * @returns {boolean} true if the value is one safe segment of a path
+ */
+export function isOneSafeSegment(value: string): boolean {
   return (
     value !== '' &&
     value !== '.' &&

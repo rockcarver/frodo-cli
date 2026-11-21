@@ -13,6 +13,7 @@ import {
   OwnedObjects,
   skipsOwnedObjects,
 } from '../ops/ApplicationOwnedObjects';
+import { isOneSafeSegment, realmFolderOf } from '../utils/ConfigTreePath';
 import {
   createProgressIndicator,
   printError,
@@ -22,6 +23,7 @@ import {
 import { causeOf } from '../utils/ErrorCause';
 import {
   escapePlaceholders,
+  realmList,
   replaceAllInJson,
   safeFileNameUnderscore,
 } from '../utils/FrConfig';
@@ -31,9 +33,9 @@ import type { ApplicationLayoutDecision } from '../utils/TreeLayout';
 const { getFilePath, saveJsonToFile, readJsonFile, getWorkingDirectory } =
   frodo.utils;
 const { CLOUD_DEPLOYMENT_TYPE_KEY, DEFAULT_REALM_KEY } = frodo.utils.constants;
-const { exportSaml2Provider, importSaml2Providers } =
+const { exportSaml2Provider, importSaml2Providers, readSaml2ProviderStubs } =
   frodo.saml2.entityProvider;
-const { exportCircleOfTrust, importCirclesOfTrust } =
+const { exportCircleOfTrust, importCirclesOfTrust, readCirclesOfTrust } =
   frodo.saml2.circlesOfTrust;
 
 type Saml2PullExportInterface = {
@@ -98,29 +100,175 @@ export async function readSamlProviderForFile(entityId: string): Promise<{
 }
 
 /**
+ * What a config file for `configManagerExportSaml` would hold if it listed every SAML provider
+ * and every circle of trust of the realms: for each realm, the entity ids of its providers and the
+ * ids of its circles of trust, read from the tenant. The realms are the one that was given, or every
+ * realm of the tenant; the root realm of an Identity Cloud tenant has no SAML configuration and is
+ * left out. A realm whose lists cannot be read is one failed operation of the run and has no entry.
+ * A circle of trust whose id is not one name that a file can have (empty, `.`, `..`, or an id with
+ * `/`, `\` or a control character) is skipped with a warning that names the id and the realm, and
+ * so is a realm whose name is not a name or a path of names; a skip is not an operation. The
+ * entity ids of the providers are not checked: the file name of a provider is made from its entity id.
+ *
+ * With an entity id, or the id of a circle of trust, the lists are filtered: the one provider, or
+ * the one circle of trust, whose listed id is exactly the one given, is what the content holds. That
+ * needs a single realm. What the selector names is looked up in the list and the listed id is used,
+ * never the selector itself. An id that the list does not hold, an id that is not one name that a
+ * file can have (the circle of trust exists, but is not skipped quietly), a list that cannot be read
+ * and a name that needs a single realm fail the command: there is nothing for `--allow-failures` to
+ * allow.
+ * @param {OperationRun} run the run of the command, which records the realms that cannot be read
+ * @param {string} onlyRealm the realm to read; default: every realm
+ * @param {string} entityId pull only the provider with this entity id
+ * @param {string} cotId pull only the circle of trust with this id
+ * @returns {Promise<Record<string, { samlProviders: { entityId: string }[]; circlesOfTrust: string[] }> | undefined>} the content of the file; undefined when the command cannot go on (the reason is printed)
+ */
+async function everythingOfSaml(
+  run: OperationRun,
+  onlyRealm?: string,
+  entityId?: string,
+  cotId?: string
+): Promise<
+  | Record<
+      string,
+      { samlProviders: { entityId: string }[]; circlesOfTrust: string[] }
+    >
+  | undefined
+> {
+  const everything: Record<
+    string,
+    { samlProviders: { entityId: string }[]; circlesOfTrust: string[] }
+  > = {};
+  const selecting = entityId !== undefined || cotId !== undefined;
+  const wantProviders = entityId !== undefined || cotId === undefined;
+  const wantCircles = cotId !== undefined || entityId === undefined;
+  const realms =
+    onlyRealm && onlyRealm !== DEFAULT_REALM_KEY
+      ? [onlyRealm]
+      : await realmList();
+  if (selecting && realms.length !== 1) {
+    printMessage(
+      `Error: for a named ${entityId !== undefined ? 'SAML provider' : 'circle of trust'}, specify a single realm`,
+      'error'
+    );
+    return undefined;
+  }
+  let found = false;
+  for (const currentRealm of realms) {
+    if (
+      currentRealm === '/' &&
+      state.getDeploymentType() === CLOUD_DEPLOYMENT_TYPE_KEY
+    )
+      continue;
+    let realmDir: string;
+    try {
+      realmDir = realmFolderOf(currentRealm);
+    } catch {
+      printMessage(
+        `Skipping realm '${currentRealm}': its name is not '/', a name or a path of names.`,
+        'warn'
+      );
+      continue;
+    }
+    state.setRealm(currentRealm);
+    try {
+      const providers = wantProviders ? await readSaml2ProviderStubs() : [];
+      const circles = wantCircles ? await readCirclesOfTrust() : [];
+      const entityIds = providers
+        .map((provider) => provider.entityId)
+        .filter((listed) => entityId === undefined || listed === entityId)
+        .sort();
+      const cots: string[] = [];
+      for (const cot of circles
+        .map((circle) => circle._id)
+        .filter((listed) => cotId === undefined || listed === cotId)
+        .sort()) {
+        if (isOneSafeSegment(cot)) {
+          cots.push(cot);
+        } else if (cotId !== undefined) {
+          // the one circle of trust that was asked for: nothing for the flag to allow
+          printMessage(
+            `Circle of trust '${cot}' of realm '${currentRealm}' cannot be pulled: its id is not one name that a file can have.`,
+            'error'
+          );
+          return undefined;
+        } else {
+          printMessage(
+            `Skipping circle of trust '${cot}' of realm '${currentRealm}': its id is not one name that a file can have.`,
+            'warn'
+          );
+        }
+      }
+      if (selecting) {
+        found =
+          entityId !== undefined
+            ? entityIds.length > 0
+            : circles.some((circle) => circle._id === cotId);
+      }
+      everything[currentRealm] = {
+        samlProviders: entityIds.map((listed) => ({ entityId: listed })),
+        circlesOfTrust: cots,
+      };
+    } catch (error) {
+      printError(
+        error,
+        `Error reading the SAML providers and circles of trust of realm '${currentRealm}'`
+      );
+      // the one object that was asked for: nothing for the flag to allow
+      if (selecting) return undefined;
+      run.recordFailure(`realm ${realmDir}`, causeOf(error));
+    }
+  }
+  if (selecting && !found) {
+    printMessage(
+      entityId !== undefined
+        ? `SAML provider '${entityId}' not found in realm '${realms[0]}'.`
+        : `Circle of trust '${cotId}' not found in realm '${realms[0]}'.`,
+      'error'
+    );
+    return undefined;
+  }
+  return everything;
+}
+
+/**
  * Export SAML configurations in fr-config-manager format.
+ * Without a file (`null`) everything is exported: every provider and every circle of trust of
+ * the realm that was given, or of every realm of the tenant (see {@link everythingOfSaml}); an
+ * entity id or the id of a circle of trust narrows that to the one object, in a single realm. With a
+ * file, the file selects what is exported and the realm is not used.
  * In a tree that uses the application layout (decision record 0042) a provider that an
  * application owns is not exported here: `pull applications` writes it into the folder of the
  * application. It is named and skipped, which is not a failure, and the config file is not
  * changed. The circles of trust are shared and are always exported. A realm whose applications
  * cannot be read is one failed operation, and its providers are not exported.
- * @param {string} file File that determines what SAML config is exported
+ * @param {string | null} file File that determines what SAML config is exported; null to export everything
  * @param {boolean} allowFailures True to succeed although some providers or circles of trust could not be exported (the failures are still summarised)
  * @param {ApplicationLayoutDecision} layout The layout of the tree, when `pull all` has decided it before its first step; default: read from the marker of the tree
+ * @param {string} onlyRealm Without a file: the realm to export; default: every realm
+ * @param {string} entityId Without a file: export only the provider with this entity id (needs a single realm)
+ * @param {string} cotId Without a file: export only the circle of trust with this id (needs a single realm)
  * @return {Promise<boolean>} a promise that resolves to true if successful, false otherwise. A provider or a circle of trust that cannot be exported does not stop the others; the result is false if any failed, unless failures are allowed. A file that does not exist, or that cannot be read, is a failure.
  */
 export async function configManagerExportSaml(
-  file: string,
+  file: string | null,
   allowFailures: boolean = false,
-  layout?: ApplicationLayoutDecision
+  layout?: ApplicationLayoutDecision,
+  onlyRealm?: string,
+  entityId?: string,
+  cotId?: string
 ): Promise<boolean> {
   try {
-    if (!fs.existsSync(file)) {
+    if (file !== null && !fs.existsSync(file)) {
       printMessage(`The SAML config file '${file}' does not exist.`, 'error');
       return false;
     }
-    const objects = JSON.parse(fs.readFileSync(file, 'utf8'));
     const run = new OperationRun({ unit: 'item', allowFailures });
+    const objects =
+      file === null
+        ? await everythingOfSaml(run, onlyRealm, entityId, cotId)
+        : JSON.parse(fs.readFileSync(file, 'utf8'));
+    if (!objects) return false;
     const owned = skipsOwnedObjects(layout) ? new OwnedObjects() : undefined;
     for (const realm of Object.keys(objects)) {
       if (

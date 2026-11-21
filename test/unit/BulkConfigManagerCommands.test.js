@@ -116,9 +116,9 @@ const COMMANDS = [
     name: 'config-manager pull saml',
     file: 'config-manager-pull/config-manager-pull-saml',
     fn: 'configManagerExportSaml',
-    options: { file: 'saml.json' },
-    args: (allowFailures) => ['saml.json', allowFailures],
-    mandatory: 'file',
+    options: { configFile: 'saml.json' },
+    // the file, the failures, no layout of the tree, and the realm that narrows a pull without a file
+    args: (allowFailures) => ['saml.json', allowFailures, undefined, 'alpha'],
   },
   {
     name: 'config-manager push saml',

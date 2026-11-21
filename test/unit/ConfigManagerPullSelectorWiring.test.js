@@ -166,6 +166,27 @@ const WIRING = {
     id: 3,
     name: 0,
   },
+  // after the file, the failures flag, the layout and the realm
+  saml: {
+    module: 'configManagerOps/FrConfigSamlOps',
+    fn: 'configManagerExportSaml',
+    id: 4,
+    name: null,
+  },
+  // after the file, the failures flag and the realm
+  'authz-policies': {
+    module: 'configManagerOps/FrConfigAuthzPoliciesOps',
+    fn: 'configManagerExportAuthzPolicySets',
+    id: 3,
+    name: null,
+  },
+  // after the file, the failures flag, the layout and the realm
+  'oauth2-agents': {
+    module: 'configManagerOps/FrConfigOauth2AgentOps',
+    fn: 'configManagerExportOAuth2Agents',
+    id: 4,
+    name: null,
+  },
 };
 
 const getTokens = jest.fn();
@@ -311,6 +332,126 @@ describe('the selectors of the pull commands reach the ops function', () => {
 
       expect(call[id]).toBeUndefined();
       if (name !== null) expect(call[name]).toBeUndefined();
+    }
+  );
+});
+
+/**
+ * `pull saml` and `pull authz-policies` have a second selector that names a group of objects
+ * (`--cot-id`, a circle of trust; `--set-id`, a policy set), and all three of these commands take
+ * `--config-file`, which cannot be combined with a selector. The ops function gets each value in its
+ * own position, and a command line that breaks an exclusion or that holds an empty value is refused
+ * while it is parsed: the ops function is not called and nobody logs in.
+ */
+describe('the second selector, the exclusions and the empty values of saml, authz-policies and oauth2-agents', () => {
+  /** The position of the second selector in the arguments of the ops function. */
+  const SECOND = {
+    saml: { option: '--cot-id', position: 5 },
+    'authz-policies': { option: '--set-id', position: 4 },
+  };
+
+  /** Parses with exitOverride so that a refusal is an error to read; returns it, or null when it parsed. */
+  async function refusal(type, args) {
+    const { fn } = WIRING[type];
+    ops[fn].mockReset().mockResolvedValue(true);
+    getTokens.mockReset().mockResolvedValue(true);
+    const program = setups[type]();
+    program.exitOverride();
+    program.configureOutput({ writeErr: () => {}, writeOut: () => {} });
+    let error = null;
+    try {
+      await program.parseAsync([...args, 'matrix', 'alpha'], { from: 'user' });
+    } catch (caught) {
+      error = caught;
+    }
+    return { error, ops: ops[fn], getTokens };
+  }
+
+  it.each(Object.entries(SECOND))(
+    '%s: %j goes to its own position and leaves the position of -i empty, and -i leaves it empty',
+    async (type, { option, position }) => {
+      const { id } = WIRING[type];
+
+      for (const args of [[option, 'x'], [`${option}=x`]]) {
+        const call = await run(type, args);
+        expect([args.join(' '), call[position]]).toEqual([args.join(' '), 'x']);
+        expect(call[id]).toBeUndefined();
+      }
+      const call = await run(type, ['-i', 'y']);
+      expect(call[id]).toBe('y');
+      expect(call[position]).toBeUndefined();
+    }
+  );
+
+  it.each([
+    ['saml', 3],
+    ['authz-policies', 2],
+    ['oauth2-agents', 3],
+  ])(
+    '%s: the realm of the command goes to position %i, which narrows a pull without a file',
+    async (type, position) => {
+      expect((await run(type, []))[position]).toBe('alpha');
+      expect((await run(type, ['-i', 'x']))[position]).toBe('alpha');
+    }
+  );
+
+  it.each(['saml', 'authz-policies', 'oauth2-agents'])(
+    '%s: --config-file goes to the position of the file, and no file gives null',
+    async (type) => {
+      expect((await run(type, ['--config-file', 'f.json']))[0]).toBe('f.json');
+      expect((await run(type, []))[0]).toBeNull();
+    }
+  );
+
+  it.each([
+    ['saml', ['-i', 'x', '--config-file', 'f.json']],
+    ['saml', ['--config-file', 'f.json', '-i', 'x']],
+    ['saml', ['--cot-id', 'x', '--config-file', 'f.json']],
+    ['saml', ['--config-file', 'f.json', '--cot-id', 'x']],
+    ['saml', ['-i', 'x', '--cot-id', 'y']],
+    ['saml', ['--cot-id', 'y', '-i', 'x']],
+    ['authz-policies', ['-i', 'x', '--config-file', 'f.json']],
+    ['authz-policies', ['--config-file', 'f.json', '-i', 'x']],
+    ['authz-policies', ['--set-id', 'x', '--config-file', 'f.json']],
+    ['authz-policies', ['--config-file', 'f.json', '--set-id', 'x']],
+    ['authz-policies', ['-i', 'x', '--set-id', 'y']],
+    ['authz-policies', ['--set-id', 'y', '-i', 'x']],
+    ['oauth2-agents', ['-i', 'x', '--config-file', 'f.json']],
+    ['oauth2-agents', ['--config-file', 'f.json', '-i', 'x']],
+  ])(
+    '%s %j is refused while it is parsed, before anything runs',
+    async (type, args) => {
+      const result = await refusal(type, args);
+
+      expect(result.error?.code).toBe('commander.conflictingOption');
+      expect(result.ops).not.toHaveBeenCalled();
+      expect(result.getTokens).not.toHaveBeenCalled();
+    }
+  );
+
+  it.each([
+    ['saml', ['-i', '']],
+    ['saml', ['--entity-id=']],
+    ['saml', ['--cot-id', '']],
+    ['saml', ['--config-file', '']],
+    ['authz-policies', ['-i', '']],
+    ['authz-policies', ['--policy-id=']],
+    ['authz-policies', ['--set-id', '']],
+    ['authz-policies', ['--config-file', '']],
+    ['oauth2-agents', ['-i', '']],
+    ['oauth2-agents', ['--agent-id=']],
+    ['oauth2-agents', ['--config-file', '']],
+  ])(
+    '%s %j is refused while it is parsed: an empty value never selects everything',
+    async (type, args) => {
+      const result = await refusal(type, args);
+
+      expect(result.error?.code).toBe('commander.invalidArgument');
+      expect(String(result.error?.message)).toContain(
+        'An empty value never selects all objects'
+      );
+      expect(result.ops).not.toHaveBeenCalled();
+      expect(result.getTokens).not.toHaveBeenCalled();
     }
   );
 });

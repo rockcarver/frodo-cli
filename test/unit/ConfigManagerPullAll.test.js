@@ -407,3 +407,94 @@ describe('optional config files', () => {
     expect(printError).not.toHaveBeenCalled();
   });
 });
+
+describe('a step that pulls everything when its file is not there', () => {
+  let folder;
+  const step = (exporter, settings = { absentMeansAll: true }) =>
+    configFileStep('SAML', 'saml.json', exporter, settings);
+
+  beforeEach(() => {
+    jest.resetAllMocks();
+    folder = fs.mkdtempSync(path.join(os.tmpdir(), 'cm-all-everything-'));
+  });
+
+  it('calls the exporter with no file, says so only in the verbose output, and succeeds', async () => {
+    const exporter = jest.fn(async () => true);
+
+    const outcome = await step(exporter)({ configFolder: folder });
+
+    expect(outcome).toBe(true);
+    expect(exporter).toHaveBeenCalledTimes(1);
+    expect(exporter).toHaveBeenCalledWith(null);
+    expect(verboseMessage).toHaveBeenCalledWith(
+      `No saml.json in '${folder}': pulling everything for SAML.`
+    );
+    expect(printMessage).not.toHaveBeenCalled();
+    expect(printError).not.toHaveBeenCalled();
+  });
+
+  it('does the same when no config folder was given, and when the config folder is unusable', async () => {
+    const exporter = jest.fn(async () => true);
+
+    await step(exporter)({});
+    await step(exporter)({ configFolder: folder, configFolderUnusable: true });
+
+    expect(exporter).toHaveBeenCalledTimes(2);
+    expect(exporter).toHaveBeenNthCalledWith(1, null);
+    expect(exporter).toHaveBeenNthCalledWith(2, null);
+    expect(printMessage).not.toHaveBeenCalled();
+  });
+
+  it('calls the exporter with the file when the file is there: the file selects what is pulled', async () => {
+    fs.writeFileSync(path.join(folder, 'saml.json'), '{}');
+    const exporter = jest.fn(async () => true);
+
+    await step(exporter)({ configFolder: folder });
+
+    expect(exporter).toHaveBeenCalledWith(`${folder}/saml.json`);
+    expect(verboseMessage).not.toHaveBeenCalled();
+  });
+
+  it('is a failed step when the exporter says that it failed, with or without the file', async () => {
+    const exporter = jest.fn(async () => false);
+    fs.writeFileSync(path.join(folder, 'saml.json'), '{}');
+
+    await expect(step(exporter)({ configFolder: folder })).resolves.toBe(false);
+    fs.rmSync(path.join(folder, 'saml.json'));
+    await expect(step(exporter)({ configFolder: folder })).resolves.toBe(false);
+  });
+
+  it('does not throw when the exporter throws while pulling everything, and says which file to check', async () => {
+    const error = new Error('unexpected');
+    const exporter = jest.fn(async () => {
+      throw error;
+    });
+
+    await expect(step(exporter)({ configFolder: folder })).resolves.toBe(false);
+
+    expect(printError).toHaveBeenCalledWith(
+      error,
+      'Error exporting SAML, please make sure saml.json in the config folder can be read and has the expected content.'
+    );
+  });
+
+  it('says in the file it carries that it pulls everything, and a plain step says that it does not', () => {
+    expect(step(async () => true).configFile).toEqual({
+      fileName: 'saml.json',
+      optional: false,
+      absentMeansAll: true,
+    });
+    expect(
+      configFileStep('SAML', 'saml.json', async () => true).configFile
+    ).toEqual({
+      fileName: 'saml.json',
+      optional: false,
+      absentMeansAll: false,
+    });
+    expect(
+      configFileStep('raw config', 'raw.json', async () => true, {
+        optional: true,
+      }).configFile
+    ).toEqual({ fileName: 'raw.json', optional: true, absentMeansAll: false });
+  });
+});

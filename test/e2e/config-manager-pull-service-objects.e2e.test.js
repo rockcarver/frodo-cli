@@ -16,7 +16,7 @@ const env = getEnv(c);
 describe('frodo config-manager pull service-objects', () => {
   test('"frodo config-manager pull service-objects -f test/e2e/fr-config-manager-pull-config/service-objects.json -D objectTestDir": should export the service-objects based on service-objects.json config file in fr-config-manager style"', async () => {
     const dirName = 'objectTestDir';
-    const CMD = `frodo config-manager pull service-objects -f test/e2e/fr-config-manager-pull-config/service-objects.json -D ${dirName}`;
+    const CMD = `frodo config-manager pull service-objects --config-file test/e2e/fr-config-manager-pull-config/service-objects.json -D ${dirName}`;
     await testExport(CMD, { ...env, env: { ...env.env, FRODO_TEST_NAME: '0_f_D' } }, undefined, undefined, dirName, false);
   });
 });

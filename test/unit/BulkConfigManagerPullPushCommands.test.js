@@ -121,7 +121,7 @@ const COMMANDS = [
     name: 'config-manager pull service-objects',
     path: 'config-manager-pull/config-manager-pull-service-objects',
     op: 'configManagerExportServiceObjectsFromFile',
-    options: { file: 'service-objects.json' },
+    options: { configFile: 'service-objects.json' },
     before: ['service-objects.json'],
   },
   {

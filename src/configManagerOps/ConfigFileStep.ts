@@ -20,6 +20,8 @@ export interface ConfigFileStepInfo {
   fileName: string;
   /** True for a file that most config folders do not have: its step skips quietly even when the folder is there. */
   optional: boolean;
+  /** True for a step that pulls everything when the file is not there, instead of skipping. */
+  absentMeansAll: boolean;
 }
 
 /** A step that reads a file from the config folder, with the file it reads. */
@@ -80,12 +82,18 @@ export function existingConfigFile(
  * skipped with a warning, which is not a failure (decision record 0040). A file
  * that exists but cannot be read or processed is a failure of this step, and an
  * exporter that throws must not abort the other steps.
+ *
+ * A step that can pull everything without a file (`absentMeansAll`) does not skip when the file
+ * is not there: its exporter is called with `null` and pulls everything, which is what a file
+ * that lists everything would do. A file that is there still selects what is pulled.
  * @param label what the step exports, for the messages
  * @param fileName name of the file in the config folder
- * @param exporter the export function, called with the path of the file
+ * @param exporter the export function, called with the path of the file (with `null` for a step
+ * that pulls everything when the file is not there)
  * @param settings `optional`: skip the step quietly (only in the verbose
  * output) when the file does not exist, for items that most config folders do
- * not have, instead of with a warning
+ * not have, instead of with a warning. `absentMeansAll`: pull everything when the file does not
+ * exist, instead of skipping
  * @returns the step: it never throws, and it answers whether it succeeded (false
  * when the exporter failed or threw, true when it exported or was skipped). It
  * carries the file it reads as `configFile`. When the command has found the
@@ -96,10 +104,34 @@ export function configFileStep(
   label: string,
   fileName: string,
   exporter: ConfigFileExporter,
-  { optional = false }: { optional?: boolean } = {}
-) {
+  settings?: { optional?: boolean }
+): ConfigFileStepRun;
+export function configFileStep(
+  label: string,
+  fileName: string,
+  exporter: (filePath: string | null) => Promise<boolean>,
+  settings: { optional?: boolean; absentMeansAll: true }
+): ConfigFileStepRun;
+export function configFileStep(
+  label: string,
+  fileName: string,
+  exporter: (filePath: string | null) => Promise<boolean>,
+  {
+    optional = false,
+    absentMeansAll = false,
+  }: { optional?: boolean; absentMeansAll?: boolean } = {}
+): ConfigFileStepRun {
   const run = async (options: ConfigFileStepOptions): Promise<boolean> => {
-    if (!existingConfigFile(options.configFolder, fileName)) {
+    const file = existingConfigFile(options.configFolder, fileName);
+    if (!file && absentMeansAll) {
+      verboseMessage(
+        `No ${fileName} in ${
+          options.configFolder
+            ? `'${options.configFolder}'`
+            : 'the config folder'
+        }: pulling everything for ${label}.`
+      );
+    } else if (!file) {
       if (optional || options.configFolderUnusable) {
         verboseMessage(
           `Skipping ${label}: no ${fileName} in the config folder.`
@@ -117,7 +149,7 @@ export function configFileStep(
       return true;
     }
     try {
-      return (await exporter(`${options.configFolder}/${fileName}`)) !== false;
+      return (await exporter(file)) !== false;
     } catch (err) {
       printError(
         err,
@@ -126,5 +158,7 @@ export function configFileStep(
       return false;
     }
   };
-  return Object.assign(run, { configFile: { fileName, optional } });
+  return Object.assign(run, {
+    configFile: { fileName, optional, absentMeansAll },
+  });
 }

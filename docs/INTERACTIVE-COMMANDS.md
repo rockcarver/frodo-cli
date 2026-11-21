@@ -626,7 +626,7 @@ knows that a repair will happen. Without a terminal the command refuses before
 it logs in.
 
 **Which options.** `PathOptions.ts` (zero-import) classifies them by long name,
-with overrides per command (`config-manager pull saml --file`): a **file** or a
+with overrides per command (`app template download --file`): a **file** or a
 **directory**, read or written, and optionally the extensions to show
 (`.json`; folders are always shown). Read or written follows the verb of the
 command's path (`export` and `pull` write, every other verb reads) unless the

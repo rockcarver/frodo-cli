@@ -6,29 +6,41 @@ exports[`CLI help interface for 'config-manager pull saml' should be expected en
 [Experimental] Export saml.
 
 Arguments:
-  host               AM base URL, e.g.: https://cdk.iam.example.com/am. To use a
-                     connection profile, just specify a unique substring or
-                     alias.
-  realm              Realm. Specify realm as '/' for the root realm or 'realm'
-                     or '/parent/child' otherwise. (default: "alpha" for
-                     Identity Cloud tenants, "/" otherwise.)
-  username           Username to login with. Must be an admin user with
-                     appropriate rights to manage authentication journeys/trees.
-                     If given without a password, and it matches the username
-                     already stored in the connection profile for the target
-                     host, frodo uses that profile's stored password instead of
-                     requiring it on the command line.
-  password           Password.
+  host                  AM base URL, e.g.: https://cdk.iam.example.com/am. To
+                        use a connection profile, just specify a unique
+                        substring or alias.
+  realm                 Realm. Specify realm as '/' for the root realm or
+                        'realm' or '/parent/child' otherwise. (default: "alpha"
+                        for Identity Cloud tenants, "/" otherwise.)
+  username              Username to login with. Must be an admin user with
+                        appropriate rights to manage authentication
+                        journeys/trees. If given without a password, and it
+                        matches the username already stored in the connection
+                        profile for the target host, frodo uses that profile's
+                        stored password instead of requiring it on the command
+                        line.
+  password              Password.
 
 Options:
-  --allow-failures   Report operations that fail, but still exit with code 0.
-                     Without this option the command runs every operation,
-                     prints a summary of what failed and exits with code 1.
-  -f, --file <file>  The file path of the SAML config file.  (prompts if
-                     missing)
-  -h, --help         Help
-  -hh, --help-more   Help with all options.
-  -hhh, --help-all   Help with all options, environment variables, and usage
-                     examples.
+  --allow-failures      Report operations that fail, but still exit with code 0.
+                        Without this option the command runs every operation,
+                        prints a summary of what failed and exits with code 1.
+  --config-file <file>  A JSON file that lists the SAML providers and circles of
+                        trust to pull, with replacements. Without it, every
+                        provider and every circle of trust of every realm is
+                        pulled. The realm argument narrows a pull without a
+                        file; with a file the realms of the file are pulled and
+                        the realm argument is not used. Cannot be used with -i
+                        or --cot-id.
+  --cot-id <id>         Circle of trust id. If specified, pulls only that circle
+                        of trust. Needs a single realm (the realm argument).
+                        Cannot be used with -i or --config-file.
+  -i, --entity-id <id>  SAML provider entity id. If specified, pulls only that
+                        provider. Needs a single realm (the realm argument).
+                        Cannot be used with --cot-id or --config-file.
+  -h, --help            Help
+  -hh, --help-more      Help with all options.
+  -hhh, --help-all      Help with all options, environment variables, and usage
+                        examples.
 "
 `;

@@ -156,24 +156,24 @@ describe('the path options of the command tree', () => {
       kind: 'directory',
       access: 'write',
     });
+    // the nine pull commands that read a config file name it --config-file
     for (const verb of [
       'authz-policies',
       'csp',
+      'oauth-cimd-profiles',
+      'oauth-issuers',
+      'oauth-software-publishers',
       'oauth2-agents',
+      'raw',
       'saml',
       'service-objects',
     ]) {
-      expect(at(['config-manager', 'pull', verb], '--file')).toEqual({
+      expect(at(['config-manager', 'pull', verb], '--config-file')).toEqual({
         kind: 'file',
         access: 'read',
         extensions: ['.json'],
       });
     }
-    expect(at(['config-manager', 'pull', 'raw'], '--config-file')).toEqual({
-      kind: 'file',
-      access: 'read',
-      extensions: ['.json'],
-    });
     expect(
       at(['config-manager', 'migrate', 'applications'], '--config-folder')
     ).toEqual({ kind: 'directory', access: 'read' });

@@ -17,7 +17,7 @@ const configFile = 'test/e2e/fr-config-manager-pull-config/raw.json';
 describe('frodo config-manager pull raw', () => {
     test('"frodo config-manager pull raw -D configManagerExportRawDir0 -f test/e2e/fr-config-manager-pull-config/raw.json": should export all the configs in the provided json file in fr-config manager style.', async () => {
         const dirName = 'configManagerExportRawDir0';
-        const CMD = `frodo config-manager pull raw -D ${dirName} -f ${configFile}`;
+        const CMD = `frodo config-manager pull raw -D ${dirName} --config-file ${configFile}`;
         await testExport(CMD, { ...env, env: { ...env.env, FRODO_TEST_NAME: '0_D_f' } }, undefined, undefined, dirName, false);
     });
 });

@@ -244,7 +244,7 @@ suite('config-manager oauth-issuers against a fake tenant', () => {
           'config-manager',
           'pull',
           'oauth2-agents',
-          '-f',
+          '--config-file',
           'oauth2-agents.json',
           ...target(),
         ]);
