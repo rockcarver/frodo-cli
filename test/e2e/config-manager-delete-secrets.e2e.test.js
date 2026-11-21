@@ -5,9 +5,10 @@
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_TEST_NAME=0_dry-run_n frodo config-manager delete secrets --dry-run -i esv-josh-secret
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_TEST_NAME=0_n frodo config-manager delete secrets -i esv-josh-secret
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_TEST_NAME=0_d frodo config-manager delete secrets -d
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=<host> FRODO_TEST_NAME=0_y frodo config-manager delete secrets -y
 */
 
-import { getEnv, testSuccess } from './utils/TestUtils';
+import { getEnv, testFail, testSuccess } from './utils/TestUtils';
 import { connection as c } from './utils/TestConfig';
 
 
@@ -28,5 +29,11 @@ describe('frodo config-manager delete secrets', () => {
     test(`"frodo config-manager delete secrets -d": should dry-run delete all secrets from cloud.`, async () => {
         const CMD = `frodo config-manager delete secrets -d`;
         await testSuccess(CMD, { ...cloudEnv, env: { ...cloudEnv.env, FRODO_TEST_NAME: '0_d' } })
+    });
+    // The recorded run ends with exit code 1: the tenant refused to delete the
+    // secrets that a configuration placeholder still uses (HTTP 403).
+    test(`"frodo config-manager delete secrets -y": should delete all secrets from cloud.`, async () => {
+        const CMD = `frodo config-manager delete secrets -y`;
+        await testFail(CMD, { ...cloudEnv, env: { ...cloudEnv.env, FRODO_TEST_NAME: '0_y' } })
     });
 });
