@@ -13,6 +13,7 @@ import Scripts from './config-manager-delete-scripts';
 import SecretMappings from './config-manager-delete-secret-mappings';
 import Secrets from './config-manager-delete-secrets';
 import Telemetry from './config-manager-delete-telemetry';
+import TenantConfig from './config-manager-delete-tenant-config';
 import TermsConditions from './config-manager-delete-terms-and-conditions';
 import Variables from './config-manager-delete-variables';
 
@@ -38,5 +39,6 @@ export default function setup() {
   program.addCommand(Schedules().name('schedules'));
   program.addCommand(SecretMappings().name('secret-mappings'));
   program.addCommand(Telemetry().name('telemetry'));
+  program.addCommand(TenantConfig().name('tenant-config'));
   return program;
 }
