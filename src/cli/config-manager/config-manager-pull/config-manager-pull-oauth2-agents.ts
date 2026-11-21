@@ -54,7 +54,7 @@ export default function setup() {
     .addHelpText(
       'after',
       'HELP MESSAGE:\n' +
-        'Without a config file, every agent and every OAuth2 client of every realm is pulled, or of the realm that is given (the three agent types that have a command of their own are left to it). To pull one of them (-i), name the realm too. To pull only some of them, or to apply overrides, create a config file such as oauth2-agents.json and pass it with --config-file.\n' +
+        'Without a config file, every agent and every OAuth2 client of every realm is pulled, or of the realm that is given (the three agent types that have a command of their own are left to their own commands). To pull one of them (-i), name the realm too. To pull only some of them, or to apply overrides, create a config file such as oauth2-agents.json and pass it with --config-file.\n' +
         `Example command: frodo config-manager pull oauth2-agents --config-file oauth2-agents.json -D ../testDir ${s.connId}\n\n` +
         `Config file example:\n` +
         '------------  Example Oauth2 agents export config for oauth2-agents.json file -----------\n' +

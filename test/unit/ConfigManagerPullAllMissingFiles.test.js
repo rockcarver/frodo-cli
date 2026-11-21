@@ -12,8 +12,8 @@ import { beforeEach, describe, expect, jest, test } from '@jest/globals';
  * which is what a file that lists everything would do, and a file that is there
  * still selects what is pulled. The fourth, service-objects.json, lists what
  * cannot be guessed: without it there is nothing for that step to export, so
- * the step is skipped with a warning and does not fail the command (decision
- * record 0040). A file that is there and cannot be processed still fails its
+ * the step is skipped with a warning and does not fail the command (https://github.com/rockcarver/frodo-cli/blob/main/docs/decisions/0040-a-command-that-runs-many-operations-runs-them-all-then-fails-if-any-failed.md,
+ * run them all, then fail if any failed). A file that is there and cannot be processed still fails its
  * step, and so does any other step. `pull all-static` reads no config file at
  * all.
  *
@@ -473,21 +473,11 @@ describe.each(['cloud', 'forgeops', 'classic'])(
         await configManagerExportAllWithConfigFolder({ configFolder: folder })
       ).toBe(true);
 
-      const names = (steps) =>
-        steps
-          .map(({ step }) => step)
-          .sort()
-          .join(', ');
-      const said = [
-        ...(skipping.length > 0
-          ? [
-              `the steps that need a file from it are skipped (${names(skipping)})`,
-            ]
-          : []),
-        `the steps that can pull everything without a file do so (${names(pulling)})`,
-      ];
+      // the wording itself, written out: Identity Cloud and ForgeOps have a step that needs its file, classic has none
       expect(warnings()).toEqual([
-        `The config folder '${folder}' does not exist, so ${said.join(' and ')}.`,
+        deployment === 'classic'
+          ? `The config folder '${folder}' does not exist, so the steps that can pull everything without a file do so (authz-policies, oauth2-agents, saml).`
+          : `The config folder '${folder}' does not exist, so the steps that need a file from it are skipped (service-objects) and the steps that can pull everything without a file do so (authz-policies, oauth2-agents, saml).`,
       ]);
       for (const { exporter: of } of skipping) {
         expect(of()).not.toHaveBeenCalled();

@@ -78,8 +78,9 @@ const step = (name: string, run: ExportStep['run']): ExportStep => ({
  * A step that reads a file from the config folder, like {@link configFileStep}, and pulls everything
  * when the file is not there: the file selects what is pulled, and without it the exporter gets
  * `null`. The exporter also gets the options of the run: the realm that narrows a pull without a
- * file, and the layout decision of `pull all` (decision record 0042), which the standalone commands
- * that the decision concerns use to leave out what an application owns.
+ * file, and the layout decision of `pull all` (https://github.com/rockcarver/frodo-cli/blob/main/docs/decisions/0042-config-manager-keeps-everything-an-application-owns-in-one-folder.md,
+ * everything an application owns in one folder), which the standalone commands that the decision
+ * concerns use to leave out what an application owns.
  */
 const everythingFileStep = (
   label: string,
@@ -672,8 +673,9 @@ async function runSteps(
 /**
  * Say once that the config folder is not there, instead of once per step that reads a file from it. A
  * config folder that does not exist is almost always a mistyped path. The steps that cannot do without
- * their file still skip and still succeed (decision record 0040), and the steps that pull everything
- * when their file is not there do so: the one warning names both. They just do not repeat the warning.
+ * their file still skip and still succeed (https://github.com/rockcarver/frodo-cli/blob/main/docs/decisions/0040-a-command-that-runs-many-operations-runs-them-all-then-fails-if-any-failed.md,
+ * run them all, then fail if any failed), and the steps that pull everything when their file is not
+ * there do so: the one warning names both. They just do not repeat the warning.
  * A folder that exists but lacks a file keeps one warning per missing file for the steps that skip.
  * @param {ExportStep[]} steps the steps of the deployment
  * @param {ConfigManagerAllOptions} options what the command was given
