@@ -57,6 +57,12 @@ export default function setup() {
         'Specify a timeout in seconds how long the tool should wait for the promotion to complete. Requires --wait.'
       ).argParser(parseTimeoutSeconds)
     )
+    .addOption(
+      new Option(
+        '--full',
+        'Run the full promotion workflow: lock tenants, run the promotion, and unlock tenants, waiting for each step to complete. --wait and --unlock-after will automatically be set if --full is provided.'
+      )
+    )
     .addHelpText(
       'after',
       `Usage Examples:\n` +
@@ -106,6 +112,7 @@ export default function setup() {
         ticketReference: options.ticketReference,
         wait: options.wait,
         timeout: options.timeout,
+        full: options.full,
       });
       if (!outcome) process.exitCode = 1;
     });

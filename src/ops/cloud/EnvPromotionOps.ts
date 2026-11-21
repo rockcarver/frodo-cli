@@ -1,4 +1,5 @@
-import { frodo } from '@rockcarver/frodo-lib';
+import confirm from '@inquirer/confirm';
+import { frodo, FrodoError } from '@rockcarver/frodo-lib';
 import { printError, printMessage } from '../../utils/Console';
 
 const {
@@ -86,8 +87,9 @@ function secondsToMilliseconds(seconds?: number): number | undefined {
  * @param {string} ticketReference Optional Zendesk ticket reference.
  * @param {boolean} unlockAfter Whether to unlock environments after rollback.
  * @param {boolean} wait Whether to wait for the rollback to complete.
- * @param {number} timeout Maximum time to wait in seconds. Default: the library default (2700 seconds, 45 minutes)
- * @returns {Promise<boolean>} True if the rollback request succeeds, or if waiting, the rollback completes successfully; false otherwise.
+ * @param {number} timeout Maximum time to wait in seconds. Default: the library default (2700 seconds, 45 minutes).
+ * @param {boolean} full Whether to run the full workflow: lock tenants, roll back, and unlock tenants, waiting for each step to complete.
+ * @returns {Promise<boolean>} True if the operation succeeds, false otherwise.
  */
 export async function rollbackPromotion({
   promoter,
@@ -96,6 +98,7 @@ export async function rollbackPromotion({
   unlockAfter = false,
   wait = false,
   timeout,
+  full = false,
 }: {
   promoter?: string;
   description?: string;
@@ -103,21 +106,52 @@ export async function rollbackPromotion({
   unlockAfter?: boolean;
   wait?: boolean;
   timeout?: number;
+  full?: boolean;
 } = {}): Promise<boolean> {
   try {
-    const response = await rollbackPromotionInLib(
-      {
-        unlockEnvironmentsAfterPromotion: unlockAfter,
-        promoter,
-        promotionDescription: description,
-        zendeskTicketReference: ticketReference,
-      },
-      wait,
-      undefined,
-      secondsToMilliseconds(timeout)
-    );
-    printMessage(response, 'data');
-    return true;
+    let promotionId: string | undefined;
+    let isSuccessful = true;
+    if (full) {
+      const lockStatus = await lockEnvironment(true);
+      promotionId = lockStatus.promotionId;
+    }
+    try {
+      const response = await rollbackPromotionInLib(
+        {
+          unlockEnvironmentsAfterPromotion: full ? false : unlockAfter,
+          promoter,
+          promotionDescription: description,
+          zendeskTicketReference: ticketReference,
+        },
+        wait || full,
+        undefined,
+        secondsToMilliseconds(timeout)
+      );
+      printMessage(response, 'data');
+    } catch (error) {
+      if (!full) throw error;
+      const status = await readPromotionStatus().catch((e) => {
+        throw new FrodoError(
+          'Error reading rollback status after rollback error',
+          [e, error]
+        );
+      });
+      if (
+        status?.status !== 'ERROR' ||
+        status.type !== 'rollback' ||
+        !status.missingESVs?.length
+      )
+        throw error;
+      printMessage(
+        `Rollback Failed\nYou need to cancel this rollback and add the following missing required configuration to your Staging tenant before proceeding.\nMissing Secrets and Variables:\n${status.missingESVs.join('\n')}`,
+        'error'
+      );
+      isSuccessful = false;
+    }
+    if (full) {
+      await unlockEnvironment(promotionId, true);
+    }
+    return isSuccessful;
   } catch (error) {
     printError(error);
     return false;
@@ -177,8 +211,9 @@ export async function unlockTenants(promotionId?: string): Promise<boolean> {
  * @param {string} description Optional description of the promotion.
  * @param {string} ticketReference Optional Zendesk ticket reference.
  * @param {boolean} wait Whether to wait for the promotion to complete.
- * @param {number} timeout Maximum time to wait in seconds. Default: the library default (2700 seconds, 45 minutes)
- * @returns {Promise<boolean>} True if the request succeeds, or if waiting, the promotion completes successfully; false otherwise.
+ * @param {number} timeout Maximum time to wait in seconds. Default: the library default (2700 seconds, 45 minutes).
+ * @param {boolean} full Whether to run the full workflow: lock tenants, promote, and unlock tenants, waiting for each step to complete.
+ * @returns {Promise<boolean>} True if the operation succeeds, false otherwise.
  */
 export async function runPromotion({
   dryRun,
@@ -189,6 +224,7 @@ export async function runPromotion({
   ticketReference,
   wait = false,
   timeout,
+  full = false,
 }: {
   dryRun: boolean;
   ignoreEncryptedSecrets?: boolean;
@@ -198,23 +234,84 @@ export async function runPromotion({
   ticketReference?: string;
   wait?: boolean;
   timeout?: number;
+  full?: boolean;
 }): Promise<boolean> {
   try {
-    const response = await promoteConfiguration(
-      {
-        dryRun,
-        ignoreEncryptedSecrets,
-        unlockEnvironmentsAfterPromotion: unlockAfter,
-        promoter,
-        promotionDescription: description,
-        zendeskTicketReference: ticketReference,
-      },
-      wait,
-      undefined,
-      secondsToMilliseconds(timeout)
-    );
-    printMessage(response, 'data');
-    return true;
+    let promotionId: string | undefined;
+    let isSuccessful = true;
+    if (full) {
+      const lockStatus = await lockEnvironment(true);
+      promotionId = lockStatus.promotionId;
+    }
+    try {
+      const response = await promoteConfiguration(
+        {
+          dryRun,
+          ignoreEncryptedSecrets,
+          unlockEnvironmentsAfterPromotion: full ? false : unlockAfter,
+          promoter,
+          promotionDescription: description,
+          zendeskTicketReference: ticketReference,
+        },
+        wait || full,
+        undefined,
+        secondsToMilliseconds(timeout)
+      );
+      printMessage(response, 'data');
+    } catch (error) {
+      if (!full) throw error;
+      const status = await readPromotionStatus().catch((e) => {
+        throw new FrodoError(
+          'Error reading promotion status after promotion error',
+          [e, error]
+        );
+      });
+      if (
+        status?.status !== 'ERROR' ||
+        status.type !== 'promotion' ||
+        (!status.missingESVs?.length && !status.encryptedSecrets?.length)
+      )
+        throw error;
+      if (status.missingESVs?.length) {
+        printMessage(
+          `Promotion Failed\nYou need to cancel this promotion and add the following missing required configuration to your Staging tenant before proceeding.\nMissing Secrets and Variables:\n${status.missingESVs.join('\n')}`,
+          'error'
+        );
+        isSuccessful = false;
+      } else if (status.encryptedSecrets?.length) {
+        printMessage(
+          `Promotion Failed\nIt is recommended that you cancel this promotion and add ESVs for the following encrypted secrets in your configuration before proceeding.\nEncrypted Secrets:\n${status.encryptedSecrets.join('\n')}`,
+          'warn'
+        );
+        const shouldContinue = await confirm({
+          message: 'Continue promotion without fixing?',
+          default: false,
+        });
+        if (shouldContinue) {
+          const response = await promoteConfiguration(
+            {
+              dryRun,
+              // Run with same settings, but with ignoreEncryptedSecrets set to true
+              ignoreEncryptedSecrets: true,
+              unlockEnvironmentsAfterPromotion: full ? false : unlockAfter,
+              promoter,
+              promotionDescription: description,
+              zendeskTicketReference: ticketReference,
+            },
+            wait || full,
+            undefined,
+            secondsToMilliseconds(timeout)
+          );
+          printMessage(response, 'data');
+        } else {
+          isSuccessful = false;
+        }
+      }
+    }
+    if (full) {
+      await unlockEnvironment(promotionId, true);
+    }
+    return isSuccessful;
   } catch (error) {
     printError(error);
     return false;
