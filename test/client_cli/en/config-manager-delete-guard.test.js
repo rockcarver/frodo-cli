@@ -44,6 +44,7 @@ describe('a delete of more than one object without a terminal and without --yes'
     'frodo config-manager delete schedules',
     'frodo config-manager delete secret-mappings',
     'frodo config-manager delete telemetry',
+    'frodo config-manager delete tenant-config',
   ])('"%s" is refused before the login', async (command) => {
     const { code, stderr } = await run(command);
 
@@ -190,6 +191,8 @@ describe('what is not refused', () => {
     'frodo config-manager delete telemetry -c otlp -y',
     'frodo config-manager delete telemetry -c otlp -d',
     'frodo config-manager delete telemetry -c otlp -i Example',
+    'frodo config-manager delete tenant-config -y',
+    'frodo config-manager delete tenant-config --dry-run',
   ])('"%s" goes on to the login', async (command) => {
     const { stderr } = await run(command);
 
