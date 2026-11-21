@@ -61,6 +61,9 @@ const listing = (name) => {
   }
 };
 
+// the library as it is: its `getFilePath` rewrites a path (a backslash is a slash, every `C:` goes) and puts the working directory first
+const realLib = await import('@rockcarver/frodo-lib');
+
 jest.unstable_mockModule('@rockcarver/frodo-lib', () => {
   class FrodoError extends Error {
     constructor(message, original) {
@@ -85,7 +88,7 @@ jest.unstable_mockModule('@rockcarver/frodo-lib', () => {
           FORGEOPS_DEPLOYMENT_TYPE_KEY: 'forgeops',
         },
         getWorkingDirectory: () => tmp,
-        getFilePath: (rel) => dir(rel),
+        getFilePath: (rel) => realLib.frodo.utils.getFilePath(rel, true),
         saveJsonToFile: (data, file) =>
           fs.writeFileSync(file, JSON.stringify(data, null, 2)),
         readJsonFile: (file) => JSON.parse(fs.readFileSync(file, 'utf8')),
@@ -294,6 +297,7 @@ beforeEach(() => {
   frodo.agent.readAgentByTypeAndId.mockImplementation(readAgentByTypeAndId);
   frodo.authz.policySet.readPolicySet.mockImplementation(readPolicySet);
   tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'cm-no-file-'));
+  realLib.state.setDirectory(tmp);
   deployment = 'forgeops';
   currentRealm = '/';
   listCalls = [];
@@ -495,6 +499,11 @@ describe('pull saml without a config file', () => {
     ['a\u0000b'],
     ['a\tb'],
     ['../../outside'],
+    // the library removes every `C:` from a path after it is built, so a colon is not a name that a file has
+    ['..C:'],
+    ['.C:.'],
+    ['C:'],
+    ['a:b'],
   ])(
     'a circle of trust with the id %j is skipped with a warning that names the id and the realm, and nothing is written for it',
     async (id) => {
@@ -554,6 +563,29 @@ describe('pull saml without a config file', () => {
       []
     );
   });
+
+  test.each([['..C:'], ['.C:.'], ['a/..C:'], ['C:'], ['a:b']])(
+    'a realm named %j is skipped with a warning, and nothing is written for it',
+    async (realm) => {
+      world.realms = ['alpha', realm, 'bravo'];
+      world.providers[realm] = ['urn:escape:sp'];
+
+      expect(await configManagerExportSaml(null)).toBe(true);
+
+      expect(warnings()).toEqual([
+        `Skipping realm '${realm}': its name is not '/', a name or a path of names.`,
+      ]);
+      expect(listCalls.filter((call) => call.endsWith(`@${realm}`))).toEqual(
+        []
+      );
+      expect(paths().filter((p) => p.startsWith('realms/bravo/'))).not.toEqual(
+        []
+      );
+      expect(paths().every((p) => /^realms\/(alpha|bravo)\//.test(p))).toBe(
+        true
+      );
+    }
+  );
 
   test('a realm whose lists cannot be read is one failed operation named in the summary, and the other realms are pulled', async () => {
     world.unreadable.add('alpha');
@@ -720,6 +752,10 @@ describe('pull authz-policies without a config file', () => {
     ['a\\b'],
     ['a\u0000b'],
     ['../../outside'],
+    ['..C:'],
+    ['.C:.'],
+    ['C:'],
+    ['a:b'],
   ])(
     'a policy set with the name %j is skipped with a warning that names the name and the realm, and nothing is written for it',
     async (name) => {
@@ -761,6 +797,25 @@ describe('pull authz-policies without a config file', () => {
       []
     );
   });
+
+  test.each([['..C:'], ['.C:.'], ['a/..C:'], ['C:'], ['a:b']])(
+    'a realm named %j is skipped with a warning, and nothing is written for it',
+    async (realm) => {
+      world.realms = ['alpha', realm, 'bravo'];
+
+      expect(await configManagerExportAuthzPolicySets(null)).toBe(true);
+
+      expect(warnings()).toEqual([
+        `Skipping realm '${realm}': its name is not '/', a name or a path of names.`,
+      ]);
+      expect(paths().filter((p) => p.startsWith('realms/bravo/'))).not.toEqual(
+        []
+      );
+      expect(paths().every((p) => /^realms\/(alpha|bravo)\//.test(p))).toBe(
+        true
+      );
+    }
+  );
 
   test('a realm whose policy sets cannot be read is one failed operation named in the summary, and the others are pulled', async () => {
     world.unreadable.add('alpha');
@@ -902,6 +957,10 @@ describe('pull oauth2-agents without a config file', () => {
     ['a\\b'],
     ['a\u0000b'],
     ['../../outside'],
+    ['..C:'],
+    ['.C:.'],
+    ['C:'],
+    ['a:b'],
   ])(
     'an agent with the id %j is skipped with a warning that names the id, the type and the realm, and nothing is written for it',
     async (id) => {
@@ -943,7 +1002,7 @@ describe('pull oauth2-agents without a config file', () => {
     );
   });
 
-  test.each([['a/b'], ['..'], ['']])(
+  test.each([['a/b'], ['..'], [''], ['..C:'], ['a:b']])(
     'an agent of the type %j is skipped with a warning, and nothing is written for it',
     async (type) => {
       world.agents.alpha = [
@@ -975,6 +1034,25 @@ describe('pull oauth2-agents without a config file', () => {
       []
     );
   });
+
+  test.each([['..C:'], ['.C:.'], ['a/..C:'], ['C:'], ['a:b']])(
+    'a realm named %j is skipped with a warning, and nothing is written for it',
+    async (realm) => {
+      world.realms = ['alpha', realm, 'bravo'];
+
+      expect(await configManagerExportOAuth2Agents(null)).toBe(true);
+
+      expect(warnings()).toEqual([
+        `Skipping realm '${realm}': its name is not '/', a name or a path of names.`,
+      ]);
+      expect(paths().filter((p) => p.startsWith('realms/bravo/'))).not.toEqual(
+        []
+      );
+      expect(paths().every((p) => /^realms\/(alpha|bravo)\//.test(p))).toBe(
+        true
+      );
+    }
+  );
 
   test('a realm whose agents cannot be read is one failed operation named in the summary, and the others are pulled', async () => {
     world.unreadable.add('alpha');

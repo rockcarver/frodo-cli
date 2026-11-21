@@ -156,8 +156,13 @@ function readsOfFile(source) {
   );
   const found = [];
   const visit = (node) => {
+    // `value.file`, and `value['file']` (a string with nothing in it but the name)
     const isAccess =
-      ts.isPropertyAccessExpression(node) && node.name.text === 'file';
+      (ts.isPropertyAccessExpression(node) && node.name.text === 'file') ||
+      (ts.isElementAccessExpression(node) &&
+        (ts.isStringLiteral(node.argumentExpression) ||
+          ts.isNoSubstitutionTemplateLiteral(node.argumentExpression)) &&
+        node.argumentExpression.text === 'file');
     const isBinding =
       ts.isBindingElement(node) &&
       ts.isIdentifier(node.name) &&
@@ -241,11 +246,15 @@ describe('the scan itself', () => {
         const q = \`\${dir}/\${value.script.file}\`;
         const { file } = value;
         const r = fs.readFileSync(value['x'].file);
-        return [p, q, file, r];
+        const t = fs.readFileSync(\`\${dir}/\${value['file']}\`);
+        const u = fs.readFileSync(path.join(dir, value[\`file\`]));
+        return [p, q, file, r, t, u];
       }
     `);
 
     expect(reads.map((read) => read.verdict)).toEqual([
+      'unguarded',
+      'unguarded',
       'unguarded',
       'unguarded',
       'unguarded',
@@ -263,7 +272,11 @@ describe('the scan itself', () => {
         }
         value.file = 'x.js';
         const kept = ok && value.file;
-        return typeof value.file === 'string' ? p : kept;
+        const q = referencedFilePath(dir, value['file']);
+        if (value['file']) delete value['file'];
+        value['file'] = 'y.js';
+        const lost = ok && value['file'];
+        return typeof value.file === 'string' ? p : [kept, q, lost];
       }
     `);
 
@@ -275,6 +288,13 @@ describe('the scan itself', () => {
       'assigned',
       // the value of `ok && value.file` is the file name itself: it is not a test
       'unguarded',
+      // the same with the name written as a string
+      'guarded',
+      'test',
+      'delete',
+      'assigned',
+      'unguarded',
+      // and the `typeof` of the last line
       'test',
     ]);
   });

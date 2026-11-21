@@ -44,6 +44,14 @@ const HOSTILE = [
   '%2e%2e',
   'a\u0000b',
   'a\tb',
+  // the library removes every `C:` from a path after it is built, so `..C:` would be `..` in the folder
+  '..C:',
+  '.C:.',
+  'a/..C:',
+  '/..C:/alpha',
+  'C:',
+  'c:x',
+  'a:b',
 ];
 
 let gated = [];

@@ -64,11 +64,8 @@ const lib = {
       CLOUD_DEPLOYMENT_TYPE_KEY: 'cloud',
       FORGEOPS_DEPLOYMENT_TYPE_KEY: 'forgeops',
     },
-    getFilePath: (file, mkdirs = false) => {
-      const target = path.join(tree, file);
-      if (mkdirs) fs.mkdirSync(path.dirname(target), { recursive: true });
-      return target;
-    },
+    getFilePath: (file, mkdirs = false) =>
+      realLib.frodo.utils.getFilePath(file, mkdirs),
     getWorkingDirectory: () => tree,
     readJsonFile: (file) => JSON.parse(fs.readFileSync(file, 'utf8')),
     saveJsonToFile: (data, file) => {
@@ -118,6 +115,9 @@ const lib = {
     'frodo.idm'
   ),
 };
+
+// the library as it is: its `getFilePath` rewrites a path (a backslash is a slash, every `C:` goes) and puts the working directory first
+const realLib = await import('@rockcarver/frodo-lib');
 
 jest.unstable_mockModule('@rockcarver/frodo-lib', () => ({
   frodo: deep(lib),
@@ -314,6 +314,7 @@ beforeEach(() => {
   root = fs.mkdtempSync(path.join(os.tmpdir(), 'cm-hostile-selectors-'));
   tree = path.join(root, 'tree');
   fs.mkdirSync(tree);
+  realLib.state.setDirectory(tree);
   printed.length = 0;
   libCalls.length = 0;
   importedTrees.length = 0;
@@ -341,6 +342,12 @@ const HOSTILE = [
   ['..\\decoy-1', '..%5Cdecoy-1'],
   ['/decoy-1', '%2Fdecoy-1'],
   ['a/b', 'a%2Fb'],
+  // a colon is written as %3A: the library removes every `C:` from a path after it is built
+  ['..C:', '..C%3A'],
+  ['.C:.', '.C%3A'],
+  ['C:', 'C%3A'],
+  ['a:b', 'a%3Ab'],
+  ['..C:/decoy-1', '..C%3A%2Fdecoy-1'],
 ];
 
 describe.each(COMMANDS)('push $command -i', (c) => {
@@ -410,20 +417,30 @@ describe.each(COMMANDS)('push $command -i', (c) => {
 describe.each(COMMANDS.filter((c) => c.object))(
   'push $command -i, a name that is not one name',
   (c) => {
-    test('`a/b` is looked up as the file a%2Fb.json, and that file is pushed', async () => {
-      const file =
-        c.shape === 'file'
-          ? path.join(tree, c.folder, 'a%2Fb.json')
-          : path.join(tree, c.folder, 'a%2Fb', 'a%2Fb.json');
-      fs.mkdirSync(path.dirname(file), { recursive: true });
-      fs.writeFileSync(file, JSON.stringify(c.object));
+    test.each([
+      ['a/b', 'a%2Fb'],
+      ['a:b', 'a%3Ab'],
+      ['..C:', '..C%3A'],
+    ])(
+      '`%s` is looked up as the file %s.json, and that file is pushed',
+      async (name, derived) => {
+        const file =
+          c.shape === 'file'
+            ? path.join(tree, c.folder, `${derived}.json`)
+            : path.join(tree, c.folder, derived, `${derived}.json`);
+        fs.mkdirSync(path.dirname(file), { recursive: true });
+        // a file of org privileges holds the id that its name says
+        const object =
+          c.object._id === 'a/b' ? { ...c.object, _id: name } : c.object;
+        fs.writeFileSync(file, JSON.stringify(object));
 
-      expect(await c.run('a/b')).toBe(true);
+        expect(await c.run(name)).toBe(true);
 
-      expect(
-        libCalls.filter((call) => /\.(import|update|create)\w*$/i.test(call))
-      ).not.toEqual([]);
-    });
+        expect(
+          libCalls.filter((call) => /\.(import|update|create)\w*$/i.test(call))
+        ).not.toEqual([]);
+      }
+    );
 
     test('`a/b` is not the file b.json in a sub-folder a: that is a path, which is no name', async () => {
       const file =
@@ -481,6 +498,9 @@ describe('the agent types: the id of an object is the name of its file', () => {
     'a.b ',
     'é',
     '..foo',
+    'a:b',
+    '..C:',
+    'C:',
     'a'.repeat(300),
     'é'.repeat(200),
   ];

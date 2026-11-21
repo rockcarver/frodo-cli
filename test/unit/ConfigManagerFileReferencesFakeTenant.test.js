@@ -42,8 +42,19 @@ const MARKER = 'DECOY-MARKER-77d1';
 /**
  * The four commands. `files(ref)` are the files of the tree (a folder that holds the object, with
  * `ref` as the reference), `control` is the reference as pull writes it and the file it names,
- * `hostile` are the references that go up, and `entities` are what the tenant serves already.
+ * `hostile` are the references that must be refused (they go up, or hold a colon), and `entities` are what the tenant serves already.
  */
+/** References that the library reads as references that go up, if the check lets them through: it removes every `C:` from a path after the check, and a backslash is a slash. `levels` is how far up the folder of the reference is listed. */
+const colon = (levels) => [
+  `${'..C:/'.repeat(levels)}decoy-c${levels}.txt`,
+  `${'.C:./'.repeat(levels)}decoy-d${levels}.txt`,
+  `${'..C:\\'.repeat(levels)}decoy-e${levels}.txt`,
+  `C:${'..\\'.repeat(levels)}decoy-f${levels}.txt`,
+  'a:b.js',
+];
+/** The references that go up with `/` and with `\`, two levels. */
+const up2 = ['../../decoy-two.txt', '..\\..\\decoy-three.txt'];
+
 const COMMANDS = [
   {
     command: 'connector-mappings',
@@ -60,11 +71,25 @@ const COMMANDS = [
     }),
     control: { ref: 'm1.onCreate.js', file: 'sync/mappings/m1/m1.onCreate.js' },
     // the push names the mapping, so the folder above is not listed
-    hostile: [
-      '../decoy-one.txt',
-      '../../decoy-two.txt',
-      '..\\..\\decoy-three.txt',
-    ],
+    hostile: ['../decoy-one.txt', ...up2, ...colon(1)],
+  },
+  {
+    command: 'connector-mappings (the file of the mapping)',
+    commandName: 'connector-mappings',
+    args: [],
+    folder: 'sync/mappings/m2',
+    entities: { sync: { _id: 'sync', mappings: [] } },
+    files: (ref) => ({
+      'sync/mappings/m2/m2.json': {
+        name: 'm2',
+        source: 'managed/alpha_user',
+        target: 'system/ldap/account',
+        file: ref,
+      },
+    }),
+    control: { ref: 'm2.js', file: 'sync/mappings/m2/m2.js' },
+    // the folder above is listed by the push, so the decoys are two levels up
+    hostile: [...up2, ...colon(2)],
   },
   {
     command: 'endpoints',
@@ -80,11 +105,22 @@ const COMMANDS = [
       },
     }),
     control: { ref: 'e1.js', file: 'endpoints/e1/e1.js' },
-    // the folder above is listed by the push, so the decoys are two levels up
-    hostile: ['../../decoy-two.txt', '..\\..\\decoy-three.txt'],
+    hostile: [...up2, ...colon(2)],
   },
-  {
-    command: 'schedules',
+  ...[
+    [
+      'schedules (a schedule that invokes a script)',
+      'script',
+      (ref) => ({ script: { type: 'text/javascript', file: ref } }),
+    ],
+    [
+      'schedules (a schedule that scans tasks)',
+      'taskscanner',
+      (ref) => ({ task: { script: { type: 'text/javascript', file: ref } } }),
+    ],
+  ].map(([command, invokeService, invokeContext]) => ({
+    command,
+    commandName: 'schedules',
     args: [],
     folder: 'schedules/sch1',
     entities: {},
@@ -95,16 +131,16 @@ const COMMANDS = [
         persisted: true,
         type: 'cron',
         schedule: '0 0 * * * ?',
-        invokeService: 'script',
-        invokeContext: { script: { type: 'text/javascript', file: ref } },
+        invokeService,
+        invokeContext: invokeContext(ref),
       },
     }),
     control: { ref: 'sch1.js', file: 'schedules/sch1/sch1.js' },
-    // the folder above is listed by the push, so the decoys are two levels up
-    hostile: ['../../decoy-two.txt', '..\\..\\decoy-three.txt'],
-  },
-  {
-    command: 'email-templates',
+    hostile: [...up2, ...colon(2)],
+  })),
+  ...['html', 'message', 'styles'].map((field) => ({
+    command: `email-templates (${field})`,
+    commandName: 'email-templates',
     args: [],
     folder: 'email-templates/t1',
     entities: {},
@@ -114,13 +150,78 @@ const COMMANDS = [
         enabled: true,
         defaultLocale: 'en',
         displayName: 't1',
-        html: { en: { file: ref } },
+        [field]: field === 'styles' ? { file: ref } : { en: { file: ref } },
       },
     }),
     control: { ref: 't1.en.html', file: 'email-templates/t1/t1.en.html' },
-    // the folder above is listed by the push, so the decoys are two levels up
-    hostile: ['../../decoy-two.txt', '..\\..\\decoy-three.txt'],
+    hostile: [...up2, ...colon(2)],
+  })),
+  {
+    command: 'scripts',
+    args: [],
+    folder: 'realms/alpha/scripts',
+    entities: {},
+    files: (ref) => ({
+      'realms/alpha/scripts/scripts-config/s1.json': {
+        _id: 's1',
+        name: 's1',
+        context: 'AUTHENTICATION_TREE_DECISION_NODE',
+        language: 'JAVASCRIPT',
+        script: { file: ref },
+      },
+    }),
+    control: {
+      ref: 'scripts-content/s1.js',
+      file: 'realms/alpha/scripts/scripts-content/s1.js',
+      base64: true,
+    },
+    // the fake tenant answers the update of a script with an error after the write: the control run exits with 1
+    controlExit: 1,
+    hostile: ['../decoy-one.txt', ...up2, ...colon(1)],
   },
+  ...[
+    [
+      'terms-and-conditions (the version)',
+      (ref) => ({ version: ref, language: 'en' }),
+      (ref) => ref,
+      (ref) => `terms-conditions/${ref}/en.html`,
+    ],
+    [
+      'terms-and-conditions (the language)',
+      (ref) => ({ version: '0.1', language: ref }),
+      (ref) => `${ref}.html`,
+      (ref) => `terms-conditions/0.1/${ref}.html`,
+    ],
+  ].map(([command, shape, says, decoyPath]) => ({
+    command,
+    commandName: 'terms-and-conditions',
+    args: [],
+    folder: 'terms-conditions',
+    entities: {},
+    files: (ref) => {
+      const { version, language } = shape(ref);
+      return {
+        'terms-conditions/terms-conditions.json': {
+          _id: 'selfservice.terms',
+          versions: [{ version, termsTranslations: { [language]: 'x' } }],
+        },
+      };
+    },
+    control: {
+      ref: command.includes('version') ? '0.1' : 'en',
+      file: 'terms-conditions/0.1/en.html',
+    },
+    says,
+    decoyPath,
+    hostile: [
+      '../decoy-one',
+      '../../decoy-two',
+      '..C:/decoy-c1',
+      '..C:/..C:/decoy-c2',
+      '.C:./decoy-d1',
+      'a:b',
+    ],
+  })),
 ];
 
 suite(
@@ -214,25 +315,37 @@ suite(
 
     describe.each(COMMANDS)('push $command', (c) => {
       const push = (entities = c.entities) =>
-        runAgainst(entities, ['config-manager', 'push', c.command, ...c.args]);
+        runAgainst(entities, [
+          'config-manager',
+          'push',
+          c.commandName ?? c.command,
+          ...c.args,
+        ]);
+      const rewritten = (reference) =>
+        reference.replaceAll('\\', '/').replaceAll('C:', '');
 
       it.each(c.hostile.map((reference) => [reference]))(
         'the reference %j is refused: exit 1, and no write holds what the decoy file holds',
         async (reference) => {
           write(c.files(reference));
-          // the file that the reference reaches from the folder of the object, as the old code read it
-          const decoy = path.resolve(
-            work,
-            c.folder,
-            reference.replaceAll('\\', '/')
+          // the files that the reference reaches, as the old code read it and as the library reads it once it has removed every `C:`
+          const decoyOf = (ref) =>
+            c.decoyPath ? c.decoyPath(ref) : path.posix.join(c.folder, ref);
+          const decoys = new Set(
+            [
+              decoyOf(reference.replaceAll('\\', '/')),
+              decoyOf(rewritten(reference)),
+            ].map((relative) => path.resolve(work, relative))
           );
-          fs.mkdirSync(path.dirname(decoy), { recursive: true });
-          fs.writeFileSync(decoy, MARKER);
+          for (const decoy of decoys) {
+            fs.mkdirSync(path.dirname(decoy), { recursive: true });
+            fs.writeFileSync(decoy, MARKER);
+          }
 
           const { code, output } = await push();
 
           expect(output).toContain(
-            `The file reference '${reference}' must stay inside the config folder.`
+            `The file reference '${c.says ? c.says(reference) : reference}' must stay inside the config folder.`
           );
           expect(JSON.stringify(readRequests(record))).not.toContain(MARKER);
           expect(writes()).toEqual([]);
@@ -242,7 +355,7 @@ suite(
       );
 
       it(
-        'the reference as pull writes it is read: one write holds the text of the file, exit 0',
+        'the reference as pull writes it is read: one write holds the text of the file',
         async () => {
           write(c.files(c.control.ref));
           write({ [c.control.file]: 'CONTROL-TEXT-3e9a' });
@@ -250,8 +363,13 @@ suite(
           const { code, output } = await push();
 
           expect(output).not.toContain('must stay inside the config folder');
-          expect(JSON.stringify(writes())).toContain('CONTROL-TEXT-3e9a');
-          expect(code).toBe(0);
+          // a script is sent as base64
+          expect(JSON.stringify(writes())).toContain(
+            c.control.base64
+              ? Buffer.from('CONTROL-TEXT-3e9a').toString('base64')
+              : 'CONTROL-TEXT-3e9a'
+          );
+          expect(code).toBe(c.controlExit ?? 0);
         },
         TIMEOUT
       );

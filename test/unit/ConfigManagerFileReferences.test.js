@@ -2,6 +2,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { jest } from '@jest/globals';
+import { fileNameOf } from '../../src/utils/ConfigTreePath.ts';
 
 /**
  * A file reference in a file of the config tree (the `file` of a script, a theme field, an email
@@ -11,9 +12,11 @@ import { jest } from '@jest/globals';
  * language and version of terms and conditions) names a file of its own folder. The push commands
  * and the functions that `push applications` shares are run here, one row for each of the 22 places
  * that read such a file, on a real temporary tree with the library a fake that records what it is
- * asked to send:
+ * asked to send. The functions of the library that rewrite a path (`getFilePath` reads `\` as `/` and
+ * removes every `C:`) and read a file (`readJsonFile`) are the real ones, so a path that the library
+ * changes after the check is judged as it is read:
  *
- * - a hostile reference (it goes up out of the folder, by `/` or by `\`) is refused before the file
+ * - a reference that goes up out of the folder (by `/`, by `\`, or by `..C:` that the library reads as `..`) is refused before the file
  *   is looked at: the decoy files that it would have reached, one and two levels above the folder,
  *   are never opened, and nothing the decoys hold is sent to the library;
  * - a refused reference ends like a file that cannot be read (the object is not sent, the run goes
@@ -69,6 +72,9 @@ let tree;
 let root;
 let currentRealm;
 
+// the library as it is: the functions that rewrite a path are the ones the commands use
+const realLib = await import('@rockcarver/frodo-lib');
+
 const decode = (value) => Buffer.from(value, 'base64').toString();
 
 const lib = {
@@ -78,14 +84,12 @@ const lib = {
       CLOUD_DEPLOYMENT_TYPE_KEY: 'cloud',
       FORGEOPS_DEPLOYMENT_TYPE_KEY: 'forgeops',
     },
-    // as the library does: a backslash is a slash, and the path is relative to the working directory
-    getFilePath: (file, mkdirs = false) => {
-      const target = path.join(tree, file.replaceAll('\\', '/'));
-      if (mkdirs) fs.mkdirSync(path.dirname(target), { recursive: true });
-      return target;
-    },
-    getWorkingDirectory: () => tree,
-    readJsonFile: (file) => JSON.parse(fs.readFileSync(file, 'utf8')),
+    // the REAL functions of the library: `getFilePath` reads a backslash as a slash, removes every `C:`
+    // and puts the working directory (the state of the library, set for every test) in front
+    getFilePath: (file, mkdirs = false) =>
+      realLib.frodo.utils.getFilePath(file, mkdirs),
+    getWorkingDirectory: () => realLib.frodo.utils.getWorkingDirectory(),
+    readJsonFile: (file) => realLib.frodo.utils.readJsonFile(file),
     saveJsonToFile: (data, file) => {
       fs.mkdirSync(path.dirname(file), { recursive: true });
       fs.writeFileSync(file, JSON.stringify(data));
@@ -240,6 +244,7 @@ beforeEach(() => {
   root = fs.mkdtempSync(path.join(os.tmpdir(), 'cm-file-references-'));
   tree = path.join(root, 'tree');
   fs.mkdirSync(tree);
+  realLib.state.setDirectory(tree);
   printed.length = 0;
   libCalls.length = 0;
   touched.length = 0;
@@ -276,6 +281,19 @@ function write(files) {
 /** `../` n times, then a file name: a reference that reaches the decoy of that level. */
 const up = (levels, name = `decoy-${levels}.txt`) =>
   `${'../'.repeat(levels)}${name}`;
+/**
+ * References that the library reads as references that go up if the check lets them through: it
+ * removes every `C:` from a path after the check, and a backslash is a slash. The last one is a
+ * name that holds a colon, which the check refuses as well.
+ */
+const colon = (levels) => [
+  `${'..C:/'.repeat(levels)}decoy-c${levels}.txt`,
+  `${'.C:./'.repeat(levels)}decoy-d${levels}.txt`,
+  `${'..C:\\'.repeat(levels)}decoy-e${levels}.txt`,
+  `C:${'..\\'.repeat(levels)}decoy-f${levels}.txt`,
+  `c:${'..\\'.repeat(levels)}decoy-g${levels}.txt`,
+  'a:b.js',
+];
 /** The same, with the backslash. */
 const upBackslash = (levels, name = `decoy-b${levels}.txt`) =>
   `${'..\\'.repeat(levels)}${name}`;
@@ -345,7 +363,7 @@ const refused = (reference) =>
  * - `container`: the folder (relative to the working directory) that the reference is joined to;
  * - `tree(ref)`: the files of the tree, with `ref` as the reference or the name;
  * - `run(allowFailures)`: the operation, with the answer to `--allow-failures` for the ones that take it;
- * - `hostile`: the references that must be refused, and `decoys(ref)`: the files that the old code reads for them (default: the file the reference reaches, in the folder it is joined to);
+ * - `hostile`: the references (or names) that must be refused, and `decoys(ref)`: the files that the old code reads for them (default: the file the reference reaches, in the folder it is joined to);
  * - `outcome`: what the operation does with a refused reference (`false`, `rejects`, or `message` for a place that says it is not there and goes on);
  * - `control`: a reference as pull writes it, the files it needs, and the text that the library must then receive;
  * - `missing`: a reference to a file that is not there, and what happens (`skipped` where it was skipped before, `unreadable` elsewhere);
@@ -363,7 +381,7 @@ const ROW_LIST = [
       },
     }),
     run: () => configManagerImportMappings('m1'),
-    hostile: [up(1), up(2), upBackslash(2)],
+    hostile: [up(1), up(2), upBackslash(2), ...colon(1)],
     outcome: false,
     control: {
       ref: 'm1.onCreate.js',
@@ -386,7 +404,7 @@ const ROW_LIST = [
       // what the application push does with the mapping: it sends it
       await lib.idm.mapping.importMapping('mapping/m1', mapping);
     },
-    hostile: [up(1), up(2)],
+    hostile: [up(1), up(2), ...colon(1)],
     outcome: 'rejects',
     control: {
       ref: 'm1.onCreate.js',
@@ -399,7 +417,7 @@ const ROW_LIST = [
     container: 'sync/mappings/m2',
     tree: (ref) => ({ 'sync/mappings/m2/m2.json': { name: 'm2', file: ref } }),
     run: () => configManagerImportMappings(),
-    hostile: [up(2), up(3), upBackslash(2)],
+    hostile: [up(2), up(3), upBackslash(2), ...colon(2)],
     outcome: false,
     control: { ref: 'm2.js', files: ['sync/mappings/m2/m2.js'] },
   },
@@ -414,7 +432,7 @@ const ROW_LIST = [
       },
     }),
     run: () => configManagerImportManagedObjects('o1'),
-    hostile: [up(1), up(2), upBackslash(2)],
+    hostile: [up(1), up(2), upBackslash(2), ...colon(1)],
     outcome: false,
     control: {
       ref: 'o1.onStore.js',
@@ -434,7 +452,7 @@ const ROW_LIST = [
       },
     }),
     run: (allowFailures) => configManagerImportThemes('alpha', allowFailures),
-    hostile: [up(1), up(2), upBackslash(2)],
+    hostile: [up(1), up(2), upBackslash(2), ...colon(1)],
     outcome: false,
     control: {
       ref: 'accountFooter.html',
@@ -454,7 +472,7 @@ const ROW_LIST = [
       },
     }),
     run: (allowFailures) => configManagerImportThemes('alpha', allowFailures),
-    hostile: [up(1), up(2), upBackslash(2)],
+    hostile: [up(1), up(2), upBackslash(2), ...colon(1)],
     outcome: false,
     control: {
       ref: 'accountFooter/en.html',
@@ -474,7 +492,7 @@ const ROW_LIST = [
     }),
     run: (allowFailures) =>
       configManagerImportEmailTemplates(undefined, allowFailures),
-    hostile: [up(2), up(3), upBackslash(2)],
+    hostile: [up(2), up(3), upBackslash(2), ...colon(2)],
     outcome: false,
     control: { ref: 't1.en.html', files: ['email-templates/t1/t1.en.html'] },
     missing: { ref: 'not-there.html', result: 'unreadable' },
@@ -501,7 +519,7 @@ const ROW_LIST = [
     }),
     run: (allowFailures) =>
       configManagerImportEmailTemplates(undefined, allowFailures),
-    hostile: [up(2), up(3), upBackslash(2)],
+    hostile: [up(2), up(3), upBackslash(2), ...colon(2)],
     outcome: false,
     control: { ref: 't1.css', files: ['email-templates/t1/t1.css'] },
     missing: { ref: 'not-there.css', result: 'unreadable' },
@@ -519,7 +537,7 @@ const ROW_LIST = [
     }),
     run: (allowFailures) =>
       configManagerImportIgaWorkflows(undefined, false, allowFailures),
-    hostile: [up(1), up(2), upBackslash(2)],
+    hostile: [up(1), up(2), upBackslash(2), ...colon(1)],
     outcome: false,
     control: { ref: 's1.js', files: ['iga/workflows/w1/steps/s1/s1.js'] },
     missing: { ref: 'not-there.js', result: 'skipped' },
@@ -548,7 +566,7 @@ const ROW_LIST = [
     }),
     run: (allowFailures) =>
       configManagerImportScripts('alpha', undefined, undefined, allowFailures),
-    hostile: [up(1), up(2), upBackslash(2)],
+    hostile: [up(1), up(2), upBackslash(2), ...colon(1)],
     outcome: false,
     control: {
       ref: 'scripts-content/AUTHENTICATION_TREE_DECISION_NODE/s1.js',
@@ -581,7 +599,7 @@ const ROW_LIST = [
       },
     }),
     run: () => importScriptFromFiles('s1', 'alpha'),
-    hostile: [up(1), up(2), upBackslash(2)],
+    hostile: [up(1), up(2), upBackslash(2), ...colon(1)],
     outcome: 'rejects',
     control: {
       ref: 'scripts-content/AUTHENTICATION_TREE_DECISION_NODE/s1.js',
@@ -617,7 +635,7 @@ const ROW_LIST = [
     }),
     run: (allowFailures) =>
       configManagerImportSchedules(undefined, undefined, allowFailures),
-    hostile: [up(2), up(3), upBackslash(2)],
+    hostile: [up(2), up(3), upBackslash(2), ...colon(2)],
     outcome: false,
     control: { ref: 'sch1.js', files: ['schedules/sch1/sch1.js'] },
     missing: { ref: 'not-there.js', result: 'unreadable' },
@@ -641,7 +659,7 @@ const ROW_LIST = [
     }),
     run: (allowFailures) =>
       configManagerImportEndpoints(undefined, undefined, allowFailures),
-    hostile: [up(2), up(3), upBackslash(2)],
+    hostile: [up(2), up(3), upBackslash(2), ...colon(2)],
     outcome: false,
     control: { ref: 'e1.js', files: ['endpoints/e1/e1.js'] },
     missing: { ref: 'not-there.js', result: 'unreadable' },
@@ -677,7 +695,7 @@ const ROW_LIST = [
         true,
         allowFailures
       ),
-    hostile: [up(1), up(2), upBackslash(2)],
+    hostile: [up(1), up(2), upBackslash(2), ...colon(1)],
     outcome: false,
     control: {
       ref: 'scripts-content/s1.js',
@@ -694,7 +712,7 @@ const ROW_LIST = [
     site: 'S16',
     what: 'the text of a script that an application uses, read for the scripts it requires (`push applications`)',
     container: 'realms/alpha/scripts',
-    // the application uses the script s1, which holds a hostile reference: the application is not pushed
+    // the application uses the script s1, which holds a reference that goes up: the application is not pushed
     tree: (ref) => ({
       'realms/alpha/applications/app1/application.json': {
         name: 'app1',
@@ -712,7 +730,7 @@ const ROW_LIST = [
     }),
     run: (allowFailures) =>
       configManagerImportApplications('app1', 'alpha', allowFailures),
-    hostile: [up(1), up(2), upBackslash(2)],
+    hostile: [up(1), up(2), upBackslash(2), ...colon(1)],
     outcome: false,
     decoyContent: `require("libs"); ${MARKER}`,
     control: {
@@ -752,7 +770,14 @@ const ROW_LIST = [
         true,
         allowFailures
       ),
-    hostile: ['../decoy-1', '../../decoy-2', '../../../decoy-3'],
+    hostile: [
+      '../decoy-1',
+      '../../decoy-2',
+      '../../../decoy-3',
+      '..C:',
+      '.C:.',
+      'a:b',
+    ],
     decoyContent: JSON.stringify({
       _id: 'decoy',
       name: MARKER,
@@ -793,7 +818,7 @@ const ROW_LIST = [
     }),
     run: (allowFailures) =>
       configManagerImportJourneys('j1', 'alpha', true, true, allowFailures),
-    hostile: ['../decoy-1', '../../decoy-2'],
+    hostile: ['../decoy-1', '../../decoy-2', '..C:', '.C:.', 'a:b'],
     ...folderDecoys('realms/alpha/journeys'),
     outcome: false,
     says: (ref) => `${derived(ref)}.json`,
@@ -812,7 +837,7 @@ const ROW_LIST = [
     run: (allowFailures) =>
       configManagerImportApplications('app1', 'alpha', allowFailures),
     // `../../decoy-2` would be taken for an application of the realm, the folder above `applications`
-    hostile: ['../decoy-1', '../../../decoy-3'],
+    hostile: ['../decoy-1', '../../../decoy-3', '..C:', '.C:.', 'a:b'],
     ...folderDecoys('realms/alpha/applications/app1/mappings'),
     outcome: false,
     says: (ref) => `mappings/${derived(ref)}/${derived(ref)}.json`,
@@ -839,7 +864,7 @@ const ROW_LIST = [
       // what the application push does with the mapping: it sends it
       await lib.idm.mapping.importMapping('mapping/m1', mapping);
     },
-    hostile: ['../decoy-1', '../../decoy-2'],
+    hostile: ['../decoy-1', '../../decoy-2', '..C:', '.C:.', 'a:b'],
     decoyContent: JSON.stringify({ name: 'decoy', note: MARKER }),
     outcome: 'rejects',
     allowFailures: false,
@@ -861,22 +886,17 @@ const ROW_LIST = [
     suffix: '.json',
     tree: () => ({}),
     run: (ref) => importScriptFromFiles(ref, 'alpha'),
-    hostile: ['../decoy-1', '../../decoy-2'],
-    decoys: (ref) => {
-      const levels = ref.split('/').filter((part) => part === '..').length;
-      const name = ref.split('/').pop();
-      const base = path.posix.normalize(
-        `realms/alpha/scripts/scripts-config/${'../'.repeat(levels)}`
-      );
-      return {
-        [`${base}${name}.json`]: {
+    hostile: ['../decoy-1', '../../decoy-2', '..C:', '.C:.', 'a:b'],
+    // the file the old code reads for the id, which holds a script that is a file of the folder of the scripts
+    decoys: (ref) => ({
+      [path.posix.normalize(`realms/alpha/scripts/scripts-config/${ref}.json`)]:
+        {
           _id: 'decoy',
           name: 'decoy',
-          script: { file: `${name}.txt` },
+          script: { file: 'decoy-text.txt' },
         },
-        [`${base}${name}.txt`]: MARKER,
-      };
-    },
+      'realms/alpha/scripts/decoy-text.txt': MARKER,
+    }),
     outcome: 'rejects',
     says: (ref) => `${derived(ref)}.json`,
     control: {
@@ -901,7 +921,7 @@ const ROW_LIST = [
     suffix: '.json',
     tree: () => ({}),
     run: (ref) => importCircleOfTrustFromFile(ref, 'alpha'),
-    hostile: ['../decoy-1', '../../decoy-2'],
+    hostile: ['../decoy-1', '../../decoy-2', '..C:', '.C:.', 'a:b'],
     decoyContent: JSON.stringify({ _id: 'decoy', note: MARKER }),
     outcome: 'rejects',
     says: (ref) => `${derived(ref)}.json`,
@@ -930,7 +950,16 @@ const ROW_LIST = [
       },
     }),
     run: () => configManagerImportTermsAndConditions(),
-    hostile: ['../decoy-1', '../../decoy-2', '..\\..\\decoy-3'],
+    hostile: [
+      '../decoy-1',
+      '../../decoy-2',
+      '..\\..\\decoy-3',
+      '..C:/decoy-4',
+      '..C:/..C:/decoy-5',
+      '.C:./decoy-6',
+      '..C:',
+      'a:b',
+    ],
     outcome: false,
     control: {
       ref: '0.1',
@@ -962,13 +991,19 @@ const ROWS = ROW_LIST.map((row) => ({
   ...row,
 }));
 
-/** Plants what the old code would have read for a hostile reference; the roots are what must stay untouched. */
+/** Plants what the old code would have read for a reference that goes up; the roots are what must stay untouched. */
 function plantDecoys(row, reference) {
   const files = row.decoys
     ? row.decoys(reference)
     : defaultDecoys(row, reference);
-  write(files);
-  const roots = Object.keys(files).map((relative) =>
+  // the files are where the old code read them, and where the library reads them once it has removed every `C:`
+  const planted = {};
+  for (const [relative, content] of Object.entries(files)) {
+    planted[relative] = content;
+    planted[relative.replaceAll('C:', '')] = content;
+  }
+  write(planted);
+  const roots = Object.keys(planted).map((relative) =>
     path.resolve(tree, relative)
   );
   for (const folder of row.decoyFolders?.(reference) ?? []) {
@@ -981,8 +1016,8 @@ function plantDecoys(row, reference) {
 /** The text is in what the library was asked to send (as JSON text, so a quote is escaped). */
 const sentHas = (text) => sent().includes(JSON.stringify(text).slice(1, -1));
 
-/** What the old names of the derived file look like: a `/` in an id is `%2F` in the name of its file. */
-const derived = (reference) => reference.replaceAll('/', '%2F');
+/** The file name of an id: a `/` in an id is `%2F` in the name of its file, a `:` is `%3A`. */
+const derived = (reference) => fileNameOf(reference);
 
 describe.each(ROWS.map((row) => [`${row.site} ${row.what}`, row]))(
   '%s',
@@ -1125,6 +1160,36 @@ describe('S22 the language of terms and conditions, which names a file of the fo
       expect(touched.filter(inDecoys([decoy]))).toEqual([]);
       expect(sent()).not.toContain(MARKER);
       expect(shown(outcome)).toContain(refused(`${language}.html`));
+    }
+  );
+});
+
+describe('S22 a version of terms and conditions that is not text', () => {
+  test.each([[1], [0.1], [null], [{ name: '1' }]])(
+    'the version %j is refused: a version is a name of a folder, and the tenant writes it as text',
+    async (version) => {
+      write({
+        'terms-conditions/terms-conditions.json': {
+          _id: 'selfservice.terms',
+          versions: [{ version, termsTranslations: { en: 'x' } }],
+        },
+        'terms-conditions/1/en.html': MARKER,
+        'terms-conditions/0.1/en.html': MARKER,
+      });
+
+      const outcome = await attempt(() =>
+        configManagerImportTermsAndConditions()
+      );
+
+      expect(outcome).toEqual({ value: false });
+      expect(sent()).not.toContain(MARKER);
+      expect(shown(outcome)).toContain(
+        refused(
+          typeof version === 'object'
+            ? JSON.stringify(version)
+            : String(version)
+        )
+      );
     }
   );
 });
