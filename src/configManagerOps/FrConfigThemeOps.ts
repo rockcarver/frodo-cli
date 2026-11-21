@@ -6,6 +6,7 @@ import {
   type ThemeExportInterface,
   type ThemeSkeleton,
 } from '@rockcarver/frodo-lib';
+import { referencedFilePath } from '../utils/ConfigTreePath';
 import { printError, printMessage } from '../utils/Console';
 import { causeOf } from '../utils/ErrorCause';
 import { decodeOrNot, encodeOrNot, realmList } from '../utils/FrConfig';
@@ -205,7 +206,7 @@ function readThemesOfRealm(
       if (typeof (theme[field.name] as any).file === 'string') {
         theme[field.name] = encodeOrNot(
           fs.readFileSync(
-            `${themeDir}/${(theme[field.name] as any).file}`,
+            referencedFilePath(themeDir, (theme[field.name] as any).file),
             'utf8'
           ),
           field.encoded
@@ -215,7 +216,10 @@ function readThemesOfRealm(
       Object.keys(theme[field.name]).forEach((locale) => {
         theme[field.name][locale] = encodeOrNot(
           fs.readFileSync(
-            `${themeDir}/${(theme[field.name][locale] as any).file}`,
+            referencedFilePath(
+              themeDir,
+              (theme[field.name][locale] as any).file
+            ),
             'utf8'
           ),
           field.encoded

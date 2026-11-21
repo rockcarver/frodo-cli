@@ -8,7 +8,11 @@ import {
   skipsOwnedObjects,
 } from '../ops/ApplicationOwnedObjects';
 import { extractFrConfigDataToFile } from '../utils/Config';
-import { objectFilePath, objectFolderPath } from '../utils/ConfigTreePath';
+import {
+  objectFilePath,
+  objectFolderPath,
+  referencedFilePath,
+} from '../utils/ConfigTreePath';
 import { printError, printMessage, verboseMessage } from '../utils/Console';
 import { isNotFoundError } from '../utils/ErrorCause';
 import { OperationRun } from '../utils/OperationRun';
@@ -143,7 +147,10 @@ function getExtractedFiles(obj: any, connectorMappingDirectory: string): void {
   for (const key of Object.keys(obj)) {
     const value = obj[key];
     if (value?.type === 'text/javascript' && value.file) {
-      const scriptPath = path.join(connectorMappingDirectory, value.file);
+      const scriptPath = referencedFilePath(
+        connectorMappingDirectory,
+        value.file
+      );
       if (fs.existsSync(scriptPath)) {
         value.source = fs.readFileSync(scriptPath, { encoding: 'utf-8' });
         delete value.file;
@@ -222,7 +229,7 @@ export async function configManagerImportMappings(
         const importData = getConnectorMappingImportData(jsonFilePath) as any;
         if (importData.file) {
           const scriptPath = getFilePath(
-            `sync/mappings/${mappingFile}/${importData.file}`
+            referencedFilePath(`sync/mappings/${mappingFile}`, importData.file)
           );
           importData.source = fs.readFileSync(scriptPath, 'utf8');
           delete importData.file;
@@ -259,6 +266,6 @@ export function readMappingFromDirectory(
   name: string
 ): any {
   return getConnectorMappingImportData(
-    getFilePath(`${mappingPath}/${name}.json`)
+    getFilePath(objectFilePath(mappingPath, name))
   );
 }

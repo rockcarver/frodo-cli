@@ -16,7 +16,12 @@ import {
   exportScriptToFiles,
   importScriptFromFiles,
 } from '../configManagerOps/FrConfigScriptOps';
-import { realmFolderOf } from '../utils/ConfigTreePath';
+import {
+  objectFilePath,
+  objectFolderPath,
+  realmFolderOf,
+  referencedFilePath,
+} from '../utils/ConfigTreePath';
 import { printError, printMessage, verboseMessage } from '../utils/Console';
 import { causeOf } from '../utils/ErrorCause';
 import { clearOperationalAttributes, realmList } from '../utils/FrConfig';
@@ -625,12 +630,13 @@ function readApplicationFolder(
     }
   }
   for (const reference of owned.filter((r) => r.kind === 'mapping')) {
-    const file = `mappings/${reference.id}/${reference.id}.json`;
+    const mappingFolder = objectFolderPath('mappings', reference.id);
+    const file = objectFilePath(mappingFolder, reference.id);
     if (!need(file)) continue;
     files.mappings.push({
       name: reference.id,
       data: readMappingFromDirectory(
-        `${relativeFolder}/mappings/${reference.id}`,
+        `${relativeFolder}/${mappingFolder}`,
         reference.id
       ),
     });
@@ -693,7 +699,10 @@ function scriptsUsedBy(contents: unknown[], realmDir: string): string[] {
     try {
       if (textFile) {
         text = fs.readFileSync(
-          `${getWorkingDirectory()}/realms/${realmDir}/scripts/${textFile}`,
+          referencedFilePath(
+            `${getWorkingDirectory()}/realms/${realmDir}/scripts`,
+            textFile
+          ),
           'utf8'
         );
       }
