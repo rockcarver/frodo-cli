@@ -1,3 +1,5 @@
+import fs from 'node:fs';
+import os from 'node:os';
 import path from 'node:path';
 import { describe, expect, it } from '@jest/globals';
 import { frodo, state } from '@rockcarver/frodo-lib';
@@ -268,6 +270,12 @@ describe('realmFolderOf', () => {
     ['zion realm', 'zion realm'],
     ['..foo', '..foo'],
     ['a.b', 'a.b'],
+    // a colon is an ordinary character, as long as it is not the `C:` that the library removes
+    ['a:b', 'a:b'],
+    ['c:x', 'c:x'],
+    ['Login:SSO', 'Login:SSO'],
+    ['/parent/urn:x:y', 'parent/urn:x:y'],
+    ['a::b', 'a::b'],
   ])('the realm %j is the folder %j', (realm, expected) => {
     expect(realmFolderOf(realm)).toBe(expected);
   });
@@ -298,8 +306,8 @@ describe('realmFolderOf', () => {
     ['a/..C:'],
     ['/..C:/alpha'],
     ['C:'],
-    ['c:x'],
-    ['a:b'],
+    ['ABC:x'],
+    ['CC::'],
   ])('the realm %j is refused', (realm) => {
     expect(() => realmFolderOf(realm)).toThrow(
       `The realm '${realm}' is not '/', a name or a path of names.`
@@ -322,6 +330,16 @@ describe('isOneSafeSegment', () => {
     ['2.2_Agent'],
     ['a?b'],
     ['\u00e9'],
+    // a colon is an ordinary character, as long as it is not the `C:` that the library removes
+    ['a:b'],
+    ['Login:SSO'],
+    ['urn:x:y'],
+    ['x:'],
+    [':x'],
+    ['a::b'],
+    ['c:x'],
+    ['CC'],
+    ['C'],
   ])('%j is one safe segment', (candidate) => {
     expect(isOneSafeSegment(candidate)).toBe(true);
   });
@@ -342,13 +360,13 @@ describe('isOneSafeSegment', () => {
     ['a\nb'],
     ['a\u007fb'],
     ['a\u0085b'],
-    // the library removes every `C:` from a path after the check, so a colon is refused anywhere
-    ['a:b'],
+    // the library removes every `C:` from a path after the check
     ['C:'],
     ['..C:'],
     ['.C:.'],
-    ['x:'],
-    [':x'],
+    ['ABC:x'],
+    ['CC::'],
+    ['x.C:'],
   ])('%j is not', (candidate) => {
     expect(isOneSafeSegment(candidate)).toBe(false);
   });
@@ -391,6 +409,18 @@ describe('referencedFilePath', () => {
     // the result is the folder joined to the reference, as before
     ['é.js', `${BASE}/é.js`],
     ['a b.js', `${BASE}/a b.js`],
+    // a colon is an ordinary character, as long as the reference does not start with a drive letter and
+    // holds no `C:` that the library removes
+    ['ab:c.js', `${BASE}/ab:c.js`],
+    ['sub/a:b.js', `${BASE}/sub/a:b.js`],
+    ['Login:SSO.onCreate.js', `${BASE}/Login:SSO.onCreate.js`],
+    ['xy:', `${BASE}/xy:`],
+    [':x', `${BASE}/:x`],
+    ['x.js:stream', `${BASE}/x.js:stream`],
+    ['urn:x:y.js', `${BASE}/urn:x:y.js`],
+    ['sub\\a:b.js', `${BASE}/sub/a:b.js`],
+    ['sub/c:x.js', `${BASE}/sub/c:x.js`],
+    ['Cx.js', `${BASE}/Cx.js`],
   ];
 
   it.each(INSIDE)('the reference %j is the file %s', (reference, expected) => {
@@ -440,10 +470,11 @@ describe('referencedFilePath', () => {
     ['a drive letter and a backslash', 'C:\\x.js'],
     ['a drive letter and a slash', 'C:/x.js'],
     ['a drive letter and a relative name', 'c:x.js'],
-    // the library removes every `C:` from a path after the check (and `\\` becomes `/`), so a colon is refused anywhere
-    ['a colon in a name', 'a:b.js'],
-    ['a colon at the end', 'x:'],
-    ['a colon at the start', ':x'],
+    // the library removes every `C:` from a path after the check (and `\\` becomes `/`)
+    ['a letter and a colon at the start is a drive letter', 'a:b.js'],
+    ['`C:` in a name', 'ABC:x.js'],
+    ['`C:` in a folder after a colon', 'a:b/C:x.js'],
+    ['`C:` that the removal of another `C:` would leave', 'CC::x.js'],
     ['two dots that become a segment when `C:` is removed', '..C:/x.js'],
     ['the same, three levels deep', '..C:/..C:/..C:/canary.txt'],
     ['one dot, `C:`, one dot', '.C:./x.js'],
@@ -451,7 +482,6 @@ describe('referencedFilePath', () => {
     ['a drive letter before two dots', 'C:..\\x.js'],
     ['a lower case drive letter before two dots', 'c:..\\x.js'],
     ['after a folder', 'a/..C:/x.js'],
-    ['a stream name', 'x.js:stream'],
     ['an empty reference', ''],
     ['a NUL character', 'x\u0000.js'],
     ['a NUL character after a folder that goes up', '../x\u0000'],
@@ -619,7 +649,9 @@ describe('the paths after the library has rewritten them', () => {
       '.C:.',
       'C:',
       'a:b.js',
-      'x.js:stream',
+      'ABC:x.js',
+      'sub/ABC:x.js',
+      'CC::x.js',
     ];
 
     it.each(FOLDERS.flatMap((folder) => REFERENCES.map((r) => [folder, r])))(
@@ -718,16 +750,30 @@ describe('the paths after the library has rewritten them', () => {
       }
     );
 
-    it('a name with a colon is looked up as the file name of an id: the colon is written as %3A', () => {
+    it('a name that holds `C:` is looked up as the file name of an id: the colon is written as %3A', () => {
       expect(objectFilePath('sync/mappings', '..C:')).toBe(
         'sync/mappings/..C%3A.json'
       );
       expect(objectFolderPath('sync/mappings', '..C:')).toBe(
         'sync/mappings/..C%3A'
       );
-      expect(objectFilePath('sync/mappings', 'a:b')).toBe(
-        'sync/mappings/a%3Ab.json'
+      expect(objectFilePath('sync/mappings', 'ABC:x')).toBe(
+        'sync/mappings/ABC%3Ax.json'
       );
+    });
+
+    it('any other colon is an ordinary character of a name: the file is the name as it is', () => {
+      for (const name of ['a:b', 'Login:SSO', 'urn:x:y', 'x:', ':x', 'c:x']) {
+        expect(objectFilePath('sync/mappings', name)).toBe(
+          `sync/mappings/${name}.json`
+        );
+        expect(objectFolderPath('sync/mappings', name)).toBe(
+          `sync/mappings/${name}`
+        );
+        expect(real(objectFilePath('sync/mappings', name))).toBe(
+          `${WORK}/sync/mappings/${name}.json`
+        );
+      }
     });
 
     it('a file name of an id is the same after the library has rewritten the path', () => {
@@ -747,14 +793,18 @@ describe('the paths after the library has rewritten them', () => {
   });
 
   describe('realmFolderOf', () => {
-    it.each([['..C:'], ['.C:.'], ['a/..C:'], ['/..C:/alpha'], ['C:'], ['a:b']])(
-      'the realm %j is refused: the library would make it %s',
-      (realm) => {
-        expect(() => realmFolderOf(realm)).toThrow(
-          `The realm '${realm}' is not '/', a name or a path of names.`
-        );
-      }
-    );
+    it.each([
+      ['..C:'],
+      ['.C:.'],
+      ['a/..C:'],
+      ['/..C:/alpha'],
+      ['C:'],
+      ['ABC:x'],
+    ])('the realm %j is refused: the library would make it %s', (realm) => {
+      expect(() => realmFolderOf(realm)).toThrow(
+        `The realm '${realm}' is not '/', a name or a path of names.`
+      );
+    });
 
     it('the folder of every realm that is not refused is a folder of the realms folder in the end', () => {
       const parts = [
@@ -791,5 +841,200 @@ describe('the paths after the library has rewritten them', () => {
       expect(outside).toEqual([]);
       expect(answered).toBeGreaterThan(10);
     });
+  });
+});
+
+/**
+ * The safety argument as a test, not as a comment. `getFilePath` of the library rewrites a path after
+ * a helper has judged it: it reads `\` as `/` and removes every `C:` (case-sensitive), and nothing
+ * else. The helpers refuse exactly that, and a plain colon is an ordinary character. A systematic
+ * corpus (every concatenation of up to five of the pieces below) is put through the helpers and,
+ * for everything that a helper ACCEPTS, through the real function with a temporary folder as the
+ * working directory: the library must leave the path as the helper built it (what the helper
+ * judged is what is read), and the path must be inside the folder. A change of the library that
+ * rewrites more, or a helper that forgets one of the two rewrites, shows up here.
+ */
+describe('what a helper accepts is what the library reads (the real getFilePath over a corpus)', () => {
+  const PIECES = [
+    '..',
+    '.',
+    'C:',
+    'c:',
+    ':',
+    '\\',
+    '/',
+    '%3A',
+    '\uff1a',
+    'a',
+    'x.js',
+    'CC::',
+    'C',
+  ];
+  const MAX_PIECES = 5;
+
+  let dir;
+  let before;
+  beforeAll(() => {
+    before = state.getDirectory();
+    dir = fs.mkdtempSync(path.join(os.tmpdir(), 'config-tree-path-'));
+    state.setDirectory(dir);
+  });
+  afterAll(() => {
+    state.setDirectory(before);
+    fs.rmSync(dir, { recursive: true, force: true });
+  });
+
+  /** Every concatenation of up to `max` pieces, the empty string first. */
+  const corpus = function* (max = MAX_PIECES) {
+    const walk = function* (prefix, depth) {
+      yield prefix;
+      if (depth === max) return;
+      for (const piece of PIECES) yield* walk(prefix + piece, depth + 1);
+    };
+    yield* walk('', 0);
+  };
+
+  const real = (file) => frodo.utils.getFilePath(file);
+  /** Whether the target is strictly inside the folder (relative to the working directory). */
+  const insideOf = (folder, target) => {
+    const relative = path.relative(path.join(dir, folder), target);
+    return (
+      relative !== '' &&
+      !path.isAbsolute(relative) &&
+      relative.split(path.sep)[0] !== '..'
+    );
+  };
+  /** Whether the library reads the path as it was built, and that path is inside the folder. */
+  const readAsBuilt = (folder, built) =>
+    real(built) === path.join(dir, built) && insideOf(folder, real(built));
+
+  /** The accepted and the refused references, and the ones that the library would read differently. */
+  const referencesOf = (helper, folder, max = MAX_PIECES) => {
+    const violations = [];
+    let accepted = 0;
+    let refused = 0;
+    for (const reference of corpus(max)) {
+      let built;
+      try {
+        built = helper(folder, reference);
+      } catch {
+        refused++;
+        continue;
+      }
+      accepted++;
+      if (!readAsBuilt(folder, built)) violations.push(reference);
+    }
+    return { accepted, refused, violations };
+  };
+
+  it('references: what referencedFilePath accepts is read as it was judged, inside the folder', () => {
+    const { accepted, refused, violations } = referencesOf(
+      referencedFilePath,
+      'email-templates/t1'
+    );
+
+    expect(violations.slice(0, 5)).toEqual([]);
+    // the corpus has both kinds in it
+    expect(accepted).toBeGreaterThan(50000);
+    expect(refused).toBeGreaterThan(50000);
+  });
+
+  it('references: the same in a deeper folder, up to four pieces', () => {
+    const { accepted, violations } = referencesOf(
+      referencedFilePath,
+      'realms/alpha/themes/t1',
+      4
+    );
+
+    expect(violations.slice(0, 5)).toEqual([]);
+    expect(accepted).toBeGreaterThan(1000);
+  });
+
+  it('the corpus can fail: a helper that forgets `C:`, one that forgets the backslash and one that only joins are found', () => {
+    /** The helper as it is, without one of its tests. */
+    const helperWithout =
+      ({ backslash, c }) =>
+      (folder, reference) => {
+        const text = backslash ? reference.replaceAll('\\', '/') : reference;
+        if (/\p{Cc}|^[A-Za-z]:/u.test(text) || text.startsWith('/')) {
+          throw new Error('refused');
+        }
+        if (c && text.includes('C:')) throw new Error('refused');
+        const built = path.join(folder, text);
+        assertInside(folder, built);
+        return built;
+      };
+    const folder = 'email-templates/t1';
+    const complete = helperWithout({ backslash: true, c: true });
+
+    expect(referencesOf(complete, folder, 3).violations).toEqual([]);
+    expect(
+      referencesOf(helperWithout({ backslash: true, c: false }), folder, 3)
+        .violations
+    ).toContain('..C:');
+    expect(
+      referencesOf(helperWithout({ backslash: false, c: true }), folder, 3)
+        .violations
+    ).toContain('..\\');
+    expect(
+      referencesOf((f, r) => path.join(f, r), folder, 3).violations
+    ).toEqual(expect.arrayContaining(['..C:', '..\\']));
+  });
+
+  it('names: what isOneSafeSegment accepts is read as it is, and so is every file and folder of objectFilePath and objectFolderPath', () => {
+    const folder = 'realms/alpha/scripts/scripts-config';
+    const violations = [];
+    let safe = 0;
+    for (const name of corpus()) {
+      if (isOneSafeSegment(name)) {
+        safe++;
+        if (real(name) !== path.join(dir, name)) violations.push(name);
+      }
+    }
+    // the file names of ids are slower to make: up to four pieces
+    let objects = 0;
+    for (const name of corpus(4)) {
+      let objectFolder;
+      try {
+        const file = objectFilePath(folder, name);
+        objects++;
+        if (!readAsBuilt(folder, file)) violations.push(`file ${name}`);
+        objectFolder = objectFolderPath(folder, name);
+      } catch {
+        // `.` and `..` do not name an object
+        continue;
+      }
+      if (!readAsBuilt(folder, objectFolder)) violations.push(`folder ${name}`);
+      // the file in the folder of the object (a journey, a mapping)
+      if (!readAsBuilt(objectFolder, objectFilePath(objectFolder, name))) {
+        violations.push(`file in folder ${name}`);
+      }
+    }
+
+    expect(violations.slice(0, 5)).toEqual([]);
+    expect(safe).toBeGreaterThan(50000);
+    expect(objects).toBeGreaterThan(20000);
+  });
+
+  it('realms: the folder of a realm that realmFolderOf accepts is read as it is, inside the realms folder', () => {
+    const violations = [];
+    let accepted = 0;
+    for (const realm of corpus()) {
+      let folder;
+      try {
+        folder = realmFolderOf(realm);
+      } catch {
+        continue;
+      }
+      accepted++;
+      const built = `realms/${folder}/scripts/scripts-config/x.json`;
+      if (!readAsBuilt('realms', built)) violations.push(realm);
+      if (folder.split('/').some((part) => part === '.' || part === '..')) {
+        violations.push(`dot part ${realm}`);
+      }
+    }
+
+    expect(violations.slice(0, 5)).toEqual([]);
+    expect(accepted).toBeGreaterThan(50000);
   });
 });
