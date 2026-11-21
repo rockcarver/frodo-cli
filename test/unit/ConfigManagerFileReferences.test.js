@@ -829,6 +829,32 @@ const ROW_LIST = [
     },
   },
   {
+    site: 'S19',
+    what: 'the name of a mapping given to `readMappingFromDirectory`, which names a file of the folder of the mapping',
+    container: 'sync/mappings/m1',
+    suffix: '.json',
+    tree: () => ({}),
+    run: async (ref) => {
+      const mapping = readMappingFromDirectory('sync/mappings/m1', ref);
+      // what the application push does with the mapping: it sends it
+      await lib.idm.mapping.importMapping('mapping/m1', mapping);
+    },
+    hostile: ['../decoy-1', '../../decoy-2'],
+    decoyContent: JSON.stringify({ name: 'decoy', note: MARKER }),
+    outcome: 'rejects',
+    allowFailures: false,
+    says: (ref) => `${derived(ref)}.json`,
+    control: {
+      ref: 'm1',
+      files: [],
+      extra: {
+        'sync/mappings/m1/m1.json': { name: 'm1', note: 'CONTROL-S19b' },
+      },
+      text: 'CONTROL-S19b',
+    },
+    byId: true,
+  },
+  {
     site: 'S20',
     what: 'the id of a script that an application uses, which names a file of the script config (`importScriptFromFiles`)',
     container: 'realms/alpha/scripts/scripts-config',
