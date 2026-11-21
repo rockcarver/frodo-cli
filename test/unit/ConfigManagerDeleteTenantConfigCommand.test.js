@@ -10,16 +10,21 @@ import { Command } from 'commander';
 
 /**
  * The command `config-manager delete tenant-config`, which deletes all ESV
- * secrets and all ESV variables of a Cloud tenant and nothing else (cli records
- * 0037 and 0040): it runs for Cloud only, takes no selector, refuses a run that
- * nobody can be asked about before it logs in, asks after the login (with a
- * plan that reads both lists and deletes nothing) before it deletes, never
- * asks for a dry run or with `--yes`, deletes the secrets and then the
- * variables with the dry run and `--allow-failures` of the command line, runs
- * the second half although the first failed, and exits 1 if either half
- * failed. What the two operations do is covered by FrConfigSecretDelete.test.js
- * and FrConfigVariableDelete.test.js; the refusal without a terminal, through
- * the real CLI, by test/client_cli/en/config-manager-delete-guard.test.js.
+ * secrets and all ESV variables of a Cloud tenant and nothing else. It follows
+ * https://github.com/rockcarver/frodo-cli/blob/main/docs/decisions/0037-a-command-that-can-delete-more-than-the-one-object-it-names-asks-first.md
+ * (a delete of more than the one object it names asks first) and
+ * https://github.com/rockcarver/frodo-cli/blob/main/docs/decisions/0040-a-command-that-runs-many-operations-runs-them-all-then-fails-if-any-failed.md
+ * (run all the operations, then fail if any failed): it runs for Cloud only,
+ * takes no selector, reads the connection arguments, refuses a run that nobody
+ * can be asked about before it logs in, asks after the login (with a plan that
+ * reads both lists and deletes nothing) before it deletes, never asks for a dry
+ * run or with `--yes`, deletes the secrets and then the variables with the dry
+ * run and `--allow-failures` of the command line, runs the second half although
+ * the first failed, and exits 1 if either half failed. Its usage examples carry
+ * `-y` or `--dry-run`, so that they run as written without a prompt. What the
+ * two operations do is covered by FrConfigSecretDelete.test.js and
+ * FrConfigVariableDelete.test.js; the refusal without a terminal, through the
+ * real CLI, by test/client_cli/en/config-manager-delete-guard.test.js.
  */
 
 const getTokens = jest.fn();
@@ -29,6 +34,7 @@ const configManagerDeleteSecrets = jest.fn();
 const showSecretDeletePlan = jest.fn();
 const configManagerDeleteVariables = jest.fn();
 const printMessage = jest.fn();
+const handleDefaultArgsAndOpts = jest.fn();
 let events;
 let constructed;
 
@@ -53,7 +59,9 @@ jest.unstable_mockModule('../../src/cli/FrodoCommand', () => ({
         .argument('[password]');
     }
 
-    handleDefaultArgsAndOpts() {}
+    handleDefaultArgsAndOpts(...args) {
+      handleDefaultArgsAndOpts(...args);
+    }
     multiOp() {
       this.multiOpCalled = true;
       return this.option('--allow-failures');
@@ -100,6 +108,7 @@ const run = (...args) => {
 
 beforeEach(() => {
   jest.clearAllMocks();
+  printMessage.mockReset();
   process.exitCode = undefined;
   events = [];
   checkBulkDelete.mockImplementation(() => {
@@ -118,11 +127,14 @@ beforeEach(() => {
     events.push('delete secrets');
     return true;
   });
-  configManagerDeleteVariables.mockImplementation(async () => {
-    events.push('delete variables');
+  configManagerDeleteVariables.mockImplementation(async (name, dryRun) => {
+    events.push(dryRun ? 'plan variables' : 'delete variables');
     return true;
   });
-  showSecretDeletePlan.mockResolvedValue(true);
+  showSecretDeletePlan.mockImplementation(async () => {
+    events.push('plan secrets');
+    return true;
+  });
 });
 afterEach(() => {
   process.exitCode = undefined;
@@ -161,6 +173,51 @@ describe('frodo config-manager delete tenant-config', () => {
     expect(program.description()).toContain('and nothing else');
     expect(program.description()).toContain(
       'Deleted secret values cannot be recovered.'
+    );
+  });
+});
+
+describe('the command line', () => {
+  test('hands the connection arguments and the options to the framework', async () => {
+    const program = await run('-y', 'matrix', 'alpha');
+
+    expect(handleDefaultArgsAndOpts).toHaveBeenCalledTimes(1);
+    const [host, realm, user, password, options, command] =
+      handleDefaultArgsAndOpts.mock.calls[0];
+    expect(host).toBe('matrix');
+    expect(realm).toBe('alpha');
+    expect(user).toBeUndefined();
+    expect(password).toBeUndefined();
+    expect(options.yes).toBe(true);
+    expect(command).toBe(program);
+  });
+
+  test('has usage examples that run as written without a prompt: each carries -y or --dry-run', async () => {
+    const program = await run('-y');
+    let help = '';
+    program.configureOutput({
+      writeOut: (text) => {
+        help += text;
+      },
+      writeErr: (text) => {
+        help += text;
+      },
+    });
+    program.outputHelp();
+
+    const examples = help
+      .split('\n')
+      .map((line) => line.trim())
+      .filter((line) => line.startsWith('$ frodo config-manager delete'));
+    expect(examples.length).toBe(2);
+    for (const example of examples) {
+      expect(example).toMatch(
+        /^\$ frodo config-manager delete tenant-config (-y|--dry-run) /
+      );
+    }
+    expect(examples.some((example) => example.includes(' -y '))).toBe(true);
+    expect(examples.some((example) => example.includes('--dry-run'))).toBe(
+      true
     );
   });
 });
@@ -303,6 +360,20 @@ describe('the plan that is shown before the question', () => {
     expect(printMessage).toHaveBeenCalledWith(
       'Only ESV secrets and ESV variables are deleted, nothing else.'
     );
+  });
+
+  test('shows the secrets, then the variables, then says that nothing else is deleted', async () => {
+    const showPlan = await plan('matrix');
+    events.length = 0;
+    printMessage.mockImplementation((message) => events.push(message));
+
+    await showPlan();
+
+    expect(events).toEqual([
+      'plan secrets',
+      'plan variables',
+      'Only ESV secrets and ESV variables are deleted, nothing else.',
+    ]);
   });
 
   test('is false, and does not say that, if the secrets cannot be read', async () => {

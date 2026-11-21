@@ -280,8 +280,11 @@ connects and exits with code 1, unless you pass `-y`/`--yes`; `-d`/`--dry-run`
 only shows what would be deleted. It takes no selector (to delete one secret or
 one variable, use `config-manager delete secrets -i` or `delete variables -i`).
 It deletes the secrets, then the variables, tries every one of them, prints a
-summary of what failed and exits with code 1 if any failed;
-`--allow-failures` makes the exit code 0. See
+summary of what failed and exits with code 1 if any failed; `--allow-failures`
+keeps the exit code at 0 when deletes failed, but a list that cannot be read
+still exits with code 1. With `-y`, a list that cannot be read stops only its
+own half: the other half is still deleted (on a terminal the plan reads both
+lists first, and nothing is deleted if either cannot be read). See
 [a command that can delete more than the one object it names asks first](https://github.com/rockcarver/frodo-cli/blob/main/docs/decisions/0037-a-command-that-can-delete-more-than-the-one-object-it-names-asks-first.md)
 and
 [a command that runs many operations runs them all, then fails if any failed](https://github.com/rockcarver/frodo-cli/blob/main/docs/decisions/0040-a-command-that-runs-many-operations-runs-them-all-then-fails-if-any-failed.md).
