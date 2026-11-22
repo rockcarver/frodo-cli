@@ -4130,6 +4130,25 @@ export class FrodoCommand extends FrodoStubCommand {
   }
 
   /**
+   * Words one shared default option (for example `--no-open`) for this command
+   * and lists it in the plain "Options:" section of the short help, where the
+   * command's own options are. The option keeps its parsing and its effect
+   * (the shared `stateMap` entry still applies); only its description and its
+   * heading change, on this instance's own clone (see `addOption()`).
+   * @param flag Long flag of the option, for example `--no-open`.
+   * @param description What the option does on this command.
+   * @returns This command for chaining.
+   */
+  describeDefaultOption(flag: string, description: string) {
+    const option = this.options.find((candidate) => candidate.long === flag);
+    if (option) {
+      option.description = description;
+      option.helpGroup(COMMAND_OPTIONS_HEADING);
+    }
+    return this;
+  }
+
+  /**
    * Adds a cloned argument to avoid mutating shared definitions.
    * @param argument Argument to add.
    * @returns This command for chaining.

@@ -130,15 +130,48 @@ export function getCredentialOverride(): CredentialOverrideType | undefined {
 }
 
 /**
- * Whether `cliBrowserLoginPromptHandler` should try to launch a local
- * browser for the loopback-redirect flow, as opposed to only ever printing
- * the URL (for remote/SSH sessions with no usable local browser). Defaults
- * to true; set to false via `frodo login --no-open`.
+ * Whether a command should try to launch a local browser, as opposed to only
+ * ever printing the URL (for remote/SSH sessions with no usable local
+ * browser): `cliBrowserLoginPromptHandler` for the loopback-redirect flow, and
+ * `frodo shell --web` for the link of its web console. Defaults to true; set
+ * to false via `--no-open`.
  */
 let openBrowser = true;
 
 export function setOpenBrowser(value: boolean): void {
   openBrowser = value;
+}
+
+/**
+ * Whether this process may launch a local browser at all: true unless the
+ * command line said `--no-open` (see `setOpenBrowser`). Every command that
+ * hands a link to a browser asks here, so one option governs them all.
+ */
+export function isBrowserOpeningEnabled(): boolean {
+  return openBrowser;
+}
+
+/**
+ * Asks the system to open `url` in the default browser. Answers whether the
+ * launcher started; never throws, because a command must not fail over a
+ * browser that cannot be opened (no desktop, a remote or headless session, no
+ * browser installed). It does not tell whether a page loaded: a launcher that
+ * started and then failed on its own is not seen from here.
+ *
+ * The URL is an argument of the launcher process, so another process of the
+ * machine can read it from the process list for as long as that process lives.
+ * Only open a link that is safe to show there, or whose secret is one-time and
+ * is accepted as exposed for that moment (see the web console, whose link is).
+ * @param url the address to open
+ * @returns true when the launcher started, false when it could not
+ */
+export async function launchBrowser(url: string): Promise<boolean> {
+  try {
+    await open(url);
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 /**
@@ -175,14 +208,13 @@ export const cliBrowserLoginPromptHandler: BrowserLoginPromptHandler = async (
     return;
   }
   if (prompt.authorizeUrl) {
-    if (openBrowser) {
+    if (isBrowserOpeningEnabled()) {
       printMessage(`Opening browser to complete login...`);
-      try {
-        await open(prompt.authorizeUrl);
+      if (await launchBrowser(prompt.authorizeUrl)) {
         printMessage(
           `If you'd rather use a different browser, open this URL manually:`
         );
-      } catch {
+      } else {
         printMessage(
           `Could not open a browser automatically. Open this URL manually to complete login:`,
           'warn'

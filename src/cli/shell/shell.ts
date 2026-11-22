@@ -4,7 +4,11 @@ import util from 'util';
 import { state } from '@rockcarver/frodo-lib';
 import { Option } from 'commander';
 import * as s from '../../help/SampleData';
-import { getTokens } from '../../ops/AuthenticateOps';
+import {
+  getTokens,
+  isBrowserOpeningEnabled,
+  launchBrowser,
+} from '../../ops/AuthenticateOps';
 import {
   createFrodoCompleter,
   registerOpenParenHint,
@@ -154,14 +158,28 @@ async function startWebMode(host?: string): Promise<void> {
   // and the listening socket are torn down the same way Ctrl+C does.
   process.once('SIGHUP', () => void stop('terminal closed'));
 
+  // The link is always printed, and before the browser is asked to open it:
+  // whatever the launcher does, the person has the link.
+  const opening = isBrowserOpeningEnabled();
   printMessage(
-    'The frodo JS console is running in your browser.\n' +
-      'Open this link to sign in (it works once):\n' +
+    'The frodo JS console is running on this machine.\n' +
+      (opening
+        ? 'Opening it in your default browser. If it does not open, use this ' +
+          'link to sign in (it works once):\n'
+        : 'Open this link to sign in (it works once):\n') +
       `\n  ${web.launchUrl}\n\n` +
       'The console runs on your machine with the credentials of this ' +
       'environment; anyone with access to this computer can use it through ' +
       'the browser tab. Ctrl+C here stops it.\n'
   );
+  // A browser that cannot be opened (no desktop, a remote or headless session,
+  // no browser installed) never stops the console: the link above works too.
+  if (opening && !(await launchBrowser(web.launchUrl))) {
+    printMessage(
+      'Could not open a browser automatically. Open the link above in a browser.',
+      'warn'
+    );
+  }
   // Keep the process alive while the server listens; the exit handlers above
   // own the shutdown.
   await new Promise<never>(() => undefined);
@@ -664,14 +682,20 @@ export default function setup() {
         c.command(`  $ frodo shell ${s.amBaseUrl}\n`) +
         `  Launch a JS console using a connection profile (identified by a unique substring of the AM base URL or a saved alias):\n` +
         c.command(`  $ frodo shell ${s.connId}\n`) +
-        `  Serve the same console as a local web page (a one-time sign-in link is printed):\n` +
-        c.command(`  $ frodo shell ${s.amBaseUrl} --web\n`)
+        `  Serve the same console as a local web page, opened in your default browser (the one-time sign-in link is printed too):\n` +
+        c.command(`  $ frodo shell ${s.amBaseUrl} --web\n`) +
+        `  Serve it without opening a browser (only the one-time sign-in link is printed):\n` +
+        c.command(`  $ frodo shell ${s.amBaseUrl} --web --no-open\n`)
     )
     .addOption(
       new Option(
         '--web',
-        'Serve the JS console as a local web page and open it in a browser.'
+        'Serve the JS console as a local web page and open it in your default browser. The one-time sign-in link is always printed.'
       )
+    )
+    .describeDefaultOption(
+      '--no-open',
+      'Do not launch a local browser, only print the link (with --web, the sign-in link of the web console).'
     )
     .action(async (host, realm, user, password, options, command) => {
       command.handleDefaultArgsAndOpts(
