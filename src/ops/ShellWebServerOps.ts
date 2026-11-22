@@ -6,7 +6,9 @@ import { AddressInfo } from 'node:net';
 import path from 'node:path';
 import { createInterface } from 'node:readline';
 import sea from 'node:sea';
-import { frodo } from '@rockcarver/frodo-lib';
+import { frodo, state } from '@rockcarver/frodo-lib';
+import { printError } from '../utils/Console';
+import { liveSecrets, scrubKnownValues } from '../utils/McpResultScrub';
 import { HistoryEntry } from './ShellHistoryOps';
 import { WebEngine } from './ShellWebEngineOps';
 import {
@@ -254,6 +256,59 @@ export function tabEngineCommand(
   };
 }
 
+/**
+ * An engine process that never came up: it could not be started, or it ended
+ * before it answered anything. The reason is one line that the process wrote
+ * itself, cleaned and shortened; it is the only detail of an engine failure
+ * that leaves the server (see `engineStartFailureReason`).
+ */
+export class TabEngineStartError extends Error {
+  constructor(reason: string) {
+    super(reason);
+    this.name = 'TabEngineStartError';
+  }
+}
+
+const REASON_LIMIT = 200;
+// An escape sequence, then any other control character: what a process writes
+// to a terminal must not drive this one, or the page.
+// eslint-disable-next-line no-control-regex
+const ESCAPE_SEQUENCES = /\u001b\[[0-9;?]*[ -/]*[@-~]/g;
+// eslint-disable-next-line no-control-regex
+const CONTROL_CHARACTERS = /[\u0000-\u001f\u007f]/g;
+
+/**
+ * Why an engine process did not come up: one line of what it wrote to its
+ * error output. The first line that names an error wins (a Node crash starts
+ * with the place of the throw, the error follows), else the first line. A
+ * process that wrote nothing is described by how it ended.
+ * @param stderrLines the lines the process wrote to its error output
+ * @param how how the process ended
+ * @returns one line of at most 200 characters, free of control characters
+ */
+export function engineStartFailureReason(
+  stderrLines: string[],
+  how: { code?: number | null; signal?: string | null } = {}
+): string {
+  const clean = (line: string) =>
+    line.replace(ESCAPE_SEQUENCES, '').replace(CONTROL_CHARACTERS, ' ').trim();
+  // Notices of the runtime are not a reason: "(node:123) ExperimentalWarning..."
+  const lines = stderrLines
+    .map(clean)
+    .filter((line) => line !== '' && !/^\((?:node:\d+|Use `node )/.test(line));
+  const named = lines.find((line) => /^(?:[A-Za-z]*Error|error)\b/.test(line));
+  const line = named ?? lines[0];
+  if (line) {
+    return line.length > REASON_LIMIT
+      ? `${line.slice(0, REASON_LIMIT - 1)}…`
+      : line;
+  }
+  if (how.signal) {
+    return `The engine process was stopped by the signal ${how.signal} before it answered.`;
+  }
+  return `The engine process ended with exit code ${how.code ?? 'unknown'} before it answered.`;
+}
+
 /** Spawn one engine child and wrap its JSON-line protocol. */
 export async function spawnTabEngine(
   custom?: () => Promise<TabEngine>
@@ -264,6 +319,14 @@ export async function spawnTabEngine(
     stdio: ['pipe', 'pipe', 'pipe'],
     env: launch.env,
   });
+  // What the process wrote to its error output, kept (bounded) until it has
+  // answered once: if it ends before that, the first lines are its reason.
+  const stderrHead: string[] = [];
+  // Set once the process is gone; every later request fails with it.
+  let ended: Error | undefined;
+  // Whether the process ever answered a request: one that did is up, and its
+  // later end is a crash of a working engine, not a failure to start.
+  let answered = false;
   const pending = new Map<
     number,
     { resolve: (value: unknown) => void; reject: (error: Error) => void }
@@ -275,6 +338,7 @@ export async function spawnTabEngine(
   // opened a browser. Each stderr line joins the tab's log stream as-is;
   // it is diagnostics, never protocol (protocol is stdout's JSON lines).
   createInterface({ input: child.stderr! }).on('line', (line) => {
+    if (!answered && stderrHead.length < 20) stderrHead.push(line);
     for (const listener of logListeners) listener(line);
   });
   const readline = createInterface({ input: child.stdout! });
@@ -291,6 +355,8 @@ export async function spawnTabEngine(
     }
     const id = message.id as number | undefined;
     if (id !== undefined && pending.has(id)) {
+      answered = true;
+      stderrHead.length = 0;
       const p = pending.get(id)!;
       pending.delete(id);
       if (message.error !== undefined) {
@@ -302,15 +368,46 @@ export async function spawnTabEngine(
   });
   const request = (payload: Record<string, unknown>): Promise<any> =>
     new Promise((resolve, reject) => {
+      if (ended) {
+        reject(ended);
+        return;
+      }
       const id = nextId++;
       pending.set(id, { resolve, reject });
       child.stdin!.write(`${JSON.stringify({ ...payload, id })}
 `);
     });
-  child.on('exit', () => {
-    for (const p of pending.values()) p.reject(new Error('Engine exited'));
+  // A process that is already gone refuses the write with an error event on
+  // its stdin; the end of the process is reported below, once, with its reason.
+  child.stdin!.on('error', () => undefined);
+  // The process is gone: fail what waits for it. One that never answered
+  // gets the reason it wrote (the stderr lines are read by now, or a moment
+  // after the exit event, which the short wait below allows for).
+  const finish = (describe: () => string) => {
+    if (ended) return;
+    ended = answered
+      ? new Error('Engine exited')
+      : new TabEngineStartError(describe());
+    for (const p of pending.values()) p.reject(ended);
     pending.clear();
+  };
+  child.once('close', (code, signal) =>
+    finish(() => engineStartFailureReason(stderrHead, { code, signal }))
+  );
+  child.once('exit', (code, signal) => {
+    setTimeout(
+      () =>
+        finish(() => engineStartFailureReason(stderrHead, { code, signal })),
+      100
+    ).unref();
   });
+  // The process could not be started at all (no such file, no permission).
+  child.once('error', (error: NodeJS.ErrnoException) =>
+    finish(
+      () =>
+        `The engine process could not be started (${error.code ?? 'error'}).`
+    )
+  );
   return {
     async evaluate(code) {
       const reply = await request({ op: 'eval', code });
@@ -344,6 +441,7 @@ export async function spawnTabEngine(
       await request({ op: 'reset' });
     },
     dispose() {
+      if (ended) return;
       try {
         child.stdin!.write(`${JSON.stringify({ op: 'dispose' })}
 `);
@@ -432,6 +530,9 @@ export async function startWebConsole(
   let active = 0;
   let port = 0;
   let connecting = false;
+  // The reasons an engine failed to start that the terminal has been told: a
+  // page that retries would otherwise repeat the same line forever.
+  const reportedStartFailures = new Set<string>();
 
   // Engines: the shared one when options.engine is given, otherwise one
   // child process per tab, keyed by the tab's engine id.
@@ -613,6 +714,44 @@ export async function startWebConsole(
       engines.set(engineId, await spawnTabEngine(options.spawnEngine));
     }
     const engine = shared ?? engines.get(engineId)!;
+    try {
+      await serveApi(req, res, path, engine, engineId);
+    } catch (error) {
+      if (!(error instanceof TabEngineStartError)) throw error;
+      // This tab's engine never came up. Forget it, so the tab's next try
+      // starts a fresh one instead of reaching a dead process, say why once
+      // in the terminal, and tell the page the reason (and nothing else
+      // about the failure, unlike an internal error).
+      engine.dispose();
+      for (const [id, candidate] of engines) {
+        if (candidate === engine) engines.delete(id);
+      }
+      const reason = scrubKnownValues(
+        error.message,
+        liveSecrets(state, launchToken, sessionSecret, csrf),
+        [],
+        { errorText: true }
+      );
+      if (!reportedStartFailures.has(reason)) {
+        reportedStartFailures.add(reason);
+        printError(
+          new Error(`The console could not start an engine: ${reason}`)
+        );
+      }
+      throw new HttpError(
+        503,
+        `The console could not start an engine: ${reason}`
+      );
+    }
+  }
+
+  async function serveApi(
+    req: http.IncomingMessage,
+    res: http.ServerResponse,
+    path: string,
+    engine: TabEngine,
+    engineId: string | undefined
+  ): Promise<void> {
     // What the connection looks like is each engine's own business: a
     // per-tab engine connects in its child process, so the parent's state
     // knows nothing about it (it would answer "not connected" forever).

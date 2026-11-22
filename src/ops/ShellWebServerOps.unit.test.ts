@@ -16,6 +16,7 @@ import { buildContentSecurityPolicy, renderConsolePage } from './ShellWebPage';
 import {
   createLogBus,
   ENGINE_WORKER_ENV,
+  engineStartFailureReason,
   LogBus,
   SessionInfo,
   startWebConsole,
@@ -1082,6 +1083,233 @@ describe('how a tab engine is started', () => {
       expect(run.args).toEqual(['/x/stub.cjs']);
       expect(ENGINE_WORKER_ENV in run.env).toBe(false);
     }
+  });
+});
+
+describe('why a tab engine did not come up', () => {
+  it('takes the first line that names an error, else the first line', () => {
+    expect(
+      engineStartFailureReason([
+        'node:internal/modules/cjs/loader:1423',
+        '  throw err;',
+        '',
+        "Error: Cannot find module '/x/y.cjs'",
+        '    at somewhere',
+      ])
+    ).toBe("Error: Cannot find module '/x/y.cjs'");
+    expect(engineStartFailureReason(["error: unknown command '/x'"])).toBe(
+      "error: unknown command '/x'"
+    );
+    expect(engineStartFailureReason(['boom', 'second line'])).toBe('boom');
+  });
+
+  it('skips the notices of the runtime', () => {
+    expect(
+      engineStartFailureReason([
+        '(node:123) ExperimentalWarning: something is not available',
+        '(Use `node --trace-warnings ...` to show where the warning was created)',
+        'boom',
+      ])
+    ).toBe('boom');
+  });
+
+  it('is one clean line of at most 200 characters', () => {
+    const reason = engineStartFailureReason([
+      `\u001b[31mError: ${'x'.repeat(300)}\u001b[0m\u0007`,
+    ]);
+    expect(reason.startsWith('Error: xxx')).toBe(true);
+    expect(reason).toHaveLength(200);
+    expect(reason.endsWith('…')).toBe(true);
+    expect(reason).not.toMatch(/[\u0000-\u001f]/);
+  });
+
+  it('describes a process that wrote nothing by how it ended', () => {
+    expect(engineStartFailureReason([], { code: 3 })).toBe(
+      'The engine process ended with exit code 3 before it answered.'
+    );
+    expect(
+      engineStartFailureReason([], { code: null, signal: 'SIGKILL' })
+    ).toBe(
+      'The engine process was stopped by the signal SIGKILL before it answered.'
+    );
+  });
+});
+
+describe('a tab engine that cannot start', () => {
+  let web: WebConsoleHandle;
+  let dir: string;
+  let errors: jest.SpiedFunction<typeof console.error>;
+
+  beforeEach(() => {
+    dir = fs.mkdtempSync(path.join(os.tmpdir(), 'frodo-worker-'));
+    errors = jest.spyOn(console, 'error').mockImplementation(() => undefined);
+  });
+
+  afterEach(async () => {
+    await web.close();
+    jest.restoreAllMocks();
+    delete process.env.FRODO_TEST_WORKER_SCRIPT;
+    fs.rmSync(dir, { recursive: true, force: true });
+  });
+
+  /** A worker that is a script of the given lines (`process` and `require` are there). */
+  function stub(lines: string[]): string {
+    const file = path.join(dir, 'stub-worker.cjs');
+    fs.writeFileSync(file, lines.join('\n'));
+    return file;
+  }
+
+  async function startAndSignIn(
+    options: Partial<Parameters<typeof startWebConsole>[0]> = {}
+  ) {
+    web = await startWebConsole({
+      logs: createLogBus(),
+      sessionInfo: () => ({}),
+      ...options,
+    });
+    const host = `127.0.0.1:${web.port}`;
+    const redeem = await request(web.port, {
+      path: new URL(web.launchUrl).pathname + new URL(web.launchUrl).search,
+      headers: { Host: host },
+    });
+    const cookie = redeem.headers['set-cookie']![0].split(';')[0];
+    const page = await request(web.port, {
+      headers: { Host: host, Cookie: cookie },
+    });
+    const csrf = /name="csrf-token" content="([^"]+)"/.exec(page.body)![1];
+    const headers = {
+      Host: host,
+      Cookie: cookie,
+      'X-Frodo-CSRF': csrf,
+    };
+    return {
+      session: (extra: Record<string, string> = {}) =>
+        request(web.port, {
+          path: '/api/session',
+          headers: { ...headers, ...extra },
+        }),
+      evaluate: (engine: string, code: string) =>
+        request(web.port, {
+          method: 'POST',
+          path: '/api/eval',
+          headers: {
+            ...headers,
+            Origin: `http://${host}`,
+            'Content-Type': 'application/json',
+            'X-Frodo-Engine': engine,
+          },
+          body: JSON.stringify({ code }),
+        }),
+    };
+  }
+
+  it('answers 503 with the reason, not "Internal error", when the worker script is missing', async () => {
+    process.env.FRODO_TEST_WORKER_SCRIPT = path.join(dir, 'missing.cjs');
+    const { session } = await startAndSignIn();
+    const reply = await session();
+    expect(reply.status).toBe(503);
+    const { error } = JSON.parse(reply.body);
+    expect(error).toMatch(/^The console could not start an engine: /);
+    expect(error).toMatch(/Cannot find module/);
+    expect(error).not.toMatch(/Internal error/);
+  });
+
+  it('answers 503 with the first line a worker wrote when it ends at once', async () => {
+    process.env.FRODO_TEST_WORKER_SCRIPT = stub([
+      'process.stderr.write("boom: no engine today\\n");',
+      'process.stderr.write("a second line that stays inside\\n");',
+      'process.exit(3);',
+    ]);
+    const { session } = await startAndSignIn();
+    const reply = await session();
+    expect(reply.status).toBe(503);
+    expect(JSON.parse(reply.body).error).toBe(
+      'The console could not start an engine: boom: no engine today'
+    );
+  });
+
+  it('says so in the terminal once, however often the page asks again', async () => {
+    process.env.FRODO_TEST_WORKER_SCRIPT = stub([
+      'process.stderr.write("boom: no engine today\\n");',
+      'process.exit(3);',
+    ]);
+    const { session } = await startAndSignIn();
+    for (let i = 0; i < 3; i++) expect((await session()).status).toBe(503);
+    const told = errors.mock.calls.filter((call) =>
+      String(call[0]).includes('boom: no engine today')
+    );
+    expect(told).toHaveLength(1);
+    expect(String(told[0][0])).toContain(
+      'The console could not start an engine: boom: no engine today'
+    );
+  });
+
+  it('leaves a secret that the worker wrote out of the reply and the terminal', async () => {
+    const token = `eyJhbGciOiJIUzI1NiJ9.${'a'.repeat(40)}.${'b'.repeat(40)}`;
+    process.env.FRODO_TEST_WORKER_SCRIPT = stub([
+      `process.stderr.write("Error: request failed with Bearer ${token}\\n");`,
+      'process.exit(1);',
+    ]);
+    const { session } = await startAndSignIn();
+    const reply = await session();
+    expect(reply.status).toBe(503);
+    expect(reply.body).not.toContain(token);
+    expect(reply.body).toContain('<redacted>');
+    expect(JSON.stringify(errors.mock.calls)).not.toContain(token);
+  });
+
+  it('disposes the failed engine once and forgets it', async () => {
+    let disposed = 0;
+    const failing: TabEngine = {
+      evaluate: async () => ({ status: 'ok' }),
+      children: async () => null,
+      json: async () => null,
+      complete: async () => [[], ''],
+      history: async () => {
+        throw new TabEngineStartError('no engine today');
+      },
+      connect: async () => ({ ok: false, info: {} }),
+      info: async () => {
+        throw new TabEngineStartError('no engine today');
+      },
+      reset: async () => undefined,
+      dispose: () => {
+        disposed++;
+      },
+    };
+    const { session } = await startAndSignIn({
+      spawnEngine: async () => failing,
+    });
+    expect((await session()).status).toBe(503);
+    expect(disposed).toBe(1);
+    // Closing the console disposes every engine it still holds: the failed one
+    // is no longer among them.
+    await web.close();
+    expect(disposed).toBe(1);
+  });
+
+  it('does not call a worker that answered and later ended a failure to start', async () => {
+    process.env.FRODO_TEST_WORKER_SCRIPT = stub([
+      'const rl = require("node:readline").createInterface({ input: process.stdin });',
+      'rl.on("line", (line) => {',
+      '  const m = JSON.parse(line);',
+      '  if (m.op === "eval") process.exit(1);',
+      '  const reply = m.op === "history" ? { lines: [] } : { info: {} };',
+      '  process.stdout.write(JSON.stringify({ id: m.id, op: m.op, ...reply }) + "\\n");',
+      '});',
+    ]);
+    const { session, evaluate } = await startAndSignIn();
+    const up = await session();
+    expect(up.status).toBe(200);
+    const engine = JSON.parse(up.body).engine as string;
+    const crashed = await evaluate(engine, '1 + 1');
+    expect(crashed.status).toBe(500);
+    expect(JSON.parse(crashed.body)).toEqual({ error: 'Internal error' });
+    expect(
+      errors.mock.calls.filter((call) =>
+        String(call[0]).includes('could not start an engine')
+      )
+    ).toHaveLength(0);
   });
 });
 

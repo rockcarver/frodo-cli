@@ -257,6 +257,8 @@ const SCRIPT = String.raw`
   // its own): without the flag, a stream retry with a still-null id would
   // retry the session forever instead of opening the stream.
   var sharedEngine = false;
+  // Consecutive failures to get a session (and so an engine) from the server.
+  var sessionFailures = 0;
 
   function rememberEngine(id) {
     if (id) {
@@ -1079,9 +1081,19 @@ const SCRIPT = String.raw`
     // before it has an id (or lost it) asks for one first; a shared-engine
     // tab goes straight through (it has no id to learn).
     if (!engineId && !sharedEngine) {
-      refreshSession()
-        .catch(function (e) { infoEl.textContent = 'session error: ' + e.message; })
-        .then(function () { listen(); });
+      refreshSession().then(function () {
+        sessionFailures = 0;
+        listen();
+      }, function (e) {
+        infoEl.textContent = 'session error: ' + e.message;
+        setStatus(false);
+        // A server that cannot give this tab an engine answers at once; asking
+        // again without a pause would start one process per answer. Wait, a
+        // little longer each time (1.5 s, then double, at most 30 s).
+        var wait = Math.min(1500 * Math.pow(2, sessionFailures), 30000);
+        sessionFailures += 1;
+        setTimeout(listen, wait);
+      });
       return;
     }
     var listenHeaders = { 'X-Frodo-CSRF': csrf };

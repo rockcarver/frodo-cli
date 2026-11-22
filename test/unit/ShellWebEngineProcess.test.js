@@ -215,4 +215,31 @@ run('frodo shell --web with real engine processes', () => {
     expect(await shell.stop()).toBe(true);
     expect(shell.groupAlive()).toBe(false);
   }, 180_000);
+
+  test('5: an engine that cannot start is answered with 503 and its reason, the terminal says it once, and the console stays up', async () => {
+    shell = startFrodo({
+      args: ['shell', '--web', '--no-open'],
+      homeDir: home,
+      env: { FRODO_TEST_WORKER_SCRIPT: path.join(dir, 'missing-worker.cjs') },
+    });
+    const call = await signInOverHttp(await shell.link());
+
+    const first = await call('GET', '/api/session');
+    expect(first.status).toBe(503);
+    expect(first.json.error).toMatch(
+      /^The console could not start an engine: \S/
+    );
+    expect(first.json.error).not.toMatch(/Internal error/);
+    const again = await call('GET', '/api/session');
+    expect(again.status).toBe(503);
+
+    // said in the terminal, once, with the same reason
+    const told = shell
+      .output()
+      .split('\n')
+      .filter((line) => line.includes('The console could not start an engine'));
+    expect(told).toHaveLength(1);
+    expect(told[0]).toContain(first.json.error);
+    expect(shell.exited).toBe(false);
+  }, 180_000);
 });
