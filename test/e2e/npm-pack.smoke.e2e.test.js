@@ -16,6 +16,14 @@
  * file, so ANY future missing-chunk failure is caught here with a
  * precise message instead of at a customer.
  *
+ * The same defect class, second instance: `files` once listed only the
+ * top-level `dist/*.cjs`, so the web shell's worker
+ * (dist/cli/shell/engine-worker.cjs, spawned by `frodo shell --web`) was
+ * never published although the build emits it. The suite therefore also
+ * lists the tarball and asserts the worker and its map are in it, that
+ * every built .cjs and map under dist/ (any depth) is shipped, and that
+ * nothing outside the build output, licence, README and changelog is.
+ *
  * Skipped when dist/ is missing (same contract as the other e2e
  * suites: build first).
  */
@@ -38,6 +46,7 @@ const hasDist = fs.existsSync(launchPath);
 
 let packDir;
 let installDir;
+let tarballPath;
 
 const pack = async () => {
   packDir = fs.mkdtempSync(path.join(os.tmpdir(), 'frodo-pack-'));
@@ -48,8 +57,9 @@ const pack = async () => {
     maxBuffer: 50 * 1024 * 1024,
   });
   const tarball = fs.readdirSync(packDir).find((f) => f.endsWith('.tgz'));
+  tarballPath = path.join(packDir, tarball);
   fs.writeFileSync(path.join(installDir, 'package.json'), '{}');
-  await exec(`npm install ${path.join(packDir, tarball)} --no-audit --no-fund`, {
+  await exec(`npm install ${tarballPath} --no-audit --no-fund`, {
     env: { ...process.env, NODE_OPTIONS },
     cwd: installDir,
     maxBuffer: 50 * 1024 * 1024,
@@ -66,20 +76,79 @@ describe('published npm package (npm pack + fresh install)', () => {  beforeAll(
     }
   });
 
+  // Every file the tarball holds, as `package/<path>` (npm's fixed prefix).
+  const tarballEntries = async () => {
+    const { stdout } = await exec(`tar -tzf ${tarballPath}`, {
+      maxBuffer: 50 * 1024 * 1024,
+    });
+    return stdout.split('\n').filter((entry) => entry && !entry.endsWith('/'));
+  };
+
+  // Every file below `dir`, as paths relative to `dir` with forward slashes.
+  const walk = (dir, prefix = '') =>
+    fs.readdirSync(path.join(dir, prefix), { withFileTypes: true }).flatMap((entry) => {
+      const rel = prefix ? `${prefix}/${entry.name}` : entry.name;
+      return entry.isDirectory() ? walk(dir, rel) : [rel];
+    });
+
   testif(hasDist)(
     'packed dist/ contains every relative require() target',
     async () => {
       const pkgDist = path.join(installDir, 'node_modules', '@rockcarver', 'frodo-cli', 'dist');
-      const shipped = new Set(fs.readdirSync(pkgDist));
       const missing = [];
-      for (const file of fs.readdirSync(pkgDist)) {
+      for (const file of walk(pkgDist)) {
         if (!file.endsWith('.cjs')) continue;
         const source = fs.readFileSync(path.join(pkgDist, file), 'utf8');
-        for (const match of source.matchAll(/require\("\.\/([^"]+)"\)/g)) {
-          if (!shipped.has(match[1])) missing.push(`${file} -> ${match[1]}`);
+        // Targets resolve against the requiring file's own folder: the
+        // worker in dist/cli/shell/ reaches the shared chunks with ../../.
+        for (const match of source.matchAll(/require\("(\.\.?\/[^"]+)"\)/g)) {
+          const target = path.join(pkgDist, path.dirname(file), match[1]);
+          if (!fs.existsSync(target)) missing.push(`${file} -> ${match[1]}`);
         }
       }
       expect(missing).toEqual([]);
+    }
+  );
+
+  testif(hasDist)(
+    'the tarball contains the web shell worker and its source map',
+    async () => {
+      // ShellWebServerOps.workerScriptPath() spawns this exact file.
+      const entries = await tarballEntries();
+      const missing = [
+        'package/dist/cli/shell/engine-worker.cjs',
+        'package/dist/cli/shell/engine-worker.cjs.map',
+      ].filter((entry) => !entries.includes(entry));
+      expect(missing).toEqual([]);
+    }
+  );
+
+  testif(hasDist)(
+    'the tarball contains every built .cjs and map under dist/, at any depth',
+    async () => {
+      const entries = new Set(await tarballEntries());
+      const missing = walk(distDir)
+        .filter((file) => /\.cjs(\.map)?$/.test(file))
+        .map((file) => `package/dist/${file}`)
+        .filter((entry) => !entries.has(entry));
+      expect(missing).toEqual([]);
+    }
+  );
+
+  testif(hasDist)(
+    'the tarball contains only the build output, licence, README and changelog',
+    async () => {
+      const allowed = [
+        /^package\/package\.json$/,
+        /^package\/LICENSE$/,
+        /^package\/README\.md$/,
+        /^package\/CHANGELOG\.md$/,
+        /^package\/dist\/.+\.cjs(\.map)?$/,
+      ];
+      const unexpected = (await tarballEntries()).filter(
+        (entry) => !allowed.some((pattern) => pattern.test(entry))
+      );
+      expect(unexpected).toEqual([]);
     }
   );
 
