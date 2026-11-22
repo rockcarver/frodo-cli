@@ -20,10 +20,10 @@ The group is experimental. [Core 0019](core/0019-experimental-features-are-not-b
 ## Decision
 
 - **These commands ask first:** `promote run-promotion`, `promote rollback` and `promote run-dryrun-promotion`, whose help says why a command that changes nothing asks. `push restart` asks wherever it would restart, and a restart never happens unasked.
-- **`push restart` by option.** `-s` (a status read) never asks. Without `-s` and `-c` it restarts, so it asks first like the others. `-c` (restart only if ESVs need loading) runs the check without a question and asks only if the check finds ESVs to load and would restart.
+- **`push restart` by option.** `-s` (a status read) never asks. Without `-s` and `--check` it restarts, so it asks first like the others. `--check` (restart only if ESVs need loading) runs the check without a question and asks only if the check finds ESVs to load and would restart.
 - **One implementation.** The question and the refusal come from the shared helper of 0037, not from a prompt of the command.
 - **With a terminal** the command says what it is about to do and where, and asks; the default answer is no. `-y, --yes` answers it.
-- **Without a terminal and without `-y, --yes`** the command is refused before the login with an error that names `-y, --yes`, and exits with a failure code ([0033](0033-code-sets-the-exit-code-and-returns-instead-of-exiting.md)), as the bulk-delete guard does. `push restart -c` cannot know before its check whether it would restart, so it is refused at that point, before restarting.
+- **Without a terminal and without `-y, --yes`** the command is refused before the login with an error that names `-y, --yes`, and exits with a failure code ([0033](0033-code-sets-the-exit-code-and-returns-instead-of-exiting.md)), as the bulk-delete guard does. `push restart --check` cannot know before its check whether it would restart, so it is refused at that point, before restarting.
 - **An exception to the plain form of [0041](0041-the-config-manager-plain-form-is-what-an-unattended-pipeline-needs.md),** as 0037 is: a pipeline adds `-y, --yes` once.
 - **The label comes off the leaves of the group together,** by one decision that names the release (core 0019), and only when all of this is true:
   1. the options and names of [0056](0056-the-configuration-command-group.md) and [0057](0057-options-of-the-configuration-commands.md) are in place;
@@ -36,7 +36,7 @@ The group is experimental. [Core 0019](core/0019-experimental-features-are-not-b
 
 ## Consequences
 
-- A pipeline that runs `push restart` (not `-s`), `promote run-promotion` or `promote rollback` adds `-y, --yes` once. A pipeline that runs `push restart -c` adds it too: without it the run succeeds while nothing needs loading and is refused, before restarting, on the first run that would restart. `MIGRATION.md` says so; the group is experimental, so the entry is welcome, not required.
+- A pipeline that runs `push restart` (not `-s`), `promote run-promotion`, `promote rollback` or `promote run-dryrun-promotion` adds `-y, --yes` once. A pipeline that runs `push restart --check` adds it too: without it the run succeeds while nothing needs loading and is refused, before restarting, on the first run that would restart. `MIGRATION.md` says so; the group is experimental, so the entry is welcome, not required.
 - Usage examples of these commands carry `--yes`, except those of `push restart -s`, and their e2e tests pass `-y` likewise ([0002](0002-usage-examples-run-as-written-and-open-no-prompt.md)).
 - Kept in sync: the inventory of confirmations in `test/unit/PromptsAreFramed.test.js`, the help text and the help snapshots of the four commands.
 - Not decided: the release that drops the label, and whether a command waits by default.
@@ -46,5 +46,5 @@ The group is experimental. [Core 0019](core/0019-experimental-features-are-not-b
 - **Wait by default:** it would change pipelines that return at once, so it is decided again when the label comes off.
 - **No question for `promote run-dryrun-promotion`:** it changes nothing, but it runs for minutes like a promotion.
 - **Remove the label first and fix names later:** a rename would then wait for a major release.
-- **Let `push restart -c` restart without a question:** the restart would happen unasked, which this record rules out.
-- **Ask or refuse before the check of `push restart -c`:** a pipeline with nothing to load would fail or wait for an answer for no reason.
+- **Let `push restart --check` restart without a question:** the restart would happen unasked, which this record rules out.
+- **Ask or refuse before the check of `push restart --check`:** a pipeline with nothing to load would fail or wait for an answer for no reason.
