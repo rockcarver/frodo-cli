@@ -143,19 +143,23 @@ this process, in this order, it (1) switches source maps on when
 listeners (what `node --no-warnings` does), (3) sets `process.argv[1]` to the
 path of `app.cjs`, and (4) `require`s `app.cjs`. Until 2026-11-21 it spawned a
 second Node process with `--no-warnings --enable-source-maps` and forwarded
-signals to it; the second process cost a fifth to a quarter of every start
-(`frodo -v`, `-h`, `conn list`), and about 100 MB while the MCP HTTP server
-idles.
+signals to it; the second process cost about a quarter of every start
+(`frodo -v`, `-h`, `conn list`: 25 to 26 percent less wall time on a quiet
+machine) and, for an idle MCP HTTP server, about 170 MB (379 MB for the two
+processes, 208 MB for one; measured on one machine). `FRODO_SOURCE_MAPS=1` takes
+about 120 MB of that back (327 MB), because Node then loads the maps.
 
 - **Source maps are off by default, and the opt-in is
   `FRODO_SOURCE_MAPS=1`.** The npm package ships the maps (`dist/*.map`), but
   Node only reads them when asked, and reading the maps of a 10 MB bundle takes
-  about a fifth of every start. Without the opt-in a stack trace
-  names lines of `dist/app.cjs` and the shared chunks, not the original
-  TypeScript files; the issue template asks for a trace from a run with
-  `FRODO_SOURCE_MAPS=1`. Step (1) must come before step (4): Node applies the
+  about 75 ms, a fifth of every start (and about 120 MB for an idle server).
+  Without the opt-in a stack trace names lines of `dist/app.cjs` and the shared
+  chunks, not the original TypeScript files; the issue template asks for a
+  trace from a run with `FRODO_SOURCE_MAPS=1`. The opt-in works only in the npm
+  package and the Docker image (the SEA binary has no maps and ignores it).
+  Step (1) must come before step (4): Node applies the
   maps to the code that is loaded after the switch. `NODE_OPTIONS=--enable-source-maps`
-  works too, with no help from the entry. The SEA binary has never had maps.
+  works too, with no help from the entry.
 - **`process.argv[1]` is `app.cjs`, as it was in the child process.**
   frodo-lib tells the CLI from a jest run by that name
   (`getFrodoCommand`: `frodo`, `frodo.exe` or `app.cjs` mean the CLI), and
@@ -537,5 +541,5 @@ pkg→SEA migration (it builds `dist/` from source).
 | 2026-11-14 | A pull request that changes only `.github/dependabot.yml` or `.github/workflows/dependabot-auto-merge.yml` runs `Validate guidance` instead of nothing: both are in `GUIDANCE` of the classifier (still non-code), and `tools/run-guidance-tests.mjs` lists `DependabotAutoMerge.test.js` and `DependabotPolicy.test.js` (core 0023). `scripts/dependabot-auto-merge.mjs` stays code, so `Test` runs its tests. Required checks unchanged | #1321 |
 | 2026-11-15 | The Dependabot auto-merge policy of core 0023 is decided by the shared action `gearsnlevers/dependabot-auto-merge-action` (pinned by full SHA in `dependabot-auto-merge.yml`), the same one frodo-lib uses; `scripts/dependabot-auto-merge.mjs` and its test are gone. `test/unit/DependabotPolicy.test.js` stays, with its own matcher and manual-name rule, and now pins the workflow's properties; `tools/run-guidance-tests.mjs` lists it alone. The classifier's `GUIDANCE` is unchanged (`dependabot.yml` and the workflow are still read by that test). The workflow gets a `dry-run` input for `workflow_dispatch`. |
 | 2026-11-21 | The ESM loader is removed (`src/loader.ts`, `dist/loader.cjs`, the `--experimental-loader` argument of `src/launch.ts`, the `resolve` devDependency): it was written in 2023 for unbundled ESM with extensionless imports, and the bundle has no runtime resolution left (the hook was asked about one specifier per run, the entry file, and Node's own resolver answers the same). `frodo -v` from the npm package starts about a third faster; the SEA binary never had a loader. The launcher, its flags and its second process are unchanged. |
-| 2026-11-21 | The entry runs the app in one process (`src/launch.ts`): it no longer spawns `node --no-warnings --enable-source-maps app.cjs` and forwards signals, it removes the `warning` listeners, sets `process.argv[1]` to `app.cjs` and requires `app.cjs`. Starts a fifth to a quarter faster, and the process tree of an idle `mcp server start --transport http` takes about 100 MB less. Source maps are off by default in the npm package; `FRODO_SOURCE_MAPS=1` switches them on (see 2.4). The exit status after a signal is real (130, 143) instead of 0, `kill -9` of the entry leaves no orphan, and Ctrl+C on `mcp server start` shuts the server down gracefully again. The compose example gets `init: true`. The SEA binary is unchanged. `MIGRATION.md` lists the user-visible effects. |
+| 2026-11-21 | The entry runs the app in one process (`src/launch.ts`): it no longer spawns `node --no-warnings --enable-source-maps app.cjs` and forwards signals, it removes the `warning` listeners, sets `process.argv[1]` to `app.cjs` and requires `app.cjs`. Starts about a quarter faster (25 to 26 percent less wall time for `frodo -v`, `-h` and `conn list`), and the process tree of an idle `mcp server start --transport http` takes about 170 MB less (379 MB to 208 MB; measured on one machine). Source maps are off by default in the npm package; `FRODO_SOURCE_MAPS=1` switches them on (see 2.4). The exit status after a signal is real (130, 143) instead of 0, `kill -9` of the entry leaves no orphan, and Ctrl+C on `mcp server start` shuts the server down gracefully again. The compose example gets `init: true`. The SEA binary is unchanged. `MIGRATION.md` lists the user-visible effects. |
 | planned    | Polly→nock (library repo) — DEFERRED 2026-10-04 (deep record-harness coupling; revisit on Node 28 or real breakage)                                                                                                                                                                                                                                                                                                                                                                                                                                                 | —                            |
