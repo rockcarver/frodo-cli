@@ -97,6 +97,11 @@ describe('a start of the CLI and the colour theme files', () => {
       // One listing is the minimum, since the saved theme is read from the
       // folder. Before the constructor stopped applying the theme this was one
       // per command object (492); the file checks were 11,808 (now 24).
+      // The lower bound keeps the test honest: if the counter traced nothing
+      // (a changed import hook, a renamed folder, a start that never reached
+      // the theme code), the upper bounds alone would pass without proving
+      // anything.
+      expect(count.readdir).toBeGreaterThanOrEqual(1);
       expect(count.readdir).toBeLessThanOrEqual(2);
       expect(count.stat).toBeLessThanOrEqual(40);
     }
