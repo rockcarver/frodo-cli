@@ -2922,17 +2922,16 @@ describe('startHttpTransport', () => {
 });
 
 // ---------------------------------------------------------------------------
-// Launcher signal forwarding (src/launch.ts, the dist/launch.cjs wrapper)
+// Signals sent to the entry process (src/launch.ts, dist/launch.cjs)
 // ---------------------------------------------------------------------------
 
-describe('launcher signal forwarding', () => {
-  // The wrapper (launch.ts) spawns the CLI child with stdio inherit and has
-  // no session of its own; a signal delivered to only the wrapper (closing
-  // SSH session -> SIGHUP, `kill <wrapper-pid>` -> SIGTERM) must reach the
-  // child, or a long-running `frodo mcp server start` outlives its parent
-  // and holds the port. Driven against the built dist/launch.cjs running the
-  // real `mcp server start --transport http` (the listener comes up without
-  // a tenant connection), signaling the WRAPPER process.
+describe('signals sent to the entry process', () => {
+  // dist/launch.cjs runs the app in its own process: there is no second
+  // process to forward a signal to. A signal delivered to only that process
+  // (closing SSH session -> SIGHUP, `kill <pid>` -> SIGTERM) must still end
+  // a long-running `frodo mcp server start` and release the port. Driven
+  // against the built dist/launch.cjs running the real `mcp server start
+  // --transport http` (the listener comes up without a tenant connection).
   const { spawn } = childProcess;
   const fs = fsPromise;
   const os = osPromise;
@@ -2944,7 +2943,7 @@ describe('launcher signal forwarding', () => {
     hasDist ? test(name, fn, 60000) : test.skip(name, fn);
 
   cond(
-    'SIGHUP to the wrapper reaches the child, which exits and releases the port',
+    'SIGHUP to the entry process ends the server and releases the port',
     async () => {
       const port = await getFreePort();
       const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'mcp-launch-'));
@@ -2974,10 +2973,8 @@ describe('launcher signal forwarding', () => {
       );
       try {
         await waitForListening('127.0.0.1', port, 30000);
-        // Signal the WRAPPER, not the child: the forwarding under test. The
-        // child exits on the forwarded SIGHUP (its graceful-shutdown handler
-        // resolves the transport promise, then the process unwinds) — the
-        // wrapper's exit reflects the child's.
+        // The process exits on the SIGHUP (its graceful-shutdown handler
+        // resolves the transport promise, then the process unwinds).
         process.kill(child.pid, 'SIGHUP');
         const [code, signal] = await new Promise((resolve) =>
           child.once('exit', (c, s) => resolve([c, s]))
@@ -3012,7 +3009,7 @@ describe('uncaughtException crash path (spawned child)', () => {
   // test/debug-only env hook documented in docs/MCP_CLIENT_SETUP.md) makes
   // the HTTP server throw an uncaught exception shortly after listening, so
   // the full path — one timestamped crash line, best-effort port release,
-  // exit 1 — runs in the real compiled dist against the real launch wrapper.
+  // exit 1 — runs in the real compiled dist through the real entry.
   // Skipped when dist is absent (the launcher-test pattern).
   const { spawn } = childProcess;
   const fs = fsPromise;

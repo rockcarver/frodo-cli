@@ -40,10 +40,10 @@ Release automation:
 
 **What it does**: bundles the TypeScript entries into CJS outputs:
 
-| Entry           | Output            | Role                                                |
-| --------------- | ----------------- | --------------------------------------------------- |
-| `src/launch.ts` | `dist/launch.cjs` | npm `bin` entry; spawns `app.cjs`, forwards signals |
-| `src/app.ts`    | `dist/app.cjs`    | the CLI itself (~10 MB, self-contained)             |
+| Entry           | Output            | Role                                                          |
+| --------------- | ----------------- | ------------------------------------------------------------- |
+| `src/launch.ts` | `dist/launch.cjs` | npm `bin` entry; runs `app.cjs` in the same process (see 2.4) |
+| `src/app.ts`    | `dist/app.cjs`    | the CLI itself (~10 MB, self-contained)                       |
 
 There is no module-resolution loader: the bundle resolves everything at build
 time, so Node's own resolver is all that runs (the `--experimental-loader` hook
@@ -133,6 +133,48 @@ tsup's `index.mjs` threw `Dynamic require of "util" is not supported` the
 moment anyone imported it (unnoticed because consumers use CJS). tsdown's
 output imports cleanly in both modes (verified: CJS require and ESM namespace
 import both expose all 62 exports).
+
+### 2.4 The entry runs the app in one process
+
+`dist/launch.cjs` (the npm `bin` entry, `main`, the Docker entrypoint, and
+what the dev-mode test shims run) is about 400 bytes and starts nothing: in
+this process, in this order, it (1) switches source maps on when
+`FRODO_SOURCE_MAPS` is `1`, `true`, `yes` or `on`, (2) removes the `warning`
+listeners (what `node --no-warnings` does), (3) sets `process.argv[1]` to the
+path of `app.cjs`, and (4) `require`s `app.cjs`. Until 2026-11-21 it spawned a
+second Node process with `--no-warnings --enable-source-maps` and forwarded
+signals to it; the second process cost about a quarter of every start, and
+about 100 MB while the MCP HTTP server idles.
+
+- **Source maps are off by default, and the opt-in is
+  `FRODO_SOURCE_MAPS=1`.** The npm package ships the maps (`dist/*.map`), but
+  Node only reads them when asked, and reading the maps of a 10 MB bundle takes
+  about a fifth of every start. Without the opt-in a stack trace
+  names lines of `dist/app.cjs` and the shared chunks, not the original
+  TypeScript files; the issue template asks for a trace from a run with
+  `FRODO_SOURCE_MAPS=1`. Step (1) must come before step (4): Node applies the
+  maps to the code that is loaded after the switch. `NODE_OPTIONS=--enable-source-maps`
+  works too, with no help from the entry. The SEA binary has never had maps.
+- **`process.argv[1]` is `app.cjs`, as it was in the child process.**
+  frodo-lib tells the CLI from a jest run by that name
+  (`getFrodoCommand`: `frodo`, `frodo.exe` or `app.cjs` mean the CLI), and
+  the recordings of the e2e tests are found through it. Without step (3) every
+  dev-mode e2e replay fails with `Recording ... not found` while CI, which runs the
+  SEA binary, stays green. `test/unit/LauncherCommandLine.test.js` guards it.
+- **The exit status is the one of the app.** A command that ends by a signal
+  (Ctrl+C is 130, `kill` is 143) no longer exits 0, as the SEA binary never
+  did. The old wrapper exited 0 whenever its child was killed by a signal, and
+  a `SIGKILL` of the wrapper left the child running and holding its port.
+- **The entry stays standalone**: it imports only Node built-ins and
+  requires `./app.cjs` through a variable, so that the build emits one small
+  file and does not bundle the app into it (`test/unit/LauncherCommandLine.test.js`
+  pins the size and the `require` targets). The opt-in test is written out in
+  it and is the same test as `isTruthyOptInValue` in `src/utils/EnvFlags.ts`.
+- Not done here: the compile cache (`module.enableCompileCache`): it saves
+  about 60 ms on a warm start and costs about 110 ms once, and it writes 5.7 MB
+  outside `~/.frodo`. Warnings are removed in code for now because frodo-lib
+  loads its test recorder (Polly) in production; a library change that stops
+  that would make the `removeAllListeners('warning')` line unneeded.
 
 ---
 
@@ -433,8 +475,10 @@ tenant smoke test included, after an update pull request that skipped it.
 `Dockerfile` builds the MCP HTTP server image: stage 1 runs
 `npm run build:only` on `node:24-slim` (needs `tsdown.config.ts` in COPY —
 updated from the stale `tsup.config.ts` reference when the allowlist
-landed); stage 2 copies only `dist/` and runs `node dist/launch.cjs`
-(signal-forwarding wrapper → graceful MCP shutdown on `docker stop`).
+landed); stage 2 copies only `dist/` and runs `node dist/launch.cjs` (one
+process, PID 1: the MCP server handles `docker stop` itself and shuts down
+gracefully; `docker run --init` or `init: true` in compose puts a small init
+process in front so that SIGTERM also ends frodo while it starts up).
 The image does not use the release binaries and is unaffected by the
 pkg→SEA migration (it builds `dist/` from source).
 
@@ -480,4 +524,5 @@ pkg→SEA migration (it builds `dist/` from source).
 | 2026-11-14 | A pull request that changes only `.github/dependabot.yml` or `.github/workflows/dependabot-auto-merge.yml` runs `Validate guidance` instead of nothing: both are in `GUIDANCE` of the classifier (still non-code), and `tools/run-guidance-tests.mjs` lists `DependabotAutoMerge.test.js` and `DependabotPolicy.test.js` (core 0023). `scripts/dependabot-auto-merge.mjs` stays code, so `Test` runs its tests. Required checks unchanged | #1321 |
 | 2026-11-15 | The Dependabot auto-merge policy of core 0023 is decided by the shared action `gearsnlevers/dependabot-auto-merge-action` (pinned by full SHA in `dependabot-auto-merge.yml`), the same one frodo-lib uses; `scripts/dependabot-auto-merge.mjs` and its test are gone. `test/unit/DependabotPolicy.test.js` stays, with its own matcher and manual-name rule, and now pins the workflow's properties; `tools/run-guidance-tests.mjs` lists it alone. The classifier's `GUIDANCE` is unchanged (`dependabot.yml` and the workflow are still read by that test). The workflow gets a `dry-run` input for `workflow_dispatch`. |
 | 2026-11-21 | The ESM loader is removed (`src/loader.ts`, `dist/loader.cjs`, the `--experimental-loader` argument of `src/launch.ts`, the `resolve` devDependency): it was written in 2023 for unbundled ESM with extensionless imports, and the bundle has no runtime resolution left (the hook was asked about one specifier per run, the entry file, and Node's own resolver answers the same). `frodo -v` from the npm package starts about a third faster; the SEA binary never had a loader. The launcher, its flags and its second process are unchanged. |
+| 2026-11-21 | The entry runs the app in one process (`src/launch.ts`): it no longer spawns `node --no-warnings --enable-source-maps app.cjs` and forwards signals, it removes the `warning` listeners, sets `process.argv[1]` to `app.cjs` and requires `app.cjs`. Starts about a quarter faster, and the process tree of an idle `mcp server start --transport http` takes about 100 MB less. Source maps are off by default in the npm package; `FRODO_SOURCE_MAPS=1` switches them on (see 2.4). The exit status after a signal is real (130, 143) instead of 0, `kill -9` of the entry leaves no orphan, and Ctrl+C on `mcp server start` shuts the server down gracefully again. The compose example gets `init: true`. The SEA binary is unchanged. |
 | planned    | Polly→nock (library repo) — DEFERRED 2026-10-04 (deep record-harness coupling; revisit on Node 28 or real breakage)                                                                                                                                                                                                                                                                                                                                                                                                                                                 | —                            |

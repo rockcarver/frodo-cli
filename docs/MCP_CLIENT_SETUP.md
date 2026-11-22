@@ -154,7 +154,7 @@ The HTTP server is long-lived and usually watched remotely, so its log carries t
 
 Test/debug-only hook: setting `FRODO_MCP_CRASH_TEST=1` in the environment makes the HTTP server throw an uncaught exception shortly after it starts listening, so the crash path above (crash line, port release, exit code 1) can be exercised in a real spawned process. Never set it in production.
 
-Note for `frodo`'s own launcher: signals delivered to only the `frodo` wrapper process (`launch.cjs`) -- a closing SSH session sending SIGHUP to the session leader, or `kill <wrapper-pid>` -- are forwarded to the actual CLI child, and a wrapper that exits for any other reason takes the child down with it. Without that forwarding, a long-running HTTP server could outlive its parent and keep holding the port with nobody watching it.
+Note for `frodo`'s own entry (`launch.cjs`): it runs the CLI in its own process, with no second process in between. A signal delivered to that process -- a closing SSH session sending SIGHUP to the session leader, or `kill <pid>` -- is handled by the server itself (the graceful shutdown above), and the pid in the lockfile is that process. There is no second process, so killing that pid with SIGKILL cannot leave the server running behind it. To stop a server, use `frodo mcp server stop`; `pkill -f app.cjs` no longer finds it, because the command line names `launch.cjs`.
 
 ### Protocol-era handling (request metadata and batches)
 
