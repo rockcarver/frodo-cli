@@ -141,11 +141,12 @@ export const HUE_NAME_TO_FUNCTION: Record<string, (text: unknown) => string> = {
 };
 
 // A custom theme's per-intent color overrides, applied on top of the
-// resolved base (dark/light) theme -- set once at startup via
-// `applyCustomThemeOverrides` (see `app.ts`/`shell.ts`, fed by
-// `ThemeConfig.getActiveThemeDefinition()`), consulted by every getter
-// below before falling through to the base/CLI-default color. A custom
-// theme therefore only needs to specify the intents it wants to change.
+// resolved base (dark/light) theme -- set via `applyCustomThemeOverrides`,
+// which `activatePersistedTheme` in `ThemeConfig.ts` calls (`app.ts` once at
+// start, the `frodo settings theme` commands after a change), consulted by
+// every getter below before falling through to the base/CLI-default color.
+// A custom theme therefore only needs to specify the intents it wants to
+// change.
 let customOverrides: Partial<Record<CliIntent, (text: unknown) => string>> = {};
 
 export function applyCustomThemeOverrides(

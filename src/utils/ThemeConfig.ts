@@ -480,8 +480,9 @@ function isValidThemeDefinition(value: unknown): value is ThemeDefinition {
  * redundant file reads / ~200 ms of startup on the first `frodo -v` when
  * every command object's constructor still applied the theme.
  * Editing a theme file still takes effect immediately (mtime changes).
- * No command constructor applies the theme, since `app.ts` builds about
- * 490 command objects (`CommandConstructionThemeScan.test.js` pins it).
+ * No command constructor applies the theme: `app.ts` applies it once,
+ * before it builds its about 490 command objects
+ * (`CommandConstructionThemeScan.test.js` pins it).
  */
 type DirCacheEntry = {
   signature: Map<string, { mtimeMs: number; size: number }>;
@@ -750,7 +751,9 @@ export function getActiveThemeDefinition(): ThemeDefinition {
  * `colors` would (today) produce the same result -- going through
  * ColorTheme.ts's own code keeps the built-ins correct-by-construction if
  * that code ever changes, rather than silently drifting from a stale copy
- * on disk. Call once, before any output happens (see `app.ts`/`shell.ts`).
+ * on disk. `app.ts` calls it once at start, before it builds the command
+ * tree and before any output happens; the `frodo settings theme` commands
+ * call it again after a change.
  *
  * `FRODO_COLOR_THEME`, if set, wins over anything persisted here -- this
  * function leaves `state`'s override unset in that case, so frodo-lib's own
@@ -817,9 +820,8 @@ let detectionAttemptedThisProcess = false;
  * scripted/CI) invocation, but a genuine interactive terminal that simply
  * doesn't respond still costs up to its ~500ms timeout, which a persisted
  * choice (successful or explicit) avoids paying again. Guarded by an
- * in-process flag too, since `activatePersistedTheme` is called multiple
- * times per process (once per command in the interactive shell) -- this
- * only ever attempts the query once per process, not once per call.
+ * in-process flag too, so that it attempts the query at most once per
+ * process, however often it is called.
  *
  * Call explicitly, awaited, from a genuine top-level entry point (see
  * `app.ts`) -- unlike `activatePersistedTheme`, this is async (the OSC 11
