@@ -25,6 +25,6 @@ Recorded in the umbrella repository rockcarver/frodo (archived 2026-10) until 20
 
 ## Consequences
 
-- Measured: frodo-lib `files` is `dist`, `types`, `scripts/patch-axios-types.cjs`, `LICENSE`, `README.md`, `CHANGELOG.md`; frodo-cli `files` is `dist/*.cjs`, `dist/*.cjs.map`, `LICENSE`, `README.md`, `CHANGELOG.md`.
+- Measured on 2026-10-24: frodo-lib `files` was `dist`, `types`, `scripts/patch-axios-types.cjs`, `LICENSE`, `README.md`, `CHANGELOG.md`; frodo-cli `files` was `dist/*.cjs`, `dist/*.cjs.map`, `LICENSE`, `README.md`, `CHANGELOG.md`. The `files` array of each `package.json` is the current list.
 - frodo-lib's `BUILD-ENV.md` still says the `types/` tree is dropped from the tarball while `files` lists it; the document or the list needs a correction (frodo-lib record 0013).
 - A new runtime file that the package needs is added to the allowlist in the same pull request.
