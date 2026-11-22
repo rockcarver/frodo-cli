@@ -27,6 +27,13 @@ import { getTokens } from '../../ops/AuthenticateOps';
 import { createWebEngine } from '../../ops/ShellWebEngineOps';
 import type { WebEngine } from '../../ops/ShellWebEngineOps';
 import { createRemoteRegistry } from '../../ops/ShellWebSerializeOps';
+import { ENGINE_WORKER_ENV } from '../../ops/ShellWebServerOps';
+
+// First of all: the native binary starts this engine through the variable
+// below. A process that a script of this console starts (a `frodo` command, for
+// one) inherits this environment, and must be an ordinary command, never
+// another engine.
+delete process.env[ENGINE_WORKER_ENV];
 
 // Same mitigation as app.ts: frodo-lib's bundled proxy-agent parses every
 // request URL with the deprecated `url.parse()` (DEP0169), which prints a

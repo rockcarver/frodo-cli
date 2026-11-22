@@ -4,9 +4,13 @@ import http from 'http';
 import os from 'os';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import {
+  makeHome,
+  removeHome,
+  startFrodo,
+} from '../../../test/utils/WebShell.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const repoRoot = path.resolve(__dirname, '../../..');
 
 /** A Chrome to drive: env override first, then the usual install paths. */
 function findChrome() {
@@ -29,6 +33,7 @@ function findChrome() {
 
 const CHROME = findChrome();
 const CDP_TIMEOUT_MS = 20_000;
+const CDP_CALL_TIMEOUT_MS = 30_000;
 
 /** Targets seen at the CDP endpoint, for failure diagnostics. */
 let targets_seen = () => 'unknown';
@@ -43,7 +48,9 @@ function chromeStderr(chrome) {
 
 function startChrome(port) {
   if (!CHROME) throw new Error('startChrome called without a Chrome binary');
-  const userData = fs.mkdtempSync(path.join(os.tmpdir(), 'frodo-chrome-'));
+  const userData = fs.mkdtempSync(
+    path.join(os.tmpdir(), 'frodo-chrome-webshell-')
+  );
   const chrome = cp.spawn(
     CHROME,
     [
@@ -54,16 +61,78 @@ function startChrome(port) {
       '--no-default-browser-check',
       '--disable-extensions',
       '--disable-crashpad',
+      // Without it Chrome asks the login keychain for its cookie key, and
+      // under a home directory without one (every test run here) the first
+      // page load hangs until the test gives up.
+      '--use-mock-keychain',
       '--window-size=1280,900',
       'about:blank',
     ],
-    { stdio: ['ignore', 'ignore', 'pipe'] }
+    // A group of its own, so that the helper processes of the browser end
+    // with it: killing the main process alone leaves them running.
+    { stdio: ['ignore', 'ignore', 'pipe'], detached: true }
   );
   let stderr = '';
   chrome.stderr.on('data', (c) => {
     stderr += c;
   });
+  running.add({ chrome, userData });
   return { chrome, userData, stderr: () => stderr };
+}
+
+/** The browsers this file started and has not ended yet. */
+const running = new Set();
+
+/** Ends the browser and every process it started, and removes its profile. */
+function stopChrome(chrome, userData) {
+  try {
+    process.kill(-chrome.pid, 'SIGKILL');
+  } catch {
+    chrome.kill('SIGKILL');
+  }
+  fs.rmSync(userData, { recursive: true, force: true });
+  for (const entry of running) {
+    if (entry.chrome === chrome) running.delete(entry);
+  }
+}
+
+/**
+ * Ends every browser that is still running. A test that runs into its time
+ * limit is only reported failed: its body goes on waiting for the browser, so
+ * its own `finally` never runs. This runs after every test and when the test
+ * process exits.
+ */
+function stopAllChromes() {
+  for (const { chrome, userData } of [...running]) stopChrome(chrome, userData);
+}
+afterEach(stopAllChromes);
+afterAll(stopAllChromes);
+process.on('exit', stopAllChromes);
+
+/** Waits until the browser lists a page target over the debugging port. */
+async function waitForChromePage(port) {
+  await waitFor(async () => /*W*/ {
+    const targets = await cdpFetch('/json/list', port).catch(() => null);
+    targets_seen = () =>
+      JSON.stringify(
+        Array.isArray(targets) ? targets.map((t) => t.url) : targets
+      );
+    return Array.isArray(targets) && targets.some((t) => t.type === 'page')
+      ? true
+      : null;
+  }, 30_000);
+}
+
+/** A free port for the debugging protocol: the OS hands one out through a probe server. */
+function freePort() {
+  return new Promise((resolve, reject) => {
+    const probe = http.createServer();
+    probe.listen(0, '127.0.0.1', () => {
+      const free = probe.address().port;
+      probe.close(() => resolve(free));
+    });
+    probe.on('error', reject);
+  });
 }
 
 async function cdpFetch(path, port, opts = {}) {
@@ -124,7 +193,21 @@ async function withPage(port, url, run) {
   const send = (method, params = {}) =>
     new Promise((resolve, reject) => {
       const id = nextId++;
-      pending.set(id, { resolve, reject });
+      // A browser that stops answering must fail the test, not hang it
+      const timer = setTimeout(() => {
+        pending.delete(id);
+        reject(new Error(`CDP ${method} timed out`));
+      }, CDP_CALL_TIMEOUT_MS);
+      pending.set(id, {
+        resolve: (value) => {
+          clearTimeout(timer);
+          resolve(value);
+        },
+        reject: (error) => {
+          clearTimeout(timer);
+          reject(error);
+        },
+      });
       ws.send(JSON.stringify({ id, method, params }));
     });
   const evaluate = async (expression) => {
@@ -182,67 +265,28 @@ async function withPage(port, url, run) {
   }
 }
 
-function startConsoleWeb(homeDir) {
-  const child = cp.spawn(
-    process.execPath,
-    [path.join(repoRoot, 'dist', 'launch.cjs'), 'shell', '--web'],
-    {
-      cwd: repoRoot,
-      env: {
-        ...process.env,
-        FRODO_TEST: '1',
-        FRODO_NO_CACHE: 'true',
-        FRODO_CONNECTION_PROFILES_PATH: '',
-        HOME: homeDir,
-      },
-      stdio: ['ignore', 'pipe', 'pipe'],
-    }
-  );
-  // printMessage writes to stderr (utils/Console.ts, text()), so the
-  // sign-in link arrives there.
-  let stderrText = '';
-  child.stderr.on('data', (c) => {
-    stderrText += c;
-  });
-  return {
-    child,
-    get stdout() {
-      return stderrText;
-    },
-  };
-}
-
-function stopConsoleWeb(child, home) {
-  child.kill('SIGTERM');
-  fs.rmSync(home, { recursive: true, force: true });
-}
-
 describe('frodo shell --web in a real browser', () => {
   let port;
   let web;
   let home;
 
   beforeAll(async () => {
-    // A free debugging port: let the OS hand one out through a probe server.
-    port = await new Promise((resolve, reject) => {
-      const probe = http.createServer();
-      probe.listen(0, '127.0.0.1', () => {
-        const free = probe.address().port;
-        probe.close(() => resolve(free));
-      });
-      probe.on('error', reject);
+    port = await freePort();
+    home = makeHome('frodo-web-home-');
+    // --no-open: the test drives its own browser, and never opens a real one.
+    // The command is this checkout's: dist/launch.cjs, or the native binary
+    // under FRODO_TEST_BINARY=sea.
+    web = startFrodo({
+      args: ['shell', '--web', '--no-open'],
+      homeDir: home,
+      watchdogMs: 600_000,
     });
-    home = fs.mkdtempSync(path.join(os.tmpdir(), 'frodo-web-home-'));
-    web = startConsoleWeb(home);
-    // Wait for the one-time link on stdout.
-    web.launchUrl = await waitFor(async () => /*W*/ {
-      const match = /http:\/\/127\.0\.0\.1:\d+\/\?t=\S+/.exec(web.stdout ?? '');
-      return match ? match[0] : null;
-    }, 20_000);
+    web.launchUrl = await web.link(20_000);
   }, 45_000);
 
-  afterAll(() => {
-    stopConsoleWeb(web.child, home);
+  afterAll(async () => {
+    await web?.stop();
+    if (home) removeHome(home);
   });
 
   // A real-browser test runs where a Chrome exists; the skip is loud.
@@ -254,17 +298,7 @@ describe('frodo shell --web in a real browser', () => {
       const chromeRef = { stderr: () => 'not captured' };
       chromeRef.stderr = chromeStderr(chrome);
       try {
-        await waitFor(async () => /*W*/ {
-          const targets = await cdpFetch('/json/list', port).catch(() => null);
-          targets_seen = () =>
-            JSON.stringify(
-              Array.isArray(targets) ? targets.map((t) => t.url) : targets
-            );
-          return Array.isArray(targets) &&
-            targets.some((t) => t.type === 'page')
-            ? true
-            : null;
-        }, 30_000);
+        await waitForChromePage(port);
         await withPage(port, web.launchUrl, async (evaluate, typeLine) => {
           // The one-time link signed us in and the page loaded.
           await waitFor(
@@ -487,8 +521,7 @@ describe('frodo shell --web in a real browser', () => {
           );
         });
       } finally {
-        chrome.kill('SIGKILL');
-        fs.rmSync(userData, { recursive: true, force: true });
+        stopChrome(chrome, userData);
       }
     },
     300_000
@@ -499,4 +532,72 @@ describe('frodo shell --web in a real browser', () => {
       'skipped: no Chrome found (set FRODO_TEST_CHROME to the path)'
     );
   }
+});
+
+describe('frodo shell --web in a real browser when the engine cannot start', () => {
+  let port;
+  let web;
+  let home;
+  let dir;
+
+  beforeAll(async () => {
+    port = await freePort();
+    dir = fs.mkdtempSync(path.join(os.tmpdir(), 'frodo-web-engine-'));
+    // A home directory below a plain file: the console starts, and the engine
+    // of every tab fails to start (it cannot make its history folder), in the
+    // native binary as well as with npm.
+    const file = path.join(dir, 'a-file');
+    fs.writeFileSync(file, '');
+    home = path.join(file, 'home');
+    web = startFrodo({
+      args: ['shell', '--web', '--no-open'],
+      homeDir: home,
+      watchdogMs: 300_000,
+    });
+    web.launchUrl = await web.link(20_000);
+  }, 45_000);
+
+  afterAll(async () => {
+    await web?.stop();
+    if (dir) fs.rmSync(dir, { recursive: true, force: true });
+  });
+
+  const driveBrowser = CHROME ? test : test.skip;
+  driveBrowser(
+    'says why in the page and asks the server again only after a pause that grows',
+    async () => {
+      const { chrome, userData } = startChrome(port);
+      try {
+        await waitForChromePage(port);
+        await withPage(port, web.launchUrl, async (evaluate) => {
+          // The reason the server gave is on the page, in the place of the
+          // connection line.
+          const info = await waitFor(
+            () =>
+              /*W*/
+              evaluate(
+                `(function () { var t = document.getElementById('info').textContent; return t.indexOf('session error') >= 0 ? t : null; })()`
+              ),
+            30_000
+          );
+          expect(info).toContain('The console could not start an engine');
+          expect(info).not.toContain('Internal error');
+
+          // Let the page retry for a while. Asked at once again each time, it
+          // would start an engine process per answer, dozens in this time;
+          // with a pause that grows (1.5 s, then 3 s, ...) it is asked three
+          // times in eight seconds.
+          await new Promise((resolve) => setTimeout(resolve, 8_000));
+          const asked = await evaluate(
+            `performance.getEntriesByType('resource').filter(function (e) { return e.name.indexOf('/api/session') >= 0; }).length`
+          );
+          expect(asked).toBeGreaterThanOrEqual(2);
+          expect(asked).toBeLessThanOrEqual(5);
+        });
+      } finally {
+        stopChrome(chrome, userData);
+      }
+    },
+    120_000
+  );
 });

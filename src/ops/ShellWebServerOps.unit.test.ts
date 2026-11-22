@@ -1,9 +1,12 @@
+import crypto from 'node:crypto';
 import fs from 'node:fs';
 import http from 'node:http';
 import os from 'node:os';
 import path from 'node:path';
+import vm from 'node:vm';
 import {
   afterEach,
+  beforeAll,
   beforeEach,
   describe,
   expect,
@@ -12,12 +15,25 @@ import {
 } from '@jest/globals';
 import { frodo } from '@rockcarver/frodo-lib';
 import { WebEngine } from './ShellWebEngineOps';
-import { buildContentSecurityPolicy, renderConsolePage } from './ShellWebPage';
+import {
+  buildContentSecurityPolicy,
+  createRetryPause,
+  renderConsolePage,
+} from './ShellWebPage';
 import {
   createLogBus,
+  ENGINE_WORKER_ENV,
+  engineStartFailureReason,
   LogBus,
+  REASON_INPUT_LIMIT,
+  safeEngineReason,
   SessionInfo,
+  spawnTabEngine,
+  startsAsEngine,
   startWebConsole,
+  TabEngine,
+  tabEngineCommand,
+  TabEngineStartError,
   WebConsoleHandle,
 } from './ShellWebServerOps';
 
@@ -961,6 +977,38 @@ describe('a per-tab engine worker', () => {
         const engineHeader = { 'X-Frodo-Engine': String(sessionReply.engine) };
 
         const lines: string[] = [];
+        // The request that makes the worker speak. It is sent only once the
+        // stream has said it is ready (the server subscribes the stream to the
+        // worker's logs before it writes `ready`, in one step): a worker that
+        // spoke earlier would be heard by nobody. It is also waited for before
+        // the console closes: closing under a request that is still being
+        // answered ends it with "socket hang up".
+        const speak = () =>
+          new Promise<void>((resolve, reject) => {
+            const post = http.request(
+              {
+                host: '127.0.0.1',
+                port: web.port,
+                method: 'POST',
+                path: '/api/eval',
+                headers: {
+                  Host: `127.0.0.1:${web.port}`,
+                  Cookie: cookie,
+                  'X-Frodo-CSRF': csrf,
+                  Origin: `http://127.0.0.1:${web.port}`,
+                  'Content-Type': 'application/json',
+                  ...engineHeader,
+                },
+              },
+              (res) => {
+                res.resume();
+                res.on('end', () => resolve());
+              }
+            );
+            post.on('error', reject);
+            post.end(JSON.stringify({ code: 'speak' }));
+          });
+        let spoke: Promise<void> | undefined;
         const streaming = new Promise<void>((resolve, reject) => {
           const req = http.request(
             {
@@ -978,6 +1026,10 @@ describe('a per-tab engine worker', () => {
               res.setEncoding('utf8');
               res.on('data', (chunk: string) => {
                 lines.push(...chunk.split('\n').filter(Boolean));
+                if (!spoke && lines.some((l) => l.includes('"ready"'))) {
+                  spoke = speak();
+                  spoke.catch(reject);
+                }
                 if (
                   lines.some((l) => l.includes('from stderr')) &&
                   lines.some((l) => l.includes('from stdout'))
@@ -994,31 +1046,9 @@ describe('a per-tab engine worker', () => {
               : reject(e)
           );
           req.end();
-          // The stream is open: now the worker speaks, and both channels
-          // must land in it.
-          http
-            .request(
-              {
-                host: '127.0.0.1',
-                port: web.port,
-                method: 'POST',
-                path: '/api/eval',
-                headers: {
-                  Host: `127.0.0.1:${web.port}`,
-                  Cookie: cookie,
-                  'X-Frodo-CSRF': csrf,
-                  Origin: `http://127.0.0.1:${web.port}`,
-                  'Content-Type': 'application/json',
-                  ...engineHeader,
-                },
-              },
-              (res) => {
-                res.resume();
-              }
-            )
-            .end(JSON.stringify({ code: 'speak' }));
         });
         await streaming;
+        await spoke;
         const events = lines.map((l) => {
           try {
             return JSON.parse(l);
@@ -1043,6 +1073,645 @@ describe('a per-tab engine worker', () => {
       });
       delete process.env.FRODO_TEST_WORKER_SCRIPT;
     }
+  });
+});
+
+describe('how a tab engine is started', () => {
+  const noTestScript = { PATH: '/usr/bin' };
+
+  it('runs the executable itself, with no script and the worker variable, in the native binary', () => {
+    const run = tabEngineCommand(true, noTestScript);
+    expect(run.command).toBe(process.execPath);
+    expect(run.args).toEqual([]);
+    expect(run.env[ENGINE_WORKER_ENV]).toBe('1');
+    expect(run.env.PATH).toBe('/usr/bin');
+  });
+
+  it('runs node with the bundled worker file everywhere else, and never with the worker variable', () => {
+    // Even an environment that already holds the variable does not pass it on.
+    const run = tabEngineCommand(
+      false,
+      { ...noTestScript, [ENGINE_WORKER_ENV]: '1' },
+      '/dist/cli/shell/engine-worker.cjs'
+    );
+    expect(run.command).toBe(process.execPath);
+    expect(run.args).toEqual(['/dist/cli/shell/engine-worker.cjs']);
+    expect(ENGINE_WORKER_ENV in run.env).toBe(false);
+  });
+
+  it('runs the script of the test seam as given outside the binary, without the worker variable', () => {
+    const run = tabEngineCommand(false, {
+      ...noTestScript,
+      FRODO_TEST_WORKER_SCRIPT: '/x/stub.cjs',
+    });
+    expect(run.args).toEqual(['/x/stub.cjs']);
+    expect(ENGINE_WORKER_ENV in run.env).toBe(false);
+  });
+
+  it('ignores the test seam in the native binary: a shipped binary never runs a script that an environment variable names', () => {
+    const run = tabEngineCommand(true, {
+      ...noTestScript,
+      FRODO_TEST_WORKER_SCRIPT: '/x/stub.cjs',
+    });
+    expect(run.args).toEqual([]);
+    expect(run.env[ENGINE_WORKER_ENV]).toBe('1');
+  });
+});
+
+describe('when the executable runs as a tab engine', () => {
+  it('does so for the variable set to 1 and a standard input that is not a terminal', () => {
+    expect(startsAsEngine({ [ENGINE_WORKER_ENV]: '1' }, false)).toBe(true);
+  });
+
+  it('does not on a terminal: the variable there is a mistake, and the person gets the command line', () => {
+    expect(startsAsEngine({ [ENGINE_WORKER_ENV]: '1' }, true)).toBe(false);
+  });
+
+  it.each([undefined, '', '0', 'true', 'yes', '2'])(
+    'does not for the value %p of the variable',
+    (value) => {
+      expect(startsAsEngine({ [ENGINE_WORKER_ENV]: value }, false)).toBe(false);
+    }
+  );
+});
+
+describe('why a tab engine did not come up', () => {
+  it('takes the first line that names an error, else the first line', () => {
+    expect(
+      engineStartFailureReason([
+        'node:internal/modules/cjs/loader:1423',
+        '  throw err;',
+        '',
+        "Error: Cannot find module '/x/y.cjs'",
+        '    at somewhere',
+      ])
+    ).toBe("Error: Cannot find module '/x/y.cjs'");
+    expect(engineStartFailureReason(["error: unknown command '/x'"])).toBe(
+      "error: unknown command '/x'"
+    );
+    expect(engineStartFailureReason(['boom', 'second line'])).toBe('boom');
+  });
+
+  it('skips the notices of the runtime', () => {
+    expect(
+      engineStartFailureReason([
+        '(node:123) ExperimentalWarning: something is not available',
+        '(Use `node --trace-warnings ...` to show where the warning was created)',
+        'boom',
+      ])
+    ).toBe('boom');
+  });
+
+  it('is one clean line of at most 200 characters', () => {
+    const reason = engineStartFailureReason([
+      `\u001b[31mError: ${'x'.repeat(300)}\u001b[0m\u0007`,
+    ]);
+    expect(reason.startsWith('Error: xxx')).toBe(true);
+    expect(reason).toHaveLength(200);
+    expect(reason.endsWith('…')).toBe(true);
+    expect(reason).not.toMatch(/[\u0000-\u001f]/);
+  });
+
+  it.each([
+    ['a C1 control that is an 8-bit escape (U+009B)', '\u009b', ' '],
+    ['the next line character (U+0085)', '\u0085', ' '],
+    ['the delete character', '\u007f', ' '],
+    ['a right-to-left override (U+202E)', '\u202e', ''],
+    ['a left-to-right embedding (U+202A)', '\u202a', ''],
+    ['a left-to-right isolate (U+2066)', '\u2066', ''],
+    ['a pop directional isolate (U+2069)', '\u2069', ''],
+    ['a left-to-right mark (U+200E)', '\u200e', ''],
+    ['a right-to-left mark (U+200F)', '\u200f', ''],
+    ['an Arabic letter mark (U+061C)', '\u061c', ''],
+    ['a zero width space (U+200B)', '\u200b', ''],
+    ['a byte order mark (U+FEFF)', '\ufeff', ''],
+    ['a high surrogate that stands alone', '\ud800', ''],
+    ['a low surrogate that stands alone', '\udc00', ''],
+    ['a code point that is not a character (U+FFFE)', '\ufffe', ''],
+    ['a code point that is not a character (U+FDD0)', '\ufdd0', ''],
+  ])('removes %s', (_name, character, replacement) => {
+    const reason = engineStartFailureReason([`Error: bad${character}thing`]);
+    expect(reason).toBe(`Error: bad${replacement}thing`);
+  });
+
+  it('keeps the characters of a path and of a language, which are not controls', () => {
+    expect(
+      engineStartFailureReason([
+        "Error: Cannot find module '/opt/größe/日本/x.cjs'",
+      ])
+    ).toBe("Error: Cannot find module '/opt/größe/日本/x.cjs'");
+  });
+
+  describe('scrubbing', () => {
+    it('is done on the whole line before the cut, so that a secret across the cut leaves no head', () => {
+      // The cut is at 200 characters; the password starts at 187 and ends past it.
+      const line = `Error: ${'a'.repeat(170)} password=hunter2hunter2hunter2hunter2 tail`;
+      const reason = engineStartFailureReason([line]);
+      expect(reason).not.toContain('hunter');
+      expect(reason).toContain('password=<redacted>');
+      expect(reason.length).toBeLessThanOrEqual(200);
+    });
+
+    it('does the same for a Bearer value and a token of the JSON web token shape', () => {
+      // the cut at 200 falls 12 characters into the value: too short for the scrub to know it
+      const bearer = `Error: ${'b'.repeat(172)} Bearer abcdef0123456789ghijklmnop and more`;
+      const jwt = `Error: ${'c'.repeat(160)} eyJhbGciOiJIUzI1NiJ9.${'d'.repeat(30)}.${'e'.repeat(30)}`;
+      for (const line of [bearer, jwt]) {
+        const reason = engineStartFailureReason([line]);
+        expect(reason).not.toMatch(/abcdef01|ghijkl|eyJhbGci|ddddd|eeeee/);
+        expect(reason.length).toBeLessThanOrEqual(200);
+      }
+    });
+
+    it.each([
+      ['password=hunter2', 'hunter2'],
+      ['passwd: hunter2', 'hunter2'],
+      ['client_secret=s3cr3tvalue', 's3cr3tvalue'],
+      ['access_token=abc123', 'abc123'],
+      ['token=abc123', 'abc123'],
+      ['api_key=abc123', 'abc123'],
+      ['apiKey: abc123', 'abc123'],
+      ['Authorization: Bearer abc123', 'abc123'],
+      ['Authorization: Basic dXNlcjpwYXNz', 'dXNlcjpwYXNz'],
+      ['{"password":"hunter2","user":"x"}', 'hunter2'],
+      ["{'token': 'abc123'}", 'abc123'],
+      ['cookie=abc123; Path=/', 'abc123'],
+      ['private_key="abc123 def456"', 'def456'],
+    ])(
+      'removes the value of a pair that is named like a secret: %s',
+      (text, value) => {
+        const reason = engineStartFailureReason([`Error: failed with ${text}`]);
+        expect(reason).not.toContain(value);
+        expect(reason).toContain('<redacted>');
+      }
+    );
+
+    it('removes a long token that looks like a key, and a long hexadecimal number, wherever it stands', () => {
+      const key = 'Zm9vYmFyMTIzNDU2Nzg5MEFCQ0RFRkdI';
+      const hex = 'deadbeef'.repeat(5);
+      const reason = engineStartFailureReason([
+        `Error: the key ${key} and the id ${hex} failed`,
+      ]);
+      expect(reason).toBe(
+        'Error: the key <redacted> and the id <redacted> failed'
+      );
+    });
+
+    it('keeps what a person needs of the common failures: the error, the command, the module and its path', () => {
+      for (const line of [
+        "error: unknown command '/opt/frodo/dist/cli/shell/engine-worker.cjs'",
+        "Error: Cannot find module '/opt/frodo/dist/cli/shell/engine-worker.cjs'",
+        "Error: ENOTDIR: not a directory, mkdir '/dev/null/x/.frodo/shell-history'",
+        'Error: normalizeExpandedHelpArgv is not a function',
+        'error: unknown option --engine-worker-process-id',
+      ]) {
+        expect(engineStartFailureReason([line])).toBe(line);
+      }
+    });
+
+    it('keeps a path, an error code and a name with dots readable, even when they hold digits', () => {
+      for (const line of [
+        "Error: Cannot find module '/home/user/projects/my-long-project-name-2024-final/node_modules/x/index.js'",
+        "Error: Cannot find module 'node_modules/some-very-long-package-name-v2/index.js'",
+        'Error: ENOENT: no such file or directory, open C:\\Users\\me\\my-long-project-name-2024-final\\x.json',
+        'Error [ERR_HTTP2_STREAM_ERROR]: Stream closed with error code NGHTTP2_INTERNAL_ERROR',
+        'Error: ERR_MODULE_NOT_FOUND_2 for engine-worker-process-2024.cjs',
+        'Error: cannot open ~/projects/my-long-project-name-2024/x',
+        'Error: ENOTDIR ENOENT EACCES EAGAIN',
+      ]) {
+        expect(engineStartFailureReason([line])).toBe(line);
+      }
+    });
+
+    it('still removes a key that has the shape of a long token, next to a path', () => {
+      const reason = engineStartFailureReason([
+        'Error: /x/y.cjs failed with Zm9vYmFyMTIzNDU2Nzg5MEFCQ0RFRkdI',
+      ]);
+      expect(reason).toBe('Error: /x/y.cjs failed with <redacted>');
+    });
+
+    it('removes the start of a token of the JSON web token shape that a cut left without its end', () => {
+      const reason = engineStartFailureReason([
+        `Error: eyJhbGciOiJIUzI1NiJ9.${'p'.repeat(3000)}.signature`,
+      ]);
+      expect(reason).toBe('Error: <redacted>');
+    });
+
+    it('removes the start of a web-token shape whatever its letters are, with no digit to give it away', () => {
+      const reason = engineStartFailureReason([
+        `Error: eyJabcdefghijklmnopqrstuvwxyzABCDEF.${'q'.repeat(300)}`,
+      ]);
+      expect(reason).toBe('Error: <redacted>');
+    });
+
+    it('removes a value that goes on past the bound of what is looked at', () => {
+      const reason = engineStartFailureReason([
+        `Error: password=${'S'.repeat(3 * REASON_INPUT_LIMIT)}`,
+      ]);
+      expect(reason).toBe('Error: password=<redacted>');
+    });
+
+    it('removes the values that the caller names, whatever shape they have', () => {
+      const secret = 'abcdefghijklmnop';
+      expect(
+        engineStartFailureReason([`Error: leaked ${secret} here`], {}, [secret])
+      ).toBe('Error: leaked <redacted> here');
+      expect(safeEngineReason(`x ${secret} y`, [secret])).toBe(
+        'x <redacted> y'
+      );
+      // and without it the same text is left alone (no rule is meant to hide a plain word)
+      expect(safeEngineReason(`x ${secret} y`)).toBe(`x ${secret} y`);
+    });
+  });
+
+  describe('a line that a process makes huge', () => {
+    // What a process writes is hostile input: the time it takes to treat a line
+    // must not depend on how long the line is. A pattern with an open name part
+    // takes seconds on a few thousand characters and hours on millions, and a
+    // regular expression cannot be interrupted: so a small line is timed first,
+    // and the big ones are only run when that was quick.
+    const small = [
+      `Error: ${'a'.repeat(30_000)}`,
+      `Error: ${'password'.repeat(400)}`,
+    ];
+    let quick = false;
+    beforeAll(() => {
+      const started = performance.now();
+      for (const line of small) engineStartFailureReason([line]);
+      quick = performance.now() - started < 250;
+    });
+
+    it('is quick for a line of thirty thousand characters, and of repeated keywords', () => {
+      expect(quick).toBe(true);
+    });
+
+    const shapes: [string, string][] = [
+      ['letters', 'a'.repeat(4_000_000)],
+      ['the word password', 'password'.repeat(500_000)],
+      ['the word secret', 'secret'.repeat(700_000)],
+      ['the word token', 'token'.repeat(800_000)],
+      ['letters and digits', 'a1'.repeat(2_000_000)],
+      ['white space', ' '.repeat(4_000_000)],
+      ['escape sequences', '\u001b['.repeat(2_000_000)],
+      ['quotes', '"'.repeat(4_000_000)],
+      ['keys', 'api_key='.repeat(500_000)],
+    ];
+
+    it.each(shapes)(
+      'is treated in well under a second: %s',
+      (_name, filler) => {
+        if (!quick) throw new Error('not run: the small line was already slow');
+        const started = performance.now();
+        const reason = engineStartFailureReason([`Error: ${filler}`]);
+        const elapsed = performance.now() - started;
+        expect(elapsed).toBeLessThan(250);
+        expect(reason.length).toBeLessThanOrEqual(200);
+        expect(reason.startsWith('Error:')).toBe(true);
+      }
+    );
+
+    it('is treated in well under a second when it is the whole text handed to safeEngineReason', () => {
+      if (!quick) throw new Error('not run: the small line was already slow');
+      const started = performance.now();
+      safeEngineReason('password'.repeat(500_000), ['abcdefghijklmnop']);
+      expect(performance.now() - started).toBeLessThan(250);
+    });
+
+    it('looks at no more than REASON_INPUT_LIMIT characters', () => {
+      expect(REASON_INPUT_LIMIT).toBe(2000);
+    });
+  });
+
+  it('describes a process that wrote nothing by how it ended', () => {
+    expect(engineStartFailureReason([], { code: 3 })).toBe(
+      'The engine process ended with exit code 3 before it answered.'
+    );
+    expect(
+      engineStartFailureReason([], { code: null, signal: 'SIGKILL' })
+    ).toBe(
+      'The engine process was stopped by the signal SIGKILL before it answered.'
+    );
+  });
+});
+
+describe('a tab engine that cannot start', () => {
+  let web: WebConsoleHandle;
+  let dir: string;
+  let errors: jest.SpiedFunction<typeof console.error>;
+
+  beforeEach(() => {
+    dir = fs.mkdtempSync(path.join(os.tmpdir(), 'frodo-worker-'));
+    errors = jest.spyOn(console, 'error').mockImplementation(() => undefined);
+    // for a test that never starts a console
+    web = { close: async () => undefined } as unknown as WebConsoleHandle;
+  });
+
+  afterEach(async () => {
+    await web.close();
+    jest.restoreAllMocks();
+    delete process.env.FRODO_TEST_WORKER_SCRIPT;
+    fs.rmSync(dir, { recursive: true, force: true });
+  });
+
+  /** A worker that is a script of the given lines (`process` and `require` are there). */
+  function stub(lines: string[]): string {
+    const file = path.join(dir, 'stub-worker.cjs');
+    fs.writeFileSync(file, lines.join('\n'));
+    return file;
+  }
+
+  async function startAndSignIn(
+    options: Partial<Parameters<typeof startWebConsole>[0]> = {}
+  ) {
+    web = await startWebConsole({
+      logs: createLogBus(),
+      sessionInfo: () => ({}),
+      ...options,
+    });
+    const host = `127.0.0.1:${web.port}`;
+    const redeem = await request(web.port, {
+      path: new URL(web.launchUrl).pathname + new URL(web.launchUrl).search,
+      headers: { Host: host },
+    });
+    const cookie = redeem.headers['set-cookie']![0].split(';')[0];
+    const page = await request(web.port, {
+      headers: { Host: host, Cookie: cookie },
+    });
+    const csrf = /name="csrf-token" content="([^"]+)"/.exec(page.body)![1];
+    const headers = {
+      Host: host,
+      Cookie: cookie,
+      'X-Frodo-CSRF': csrf,
+    };
+    return {
+      // what a page holds, for a test that wants to leak it
+      secrets: {
+        link: new URL(web.launchUrl).searchParams.get('t')!,
+        session: cookie.split('=')[1],
+        csrf,
+      },
+      session: (extra: Record<string, string> = {}) =>
+        request(web.port, {
+          path: '/api/session',
+          headers: { ...headers, ...extra },
+        }),
+      evaluate: (engine: string, code: string) =>
+        request(web.port, {
+          method: 'POST',
+          path: '/api/eval',
+          headers: {
+            ...headers,
+            Origin: `http://${host}`,
+            'Content-Type': 'application/json',
+            'X-Frodo-Engine': engine,
+          },
+          body: JSON.stringify({ code }),
+        }),
+    };
+  }
+
+  it('answers 503 with the reason, not "Internal error", when the worker script is missing', async () => {
+    process.env.FRODO_TEST_WORKER_SCRIPT = path.join(dir, 'missing.cjs');
+    const { session } = await startAndSignIn();
+    const reply = await session();
+    expect(reply.status).toBe(503);
+    const { error } = JSON.parse(reply.body);
+    expect(error).toMatch(/^The console could not start an engine: /);
+    expect(error).toMatch(/Cannot find module/);
+    expect(error).not.toMatch(/Internal error/);
+  });
+
+  it('answers 503 with the first line a worker wrote when it ends at once', async () => {
+    process.env.FRODO_TEST_WORKER_SCRIPT = stub([
+      'process.stderr.write("boom: no engine today\\n");',
+      'process.stderr.write("a second line that stays inside\\n");',
+      'process.exit(3);',
+    ]);
+    const { session } = await startAndSignIn();
+    const reply = await session();
+    expect(reply.status).toBe(503);
+    expect(JSON.parse(reply.body).error).toBe(
+      'The console could not start an engine: boom: no engine today'
+    );
+  });
+
+  it('says so in the terminal once, however often the page asks again', async () => {
+    process.env.FRODO_TEST_WORKER_SCRIPT = stub([
+      'process.stderr.write("boom: no engine today\\n");',
+      'process.exit(3);',
+    ]);
+    const { session } = await startAndSignIn();
+    for (let i = 0; i < 3; i++) expect((await session()).status).toBe(503);
+    const told = errors.mock.calls.filter((call) =>
+      String(call[0]).includes('boom: no engine today')
+    );
+    expect(told).toHaveLength(1);
+    expect(String(told[0][0])).toContain(
+      'The console could not start an engine: boom: no engine today'
+    );
+  });
+
+  it('leaves a secret that the worker wrote out of the reply and the terminal', async () => {
+    const token = `eyJhbGciOiJIUzI1NiJ9.${'a'.repeat(40)}.${'b'.repeat(40)}`;
+    process.env.FRODO_TEST_WORKER_SCRIPT = stub([
+      `process.stderr.write("Error: request failed with Bearer ${token}\\n");`,
+      'process.exit(1);',
+    ]);
+    const { session } = await startAndSignIn();
+    const reply = await session();
+    expect(reply.status).toBe(503);
+    expect(reply.body).not.toContain(token);
+    expect(reply.body).toContain('<redacted>');
+    expect(JSON.stringify(errors.mock.calls)).not.toContain(token);
+  });
+
+  it('leaves the three secrets of this server out of the reply and the terminal, whatever the worker wrote', async () => {
+    // Secrets made of letters only (no digit), so that no rule for long tokens
+    // is what hides them: the server must name them to the scrub itself.
+    const real = crypto.randomBytes.bind(crypto);
+    const fills = [1, 2, 3];
+    jest
+      .spyOn(crypto, 'randomBytes')
+      .mockImplementation(((size: number) =>
+        size === 32
+          ? Buffer.alloc(32, fills.shift() ?? 4)
+          : real(size)) as typeof crypto.randomBytes);
+    process.env.FRODO_TEST_WORKER_SCRIPT = stub([
+      'process.stderr.write("Error: leaked " + process.env.TEST_LEAK + "\\n");',
+      'process.exit(1);',
+    ]);
+    const { session, secrets } = await startAndSignIn();
+    const leaked = [secrets.link, secrets.session, secrets.csrf];
+    expect(new Set(leaked).size).toBe(3);
+    for (const value of leaked) expect(value).not.toMatch(/\d/);
+    process.env.TEST_LEAK = leaked.join(' ');
+    try {
+      const reply = await session();
+      expect(reply.status).toBe(503);
+      for (const value of leaked) {
+        expect(reply.body).not.toContain(value);
+        expect(JSON.stringify(errors.mock.calls)).not.toContain(value);
+      }
+      expect(reply.body).toContain('<redacted>');
+    } finally {
+      delete process.env.TEST_LEAK;
+    }
+  });
+
+  it('scrubs the secrets that it is given from the reason of an engine it starts itself', async () => {
+    process.env.FRODO_TEST_WORKER_SCRIPT = stub([
+      'process.stderr.write("Error: leaked abcdefghijklmnop here\\n");',
+      'process.exit(1);',
+    ]);
+    const engine = await spawnTabEngine(undefined, {
+      secrets: ['abcdefghijklmnop'],
+    });
+    await expect(engine.info()).rejects.toThrow(
+      'Error: leaked <redacted> here'
+    );
+    // without it the word is just a word
+    const plain = await spawnTabEngine();
+    await expect(plain.info()).rejects.toThrow(
+      'Error: leaked abcdefghijklmnop here'
+    );
+  });
+
+  it('makes the reason of an engine that the caller supplied safe too, with the secrets of this server', async () => {
+    const real = crypto.randomBytes.bind(crypto);
+    const fills = [1, 2, 3];
+    jest
+      .spyOn(crypto, 'randomBytes')
+      .mockImplementation(((size: number) =>
+        size === 32
+          ? Buffer.alloc(32, fills.shift() ?? 4)
+          : real(size)) as typeof crypto.randomBytes);
+    let leaked = '';
+    const failing: TabEngine = {
+      evaluate: async () => ({ status: 'ok' }),
+      children: async () => null,
+      json: async () => null,
+      complete: async () => [[], ''],
+      history: async () => [],
+      connect: async () => ({ ok: false, info: {} }),
+      info: async () => {
+        throw new TabEngineStartError(`Error: leaked ${leaked}\u202e done`);
+      },
+      reset: async () => undefined,
+      dispose: () => undefined,
+    };
+    const { session, secrets } = await startAndSignIn({
+      spawnEngine: async () => failing,
+    });
+    leaked = [secrets.link, secrets.session, secrets.csrf].join(' ');
+    const reply = await session();
+    expect(reply.status).toBe(503);
+    for (const value of [secrets.link, secrets.session, secrets.csrf]) {
+      expect(reply.body).not.toContain(value);
+      expect(JSON.stringify(errors.mock.calls)).not.toContain(value);
+    }
+    // and the characters that drive a terminal are gone from it as well
+    expect(reply.body).not.toContain('\u202e');
+    expect(JSON.parse(reply.body).error).toBe(
+      'The console could not start an engine: Error: leaked <redacted> <redacted> <redacted> done'
+    );
+  });
+
+  it('disposes the failed engine once and forgets it', async () => {
+    let disposed = 0;
+    const failing: TabEngine = {
+      evaluate: async () => ({ status: 'ok' }),
+      children: async () => null,
+      json: async () => null,
+      complete: async () => [[], ''],
+      history: async () => {
+        throw new TabEngineStartError('no engine today');
+      },
+      connect: async () => ({ ok: false, info: {} }),
+      info: async () => {
+        throw new TabEngineStartError('no engine today');
+      },
+      reset: async () => undefined,
+      dispose: () => {
+        disposed++;
+      },
+    };
+    const { session } = await startAndSignIn({
+      spawnEngine: async () => failing,
+    });
+    expect((await session()).status).toBe(503);
+    expect(disposed).toBe(1);
+    // Closing the console disposes every engine it still holds: the failed one
+    // is no longer among them.
+    await web.close();
+    expect(disposed).toBe(1);
+  });
+
+  it('does not call a worker that answered and later ended a failure to start', async () => {
+    process.env.FRODO_TEST_WORKER_SCRIPT = stub([
+      'const rl = require("node:readline").createInterface({ input: process.stdin });',
+      'rl.on("line", (line) => {',
+      '  const m = JSON.parse(line);',
+      '  if (m.op === "eval") process.exit(1);',
+      '  const reply = m.op === "history" ? { lines: [] } : { info: {} };',
+      '  process.stdout.write(JSON.stringify({ id: m.id, op: m.op, ...reply }) + "\\n");',
+      '});',
+    ]);
+    const { session, evaluate } = await startAndSignIn();
+    const up = await session();
+    expect(up.status).toBe(200);
+    const engine = JSON.parse(up.body).engine as string;
+    const crashed = await evaluate(engine, '1 + 1');
+    expect(crashed.status).toBe(500);
+    expect(JSON.parse(crashed.body)).toEqual({ error: 'Internal error' });
+    expect(
+      errors.mock.calls.filter((call) =>
+        String(call[0]).includes('could not start an engine')
+      )
+    ).toHaveLength(0);
+  });
+});
+
+describe('the pause of a page that cannot get a session', () => {
+  it('doubles from the first pause up to the cap, and stays there', () => {
+    const pause = createRetryPause(1500, 30000);
+    expect(Array.from({ length: 8 }, () => pause.next())).toEqual([
+      1500, 3000, 6000, 12000, 24000, 30000, 30000, 30000,
+    ]);
+  });
+
+  it('starts over at the first pause after a success', () => {
+    const pause = createRetryPause(1500, 30000);
+    pause.next();
+    pause.next();
+    pause.next();
+    pause.reset();
+    expect(pause.next()).toBe(1500);
+    expect(pause.next()).toBe(3000);
+  });
+
+  describe('as the page carries it', () => {
+    // The page holds the source of the function and the numbers it is called
+    // with. These tests run that very text, not the TypeScript beside it.
+    const page = renderConsolePage({ nonce: 'abc', csrf: 'def' });
+    const carried = page
+      .split('// retry-pause:begin')[1]
+      .split('// retry-pause:end')[0];
+
+    it('waits 1.5 s, then 3 s, and never more than 30 s', () => {
+      const pause = vm.runInNewContext(`${carried}\nsessionRetry`);
+      expect(Array.from({ length: 8 }, () => pause.next())).toEqual([
+        1500, 3000, 6000, 12000, 24000, 30000, 30000, 30000,
+      ]);
+      pause.reset();
+      expect(pause.next()).toBe(1500);
+    });
+
+    it('resets the pause when a session was got and waits that long when it was not', () => {
+      expect(page).toMatch(
+        /refreshSession\(\)\.then\(function \(\) \{\s*sessionRetry\.reset\(\);\s*listen\(\);/
+      );
+      expect(page).toMatch(/setTimeout\(listen, sessionRetry\.next\(\)\);/);
+    });
   });
 });
 
