@@ -65,7 +65,12 @@ describe('constructing commands does not scan the colour theme files', () => {
     for (let i = 0; i < 50; i++) new FrodoStubCommand(`stub${i}`);
     for (let i = 0; i < 50; i++) new FrodoCommand(`leaf${i}`, []);
 
-    expect(touched).toEqual([]);
+    // A failure names the number of calls and the first five, not all of them
+    // (a constructor that scans the theme files makes about 29 calls per object).
+    expect({ count: touched.length, first: touched.slice(0, 5) }).toEqual({
+      count: 0,
+      first: [],
+    });
     expect(fs.existsSync(configPath)).toBe(false);
   });
 });

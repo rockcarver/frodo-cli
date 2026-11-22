@@ -125,6 +125,37 @@ describe('a start of the CLI and the colour theme files', () => {
     expect(run.stdout).not.toContain(DEFAULT_HEADING);
   });
 
+  testif(hasDist)(
+    'applies the saved theme before the command tree is built (the usage examples of a help page)',
+    () => {
+      // The usage examples are coloured with the `command` colour while the
+      // command factories build the tree, not when an action runs. So only a
+      // theme that is applied BEFORE `app.ts` builds the tree colours them,
+      // and since no command constructor applies it any more, the one call in
+      // `app.ts` is the only guard of that order.
+      expect(frodo(['--version']).status).toBe(0);
+      fs.writeFileSync(
+        path.join(home, '.frodo', 'Theme.json'),
+        JSON.stringify({ customActive: 'mine' })
+      );
+      fs.writeFileSync(
+        path.join(home, '.frodo', 'themes', 'mine.json'),
+        JSON.stringify({
+          name: 'mine',
+          description: 'a custom theme for the test',
+          mode: 'light',
+          colors: { command: 'cyan' },
+        })
+      );
+
+      const run = frodo(['journey', 'export', '-hhh']);
+
+      expect(run.status).toBe(0);
+      expect(run.stdout).toContain('\u001b[36m  $ frodo journey export');
+      expect(run.stdout).not.toContain('\u001b[96m  $ frodo journey export');
+    }
+  );
+
   testif(hasDist)('applies the saved built-in theme to the output', () => {
     expect(frodo(['--version']).status).toBe(0);
     fs.writeFileSync(
