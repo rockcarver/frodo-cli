@@ -56,6 +56,14 @@ describe('the launcher page', () => {
   });
 });
 
+describe('the times', () => {
+  it('are the ones decided: 20 seconds to the reminder, two minutes to the file, ten minutes before a left-over folder goes', () => {
+    expect(SIGN_IN_HINT_MS).toBe(20_000);
+    expect(LAUNCHER_LIFETIME_MS).toBe(120_000);
+    expect(STALE_LAUNCHER_AGE_MS).toBe(600_000);
+  });
+});
+
 describe('createLauncherFile', () => {
   it('makes a new folder and a file in it, and the address of the file is a file address', () => {
     const launcher = createLauncherFile(LINK, base);
@@ -164,6 +172,8 @@ describe('removeStaleLauncherFolders', () => {
       0
     );
     expect(fs.existsSync(path.join(odd, 'notes.txt'))).toBe(true);
+    // not even the launcher file of a folder that is not wholly ours is touched
+    expect(fs.existsSync(path.join(odd, LAUNCHER_FILE_NAME))).toBe(true);
   });
 
   it('leaves a file or a link that is named like a folder of ours', () => {
