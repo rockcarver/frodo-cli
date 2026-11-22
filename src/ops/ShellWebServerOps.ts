@@ -298,6 +298,14 @@ export class TabEngineStartError extends Error {
 }
 
 const REASON_LIMIT = 200;
+/**
+ * How much of a line is looked at. What a process writes is hostile input: a
+ * line of millions of characters must cost the same as one of two thousand, so
+ * every pattern below runs on at most this much (ten times what is shown, so a
+ * secret that starts in the visible part and goes on is still seen whole by the
+ * rules that match its start).
+ */
+export const REASON_INPUT_LIMIT = 10 * REASON_LIMIT;
 // An escape sequence first, then every other character that can drive a
 // terminal or a page or hide what a line says: the control characters of both
 // ranges (C0 with the delete character, and C1, whose U+009B is an 8-bit
@@ -312,25 +320,73 @@ const INVISIBLE_CHARACTERS = /[\p{Cf}\p{Cs}\p{Cn}]/gu;
 // A name that says it is a secret, then its value: `password=...`, `"token":
 // "..."`, `client_secret=...`, `Authorization: Bearer ...`. The value ends at
 // white space, a quote, a comma, a semicolon, an ampersand or a closing brace.
+// The words around the keyword are at most 64 characters, so that a long run of
+// word characters costs a bounded amount per position.
 const SECRET_PAIR =
-  /(["']?[\w.-]*(?:password|passwd|pwd|passphrase|secret|token|api[_-]?key|credential|authorization|cookie|private[_-]?key)[\w.-]*["']?\s*[:=]\s*)("[^"]*"|'[^']*'|(?:Bearer|Basic|Digest|Negotiate)\s+[^\s,;"']+|[^\s,;"'&}]+)/gi;
-// A run of 20 or more characters of a token alphabet that holds a digit and a
-// letter (a base64 or hexadecimal key, an identifier of a session), and a run
-// of 32 or more hexadecimal digits.
-const LONG_TOKEN = /[A-Za-z0-9_-]{20,}/g;
+  /(["']?[\w.-]{0,64}(?:password|passwd|pwd|passphrase|secret|token|api[_-]?key|credential|authorization|cookie|private[_-]?key)[\w.-]{0,64}["']?\s*[:=]\s*)("[^"]*"|'[^']*'|(?:Bearer|Basic|Digest|Negotiate)\s+[^\s,;"']+|[^\s,;"'&}]+)/gi;
+// Words, and inside them runs of 20 or more characters of a token alphabet that
+// hold a digit and a letter (a base64 key, an identifier of a session). A run is
+// left alone when it is part of a path (a word that starts like one or holds two
+// separators and no base64 sign), when it is an error code (`ERR_HTTP2_ERROR`),
+// or when it sits in a name with dots (a file, a package) and is shorter than 32.
+const WORD = /[^\s"'<>()[\]{},;]+/g;
+const TOKEN_RUN = /[A-Za-z0-9_-]{20,}/g;
+const PATH_START = /^(?:[A-Za-z]:)?[\\/]|^\.{1,2}[\\/]|^~[\\/]/;
+const ERROR_CODE = /^[A-Z][A-Z0-9]*(?:_[A-Z0-9]+)+$/;
+// a run of 32 or more hexadecimal digits
 const HEX_RUN = /\b[0-9a-fA-F]{32,}\b/g;
 
+function redactLongTokens(text: string): string {
+  return text.replace(WORD, (word) => {
+    const separators = (word.match(/[\\/]/g) ?? []).length;
+    if (PATH_START.test(word) || (separators >= 2 && !/[+=]/.test(word))) {
+      return word;
+    }
+    return word.replace(TOKEN_RUN, (run) => {
+      if (ERROR_CODE.test(run)) return run;
+      if (!/\d/.test(run) || !/[A-Za-z]/.test(run)) return run;
+      if (word.includes('.') && run.length < 32) return run;
+      return '<redacted>';
+    });
+  });
+}
+
+/** Characters that can drive a terminal or a page, removed from the start of a line. */
+function cleanLine(line: string): string {
+  return line
+    .slice(0, REASON_INPUT_LIMIT)
+    .replace(ESCAPE_SEQUENCES, '')
+    .replace(CONTROL_CHARACTERS, ' ')
+    .replace(INVISIBLE_CHARACTERS, '')
+    .trim();
+}
+
+/** Scrubs a cleaned line (the whole of it), then cuts it. */
+function scrubAndCut(cleaned: string, secrets: readonly unknown[]): string {
+  let text = scrubKnownValues(cleaned, liveSecrets(state, ...secrets), [], {
+    errorText: true,
+  });
+  text = redactLongTokens(text.replace(SECRET_PAIR, '$1<redacted>')).replace(
+    HEX_RUN,
+    '<redacted>'
+  );
+  return text.length > REASON_LIMIT
+    ? `${text.slice(0, REASON_LIMIT - 1)}…`
+    : text;
+}
+
 /**
- * One line of what an engine process wrote, made safe to show: characters that
- * can drive a terminal or a page removed, the secrets scrubbed from the WHOLE
- * line, and only then cut to {@link REASON_LIMIT} characters (a cut first
+ * One line of what an engine process wrote, made safe to show: only its first
+ * {@link REASON_INPUT_LIMIT} characters are looked at, characters that can drive
+ * a terminal or a page are removed, the secrets are scrubbed from that whole
+ * text, and only then it is cut to {@link REASON_LIMIT} characters (a cut first
  * would leave the head of a secret that straddles it).
  *
  * The scrub is the one of the MCP tool results (Bearer values, tokens of the
  * JSON web token shape, passwords in URLs, the values the connection holds),
  * the values the server itself keeps secret, every `name=value` or `name:
  * value` pair whose name says it is a secret, and any long token that looks
- * like a key.
+ * like a key (not a path, an error code or a name with dots).
  * @param line the text
  * @param secrets the values that must not appear (the server's own secrets)
  * @returns one line of at most 200 characters
@@ -339,23 +395,7 @@ export function safeEngineReason(
   line: string,
   secrets: readonly unknown[] = []
 ): string {
-  let text = line
-    .replace(ESCAPE_SEQUENCES, '')
-    .replace(CONTROL_CHARACTERS, ' ')
-    .replace(INVISIBLE_CHARACTERS, '')
-    .trim();
-  text = scrubKnownValues(text, liveSecrets(state, ...secrets), [], {
-    errorText: true,
-  });
-  text = text
-    .replace(SECRET_PAIR, '$1<redacted>')
-    .replace(LONG_TOKEN, (run) =>
-      /\d/.test(run) && /[A-Za-z]/.test(run) ? '<redacted>' : run
-    )
-    .replace(HEX_RUN, '<redacted>');
-  return text.length > REASON_LIMIT
-    ? `${text.slice(0, REASON_LIMIT - 1)}…`
-    : text;
+  return scrubAndCut(cleanLine(line), secrets);
 }
 
 /**
@@ -373,19 +413,13 @@ export function engineStartFailureReason(
   how: { code?: number | null; signal?: string | null } = {},
   secrets: readonly unknown[] = []
 ): string {
-  const clean = (line: string) =>
-    line
-      .replace(ESCAPE_SEQUENCES, '')
-      .replace(CONTROL_CHARACTERS, ' ')
-      .replace(INVISIBLE_CHARACTERS, '')
-      .trim();
   // Notices of the runtime are not a reason: "(node:123) ExperimentalWarning..."
   const lines = stderrLines
-    .map(clean)
+    .map(cleanLine)
     .filter((line) => line !== '' && !/^\((?:node:\d+|Use `node )/.test(line));
   const named = lines.find((line) => /^(?:[A-Za-z]*Error|error)\b/.test(line));
   const line = named ?? lines[0];
-  if (line) return safeEngineReason(line, secrets);
+  if (line) return scrubAndCut(line, secrets);
   if (how.signal) {
     return `The engine process was stopped by the signal ${how.signal} before it answered.`;
   }
@@ -426,7 +460,9 @@ export async function spawnTabEngine(
   // opened a browser. Each stderr line joins the tab's log stream as-is;
   // it is diagnostics, never protocol (protocol is stdout's JSON lines).
   createInterface({ input: child.stderr! }).on('line', (line) => {
-    if (!answered && stderrHead.length < 20) stderrHead.push(line);
+    if (!answered && stderrHead.length < 20) {
+      stderrHead.push(line.slice(0, REASON_INPUT_LIMIT));
+    }
     for (const listener of logListeners) listener(line);
   });
   const readline = createInterface({ input: child.stdout! });
