@@ -1,25 +1,32 @@
 import cp from 'child_process';
 import fs from 'fs';
+import { builtinModules } from 'module';
 import os from 'os';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
 /**
- * The command line the launcher (`dist/launch.cjs`, the npm `bin` entry and
- * the Docker entrypoint) starts the app process with.
+ * How the entry of the npm package (`dist/launch.cjs`, the `bin` and `main`
+ * entry and the Docker entrypoint) starts the app.
  *
- * The launcher used to pass `--experimental-loader <dist>/loader.cjs`, a
- * module-resolution hook written for unbundled ESM with extensionless imports.
- * The shipped bundle has no runtime resolution left, so the hook was asked
- * about exactly one specifier (the entry file) and Node's own resolver gave the
- * same answer; the flag cost about a third of the start-up time and printed an
- * ExperimentalWarning on Node 26. It is gone, and these tests keep it gone.
+ * The entry runs the app, `app.cjs`, in its OWN process. It used to spawn a
+ * second Node process (`node --no-warnings --enable-source-maps app.cjs`) and
+ * forward four signals to it, and before that it also passed
+ * `--experimental-loader`. The second process cost about a quarter of every
+ * start and about 170 MB for a server that idles, copied the exit code but
+ * not a death by signal (a killed app exited 0), and was orphaned when it was
+ * itself killed. These tests keep all of that gone, and they pin what the
+ * single process has to do in its place: source maps are OFF unless
+ * `FRODO_SOURCE_MAPS` asks for them (and must be switched on BEFORE the app
+ * loads), no process warnings, and `process.argv[1]` is the path of `app.cjs`
+ * (frodo-lib recognises the CLI by that name; without it every e2e replay in
+ * dev mode, which runs this entry, finds no recording).
  *
- * The launcher is a standalone file (it requires only Node built-ins), so the
- * test copies the BUILT `dist/launch.cjs` next to a fake `app.cjs` that reports
- * how it was started, and runs the copy. Nothing of the real CLI runs. Run
- * `npx tsdown` first (the test scripts do not rebuild `dist/`); without a
- * build the cases are skipped.
+ * The entry is a standalone file (it requires only Node built-ins and
+ * `./app.cjs`), so the test copies the BUILT `dist/launch.cjs` next to a fake
+ * `app.cjs` that reports how it was started or behaves as the case needs, and
+ * runs the copy. Nothing of the real CLI runs. Run `npx tsdown` first (the
+ * test scripts do not rebuild `dist/`); without a build the cases are skipped.
  */
 const ROOT = path.resolve(
   path.dirname(fileURLToPath(import.meta.url)),
@@ -30,57 +37,295 @@ const LAUNCHER = path.join(DIST, 'launch.cjs');
 const hasDist = fs.existsSync(LAUNCHER);
 const testif = (condition) => (condition ? test : test.skip);
 
+const SIGNALS = ['SIGHUP', 'SIGTERM', 'SIGINT', 'SIGQUIT'];
+
+/**
+ * The fake app. FAKE_APP_MODE selects what it does:
+ * - report: prints what it can see of its own process as JSON
+ * - warn: emits a process warning
+ * - throw: throws (the source map maps every line of this file to the same
+ *   line of `Original.ts`)
+ * - exit3: sets the exit code 3
+ * - selfkill: sends itself SIGTERM, which no handler catches
+ * - idle: writes its own pid to FAKE_READY, says `ready`, and waits
+ * - handlers: handles the four signals the way the real app does (says which
+ *   one it got and exits 0), says `ready`, and waits
+ */
+const FAKE_APP = `const mode = process.env.FAKE_APP_MODE;
+const wait = () => setInterval(() => {}, 1000);
+if (mode === 'report') {
+  process.stdout.write(JSON.stringify({
+    pid: process.pid,
+    execArgv: process.execArgv,
+    sourceMapsEnabled: process.sourceMapsEnabled,
+    warningListeners: process.listenerCount('warning'),
+    argv1: process.argv[1],
+    args: process.argv.slice(2),
+  }));
+} else if (mode === 'warn') {
+  process.emitWarning('a process warning');
+} else if (mode === 'throw') {
+  throw new Error('thrown by the fake app');
+} else if (mode === 'exit3') {
+  process.exitCode = 3;
+} else if (mode === 'selfkill') {
+  process.kill(process.pid, 'SIGTERM');
+  wait();
+} else if (mode === 'idle') {
+  require('node:fs').writeFileSync(process.env.FAKE_READY, String(process.pid));
+  process.stdout.write('ready\\n');
+  wait();
+} else if (mode === 'handlers') {
+  for (const name of ['SIGHUP', 'SIGTERM', 'SIGINT', 'SIGQUIT']) {
+    process.on(name, () => {
+      process.stdout.write('got ' + name + '\\n');
+      process.exit(0);
+    });
+  }
+  process.stdout.write('ready\\n');
+  wait();
+}
+//# sourceMappingURL=app.cjs.map
+`;
+
+/** A source map that sends every line of the fake app to the same line of `Original.ts`. */
+function sourceMapFor(app) {
+  const lines = app.split('\n').length;
+  return JSON.stringify({
+    version: 3,
+    file: 'app.cjs',
+    sources: ['Original.ts'],
+    names: [],
+    mappings: ['AAAA', ...Array(lines - 1).fill('AACA')].join(';'),
+  });
+}
+
 let dir;
+let children;
+let orphans;
 
 beforeAll(() => {
   dir = fs.mkdtempSync(path.join(os.tmpdir(), 'frodo-launcher-'));
   fs.copyFileSync(LAUNCHER, path.join(dir, 'launch.cjs'));
-  // A loader with no hooks, so that a launcher which still passed the flag
+  // A loader with no hooks, so that an entry which still passed the flag
   // would start the app anyway and the assertions below, not a start-up
   // failure, would be what fails.
   fs.writeFileSync(path.join(dir, 'loader.cjs'), 'module.exports = {};');
-  fs.writeFileSync(
-    path.join(dir, 'app.cjs'),
-    `process.stdout.write(JSON.stringify({
-      execArgv: process.execArgv,
-      entry: require('node:path').basename(process.argv[1]),
-      args: process.argv.slice(2),
-    }));`
-  );
+  fs.writeFileSync(path.join(dir, 'app.cjs'), FAKE_APP);
+  fs.writeFileSync(path.join(dir, 'app.cjs.map'), sourceMapFor(FAKE_APP));
+});
+
+beforeEach(() => {
+  children = [];
+  orphans = [];
+});
+
+afterEach(() => {
+  for (const child of children) child.kill('SIGKILL');
+  for (const pid of orphans) {
+    try {
+      process.kill(pid, 'SIGKILL');
+    } catch {
+      // already gone, which is the point
+    }
+  }
 });
 
 afterAll(() => {
   if (dir) fs.rmSync(dir, { recursive: true, force: true });
 });
 
-/** Runs the copied launcher and returns what the fake app reported. */
-function launch(args) {
-  const { NODE_OPTIONS, ...env } = process.env;
-  const stdout = cp.execFileSync(
-    process.execPath,
-    [path.join(dir, 'launch.cjs'), ...args],
-    { env, encoding: 'utf8' }
-  );
-  return JSON.parse(stdout);
+/** The environment of a run: the runner's own, without the variables the cases decide. */
+function envFor(mode, env = {}) {
+  // eslint-disable-next-line no-unused-vars
+  const { NODE_OPTIONS, FRODO_SOURCE_MAPS, ...rest } = process.env;
+  return { ...rest, FAKE_APP_MODE: mode, ...env };
 }
 
-describe('the launcher starts the app process', () => {
-  testif(hasDist)('without a module-resolution loader', () => {
-    const { execArgv } = launch(['-v']);
-    expect(execArgv).not.toContain('--experimental-loader');
-    expect(execArgv.join(' ')).not.toMatch(/loader/);
+/** Runs the copied entry to its end and returns what spawnSync reports. */
+function run(mode, { args = [], env } = {}) {
+  return cp.spawnSync(
+    process.execPath,
+    [path.join(dir, 'launch.cjs'), ...args],
+    {
+      env: envFor(mode, env),
+      encoding: 'utf8',
+    }
+  );
+}
+
+/** Runs the copied entry with the `report` app and returns the pid of the entry and what the app saw. */
+function report({ args = [], env } = {}) {
+  const result = run('report', { args, env });
+  return { entryPid: result.pid, ...JSON.parse(result.stdout) };
+}
+
+/** Starts the copied entry with a long-running fake app and resolves once the app said `ready`. */
+async function startIdle(mode, env = {}) {
+  const readyFile = path.join(dir, `ready-${children.length}`);
+  const child = cp.spawn(process.execPath, [path.join(dir, 'launch.cjs')], {
+    env: envFor(mode, { FAKE_READY: readyFile, ...env }),
+    stdio: ['ignore', 'pipe', 'pipe'],
+  });
+  children.push(child);
+  child.output = '';
+  child.stdout.on('data', (data) => (child.output += data));
+  child.stderr.on('data', (data) => (child.output += data));
+  child.ended = new Promise((resolve) =>
+    child.once('exit', (code, signal) => resolve({ code, signal }))
+  );
+  const deadline = Date.now() + 15000;
+  while (!child.output.includes('ready')) {
+    if (Date.now() > deadline || child.exitCode !== null) {
+      throw new Error(`the fake app did not become ready: ${child.output}`);
+    }
+    await new Promise((resolve) => setTimeout(resolve, 20));
+  }
+  return { child, readyFile };
+}
+
+function isAlive(pid) {
+  try {
+    process.kill(pid, 0);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+describe('the entry starts the app in its own process', () => {
+  testif(hasDist)('the app is the process that was started', () => {
+    const { entryPid, pid, execArgv } = report({ args: ['-v'] });
+    expect(pid).toBe(entryPid);
+    // no flag of any kind: not a loader, not --no-warnings, not
+    // --enable-source-maps
+    expect(execArgv).toEqual([]);
   });
 
   testif(hasDist)(
-    'with the flags it always had, and passes its own arguments on',
+    'the app sees its own file as argv[1] and the arguments it was given',
     () => {
-      const { execArgv, entry, args } = launch(['conn', 'list', '-v']);
-      expect(execArgv).toEqual(
-        expect.arrayContaining(['--no-warnings', '--enable-source-maps'])
-      );
-      expect(entry).toBe('app.cjs');
-      expect(args).toEqual(['conn', 'list', '-v']);
+      const args = ['conn', 'list', '-v', '--', 'two words'];
+      const { argv1, args: seen } = report({ args });
+      // argv[1] is what frodo-lib tells the CLI by (frodo, frodo.exe or app.cjs)
+      expect(path.basename(argv1)).toBe('app.cjs');
+      expect(argv1).toBe(fs.realpathSync(path.join(dir, 'app.cjs')));
+      expect(seen).toEqual(args);
     }
+  );
+});
+
+describe('source maps are opt-in (FRODO_SOURCE_MAPS)', () => {
+  testif(hasDist)('are off by default', () => {
+    expect(report().sourceMapsEnabled).toBe(false);
+  });
+
+  testif(hasDist).each(['1', 'true', 'yes', 'on', 'ON', 'True'])(
+    'are on for FRODO_SOURCE_MAPS=%s',
+    (value) => {
+      expect(
+        report({ env: { FRODO_SOURCE_MAPS: value } }).sourceMapsEnabled
+      ).toBe(true);
+    }
+  );
+
+  testif(hasDist).each(['0', 'false', 'no', 'off', ''])(
+    'are off for FRODO_SOURCE_MAPS=%j',
+    (value) => {
+      expect(
+        report({ env: { FRODO_SOURCE_MAPS: value } }).sourceMapsEnabled
+      ).toBe(false);
+    }
+  );
+
+  testif(hasDist)(
+    'name the original file in a stack trace when asked for, before the app loads',
+    () => {
+      const result = run('throw', { env: { FRODO_SOURCE_MAPS: '1' } });
+      expect(result.status).toBe(1);
+      // the frames of the stack, not the line of code that Node prints above it
+      expect(result.stderr).toMatch(/at .*Original\.ts:\d+:\d+/);
+      expect(result.stderr).not.toMatch(/at .*app\.cjs:\d+:\d+/);
+    }
+  );
+
+  testif(hasDist)(
+    'leave the bundle in a stack trace when not asked for',
+    () => {
+      const result = run('throw');
+      expect(result.status).toBe(1);
+      expect(result.stderr).toMatch(/at .*app\.cjs:\d+:\d+/);
+      expect(result.stderr).not.toContain('Original.ts');
+    }
+  );
+
+  testif(hasDist)(
+    'stay on when Node itself is asked for them (NODE_OPTIONS)',
+    () => {
+      const result = run('throw', {
+        env: { NODE_OPTIONS: '--enable-source-maps' },
+      });
+      expect(result.stderr).toMatch(/at .*Original\.ts:\d+:\d+/);
+    }
+  );
+});
+
+describe('the entry prints no process warning', () => {
+  testif(hasDist)('there is no warning listener to print one', () => {
+    expect(report().warningListeners).toBe(0);
+  });
+
+  testif(hasDist)('a warning of the app is not printed', () => {
+    const result = run('warn');
+    expect(result.status).toBe(0);
+    expect(result.stderr).toBe('');
+  });
+});
+
+describe('how the process ends is how the command ends', () => {
+  testif(hasDist)('the exit code of the app is the exit code', () => {
+    const result = run('exit3');
+    expect(result.status).toBe(3);
+    expect(result.signal).toBeNull();
+  });
+
+  testif(hasDist)(
+    'an app that is killed by a signal is reported as killed by that signal, not as exit 0',
+    () => {
+      const result = run('selfkill');
+      expect(result.signal).toBe('SIGTERM');
+      expect(result.status).toBeNull();
+    }
+  );
+
+  testif(hasDist)(
+    'killing the entry with SIGKILL leaves no process behind',
+    async () => {
+      const { child, readyFile } = await startIdle('idle');
+      const appPid = Number(fs.readFileSync(readyFile, 'utf8'));
+      orphans.push(appPid);
+      process.kill(child.pid, 'SIGKILL');
+      await child.ended;
+      // the app is the entry itself; a second process would have outlived it
+      await new Promise((resolve) => setTimeout(resolve, 300));
+      expect(isAlive(appPid)).toBe(false);
+    },
+    30000
+  );
+});
+
+describe('the signals a terminal or a supervisor sends reach the app', () => {
+  testif(hasDist).each(SIGNALS)(
+    '%s sent to the process that was started runs the handler of the app',
+    async (name) => {
+      const { child } = await startIdle('handlers');
+      process.kill(child.pid, name);
+      const { code, signal } = await child.ended;
+      expect(child.output).toContain(`got ${name}`);
+      expect(code).toBe(0);
+      expect(signal).toBeNull();
+    },
+    30000
   );
 });
 
@@ -91,6 +336,33 @@ describe('the build', () => {
       expect(fs.existsSync(path.join(DIST, 'loader.cjs'))).toBe(false);
       expect(fs.existsSync(path.join(DIST, 'launch.cjs'))).toBe(true);
       expect(fs.existsSync(path.join(DIST, 'app.cjs'))).toBe(true);
+    }
+  );
+
+  testif(hasDist)(
+    'keeps the entry small and standalone: it requires only Node built-ins and ./app.cjs',
+    () => {
+      const source = fs.readFileSync(LAUNCHER, 'utf8');
+      // it is read and compiled before anything else starts, so it must stay
+      // the few lines that it is (a shared chunk, an inlined helper or the
+      // bundled app would show here)
+      expect(source.startsWith('#!/usr/bin/env node\n')).toBe(true);
+      expect(Buffer.byteLength(source)).toBeLessThan(4096);
+
+      const builtins = new Set(
+        builtinModules.flatMap((name) => [name, `node:${name}`])
+      );
+      const targets = [...source.matchAll(/\brequire\(([^)]*)\)/g)].map(
+        (match) => match[1].trim()
+      );
+      const literal = targets.filter((target) => /^["'].*["']$/.test(target));
+      const dynamic = targets.filter((target) => !literal.includes(target));
+      for (const target of literal) {
+        expect(builtins.has(target.slice(1, -1))).toBe(true);
+      }
+      // the one dynamic require is the app, and the file it names is app.cjs
+      expect(dynamic).toEqual(['app']);
+      expect(source).toContain('"./app.cjs"');
     }
   );
 });
