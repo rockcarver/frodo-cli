@@ -660,6 +660,25 @@ describe('clearing a holder', () => {
     }
   );
 
+  test.each([['ZionLogin2'], ['Zion'], ['zionlogin'], ['ZionLogin ']])(
+    'a holder that names %j is not the holder of journey ZionLogin: nothing is written',
+    async (named) => {
+      stored.set(
+        key('client', 'zion-client'),
+        mergePatch(CLIENT, {
+          advancedOAuth2ClientConfig: {
+            treeName: { inherited: false, value: named },
+          },
+        })
+      );
+
+      await expect(
+        clearJourneyReference(REFERENCES['oauth2-client'], JOURNEY)
+      ).rejects.toThrow(/does not name journey 'ZionLogin' any more/);
+      expect(updateOAuth2Client).not.toHaveBeenCalled();
+    }
+  );
+
   test('a holder that does not hold the placeholder after the write is a failure', async () => {
     stored.set(key('client', 'zion-client'), CLIENT);
     updateOAuth2Client.mockImplementationOnce(async () => {});
@@ -741,6 +760,33 @@ describe('removing the journey from a theme', () => {
     expect(calls.map(([type]) => type)).toEqual(['read', 'write', 'read']);
   });
 
+  test('removes only the journey that is named, not the names that begin with it or are the beginning of it', async () => {
+    stored.set(key('theme', 'theme-1'), {
+      ...THEME,
+      linkedTrees: ['Zion', JOURNEY, 'ZionLogin2', 'ZionLogi'],
+    });
+
+    await unlinkJourneyReference(REFERENCES.theme, JOURNEY);
+
+    expect(
+      calls
+        .filter(([type]) => type === 'write')
+        .map((call) => call[3].linkedTrees)
+    ).toEqual([['Zion', 'ZionLogin2', 'ZionLogi']]);
+  });
+
+  test('a theme that links only names that begin with the journey is not written', async () => {
+    stored.set(key('theme', 'theme-1'), {
+      ...THEME,
+      linkedTrees: ['ZionLogin2', 'Zion'],
+    });
+
+    await expect(
+      unlinkJourneyReference(REFERENCES.theme, JOURNEY)
+    ).rejects.toThrow(/does not link journey 'ZionLogin' any more/);
+    expect(updateTheme).not.toHaveBeenCalled();
+  });
+
   test('a theme that does not link the journey any more is not written', async () => {
     stored.set(key('theme', 'theme-1'), { ...THEME, linkedTrees: ['Other'] });
 
@@ -788,6 +834,20 @@ describe('a lookup that could not read every source', () => {
     expect(unreadableSources(error)).toEqual([
       'Error reading OAuth2 clients',
       'Error reading policies',
+    ]);
+  });
+
+  test('is named with the cause at the bottom of the error of the library', () => {
+    const error = Object.assign(new Error('Error finding references: x'), {
+      originalErrors: [
+        Object.assign(new Error('Error reading themes'), {
+          originalErrors: [new Error('Request failed with status code 500')],
+        }),
+      ],
+    });
+
+    expect(unreadableSources(error)).toEqual([
+      'Error reading themes: Request failed with status code 500',
     ]);
   });
 

@@ -241,6 +241,24 @@ describe('a delete of all journeys', () => {
   });
 });
 
+describe('a login that fails', () => {
+  test.each([
+    [['-y']],
+    [['-i', 'ZionLogin']],
+    [['-i', 'ZionLogin', '--force', '-y']],
+    [['-i', 'ZionLogin', '-d']],
+  ])('%j ends with exit code 1, and nothing is asked or run', async (args) => {
+    getTokens.mockResolvedValue(false);
+
+    await run(args);
+
+    expect(getTokens).toHaveBeenCalledTimes(1);
+    expect(configManagerDeleteJourneys).not.toHaveBeenCalled();
+    expect(confirm).not.toHaveBeenCalled();
+    expect(process.exitCode).toBe(1);
+  });
+});
+
 describe('a named delete', () => {
   test('never asks and needs no -y: the operation refuses what is named by something', async () => {
     terminal = true;
@@ -330,17 +348,17 @@ describe('a named delete with --force', () => {
 
     const calls = configManagerDeleteJourneys.mock.calls;
     expect(calls.map((call) => call[2])).toEqual([true, undefined]);
-    for (const call of calls) {
-      expect(call[0]).toBe('ZionLogin');
-      expect(call[4]).toEqual({ force: true, keepLinks: true });
-    }
+    for (const call of calls) expect(call[0]).toBe('ZionLogin');
+    // the first call is the plan before the question, and says so; the second is the delete
+    expect(calls[0][4]).toEqual({ force: true, keepLinks: true, plan: true });
+    expect(calls[1][4]).toEqual({ force: true, keepLinks: true });
     expect(confirm).toHaveBeenCalledTimes(1);
     expect(confirm.mock.calls[0][0].default).toBe(false);
     expect(confirm.mock.calls[0][0].message).toContain(
       "Delete journey 'ZionLogin' and change the objects that name it"
     );
     expect(messages().join('\n')).toContain(
-      "Journey 'ZionLogin' is deleted, and the objects listed above are changed. This cannot be undone."
+      "Journey 'ZionLogin' is deleted and every change listed above is made. This cannot be undone."
     );
     // the plan comes before the question
     expect(

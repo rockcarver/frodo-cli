@@ -57,7 +57,7 @@ export default function setup() {
     )
     .addHelpText(
       'after',
-      `Without --force, a journey that another journey, a realm setting, an OAuth2 client, a SAML provider, an AI agent, an agent group, a CIMD profile, a theme or a policy still names is not deleted, the command says which and exits with code 1. An answer that nothing names it is not proof that it is unused: a journey that an application, an SDK or a link starts by its name, or a journey name inside a script or a URL, is not seen.\n` +
+      `Without --force, a journey that another journey, a realm setting, an OAuth2 client, a SAML provider, an AI agent, an agent group, a CIMD profile, a theme or a policy still names is not deleted, the command says which and exits with code 1. --allow-failures keeps the exit code at 0 for a delete that failed, but never for a refusal, a journey that does not exist, or a failed clearing, restore or unlink. An answer that nothing names it is not proof that it is unused: a journey that an application, an SDK or a link starts by its name, or a journey name inside a script or a URL, is not seen.\n` +
         `Deleting all journeys deletes the journeys that the realm uses for login too, and every orphaned node of the realm. A dry run lists the orphaned nodes that exist now.\n` +
         `Usage Examples:\n` +
         `  Delete all journeys and clean up orphaned nodes in the selected realms without prompting:\n` +
@@ -148,7 +148,7 @@ export default function setup() {
           selectedRealm,
           true,
           false,
-          { force: options.force, keepLinks: options.keepLinks }
+          { force: options.force, keepLinks: options.keepLinks, plan: true }
         );
       if (!named && !(await confirmBulkDelete({ ...guardOptions, showPlan }))) {
         process.exitCode = 1;
@@ -159,7 +159,7 @@ export default function setup() {
         options.force &&
         !(await confirmProceed({
           ...guardOptions,
-          warning: `Journey '${options.journeyId}' is deleted, and the objects listed above are changed. This cannot be undone.`,
+          warning: `Journey '${options.journeyId}' is deleted and every change listed above is made. This cannot be undone.`,
           showPlan,
         }))
       ) {

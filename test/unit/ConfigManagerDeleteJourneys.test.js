@@ -192,11 +192,43 @@ describe('a named delete: the journey is looked up in the list of the realm', ()
     );
   });
 
-  test.each([['zionlogin'], ['ZionLogin '], [' ZionLogin'], ['Zion*']])(
-    'the match is exact and case-sensitive: %j is not %s',
+  test.each([
+    ['zionlogin'],
+    ['ZIONLOGIN'],
+    ['ZionLogin '],
+    [' ZionLogin'],
+    ['Zion*'],
+    // the beginning of a journey name is not the journey
+    ['Zion'],
+    ['ZionLogi'],
+    ['Z'],
+    ['Registrat'],
+    // a journey name at the beginning of what was typed is not the journey either
+    ['ZionLogin2'],
+    ['ZionLogin/../Registration'],
+  ])(
+    'the match is exact and case-sensitive: %j is not a journey, nothing is deleted or written, with or without --force',
     async (typed) => {
-      expect(await configManagerDeleteJourneys(typed, 'alpha')).toBe(false);
-      expect(deleteJourney).not.toHaveBeenCalled();
+      for (const options of [{}, { force: true }]) {
+        calls.length = 0;
+        deleteJourney.mockClear();
+
+        expect(
+          await configManagerDeleteJourneys(
+            typed,
+            'alpha',
+            false,
+            false,
+            options
+          )
+        ).toBe(false);
+
+        expect(deleteJourney).not.toHaveBeenCalled();
+        expect(effects()).toEqual([]);
+        expect(output()).toContain(
+          `Journey '${typed}' not found in realm 'alpha'.`
+        );
+      }
     }
   );
 
@@ -886,6 +918,86 @@ describe('a named dry run', () => {
     expect(output()).not.toContain('remove the journey from');
   });
 
+  describe('the plan before the question of --force (a dry run that says so)', () => {
+    const plan = { force: true, plan: true };
+
+    test('says plan and not dry run, and lists what would be changed', async () => {
+      store();
+      findJourneyReferences.mockResolvedValue([REF['oauth2-client']]);
+
+      expect(
+        await configManagerDeleteJourneys(JOURNEY, 'alpha', true, false, plan)
+      ).toBe(true);
+
+      expect(output()).toContain(
+        "Plan: journey 'ZionLogin' in realm 'alpha' would be deleted."
+      );
+      expect(output()).toContain(
+        "    - OAuth2 client 'zion-client' (advancedOAuth2ClientConfig.treeName)"
+      );
+      expect(output()).not.toContain('Dry run');
+      expect(calls.filter(([type]) => type !== 'read')).toEqual([]);
+      expect(deleteJourney).not.toHaveBeenCalled();
+    });
+
+    test('says that no other object is changed when nothing names the journey', async () => {
+      expect(
+        await configManagerDeleteJourneys(JOURNEY, 'alpha', true, false, plan)
+      ).toBe(true);
+
+      expect(output()).toContain(
+        'Nothing else names the journey: no other object is changed.'
+      );
+      expect(output()).not.toContain('Dry run');
+    });
+
+    test('says what could not be checked when the lookup failed', async () => {
+      findJourneyReferences.mockRejectedValue(
+        Object.assign(new Error('Error finding references'), {
+          originalErrors: [new Error('Error reading policies')],
+        })
+      );
+
+      expect(
+        await configManagerDeleteJourneys(JOURNEY, 'alpha', true, false, plan)
+      ).toBe(true);
+
+      expect(output()).toContain('  - Error reading policies');
+      expect(output()).toContain(
+        'What else names the journey is not known: not every source could be read, so nothing is cleared.'
+      );
+      expect(output()).not.toContain('Nothing else names the journey');
+      expect(output()).not.toContain('Dry run');
+    });
+
+    test('a dry run that is not a plan keeps saying dry run', async () => {
+      await configManagerDeleteJourneys(JOURNEY, 'alpha', true, false, force);
+
+      expect(output()).toContain(
+        "Dry run: would delete journey 'ZionLogin' in realm 'alpha'."
+      );
+      expect(output()).not.toContain('Plan:');
+    });
+  });
+
+  test('a source that could not be read is named with its cause, not by its name only', async () => {
+    findJourneyReferences.mockRejectedValue(
+      Object.assign(new Error('Error finding references'), {
+        originalErrors: [
+          Object.assign(new Error('Error reading themes'), {
+            originalErrors: [new Error('Request failed with status code 500')],
+          }),
+        ],
+      })
+    );
+
+    expect(await configManagerDeleteJourneys(JOURNEY, 'alpha')).toBe(false);
+
+    expect(output()).toContain(
+      '  - Error reading themes: Request failed with status code 500'
+    );
+  });
+
   test('with --force and a lookup that could not read every source says "would be deleted", and that what else names the journey is not known', async () => {
     findJourneyReferences.mockRejectedValue(
       Object.assign(new Error('Error finding references'), {
@@ -1138,7 +1250,21 @@ describe('a delete of all journeys', () => {
     await configManagerDeleteJourneys(undefined, undefined);
 
     expect(deleteJourneys).toHaveBeenCalledTimes(1);
+    // the skip is said once, and nothing is done in the root realm
+    expect(output()).toContain(
+      'The root realm (/) is skipped on a Cloud tenant.'
+    );
     expect(output()).not.toContain("realm '/'");
+  });
+
+  test('the root realm of another deployment is not reported as skipped', async () => {
+    deployment = 'forgeops';
+    realmList.mockResolvedValue(['/']);
+    deleteJourneys.mockResolvedValue(statuses('Login'));
+
+    await configManagerDeleteJourneys(undefined, undefined);
+
+    expect(output()).not.toContain('is skipped');
   });
 
   test('the root realm of another deployment is processed', async () => {

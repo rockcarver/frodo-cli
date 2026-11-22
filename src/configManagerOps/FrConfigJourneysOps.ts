@@ -510,6 +510,8 @@ export type DeleteJourneysOptions = {
   force?: boolean;
   /** With `force`: leave the links of the themes as they are. */
   keepLinks?: boolean;
+  /** With `dryRun`: the dry run is the plan that is shown before a question, so its text says plan and not dry run. */
+  plan?: boolean;
 };
 
 /** The deletion of one journey or of every journey is one operation of the run, and so is each orphaned node. */
@@ -535,7 +537,7 @@ const DELETE_UNIT = 'deletion';
  * @param {string} realm Realm to process. Omit to use every realm, for a delete of all journeys.
  * @param {boolean} dryRun Show what would be done without doing any of it.
  * @param {boolean} allowFailures Keep the result true when a deletion failed. Neither a named journey that does not exist, nor a refusal because something still names it, nor a failed clearing is a failure that it can turn into success.
- * @param {DeleteJourneysOptions} options `force` and `keepLinks`, for a named delete.
+ * @param {DeleteJourneysOptions} options `force` and `keepLinks`, for a named delete, and `plan`.
  * @returns {Promise<boolean>} False if the arguments are refused, the realms cannot be listed, a named journey is not in the realm or is still named by something and `force` was not given, a clearing failed, or, unless failures are allowed, a deletion failed. Nothing to delete is a success.
  */
 export async function configManagerDeleteJourneys(
@@ -543,7 +545,7 @@ export async function configManagerDeleteJourneys(
   realm?: string,
   dryRun = false,
   allowFailures = false,
-  { force = false, keepLinks = false }: DeleteJourneysOptions = {}
+  { force = false, keepLinks = false, plan = false }: DeleteJourneysOptions = {}
 ): Promise<boolean> {
   // "not given" and "given but empty" are different: an empty id must never
   // select every journey
@@ -574,7 +576,8 @@ export async function configManagerDeleteJourneys(
         dryRun,
         allowFailures,
         force,
-        keepLinks
+        keepLinks,
+        plan
       );
     }
     let realms: string[];
@@ -600,10 +603,14 @@ function planLines(
   journeyId: string,
   realm: string,
   plan: JourneyDeletePlan,
-  lookupFailed = false
+  lookupFailed = false,
+  asPlan = false
 ): string[] {
+  // the plan before a question is not a dry run: it says what is about to be done
   const lines = [
-    `Dry run: would delete journey '${journeyId}' in realm '${realm}'.`,
+    asPlan
+      ? `Plan: journey '${journeyId}' in realm '${realm}' would be deleted.`
+      : `Dry run: would delete journey '${journeyId}' in realm '${realm}'.`,
   ];
   const section = (title: string, items: { toString(): string }[]) => {
     if (items.length === 0) return;
@@ -631,7 +638,11 @@ function planLines(
       '  What else names the journey is not known: not every source could be read, so nothing is cleared.'
     );
   } else if (lines.length === 1) {
-    lines.push('  nothing else names the journey.');
+    lines.push(
+      asPlan
+        ? '  Nothing else names the journey: no other object is changed.'
+        : '  nothing else names the journey.'
+    );
   }
   return lines;
 }
@@ -667,6 +678,7 @@ async function lookUpReferences(
  * @param {boolean} allowFailures keep the result true when the delete failed
  * @param {boolean} force go ahead although something names the journey
  * @param {boolean} keepLinks leave the links of the themes
+ * @param {boolean} asPlan the dry run is the plan shown before a question
  * @returns {Promise<boolean>} true if the command succeeded
  */
 async function deleteNamedJourney(
@@ -675,7 +687,8 @@ async function deleteNamedJourney(
   dryRun: boolean,
   allowFailures: boolean,
   force: boolean,
-  keepLinks: boolean
+  keepLinks: boolean,
+  asPlan: boolean
 ): Promise<boolean> {
   state.setRealm(realm);
   let journeys: TreeSkeleton[];
@@ -738,7 +751,9 @@ async function deleteNamedJourney(
   const plan = planJourneyDelete(found, { keepLinks });
   if (dryRun) {
     printMessage(
-      planLines(target, realm, plan, unreadable !== undefined).join('\n')
+      planLines(target, realm, plan, unreadable !== undefined, asPlan).join(
+        '\n'
+      )
     );
     return true;
   }
@@ -899,6 +914,7 @@ async function deleteAllJourneys(
       currentRealm === '/' &&
       state.getDeploymentType() === CLOUD_DEPLOYMENT_TYPE_KEY
     ) {
+      printMessage('The root realm (/) is skipped on a Cloud tenant.');
       continue;
     }
     state.setRealm(currentRealm);

@@ -1,5 +1,6 @@
 import { isDeepStrictEqual } from 'node:util';
 import { frodo, type JourneyReference } from '@rockcarver/frodo-lib';
+import { causeOf } from '../utils/ErrorCause';
 
 /**
  * What `config-manager delete journeys --force` does for each holder that still
@@ -513,8 +514,13 @@ export function unreadableSources(error: unknown): string[] {
   const nested = (error as { originalErrors?: unknown })?.originalErrors;
   if (Array.isArray(nested) && nested.length > 0) {
     return nested.map((item) => {
-      const text = item instanceof Error ? item.message : String(item);
-      return text.split('\n')[0].trim();
+      const text = (item instanceof Error ? item.message : String(item))
+        .split('\n')[0]
+        .trim();
+      // the message of the library names the source ("Error reading themes"), the
+      // cause at the bottom of the error says why it could not be read
+      const cause = causeOf(item);
+      return cause && cause !== text ? `${text}: ${cause}` : text;
     });
   }
   return [

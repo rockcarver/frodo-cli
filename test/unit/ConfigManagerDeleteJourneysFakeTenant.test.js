@@ -302,6 +302,18 @@ suite('config-manager delete journeys (fake tenant)', () => {
           '../../../../../../am/json/realms/root/realms/alpha/realm-config/agents/OAuth2Client/zion-client';
         const attempts = [
           ...['a/b?x=1', 'zionlogin', 'Zion '].map((id) => [id, []]),
+          // the beginning of a journey name is not the journey (the fake holds
+          // ZionLogin, Registration and ldapService), nor is a name that begins
+          // with a journey's
+          ...[
+            'Zion',
+            'ZionLogi',
+            'Z',
+            'Registrat',
+            'ldapServic',
+            'ZionLoginX',
+          ].map((id) => [id, []]),
+          ...['Zion', 'Registrat'].map((id) => [id, ['--force', '-y']]),
           // the path that would reach an OAuth2 client, with every option that
           // could let a delete through
           ...[[], ['-d'], ['--allow-failures'], ['--force', '-y']].map(
@@ -320,7 +332,7 @@ suite('config-manager delete journeys (fake tenant)', () => {
         // after all of them the tenant was asked to change nothing
         expect(changes()).toEqual([]);
       },
-      TIMEOUT * 3
+      TIMEOUT * 6
     );
 
     it(
