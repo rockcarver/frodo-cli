@@ -321,12 +321,18 @@ deletes the journey anyway. It first clears the journey in the OAuth2 clients,
 SAML providers and AI agents that name it (Access Management refuses to delete a
 journey that an OAuth2 client or a SAML provider names, and an AI agent that names
 a journey that is gone can no longer be updated or deleted), by writing the
-placeholder `[Empty]` into that one field, and it removes the journey from the
-list of journeys of the themes that link it. It deletes the journey after that
-and prints what it cleared, what it removed and every holder that it left alone
-(journeys, realm settings, agent groups, CIMD profiles and policies are never
-changed: they name a journey that does not exist afterwards). A clearing that
-fails stops the run before the journey is deleted. `--keep-links` leaves the links
+placeholder `[Empty]` into that one field (the whole holder is written back with
+only that field changed, then read again: if anything else changed, the holder is
+written back as it was, the fields that changed are named, and the journey is not
+deleted), and it removes the journey from the list of journeys of the themes that
+link it. It deletes the journey after that and prints what it cleared, what it
+removed and every holder that it left alone (journeys, realm settings, agent
+groups, CIMD profiles and policies are never changed: they name a journey that
+does not exist afterwards). A step that fails stops the run before the journey is
+deleted, and the command then lists the holders that were changed before and stay
+changed (to undo, set the journey in them again; to finish, run the command
+again). A delete that fails after holders were changed exits with code 1 also
+with `--allow-failures`. `--keep-links` leaves the links
 of the themes as they are, for a journey that is deleted to be recreated under the
 same name; it needs `--force`, and `--force` and `--keep-links` need `-i`. Because
 `--force` changes other objects, it asks on a terminal after it has shown what it

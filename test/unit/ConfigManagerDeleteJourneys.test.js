@@ -111,10 +111,10 @@ const CLIENT = {
     treeName: { inherited: false, value: JOURNEY },
   },
 };
+// a provider as AM answers a read of it: no location in it, the stub says where it is
 const SAML = {
   _id: 'dXJuOnppb246c3A',
   entityId: 'urn:zion:sp',
-  entityLocation: 'remote',
   serviceProvider: {
     advanced: { treeConfiguration: { treeName: JOURNEY } },
   },
@@ -135,6 +135,7 @@ const THEME = {
 const store = () => {
   holders.stored.set(holders.key('client', 'zion-client'), CLIENT);
   holders.stored.set(holders.key('saml', 'urn:zion:sp'), SAML);
+  holders.locations.set('urn:zion:sp', 'remote');
   holders.stored.set(holders.key('agent', 'zion-agent'), AGENT);
   holders.stored.set(holders.key('theme', 'theme-1'), THEME);
 };
@@ -142,6 +143,8 @@ const store = () => {
 beforeEach(() => {
   jest.clearAllMocks();
   holders.stored.clear();
+  holders.locations.clear();
+  holders.mode.value = 'merge';
   calls.length = 0;
   currentRealm = 'before';
   deployment = 'classic';
@@ -259,6 +262,32 @@ describe('a named delete: the journey is looked up in the list of the realm', ()
     ).toBe(true);
     expect(output()).toContain(
       'The exit code stays 0 because --allow-failures'
+    );
+  });
+
+  test('the summary of a failed delete carries the cause at the bottom of the error of the library, as the summary of a delete of all journeys does', async () => {
+    deleteJourney.mockResolvedValue({
+      status: 'error',
+      nodes: {},
+      error: Object.assign(
+        new Error('Error deleting alpha realm journey ZionLogin'),
+        {
+          originalErrors: [
+            new Error(
+              'The authentication tree is in use and cannot be deleted.'
+            ),
+          ],
+        }
+      ),
+    });
+
+    expect(await configManagerDeleteJourneys(JOURNEY, 'alpha')).toBe(false);
+
+    expect(output()).toContain(
+      "1 of 1 step failed:\n  - delete journey 'ZionLogin': The authentication tree is in use and cannot be deleted."
+    );
+    expect(output()).not.toContain(
+      "delete journey 'ZionLogin': Error deleting alpha realm journey"
     );
   });
 
@@ -429,7 +458,9 @@ describe('a named delete with --force', () => {
         'write',
         'agent',
         'zion-agent',
+        // the whole agent as it was read, with only the field changed
         {
+          ...AGENT,
           advancedOAuth2ClientConfig: {
             treeName: { inherited: false, value: '[Empty]' },
           },
@@ -585,6 +616,103 @@ describe('a named delete with --force', () => {
     expect(findJourneyReferences).toHaveBeenCalledTimes(2);
   });
 
+  test('a theme unlink that fails stops the run before the delete, says that the clearing that was done stays, and --allow-failures does not turn it into success', async () => {
+    store();
+    findJourneyReferences.mockResolvedValue([REF['oauth2-client'], REF.theme]);
+    holders.library.theme.updateTheme.mockRejectedValueOnce(
+      new Error('theme write refused')
+    );
+
+    expect(
+      await configManagerDeleteJourneys(JOURNEY, 'alpha', false, true, force)
+    ).toBe(false);
+
+    // the client was cleared, the journey is still there
+    expect(
+      effects().map(([type, holderType]) => `${type} ${holderType}`)
+    ).toEqual(['write client']);
+    expect(deleteJourney).not.toHaveBeenCalled();
+    const text = output();
+    expect(text).toContain(
+      "1 of 3 steps failed, 1 not attempted:\n  - remove the journey from theme 'Zion Theme' (linkedTrees): theme write refused\n  - delete journey 'ZionLogin' (not attempted)"
+    );
+    expect(text).toContain('does not apply to that');
+    expect(text).toContain(
+      "Journey 'ZionLogin' was not deleted, and these were changed before and stay changed: OAuth2 client 'zion-client' (advancedOAuth2ClientConfig.treeName)."
+    );
+    expect(text).toContain(
+      "To undo, set the journey 'ZionLogin' in each of them again."
+    );
+  });
+
+  test('a second clearing that fails says that the first stays cleared', async () => {
+    store();
+    findJourneyReferences.mockResolvedValue([
+      REF['oauth2-client'],
+      REF['ai-agent'],
+    ]);
+    holders.library.agent.updateAIAgent.mockRejectedValueOnce(
+      new Error('AM said no')
+    );
+
+    expect(
+      await configManagerDeleteJourneys(JOURNEY, 'alpha', false, false, force)
+    ).toBe(false);
+
+    expect(deleteJourney).not.toHaveBeenCalled();
+    expect(output()).toContain(
+      "these were changed before and stay changed: OAuth2 client 'zion-client' (advancedOAuth2ClientConfig.treeName)."
+    );
+    // nothing was changed before the first clearing: no such message
+    jest.clearAllMocks();
+    holders.stored.clear();
+    store();
+    holders.library.oauth2oidc.client.updateOAuth2Client.mockRejectedValueOnce(
+      new Error('AM said no')
+    );
+    await configManagerDeleteJourneys(JOURNEY, 'alpha', false, false, force);
+    expect(output()).not.toContain('stay changed');
+  });
+
+  test('a delete that fails after a holder was cleared ends with 1 whatever --allow-failures says, and says that the holder stays cleared', async () => {
+    store();
+    findJourneyReferences.mockResolvedValue([REF['oauth2-client']]);
+    deleteJourney.mockResolvedValue({
+      status: 'error',
+      nodes: {},
+      error: new Error('AM refused the delete'),
+    });
+
+    expect(
+      await configManagerDeleteJourneys(JOURNEY, 'alpha', false, true, force)
+    ).toBe(false);
+
+    const text = output();
+    expect(text).toContain("delete journey 'ZionLogin': AM refused the delete");
+    expect(text).toContain('does not apply to that');
+    expect(text).not.toContain('The exit code stays 0');
+    expect(text).toContain(
+      "Journey 'ZionLogin' was not deleted, and these were changed before and stay changed: OAuth2 client 'zion-client'"
+    );
+  });
+
+  test('a delete that fails when nothing was changed before keeps --allow-failures: it ends with 0 and says nothing about changed holders', async () => {
+    deleteJourney.mockResolvedValue({
+      status: 'error',
+      nodes: {},
+      error: new Error('AM refused the delete'),
+    });
+
+    expect(
+      await configManagerDeleteJourneys(JOURNEY, 'alpha', false, true, force)
+    ).toBe(true);
+
+    expect(output()).toContain(
+      'The exit code stays 0 because --allow-failures'
+    );
+    expect(output()).not.toContain('stay changed');
+  });
+
   test('without references --force simply deletes, and writes nothing', async () => {
     expect(
       await configManagerDeleteJourneys(JOURNEY, 'alpha', false, false, force)
@@ -637,6 +765,30 @@ describe('a named dry run', () => {
 
     expect(output()).toContain('Keep the link in these themes (--keep-links):');
     expect(output()).not.toContain('remove the journey from');
+  });
+
+  test('with --force and a lookup that could not read every source says "would be deleted", and that what else names the journey is not known', async () => {
+    findJourneyReferences.mockRejectedValue(
+      Object.assign(new Error('Error finding references'), {
+        originalErrors: [new Error('Error reading policies')],
+      })
+    );
+
+    expect(
+      await configManagerDeleteJourneys(JOURNEY, 'alpha', true, false, force)
+    ).toBe(true);
+
+    const text = output();
+    expect(text).toContain('  - Error reading policies');
+    expect(text).toContain('the journey would be deleted without that check');
+    expect(text).not.toContain('is deleted without that check');
+    expect(text).toContain(
+      "Dry run: would delete journey 'ZionLogin' in realm 'alpha'."
+    );
+    expect(text).toContain('What else names the journey is not known');
+    expect(text).not.toContain('nothing else names the journey');
+    expect(calls).toEqual([]);
+    expect(deleteJourney).not.toHaveBeenCalled();
   });
 
   test('without --force predicts the refusal: it names what names the journey and fails, as the delete would', async () => {

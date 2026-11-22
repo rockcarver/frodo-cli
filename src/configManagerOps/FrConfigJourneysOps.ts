@@ -598,7 +598,8 @@ function printNoJourneys(realm: string): void {
 function planLines(
   journeyId: string,
   realm: string,
-  plan: JourneyDeletePlan
+  plan: JourneyDeletePlan,
+  lookupFailed = false
 ): string[] {
   const lines = [
     `Dry run: would delete journey '${journeyId}' in realm '${realm}'.`,
@@ -623,7 +624,14 @@ function planLines(
     'Leave these alone, they would name a journey that does not exist afterwards:',
     plan.dangling.map(referenceLine)
   );
-  if (lines.length === 1) lines.push('  nothing else names the journey.');
+  if (lookupFailed) {
+    // an empty plan is not "nothing names it": the sources could not all be read
+    lines.push(
+      '  What else names the journey is not known: not every source could be read, so nothing is cleared.'
+    );
+  } else if (lines.length === 1) {
+    lines.push('  nothing else names the journey.');
+  }
   return lines;
 }
 
@@ -712,7 +720,7 @@ async function deleteNamedJourney(
       return false;
     }
     printMessage(
-      'Because --force was given, the journey is deleted without that check: nothing that names it is cleared, and Access Management can still refuse the delete.',
+      `Because --force was given, the journey ${dryRun ? 'would be' : 'is'} deleted without that check: nothing that names it is cleared, and Access Management can still refuse the delete.`,
       'warn'
     );
   }
@@ -728,19 +736,23 @@ async function deleteNamedJourney(
 
   const plan = planJourneyDelete(found, { keepLinks });
   if (dryRun) {
-    printMessage(planLines(target, realm, plan).join('\n'));
+    printMessage(
+      planLines(target, realm, plan, unreadable !== undefined).join('\n')
+    );
     return true;
   }
 
   // clear first, then delete: an AI agent that names a journey that is gone can
   // no longer be updated, so nothing is deleted after a clearing that failed
   const run = new OperationRun({ unit: 'step', allowFailures });
+  const changedHolders: string[] = [];
   let stepsDone = true;
   for (const reference of plan.clear) {
     const done = await run.run(
       `clear the journey in ${describeReference(reference)}`,
       async () => {
         const { was } = await clearJourneyReference(reference, target);
+        changedHolders.push(describeReference(reference));
         printMessage(
           `Cleared the journey in ${describeReference(reference)} (it held '${was}').`
         );
@@ -754,6 +766,7 @@ async function deleteNamedJourney(
       `remove the journey from ${describeReference(reference)}`,
       async () => {
         const { was } = await unlinkJourneyReference(reference, target);
+        changedHolders.push(describeReference(reference));
         printMessage(
           `Removed journey '${target}' from ${describeReference(reference)} (the list held '${was}').`
         );
@@ -762,24 +775,42 @@ async function deleteNamedJourney(
     );
     stepsDone &&= done;
   }
-  const deleted = await run.run(`delete journey '${target}'`, async () => {
-    // the library answers a failed delete with a status that carries the error
-    // and does not throw
-    const status = await deleteJourney(target, {
-      deep: false,
-      verbose: false,
-      progress: false,
-    });
-    if (status.status !== 'success') {
-      throw (
-        (status as { error?: unknown }).error ??
-        new Error(
-          `Journey '${target}' in realm '${realm}' could not be deleted.`
-        )
-      );
+  const deleteStep = `delete journey '${target}'`;
+  let deleted = false;
+  if (!stepsDone) {
+    // a step before it failed and stopped the run: the summary says that the
+    // delete was not attempted
+    await run.run(deleteStep, () => undefined);
+  } else {
+    try {
+      // the library answers a failed delete with a status that carries the
+      // error, and does not throw
+      const status = await deleteJourney(target, {
+        deep: false,
+        verbose: false,
+        progress: false,
+      });
+      if (status.status !== 'success') {
+        throw (
+          (status as { error?: FrodoError }).error ??
+          new Error(
+            `Journey '${target}' in realm '${realm}' could not be deleted.`
+          )
+        );
+      }
+      run.recordSuccess();
+      deleted = true;
+      printMessage(`Deleted journey '${target}' in realm '${realm}'.`);
+    } catch (error) {
+      printError(error as Error);
+      // the summary carries the cause, as the one of a delete of all journeys
+      // does. After holders were changed, a failed delete is not a failure that
+      // --allow-failures can turn into success: the tenant is left half way
+      run.recordFailure(deleteStep, causeOf(error), {
+        dependent: changedHolders.length > 0,
+      });
     }
-    printMessage(`Deleted journey '${target}' in realm '${realm}'.`);
-  });
+  }
   if (deleted) {
     if (plan.kept.length > 0) {
       printMessage(
@@ -804,7 +835,14 @@ async function deleteNamedJourney(
       );
     }
   }
-  return run.finish();
+  const succeeded = run.finish();
+  if (!deleted && changedHolders.length > 0) {
+    printMessage(
+      `Journey '${target}' was not deleted, and these were changed before and stay changed: ${changedHolders.join('; ')}. To undo, set the journey '${target}' in each of them again. To finish, run the command again: they no longer name the journey.`,
+      'warn'
+    );
+  }
+  return succeeded;
 }
 
 /**
