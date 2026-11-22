@@ -76,10 +76,14 @@ export function createLauncherFile(
   folder: string = os.tmpdir()
 ): LauncherFile {
   const directory = fs.mkdtempSync(path.join(folder, LAUNCHER_FOLDER_PREFIX));
-  // mkdtemp makes it 0700; say so again, whatever the umask is
+  // mkdtemp makes it 0700 less what the umask takes away; say it again, so that
+  // the user can always enter it
   fs.chmodSync(directory, 0o700);
   const file = path.join(directory, LAUNCHER_FILE_NAME);
   fs.writeFileSync(file, launcherPage(link), { flag: 'wx', mode: 0o600 });
+  // the umask may have taken owner bits from the mode of the file as well: the
+  // browser of the same user has to be able to read it
+  fs.chmodSync(file, 0o600);
   return {
     path: file,
     url: pathToFileURL(file).href,

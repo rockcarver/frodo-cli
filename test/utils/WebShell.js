@@ -51,22 +51,28 @@ export function engineWorkerCommand() {
 /**
  * Puts a stub of the system's opener (`open` for macOS, `xdg-open` elsewhere)
  * into `directory`: it writes the arguments it was given, one per line, to
- * `logFile`, waits `sleepSeconds`, and ends with `exitCode`. A test puts that
+ * `logFile`, then (when `waitFor` is given) stays alive until that file exists,
+ * for at most `maxWaitSeconds`, and ends with `exitCode`. A test puts that
  * directory ALONE on the PATH of the console, so that no real browser can be
- * opened and the arguments of the opener can be read.
+ * opened and the arguments of the opener can be read; the stub therefore uses
+ * only shell built-ins and the sleeper by its absolute path, whatever the PATH
+ * is. A test that watches the process list creates the `waitFor` file when it
+ * has seen the opener, which makes the opener's lifetime certain, not a matter
+ * of luck.
  * @param {string} directory where to put the stub
  * @param {string} logFile where the stub writes the arguments
- * @param {{sleepSeconds?: number, exitCode?: number}} [options]
+ * @param {{waitFor?: string, maxWaitSeconds?: number, exitCode?: number}} [options]
  */
 export function installStubOpener(directory, logFile, options = {}) {
-  const { sleepSeconds = 0, exitCode = 0 } = options;
+  const { waitFor, maxWaitSeconds = 20, exitCode = 0 } = options;
+  const wait = waitFor
+    ? `n=0\nwhile [ ! -e '${waitFor}' ] && [ "$n" -lt ${maxWaitSeconds * 10} ]; do /bin/sleep 0.1; n=$((n+1)); done\n`
+    : '';
   for (const name of ['open', 'xdg-open']) {
     const file = path.join(directory, name);
     fs.writeFileSync(
       file,
-      `#!/bin/sh\nprintf '%s\\n' "$@" >> '${logFile}'\n` +
-        (sleepSeconds > 0 ? `sleep ${sleepSeconds}\n` : '') +
-        `exit ${exitCode}\n`
+      `#!/bin/sh\nprintf '%s\\n' "$@" >> '${logFile}'\n${wait}exit ${exitCode}\n`
     );
     fs.chmodSync(file, 0o755);
   }

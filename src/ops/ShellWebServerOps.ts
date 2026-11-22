@@ -1043,7 +1043,11 @@ export async function startWebConsole(
         );
       }
       launchUsed = true;
-      options.onSignIn?.();
+      try {
+        options.onSignIn?.();
+      } catch {
+        // the sign-in never depends on what the caller does with the news
+      }
       // The answer is a page that goes on to `/`, not a redirect. A browser that
       // was sent here by another site's page (the launcher file, a `file:`
       // page) treats the whole redirect chain as cross-site and does not send

@@ -1730,6 +1730,18 @@ describe('the sign-in callback', () => {
     expect(signedIn).not.toHaveBeenCalled();
   });
 
+  it('never breaks the sign-in, whatever the callback does', async () => {
+    signedIn.mockImplementationOnce(() => {
+      throw new Error('the terminal is gone');
+    });
+    const token = new URL(web.launchUrl).searchParams.get('t')!;
+    const reply = await use(token);
+    expect(reply.status).toBe(200);
+    expect(String(reply.headers['set-cookie']?.[0])).toContain('HttpOnly');
+    // the link is used, once
+    expect((await use(token)).status).toBe(403);
+  });
+
   it('is told nothing of the link', async () => {
     const token = new URL(web.launchUrl).searchParams.get('t')!;
     await use(token);

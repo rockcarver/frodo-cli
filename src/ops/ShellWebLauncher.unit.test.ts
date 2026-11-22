@@ -80,16 +80,18 @@ describe('createLauncherFile', () => {
     expect(fs.readFileSync(launcher.path, 'utf8')).toBe(launcherPage(LINK));
   });
 
-  (onPosix ? it : it.skip)(
-    'lets only the user enter the folder (0700) and read the file (0600), whatever the umask is',
-    () => {
-      const before = process.umask(0o000);
+  (onPosix ? it.each : it.skip.each)([0o000, 0o022, 0o077, 0o277, 0o777])(
+    'lets only the user enter the folder (0700) and read the file (0600), whatever the umask is: %o',
+    (mask) => {
+      const before = process.umask(mask);
       try {
         const launcher = createLauncherFile(LINK, base);
         expect(fs.statSync(path.dirname(launcher.path)).mode & 0o777).toBe(
           0o700
         );
         expect(fs.statSync(launcher.path).mode & 0o777).toBe(0o600);
+        // and the same user can read it, which is all a browser of the user needs
+        expect(fs.readFileSync(launcher.path, 'utf8')).toBe(launcherPage(LINK));
       } finally {
         process.umask(before);
       }
