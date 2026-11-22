@@ -11,16 +11,22 @@ import { verifyMcpProcessIdentity } from '../../src/ops/McpServerLockfile.ts';
  * processes with the command lines the CLI is started with and ask
  * `verifyMcpProcessIdentity` about them.
  *
- * Two generations of command line matter. A server started by a release that
+ * Three generations of command line matter. A server started by a release that
  * still had the ESM loader runs as
  *   node --no-warnings --enable-source-maps --experimental-loader file:///.../dist/loader.cjs /.../dist/app.cjs mcp server start
- * and one started after the loader was removed runs as
+ * one started by a release between the removal of the loader and the single
+ * process entry runs as
  *   node --no-warnings --enable-source-maps /.../dist/app.cjs mcp server start
- * A newer `mcp server stop` has to recognise both: the old server can still be
- * running when the CLI is updated. Both are recognised through `app.cjs`, so
- * the name `loader.cjs` in the recogniser is defensive and redundant in
- * practice; it stays for one release after the removal so that a command line
- * that names only the old loader still counts, and one case pins that.
+ * and one started by the single process entry runs as
+ *   node /.../dist/launch.cjs mcp server start
+ * (the first two were children of a second `node /.../dist/launch.cjs ...`
+ * process; the lockfile names the child). A newer `mcp server stop` has to
+ * recognise all three: an old server can still be running when the CLI is
+ * updated. The first two are recognised through `app.cjs` and the third
+ * through `launch.cjs`. The name `loader.cjs` in the recogniser is defensive
+ * and redundant in practice; it stays for one release after the removal so
+ * that a command line that names only the old loader still counts, and one
+ * case pins that.
  *
  * The processes are fakes: the files in a temporary folder only write a ready
  * file and wait; they carry the names of the real entry files and nothing else.
@@ -122,7 +128,7 @@ describe('verifyMcpProcessIdentity recognises the frodo command lines', () => {
     expect(identity.looksLikeFrodo).toBe(true);
   });
 
-  test('the launcher process', async () => {
+  test('the single process entry, whose command line names launch.cjs', async () => {
     const pid = await start(dist('launch.cjs'), 'mcp', 'server', 'start');
     const identity = verifyMcpProcessIdentity(pid);
     expect(identity.verified).toBe(true);

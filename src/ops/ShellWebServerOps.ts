@@ -200,6 +200,22 @@ function savedProfileSummaries(): ProfileSummary[] {
  */
 export const ENGINE_WORKER_ENV = 'FRODO_ENGINE_WORKER';
 
+/**
+ * Whether this process is to run as a tab engine: the variable is set to `1`
+ * and standard input is not a terminal. The web console starts its engines
+ * over pipes; a person who has the variable in their environment by mistake
+ * sits at a terminal, and gets the command line as always.
+ * @param env the environment of this process
+ * @param stdinIsTerminal whether standard input is a terminal
+ * @returns true when the engine is to start in place of the command line
+ */
+export function startsAsEngine(
+  env: NodeJS.ProcessEnv,
+  stdinIsTerminal: boolean
+): boolean {
+  return env[ENGINE_WORKER_ENV] === '1' && !stdinIsTerminal;
+}
+
 /** The worker entry inside the bundle; tsdown emits it under cli/shell. */
 function workerScriptPath(): string {
   // src/ops/ShellWebServerOps.ts compiles into dist/ (flat), while the
@@ -217,14 +233,14 @@ export type TabEngineCommand = {
 /**
  * How a tab engine is started.
  *
- * - The test seam (`FRODO_TEST_WORKER_SCRIPT`): that script, run by the
- *   executable, as before. In the native binary the script is read as a
- *   command and fails, which is how a test makes an engine that cannot start.
  * - The native binary (`inSea`): the executable itself, with no argument and
- *   {@link ENGINE_WORKER_ENV} set.
+ *   {@link ENGINE_WORKER_ENV} set. A shipped binary never runs a script that
+ *   an environment variable names, so the test seam below does not apply to it.
+ * - The test seam (`FRODO_TEST_WORKER_SCRIPT`), outside the binary: that
+ *   script, run by node, as before.
  * - Otherwise (npm, Docker, from source): node and the bundled worker file.
  *
- * Only the second case carries {@link ENGINE_WORKER_ENV}; the others remove it,
+ * Only the first case carries {@link ENGINE_WORKER_ENV}; the others remove it,
  * so the child of an engine never has a way to become another one.
  * @param inSea whether this process is the native binary
  * @param env the environment of this process
@@ -238,16 +254,16 @@ export function tabEngineCommand(
 ): TabEngineCommand {
   const childEnv: NodeJS.ProcessEnv = { ...env };
   delete childEnv[ENGINE_WORKER_ENV];
-  const testScript = env.FRODO_TEST_WORKER_SCRIPT;
-  if (testScript) {
-    return { command: process.execPath, args: [testScript], env: childEnv };
-  }
   if (inSea) {
     return {
       command: process.execPath,
       args: [],
       env: { ...childEnv, [ENGINE_WORKER_ENV]: '1' },
     };
+  }
+  const testScript = env.FRODO_TEST_WORKER_SCRIPT;
+  if (testScript) {
+    return { command: process.execPath, args: [testScript], env: childEnv };
   }
   return {
     command: process.execPath,
@@ -270,12 +286,65 @@ export class TabEngineStartError extends Error {
 }
 
 const REASON_LIMIT = 200;
-// An escape sequence, then any other control character: what a process writes
-// to a terminal must not drive this one, or the page.
+// An escape sequence first, then every other character that can drive a
+// terminal or a page or hide what a line says: the control characters of both
+// ranges (C0 with the delete character, and C1, whose U+009B is an 8-bit
+// escape), the format characters (the bidirectional overrides and marks, zero
+// width characters, the byte order mark), surrogates that stand alone and code
+// points that are not characters. What a process writes to its error output
+// is shown on a terminal and in a page.
 // eslint-disable-next-line no-control-regex
 const ESCAPE_SEQUENCES = /\u001b\[[0-9;?]*[ -/]*[@-~]/g;
-// eslint-disable-next-line no-control-regex
-const CONTROL_CHARACTERS = /[\u0000-\u001f\u007f]/g;
+const CONTROL_CHARACTERS = /[\p{Cc}\u2028\u2029]/gu;
+const INVISIBLE_CHARACTERS = /[\p{Cf}\p{Cs}\p{Cn}]/gu;
+// A name that says it is a secret, then its value: `password=...`, `"token":
+// "..."`, `client_secret=...`, `Authorization: Bearer ...`. The value ends at
+// white space, a quote, a comma, a semicolon, an ampersand or a closing brace.
+const SECRET_PAIR =
+  /(["']?[\w.-]*(?:password|passwd|pwd|passphrase|secret|token|api[_-]?key|credential|authorization|cookie|private[_-]?key)[\w.-]*["']?\s*[:=]\s*)("[^"]*"|'[^']*'|(?:Bearer|Basic|Digest|Negotiate)\s+[^\s,;"']+|[^\s,;"'&}]+)/gi;
+// A run of 20 or more characters of a token alphabet that holds a digit and a
+// letter (a base64 or hexadecimal key, an identifier of a session), and a run
+// of 32 or more hexadecimal digits.
+const LONG_TOKEN = /[A-Za-z0-9_-]{20,}/g;
+const HEX_RUN = /\b[0-9a-fA-F]{32,}\b/g;
+
+/**
+ * One line of what an engine process wrote, made safe to show: characters that
+ * can drive a terminal or a page removed, the secrets scrubbed from the WHOLE
+ * line, and only then cut to {@link REASON_LIMIT} characters (a cut first
+ * would leave the head of a secret that straddles it).
+ *
+ * The scrub is the one of the MCP tool results (Bearer values, tokens of the
+ * JSON web token shape, passwords in URLs, the values the connection holds),
+ * the values the server itself keeps secret, every `name=value` or `name:
+ * value` pair whose name says it is a secret, and any long token that looks
+ * like a key.
+ * @param line the text
+ * @param secrets the values that must not appear (the server's own secrets)
+ * @returns one line of at most 200 characters
+ */
+export function safeEngineReason(
+  line: string,
+  secrets: readonly unknown[] = []
+): string {
+  let text = line
+    .replace(ESCAPE_SEQUENCES, '')
+    .replace(CONTROL_CHARACTERS, ' ')
+    .replace(INVISIBLE_CHARACTERS, '')
+    .trim();
+  text = scrubKnownValues(text, liveSecrets(state, ...secrets), [], {
+    errorText: true,
+  });
+  text = text
+    .replace(SECRET_PAIR, '$1<redacted>')
+    .replace(LONG_TOKEN, (run) =>
+      /\d/.test(run) && /[A-Za-z]/.test(run) ? '<redacted>' : run
+    )
+    .replace(HEX_RUN, '<redacted>');
+  return text.length > REASON_LIMIT
+    ? `${text.slice(0, REASON_LIMIT - 1)}…`
+    : text;
+}
 
 /**
  * Why an engine process did not come up: one line of what it wrote to its
@@ -284,34 +353,41 @@ const CONTROL_CHARACTERS = /[\u0000-\u001f\u007f]/g;
  * process that wrote nothing is described by how it ended.
  * @param stderrLines the lines the process wrote to its error output
  * @param how how the process ended
- * @returns one line of at most 200 characters, free of control characters
+ * @param secrets the values that must not appear in the reason
+ * @returns one line of at most 200 characters, safe to show (see {@link safeEngineReason})
  */
 export function engineStartFailureReason(
   stderrLines: string[],
-  how: { code?: number | null; signal?: string | null } = {}
+  how: { code?: number | null; signal?: string | null } = {},
+  secrets: readonly unknown[] = []
 ): string {
   const clean = (line: string) =>
-    line.replace(ESCAPE_SEQUENCES, '').replace(CONTROL_CHARACTERS, ' ').trim();
+    line
+      .replace(ESCAPE_SEQUENCES, '')
+      .replace(CONTROL_CHARACTERS, ' ')
+      .replace(INVISIBLE_CHARACTERS, '')
+      .trim();
   // Notices of the runtime are not a reason: "(node:123) ExperimentalWarning..."
   const lines = stderrLines
     .map(clean)
     .filter((line) => line !== '' && !/^\((?:node:\d+|Use `node )/.test(line));
   const named = lines.find((line) => /^(?:[A-Za-z]*Error|error)\b/.test(line));
   const line = named ?? lines[0];
-  if (line) {
-    return line.length > REASON_LIMIT
-      ? `${line.slice(0, REASON_LIMIT - 1)}…`
-      : line;
-  }
+  if (line) return safeEngineReason(line, secrets);
   if (how.signal) {
     return `The engine process was stopped by the signal ${how.signal} before it answered.`;
   }
   return `The engine process ended with exit code ${how.code ?? 'unknown'} before it answered.`;
 }
 
-/** Spawn one engine child and wrap its JSON-line protocol. */
+/**
+ * Spawn one engine child and wrap its JSON-line protocol.
+ * @param custom starts the engine itself (a test, or a console that supplies its own)
+ * @param options.secrets values the reason of a failure to start must never show (the server's own secrets)
+ */
 export async function spawnTabEngine(
-  custom?: () => Promise<TabEngine>
+  custom?: () => Promise<TabEngine>,
+  options: { secrets?: readonly unknown[] } = {}
 ): Promise<TabEngine> {
   if (custom) return custom();
   const launch = tabEngineCommand(sea.isSea());
@@ -391,15 +467,11 @@ export async function spawnTabEngine(
     for (const p of pending.values()) p.reject(ended);
     pending.clear();
   };
-  child.once('close', (code, signal) =>
-    finish(() => engineStartFailureReason(stderrHead, { code, signal }))
-  );
+  const reasonOf = (code: number | null, signal: string | null) =>
+    engineStartFailureReason(stderrHead, { code, signal }, options.secrets);
+  child.once('close', (code, signal) => finish(() => reasonOf(code, signal)));
   child.once('exit', (code, signal) => {
-    setTimeout(
-      () =>
-        finish(() => engineStartFailureReason(stderrHead, { code, signal })),
-      100
-    ).unref();
+    setTimeout(() => finish(() => reasonOf(code, signal)), 100).unref();
   });
   // The process could not be started at all (no such file, no permission).
   child.once('error', (error: NodeJS.ErrnoException) =>
@@ -711,7 +783,12 @@ export async function startWebConsole(
       : String(req.headers['x-frodo-engine'] ?? '');
     if (!shared && !engines.has(engineId)) {
       engineId = crypto.randomBytes(8).toString('hex');
-      engines.set(engineId, await spawnTabEngine(options.spawnEngine));
+      engines.set(
+        engineId,
+        await spawnTabEngine(options.spawnEngine, {
+          secrets: [launchToken, sessionSecret, csrf],
+        })
+      );
     }
     const engine = shared ?? engines.get(engineId)!;
     try {
@@ -726,12 +803,13 @@ export async function startWebConsole(
       for (const [id, candidate] of engines) {
         if (candidate === engine) engines.delete(id);
       }
-      const reason = scrubKnownValues(
-        error.message,
-        liveSecrets(state, launchToken, sessionSecret, csrf),
-        [],
-        { errorText: true }
-      );
+      // The reason is already safe when the engine is ours; one that a caller
+      // supplied is made safe here, with the same steps.
+      const reason = safeEngineReason(error.message, [
+        launchToken,
+        sessionSecret,
+        csrf,
+      ]);
       if (!reportedStartFailures.has(reason)) {
         reportedStartFailures.add(reason);
         printError(

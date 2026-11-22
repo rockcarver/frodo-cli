@@ -78,6 +78,19 @@ with `Internal error`; the binary now starts its engines itself. An engine that
 cannot start now ends the page's request with the reason, and the page asks again
 after a growing pause instead of at once.
 
+**The npm package runs the CLI in one process, and a signal ends it with the
+signal's status**: in 4.x `frodo` (`dist/launch.cjs`, the npm `bin` entry and the
+Docker image) started a second Node process and copied its exit code, which was 0
+after a signal. A command that a signal ends without a handler of its own, such
+as `frodo mcp server start --transport stdio` after SIGTERM, SIGINT or SIGHUP, is
+now ended by the signal (a shell reports 143, 130, 129, as for the native
+binary); `--transport http` still exits 0 after its graceful shutdown. A script
+or supervisor has to accept the signal status as a normal stop. Source maps are
+off by default (stack traces show `dist/app.cjs` lines; `FRODO_SOURCE_MAPS=1`
+turns them on), and `ps` shows one `node .../launch.cjs` process, so
+`pkill -f app.cjs` no longer finds a server: use `frodo mcp server stop`.
+`require('@rockcarver/frodo-cli')` (unsupported) runs the CLI in the importer.
+
 **Removed command aliases** (backwards-compatibility spellings of the
 canonical commands; use the canonical name):
 

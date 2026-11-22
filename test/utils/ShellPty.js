@@ -32,6 +32,12 @@ export function runShellScenario({
     homeDir,
     env = {},
     args = ['shell'],
+    // The program that args are given to. The test binary (the dev shim or the
+    // SEA binary) unless a test has to start something else, such as
+    // `node dist/launch.cjs` itself: the shim is a process of its own, and a
+    // test of what a terminal's Ctrl+C does to the program must not have one
+    // more process between the terminal and the program.
+    binary = null,
     allowPrompting = false,
     // where the command runs; the repository's own root unless a test needs a
     // working directory it controls (the file system picker starts in it)
@@ -44,7 +50,7 @@ export function runShellScenario({
     ensureFrodoArtifact();
     const scenarioHomeDir = homeDir ?? createShellTestHome();
     const scenario = {
-        command: [seaBinaryPath, ...args],
+        command: [binary ?? seaBinaryPath, ...args],
         cwd,
         homeDir: scenarioHomeDir,
         env: {

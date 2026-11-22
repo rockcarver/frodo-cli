@@ -542,21 +542,23 @@ describe('frodo shell --web in a real browser when the engine cannot start', () 
 
   beforeAll(async () => {
     port = await freePort();
-    home = makeHome('frodo-web-home-');
     dir = fs.mkdtempSync(path.join(os.tmpdir(), 'frodo-web-engine-'));
+    // A home directory below a plain file: the console starts, and the engine
+    // of every tab fails to start (it cannot make its history folder), in the
+    // native binary as well as with npm.
+    const file = path.join(dir, 'a-file');
+    fs.writeFileSync(file, '');
+    home = path.join(file, 'home');
     web = startFrodo({
       args: ['shell', '--web', '--no-open'],
       homeDir: home,
       watchdogMs: 300_000,
-      // a worker file that is not there: the engine of every tab fails to start
-      env: { FRODO_TEST_WORKER_SCRIPT: path.join(dir, 'missing-worker.cjs') },
     });
     web.launchUrl = await web.link(20_000);
   }, 45_000);
 
   afterAll(async () => {
     await web?.stop();
-    if (home) removeHome(home);
     if (dir) fs.rmSync(dir, { recursive: true, force: true });
   });
 
