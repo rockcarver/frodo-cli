@@ -15,9 +15,13 @@ import { WebEngine } from './ShellWebEngineOps';
 import { buildContentSecurityPolicy, renderConsolePage } from './ShellWebPage';
 import {
   createLogBus,
+  ENGINE_WORKER_ENV,
   LogBus,
   SessionInfo,
   startWebConsole,
+  TabEngine,
+  tabEngineCommand,
+  TabEngineStartError,
   WebConsoleHandle,
 } from './ShellWebServerOps';
 
@@ -1042,6 +1046,41 @@ describe('a per-tab engine worker', () => {
         force: true,
       });
       delete process.env.FRODO_TEST_WORKER_SCRIPT;
+    }
+  });
+});
+
+describe('how a tab engine is started', () => {
+  const noTestScript = { PATH: '/usr/bin' };
+
+  it('runs the executable itself, with no script and the worker variable, in the native binary', () => {
+    const run = tabEngineCommand(true, noTestScript);
+    expect(run.command).toBe(process.execPath);
+    expect(run.args).toEqual([]);
+    expect(run.env[ENGINE_WORKER_ENV]).toBe('1');
+    expect(run.env.PATH).toBe('/usr/bin');
+  });
+
+  it('runs node with the bundled worker file everywhere else, and never with the worker variable', () => {
+    // Even an environment that already holds the variable does not pass it on.
+    const run = tabEngineCommand(
+      false,
+      { ...noTestScript, [ENGINE_WORKER_ENV]: '1' },
+      '/dist/cli/shell/engine-worker.cjs'
+    );
+    expect(run.command).toBe(process.execPath);
+    expect(run.args).toEqual(['/dist/cli/shell/engine-worker.cjs']);
+    expect(ENGINE_WORKER_ENV in run.env).toBe(false);
+  });
+
+  it('runs the script of the test seam as given, in the binary too, without the worker variable', () => {
+    for (const inSea of [false, true]) {
+      const run = tabEngineCommand(inSea, {
+        ...noTestScript,
+        FRODO_TEST_WORKER_SCRIPT: '/x/stub.cjs',
+      });
+      expect(run.args).toEqual(['/x/stub.cjs']);
+      expect(ENGINE_WORKER_ENV in run.env).toBe(false);
     }
   });
 });

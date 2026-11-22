@@ -5,6 +5,7 @@ import http from 'node:http';
 import { AddressInfo } from 'node:net';
 import path from 'node:path';
 import { createInterface } from 'node:readline';
+import sea from 'node:sea';
 import { frodo } from '@rockcarver/frodo-lib';
 import { HistoryEntry } from './ShellHistoryOps';
 import { WebEngine } from './ShellWebEngineOps';
@@ -183,17 +184,74 @@ function savedProfileSummaries(): ProfileSummary[] {
 }
 
 /**
- * The worker entry inside the bundle; tsdown emits it under cli/shell.
- * Tests point the env var at a stub so the real spawn path (protocol,
- * stderr forwarding) runs without the bundle present.
+ * The private environment variable that turns this very executable into a tab
+ * engine. It is an internal switch between the web console and its own child,
+ * not an option of the command line: nothing documents it for people to set.
+ *
+ * The executable of the native binary always runs its embedded program, so a
+ * script path handed to it would be read as a command. The child therefore
+ * gets no path, and this variable tells `src/app.ts` to start the engine
+ * (`src/cli/shell/engine-worker.ts`) in place of the command line parser. The
+ * engine removes the variable from its own environment first, so a process
+ * that a script of the console starts is an ordinary command again and never
+ * another engine.
  */
+export const ENGINE_WORKER_ENV = 'FRODO_ENGINE_WORKER';
+
+/** The worker entry inside the bundle; tsdown emits it under cli/shell. */
 function workerScriptPath(): string {
-  if (process.env.FRODO_TEST_WORKER_SCRIPT) {
-    return process.env.FRODO_TEST_WORKER_SCRIPT;
-  }
   // src/ops/ShellWebServerOps.ts compiles into dist/ (flat), while the
   // worker entry keeps its source layout: dist/cli/shell/.
   return path.join(__dirname, 'cli', 'shell', 'engine-worker.cjs');
+}
+
+/** What to run for one tab engine: the executable, its arguments and its environment. */
+export type TabEngineCommand = {
+  command: string;
+  args: string[];
+  env: NodeJS.ProcessEnv;
+};
+
+/**
+ * How a tab engine is started.
+ *
+ * - The test seam (`FRODO_TEST_WORKER_SCRIPT`): that script, run by the
+ *   executable, as before. In the native binary the script is read as a
+ *   command and fails, which is how a test makes an engine that cannot start.
+ * - The native binary (`inSea`): the executable itself, with no argument and
+ *   {@link ENGINE_WORKER_ENV} set.
+ * - Otherwise (npm, Docker, from source): node and the bundled worker file.
+ *
+ * Only the second case carries {@link ENGINE_WORKER_ENV}; the others remove it,
+ * so the child of an engine never has a way to become another one.
+ * @param inSea whether this process is the native binary
+ * @param env the environment of this process
+ * @param workerScript the worker file of the bundle (a test passes its own)
+ * @returns the command to spawn
+ */
+export function tabEngineCommand(
+  inSea: boolean,
+  env: NodeJS.ProcessEnv = process.env,
+  workerScript?: string
+): TabEngineCommand {
+  const childEnv: NodeJS.ProcessEnv = { ...env };
+  delete childEnv[ENGINE_WORKER_ENV];
+  const testScript = env.FRODO_TEST_WORKER_SCRIPT;
+  if (testScript) {
+    return { command: process.execPath, args: [testScript], env: childEnv };
+  }
+  if (inSea) {
+    return {
+      command: process.execPath,
+      args: [],
+      env: { ...childEnv, [ENGINE_WORKER_ENV]: '1' },
+    };
+  }
+  return {
+    command: process.execPath,
+    args: [workerScript ?? workerScriptPath()],
+    env: childEnv,
+  };
 }
 
 /** Spawn one engine child and wrap its JSON-line protocol. */
@@ -201,9 +259,10 @@ export async function spawnTabEngine(
   custom?: () => Promise<TabEngine>
 ): Promise<TabEngine> {
   if (custom) return custom();
-  const child: ChildProcess = spawn(process.execPath, [workerScriptPath()], {
+  const launch = tabEngineCommand(sea.isSea());
+  const child: ChildProcess = spawn(launch.command, launch.args, {
     stdio: ['pipe', 'pipe', 'pipe'],
-    env: { ...process.env },
+    env: launch.env,
   });
   const pending = new Map<
     number,
