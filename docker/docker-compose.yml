@@ -25,6 +25,10 @@ services:
     image: frodo-mcp:latest
     container_name: frodo-mcp
     restart: unless-stopped
+    # A small init process is PID 1 and passes SIGTERM on, so `docker stop`
+    # also ends frodo promptly while it starts up (the same as `docker run
+    # --init`). The server itself shuts down gracefully on SIGTERM either way.
+    init: true
     networks:
       - mcpnet
     ports:

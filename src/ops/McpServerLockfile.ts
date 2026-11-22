@@ -191,8 +191,9 @@ export function verifyMcpProcessIdentity(pid: number): McpProcessVerification {
  * Whether an argv/command line names one of frodo's own entry points: a part
  * whose last path component is exactly `frodo`, `app.cjs`, `launch.cjs`,
  * `app.js` or `loader.cjs`. Matches the dev (`node .../app.cjs mcp server
- * start`), launcher (`node .../launch.cjs ...`) and packaged (`frodo mcp
- * server start`) invocations. The subcommand words are not matched, so
+ * start`), entry (`node .../launch.cjs mcp server start`, the one process
+ * the npm package and the Docker image run) and packaged (`frodo mcp server
+ * start`) invocations. The subcommand words are not matched, so
  * another program that is given `mcp server start` as arguments is not
  * frodo, and neither is a name that merely contains one of the names (for
  * example `not-app.cjs`).
@@ -208,10 +209,9 @@ function argvLooksLikeFrodo(argv: string[]): boolean {
       // Defensive, and redundant in practice. Releases before the one that
       // removed the ESM loader started the app process as `node ...
       // --experimental-loader file:///.../loader.cjs .../app.cjs ...`; that
-      // command line also names `app.cjs` (and the wrapper names
-      // `launch.cjs`), so it is recognised without this line. The name stays
-      // for one release after the loader was removed, so that a command line
-      // that names only the old loader still counts.
+      // command line also names `app.cjs`, so it is recognised without this
+      // line. The name stays for one release after the loader was removed, so
+      // that a command line that names only the old loader still counts.
       base === 'loader.cjs'
     );
   });
