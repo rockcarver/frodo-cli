@@ -24,6 +24,7 @@ import {
   ENGINE_WORKER_ENV,
   engineStartFailureReason,
   LogBus,
+  REASON_INPUT_LIMIT,
   safeEngineReason,
   SessionInfo,
   spawnTabEngine,
@@ -1267,6 +1268,41 @@ describe('why a tab engine did not come up', () => {
       }
     });
 
+    it('keeps a path, an error code and a name with dots readable, even when they hold digits', () => {
+      for (const line of [
+        "Error: Cannot find module '/home/user/projects/my-long-project-name-2024-final/node_modules/x/index.js'",
+        "Error: Cannot find module 'node_modules/some-very-long-package-name-v2/index.js'",
+        'Error: ENOENT: no such file or directory, open C:\\Users\\me\\my-long-project-name-2024-final\\x.json',
+        'Error [ERR_HTTP2_STREAM_ERROR]: Stream closed with error code NGHTTP2_INTERNAL_ERROR',
+        'Error: ERR_MODULE_NOT_FOUND_2 for engine-worker-process-2024.cjs',
+        'Error: cannot open ~/projects/my-long-project-name-2024/x',
+        'Error: ENOTDIR ENOENT EACCES EAGAIN',
+      ]) {
+        expect(engineStartFailureReason([line])).toBe(line);
+      }
+    });
+
+    it('still removes a key that has the shape of a long token, next to a path', () => {
+      const reason = engineStartFailureReason([
+        'Error: /x/y.cjs failed with Zm9vYmFyMTIzNDU2Nzg5MEFCQ0RFRkdI',
+      ]);
+      expect(reason).toBe('Error: /x/y.cjs failed with <redacted>');
+    });
+
+    it('removes the start of a token of the JSON web token shape that a cut left without its end', () => {
+      const reason = engineStartFailureReason([
+        `Error: eyJhbGciOiJIUzI1NiJ9.${'p'.repeat(3000)}.signature`,
+      ]);
+      expect(reason).toBe('Error: <redacted>');
+    });
+
+    it('removes a value that goes on past the bound of what is looked at', () => {
+      const reason = engineStartFailureReason([
+        `Error: password=${'S'.repeat(3 * REASON_INPUT_LIMIT)}`,
+      ]);
+      expect(reason).toBe('Error: password=<redacted>');
+    });
+
     it('removes the values that the caller names, whatever shape they have', () => {
       const secret = 'abcdefghijklmnop';
       expect(
@@ -1277,6 +1313,52 @@ describe('why a tab engine did not come up', () => {
       );
       // and without it the same text is left alone (no rule is meant to hide a plain word)
       expect(safeEngineReason(`x ${secret} y`)).toBe(`x ${secret} y`);
+    });
+  });
+
+  describe('a line that a process makes huge', () => {
+    // What a process writes is hostile input: the time it takes to treat a line
+    // must not depend on how long the line is. Four million characters of a
+    // shape that is expensive for a pattern with an open name part.
+    const shapes: [string, string][] = [
+      ['letters', 'a'.repeat(4_000_000)],
+      ['the word password', 'password'.repeat(500_000)],
+      ['the word secret', 'secret'.repeat(700_000)],
+      ['the word token', 'token'.repeat(800_000)],
+      ['letters and digits', 'a1'.repeat(2_000_000)],
+      ['white space', ' '.repeat(4_000_000)],
+      ['escape sequences', '\u001b['.repeat(2_000_000)],
+      ['quotes', '"'.repeat(4_000_000)],
+      ['keys', 'api_key='.repeat(500_000)],
+    ];
+
+    it.each(shapes)(
+      'is treated in well under a second: %s',
+      (_name, filler) => {
+        const started = performance.now();
+        const reason = engineStartFailureReason([`Error: ${filler}`]);
+        const elapsed = performance.now() - started;
+        expect(elapsed).toBeLessThan(250);
+        expect(reason.length).toBeLessThanOrEqual(200);
+        expect(reason.startsWith('Error:')).toBe(true);
+      }
+    );
+
+    it('is treated in well under a second when it is the whole text handed to safeEngineReason', () => {
+      const started = performance.now();
+      safeEngineReason('password'.repeat(500_000), ['abcdefghijklmnop']);
+      expect(performance.now() - started).toBeLessThan(250);
+    });
+
+    it('looks at no more than REASON_INPUT_LIMIT characters', () => {
+      expect(REASON_INPUT_LIMIT).toBe(2000);
+      // A named secret that lies wholly beyond the bound is not even looked for:
+      // so the work is the same however far the line goes.
+      const secret = 'abcdefghijklmnop';
+      const line = `Error: ${'x'.repeat(REASON_INPUT_LIMIT)} ${secret}`;
+      expect(engineStartFailureReason([line], {}, [secret])).toBe(
+        `Error: ${'x'.repeat(REASON_INPUT_LIMIT - 7)}`.slice(0, 199) + '…'
+      );
     });
   });
 
