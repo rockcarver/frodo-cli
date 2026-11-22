@@ -4,7 +4,7 @@
  * The SEA binary (dist-sea/frodo) is the artifact customers get from
  * Homebrew and the release zips, and the e2e suites exercise it. But the
  * npm install (`npx frodo`) and the Docker image run `node dist/launch.cjs`
- * instead - a different launcher with its own signal-forwarding wrapper.
+ * instead - a different entry that runs the app in its own process.
  * These tests keep that path covered explicitly.
  *
  * Unlike the other e2e suites, these do NOT need mocks or credentials:
