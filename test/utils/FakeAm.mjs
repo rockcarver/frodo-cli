@@ -125,8 +125,14 @@
  * the fake serves as journeys that can be read and deleted: a read of one
  * (`.../authenticationtrees/trees/<journey>`) answers it with its nodes (`404` once it was
  * deleted), `DELETE` of it removes it and answers it as AM does (`200`, with its nodes),
- * and `DELETE .../authenticationtrees/nodes/<type>/<id>` answers `200`. The failing answers
- * come from FAKE_AM_FAIL_REQUESTS.
+ * and `DELETE .../authenticationtrees/nodes/<type>/<id>` answers `200`. The journeys are
+ * listed too (`GET .../authenticationtrees/trees`, unless FAKE_AM_TREES answers the list).
+ * FAKE_AM_NODES_FILE=<path> names a JSON object `{ "<node id>": "<node type>" }` of nodes that
+ * no journey holds (orphaned nodes), served with the nodes of the journeys by node type
+ * (`POST .../authenticationtrees/nodes?_action=getAllTypes`, `GET .../nodes/<type>`);
+ * `DELETE .../nodes/<type>/<id>` removes one of them. The authentication settings of the realm
+ * (`GET .../realm-config/authentication`) answer with `ldapService` as the default journeys.
+ * The failing answers come from FAKE_AM_FAIL_REQUESTS.
  * FAKE_AM_ACCESS_TOKEN=<text> is the `access_token` that the token endpoint of the service-account
  * journey answers with (default: `fake-service-account-token`). FAKE_AM_SESSION_TOKEN=<text> is
  * the `tokenId` that a plain login ends with (default: `fake-token`).
@@ -348,6 +354,10 @@ const journeys = (() => {
   return wanted
     ? new Map(Object.entries(wanted).map(([id, nodes]) => [id, { ...nodes }]))
     : undefined;
+})();
+const orphanNodes = (() => {
+  const wanted = readJson(process.env.FAKE_AM_NODES_FILE);
+  return wanted ? new Map(Object.entries(wanted)) : undefined;
 })();
 const accessToken =
   process.env.FAKE_AM_ACCESS_TOKEN ?? 'fake-service-account-token';
@@ -1023,6 +1033,72 @@ const server = http.createServer((req, res) => {
       const nodeRoute = pathname.match(
         /\/authenticationtrees\/nodes\/[^/]+(?:\/[^/]+)?\/([^/]+)$/
       );
+      const treeOf = (id, nodes) => ({
+        _id: id,
+        entryNodeId: Object.keys(nodes)[0],
+        nodes: Object.fromEntries(
+          Object.entries(nodes).map(([nodeId, nodeType]) => [
+            nodeId,
+            { nodeType, displayName: nodeId, x: 0, y: 0, connections: {} },
+          ])
+        ),
+      });
+      const collectionOf = (result) => ({
+        result,
+        resultCount: result.length,
+        pagedResultsCookie: null,
+        totalPagedResultsPolicy: 'EXACT',
+        totalPagedResults: result.length,
+        remainingPagedResults: -1,
+      });
+      // every node of the realm: the nodes of the journeys and the ones that no journey holds
+      const allNodes = () => [
+        ...[...journeys.values()].flatMap((nodes) => Object.entries(nodes)),
+        ...(orphanNodes ? [...orphanNodes.entries()] : []),
+      ];
+      if (
+        trees === undefined &&
+        req.method === 'GET' &&
+        pathname.endsWith('/authenticationtrees/trees')
+      ) {
+        return send(
+          200,
+          collectionOf([...journeys].map(([id, nodes]) => treeOf(id, nodes)))
+        );
+      }
+      if (
+        req.method === 'POST' &&
+        pathname.endsWith('/authenticationtrees/nodes') &&
+        new URL(req.url, 'http://fake').searchParams.get('_action') ===
+          'getAllTypes'
+      ) {
+        return send(200, {
+          result: [...new Set(allNodes().map(([, type]) => type))].map(
+            (_id) => ({ _id, name: _id, collection: true })
+          ),
+        });
+      }
+      // the authentication settings of the realm, which name the default journeys
+      if (req.method === 'GET' && pathname.endsWith('/realm-config/authentication')) {
+        return send(200, {
+          _id: '',
+          core: { orgConfig: 'ldapService', adminAuthModule: 'ldapService' },
+        });
+      }
+      const nodesOfType = pathname.match(/\/authenticationtrees\/nodes\/([^/]+)$/);
+      if (nodesOfType && req.method === 'GET') {
+        return send(
+          200,
+          collectionOf(
+            allNodes()
+              .filter(([, type]) => type === nodesOfType[1])
+              .map(([_id, type]) => ({
+                _id,
+                _type: { _id: type, name: type, collection: true },
+              }))
+          )
+        );
+      }
       if (treeRoute) {
         const id = decodeURIComponent(treeRoute[1]);
         const nodes = journeys.get(id);
@@ -1030,18 +1106,12 @@ const server = http.createServer((req, res) => {
           return send(404, { code: 404, reason: 'Not Found', message: 'Not Found' });
         }
         if (req.method === 'DELETE') journeys.delete(id);
-        return send(200, {
-          _id: id,
-          entryNodeId: Object.keys(nodes)[0],
-          nodes: Object.fromEntries(
-            Object.entries(nodes).map(([nodeId, nodeType]) => [
-              nodeId,
-              { nodeType, displayName: nodeId, x: 0, y: 0, connections: {} },
-            ])
-          ),
-        });
+        return send(200, treeOf(id, nodes));
       }
-      if (nodeRoute && req.method === 'DELETE') return send(200, {});
+      if (nodeRoute && req.method === 'DELETE') {
+        orphanNodes?.delete(decodeURIComponent(nodeRoute[1]));
+        return send(200, {});
+      }
     }
     if (trees && pathname.endsWith('/authenticationtrees/trees')) {
       return send(200, {
