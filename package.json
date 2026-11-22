@@ -151,7 +151,7 @@
     "loglevel": "^1.9.1",
     "map-stream": "^0.0.7",
     "open": "^11.0.2",
-    "prettier": "3.9.10",
+    "prettier": "3.10.1",
     "properties-reader": "^3.0.1",
     "replaceall": "^0.1.6",
     "rimraf": "^6.0.1",
