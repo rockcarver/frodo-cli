@@ -6,6 +6,7 @@ import Locales from '../config-manager-delete/config-manager-delete-locales';
 import OauthCimdProfiles from '../config-manager-delete/config-manager-delete-oauth-cimd-profiles';
 import Themes from '../config-manager-delete/config-manager-delete-themes';
 import CustomNodes from './config-manager-delete-custom-nodes';
+import Journeys from './config-manager-delete-journeys';
 import OauthIssuers from './config-manager-delete-oauth-issuers';
 import OauthSoftwarePublishers from './config-manager-delete-oauth-software-publishers';
 import Schedules from './config-manager-delete-schedules';
@@ -40,5 +41,6 @@ export default function setup() {
   program.addCommand(SecretMappings().name('secret-mappings'));
   program.addCommand(Telemetry().name('telemetry'));
   program.addCommand(TenantConfig().name('tenant-config'));
+  program.addCommand(Journeys().name('journeys'));
   return program;
 }
