@@ -2,7 +2,7 @@ import cp from 'child_process';
 import fs from 'fs';
 import os from 'os';
 import path from 'path';
-import { ensureFrodoArtifact } from '../e2e/utils/FrodoBinary.cjs';
+import { ensureFrodoArtifact, repoRoot } from '../e2e/utils/FrodoBinary.cjs';
 import {
   createShellTestHome,
   removeShellTestHome,
@@ -206,6 +206,34 @@ const hasPty =
     expect(result.exitCode).toBe(0);
     expect(result.plainOutput).toContain('cli: v');
   }, 90_000);
+
+  test('9: a terminal for input is what counts, not one for output: with the output piped the command line still runs', () => {
+    // `frodo -v | cat`: standard input is the terminal, standard output a pipe.
+    const [command, args] = frodoCommand(['-v']);
+    const scenario = {
+      command: ['/bin/sh', '-c', '"$0" "$@" | cat', command, ...args],
+      cwd: repoRoot,
+      homeDir: home,
+      env: {
+        FRODO_ENGINE_WORKER: '1',
+        FRODO_NO_UPDATE_CHECK: '1',
+        FRODO_TEST: '1',
+        FRODO_NO_CACHE: 'true',
+        FRODO_CONNECTION_PROFILES_PATH: '',
+        TERM: 'xterm-256color',
+        NODE_OPTIONS: '',
+      },
+      actions: [{ type: 'wait_exit', timeoutMs: 30_000 }],
+    };
+    const result = JSON.parse(
+      cp.execFileSync(
+        'python3',
+        [path.join(repoRoot, 'test', 'utils', 'shell_pty_driver.py')],
+        { cwd: repoRoot, input: JSON.stringify(scenario), encoding: 'utf8' }
+      )
+    );
+    expect(result.plainOutput).toContain('cli: v');
+  }, 60_000);
 
   test('8: and the variable is not handed on to what the command runs', () => {
     // The terminal console of the command line runs JavaScript: ask it.
