@@ -26,6 +26,11 @@ import {
 import { ShellHistory } from '../../ops/ShellHistoryOps';
 import { createConsoleInput } from '../../ops/ShellHistorySearchOps';
 import { getIdmCatalog, refreshIdmCatalog } from '../../ops/ShellIdmCatalogOps';
+import {
+  BrowserLauncher,
+  openBrowserThroughLauncherFile,
+  removeStaleLauncherFolders,
+} from '../../ops/ShellWebLauncher';
 import { createLogBus, startWebConsole } from '../../ops/ShellWebServerOps';
 import c from '../../utils/ColorTheme';
 import { printMessage } from '../../utils/Console';
@@ -125,8 +130,17 @@ async function startWebMode(host?: string): Promise<void> {
   // straight away when a host was named on the command line (the worker
   // reads FRODO_CONSOLE_HOST).
   process.env.FRODO_CONSOLE_HOST = host ?? '';
+  // The launcher file of a browser that is being opened (see ShellWebLauncher).
+  let launcher: BrowserLauncher | undefined;
   const web = await startWebConsole({
     logs,
+    // Say when a browser signs in, whichever way it came by the link, and tell
+    // the launcher file that it is not needed any more. The link is never
+    // printed again.
+    onSignIn: () => {
+      printMessage('A browser signed in to the web console.', 'info');
+      launcher?.signedIn();
+    },
     sessionInfo: () => ({
       host: state.getHost(),
       realm: state.getRealm(),
@@ -144,6 +158,7 @@ async function startWebMode(host?: string): Promise<void> {
     if (stopping) return;
     stopping = true;
     printMessage(`\n${signal}: closing the web console.`);
+    launcher?.stop();
     await web.close();
     // Tab engines are children of this process; closing the server kills
     // them through closeAllConnections and their own exit handling.
@@ -172,13 +187,18 @@ async function startWebMode(host?: string): Promise<void> {
       'environment; anyone with access to this computer can use it through ' +
       'the browser tab. Ctrl+C here stops it.\n'
   );
-  // A browser that cannot be opened (no desktop, a remote or headless session,
-  // no browser installed) never stops the console: the link above works too.
-  if (opening && !(await launchBrowser(web.launchUrl))) {
-    printMessage(
-      'Could not open a browser automatically. Open the link above in a browser.',
-      'warn'
-    );
+  // Launcher files of runs that were killed are removed now; this run's is made
+  // below, when the browser is to be opened.
+  removeStaleLauncherFolders();
+  // The browser is not given the link: it is given a private file that sends it
+  // there (an address given to an opener is readable by every process of the
+  // machine). A browser that cannot be opened (no desktop, a remote or headless
+  // session, no browser installed) never stops the console: the link above works.
+  if (opening) {
+    launcher = openBrowserThroughLauncherFile(web.launchUrl, {
+      open: launchBrowser,
+      say: (text, type) => printMessage(text, type),
+    });
   }
   // Keep the process alive while the server listens; the exit handlers above
   // own the shutdown.

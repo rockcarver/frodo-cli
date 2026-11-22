@@ -5,6 +5,7 @@ import os from 'os';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import {
+  installStubOpener,
   makeHome,
   removeHome,
   startFrodo,
@@ -269,24 +270,44 @@ describe('frodo shell --web in a real browser', () => {
   let port;
   let web;
   let home;
+  let tools;
+  let temporary;
+  let launcherUrl;
 
   beforeAll(async () => {
     port = await freePort();
     home = makeHome('frodo-web-home-');
-    // --no-open: the test drives its own browser, and never opens a real one.
+    // The console opens "the default browser" the way it does for a person, but
+    // the opener on its PATH is a stub that only writes what it was given; the
+    // browser is this test's own headless Chrome, which is sent to the address
+    // the stub was given (the private launcher file). The temporary directory
+    // of the console is its own, so that what it leaves there can be looked at.
+    tools = fs.mkdtempSync(path.join(os.tmpdir(), 'frodo-web-tools-'));
+    temporary = path.join(tools, 'tmp');
+    fs.mkdirSync(temporary);
+    const log = path.join(tools, 'opened.log');
+    installStubOpener(tools, log);
     // The command is this checkout's: dist/launch.cjs, or the native binary
     // under FRODO_TEST_BINARY=sea.
     web = startFrodo({
-      args: ['shell', '--web', '--no-open'],
+      args: ['shell', '--web'],
       homeDir: home,
       watchdogMs: 600_000,
+      env: { PATH: tools, TMPDIR: temporary },
     });
     web.launchUrl = await web.link(20_000);
+    launcherUrl = await waitFor(async () => {
+      const lines = fs.existsSync(log)
+        ? fs.readFileSync(log, 'utf8').split('\n').filter(Boolean)
+        : [];
+      return lines[0] ?? null;
+    }, 20_000);
   }, 45_000);
 
   afterAll(async () => {
     await web?.stop();
     if (home) removeHome(home);
+    if (tools) fs.rmSync(tools, { recursive: true, force: true });
   });
 
   // A real-browser test runs where a Chrome exists; the skip is loud.
@@ -299,7 +320,11 @@ describe('frodo shell --web in a real browser', () => {
       chromeRef.stderr = chromeStderr(chrome);
       try {
         await waitForChromePage(port);
-        await withPage(port, web.launchUrl, async (evaluate, typeLine) => {
+        // What the opener was given is a file, not the link: Chrome loads the
+        // file, which sends it on to the link, and the console signs it in.
+        expect(launcherUrl).toMatch(/^file:\/\/.*\/open\.html$/);
+        expect(launcherUrl).not.toContain('?t=');
+        await withPage(port, launcherUrl, async (evaluate, typeLine) => {
           // The one-time link signed us in and the page loaded.
           await waitFor(
             () => /*W*/ evaluate(`document.querySelector('#in') ? true : null`),
@@ -313,6 +338,25 @@ describe('frodo shell --web in a real browser', () => {
           });
           const signedIn = await evaluate(`location.search === ''`);
           expect(signedIn).toBe(true);
+          // The link was used: the launcher file and its folder are gone, the
+          // terminal says that a browser signed in, and the secret was printed
+          // once (in the banner) and never again.
+          await waitFor(
+            async () =>
+              /*W*/
+              fs
+                .readdirSync(temporary)
+                .filter((name) => name.startsWith('frodo-shell-open-'))
+                .length === 0
+                ? true
+                : null,
+            10_000
+          );
+          expect(web.output()).toContain(
+            'A browser signed in to the web console.'
+          );
+          const secret = new URL(web.launchUrl).searchParams.get('t');
+          expect(web.output().split(secret)).toHaveLength(2);
 
           // The session header shows the (initially unconnected) console.
           await waitFor(() =>

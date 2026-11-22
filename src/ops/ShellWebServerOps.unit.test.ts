@@ -148,7 +148,7 @@ describe('ShellWebServerOps security', () => {
       path: launchPath(),
       headers: { Host: hostHeader() },
     });
-    expect(redeem.status).toBe(302);
+    expect(redeem.status).toBe(200);
     const setCookie = String(redeem.headers['set-cookie']?.[0]);
     const cookie = setCookie.split(';')[0];
     const page = await request(web.port, {
@@ -308,12 +308,28 @@ describe('ShellWebServerOps security', () => {
         path: launchPath(),
         headers: { Host: hostHeader() },
       });
-      expect(reply.status).toBe(302);
-      expect(reply.headers.location).toBe('/');
+      // a page that goes on to the console, not a redirect: a browser sent here by
+      // another site's page (the launcher file) would not send a Strict cookie
+      // on the last step of a redirect chain
+      expect(reply.status).toBe(200);
+      expect(reply.headers.location).toBeUndefined();
+      expect(reply.headers['content-type']).toMatch(/^text\/html/);
+      expect(reply.body).toContain(
+        '<meta http-equiv="refresh" content="0;url=/">'
+      );
+      expect(reply.body).not.toMatch(/<script/i);
+      expect(reply.headers['content-security-policy']).toBe(
+        "default-src 'none'"
+      );
+      expect(reply.headers['cache-control']).toBe('no-store');
       const cookie = String(reply.headers['set-cookie']?.[0]);
       expect(cookie).toContain('HttpOnly');
       expect(cookie).toContain('SameSite=Strict');
       expect(cookie).toContain('Path=/');
+      // and the secret is nowhere in what it says
+      expect(reply.body).not.toContain(
+        new URL(web.launchUrl).searchParams.get('t')!
+      );
     });
 
     it('works only once: a second browser with the same link is refused', async () => {
@@ -771,7 +787,7 @@ describe('the in-page connection picker', () => {
       path: launchPath(),
       headers: { Host: hostHeader() },
     });
-    expect(redeem.status).toBe(302);
+    expect(redeem.status).toBe(200);
     const cookie = redeem.headers['set-cookie']![0].split(';')[0];
     const page = await request(web.port, {
       headers: { Host: hostHeader(), Cookie: cookie },
@@ -1566,6 +1582,56 @@ describe('a tab engine that cannot start', () => {
         String(call[0]).includes('could not start an engine')
       )
     ).toHaveLength(0);
+  });
+});
+
+describe('the sign-in callback', () => {
+  let web: WebConsoleHandle;
+  const signedIn = jest.fn();
+
+  beforeEach(async () => {
+    signedIn.mockClear();
+    web = await startWebConsole({
+      engine: withInfo(fakeEngine(), () => ({})),
+      logs: createLogBus(),
+      sessionInfo: () => ({}),
+      onSignIn: signedIn,
+    });
+  });
+
+  afterEach(async () => {
+    await web.close();
+  });
+
+  const use = (token: string) =>
+    request(web.port, {
+      path: `/?t=${token}`,
+      headers: { Host: `127.0.0.1:${web.port}` },
+    });
+
+  it('is called once, when the link is used for the first time', async () => {
+    const token = new URL(web.launchUrl).searchParams.get('t')!;
+    expect(signedIn).not.toHaveBeenCalled();
+    expect((await use(token)).status).toBe(200);
+    expect(signedIn).toHaveBeenCalledTimes(1);
+    // a second use is refused and tells nobody
+    expect((await use(token)).status).toBe(403);
+    expect(signedIn).toHaveBeenCalledTimes(1);
+  });
+
+  it('is not called for a try that is refused', async () => {
+    expect((await use('not-the-token')).status).toBe(403);
+    expect(
+      (await request(web.port, { headers: { Host: `127.0.0.1:${web.port}` } }))
+        .status
+    ).toBe(401);
+    expect(signedIn).not.toHaveBeenCalled();
+  });
+
+  it('is told nothing of the link', async () => {
+    const token = new URL(web.launchUrl).searchParams.get('t')!;
+    await use(token);
+    expect(signedIn.mock.calls[0]).toEqual([]);
   });
 });
 

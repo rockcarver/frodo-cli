@@ -48,6 +48,30 @@ export function engineWorkerCommand() {
   return [process.execPath, [path.join(repoRoot, 'dist', 'app.cjs')]];
 }
 
+/**
+ * Puts a stub of the system's opener (`open` for macOS, `xdg-open` elsewhere)
+ * into `directory`: it writes the arguments it was given, one per line, to
+ * `logFile`, waits `sleepSeconds`, and ends with `exitCode`. A test puts that
+ * directory ALONE on the PATH of the console, so that no real browser can be
+ * opened and the arguments of the opener can be read.
+ * @param {string} directory where to put the stub
+ * @param {string} logFile where the stub writes the arguments
+ * @param {{sleepSeconds?: number, exitCode?: number}} [options]
+ */
+export function installStubOpener(directory, logFile, options = {}) {
+  const { sleepSeconds = 0, exitCode = 0 } = options;
+  for (const name of ['open', 'xdg-open']) {
+    const file = path.join(directory, name);
+    fs.writeFileSync(
+      file,
+      `#!/bin/sh\nprintf '%s\\n' "$@" >> '${logFile}'\n` +
+        (sleepSeconds > 0 ? `sleep ${sleepSeconds}\n` : '') +
+        `exit ${exitCode}\n`
+    );
+    fs.chmodSync(file, 0o755);
+  }
+}
+
 /** A scratch home directory: a test never touches the real one. */
 export function makeHome(prefix = 'frodo-webshell-home-') {
   return fs.mkdtempSync(path.join(os.tmpdir(), prefix));
@@ -167,7 +191,7 @@ export function startFrodo({ args, homeDir, env = {}, watchdogMs = 120_000 }) {
 export async function signInOverHttp(link) {
   const base = new URL(link).origin;
   const redeemed = await fetch(link, { redirect: 'manual' });
-  if (redeemed.status !== 302) {
+  if (redeemed.status !== 200) {
     throw new Error(`the link was answered with ${redeemed.status}`);
   }
   const cookie = (redeemed.headers.get('set-cookie') ?? '').split(';')[0];
