@@ -32,8 +32,8 @@
   },
   "main": "dist/launch.cjs",
   "files": [
-    "dist/*.cjs",
-    "dist/*.cjs.map",
+    "dist/**/*.cjs",
+    "dist/**/*.cjs.map",
     "LICENSE",
     "README.md",
     "CHANGELOG.md"
@@ -154,7 +154,6 @@
     "prettier": "3.9.10",
     "properties-reader": "^3.0.1",
     "replaceall": "^0.1.6",
-    "resolve": "^1.22.1",
     "rimraf": "^6.0.1",
     "sanitize-filename": "^1.6.3",
     "slugify": "^1.6.5",

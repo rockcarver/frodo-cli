@@ -1,49 +1,43 @@
 #!/usr/bin/env node
-import { spawn } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 
-const launchArgs = [
-  // '--inspect-brk=2000',
-  '--no-warnings',
-  '--enable-source-maps',
-  '--experimental-loader',
-  new URL('./loader.cjs', import.meta.url).href,
-  fileURLToPath(new URL('./app.cjs', import.meta.url)),
-];
-const frodoArgs = process.argv.slice(2);
+/*
+ * The entry of the npm package (`bin`, `main`, the Docker entrypoint). It runs
+ * the app, `app.cjs`, in THIS process: no second Node process, no signal
+ * forwarding, and the exit status of the app is the exit status of the
+ * command. Keep it standalone: it may import only Node built-ins and it
+ * requires `./app.cjs`, so that tsdown emits one small file that has to be read
+ * and compiled before anything else starts.
+ *
+ * The order of the steps below matters.
+ */
+const app = fileURLToPath(new URL('./app.cjs', import.meta.url));
 
-const frodo = spawn(process.execPath, [...launchArgs, ...frodoArgs], {
-  stdio: 'inherit',
-  shell: false,
-});
-
-// Forward the lifecycle signals a CLI wrapper receives to the child. Without
-// this, signals that reach only the wrapper (a closing SSH session delivers
-// SIGHUP to the login shell's jobs, `kill <wrapper-pid>` targets the wrapper)
-// never reach the long-running child: `frodo mcp server start` would keep
-// listening with nobody watching it, holding the port. The child's own
-// handlers do the graceful shutdown (port release, shutdown log line);
-// forwarding just delivers the signal.
-const FORWARDED_SIGNALS = ['SIGHUP', 'SIGTERM', 'SIGINT', 'SIGQUIT'] as const;
-for (const signal of FORWARDED_SIGNALS) {
-  process.on(signal, () => {
-    frodo.kill(signal);
-  });
+// 1. Source maps are opt-in. Node applies them to the code that is loaded after
+// the switch, so this has to come before the app loads. Without them a stack
+// trace shows lines of the bundle; set FRODO_SOURCE_MAPS=1 (also true, yes,
+// on) to get the original TypeScript files back. The test is the one of
+// `isTruthyOptInValue` in `src/utils/EnvFlags.ts`, written out here because
+// importing it would make the build emit a shared chunk for this file.
+if (
+  ['1', 'true', 'yes', 'on'].includes(
+    (process.env.FRODO_SOURCE_MAPS ?? '').toLowerCase()
+  )
+) {
+  process.setSourceMapsEnabled(true);
 }
 
-let childExited = false;
-frodo.on('exit', (code) => {
-  childExited = true;
-  process.exitCode = code;
-});
+// 2. No process warnings (the effect of `node --no-warnings`, which the
+// launcher used to pass to its child process).
+process.removeAllListeners('warning');
 
-// If the wrapper exits for any other reason while the child is still running
-// (an uncaught exception in the wrapper itself, stdin closing in a harness),
-// kill the child so it cannot outlive its parent — a detached, orphaned
-// long-running server holding a port is exactly the incident this guards
-// against. The child's own signal handlers perform the graceful shutdown.
-process.on('exit', () => {
-  if (!childExited) {
-    frodo.kill('SIGTERM');
-  }
-});
+// 3. The app saw its own file as `process.argv[1]` when this entry started it
+// as a child process, and the library tells a test run from a normal run by
+// that name. Keep it that way.
+process.argv[1] = app;
+
+// 4. Run the app. A variable, not a string literal, so that the build leaves
+// the call alone instead of bundling the app into this file. `require` is the
+// one call here that has to be synchronous and has to load a CommonJS file.
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+require(app);
