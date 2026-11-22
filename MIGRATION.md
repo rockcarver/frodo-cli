@@ -67,6 +67,17 @@ option keeps following through longer outages until Ctrl-C. Rate limiting (HTTP
 429) is waited out with or without it and does not count as a failure. Refused
 credentials (HTTP 401/403) always stop the tail with exit code 1.
 
+**`frodo shell --web` opens the browser, and works in the native binary**: the
+help and the docs said that the web console opens in a browser, but it only
+printed a one-time sign-in link. It now opens the default browser with that link
+and prints the link as well. `--no-open` (the option of the browser login, which
+it shares) turns the opening off, for a remote or shared machine: only the link
+is printed. A browser that cannot be opened never stops the console. In the
+native binary (Homebrew, the release zips) every tab of the web console failed
+with `Internal error`; the binary now starts its engines itself. An engine that
+cannot start now ends the page's request with the reason, and the page asks again
+after a growing pause instead of at once.
+
 **Removed command aliases** (backwards-compatibility spellings of the
 canonical commands; use the canonical name):
 

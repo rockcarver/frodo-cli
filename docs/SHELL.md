@@ -176,10 +176,18 @@ description), and lists what each suggested resource is for.
 ## The web console: `--web`
 
 `frodo shell <host> --web` serves the same console as a local web page and
-opens it in the default browser. A one-time sign-in link is printed to the
-terminal; whoever holds it controls the shell, so it is shown once and
+opens it in the default browser. A one-time sign-in link is always printed to
+the terminal too; whoever holds it controls the shell, so it works once and is
 consumed on use. The server binds to the loopback address only, and shuts
 itself down after 30 idle minutes.
+
+`--no-open` (the option of the browser login) leaves the browser alone: the
+link is printed and opening it is up to you. Use it on a machine that other
+people can log in to: the address handed to the browser is an argument of the
+process that opens it, which other users of the machine can list for the
+moment that process lives. A browser that cannot be opened (no desktop, an
+SSH session, no browser installed) never stops the console: it says so and
+the printed link works the same.
 
 If a tab's engine cannot start, the page shows the reason in place of the
 connection line and the terminal prints it once; the page asks again after a

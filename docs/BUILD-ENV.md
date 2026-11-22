@@ -314,7 +314,9 @@ itself with no argument and the private variable `FRODO_ENGINE_WORKER=1`, and
 `src/app.ts` runs the engine in place of the command line parser when it sees
 it. The engine deletes the variable from its own environment first, so a
 command that a script of the console starts is an ordinary command. The
-variable is an internal switch, not an option.
+variable is an internal switch, not an option; the rule and the security
+reasoning are in
+`docs/decisions/0062-the-web-console-opens-its-link-in-the-browser-and-its-engine-is-the-executable-itself.md`.
 
 ---
 
