@@ -34,8 +34,7 @@ WORKDIR /app
 USER node
 
 # Only the self-contained bundle: launch.cjs (wrapper: signal forwarding),
-# loader.cjs (module resolution loader), app.cjs (the CLI), the shared chunk
-# and their sourcemaps.
+# app.cjs (the CLI), the shared chunks and their sourcemaps.
 COPY --from=build --chown=node:node /build/dist ./dist
 
 ENV NODE_ENV=production
@@ -49,10 +48,9 @@ VOLUME ["/home/node/.frodo"]
 # The MCP HTTP transport's documented default port.
 EXPOSE 6277
 
-# launch.cjs is the documented entrypoint: it spawns app.cjs with the
-# resolver loader and forwards lifecycle signals to the child, so
-# `docker stop` (SIGTERM) performs the MCP server's graceful shutdown and
-# releases the port.
+# launch.cjs is the documented entrypoint: it spawns app.cjs and forwards
+# lifecycle signals to the child, so `docker stop` (SIGTERM) performs the MCP
+# server's graceful shutdown and releases the port.
 #
 # The connection profile is NOT baked in: the tenant selector is the
 # positional [host] argument (a saved profile's host URL, a unique
