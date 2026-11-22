@@ -305,6 +305,17 @@ next install-time collision guard and the `frodo -v` regex checks are kept.
 (the runtime chunk only exists in the npm `dist/` build, not the single-file
 SEA bundle).
 
+**The web shell's tab engine in the binary**: `frodo shell --web` runs one engine
+process per browser tab. With npm and in Docker that is `node` and the worker
+file `dist/cli/shell/engine-worker.cjs`. The binary has no such file, and the
+executable of a single executable application always runs its embedded program,
+so a script path handed to it is read as a command. The binary therefore starts
+itself with no argument and the private variable `FRODO_ENGINE_WORKER=1`, and
+`src/app.ts` runs the engine in place of the command line parser when it sees
+it. The engine deletes the variable from its own environment first, so a
+command that a script of the console starts is an ordinary command. The
+variable is an internal switch, not an option.
+
 ---
 
 ## 7. npm package contents

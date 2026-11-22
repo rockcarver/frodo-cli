@@ -181,9 +181,17 @@ terminal; whoever holds it controls the shell, so it is shown once and
 consumed on use. The server binds to the loopback address only, and shuts
 itself down after 30 idle minutes.
 
+If a tab's engine cannot start, the page shows the reason in place of the
+connection line and the terminal prints it once; the page asks again after a
+pause that grows, and a reload tries at once. The reason is the first error line
+the engine process wrote before it ended.
+
 No username or password is needed for `--web`: each browser tab runs its
 own engine process that signs in from a connection profile picked in the
-page (or the one named on the command line). The page offers the same
+page (or the one named on the command line). In the native binary the engine
+is the binary itself, started again with a private environment variable that
+makes it the engine and not the command line; with npm and in the Docker image
+it is node and a separate worker file. The page offers the same
 prompt, completion, Ctrl+R search, history and object exploration as the
 terminal, plus a connection picker for switching environments, and a
 density toggle (compact by default).
