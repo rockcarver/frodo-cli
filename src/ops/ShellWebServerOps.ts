@@ -49,6 +49,12 @@ const BODY_LIMIT = 1024 * 1024;
 const MAX_ACTIVE_REQUESTS = 64;
 const MAX_STREAMS = 8;
 const HEARTBEAT_MS = 15_000;
+/** What the one-time link answers: the cookie, and a page that goes on to the console. */
+const SIGN_IN_PAGE =
+  '<!doctype html>\n<meta charset="utf-8">\n' +
+  '<meta http-equiv="refresh" content="0;url=/">\n' +
+  '<title>frodo console</title>\n' +
+  '<p>Signing in to the frodo console. <a href="/">Continue</a>\n';
 
 export type LogBus = {
   publish(text: string): void;
@@ -125,6 +131,12 @@ export type WebConsoleOptions = {
    * console stays disconnected and the page says so.
    */
   connect?: (host: string) => Promise<boolean>;
+  /**
+   * Called once, when a browser uses the one-time link (the first valid use).
+   * It is told nothing about the link: the console says that a browser signed
+   * in, never what it signed in with.
+   */
+  onSignIn?: () => void;
 };
 
 export type WebConsoleHandle = {
@@ -1031,15 +1043,24 @@ export async function startWebConsole(
         );
       }
       launchUsed = true;
-      res.writeHead(302, {
-        ...baseHeaders,
-        Location: '/',
+      try {
+        options.onSignIn?.();
+      } catch {
+        // the sign-in never depends on what the caller does with the news
+      }
+      // The answer is a page that goes on to `/`, not a redirect. A browser that
+      // was sent here by another site's page (the launcher file, a `file:`
+      // page) treats the whole redirect chain as cross-site and does not send
+      // a SameSite=Strict cookie on its last step, so the person would meet
+      // "Not signed in". A page that starts the next navigation itself starts
+      // it from this site, and the cookie goes along.
+      send(res, 200, SIGN_IN_PAGE, 'text/html; charset=utf-8', {
+        'Content-Security-Policy': "default-src 'none'",
         // A session cookie would die with the browser, and the link is one-time:
         // the user could lock themselves out by closing the tab. A bounded
         // lifetime keeps the console reachable for a working day.
         'Set-Cookie': `${COOKIE}=${sessionSecret}; HttpOnly; SameSite=Strict; Path=/; Max-Age=28800`,
       });
-      res.end();
       return;
     }
     if (url.pathname.startsWith('/api/')) {

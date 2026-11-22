@@ -1486,7 +1486,7 @@ const environmentVariables: EnvironmentVariableDescriptor[] = [
   {
     name: 'FRODO_BROWSER_LOGIN_NO_OPEN',
     description:
-      "Print the browser-login URL instead of launching a local browser. Overridden by '--no-open' option.",
+      "Print the link instead of launching a local browser: the browser-login URL, or the sign-in link of 'frodo shell --web'. Has the same effect as the '--no-open' option.",
     group: AUTHENTICATION_ENVIRONMENT_VARIABLES_HEADING,
     include: (command) =>
       command.hasDefaultOption(noOpenOption.attributeName()),
@@ -4125,6 +4125,25 @@ export class FrodoCommand extends FrodoStubCommand {
       if (headings.includes(option.helpGroupHeading)) {
         option.helpGroup(COMMAND_OPTIONS_HEADING);
       }
+    }
+    return this;
+  }
+
+  /**
+   * Words one shared default option (for example `--no-open`) for this command
+   * and lists it in the plain "Options:" section of the short help, where the
+   * command's own options are. The option keeps its parsing and its effect
+   * (the shared `stateMap` entry still applies); only its description and its
+   * heading change, on this instance's own clone (see `addOption()`).
+   * @param flag Long flag of the option, for example `--no-open`.
+   * @param description What the option does on this command.
+   * @returns This command for chaining.
+   */
+  describeDefaultOption(flag: string, description: string) {
+    const option = this.options.find((candidate) => candidate.long === flag);
+    if (option) {
+      option.description = description;
+      option.helpGroup(COMMAND_OPTIONS_HEADING);
     }
     return this;
   }

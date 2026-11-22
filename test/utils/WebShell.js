@@ -48,6 +48,36 @@ export function engineWorkerCommand() {
   return [process.execPath, [path.join(repoRoot, 'dist', 'app.cjs')]];
 }
 
+/**
+ * Puts a stub of the system's opener (`open` for macOS, `xdg-open` elsewhere)
+ * into `directory`: it writes the arguments it was given, one per line, to
+ * `logFile`, then (when `waitFor` is given) stays alive until that file exists,
+ * for at most `maxWaitSeconds`, and ends with `exitCode`. A test puts that
+ * directory ALONE on the PATH of the console, so that no real browser can be
+ * opened and the arguments of the opener can be read; the stub therefore uses
+ * only shell built-ins and the sleeper by its absolute path, whatever the PATH
+ * is. A test that watches the process list creates the `waitFor` file when it
+ * has seen the opener, which makes the opener's lifetime certain, not a matter
+ * of luck.
+ * @param {string} directory where to put the stub
+ * @param {string} logFile where the stub writes the arguments
+ * @param {{waitFor?: string, maxWaitSeconds?: number, exitCode?: number}} [options]
+ */
+export function installStubOpener(directory, logFile, options = {}) {
+  const { waitFor, maxWaitSeconds = 20, exitCode = 0 } = options;
+  const wait = waitFor
+    ? `n=0\nwhile [ ! -e '${waitFor}' ] && [ "$n" -lt ${maxWaitSeconds * 10} ]; do /bin/sleep 0.1; n=$((n+1)); done\n`
+    : '';
+  for (const name of ['open', 'xdg-open']) {
+    const file = path.join(directory, name);
+    fs.writeFileSync(
+      file,
+      `#!/bin/sh\nprintf '%s\\n' "$@" >> '${logFile}'\n${wait}exit ${exitCode}\n`
+    );
+    fs.chmodSync(file, 0o755);
+  }
+}
+
 /** A scratch home directory: a test never touches the real one. */
 export function makeHome(prefix = 'frodo-webshell-home-') {
   return fs.mkdtempSync(path.join(os.tmpdir(), prefix));
@@ -167,7 +197,7 @@ export function startFrodo({ args, homeDir, env = {}, watchdogMs = 120_000 }) {
 export async function signInOverHttp(link) {
   const base = new URL(link).origin;
   const redeemed = await fetch(link, { redirect: 'manual' });
-  if (redeemed.status !== 302) {
+  if (redeemed.status !== 200) {
     throw new Error(`the link was answered with ${redeemed.status}`);
   }
   const cookie = (redeemed.headers.get('set-cookie') ?? '').split(';')[0];
