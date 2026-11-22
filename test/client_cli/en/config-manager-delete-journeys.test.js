@@ -6,5 +6,5 @@ const CMD = 'frodo config-manager delete journeys --help';
 const { stdout } = await exec(CMD);
 
 test("CLI help interface for 'config-manager delete journeys' should be expected english", async () => {
-    expect(stdout).toMatchSnapshot();
+  expect(stdout).toMatchSnapshot();
 });
