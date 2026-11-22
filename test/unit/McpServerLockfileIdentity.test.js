@@ -17,8 +17,10 @@ import { verifyMcpProcessIdentity } from '../../src/ops/McpServerLockfile.ts';
  * and one started after the loader was removed runs as
  *   node --no-warnings --enable-source-maps /.../dist/app.cjs mcp server start
  * A newer `mcp server stop` has to recognise both: the old server can still be
- * running when the CLI is updated. The name `loader.cjs` stays in the
- * recognised names for one release after the removal for that reason.
+ * running when the CLI is updated. Both are recognised through `app.cjs`, so
+ * the name `loader.cjs` in the recogniser is defensive and redundant in
+ * practice; it stays for one release after the removal so that a command line
+ * that names only the old loader still counts, and one case pins that.
  *
  * The processes are fakes: the files in a temporary folder only write a ready
  * file and wait; they carry the names of the real entry files and nothing else.
@@ -35,8 +37,15 @@ beforeEach(() => {
     fs.writeFileSync(path.join(dir, 'dist', name), idle);
   }
   // what the old launcher passed to --experimental-loader: a loader with no hooks
-  fs.writeFileSync(path.join(dir, 'dist', 'loader.cjs'), 'module.exports = {};');
+  fs.writeFileSync(
+    path.join(dir, 'dist', 'loader.cjs'),
+    'module.exports = {};'
+  );
   fs.writeFileSync(path.join(dir, 'other.cjs'), idle);
+  // the packaged command: brew, the native binary and the npm bin are all
+  // started as a file called `frodo`
+  fs.mkdirSync(path.join(dir, 'bin'));
+  fs.writeFileSync(path.join(dir, 'bin', 'frodo'), idle);
 });
 
 afterEach(() => {
@@ -55,7 +64,8 @@ async function start(...args) {
   });
   children.push(child);
   for (let i = 0; i < 200 && !fs.existsSync(ready); i++) await wait(50);
-  if (!fs.existsSync(ready)) throw new Error(`fake process did not start: node ${args.join(' ')}`);
+  if (!fs.existsSync(ready))
+    throw new Error(`fake process did not start: node ${args.join(' ')}`);
   return child.pid;
 }
 
@@ -100,6 +110,18 @@ describe('verifyMcpProcessIdentity recognises the frodo command lines', () => {
     expect(identity.looksLikeFrodo).toBe(true);
   });
 
+  test('the packaged command, which has no entry file in its command line', async () => {
+    const pid = await start(
+      path.join(dir, 'bin', 'frodo'),
+      'mcp',
+      'server',
+      'start'
+    );
+    const identity = verifyMcpProcessIdentity(pid);
+    expect(identity.verified).toBe(true);
+    expect(identity.looksLikeFrodo).toBe(true);
+  });
+
   test('the launcher process', async () => {
     const pid = await start(dist('launch.cjs'), 'mcp', 'server', 'start');
     const identity = verifyMcpProcessIdentity(pid);
@@ -108,7 +130,35 @@ describe('verifyMcpProcessIdentity recognises the frodo command lines', () => {
   });
 
   test('an unrelated process is not frodo, whatever it is given as arguments', async () => {
-    const pid = await start(path.join(dir, 'other.cjs'), 'mcp', 'server', 'start');
+    const pid = await start(
+      path.join(dir, 'other.cjs'),
+      'mcp',
+      'server',
+      'start'
+    );
+    const identity = verifyMcpProcessIdentity(pid);
+    expect(identity.verified).toBe(true);
+    expect(identity.looksLikeFrodo).toBe(false);
+  });
+});
+
+describe('verifyMcpProcessIdentity refuses a name that only looks like a frodo name', () => {
+  // The recogniser compares whole names; a name that merely contains one of the
+  // frodo names (or ends in one) belongs to another program.
+  test.each([
+    'not-app.cjs',
+    'not-launch.cjs',
+    'xloader.cjs',
+    'myfrodo',
+    'app.cjs.bak',
+  ])('%s', async (name) => {
+    const pid = await start(
+      path.join(dir, 'other.cjs'),
+      path.join(dir, 'dist', name),
+      'mcp',
+      'server',
+      'start'
+    );
     const identity = verifyMcpProcessIdentity(pid);
     expect(identity.verified).toBe(true);
     expect(identity.looksLikeFrodo).toBe(false);

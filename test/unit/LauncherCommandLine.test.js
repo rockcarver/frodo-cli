@@ -65,14 +65,11 @@ function launch(args) {
 }
 
 describe('the launcher starts the app process', () => {
-  testif(hasDist)(
-    'without a module-resolution loader',
-    () => {
-      const { execArgv } = launch(['-v']);
-      expect(execArgv).not.toContain('--experimental-loader');
-      expect(execArgv.join(' ')).not.toMatch(/loader/);
-    }
-  );
+  testif(hasDist)('without a module-resolution loader', () => {
+    const { execArgv } = launch(['-v']);
+    expect(execArgv).not.toContain('--experimental-loader');
+    expect(execArgv.join(' ')).not.toMatch(/loader/);
+  });
 
   testif(hasDist)(
     'with the flags it always had, and passes its own arguments on',
