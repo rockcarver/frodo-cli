@@ -3,6 +3,7 @@ import fs from 'node:fs';
 import http from 'node:http';
 import os from 'node:os';
 import path from 'node:path';
+import vm from 'node:vm';
 import {
   afterEach,
   beforeEach,
@@ -13,7 +14,11 @@ import {
 } from '@jest/globals';
 import { frodo } from '@rockcarver/frodo-lib';
 import { WebEngine } from './ShellWebEngineOps';
-import { buildContentSecurityPolicy, renderConsolePage } from './ShellWebPage';
+import {
+  buildContentSecurityPolicy,
+  createRetryPause,
+  renderConsolePage,
+} from './ShellWebPage';
 import {
   createLogBus,
   ENGINE_WORKER_ENV,
@@ -1546,6 +1551,50 @@ describe('a tab engine that cannot start', () => {
         String(call[0]).includes('could not start an engine')
       )
     ).toHaveLength(0);
+  });
+});
+
+describe('the pause of a page that cannot get a session', () => {
+  it('doubles from the first pause up to the cap, and stays there', () => {
+    const pause = createRetryPause(1500, 30000);
+    expect(Array.from({ length: 8 }, () => pause.next())).toEqual([
+      1500, 3000, 6000, 12000, 24000, 30000, 30000, 30000,
+    ]);
+  });
+
+  it('starts over at the first pause after a success', () => {
+    const pause = createRetryPause(1500, 30000);
+    pause.next();
+    pause.next();
+    pause.next();
+    pause.reset();
+    expect(pause.next()).toBe(1500);
+    expect(pause.next()).toBe(3000);
+  });
+
+  describe('as the page carries it', () => {
+    // The page holds the source of the function and the numbers it is called
+    // with. These tests run that very text, not the TypeScript beside it.
+    const page = renderConsolePage({ nonce: 'abc', csrf: 'def' });
+    const carried = page
+      .split('// retry-pause:begin')[1]
+      .split('// retry-pause:end')[0];
+
+    it('waits 1.5 s, then 3 s, and never more than 30 s', () => {
+      const pause = vm.runInNewContext(`${carried}\nsessionRetry`);
+      expect(Array.from({ length: 8 }, () => pause.next())).toEqual([
+        1500, 3000, 6000, 12000, 24000, 30000, 30000, 30000,
+      ]);
+      pause.reset();
+      expect(pause.next()).toBe(1500);
+    });
+
+    it('resets the pause when a session was got and waits that long when it was not', () => {
+      expect(page).toMatch(
+        /refreshSession\(\)\.then\(function \(\) \{\s*sessionRetry\.reset\(\);\s*listen\(\);/
+      );
+      expect(page).toMatch(/setTimeout\(listen, sessionRetry\.next\(\)\);/);
+    });
   });
 });
 
