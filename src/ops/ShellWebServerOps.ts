@@ -312,9 +312,6 @@ const INVISIBLE_CHARACTERS = /[\p{Cf}\p{Cs}\p{Cn}]/gu;
 // word characters costs a bounded amount per position.
 const SECRET_PAIR =
   /(["']?[\w.-]{0,64}(?:password|passwd|pwd|passphrase|secret|token|api[_-]?key|credential|authorization|cookie|private[_-]?key)[\w.-]{0,64}["']?\s*[:=]\s*)("[^"]*"|'[^']*'|(?:Bearer|Basic|Digest|Negotiate)\s+[^\s,;"']+|[^\s,;"'&}]+)/gi;
-// The start of a token of the JSON web token shape, with or without the rest
-// (a line that was cut inside it has no third part).
-const PARTIAL_WEB_TOKEN = /eyJ[\w-]{10,}(?:\.[\w-]*)*/g;
 // Words, and inside them runs of 20 or more characters of a token alphabet that
 // hold a digit and a letter (a base64 key, an identifier of a session). A run is
 // left alone when it is part of a path (a word that starts like one or holds two
@@ -357,11 +354,10 @@ function scrubAndCut(cleaned: string, secrets: readonly unknown[]): string {
   let text = scrubKnownValues(cleaned, liveSecrets(state, ...secrets), [], {
     errorText: true,
   });
-  text = redactLongTokens(
-    text
-      .replace(SECRET_PAIR, '$1<redacted>')
-      .replace(PARTIAL_WEB_TOKEN, '<redacted>')
-  ).replace(HEX_RUN, '<redacted>');
+  text = redactLongTokens(text.replace(SECRET_PAIR, '$1<redacted>')).replace(
+    HEX_RUN,
+    '<redacted>'
+  );
   return text.length > REASON_LIMIT
     ? `${text.slice(0, REASON_LIMIT - 1)}…`
     : text;
