@@ -276,10 +276,15 @@ run('frodo shell --web with real engine processes', () => {
   }, 180_000);
 
   test('5: an engine that cannot start is answered with 503 and its reason, the terminal says it once, and the console stays up', async () => {
+    // A home directory below a plain file: the engine cannot make its history
+    // folder and ends with the reason, in the native binary as well as with npm
+    // (the test seam for a worker script is not read by the binary). The
+    // console itself starts: it keeps nothing in the home directory.
+    const file = path.join(dir, 'a-file');
+    fs.writeFileSync(file, '');
     shell = startFrodo({
       args: ['shell', '--web', '--no-open'],
-      homeDir: home,
-      env: { FRODO_TEST_WORKER_SCRIPT: path.join(dir, 'missing-worker.cjs') },
+      homeDir: path.join(file, 'home'),
     });
     const call = await signInOverHttp(await shell.link());
 
@@ -288,6 +293,7 @@ run('frodo shell --web with real engine processes', () => {
     expect(first.json.error).toMatch(
       /^The console could not start an engine: \S/
     );
+    expect(first.json.error).toMatch(/ENOTDIR/);
     expect(first.json.error).not.toMatch(/Internal error/);
     const again = await call('GET', '/api/session');
     expect(again.status).toBe(503);

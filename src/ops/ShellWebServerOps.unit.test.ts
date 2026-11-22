@@ -975,6 +975,38 @@ describe('a per-tab engine worker', () => {
         const engineHeader = { 'X-Frodo-Engine': String(sessionReply.engine) };
 
         const lines: string[] = [];
+        // The request that makes the worker speak. It is sent only once the
+        // stream has said it is ready (the server subscribes the stream to the
+        // worker's logs before it writes `ready`, in one step): a worker that
+        // spoke earlier would be heard by nobody. It is also waited for before
+        // the console closes: closing under a request that is still being
+        // answered ends it with "socket hang up".
+        const speak = () =>
+          new Promise<void>((resolve, reject) => {
+            const post = http.request(
+              {
+                host: '127.0.0.1',
+                port: web.port,
+                method: 'POST',
+                path: '/api/eval',
+                headers: {
+                  Host: `127.0.0.1:${web.port}`,
+                  Cookie: cookie,
+                  'X-Frodo-CSRF': csrf,
+                  Origin: `http://127.0.0.1:${web.port}`,
+                  'Content-Type': 'application/json',
+                  ...engineHeader,
+                },
+              },
+              (res) => {
+                res.resume();
+                res.on('end', () => resolve());
+              }
+            );
+            post.on('error', reject);
+            post.end(JSON.stringify({ code: 'speak' }));
+          });
+        let spoke: Promise<void> | undefined;
         const streaming = new Promise<void>((resolve, reject) => {
           const req = http.request(
             {
@@ -992,6 +1024,10 @@ describe('a per-tab engine worker', () => {
               res.setEncoding('utf8');
               res.on('data', (chunk: string) => {
                 lines.push(...chunk.split('\n').filter(Boolean));
+                if (!spoke && lines.some((l) => l.includes('"ready"'))) {
+                  spoke = speak();
+                  spoke.catch(reject);
+                }
                 if (
                   lines.some((l) => l.includes('from stderr')) &&
                   lines.some((l) => l.includes('from stdout'))
@@ -1008,31 +1044,9 @@ describe('a per-tab engine worker', () => {
               : reject(e)
           );
           req.end();
-          // The stream is open: now the worker speaks, and both channels
-          // must land in it.
-          http
-            .request(
-              {
-                host: '127.0.0.1',
-                port: web.port,
-                method: 'POST',
-                path: '/api/eval',
-                headers: {
-                  Host: `127.0.0.1:${web.port}`,
-                  Cookie: cookie,
-                  'X-Frodo-CSRF': csrf,
-                  Origin: `http://127.0.0.1:${web.port}`,
-                  'Content-Type': 'application/json',
-                  ...engineHeader,
-                },
-              },
-              (res) => {
-                res.resume();
-              }
-            )
-            .end(JSON.stringify({ code: 'speak' }));
         });
         await streaming;
+        await spoke;
         const events = lines.map((l) => {
           try {
             return JSON.parse(l);
