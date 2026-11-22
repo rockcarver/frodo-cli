@@ -46,6 +46,10 @@ const {
 
 const LINK = 'http://127.0.0.1:41234/?t=one-time-secret';
 
+afterEach(() => {
+  delete process.env.FRODO_BROWSER_LOGIN_NO_OPEN;
+});
+
 beforeEach(() => {
   openMock.mockReset();
   openMock.mockResolvedValue(undefined);
@@ -79,6 +83,94 @@ describe('isBrowserOpeningEnabled', () => {
 
     setOpenBrowser(true);
     expect(isBrowserOpeningEnabled()).toBe(true);
+  });
+});
+
+describe('the environment switch FRODO_BROWSER_LOGIN_NO_OPEN', () => {
+  test.each(['1', 'true', 'TRUE', 'yes', 'on'])(
+    '7: %s turns the opening off, like --no-open',
+    (value) => {
+      process.env.FRODO_BROWSER_LOGIN_NO_OPEN = value;
+      expect(isBrowserOpeningEnabled()).toBe(false);
+    }
+  );
+
+  test.each([undefined, '', '0', 'false', 'no', 'off', 'maybe'])(
+    '8: %p leaves the opening on',
+    (value) => {
+      if (value === undefined) delete process.env.FRODO_BROWSER_LOGIN_NO_OPEN;
+      else process.env.FRODO_BROWSER_LOGIN_NO_OPEN = value;
+      expect(isBrowserOpeningEnabled()).toBe(true);
+    }
+  );
+
+  test('9: and --no-open turns it off whatever the variable says', () => {
+    process.env.FRODO_BROWSER_LOGIN_NO_OPEN = '0';
+    setOpenBrowser(false);
+    expect(isBrowserOpeningEnabled()).toBe(false);
+  });
+
+  test('10: the browser login prints only the URL when it is set', async () => {
+    process.env.FRODO_BROWSER_LOGIN_NO_OPEN = 'true';
+    await cliBrowserLoginPromptHandler({
+      authorizeUrl: 'https://tenant.example.com/am/oauth2/authorize',
+    });
+    expect(openMock).not.toHaveBeenCalled();
+    expect(printMessage).toHaveBeenCalledWith(
+      '  https://tenant.example.com/am/oauth2/authorize'
+    );
+  });
+});
+
+describe('launchBrowser and the end of the launcher', () => {
+  /** What `open` hands back: the child process of the launcher. */
+  const launcherProcess = (exitCode = null) => {
+    const handlers = {};
+    return {
+      exitCode,
+      once: (event, handler) => {
+        handlers[event] = handler;
+      },
+      end: (code) => handlers.exit?.(code),
+    };
+  };
+
+  test('11: tells the exit code of a launcher that started and then failed', async () => {
+    const child = launcherProcess();
+    openMock.mockResolvedValue(child);
+    const onExit = jest.fn();
+
+    await expect(launchBrowser(LINK, onExit)).resolves.toBe(true);
+    expect(onExit).not.toHaveBeenCalled();
+    child.end(3);
+
+    expect(onExit).toHaveBeenCalledWith(3);
+  });
+
+  test('12: tells a launcher that ended before it was asked', async () => {
+    openMock.mockResolvedValue(launcherProcess(1));
+    const onExit = jest.fn();
+
+    await launchBrowser(LINK, onExit);
+
+    expect(onExit).toHaveBeenCalledWith(1);
+  });
+
+  test('13: asks nothing of a launcher when no one wants the exit code', async () => {
+    const child = launcherProcess();
+    child.once = jest.fn();
+    openMock.mockResolvedValue(child);
+
+    await expect(launchBrowser(LINK)).resolves.toBe(true);
+    expect(child.once).not.toHaveBeenCalled();
+  });
+
+  test('14: a launcher that cannot start calls nobody', async () => {
+    openMock.mockRejectedValue(new Error('spawn open ENOENT'));
+    const onExit = jest.fn();
+
+    await expect(launchBrowser(LINK, onExit)).resolves.toBe(false);
+    expect(onExit).not.toHaveBeenCalled();
   });
 });
 

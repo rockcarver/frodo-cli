@@ -1486,7 +1486,7 @@ const environmentVariables: EnvironmentVariableDescriptor[] = [
   {
     name: 'FRODO_BROWSER_LOGIN_NO_OPEN',
     description:
-      "Print the browser-login URL instead of launching a local browser. Overridden by '--no-open' option.",
+      "Print the link instead of launching a local browser: the browser-login URL, or the sign-in link of 'frodo shell --web'. Has the same effect as the '--no-open' option.",
     group: AUTHENTICATION_ENVIRONMENT_VARIABLES_HEADING,
     include: (command) =>
       command.hasDefaultOption(noOpenOption.attributeName()),

@@ -12,6 +12,7 @@ import {
 import open from 'open';
 import { accessNoticeLines } from '../utils/AccessProfileText';
 import { printError, printMessage, verboseMessage } from '../utils/Console';
+import { isTruthyOptInValue } from '../utils/EnvFlags';
 import { printErrorHint } from '../utils/ErrorCodeHints';
 // The active-command registry, not ResolveInteractiveInputs itself: that
 // file's graph reaches the frodo-lib-importing interactive prompts, which
@@ -144,30 +145,47 @@ export function setOpenBrowser(value: boolean): void {
 
 /**
  * Whether this process may launch a local browser at all: true unless the
- * command line said `--no-open` (see `setOpenBrowser`). Every command that
- * hands a link to a browser asks here, so one option governs them all.
+ * command line said `--no-open` (see `setOpenBrowser`) or the environment says
+ * `FRODO_BROWSER_LOGIN_NO_OPEN` (a true value, as every opt-in switch reads it).
+ * Every command that hands a link to a browser asks here, so one option and one
+ * variable govern them all.
  */
 export function isBrowserOpeningEnabled(): boolean {
-  return openBrowser;
+  return (
+    openBrowser && !isTruthyOptInValue(process.env.FRODO_BROWSER_LOGIN_NO_OPEN)
+  );
 }
 
 /**
  * Asks the system to open `url` in the default browser. Answers whether the
  * launcher started; never throws, because a command must not fail over a
  * browser that cannot be opened (no desktop, a remote or headless session, no
- * browser installed). It does not tell whether a page loaded: a launcher that
- * started and then failed on its own is not seen from here.
+ * browser installed). It does not tell whether a page loaded; `onExit` is
+ * called with the exit code of the launcher when it ends, so a caller can tell
+ * a launcher that started and then failed (no display, no browser to hand the
+ * address to).
  *
  * The URL is an argument of the launcher process, so another process of the
- * machine can read it from the process list for as long as that process lives.
- * Only open a link that is safe to show there, or whose secret is one-time and
- * is accepted as exposed for that moment (see the web console, whose link is).
+ * machine can read it from the process list for as long as that process lives
+ * (and a browser that the launcher starts may keep it for as long as it runs).
+ * Hand it only an address that holds no secret: the web console gives it the
+ * address of a private launcher file, never its one-time link (see
+ * `ShellWebLauncher`).
  * @param url the address to open
+ * @param onExit called with the exit code of the launcher process when it ends
  * @returns true when the launcher started, false when it could not
  */
-export async function launchBrowser(url: string): Promise<boolean> {
+export async function launchBrowser(
+  url: string,
+  onExit?: (code: number | null) => void
+): Promise<boolean> {
   try {
-    await open(url);
+    const launcher = await open(url);
+    if (onExit && launcher) {
+      // an opener that ended before this point has said its exit code already
+      if (launcher.exitCode !== null) onExit(launcher.exitCode);
+      else launcher.once('exit', (code) => onExit(code));
+    }
     return true;
   } catch {
     return false;
