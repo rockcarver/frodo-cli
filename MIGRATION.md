@@ -330,9 +330,14 @@ removed and every holder that it left alone (journeys, realm settings, agent
 groups, CIMD profiles and policies are never changed: they name a journey that
 does not exist afterwards). A step that fails stops the run before the journey is
 deleted, and the command then lists the holders that were changed before and stay
-changed (to undo, set the journey in them again; to finish, run the command
-again). A delete that fails after holders were changed exits with code 1 also
-with `--allow-failures`. `--keep-links` leaves the links
+changed, and the ones whose step failed after it wrote them and that may differ
+from what they were (to undo, set the journey in them again; to finish, run the
+command again). A failed clearing, restore or unlink stops the run and exits with
+code 1 also with `--allow-failures`, because the delete cannot run without it; a
+delete that fails, with or without changed holders, follows `--allow-failures` like
+any other failed operation, and the output says what stays changed. The fields
+that differ after a clearing are named by their path, never by their value.
+`--keep-links` leaves the links
 of the themes as they are, for a journey that is deleted to be recreated under the
 same name; it needs `--force`, and `--force` and `--keep-links` need `-i`. Because
 `--force` changes other objects, it asks on a terminal after it has shown what it

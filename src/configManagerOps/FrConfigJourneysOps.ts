@@ -36,6 +36,7 @@ import {
   referenceLine,
   unlinkJourneyReference,
   unreadableSources,
+  type ClearingError,
   type JourneyDeletePlan,
 } from './JourneyReferenceClearing';
 
@@ -745,17 +746,30 @@ async function deleteNamedJourney(
   // clear first, then delete: an AI agent that names a journey that is gone can
   // no longer be updated, so nothing is deleted after a clearing that failed
   const run = new OperationRun({ unit: 'step', allowFailures });
+  // the holders that were changed and stay so, and the ones whose step failed
+  // after it wrote them, so that they may differ from what they were
   const changedHolders: string[] = [];
+  const notRestored: string[] = [];
+  const stepFailed = (error: unknown, reference: JourneyReference) => {
+    if ((error as ClearingError).holderChanged) {
+      notRestored.push(describeReference(reference));
+    }
+  };
   let stepsDone = true;
   for (const reference of plan.clear) {
     const done = await run.run(
       `clear the journey in ${describeReference(reference)}`,
       async () => {
-        const { was } = await clearJourneyReference(reference, target);
-        changedHolders.push(describeReference(reference));
-        printMessage(
-          `Cleared the journey in ${describeReference(reference)} (it held '${was}').`
-        );
+        try {
+          const { was } = await clearJourneyReference(reference, target);
+          changedHolders.push(describeReference(reference));
+          printMessage(
+            `Cleared the journey in ${describeReference(reference)} (it held '${was}').`
+          );
+        } catch (error) {
+          stepFailed(error, reference);
+          throw error;
+        }
       },
       { dependent: true }
     );
@@ -765,11 +779,16 @@ async function deleteNamedJourney(
     const done = await run.run(
       `remove the journey from ${describeReference(reference)}`,
       async () => {
-        const { was } = await unlinkJourneyReference(reference, target);
-        changedHolders.push(describeReference(reference));
-        printMessage(
-          `Removed journey '${target}' from ${describeReference(reference)} (the list held '${was}').`
-        );
+        try {
+          const { was } = await unlinkJourneyReference(reference, target);
+          changedHolders.push(describeReference(reference));
+          printMessage(
+            `Removed journey '${target}' from ${describeReference(reference)} (the list held '${was}').`
+          );
+        } catch (error) {
+          stepFailed(error, reference);
+          throw error;
+        }
       },
       { dependent: true }
     );
@@ -804,11 +823,9 @@ async function deleteNamedJourney(
     } catch (error) {
       printError(error as Error);
       // the summary carries the cause, as the one of a delete of all journeys
-      // does. After holders were changed, a failed delete is not a failure that
-      // --allow-failures can turn into success: the tenant is left half way
-      run.recordFailure(deleteStep, causeOf(error), {
-        dependent: changedHolders.length > 0,
-      });
+      // does. The delete is a step like any other that fails: --allow-failures
+      // applies, and the closing text below says what stays changed
+      run.recordFailure(deleteStep, causeOf(error));
     }
   }
   if (deleted) {
@@ -836,9 +853,16 @@ async function deleteNamedJourney(
     }
   }
   const succeeded = run.finish();
-  if (!deleted && changedHolders.length > 0) {
+  if (!deleted && (changedHolders.length > 0 || notRestored.length > 0)) {
     printMessage(
-      `Journey '${target}' was not deleted, and these were changed before and stay changed: ${changedHolders.join('; ')}. To undo, set the journey '${target}' in each of them again. To finish, run the command again: they no longer name the journey.`,
+      `Journey '${target}' was not deleted.` +
+        (changedHolders.length > 0
+          ? `\nChanged before, and they stay changed: ${changedHolders.join('; ')}.`
+          : '') +
+        (notRestored.length > 0
+          ? `\nChanged by the step that failed, and NOT restored: ${notRestored.join('; ')}.`
+          : '') +
+        `\nTo undo, set the journey '${target}' in each of them again. To finish, run the command again: a holder that was cleared no longer names it.`,
       'warn'
     );
   }

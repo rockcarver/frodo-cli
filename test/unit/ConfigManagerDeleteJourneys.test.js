@@ -637,8 +637,9 @@ describe('a named delete with --force', () => {
       "1 of 3 steps failed, 1 not attempted:\n  - remove the journey from theme 'Zion Theme' (linkedTrees): theme write refused\n  - delete journey 'ZionLogin' (not attempted)"
     );
     expect(text).toContain('does not apply to that');
+    expect(text).toContain("Journey 'ZionLogin' was not deleted.");
     expect(text).toContain(
-      "Journey 'ZionLogin' was not deleted, and these were changed before and stay changed: OAuth2 client 'zion-client' (advancedOAuth2ClientConfig.treeName)."
+      "Changed before, and they stay changed: OAuth2 client 'zion-client' (advancedOAuth2ClientConfig.treeName)."
     );
     expect(text).toContain(
       "To undo, set the journey 'ZionLogin' in each of them again."
@@ -661,7 +662,7 @@ describe('a named delete with --force', () => {
 
     expect(deleteJourney).not.toHaveBeenCalled();
     expect(output()).toContain(
-      "these were changed before and stay changed: OAuth2 client 'zion-client' (advancedOAuth2ClientConfig.treeName)."
+      "Changed before, and they stay changed: OAuth2 client 'zion-client' (advancedOAuth2ClientConfig.treeName)."
     );
     // nothing was changed before the first clearing: no such message
     jest.clearAllMocks();
@@ -674,7 +675,7 @@ describe('a named delete with --force', () => {
     expect(output()).not.toContain('stay changed');
   });
 
-  test('a delete that fails after a holder was cleared ends with 1 whatever --allow-failures says, and says that the holder stays cleared', async () => {
+  test('a delete that fails after a holder was cleared follows --allow-failures like any failed operation (exit 1 without it, 0 with it), and the output says that the holder stays cleared and how to undo it', async () => {
     store();
     findJourneyReferences.mockResolvedValue([REF['oauth2-client']]);
     deleteJourney.mockResolvedValue({
@@ -684,16 +685,134 @@ describe('a named delete with --force', () => {
     });
 
     expect(
-      await configManagerDeleteJourneys(JOURNEY, 'alpha', false, true, force)
+      await configManagerDeleteJourneys(JOURNEY, 'alpha', false, false, force)
     ).toBe(false);
+    expect(output()).toContain(
+      "delete journey 'ZionLogin': AM refused the delete"
+    );
+    expect(output()).not.toContain('The exit code stays 0');
+    expect(output()).not.toContain('depend on');
+
+    jest.clearAllMocks();
+    holders.stored.clear();
+    store();
+    calls.length = 0;
+    expect(
+      await configManagerDeleteJourneys(JOURNEY, 'alpha', false, true, force)
+    ).toBe(true);
 
     const text = output();
-    expect(text).toContain("delete journey 'ZionLogin': AM refused the delete");
-    expect(text).toContain('does not apply to that');
-    expect(text).not.toContain('The exit code stays 0');
     expect(text).toContain(
-      "Journey 'ZionLogin' was not deleted, and these were changed before and stay changed: OAuth2 client 'zion-client'"
+      'The exit code stays 0 because --allow-failures was given.'
     );
+    // the run did not stop because of a step that others depend on: the delete is the last step
+    expect(text).not.toContain('depend on');
+    expect(text).toContain("Journey 'ZionLogin' was not deleted.");
+    expect(text).toContain(
+      "Changed before, and they stay changed: OAuth2 client 'zion-client' (advancedOAuth2ClientConfig.treeName)."
+    );
+    expect(text).toContain(
+      "To undo, set the journey 'ZionLogin' in each of them again. To finish, run the command again"
+    );
+  });
+
+  describe('a step that fails after it wrote its holder', () => {
+    /** A write that drops what it does not understand: the agent loses its identity. */
+    const damagingWrite = () =>
+      holders.library.agent.updateAIAgent.mockImplementationOnce(
+        async (id, data) => {
+          calls.push(['write', 'agent', id, structuredClone(data), false]);
+          const { aiAgentIdentityUid, ...kept } = data;
+          holders.stored.set(holders.key('agent', id), {
+            ...kept,
+            _rev: 'damaged',
+          });
+        }
+      );
+
+    test('is listed as changed and NOT restored, next to the holders that stay changed, when the restore fails', async () => {
+      store();
+      findJourneyReferences.mockResolvedValue([
+        REF['oauth2-client'],
+        REF['ai-agent'],
+      ]);
+      damagingWrite();
+      holders.library.agent.updateAIAgent.mockRejectedValueOnce(
+        new Error('AM said no')
+      );
+
+      expect(
+        await configManagerDeleteJourneys(JOURNEY, 'alpha', false, false, force)
+      ).toBe(false);
+
+      expect(deleteJourney).not.toHaveBeenCalled();
+      const text = output();
+      expect(text).toContain("Journey 'ZionLogin' was not deleted.");
+      expect(text).toContain(
+        "Changed before, and they stay changed: OAuth2 client 'zion-client' (advancedOAuth2ClientConfig.treeName)."
+      );
+      expect(text).toContain(
+        "Changed by the step that failed, and NOT restored: AI agent 'zion-agent' (advancedOAuth2ClientConfig.treeName)."
+      );
+      // the holder that failed is not among the ones that were cleared
+      expect(text).not.toContain(
+        "Cleared the journey in AI agent 'zion-agent'"
+      );
+    });
+
+    test('is not listed when it was written back as it was before', async () => {
+      store();
+      findJourneyReferences.mockResolvedValue([REF['ai-agent']]);
+      damagingWrite();
+
+      expect(
+        await configManagerDeleteJourneys(JOURNEY, 'alpha', false, false, force)
+      ).toBe(false);
+
+      expect(deleteJourney).not.toHaveBeenCalled();
+      expect(output()).toContain('written back as it was before');
+      expect(output()).not.toContain('NOT restored');
+      expect(output()).not.toContain('stay changed');
+      expect(output()).not.toContain("Journey 'ZionLogin' was not deleted.");
+    });
+
+    test('is listed as NOT restored when the read after the write fails', async () => {
+      store();
+      findJourneyReferences.mockResolvedValue([REF['oauth2-client']]);
+      holders.library.oauth2oidc.client.readOAuth2Client
+        .mockImplementationOnce(
+          holders.library.oauth2oidc.client.readOAuth2Client.getMockImplementation()
+        )
+        .mockRejectedValueOnce(new Error('read refused'));
+
+      expect(
+        await configManagerDeleteJourneys(JOURNEY, 'alpha', false, false, force)
+      ).toBe(false);
+
+      expect(deleteJourney).not.toHaveBeenCalled();
+      expect(output()).toContain(
+        "Changed by the step that failed, and NOT restored: OAuth2 client 'zion-client' (advancedOAuth2ClientConfig.treeName)."
+      );
+      expect(output()).not.toContain('they stay changed');
+    });
+
+    test('is listed as NOT restored for a theme whose read after the write fails', async () => {
+      store();
+      findJourneyReferences.mockResolvedValue([REF.theme]);
+      holders.library.theme.readTheme
+        .mockImplementationOnce(
+          holders.library.theme.readTheme.getMockImplementation()
+        )
+        .mockRejectedValueOnce(new Error('read refused'));
+
+      expect(
+        await configManagerDeleteJourneys(JOURNEY, 'alpha', false, false, force)
+      ).toBe(false);
+
+      expect(output()).toContain(
+        "Changed by the step that failed, and NOT restored: theme 'Zion Theme' (linkedTrees)."
+      );
+    });
   });
 
   test('a delete that fails when nothing was changed before keeps --allow-failures: it ends with 0 and says nothing about changed holders', async () => {

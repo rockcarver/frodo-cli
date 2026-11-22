@@ -573,10 +573,18 @@ suite('config-manager delete journeys (fake tenant)', () => {
 
         expect(code).toBe(1);
         expect(output).toContain('changed in more than that field');
+        // the path of what was lost, never a value
         expect(output).toContain(
-          'coreOAuth2ClientConfig.userpassword-encrypted.value (value not shown)'
+          'it differs from the original in coreOAuth2ClientConfig.userpassword-encrypted.'
+        );
+        expect(output).toContain(
+          'The library never writes an attribute whose name has -encrypted in it, so no restore can put it back.'
         );
         expect(output).not.toContain('not-a-real-secret');
+        // the agent was written and could not be put back: the closing text says so
+        expect(output).toContain(
+          "Changed by the step that failed, and NOT restored: AI agent 'zion-agent' (advancedOAuth2ClientConfig.treeName)."
+        );
         // it tried to put the agent back as it was, which the library cannot do for that attribute
         expect(output).toContain(
           'It could NOT be written back as it was before'
