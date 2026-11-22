@@ -1296,6 +1296,13 @@ describe('why a tab engine did not come up', () => {
       expect(reason).toBe('Error: <redacted>');
     });
 
+    it('removes the start of a web-token shape whatever its letters are, with no digit to give it away', () => {
+      const reason = engineStartFailureReason([
+        `Error: eyJabcdefghijklmnopqrstuvwxyzABCDEF.${'q'.repeat(300)}`,
+      ]);
+      expect(reason).toBe('Error: <redacted>');
+    });
+
     it('removes a value that goes on past the bound of what is looked at', () => {
       const reason = engineStartFailureReason([
         `Error: password=${'S'.repeat(3 * REASON_INPUT_LIMIT)}`,
