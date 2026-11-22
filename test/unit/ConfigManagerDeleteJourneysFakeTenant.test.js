@@ -312,8 +312,12 @@ suite('config-manager delete journeys (fake tenant)', () => {
             'Registrat',
             'ldapServic',
             'ZionLoginX',
+            // the end of a journey name is not the journey either
+            'ogin',
+            'onLogin',
+            'ervice',
           ].map((id) => [id, []]),
-          ...['Zion', 'Registrat'].map((id) => [id, ['--force', '-y']]),
+          ...['Zion', 'Registrat', 'ogin'].map((id) => [id, ['--force', '-y']]),
           // the path that would reach an OAuth2 client, with every option that
           // could let a delete through
           ...[[], ['-d'], ['--allow-failures'], ['--force', '-y']].map(

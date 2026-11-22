@@ -203,6 +203,10 @@ describe('a named delete: the journey is looked up in the list of the realm', ()
     ['ZionLogi'],
     ['Z'],
     ['Registrat'],
+    // the end of a journey name is not the journey either
+    ['ogin'],
+    ['onLogin'],
+    ['ration'],
     // a journey name at the beginning of what was typed is not the journey either
     ['ZionLogin2'],
     ['ZionLogin/../Registration'],

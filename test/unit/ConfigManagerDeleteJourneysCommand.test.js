@@ -169,6 +169,10 @@ describe('the options', () => {
     }
     expect(program.description()).toContain('--force');
     expect(help).toContain('is not proof that it is unused');
+    // what --allow-failures does not turn into exit code 0 is said in the help of the command itself
+    expect(help).toContain(
+      '--allow-failures keeps the exit code at 0 for a delete that failed, but never for a refusal, a journey that does not exist, or a failed clearing, restore or unlink.'
+    );
   });
 });
 
