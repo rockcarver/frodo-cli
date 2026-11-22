@@ -70,8 +70,8 @@ loaded, then threw `SyntaxError: Unexpected token ','`. The workaround
   (a Node 24 config-loader quirk).
 - **Code splitting stays on** → `dist/app.cjs` requires the sibling
   `dist/rolldown-runtime-*.cjs` chunk. The chunk hash changes every build;
-  the npm `files` allowlist therefore uses a `dist/rolldown-runtime-*.cjs`
-  glob. The SEA build config turns splitting **off** (single file).
+  the npm `files` allowlist therefore lists globs (`dist/**/*.cjs`), never
+  chunk names. The SEA build config turns splitting **off** (single file).
 - `shims: true` is required — `src/launch.ts` uses `import.meta.url`, which
   does not exist in CJS; tsdown shims it.
 - `deps.neverBundle` lists every devDependency. tsdown (like tsup before it)
@@ -301,20 +301,28 @@ pipeline job (replacing `mislav/bump-homebrew-formula-action`). The stable/
 next install-time collision guard and the `frodo -v` regex checks are kept.
 
 **Removed with the migration**: `@yao-pkg/pkg`, the `pkg` config block in
-`package.json`, the `dist-pkg` script. The `files` allowlist's
-`dist/rolldown-runtime-*.cjs` glob is unaffected (the runtime chunk only
-exists in the npm `dist/` build, not the single-file SEA bundle).
+`package.json`, the `dist-pkg` script. The `files` allowlist is unaffected
+(the runtime chunk only exists in the npm `dist/` build, not the single-file
+SEA bundle).
 
 ---
 
 ## 7. npm package contents
 
-`files` allowlist (2026-10): `dist/*` (with the rolldown-runtime glob),
-LICENSE, README.md, CHANGELOG.md — 11 files instead of 47. Previously the
-tarball shipped `.eslintcache`, `testResults.json`, `tools/reports/*.json`
-(~700 KB of MCP assessment output) and a stray debug log. The allowlist
-matters even though consumers use `dist/`: `npm pack` is the supply-chain
-surface, and junk in the tarball is junk in every install.
+`files` allowlist: `dist/**/*.cjs` and `dist/**/*.cjs.map` (every built
+`.cjs` and its map, at any depth), LICENSE, README.md, CHANGELOG.md; npm adds
+`package.json`. Previously (2026-10) the tarball shipped `.eslintcache`,
+`testResults.json`, `tools/reports/*.json` (~700 KB of MCP assessment output)
+and a stray debug log. The allowlist matters even though consumers use
+`dist/`: `npm pack` is the supply-chain surface, and junk in the tarball is
+junk in every install.
+
+The globs must reach below `dist/` because the web shell's worker is built to
+`dist/cli/shell/engine-worker.cjs` (`frodo shell --web` spawns it). Until the
+fix that introduced `dist/**`, the allowlist matched top-level files only and
+the published tarballs had no worker. `test/e2e/npm-pack.smoke.e2e.test.js`
+lists the tarball and fails when the worker, or any other built `.cjs` or map,
+is missing, or when anything outside the allowlist is in it.
 
 ---
 
