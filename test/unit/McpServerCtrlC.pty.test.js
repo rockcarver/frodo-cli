@@ -13,13 +13,19 @@ import {
  *
  * A terminal sends the SIGINT to every process of its foreground group. When
  * the entry (`dist/launch.cjs`) was a wrapper that had spawned the app as a
- * child, Ctrl+C ended the server without the shutdown line, with exit status 0
- * and with the lockfile (`<home>/.frodo/mcp-http-<port>.pid`) left behind
- * (5 runs of 5; the app alone, started the same way, shut down gracefully in 4
- * of 4). The probable cause is that the wrapper received the signal too and
- * forwarded a second one to the child, in the middle of the shutdown. The
- * entry now runs the app in its own process, the terminal's signal arrives
- * once, and the server shuts down the way it does for a `kill`.
+ * child, Ctrl+C could end the server with exit status 0 but without the
+ * shutdown line, or with the lockfile (`<home>/.frodo/mcp-http-<port>.pid`) left
+ * behind (the app alone, started the same way, shut down gracefully in 4 of 4
+ * runs). The probable cause is that the wrapper received the signal too and
+ * forwarded a second one to the child, in the middle of the shutdown. The entry
+ * now runs the app in its own process, the terminal's signal arrives once, and
+ * the server shuts down the way it does for a `kill`.
+ *
+ * The old defect was a race: against the two-process launcher this case fails
+ * in about half of the runs, so it is a guard for the graceful shutdown of the
+ * one process, not the proof that the entry is one process. That proof is the
+ * cases of `LauncherCommandLine.test.js` (the app is the started process, a
+ * death by signal is reported, a SIGKILL of the entry leaves nothing).
  *
  * The scenario starts `node dist/launch.cjs` itself, not the test binary: the
  * dev-mode binary is a shim that is a process of its own, and the whole point

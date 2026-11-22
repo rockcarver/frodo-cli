@@ -4,6 +4,7 @@ import { builtinModules } from 'module';
 import os from 'os';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { isTruthyOptInValue } from '../../src/utils/EnvFlags.ts';
 
 /**
  * How the entry of the npm package (`dist/launch.cjs`, the `bin` and `main`
@@ -197,7 +198,7 @@ describe('the entry starts the app in its own process', () => {
   testif(hasDist)('the app is the process that was started', () => {
     const { entryPid, pid, execArgv } = report({ args: ['-v'] });
     expect(pid).toBe(entryPid);
-    // no flag of any kind: not a loader, not --no-warnings, not
+    // no flag at all: not a loader, not --no-warnings, not
     // --enable-source-maps
     expect(execArgv).toEqual([]);
   });
@@ -237,6 +238,20 @@ describe('source maps are opt-in (FRODO_SOURCE_MAPS)', () => {
       ).toBe(false);
     }
   );
+
+  // The entry cannot import the helper that the other opt-ins use
+  // (`isTruthyOptInValue`; the build would emit a shared chunk for the entry), so
+  // it carries a copy of its list of values. This keeps the copy and the helper
+  // from drifting apart: whatever the helper says for a value, the entry does.
+  testif(hasDist).each([
+    ...['1', 'true', 'yes', 'on', 'ON', 'True', 'yEs'],
+    ...['0', 'false', 'no', 'off', '', ' ', 'y', 't', '2', 'enable', 'yes '],
+    ...[' 1', 'null', 'undefined'],
+  ])('agree with isTruthyOptInValue for FRODO_SOURCE_MAPS=%j', (value) => {
+    expect(
+      report({ env: { FRODO_SOURCE_MAPS: value } }).sourceMapsEnabled
+    ).toBe(isTruthyOptInValue(value));
+  });
 
   testif(hasDist)(
     'name the original file in a stack trace when asked for, before the app loads',
