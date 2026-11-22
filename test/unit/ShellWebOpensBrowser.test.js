@@ -89,7 +89,10 @@ run('frodo shell --web and the default browser', () => {
     });
 
   test('1: opens the browser once, with the address of a private file and not with the link', async () => {
-    installStubOpener(tools, openerLog, { sleepSeconds: 3 });
+    // The opener stays alive until this test has watched the process list, so
+    // that it is certain to be seen: nothing here depends on a lucky moment.
+    const marker = path.join(tools, 'watcher-has-seen-the-opener');
+    installStubOpener(tools, openerLog, { waitFor: marker });
     start(['shell', '--web']);
     const link = await shell.link();
     const secret = secretOf(link);
@@ -97,15 +100,25 @@ run('frodo shell --web and the default browser', () => {
     // What a process that lists the arguments of the others sees, for as long as
     // the opener lives: a path, and never the secret.
     const seen = [];
-    const deadline = Date.now() + 2500;
-    while (Date.now() < deadline) {
+    const sample = async () => {
       for (const line of await processList()) {
-        if (line.includes(tools) || line.includes(secret)) {
-          seen.push(line);
-        }
+        if (line.includes(tools) || line.includes(secret)) seen.push(line);
       }
+    };
+    const deadline = Date.now() + 15_000;
+    while (
+      Date.now() < deadline &&
+      !seen.some((l) => l.includes('/open.html'))
+    ) {
+      await sample();
       await pause(20);
     }
+    // the opener is alive: go on watching it for a while, then let it end
+    for (let i = 0; i < 20; i++) {
+      await sample();
+      await pause(20);
+    }
+    fs.writeFileSync(marker, 'seen');
     expect(seen.some((line) => line.includes('/open.html'))).toBe(true);
     expect(seen.filter((line) => line.includes(secret))).toEqual([]);
 
