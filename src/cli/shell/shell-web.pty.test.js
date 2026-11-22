@@ -33,6 +33,7 @@ function findChrome() {
 
 const CHROME = findChrome();
 const CDP_TIMEOUT_MS = 20_000;
+const CDP_CALL_TIMEOUT_MS = 30_000;
 
 /** Targets seen at the CDP endpoint, for failure diagnostics. */
 let targets_seen = () => 'unknown';
@@ -47,7 +48,9 @@ function chromeStderr(chrome) {
 
 function startChrome(port) {
   if (!CHROME) throw new Error('startChrome called without a Chrome binary');
-  const userData = fs.mkdtempSync(path.join(os.tmpdir(), 'frodo-chrome-'));
+  const userData = fs.mkdtempSync(
+    path.join(os.tmpdir(), 'frodo-chrome-webshell-')
+  );
   const chrome = cp.spawn(
     CHROME,
     [
@@ -73,8 +76,12 @@ function startChrome(port) {
   chrome.stderr.on('data', (c) => {
     stderr += c;
   });
+  running.add({ chrome, userData });
   return { chrome, userData, stderr: () => stderr };
 }
+
+/** The browsers this file started and has not ended yet. */
+const running = new Set();
 
 /** Ends the browser and every process it started, and removes its profile. */
 function stopChrome(chrome, userData) {
@@ -84,7 +91,23 @@ function stopChrome(chrome, userData) {
     chrome.kill('SIGKILL');
   }
   fs.rmSync(userData, { recursive: true, force: true });
+  for (const entry of running) {
+    if (entry.chrome === chrome) running.delete(entry);
+  }
 }
+
+/**
+ * Ends every browser that is still running. A test that runs into its time
+ * limit is only reported failed: its body goes on waiting for the browser, so
+ * its own `finally` never runs. This runs after every test and when the test
+ * process exits.
+ */
+function stopAllChromes() {
+  for (const { chrome, userData } of [...running]) stopChrome(chrome, userData);
+}
+afterEach(stopAllChromes);
+afterAll(stopAllChromes);
+process.on('exit', stopAllChromes);
 
 /** Waits until the browser lists a page target over the debugging port. */
 async function waitForChromePage(port) {
@@ -170,7 +193,21 @@ async function withPage(port, url, run) {
   const send = (method, params = {}) =>
     new Promise((resolve, reject) => {
       const id = nextId++;
-      pending.set(id, { resolve, reject });
+      // A browser that stops answering must fail the test, not hang it
+      const timer = setTimeout(() => {
+        pending.delete(id);
+        reject(new Error(`CDP ${method} timed out`));
+      }, CDP_CALL_TIMEOUT_MS);
+      pending.set(id, {
+        resolve: (value) => {
+          clearTimeout(timer);
+          resolve(value);
+        },
+        reject: (error) => {
+          clearTimeout(timer);
+          reject(error);
+        },
+      });
       ws.send(JSON.stringify({ id, method, params }));
     });
   const evaluate = async (expression) => {
