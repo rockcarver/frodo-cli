@@ -32,8 +32,8 @@
   },
   "main": "dist/launch.cjs",
   "files": [
-    "dist/*.cjs",
-    "dist/*.cjs.map",
+    "dist/**/*.cjs",
+    "dist/**/*.cjs.map",
     "LICENSE",
     "README.md",
     "CHANGELOG.md"
