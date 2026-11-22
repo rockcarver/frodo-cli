@@ -68,8 +68,10 @@ run('the tab engine, as a process of the executable', () => {
     }, 90_000).unref();
     let stdout = '';
     let stderr = '';
+    let ended = false;
     worker.stdout.on('data', (c) => (stdout += c));
     worker.stderr.on('data', (c) => (stderr += c));
+    worker.on('close', () => (ended = true));
     const replies = () =>
       stdout
         .split('\n')
@@ -90,6 +92,8 @@ run('the tab engine, as a process of the executable', () => {
         while (Date.now() < deadline) {
           const found = replies().find((r) => r.id === id);
           if (found) return found;
+          // a process that ended will not answer: say so now, not after the timeout
+          if (ended) break;
           await new Promise((resolve) => setTimeout(resolve, 50));
         }
         throw new Error(
