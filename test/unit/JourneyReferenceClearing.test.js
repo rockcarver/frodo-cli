@@ -19,7 +19,8 @@ import {
  * the read after the write shows the result.
  */
 
-const { stored, calls, key, library } = createHolderStubs(jest);
+const { stored, locations, mode, calls, key, library } =
+  createHolderStubs(jest);
 const readOAuth2Client = library.oauth2oidc.client.readOAuth2Client;
 const updateOAuth2Client = library.oauth2oidc.client.updateOAuth2Client;
 const readSaml2Provider = library.saml2.entityProvider.readSaml2Provider;
@@ -35,7 +36,6 @@ const {
   HOLDER_RULES,
   NO_JOURNEY,
   clearJourneyReference,
-  clearPatch,
   describeReference,
   journeyNameAt,
   planJourneyDelete,
@@ -101,20 +101,10 @@ describe('the table: what --force does for each source of the library', () => {
     }
   );
 
-  test('the rows that clear a reference say how the field holds the name and how it is written', () => {
-    expect(HOLDER_RULES['oauth2-client']).toMatchObject({
-      shape: 'wrapped',
-      write: 'whole',
-    });
-    expect(HOLDER_RULES['saml2-provider']).toMatchObject({
-      shape: 'plain',
-      write: 'whole',
-    });
-    // an AI agent holds its identity too: only the field is sent
-    expect(HOLDER_RULES['ai-agent']).toMatchObject({
-      shape: 'wrapped',
-      write: 'patch',
-    });
+  test('the rows that clear a reference say how the field holds the name', () => {
+    expect(HOLDER_RULES['oauth2-client']).toMatchObject({ shape: 'wrapped' });
+    expect(HOLDER_RULES['saml2-provider']).toMatchObject({ shape: 'plain' });
+    expect(HOLDER_RULES['ai-agent']).toMatchObject({ shape: 'wrapped' });
   });
 });
 
@@ -232,13 +222,6 @@ describe('the field of a holder', () => {
     setJourneyCleared(plain, 'a.b', 'plain');
     expect(plain).toEqual({ a: { b: '[Empty]', other: 1 } });
   });
-
-  test('a patch holds the field and nothing else', () => {
-    expect(clearPatch('a.b.c', 'wrapped')).toEqual({
-      a: { b: { c: { inherited: false, value: '[Empty]' } } },
-    });
-    expect(clearPatch('a.b', 'plain')).toEqual({ a: { b: '[Empty]' } });
-  });
 });
 
 describe('clearing a holder', () => {
@@ -280,101 +263,127 @@ describe('clearing a holder', () => {
     expect(calls.map(([type]) => type)).toEqual(['read', 'write', 'read']);
   });
 
-  const SAML_REMOTE = {
-    _id: 'dXJuOnppb246c3A',
-    entityId: 'urn:zion:sp',
-    entityLocation: 'remote',
-    serviceProvider: {
-      advanced: { treeConfiguration: { treeName: JOURNEY }, other: 1 },
-    },
-  };
-  const SAML_HOSTED = {
-    _id: 'aG9zdGVk',
-    entityId: 'urn:zion:hosted',
-    entityLocation: 'hosted',
-    serviceProvider: {
-      assertionProcessing: {
-        redirectTreeConfiguration: { redirectTreeName: JOURNEY },
+  /**
+   * A provider as AM answers a read of it (the shape of the recorded reads):
+   * `_id` is the unpadded base64 of the entity id, there is no location in it,
+   * and the service provider holds the sections of its kind. The location is the
+   * one of the stub, which the library reads with a query.
+   */
+  const provider = (location, entityId, serviceProvider) => ({
+    _id: Buffer.from(entityId).toString('base64url'),
+    _rev: '1',
+    entityId,
+    serviceProvider,
+  });
+  const SAML_REMOTE = provider('remote', 'urn:zion:sp', {
+    assertionContent: {
+      signingAndEncryption: { requestResponseSigning: {} },
+      nameIdFormat: {
+        nameIdFormatList: [
+          'urn:oasis:names:tc:SAML:2.0:nameid-format:persistent',
+        ],
       },
     },
-  };
+    assertionProcessing: { attributeMapper: { attributeMap: [] } },
+    services: { serviceAttributes: {} },
+    advanced: {
+      idpProxy: {},
+      treeConfiguration: { treeName: JOURNEY },
+      applicationContext: {},
+    },
+  });
+  const SAML_HOSTED = provider('hosted', 'urn:zion:hosted', {
+    assertionContent: { nameIdFormat: { nameIdFormatList: [] } },
+    assertionProcessing: {
+      attributeMapper: { attributeMap: [] },
+      redirectTreeConfiguration: { redirectTreeName: JOURNEY },
+      defaultRelayState: '',
+    },
+    services: { metaAlias: '/zion-hosted', serviceAttributes: {} },
+    advanced: { idpProxy: {}, relayStateUrlList: {} },
+  });
+  const HOSTED_FIELD =
+    'serviceProvider.assertionProcessing.redirectTreeConfiguration.redirectTreeName';
+  const withoutRevision = ({ _rev, ...rest }) => rest;
 
-  test('saml2-provider (remote): writes the plain string in treeConfiguration.treeName, to the location of the provider', async () => {
+  test('saml2-provider (remote): the location comes from the stub of the provider, and the whole provider is written to it, without its revision', async () => {
     stored.set(key('saml', 'urn:zion:sp'), SAML_REMOTE);
+    locations.set('urn:zion:sp', 'remote');
 
     await clearJourneyReference(REFERENCES['saml2-provider'], JOURNEY);
 
+    const cleared = structuredClone(withoutRevision(SAML_REMOTE));
+    cleared.serviceProvider.advanced.treeConfiguration.treeName = '[Empty]';
     expect(calls.filter(([type]) => type === 'write')).toEqual([
-      [
-        'write',
-        'saml',
-        'remote',
-        {
-          ...SAML_REMOTE,
-          serviceProvider: {
-            advanced: { treeConfiguration: { treeName: '[Empty]' }, other: 1 },
-          },
-        },
-      ],
+      ['write', 'saml', 'remote', cleared],
     ]);
-    expect(readSaml2Provider).toHaveBeenCalledWith('urn:zion:sp');
+    expect(calls.map(([type, holderType]) => `${type} ${holderType}`)).toEqual([
+      'read saml-stub',
+      'read saml',
+      'write saml',
+      'read saml',
+    ]);
   });
 
-  test('saml2-provider (hosted): writes the plain string in redirectTreeConfiguration.redirectTreeName', async () => {
+  test('saml2-provider (hosted): the same for a hosted provider, with the plain string in redirectTreeName', async () => {
     stored.set(key('saml', 'urn:zion:hosted'), SAML_HOSTED);
+    locations.set('urn:zion:hosted', 'hosted');
 
     await clearJourneyReference(
       {
         ...REFERENCES['saml2-provider'],
         id: 'urn:zion:hosted',
-        from: 'serviceProvider.assertionProcessing.redirectTreeConfiguration.redirectTreeName',
+        from: HOSTED_FIELD,
       },
       JOURNEY
     );
 
+    const cleared = structuredClone(withoutRevision(SAML_HOSTED));
+    cleared.serviceProvider.assertionProcessing.redirectTreeConfiguration.redirectTreeName =
+      '[Empty]';
     expect(calls.filter(([type]) => type === 'write')).toEqual([
-      [
-        'write',
-        'saml',
-        'hosted',
-        {
-          ...SAML_HOSTED,
-          serviceProvider: {
-            assertionProcessing: {
-              redirectTreeConfiguration: { redirectTreeName: '[Empty]' },
-            },
-          },
-        },
-      ],
+      ['write', 'saml', 'hosted', cleared],
     ]);
+  });
+
+  test('saml2-provider: a provider is never written to a location that its read does not say: the read has no entityLocation', async () => {
+    // AM's read of a provider has no `entityLocation`; a write that took the
+    // location from it would go to `.../saml2/undefined/<id>`, which the stub answers with 404
+    expect(SAML_REMOTE).not.toHaveProperty('entityLocation');
+    stored.set(key('saml', 'urn:zion:sp'), SAML_REMOTE);
+    locations.set('urn:zion:sp', 'remote');
+
+    await expect(
+      clearJourneyReference(REFERENCES['saml2-provider'], JOURNEY)
+    ).resolves.toEqual({ was: JOURNEY });
+    expect(
+      calls.filter(([type]) => type === 'write').map((call) => call[2])
+    ).toEqual(['remote']);
   });
 
   const AGENT = {
     _id: 'zion-agent',
+    _type: { _id: 'AIAgent', name: 'AI Agent', collection: true },
     advancedOAuth2ClientConfig: {
       treeName: { inherited: false, value: JOURNEY },
     },
     aiAgentIdentityUid: { inherited: false, value: 'uid-1' },
     aiAgentIdentityAttributes: { inherited: false, value: { a: 1 } },
   };
+  const clearedAgent = () => ({
+    ...AGENT,
+    advancedOAuth2ClientConfig: {
+      treeName: { inherited: false, value: '[Empty]' },
+    },
+  });
 
-  test('ai-agent: writes a patch with the wrapped field and nothing else, without the agent identity, and reads the agent again', async () => {
+  test('ai-agent: writes the whole agent as it was read, identity attributes included, with only the wrapped field changed, without the agent identity, and reads it again', async () => {
     stored.set(key('agent', 'zion-agent'), AGENT);
 
     await clearJourneyReference(REFERENCES['ai-agent'], JOURNEY);
 
     expect(calls.filter(([type]) => type === 'write')).toEqual([
-      [
-        'write',
-        'agent',
-        'zion-agent',
-        {
-          advancedOAuth2ClientConfig: {
-            treeName: { inherited: false, value: '[Empty]' },
-          },
-        },
-        false,
-      ],
+      ['write', 'agent', 'zion-agent', clearedAgent(), false],
     ]);
     // the agent is read without its identity, before and after
     expect(readAIAgent.mock.calls).toEqual([
@@ -383,21 +392,155 @@ describe('clearing a holder', () => {
     ]);
   });
 
-  test('ai-agent: a write that also changed something else is reported, not trusted', async () => {
-    stored.set(key('agent', 'zion-agent'), AGENT);
-    updateAIAgent.mockImplementationOnce(async (id, data) => {
-      stored.set(
-        key('agent', id),
-        mergePatch(
-          { ...AGENT, aiAgentIdentityUid: { inherited: true } },
-          structuredClone(data)
-        )
+  test.each([
+    ['merge', 'a write that applies what it is sent as a patch'],
+    ['replace', 'a write that replaces the object by what it is sent'],
+  ])(
+    'ai-agent: with %s (%s) the agent reads back cleared and nothing else changed',
+    async (value) => {
+      mode.value = value;
+      stored.set(key('agent', 'zion-agent'), AGENT);
+
+      await expect(
+        clearJourneyReference(REFERENCES['ai-agent'], JOURNEY)
+      ).resolves.toEqual({ was: JOURNEY });
+
+      mode.value = 'merge';
+    }
+  );
+
+  describe('a write that changes more than the field', () => {
+    /** A write that drops what it does not understand: the agent keeps the cleared field and loses the identity. */
+    const damagingWrite = () =>
+      updateAIAgent.mockImplementationOnce(async (id, data) => {
+        calls.push(['write', 'agent', id, structuredClone(data), false]);
+        const { aiAgentIdentityUid, aiAgentIdentityAttributes, ...kept } = data;
+        stored.set(key('agent', id), { ...kept, _rev: 'damaged' });
+      });
+
+    test('is put back: the original is written again, the fields that had changed are named with their old values, and the journey is not deleted', async () => {
+      stored.set(key('agent', 'zion-agent'), AGENT);
+      damagingWrite();
+
+      const error = await clearJourneyReference(
+        REFERENCES['ai-agent'],
+        JOURNEY
+      ).catch((caught) => caught);
+
+      expect(error.message).toContain('changed in more than that field');
+      expect(error.message).toContain('aiAgentIdentityUid.value ("uid-1")');
+      expect(error.message).toContain('aiAgentIdentityAttributes.value.a (1)');
+      expect(error.message).toContain(
+        'It was written back as it was before, and the journey is not deleted.'
+      );
+      // read, cleared write, read back, the original written again, read back
+      expect(calls.map(([type]) => type)).toEqual([
+        'read',
+        'write',
+        'read',
+        'write',
+        'read',
+      ]);
+      const writes = calls.filter(([type]) => type === 'write');
+      expect(writes[1][3]).toEqual(AGENT);
+      // the agent is what it was before
+      const { _rev, ...after } = stored.get(key('agent', 'zion-agent'));
+      expect(after).toEqual(AGENT);
+    });
+
+    test('that cannot be put back says so, and names what still differs, with the original values', async () => {
+      stored.set(key('agent', 'zion-agent'), AGENT);
+      damagingWrite();
+      updateAIAgent.mockRejectedValueOnce(new Error('AM said no'));
+      // the second call is the restore: the mock above answers the first call by the damaging write
+      updateAIAgent.mockReset();
+      updateAIAgent
+        .mockImplementationOnce(async (id, data) => {
+          calls.push(['write', 'agent', id, structuredClone(data), false]);
+          const { aiAgentIdentityUid, ...kept } = data;
+          stored.set(key('agent', id), { ...kept, _rev: 'damaged' });
+        })
+        .mockRejectedValueOnce(new Error('AM said no'));
+
+      const error = await clearJourneyReference(
+        REFERENCES['ai-agent'],
+        JOURNEY
+      ).catch((caught) => caught);
+
+      expect(error.message).toContain(
+        'It could NOT be written back as it was before'
+      );
+      expect(error.message).toContain('because the write failed: AM said no');
+      expect(error.message).toContain('aiAgentIdentityUid.value ("uid-1")');
+      expect(error.message).toContain('The journey is not deleted');
+      expect(error.message).toContain('(the original values)');
+    });
+
+    test('never prints the value of a field that can hold a secret, in what changed or in what is left', async () => {
+      const withSecret = {
+        ...AGENT,
+        coreOAuth2ClientConfig: {
+          userpassword: { inherited: false, value: 'not-a-real-secret' },
+          clientName: { inherited: false, value: ['Zion'] },
+        },
+      };
+      stored.set(key('agent', 'zion-agent'), withSecret);
+      updateAIAgent.mockReset();
+      updateAIAgent
+        .mockImplementationOnce(async (id, data) => {
+          calls.push(['write', 'agent', id, structuredClone(data), false]);
+          const { coreOAuth2ClientConfig, ...kept } = data;
+          stored.set(key('agent', id), { ...kept, _rev: 'damaged' });
+        })
+        .mockRejectedValueOnce(new Error('AM said no'));
+
+      const error = await clearJourneyReference(
+        REFERENCES['ai-agent'],
+        JOURNEY
+      ).catch((caught) => caught);
+
+      // the field that is a secret by its name is named, never shown, not even in part
+      expect(error.message).toContain(
+        'coreOAuth2ClientConfig.userpassword.value (value not shown)'
+      );
+      expect(error.message).not.toContain('not-a-real');
+      // a field that is not is shown
+      expect(error.message).toContain(
+        'coreOAuth2ClientConfig.clientName.value (1 items)'
       );
     });
 
-    await expect(
-      clearJourneyReference(REFERENCES['ai-agent'], JOURNEY)
-    ).rejects.toThrow(/changed in more than that field: aiAgentIdentityUid/);
+    test('a section that is gone is damage too, not the cleared field', async () => {
+      stored.set(key('agent', 'zion-agent'), AGENT);
+      updateAIAgent.mockImplementationOnce(async (id, data) => {
+        calls.push(['write', 'agent', id, structuredClone(data), false]);
+        stored.set(key('agent', id), { _id: id, _rev: 'damaged' });
+      });
+
+      const error = await clearJourneyReference(
+        REFERENCES['ai-agent'],
+        JOURNEY
+      ).catch((caught) => caught);
+
+      expect(error.message).toContain('changed in more than that field');
+      expect(error.message).toContain('advancedOAuth2ClientConfig');
+      expect(error.message).toContain('written back as it was before');
+    });
+
+    test('the same for an OAuth2 client: put back, not trusted', async () => {
+      stored.set(key('client', 'zion-client'), CLIENT);
+      updateOAuth2Client.mockImplementationOnce(async (id, data) => {
+        calls.push(['write', 'client', id, structuredClone(data)]);
+        const { coreOAuth2ClientConfig, ...kept } = data;
+        stored.set(key('client', id), { ...kept, _rev: 'damaged' });
+      });
+
+      await expect(
+        clearJourneyReference(REFERENCES['oauth2-client'], JOURNEY)
+      ).rejects.toThrow(/written back as it was before/);
+      const { _rev, ...after } = stored.get(key('client', 'zion-client'));
+      expect(after).toEqual(CLIENT);
+    });
   });
 
   test.each([

@@ -37,19 +37,13 @@ export const NO_JOURNEY = '[Empty]';
  */
 export type HolderAction = 'clear' | 'unlink' | 'leave';
 
-/** How a holder is written when its reference is cleared. */
+/** How the field of a holder holds the journey name, when its reference is cleared. */
 export type HolderRule = {
   action: HolderAction;
   /** What the holder is called in a message. */
   holder: string;
   /** `clear` only: the field is `{ inherited, value }` (`wrapped`) or the name itself (`plain`). */
   shape?: 'wrapped' | 'plain';
-  /**
-   * `clear` only: `whole` reads the holder, replaces the name and updates the
-   * whole holder; `patch` sends nothing but the field (an AI agent also holds
-   * its identity, which must not be sent again).
-   */
-  write?: 'whole' | 'patch';
 };
 
 /**
@@ -73,19 +67,16 @@ export const HOLDER_RULES: Record<Source, HolderRule> = {
     action: 'clear',
     holder: 'OAuth2 client',
     shape: 'wrapped',
-    write: 'whole',
   },
   'saml2-provider': {
     action: 'clear',
     holder: 'SAML provider',
     shape: 'plain',
-    write: 'whole',
   },
   'ai-agent': {
     action: 'clear',
     holder: 'AI agent',
     shape: 'wrapped',
-    write: 'patch',
   },
   'agent-group': { action: 'leave', holder: 'agent group' },
   'cimd-profile': { action: 'leave', holder: 'CIMD profile' },
@@ -229,23 +220,6 @@ function clearedValue(shape: 'wrapped' | 'plain'): unknown {
 }
 
 /**
- * Builds the object that has only the field with the placeholder in it: the
- * body of a patch that touches nothing else.
- * @param {string} from the dotted path of the field
- * @param {'wrapped' | 'plain'} shape how the field holds the name
- * @returns {Record<string, unknown>} for example `{ advancedOAuth2ClientConfig: { treeName: { inherited: false, value: '[Empty]' } } }`
- */
-export function clearPatch(
-  from: string,
-  shape: 'wrapped' | 'plain'
-): Record<string, unknown> {
-  const keys = pathOf(from);
-  let patch: unknown = clearedValue(shape);
-  for (const key of [...keys].reverse()) patch = { [key]: patch };
-  return patch as Record<string, unknown>;
-}
-
-/**
  * Puts the placeholder into the field of a holder, in place, and leaves
  * everything else as it is.
  * @param {Record<string, unknown>} data the holder as the library returned it
@@ -273,12 +247,99 @@ export type HolderChange = {
   was: string;
 };
 
+/** Where a holder differs from what it should be: the dotted paths of the fields. */
+function differences(
+  expected: unknown,
+  actual: unknown,
+  path = '',
+  found: string[] = []
+): string[] {
+  const isObject = (value: unknown): value is Record<string, unknown> =>
+    value !== null && typeof value === 'object' && !Array.isArray(value);
+  if (isObject(expected) && isObject(actual)) {
+    for (const name of new Set([
+      ...Object.keys(expected),
+      ...Object.keys(actual),
+    ])) {
+      // the revision changes with every write
+      if (path === '' && name === '_rev') continue;
+      differences(
+        expected[name],
+        actual[name],
+        path ? `${path}.${name}` : name,
+        found
+      );
+    }
+  } else if (!sameJson(expected, actual)) {
+    found.push(path);
+  }
+  return found;
+}
+
+/** A field whose value is never printed. */
+const SECRET_FIELD =
+  /secret|password|passphrase|private|credential|token|jwk|key|encrypt|cert/i;
+
+/**
+ * The fields that differ, for a message: every one by the path of its leaf,
+ * with the value that `values` holds there, unless the path can hold a secret
+ * (then the path only). An object is described by its leaves and a list by its
+ * length, so no value is printed that was not checked by its own path.
+ * @param {string[]} paths the dotted paths that differ
+ * @param {unknown} values the holder that the values are taken from
+ * @returns {string} one text for a message
+ */
+function describeFields(paths: string[], values: unknown): string {
+  const described: string[] = [];
+  const add = (path: string, value: unknown) => {
+    if (value !== null && typeof value === 'object' && !Array.isArray(value)) {
+      const names = Object.keys(value);
+      if (names.length === 0) described.push(`${path} ({})`);
+      for (const name of names) {
+        add(`${path}.${name}`, (value as Record<string, unknown>)[name]);
+      }
+    } else if (SECRET_FIELD.test(path)) {
+      described.push(`${path} (value not shown)`);
+    } else if (Array.isArray(value)) {
+      described.push(`${path} (${value.length} items)`);
+    } else {
+      const text = JSON.stringify(value) ?? 'not set';
+      described.push(
+        `${path} (${text.length > 40 ? `${text.slice(0, 37)}...` : text})`
+      );
+    }
+  };
+  for (const path of paths) add(path, valueAt(values, path));
+  const shown = described.slice(0, 12);
+  return (
+    shown.join(', ') +
+    (described.length > shown.length
+      ? `, and ${described.length - shown.length} more`
+      : '')
+  );
+}
+
+/** The value at a dotted path, undefined where the path leaves the data. */
+function valueAt(data: unknown, path: string): unknown {
+  let node: unknown = data;
+  for (const key of pathOf(path)) {
+    if (node === null || typeof node !== 'object') return undefined;
+    node = (node as Record<string, unknown>)[key];
+  }
+  return node;
+}
+
 /**
  * Clears the reference of one holder: reads it, checks that the field still
- * names the journey, writes the placeholder into that field, reads the holder
- * again and checks that the field holds the placeholder. An AI agent is
- * written with a patch that holds the field only, and must also be unchanged
- * apart from the field when it is read again.
+ * names the journey, writes the whole holder back with the placeholder in that
+ * one field (the way the clearing was observed to be accepted), reads it again
+ * and checks that the field holds the placeholder and that nothing else changed.
+ * If anything else changed (a write that replaces what it is not sent, or
+ * normalises it), the holder is written back as it was before, and the error
+ * says what had changed and whether the restore worked; the journey is not
+ * deleted after that. The provider of a SAML holder is written to the location
+ * that the library's stub of that provider names (`hosted` or `remote`): the
+ * read of the provider itself does not say it.
  * @param {ClearableReference} reference the reference found by the library
  * @param {string} journeyId the journey that is about to be deleted
  * @returns {Promise<HolderChange>} what was cleared
@@ -311,6 +372,29 @@ export async function clearJourneyReference(
         >;
     }
   };
+  // a SAML provider is written to `hosted` or to `remote`: ask which
+  const location =
+    reference.source === 'saml2-provider'
+      ? (await frodo.saml2.entityProvider.readSaml2ProviderStub(id)).location
+      : undefined;
+  const write = async (data: Record<string, unknown>): Promise<void> => {
+    const body = jsonCopy(data);
+    switch (reference.source) {
+      case 'oauth2-client':
+        await frodo.oauth2oidc.client.updateOAuth2Client(id, body as never);
+        break;
+      case 'saml2-provider':
+        // the writes of an import carry no revision either
+        delete body['_rev'];
+        await frodo.saml2.entityProvider.updateSaml2Provider(
+          location as 'hosted' | 'remote',
+          body as never
+        );
+        break;
+      default:
+        await frodo.agent.updateAIAgent(id, body as never, false);
+    }
+  };
 
   const before = await read();
   const was = journeyNameAt(before, from, shape);
@@ -319,51 +403,46 @@ export async function clearJourneyReference(
       `The ${label} does not name journey '${journeyId}' any more (it holds ${JSON.stringify(was)}): nothing was written.`
     );
   }
-
-  const snapshot = jsonCopy(before);
-  switch (reference.source) {
-    case 'oauth2-client':
-      await frodo.oauth2oidc.client.updateOAuth2Client(
-        id,
-        setJourneyCleared(before, from, shape) as never
-      );
-      break;
-    case 'saml2-provider': {
-      const provider = setJourneyCleared(before, from, shape);
-      await frodo.saml2.entityProvider.updateSaml2Provider(
-        provider['entityLocation'] as 'hosted' | 'remote',
-        provider as never
-      );
-      break;
-    }
-    default:
-      await frodo.agent.updateAIAgent(
-        id,
-        clearPatch(from, shape) as never,
-        false
-      );
-  }
+  const original = jsonCopy(before);
+  await write(setJourneyCleared(jsonCopy(original), from, shape));
 
   const after = await read();
-  if (journeyNameAt(after, from, shape) !== NO_JOURNEY) {
-    throw new Error(
-      `The ${label} still holds the journey name after it was cleared.`
-    );
-  }
-  if (rule.write === 'patch') {
-    // a patch must touch the field and nothing else
-    const expected = setJourneyCleared(snapshot, from, shape);
-    for (const record of [expected, after]) delete record['_rev'];
-    const changed = Object.keys({ ...expected, ...after }).filter(
-      (key) => !sameJson(expected[key], after[key])
-    );
-    if (changed.length > 0) {
+  const expected = setJourneyCleared(jsonCopy(original), from, shape);
+  const wrong = differences(expected, after);
+  // a difference inside the field is the field itself; one above it (a section
+  // that is gone) or anywhere else is damage
+  const others = wrong.filter(
+    (path) => path !== from && !path.startsWith(`${from}.`)
+  );
+  if (others.length === 0) {
+    if (wrong.length > 0) {
       throw new Error(
-        `The ${label} was cleared, but it changed in more than that field: ${changed.join(', ')}.`
+        `The ${label} still holds the journey name after it was cleared.`
       );
     }
+    return { was: journeyId };
   }
-  return { was: journeyId };
+
+  // the write changed more than the field: put the holder back as it was
+  const changed = describeFields(others, original);
+  let restored = false;
+  let remaining: string[] = [];
+  let failure = '';
+  try {
+    await write(original);
+    remaining = differences(original, await read());
+    restored = remaining.length === 0;
+  } catch (error) {
+    remaining = others;
+    failure =
+      error instanceof Error ? error.message.split('\n')[0] : String(error);
+  }
+  throw new Error(
+    `The ${label} was cleared, but it changed in more than that field: ${changed}. ` +
+      (restored
+        ? 'It was written back as it was before, and the journey is not deleted.'
+        : `It could NOT be written back as it was before; it still differs from the original in ${describeFields(remaining, original)} (the original values)${failure ? `, because the write failed: ${failure}` : ''}. The journey is not deleted.`)
+  );
 }
 
 /**

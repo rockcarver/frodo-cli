@@ -132,6 +132,14 @@
  * (`POST .../authenticationtrees/nodes?_action=getAllTypes`, `GET .../nodes/<type>`);
  * `DELETE .../nodes/<type>/<id>` removes one of them. The authentication settings of the realm
  * (`GET .../realm-config/authentication`) answer with `ldapService` as the default journeys.
+ * FAKE_AM_SAML_FILE=<path> names a JSON array `[{ "location": "hosted" | "remote", "entityId": "<id>",
+ * "config": { ... } }]` of SAML entity providers, served the way AM serves them (the shape of the
+ * recorded reads): the stubs (`GET .../realm-config/saml2?_queryFilter=true`, or `entityId eq '<id>'`)
+ * are `{ _id, _rev, entityId, location, roles }`, with the unpadded base64 of the entity id as `_id`;
+ * `GET .../saml2/<location>/<_id>` answers `{ _id, _rev, entityId, ...config }` and has no
+ * `entityLocation`; `PUT` to the same path REPLACES the config by the body (without `_id`, `_rev` and
+ * `entityId`) and answers with the provider and a new `_rev`. A path with another location, or an id
+ * that is not one (`.../saml2/undefined/<_id>`), answers `404`. The providers are kept in memory.
  * The failing answers come from FAKE_AM_FAIL_REQUESTS.
  * FAKE_AM_ACCESS_TOKEN=<text> is the `access_token` that the token endpoint of the service-account
  * journey answers with (default: `fake-service-account-token`). FAKE_AM_SESSION_TOKEN=<text> is
@@ -358,6 +366,17 @@ const journeys = (() => {
 const orphanNodes = (() => {
   const wanted = readJson(process.env.FAKE_AM_NODES_FILE);
   return wanted ? new Map(Object.entries(wanted)) : undefined;
+})();
+const samlProviders = (() => {
+  const wanted = readJson(process.env.FAKE_AM_SAML_FILE);
+  return wanted
+    ? new Map(
+        wanted.map(({ location, entityId, config }) => {
+          const id64 = Buffer.from(entityId).toString('base64url');
+          return [id64, { id64, location, entityId, config, revision: 1 }];
+        })
+      )
+    : undefined;
 })();
 const accessToken =
   process.env.FAKE_AM_ACCESS_TOKEN ?? 'fake-service-account-token';
@@ -1111,6 +1130,56 @@ const server = http.createServer((req, res) => {
       if (nodeRoute && req.method === 'DELETE') {
         orphanNodes?.delete(decodeURIComponent(nodeRoute[1]));
         return send(200, {});
+      }
+    }
+    if (samlProviders && pathname.includes('/realm-config/saml2')) {
+      const query = new URL(req.url, 'http://fake').searchParams;
+      const provider = ({ id64, entityId, config, revision }) => ({
+        _id: id64,
+        _rev: String(revision),
+        entityId,
+        ...config,
+      });
+      if (
+        req.method === 'GET' &&
+        pathname.endsWith('/realm-config/saml2') &&
+        query.has('_queryFilter')
+      ) {
+        const byEntity = query.get('_queryFilter').match(/^entityId eq '(.*)'$/);
+        const found = [...samlProviders.values()]
+          .filter(({ entityId }) => !byEntity || entityId === byEntity[1])
+          .map((held) => ({
+            _id: held.id64,
+            _rev: String(held.revision),
+            entityId: held.entityId,
+            location: held.location,
+            roles: ['serviceProvider', 'identityProvider'].filter(
+              (role) => held.config[role]
+            ),
+          }));
+        return send(200, {
+          result: found,
+          resultCount: found.length,
+          pagedResultsCookie: null,
+          totalPagedResultsPolicy: 'EXACT',
+          totalPagedResults: found.length,
+          remainingPagedResults: -1,
+        });
+      }
+      const route = pathname.match(/\/realm-config\/saml2\/([^/]+)\/([^/]+)$/);
+      if (route) {
+        const held = samlProviders.get(decodeURIComponent(route[2]));
+        if (!held || held.location !== route[1]) {
+          return send(404, { code: 404, reason: 'Not Found', message: 'Not Found' });
+        }
+        if (req.method === 'GET') return send(200, provider(held));
+        if (req.method === 'PUT') {
+          // eslint-disable-next-line no-unused-vars
+          const { _id, _rev, entityId, ...config } = JSON.parse(body);
+          held.config = config;
+          held.revision += 1;
+          return send(200, provider(held));
+        }
       }
     }
     if (trees && pathname.endsWith('/authenticationtrees/trees')) {

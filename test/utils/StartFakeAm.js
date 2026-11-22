@@ -44,6 +44,7 @@ const fakeAmPath = fileURLToPath(new URL('./FakeAm.mjs', import.meta.url));
  * @param {{ managed?: object, 'repo.ds'?: object }} [options.idmConfig] the IDM configuration `config/managed` and `config/repo.ds` answer with on a read; a write to them answers 500 (default: they answer 404)
  * @param {Record<string, object>} [options.idmEntities] IDM configuration objects by config id (`sync`, `provisioner.openicf/xyz`, ...) the fake serves on a read and replaces on a write, `_id` taken from the URL; the request log holds every body (default: they answer 404)
  * @param {Record<string, Record<string, string>>} [options.journeys] journeys the fake serves, reads and deletes, as `{ <journey>: { <node id>: <node type> } }` (default: the routes answer 404)
+ * @param {{ location: 'hosted' | 'remote', entityId: string, config: object }[]} [options.samlProviders] SAML entity providers served as AM serves them: stubs with the location, reads without a location, a PUT that replaces the config; a path with a wrong location answers 404 (default: the routes answer as they do without the option)
  * @param {Record<string, string>} [options.nodes] nodes that no journey holds (orphaned nodes), as `{ <node id>: <node type> }`, served by node type together with the nodes of `journeys`, and removed by a delete of the node (default: none)
  * @param {string} [options.accessToken] the `access_token` that the service-account journey answers a token request with (default: `fake-service-account-token`)
  * @param {string} [options.sessionToken] the `tokenId` that a plain login ends with (default: `fake-token`)
@@ -88,6 +89,7 @@ export async function startFakeAm({
   emptyCollections,
   journeys,
   nodes,
+  samlProviders,
   accessToken,
   sessionToken,
   directConfiguration,
@@ -187,6 +189,9 @@ export async function startFakeAm({
         : {}),
       ...(emptyCollections ? { FAKE_AM_EMPTY_COLLECTIONS: '1' } : {}),
       ...(nodes ? { FAKE_AM_NODES_FILE: written('nodes.json', nodes) } : {}),
+      ...(samlProviders
+        ? { FAKE_AM_SAML_FILE: written('saml.json', samlProviders) }
+        : {}),
       ...(journeys
         ? { FAKE_AM_JOURNEYS_FILE: written('journeys.json', journeys) }
         : {}),

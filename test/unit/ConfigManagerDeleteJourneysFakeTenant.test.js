@@ -432,4 +432,162 @@ suite('config-manager delete journeys (fake tenant)', () => {
       TIMEOUT
     );
   });
+
+  describe('a journey that SAML providers and an AI agent name: the real library against holders served the way AM serves them', () => {
+    const id64 = (entityId) => Buffer.from(entityId).toString('base64url');
+    const REMOTE = {
+      location: 'remote',
+      entityId: 'urn:zion:sp',
+      config: {
+        serviceProvider: {
+          assertionContent: { nameIdFormat: { nameIdFormatList: [] } },
+          services: { serviceAttributes: {} },
+          advanced: {
+            idpProxy: {},
+            treeConfiguration: { treeName: 'ZionLogin' },
+          },
+        },
+      },
+    };
+    const HOSTED = {
+      location: 'hosted',
+      entityId: 'urn:zion:hosted',
+      config: {
+        serviceProvider: {
+          assertionProcessing: {
+            attributeMapper: {},
+            redirectTreeConfiguration: { redirectTreeName: 'ZionLogin' },
+          },
+          services: { metaAlias: '/zion-hosted', serviceAttributes: {} },
+        },
+      },
+    };
+    const puts = () =>
+      requests()
+        .filter(({ method }) => method === 'PUT')
+        .map(({ url, body }) => ({
+          path: url.split('?')[0].split('/realm-config/')[1],
+          body: JSON.parse(body),
+        }));
+
+    it(
+      '--force -y clears a remote and a hosted provider: each is read, then written whole to `saml2/<its location>/<id>` (never `undefined`), without a revision, and only then is the journey deleted',
+      async () => {
+        const { code, output } = await deleteJourneys(
+          ['-i', 'ZionLogin', '--force', '-y'],
+          { samlProviders: [REMOTE, HOSTED] }
+        );
+
+        expect(output).toContain(
+          "Cleared the journey in SAML provider 'urn:zion:sp' (serviceProvider.advanced.treeConfiguration.treeName)"
+        );
+        expect(output).toContain(
+          "Cleared the journey in SAML provider 'urn:zion:hosted' (serviceProvider.assertionProcessing.redirectTreeConfiguration.redirectTreeName)"
+        );
+        expect(code).toBe(0);
+        expect(
+          requests().some(({ url }) => url.includes('saml2/undefined'))
+        ).toBe(false);
+        // the references come ordered by their id: the hosted provider first
+        expect(changes()).toEqual([
+          `PUT hosted/${id64('urn:zion:hosted')}`,
+          `PUT remote/${id64('urn:zion:sp')}`,
+          'DELETE trees/ZionLogin',
+        ]);
+        const written = puts();
+        expect(written.map(({ path }) => path)).toEqual([
+          `saml2/hosted/${id64('urn:zion:hosted')}`,
+          `saml2/remote/${id64('urn:zion:sp')}`,
+        ]);
+        // the whole provider, as it was read, with only the field changed
+        const hosted = structuredClone(HOSTED.config);
+        hosted.serviceProvider.assertionProcessing.redirectTreeConfiguration.redirectTreeName =
+          '[Empty]';
+        expect(written[0].body).toEqual({
+          _id: id64('urn:zion:hosted'),
+          entityId: 'urn:zion:hosted',
+          ...hosted,
+        });
+        const remote = structuredClone(REMOTE.config);
+        remote.serviceProvider.advanced.treeConfiguration.treeName = '[Empty]';
+        expect(written[1].body).toEqual({
+          _id: id64('urn:zion:sp'),
+          entityId: 'urn:zion:sp',
+          ...remote,
+        });
+      },
+      TIMEOUT
+    );
+
+    const AGENT = {
+      _id: 'zion-agent',
+      _type: { _id: 'AIAgent', name: 'AI Agent', collection: true },
+      advancedOAuth2ClientConfig: {
+        treeName: { inherited: false, value: 'ZionLogin' },
+        grantTypes: { inherited: false, value: ['client_credentials'] },
+      },
+      coreOAuth2ClientConfig: {
+        clientName: { inherited: false, value: ['Zion Agent'] },
+      },
+      aiAgentIdentityUid: { inherited: false, value: 'uid-1' },
+      aiAgentIdentityAttributes: { inherited: false, value: { a: 1 } },
+    };
+
+    it(
+      '--force -y clears an AI agent with the whole agent, identity attributes included, and a PUT that replaces the object keeps everything else: the journey is deleted after it',
+      async () => {
+        const { code, output } = await deleteJourneys(
+          ['-i', 'ZionLogin', '--force', '-y'],
+          { aiAgents: [AGENT], agentTypes: ['AIAgent'] }
+        );
+
+        expect(output).toContain(
+          "Cleared the journey in AI agent 'zion-agent'"
+        );
+        expect(code).toBe(0);
+        expect(changes()).toEqual([
+          'PUT AIAgent/zion-agent',
+          'DELETE trees/ZionLogin',
+        ]);
+        const [written] = puts();
+        const cleared = structuredClone(AGENT);
+        cleared.advancedOAuth2ClientConfig.treeName.value = '[Empty]';
+        expect(written.body).toEqual(cleared);
+      },
+      TIMEOUT
+    );
+
+    it(
+      'an AI agent whose write loses an attribute (the library does not write the encrypted ones, a PUT that replaces drops them) is caught by the read-back: it is written back, the loss is named without its value, the journey is not deleted, exit 1',
+      async () => {
+        const damaged = structuredClone(AGENT);
+        damaged.coreOAuth2ClientConfig['userpassword-encrypted'] = {
+          inherited: false,
+          value: 'not-a-real-secret',
+        };
+
+        const { code, output } = await deleteJourneys(
+          ['-i', 'ZionLogin', '--force', '-y'],
+          { aiAgents: [damaged], agentTypes: ['AIAgent'] }
+        );
+
+        expect(code).toBe(1);
+        expect(output).toContain('changed in more than that field');
+        expect(output).toContain(
+          'coreOAuth2ClientConfig.userpassword-encrypted.value (value not shown)'
+        );
+        expect(output).not.toContain('not-a-real-secret');
+        // it tried to put the agent back as it was, which the library cannot do for that attribute
+        expect(output).toContain(
+          'It could NOT be written back as it was before'
+        );
+        expect(output).toContain('The journey is not deleted');
+        expect(puts().length).toBe(2);
+        expect(changes().some((change) => change.startsWith('DELETE'))).toBe(
+          false
+        );
+      },
+      TIMEOUT
+    );
+  });
 });
