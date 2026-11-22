@@ -6,6 +6,7 @@
 // (The eslint rule that wants imports first is disabled for the call's
 // placement, not the imports.)
 /* eslint-disable import-x/first */
+import { isatty } from 'node:tty';
 import { frodo, state } from '@rockcarver/frodo-lib';
 // commands
 import admin from './cli/admin/admin';
@@ -55,7 +56,7 @@ import settings from './cli/settings/settings';
 import shell from './cli/shell/shell';
 import theme from './cli/theme/theme';
 import { applyAirGapSwitchToState } from './ops/AirGapOps';
-import { ENGINE_WORKER_ENV } from './ops/ShellWebServerOps';
+import { ENGINE_WORKER_ENV, startsAsEngine } from './ops/ShellWebServerOps';
 import { enableTemplateCatalogCache } from './utils/ApplicationTemplateSource';
 import {
   debugMessage,
@@ -87,7 +88,7 @@ process.argv = normalizeExpandedHelpArgv(process.argv);
   // web console starts its own executable with this variable and no command
   // line (see ENGINE_WORKER_ENV). The engine takes the place of the command line
   // parser and never reaches it.
-  if (process.env[ENGINE_WORKER_ENV] === '1') {
+  if (startsAsEngine(process.env, isatty(0))) {
     try {
       await import('./cli/shell/engine-worker');
     } catch (e) {
@@ -98,6 +99,10 @@ process.argv = normalizeExpandedHelpArgv(process.argv);
     }
     return;
   }
+  // The variable on a terminal is a mistake of whoever set it, not a request of
+  // the web console (which starts its engines over pipes): run the command, and
+  // do not hand the variable on to what the command starts.
+  delete process.env[ENGINE_WORKER_ENV];
   try {
     // override default library output handlers with our own
     state.setPrintHandler(printMessage);

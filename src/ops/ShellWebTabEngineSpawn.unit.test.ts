@@ -92,6 +92,19 @@ describe('spawnTabEngine', () => {
     expect(ENGINE_WORKER_ENV in options.env).toBe(false);
   });
 
+  it('does not run the script of the test seam in the native binary', async () => {
+    isSea = true;
+    process.env.FRODO_TEST_WORKER_SCRIPT = '/x/stub-worker.cjs';
+    await spawnTabEngine();
+    const [, args, options] = spawnMock.mock.calls[0] as [
+      string,
+      string[],
+      { env: NodeJS.ProcessEnv },
+    ];
+    expect(args).toEqual([]);
+    expect(options.env[ENGINE_WORKER_ENV]).toBe('1');
+  });
+
   it('starts nothing for an engine that the caller supplies', async () => {
     isSea = true;
     const engine = {} as never;

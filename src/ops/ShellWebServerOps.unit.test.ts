@@ -1,3 +1,4 @@
+import crypto from 'node:crypto';
 import fs from 'node:fs';
 import http from 'node:http';
 import os from 'node:os';
@@ -18,7 +19,10 @@ import {
   ENGINE_WORKER_ENV,
   engineStartFailureReason,
   LogBus,
+  safeEngineReason,
   SessionInfo,
+  spawnTabEngine,
+  startsAsEngine,
   startWebConsole,
   TabEngine,
   tabEngineCommand,
@@ -1074,16 +1078,40 @@ describe('how a tab engine is started', () => {
     expect(ENGINE_WORKER_ENV in run.env).toBe(false);
   });
 
-  it('runs the script of the test seam as given, in the binary too, without the worker variable', () => {
-    for (const inSea of [false, true]) {
-      const run = tabEngineCommand(inSea, {
-        ...noTestScript,
-        FRODO_TEST_WORKER_SCRIPT: '/x/stub.cjs',
-      });
-      expect(run.args).toEqual(['/x/stub.cjs']);
-      expect(ENGINE_WORKER_ENV in run.env).toBe(false);
-    }
+  it('runs the script of the test seam as given outside the binary, without the worker variable', () => {
+    const run = tabEngineCommand(false, {
+      ...noTestScript,
+      FRODO_TEST_WORKER_SCRIPT: '/x/stub.cjs',
+    });
+    expect(run.args).toEqual(['/x/stub.cjs']);
+    expect(ENGINE_WORKER_ENV in run.env).toBe(false);
   });
+
+  it('ignores the test seam in the native binary: a shipped binary never runs a script that an environment variable names', () => {
+    const run = tabEngineCommand(true, {
+      ...noTestScript,
+      FRODO_TEST_WORKER_SCRIPT: '/x/stub.cjs',
+    });
+    expect(run.args).toEqual([]);
+    expect(run.env[ENGINE_WORKER_ENV]).toBe('1');
+  });
+});
+
+describe('when the executable runs as a tab engine', () => {
+  it('does so for the variable set to 1 and a standard input that is not a terminal', () => {
+    expect(startsAsEngine({ [ENGINE_WORKER_ENV]: '1' }, false)).toBe(true);
+  });
+
+  it('does not on a terminal: the variable there is a mistake, and the person gets the command line', () => {
+    expect(startsAsEngine({ [ENGINE_WORKER_ENV]: '1' }, true)).toBe(false);
+  });
+
+  it.each([undefined, '', '0', 'true', 'yes', '2'])(
+    'does not for the value %p of the variable',
+    (value) => {
+      expect(startsAsEngine({ [ENGINE_WORKER_ENV]: value }, false)).toBe(false);
+    }
+  );
 });
 
 describe('why a tab engine did not come up', () => {
@@ -1123,6 +1151,115 @@ describe('why a tab engine did not come up', () => {
     expect(reason).not.toMatch(/[\u0000-\u001f]/);
   });
 
+  it.each([
+    ['a C1 control that is an 8-bit escape (U+009B)', '\u009b', ' '],
+    ['the next line character (U+0085)', '\u0085', ' '],
+    ['the delete character', '\u007f', ' '],
+    ['a right-to-left override (U+202E)', '\u202e', ''],
+    ['a left-to-right embedding (U+202A)', '\u202a', ''],
+    ['a left-to-right isolate (U+2066)', '\u2066', ''],
+    ['a pop directional isolate (U+2069)', '\u2069', ''],
+    ['a left-to-right mark (U+200E)', '\u200e', ''],
+    ['a right-to-left mark (U+200F)', '\u200f', ''],
+    ['an Arabic letter mark (U+061C)', '\u061c', ''],
+    ['a zero width space (U+200B)', '\u200b', ''],
+    ['a byte order mark (U+FEFF)', '\ufeff', ''],
+    ['a high surrogate that stands alone', '\ud800', ''],
+    ['a low surrogate that stands alone', '\udc00', ''],
+    ['a code point that is not a character (U+FFFE)', '\ufffe', ''],
+    ['a code point that is not a character (U+FDD0)', '\ufdd0', ''],
+  ])('removes %s', (_name, character, replacement) => {
+    const reason = engineStartFailureReason([`Error: bad${character}thing`]);
+    expect(reason).toBe(`Error: bad${replacement}thing`);
+  });
+
+  it('keeps the characters of a path and of a language, which are not controls', () => {
+    expect(
+      engineStartFailureReason([
+        "Error: Cannot find module '/opt/größe/日本/x.cjs'",
+      ])
+    ).toBe("Error: Cannot find module '/opt/größe/日本/x.cjs'");
+  });
+
+  describe('scrubbing', () => {
+    it('is done on the whole line before the cut, so that a secret across the cut leaves no head', () => {
+      // The cut is at 200 characters; the password starts at 187 and ends past it.
+      const line = `Error: ${'a'.repeat(170)} password=hunter2hunter2hunter2hunter2 tail`;
+      const reason = engineStartFailureReason([line]);
+      expect(reason).not.toContain('hunter');
+      expect(reason).toContain('password=<redacted>');
+      expect(reason.length).toBeLessThanOrEqual(200);
+    });
+
+    it('does the same for a Bearer value and a token of the JSON web token shape', () => {
+      const bearer = `Error: ${'b'.repeat(180)} Bearer abcdef0123456789ghijklmnop and more`;
+      const jwt = `Error: ${'c'.repeat(160)} eyJhbGciOiJIUzI1NiJ9.${'d'.repeat(30)}.${'e'.repeat(30)}`;
+      for (const line of [bearer, jwt]) {
+        const reason = engineStartFailureReason([line]);
+        expect(reason).not.toMatch(/abcdef0123|ghijkl|eyJhbGci|ddddd|eeeee/);
+        expect(reason.length).toBeLessThanOrEqual(200);
+      }
+    });
+
+    it.each([
+      ['password=hunter2', 'hunter2'],
+      ['passwd: hunter2', 'hunter2'],
+      ['client_secret=s3cr3tvalue', 's3cr3tvalue'],
+      ['access_token=abc123', 'abc123'],
+      ['token=abc123', 'abc123'],
+      ['api_key=abc123', 'abc123'],
+      ['apiKey: abc123', 'abc123'],
+      ['Authorization: Bearer abc123', 'abc123'],
+      ['Authorization: Basic dXNlcjpwYXNz', 'dXNlcjpwYXNz'],
+      ['{"password":"hunter2","user":"x"}', 'hunter2'],
+      ["{'token': 'abc123'}", 'abc123'],
+      ['cookie=abc123; Path=/', 'abc123'],
+      ['private_key="abc123 def456"', 'def456'],
+    ])(
+      'removes the value of a pair that is named like a secret: %s',
+      (text, value) => {
+        const reason = engineStartFailureReason([`Error: failed with ${text}`]);
+        expect(reason).not.toContain(value);
+        expect(reason).toContain('<redacted>');
+      }
+    );
+
+    it('removes a long token that looks like a key, and a long hexadecimal number, wherever it stands', () => {
+      const key = 'Zm9vYmFyMTIzNDU2Nzg5MEFCQ0RFRkdI';
+      const hex = 'deadbeef'.repeat(5);
+      const reason = engineStartFailureReason([
+        `Error: the key ${key} and the id ${hex} failed`,
+      ]);
+      expect(reason).toBe(
+        'Error: the key <redacted> and the id <redacted> failed'
+      );
+    });
+
+    it('keeps what a person needs of the common failures: the error, the command, the module and its path', () => {
+      for (const line of [
+        "error: unknown command '/opt/frodo/dist/cli/shell/engine-worker.cjs'",
+        "Error: Cannot find module '/opt/frodo/dist/cli/shell/engine-worker.cjs'",
+        "Error: ENOTDIR: not a directory, mkdir '/dev/null/x/.frodo/shell-history'",
+        'Error: normalizeExpandedHelpArgv is not a function',
+        'error: unknown option --engine-worker-process-id',
+      ]) {
+        expect(engineStartFailureReason([line])).toBe(line);
+      }
+    });
+
+    it('removes the values that the caller names, whatever shape they have', () => {
+      const secret = 'abcdefghijklmnop';
+      expect(
+        engineStartFailureReason([`Error: leaked ${secret} here`], {}, [secret])
+      ).toBe('Error: leaked <redacted> here');
+      expect(safeEngineReason(`x ${secret} y`, [secret])).toBe(
+        'x <redacted> y'
+      );
+      // and without it the same text is left alone (no rule is meant to hide a plain word)
+      expect(safeEngineReason(`x ${secret} y`)).toBe(`x ${secret} y`);
+    });
+  });
+
   it('describes a process that wrote nothing by how it ended', () => {
     expect(engineStartFailureReason([], { code: 3 })).toBe(
       'The engine process ended with exit code 3 before it answered.'
@@ -1143,6 +1280,8 @@ describe('a tab engine that cannot start', () => {
   beforeEach(() => {
     dir = fs.mkdtempSync(path.join(os.tmpdir(), 'frodo-worker-'));
     errors = jest.spyOn(console, 'error').mockImplementation(() => undefined);
+    // for a test that never starts a console
+    web = { close: async () => undefined } as unknown as WebConsoleHandle;
   });
 
   afterEach(async () => {
@@ -1183,6 +1322,12 @@ describe('a tab engine that cannot start', () => {
       'X-Frodo-CSRF': csrf,
     };
     return {
+      // what a page holds, for a test that wants to leak it
+      secrets: {
+        link: new URL(web.launchUrl).searchParams.get('t')!,
+        session: cookie.split('=')[1],
+        csrf,
+      },
       session: (extra: Record<string, string> = {}) =>
         request(web.port, {
           path: '/api/session',
@@ -1256,6 +1401,97 @@ describe('a tab engine that cannot start', () => {
     expect(reply.body).not.toContain(token);
     expect(reply.body).toContain('<redacted>');
     expect(JSON.stringify(errors.mock.calls)).not.toContain(token);
+  });
+
+  it('leaves the three secrets of this server out of the reply and the terminal, whatever the worker wrote', async () => {
+    // Secrets made of letters only (no digit), so that no rule for long tokens
+    // is what hides them: the server must name them to the scrub itself.
+    const real = crypto.randomBytes.bind(crypto);
+    const fills = [1, 2, 3];
+    jest
+      .spyOn(crypto, 'randomBytes')
+      .mockImplementation(((size: number) =>
+        size === 32
+          ? Buffer.alloc(32, fills.shift() ?? 4)
+          : real(size)) as typeof crypto.randomBytes);
+    process.env.FRODO_TEST_WORKER_SCRIPT = stub([
+      'process.stderr.write("Error: leaked " + process.env.TEST_LEAK + "\\n");',
+      'process.exit(1);',
+    ]);
+    const { session, secrets } = await startAndSignIn();
+    const leaked = [secrets.link, secrets.session, secrets.csrf];
+    expect(new Set(leaked).size).toBe(3);
+    for (const value of leaked) expect(value).not.toMatch(/\d/);
+    process.env.TEST_LEAK = leaked.join(' ');
+    try {
+      const reply = await session();
+      expect(reply.status).toBe(503);
+      for (const value of leaked) {
+        expect(reply.body).not.toContain(value);
+        expect(JSON.stringify(errors.mock.calls)).not.toContain(value);
+      }
+      expect(reply.body).toContain('<redacted>');
+    } finally {
+      delete process.env.TEST_LEAK;
+    }
+  });
+
+  it('scrubs the secrets that it is given from the reason of an engine it starts itself', async () => {
+    process.env.FRODO_TEST_WORKER_SCRIPT = stub([
+      'process.stderr.write("Error: leaked abcdefghijklmnop here\\n");',
+      'process.exit(1);',
+    ]);
+    const engine = await spawnTabEngine(undefined, {
+      secrets: ['abcdefghijklmnop'],
+    });
+    await expect(engine.info()).rejects.toThrow(
+      'Error: leaked <redacted> here'
+    );
+    // without it the word is just a word
+    const plain = await spawnTabEngine();
+    await expect(plain.info()).rejects.toThrow(
+      'Error: leaked abcdefghijklmnop here'
+    );
+  });
+
+  it('makes the reason of an engine that the caller supplied safe too, with the secrets of this server', async () => {
+    const real = crypto.randomBytes.bind(crypto);
+    const fills = [1, 2, 3];
+    jest
+      .spyOn(crypto, 'randomBytes')
+      .mockImplementation(((size: number) =>
+        size === 32
+          ? Buffer.alloc(32, fills.shift() ?? 4)
+          : real(size)) as typeof crypto.randomBytes);
+    let leaked = '';
+    const failing: TabEngine = {
+      evaluate: async () => ({ status: 'ok' }),
+      children: async () => null,
+      json: async () => null,
+      complete: async () => [[], ''],
+      history: async () => [],
+      connect: async () => ({ ok: false, info: {} }),
+      info: async () => {
+        throw new TabEngineStartError(`Error: leaked ${leaked}\u202e done`);
+      },
+      reset: async () => undefined,
+      dispose: () => undefined,
+    };
+    const { session, secrets } = await startAndSignIn({
+      spawnEngine: async () => failing,
+    });
+    leaked = [secrets.link, secrets.session, secrets.csrf].join(' ');
+    const reply = await session();
+    expect(reply.status).toBe(503);
+    for (const value of [secrets.link, secrets.session, secrets.csrf]) {
+      expect(reply.body).not.toContain(value);
+      expect(JSON.stringify(errors.mock.calls)).not.toContain(value);
+    }
+    // and the characters that drive a terminal are gone from it as well
+    expect(reply.body).not.toContain('\u202e');
+    expect(JSON.parse(reply.body).error).toBe(
+      'The console could not start an engine: Error: leaked <redacted> <redacted> <redacted> done'
+    );
   });
 
   it('disposes the failed engine once and forgets it', async () => {

@@ -2,6 +2,12 @@ import cp from 'child_process';
 import fs from 'fs';
 import os from 'os';
 import path from 'path';
+import { ensureFrodoArtifact } from '../e2e/utils/FrodoBinary.cjs';
+import {
+  createShellTestHome,
+  removeShellTestHome,
+  runShellScenario,
+} from '../utils/ShellPty.js';
 import {
   engineWorkerCommand,
   frodoCommand,
@@ -168,6 +174,55 @@ run('the tab engine, as a process of the executable', () => {
     expect(result.stdout + result.stderr).toContain('cli: v');
     expect(result.stdout).not.toContain('"op":"info"');
   }, 90_000);
+});
+
+const hasPty =
+  process.platform !== 'win32' &&
+  cp.spawnSync('python3', ['-c', 'import pty']).status === 0;
+
+(hasPty ? describe : describe.skip)('the worker variable on a terminal', () => {
+  let home;
+
+  beforeAll(() => {
+    ensureFrodoArtifact();
+  });
+
+  beforeEach(() => {
+    home = createShellTestHome();
+  });
+
+  afterEach(() => {
+    removeShellTestHome(home);
+  });
+
+  test('7: a variable left in the environment by mistake does not turn the command into an engine that says nothing', () => {
+    // Standard input is a terminal here, as it is for a person at a prompt.
+    const result = runShellScenario({
+      homeDir: home,
+      env: { FRODO_ENGINE_WORKER: '1', FRODO_NO_UPDATE_CHECK: '1' },
+      args: ['-v'],
+      actions: [{ type: 'wait_exit', timeoutMs: 60_000 }],
+    });
+    expect(result.exitCode).toBe(0);
+    expect(result.plainOutput).toContain('cli: v');
+  }, 90_000);
+
+  test('8: and the variable is not handed on to what the command runs', () => {
+    // The terminal console of the command line runs JavaScript: ask it.
+    const result = runShellScenario({
+      homeDir: home,
+      env: { FRODO_ENGINE_WORKER: '1', FRODO_NO_UPDATE_CHECK: '1' },
+      args: ['shell'],
+      actions: [
+        { type: 'wait_prompt', timeoutMs: 60_000 },
+        { type: 'send_line', text: 'typeof process.env.FRODO_ENGINE_WORKER' },
+        { type: 'wait_plain', regex: "'undefined'", timeoutMs: 30_000 },
+        { type: 'send_line', text: '.exit' },
+        { type: 'wait_exit', timeoutMs: 30_000 },
+      ],
+    });
+    expect(result.plainOutput).toContain("'undefined'");
+  }, 120_000);
 });
 
 run('frodo shell --web with real engine processes', () => {
