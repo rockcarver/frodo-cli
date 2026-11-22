@@ -57,7 +57,6 @@ import {
   ALLOW_FAILURES_HELP,
   ALLOW_FAILURES_OPTION,
 } from '../utils/OperationRun.js';
-import { activatePersistedTheme } from '../utils/ThemeConfig.js';
 import { assertAliasesFree, copyOptionAliases } from './OptionAlias.js';
 import {
   deferMissingMandatoryOption,
@@ -2833,7 +2832,6 @@ export class FrodoStubCommand extends Command {
     state.setCreateProgressHandler(createProgressIndicator);
     state.setUpdateProgressHandler(updateProgressIndicator);
     state.setStopProgressHandler(stopProgressIndicator);
-    activatePersistedTheme();
 
     // shutdown handlers
 

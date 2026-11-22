@@ -474,11 +474,14 @@ function isValidThemeDefinition(value: unknown): value is ThemeDefinition {
  * are skipped with a warning rather than failing the whole listing.
  *
  * Results are cached and revalidated against each file's mtime+size, so
- * repeated calls within one process (the FrodoStubCommand constructor
- * calls activatePersistedTheme, and every color resolution re-reads
- * settings) don't re-read the whole directory -- ~5,600 redundant file
- * reads / ~200 ms of startup on the first `frodo -v` without this.
+ * repeated calls within one process (`app.ts` and the `frodo settings
+ * theme` commands call activatePersistedTheme, and every color resolution
+ * re-reads settings) don't re-read the whole directory -- ~5,600
+ * redundant file reads / ~200 ms of startup on the first `frodo -v` when
+ * every command object's constructor still applied the theme.
  * Editing a theme file still takes effect immediately (mtime changes).
+ * No command constructor applies the theme, since `app.ts` builds about
+ * 490 command objects (`CommandConstructionThemeScan.test.js` pins it).
  */
 type DirCacheEntry = {
   signature: Map<string, { mtimeMs: number; size: number }>;
