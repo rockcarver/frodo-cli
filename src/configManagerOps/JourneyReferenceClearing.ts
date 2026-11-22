@@ -426,7 +426,7 @@ export async function clearJourneyReference(
   // the write changed more than the field: put the holder back as it was
   const changed = describeFields(others, original);
   let restored = false;
-  let remaining: string[] = [];
+  let remaining: string[];
   let failure = '';
   try {
     await write(original);
