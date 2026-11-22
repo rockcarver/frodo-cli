@@ -175,12 +175,6 @@ export const EXPECTED_SHORT_FORMS = [
   },
   {
     command: 'frodo config-manager pull journeys',
-    long: '--pull-dependencies',
-    short: null,
-    was: '-d',
-  },
-  {
-    command: 'frodo config-manager pull journeys',
     long: '--clean',
     short: null,
     was: '-c',
@@ -239,12 +233,6 @@ export const EXPECTED_SHORT_FORMS = [
   {
     command: 'frodo config-manager push iga-workflows',
     long: '--draft',
-    short: null,
-    was: '-d',
-  },
-  {
-    command: 'frodo config-manager push journeys',
-    long: '--push-dependencies',
     short: null,
     was: '-d',
   },

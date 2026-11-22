@@ -29,7 +29,8 @@ Options:
   --clean                Clear existing configuration before pull.
   -i, --journey-id <id>  Journey id. If specified, only exports the journey with
                          the specified id. (alias: -n, --name)
-  --pull-dependencies    Pull dependencies.
+  --no-deps              Do not pull the scripts that the journeys use, nor the
+                         inner journeys of a journey that is named.
   -h, --help             Help
   -hh, --help-more       Help with all options.
   -hhh, --help-all       Help with all options, environment variables, and usage

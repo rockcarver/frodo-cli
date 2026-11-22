@@ -28,8 +28,9 @@ Options:
                          with code 1.
   -i, --journey-id <id>  Journey id, imports the specified Journey. (alias: -n,
                          --name)
+  --no-deps              Do not push the scripts that the journeys use, nor the
+                         inner journeys of a journey that is named.
   --no-validate          Do not validate journeys before import.
-  --push-dependencies    Push scripts and inner journeys
   -h, --help             Help
   -hh, --help-more       Help with all options.
   -hhh, --help-all       Help with all options, environment variables, and usage
