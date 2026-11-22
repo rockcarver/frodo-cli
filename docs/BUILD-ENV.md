@@ -363,11 +363,10 @@ executable of a single executable application always runs its embedded program,
 so a script path handed to it is read as a command. The binary therefore starts
 itself with no argument and the private variable `FRODO_ENGINE_WORKER=1`, and
 `src/app.ts` runs the engine in place of the command line parser when it sees
-it. The engine deletes the variable from its own environment first, so a
+it and its standard input is not a terminal (on a terminal the variable is a
+mistake, and the command line runs). The engine deletes the variable from its own environment first, so a
 command that a script of the console starts is an ordinary command. The
-variable is an internal switch, not an option; the rule and the security
-reasoning are in
-`docs/decisions/0062-the-web-console-opens-its-link-in-the-browser-and-its-engine-is-the-executable-itself.md`.
+variable is an internal switch, not an option; the decision record [The web console opens a browser through a private launcher file, and its engine in the binary is the executable itself](decisions/0062-the-web-console-opens-a-browser-through-a-private-launcher-file-and-its-engine-in-the-binary-is-the-executable-itself.md) has the rule and the reasoning.
 
 ---
 

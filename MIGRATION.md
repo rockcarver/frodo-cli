@@ -69,14 +69,22 @@ credentials (HTTP 401/403) always stop the tail with exit code 1.
 
 **`frodo shell --web` opens the browser, and works in the native binary**: the
 help and the docs said that the web console opens in a browser, but it only
-printed a one-time sign-in link. It now opens the default browser with that link
-and prints the link as well. `--no-open` (the option of the browser login, which
-it shares) turns the opening off, for a remote or shared machine: only the link
-is printed. A browser that cannot be opened never stops the console. In the
-native binary (Homebrew, the release zips) every tab of the web console failed
-with `Internal error`; the binary now starts its engines itself. An engine that
-cannot start now ends the page's request with the reason, and the page asks again
-after a growing pause instead of at once.
+printed a one-time sign-in link. It now opens the default browser and prints the
+link as well. The browser is not handed the link: it is handed the address of a
+private file (in a new folder of your temporary directory that only you can
+enter) that sends it on to the link, because the arguments of a program are
+readable by other processes. The file is removed when the link is used, after two
+minutes and when the console stops. `--no-open` (the option of the browser login,
+which it shares) or the environment variable `FRODO_BROWSER_LOGIN_NO_OPEN` set
+to a true value (until now listed in the help and read by nothing) turns the
+opening off, and for the browser login too: only the link is printed. The
+terminal says when a browser signs in, and after 20 seconds without a sign-in
+reminds you of the printed link. A browser that cannot be opened, or an opener
+that ends with an error, never stops the console. In the native binary
+(Homebrew, the release zips) every tab of the web console failed with `Internal
+error`; the binary now starts its engines itself. An engine that cannot start now
+ends the page's request with the reason, and the page asks again after a growing
+pause instead of at once.
 
 **The npm package runs the CLI in one process, and a signal ends it with the
 signal's status**: in 4.x `frodo` (`dist/launch.cjs`, the npm `bin` entry and the

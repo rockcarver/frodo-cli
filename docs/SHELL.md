@@ -181,13 +181,28 @@ the terminal too; whoever holds it controls the shell, so it works once and is
 consumed on use. The server binds to the loopback address only, and shuts
 itself down after 30 idle minutes.
 
-`--no-open` (the option of the browser login) leaves the browser alone: the
-link is printed and opening it is up to you. Use it on a machine that other
-people can log in to: the address handed to the browser is an argument of the
-process that opens it, which other users of the machine can list for the
-moment that process lives. A browser that cannot be opened (no desktop, an
-SSH session, no browser installed) never stops the console: it says so and
-the printed link works the same.
+How the browser gets the link: the program that opens a browser is given the
+address of a private launcher file, never the link, because the arguments of a
+program are readable by every other process of the machine while it runs (and a
+browser it starts may keep them). The launcher file is a page that sends the
+browser on to the link. It sits in a new folder of your temporary directory that
+only you can enter (mode 0700), is readable by you alone (mode 0600), and is
+removed as soon as the link is used, after two minutes, and when the console
+stops; a file that a killed run left behind is removed at the next start. A
+process of your own user, or root, can read the file for that time, as it can
+read the credentials of the console anyway. The terminal says "A browser signed
+in to the web console." when the link is used, and, if nothing signs in within
+20 seconds, reminds you once to use the link that was printed. If the page does
+not open (a browser that is packaged so that it cannot read your temporary
+directory, an editor that handles `.html` files, a remote session) use the
+printed link.
+
+`--no-open` (the option of the browser login), or the environment variable
+`FRODO_BROWSER_LOGIN_NO_OPEN` set to a true value, leaves the browser alone: no
+file is made, the link is printed and opening it is up to you. A browser that
+cannot be opened (no desktop, an SSH session, no browser installed, an opener
+that ends with an error) never stops the console: it says so and the printed
+link works the same.
 
 If a tab's engine cannot start, the page shows the reason in place of the
 connection line and the terminal prints it once; the page asks again after a
