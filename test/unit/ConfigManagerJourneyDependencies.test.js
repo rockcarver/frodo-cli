@@ -680,3 +680,39 @@ describe('the commands', () => {
     }
   });
 });
+
+describe('MIGRATION.md', () => {
+  const migration = fs.readFileSync(
+    new URL('../../MIGRATION.md', import.meta.url),
+    'utf8'
+  );
+
+  /** The entry of this change: from its first line to the entry that follows it. */
+  const entry = (() => {
+    const start = migration.indexOf(
+      '**`pull journeys` and `push journeys` include what a journey needs'
+    );
+    const end = migration.indexOf('\n**', start + 1);
+    return start === -1 ? undefined : migration.slice(start, end);
+  })();
+
+  test('(j) says that journeys include their dependencies by default and that --no-deps turns it off', () => {
+    expect(entry).toBeDefined();
+    expect(entry).toContain('--no-deps');
+    expect(entry).toContain('--pull-dependencies');
+    expect(entry).toContain('--push-dependencies');
+    expect(entry).toContain('exit code 1');
+    expect(entry).toContain('is not pushed');
+    expect(entry).toContain(
+      'https://github.com/rockcarver/frodo-cli/blob/main/docs/decisions/0057-options-of-the-configuration-commands.md'
+    );
+  });
+
+  test('the two options are not in the table of the options that are left with a long form only', () => {
+    const rows = migration
+      .split('\n')
+      .filter((line) => /^\|\s*`-d, --(pull|push)-dependencies`/.test(line));
+
+    expect(rows).toEqual([]);
+  });
+});

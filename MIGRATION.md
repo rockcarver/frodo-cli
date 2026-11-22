@@ -382,7 +382,6 @@ These options have a long form only now:
 | `-f, --file`                 | `pull csp`                        | `--config-file`          |
 | `-i, --include-immutable`    | `pull iga-workflows`              | `--include-immutable`    |
 | `-c, --clean`                | `pull journeys`                   | `--clean`                |
-| `-d, --pull-dependencies`    | `pull journeys`                   | `--pull-dependencies`    |
 | `-u, --custom-relationships` | `pull managed-objects`            | `--custom-relationships` |
 | `-f, --file`                 | `pull oauth2-agents`              | `--config-file`          |
 | `-f, --config-file`          | `pull raw`                        | `--config-file`          |
@@ -392,7 +391,6 @@ These options have a long form only now:
 | `-f, --filename-filter`      | `push custom-nodes`               | `--filename-filter`      |
 | `-f, --filename-filter`      | `push endpoints`                  | `--filename-filter`      |
 | `-d, --draft`                | `push iga-workflows`              | `--draft`                |
-| `-d, --push-dependencies`    | `push journeys`                   | `--push-dependencies`    |
 | `-p, --path`                 | `push raw`                        | `--path`                 |
 | `-i, --stdin`                | `push raw`                        | `--stdin`                |
 | `-c, --check`                | `push restart`                    | `--check`                |
@@ -457,6 +455,59 @@ mean one thing in the group; their long forms are unchanged:
 | `-C, --clean`      | `config import`       | `--clean`      |
 | `-d, --draft-only` | `iga workflow delete` | `--draft-only` |
 | `-C, --clean`      | `service import`      | `--clean`      |
+
+**`pull journeys` and `push journeys` include what a journey needs, and
+`--no-deps` leaves it out**: the scripts that the journeys use, and the inner
+journeys of a journey that is named, were pulled and pushed only with
+`--pull-dependencies` and `--push-dependencies`. They are pulled and pushed by
+default now, and the two options are gone, with no alias, as
+[options of the configuration commands](https://github.com/rockcarver/frodo-cli/blob/main/docs/decisions/0057-options-of-the-configuration-commands.md)
+decided. `--no-deps` is the option that the other commands with dependencies
+have, and it gives you what you got without an option:
+
+| Before                              | Now                       |
+| ----------------------------------- | ------------------------- |
+| `pull journeys`                     | `pull journeys --no-deps` |
+| `pull journeys --pull-dependencies` | `pull journeys`           |
+| `push journeys`                     | `push journeys --no-deps` |
+| `push journeys --push-dependencies` | `push journeys`           |
+
+A script that passes `--pull-dependencies` or `--push-dependencies` fails before
+it connects to anything, with `error: unknown option` and exit code 1: drop the
+option. A script that passes neither now gets the dependencies: add `--no-deps`
+to keep what it did.
+
+A pull writes the scripts that the journeys use, into `scripts-config` and
+`scripts-content` (a script that is in the config folder already is not pulled
+again), and, with `-i`, the inner journeys of the journey that is named. An
+inner journey is written once, however many journeys and nodes use it. A node
+whose script is `[Empty]`, or that does not use its script, has nothing to pull
+or to push. A push reads the same files from the config folder, and **a journey
+whose script file, content file or inner journey file is missing is not pushed,
+and neither is a journey that needs it**: the other journeys are pushed, one
+summary names the journeys that failed (a journey that failed because of a file
+that another one lacks is named too) and the command exits with code 1, or 0
+with `--allow-failures`, as [a command that runs many operations runs them all,
+then fails if any failed](https://github.com/rockcarver/frodo-cli/blob/main/docs/decisions/0040-a-command-that-runs-many-operations-runs-them-all-then-fails-if-any-failed.md)
+asks. The message names the journey and the file, with the path below the config
+folder:
+
+```text
+Journey 'Login' needs the script 'S', but its file is missing: realms/alpha/scripts/scripts-config/S.json
+Pull the dependency too, or push with --no-deps.
+```
+
+This changes a push that had no option: it did not read the scripts, and it
+reads them now, so a folder that has the journeys without the scripts that they
+use fails (pull the scripts, or push with `--no-deps`). With
+`--push-dependencies` a script file that was missing was reported and left out,
+and the journey was pushed anyway; now the journey is not pushed. And `push
+journeys -i <journey>` fails when the files of an inner journey are not in the
+folder, also when the tenant has that journey. A push without `-i` reads the
+inner journeys of every journey, with or without `--no-deps`, as before, and
+fails the same way for one that is not in the folder. `pull all` and `pull
+all-static` are unchanged: the scripts have a step of their own, and the
+journeys step pulls the journeys only.
 
 **Selectors of the `config-manager` commands are `-i, --<type>-id` and `-n,
 --<type>-name`, and `-n` and `--name` keep working**: inside `frodo
@@ -1122,9 +1173,13 @@ tenant that had no file; a realm without a file has nothing to import now, a
 folder without `privilegeAssignments.json` warns, and a missing `org-privileges`
 folder, or a file named with `-n` that is not there, is said plainly and exits 1.
 `pull org-privileges` with a realm exported nothing for the realm when the
-privilege assignments failed; it tries both. `push journeys` rejects the batch
-of a realm when the library finds an invalid journey or a missing dependency:
-that realm fails, and the other realms are imported. `pull journeys -n` exits 1
+privilege assignments failed; it tries both. `push journeys` fails a journey
+alone when the library finds it invalid, or finds that it needs a journey that
+is neither on the tenant nor in the files that are pushed, and so does every
+journey that needs the one that failed: the other journeys are imported, and the
+summary names the ones that failed. The library rejects the batch of a realm
+only when it cannot list the journeys that are installed: that realm fails, and
+the other realms are imported. `pull journeys -n` exits 1
 and says so when no realm has the journey (it exited 0 and exported nothing).
 `push oauth2-agents` skips the root realm on Identity Cloud, as the other kinds
 do (frodo-cli#1097). Listing the realms, reading the config file given with
