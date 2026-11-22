@@ -1211,11 +1211,12 @@ describe('why a tab engine did not come up', () => {
     });
 
     it('does the same for a Bearer value and a token of the JSON web token shape', () => {
-      const bearer = `Error: ${'b'.repeat(180)} Bearer abcdef0123456789ghijklmnop and more`;
+      // the cut at 200 falls 12 characters into the value: too short for the scrub to know it
+      const bearer = `Error: ${'b'.repeat(172)} Bearer abcdef0123456789ghijklmnop and more`;
       const jwt = `Error: ${'c'.repeat(160)} eyJhbGciOiJIUzI1NiJ9.${'d'.repeat(30)}.${'e'.repeat(30)}`;
       for (const line of [bearer, jwt]) {
         const reason = engineStartFailureReason([line]);
-        expect(reason).not.toMatch(/abcdef0123|ghijkl|eyJhbGci|ddddd|eeeee/);
+        expect(reason).not.toMatch(/abcdef01|ghijkl|eyJhbGci|ddddd|eeeee/);
         expect(reason.length).toBeLessThanOrEqual(200);
       }
     });
