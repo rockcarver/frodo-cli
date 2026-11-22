@@ -276,57 +276,37 @@ function differences(
   return found;
 }
 
-/** A field whose value is never printed. */
-const SECRET_FIELD =
-  /secret|password|passphrase|private|credential|token|jwk|key|encrypt|cert/i;
-
 /**
- * The fields that differ, for a message: every one by the path of its leaf,
- * with the value that `values` holds there, unless the path can hold a secret
- * (then the path only). An object is described by its leaves and a list by its
- * length, so no value is printed that was not checked by its own path.
+ * The fields that differ, for a message: their paths, never their values (a
+ * message goes to the logs of a pipeline, and the old values are still in the
+ * holder).
  * @param {string[]} paths the dotted paths that differ
- * @param {unknown} values the holder that the values are taken from
- * @returns {string} one text for a message
+ * @returns {string} one text for a message, at most twelve paths
  */
-function describeFields(paths: string[], values: unknown): string {
-  const described: string[] = [];
-  const add = (path: string, value: unknown) => {
-    if (value !== null && typeof value === 'object' && !Array.isArray(value)) {
-      const names = Object.keys(value);
-      if (names.length === 0) described.push(`${path} ({})`);
-      for (const name of names) {
-        add(`${path}.${name}`, (value as Record<string, unknown>)[name]);
-      }
-    } else if (SECRET_FIELD.test(path)) {
-      described.push(`${path} (value not shown)`);
-    } else if (Array.isArray(value)) {
-      described.push(`${path} (${value.length} items)`);
-    } else {
-      const text = JSON.stringify(value) ?? 'not set';
-      described.push(
-        `${path} (${text.length > 40 ? `${text.slice(0, 37)}...` : text})`
-      );
-    }
-  };
-  for (const path of paths) add(path, valueAt(values, path));
-  const shown = described.slice(0, 12);
+function describeFields(paths: string[]): string {
+  const shown = paths.slice(0, 12);
   return (
     shown.join(', ') +
-    (described.length > shown.length
-      ? `, and ${described.length - shown.length} more`
+    (paths.length > shown.length
+      ? `, and ${paths.length - shown.length} more`
       : '')
   );
 }
 
-/** The value at a dotted path, undefined where the path leaves the data. */
-function valueAt(data: unknown, path: string): unknown {
-  let node: unknown = data;
-  for (const key of pathOf(path)) {
-    if (node === null || typeof node !== 'object') return undefined;
-    node = (node as Record<string, unknown>)[key];
-  }
-  return node;
+/** An error that says whether the holder may have been changed by the step that failed. */
+export type ClearingError = Error & {
+  /** True when the holder was written and may not be as it was before. */
+  holderChanged?: boolean;
+};
+
+/** An error with the flag of a holder that was written. */
+function clearingError(message: string, holderChanged: boolean): ClearingError {
+  return Object.assign(new Error(message), { holderChanged });
+}
+
+/** The first line of what was thrown, for a message. */
+function reasonOf(error: unknown): string {
+  return error instanceof Error ? error.message.split('\n')[0] : String(error);
 }
 
 /**
@@ -343,8 +323,11 @@ function valueAt(data: unknown, path: string): unknown {
  * @param {ClearableReference} reference the reference found by the library
  * @param {string} journeyId the journey that is about to be deleted
  * @returns {Promise<HolderChange>} what was cleared
- * @throws {Error} when the holder does not name the journey any more, when a
- * library function fails, or when the holder does not read back as it should
+ * @throws {ClearingError} when the holder does not name the journey any more,
+ * when a library function fails, or when the holder does not read back as it
+ * should. `holderChanged` on the error says that the holder was written and
+ * may differ from what it was (a read after the write failed, or the restore
+ * did not work), so the caller can say what stays changed.
  */
 export async function clearJourneyReference(
   reference: ClearableReference,
@@ -406,7 +389,16 @@ export async function clearJourneyReference(
   const original = jsonCopy(before);
   await write(setJourneyCleared(jsonCopy(original), from, shape));
 
-  const after = await read();
+  let after: Record<string, unknown>;
+  try {
+    after = await read();
+  } catch (error) {
+    // the holder was written and cannot be looked at: it stays as it is
+    throw clearingError(
+      `The ${label} was written, but it could not be read again to check it (${reasonOf(error)}). It may differ from what it was before.`,
+      true
+    );
+  }
   const expected = setJourneyCleared(jsonCopy(original), from, shape);
   const wrong = differences(expected, after);
   // a difference inside the field is the field itself; one above it (a section
@@ -416,32 +408,51 @@ export async function clearJourneyReference(
   );
   if (others.length === 0) {
     if (wrong.length > 0) {
-      throw new Error(
-        `The ${label} still holds the journey name after it was cleared.`
+      throw clearingError(
+        `The ${label} still holds the journey name after it was cleared.`,
+        false
       );
     }
     return { was: journeyId };
   }
 
   // the write changed more than the field: put the holder back as it was
-  const changed = describeFields(others, original);
-  let restored = false;
+  const changed = describeFields(others);
   let remaining: string[];
-  let failure = '';
+  let problem = '';
   try {
     await write(original);
-    remaining = differences(original, await read());
-    restored = remaining.length === 0;
   } catch (error) {
-    remaining = others;
-    failure =
-      error instanceof Error ? error.message.split('\n')[0] : String(error);
+    problem = `the write failed (${reasonOf(error)})`;
   }
-  throw new Error(
-    `The ${label} was cleared, but it changed in more than that field: ${changed}. ` +
-      (restored
-        ? 'It was written back as it was before, and the journey is not deleted.'
-        : `It could NOT be written back as it was before; it still differs from the original in ${describeFields(remaining, original)} (the original values)${failure ? `, because the write failed: ${failure}` : ''}. The journey is not deleted.`)
+  if (!problem) {
+    try {
+      remaining = differences(original, await read());
+      if (remaining.length > 0) {
+        problem =
+          'the write was accepted, but the holder still differs from the original';
+      }
+    } catch (error) {
+      problem = `the write was accepted, but the check read after it failed (${reasonOf(error)})`;
+      remaining = others;
+    }
+  } else {
+    remaining = others;
+  }
+  if (!problem) {
+    throw clearingError(
+      `The ${label} was cleared, but it changed in more than that field: ${changed}. It was written back as it was before, and the journey is not deleted.`,
+      false
+    );
+  }
+  // the library does not write an attribute whose name has `-encrypted` in it, so
+  // no restore can put such an attribute back
+  const lost = remaining.some((path) => path.includes('-encrypted'))
+    ? ' The library never writes an attribute whose name has -encrypted in it, so no restore can put it back.'
+    : '';
+  throw clearingError(
+    `The ${label} was cleared, but it changed in more than that field: ${changed}. It could NOT be written back as it was before: ${problem}; it differs from the original in ${describeFields(remaining)}.${lost} The field also stays [Empty]: put the lost attributes back by hand and set the journey '${journeyId}' in the holder again. The journey is not deleted.`,
+    true
   );
 }
 
@@ -474,7 +485,16 @@ export async function unlinkJourneyReference(
     ...theme,
     linkedTrees: linked.filter((name) => name !== journeyId),
   });
-  const after = await frodo.theme.readTheme(reference.id);
+  let after;
+  try {
+    after = await frodo.theme.readTheme(reference.id);
+  } catch (error) {
+    // the theme was written and cannot be looked at
+    throw clearingError(
+      `The ${label} was written, but it could not be read again to check it (${reasonOf(error)}).`,
+      true
+    );
+  }
   if ((after.linkedTrees ?? []).includes(journeyId)) {
     throw new Error(
       `The ${label} still links the journey after it was changed.`

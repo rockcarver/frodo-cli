@@ -266,7 +266,7 @@ describe('clearing a holder', () => {
   /**
    * A provider as AM answers a read of it (the shape of the recorded reads):
    * `_id` is the unpadded base64 of the entity id, there is no location in it,
-   * and the service provider holds the sections of its kind. The location is the
+   * and the service provider holds the sections that its type has. The location is the
    * one of the stub, which the library reads with a query.
    */
   const provider = (location, entityId, serviceProvider) => ({
@@ -418,7 +418,7 @@ describe('clearing a holder', () => {
         stored.set(key('agent', id), { ...kept, _rev: 'damaged' });
       });
 
-    test('is put back: the original is written again, the fields that had changed are named with their old values, and the journey is not deleted', async () => {
+    test('is put back: the original is written again, the fields that had changed are named by their paths, and the journey is not deleted', async () => {
       stored.set(key('agent', 'zion-agent'), AGENT);
       damagingWrite();
 
@@ -427,12 +427,14 @@ describe('clearing a holder', () => {
         JOURNEY
       ).catch((caught) => caught);
 
-      expect(error.message).toContain('changed in more than that field');
-      expect(error.message).toContain('aiAgentIdentityUid.value ("uid-1")');
-      expect(error.message).toContain('aiAgentIdentityAttributes.value.a (1)');
+      expect(error.message).toContain(
+        'changed in more than that field: aiAgentIdentityUid, aiAgentIdentityAttributes.'
+      );
       expect(error.message).toContain(
         'It was written back as it was before, and the journey is not deleted.'
       );
+      // a holder that was put back is not a holder that stays changed
+      expect(error.holderChanged).toBe(false);
       // read, cleared write, read back, the original written again, read back
       expect(calls.map(([type]) => type)).toEqual([
         'read',
@@ -448,12 +450,8 @@ describe('clearing a holder', () => {
       expect(after).toEqual(AGENT);
     });
 
-    test('that cannot be put back says so, and names what still differs, with the original values', async () => {
+    test('whose restore write fails says so with the reason of the write, names the paths that differ, and says that the holder stays changed', async () => {
       stored.set(key('agent', 'zion-agent'), AGENT);
-      damagingWrite();
-      updateAIAgent.mockRejectedValueOnce(new Error('AM said no'));
-      // the second call is the restore: the mock above answers the first call by the damaging write
-      updateAIAgent.mockReset();
       updateAIAgent
         .mockImplementationOnce(async (id, data) => {
           calls.push(['write', 'agent', id, structuredClone(data), false]);
@@ -468,46 +466,142 @@ describe('clearing a holder', () => {
       ).catch((caught) => caught);
 
       expect(error.message).toContain(
-        'It could NOT be written back as it was before'
+        'It could NOT be written back as it was before: the write failed (AM said no); it differs from the original in aiAgentIdentityUid.'
       );
-      expect(error.message).toContain('because the write failed: AM said no');
-      expect(error.message).toContain('aiAgentIdentityUid.value ("uid-1")');
-      expect(error.message).toContain('The journey is not deleted');
-      expect(error.message).toContain('(the original values)');
+      expect(error.message).toContain(
+        "The field also stays [Empty]: put the lost attributes back by hand and set the journey 'ZionLogin' in the holder again. The journey is not deleted."
+      );
+      expect(error.message).not.toContain('(the original values)');
+      expect(error.message).not.toContain('never writes');
+      expect(error.holderChanged).toBe(true);
     });
 
-    test('never prints the value of a field that can hold a secret, in what changed or in what is left', async () => {
-      const withSecret = {
-        ...AGENT,
-        coreOAuth2ClientConfig: {
-          userpassword: { inherited: false, value: 'not-a-real-secret' },
-          clientName: { inherited: false, value: ['Zion'] },
+    /** A write that is accepted and that cannot carry an attribute: what the library does with an attribute whose name has -encrypted in it. */
+    const loseEncrypted = (id, data) => {
+      calls.push(['write', 'agent', id, structuredClone(data), false]);
+      const { coreOAuth2ClientConfig, ...kept } = data;
+      const { 'userpassword-encrypted': lost, ...rest } =
+        coreOAuth2ClientConfig;
+      stored.set(key('agent', id), {
+        ...kept,
+        coreOAuth2ClientConfig: rest,
+        _rev: 'lossy',
+      });
+    };
+    const withEncrypted = () => ({
+      ...AGENT,
+      coreOAuth2ClientConfig: {
+        'userpassword-encrypted': {
+          inherited: false,
+          value: 'not-a-real-secret',
         },
-      };
-      stored.set(key('agent', 'zion-agent'), withSecret);
-      updateAIAgent.mockReset();
+        clientName: { inherited: false, value: ['Zion Agent'] },
+      },
+    });
+
+    test('whose restore write is accepted but whose read still differs says so, says why (the library never writes -encrypted attributes) and what to do, and does not say that the write failed', async () => {
+      stored.set(key('agent', 'zion-agent'), withEncrypted());
+      // every write loses the attribute, the restore too
       updateAIAgent
-        .mockImplementationOnce(async (id, data) => {
-          calls.push(['write', 'agent', id, structuredClone(data), false]);
-          const { coreOAuth2ClientConfig, ...kept } = data;
-          stored.set(key('agent', id), { ...kept, _rev: 'damaged' });
-        })
-        .mockRejectedValueOnce(new Error('AM said no'));
+        .mockImplementationOnce(async (id, data) => loseEncrypted(id, data))
+        .mockImplementationOnce(async (id, data) => loseEncrypted(id, data));
 
       const error = await clearJourneyReference(
         REFERENCES['ai-agent'],
         JOURNEY
       ).catch((caught) => caught);
 
-      // the field that is a secret by its name is named, never shown, not even in part
+      expect(updateAIAgent).toHaveBeenCalledTimes(2);
       expect(error.message).toContain(
-        'coreOAuth2ClientConfig.userpassword.value (value not shown)'
+        'It could NOT be written back as it was before: the write was accepted, but the holder still differs from the original; it differs from the original in coreOAuth2ClientConfig.userpassword-encrypted.'
       );
-      expect(error.message).not.toContain('not-a-real');
-      // a field that is not is shown
       expect(error.message).toContain(
-        'coreOAuth2ClientConfig.clientName.value (1 items)'
+        'The library never writes an attribute whose name has -encrypted in it, so no restore can put it back.'
       );
+      expect(error.message).toContain(
+        "The field also stays [Empty]: put the lost attributes back by hand and set the journey 'ZionLogin' in the holder again."
+      );
+      expect(error.message).not.toContain('the write failed');
+      expect(error.message).not.toContain('not-a-real-secret');
+      expect(error.holderChanged).toBe(true);
+    });
+
+    test('whose check read after the restore fails says that, not that the write failed', async () => {
+      stored.set(key('agent', 'zion-agent'), AGENT);
+      damagingWrite();
+      // reads: before, after the cleared write, then the check after the restore
+      readAIAgent
+        .mockImplementationOnce(readAIAgent.getMockImplementation())
+        .mockImplementationOnce(readAIAgent.getMockImplementation())
+        .mockRejectedValueOnce(new Error('read refused'));
+
+      const error = await clearJourneyReference(
+        REFERENCES['ai-agent'],
+        JOURNEY
+      ).catch((caught) => caught);
+
+      expect(error.message).toContain(
+        'the write was accepted, but the check read after it failed (read refused)'
+      );
+      expect(error.message).not.toContain('the write failed');
+      expect(error.holderChanged).toBe(true);
+    });
+
+    test('never prints a value of what changed, whatever the name of the field: paths only', async () => {
+      const withValues = {
+        ...AGENT,
+        coreOAuth2ClientConfig: {
+          pin: { inherited: false, value: 'pin-4711' },
+          userpassword: { inherited: false, value: 'not-a-real-secret' },
+          clientName: { inherited: false, value: ['Zion Agent'] },
+        },
+      };
+      stored.set(key('agent', 'zion-agent'), withValues);
+      updateAIAgent.mockImplementationOnce(async (id, data) => {
+        calls.push(['write', 'agent', id, structuredClone(data), false]);
+        const { coreOAuth2ClientConfig, ...kept } = data;
+        stored.set(key('agent', id), {
+          ...kept,
+          coreOAuth2ClientConfig: {},
+          _rev: 'damaged',
+        });
+      });
+      updateAIAgent.mockRejectedValueOnce(new Error('AM said no'));
+
+      const error = await clearJourneyReference(
+        REFERENCES['ai-agent'],
+        JOURNEY
+      ).catch((caught) => caught);
+
+      for (const value of ['pin-4711', 'not-a-real', 'Zion Agent']) {
+        expect(error.message).not.toContain(value);
+      }
+      expect(error.message).toContain(
+        'coreOAuth2ClientConfig.pin, coreOAuth2ClientConfig.userpassword, coreOAuth2ClientConfig.clientName'
+      );
+    });
+
+    test('lists at most twelve paths and counts the rest', async () => {
+      const wide = {
+        ...AGENT,
+        extra: Object.fromEntries(
+          Array.from({ length: 15 }, (_, index) => [`f${index}`, 1])
+        ),
+      };
+      stored.set(key('agent', 'zion-agent'), wide);
+      updateAIAgent.mockImplementationOnce(async (id, data) => {
+        calls.push(['write', 'agent', id, structuredClone(data), false]);
+        const { extra, ...kept } = data;
+        stored.set(key('agent', id), { ...kept, extra: {}, _rev: 'damaged' });
+      });
+
+      const error = await clearJourneyReference(
+        REFERENCES['ai-agent'],
+        JOURNEY
+      ).catch((caught) => caught);
+
+      expect(error.message).toContain('extra.f11, and 3 more.');
+      expect(error.message).not.toContain('extra.f12');
     });
 
     test('a section that is gone is damage too, not the cleared field', async () => {
@@ -525,6 +619,7 @@ describe('clearing a holder', () => {
       expect(error.message).toContain('changed in more than that field');
       expect(error.message).toContain('advancedOAuth2ClientConfig');
       expect(error.message).toContain('written back as it was before');
+      expect(error.holderChanged).toBe(false);
     });
 
     test('the same for an OAuth2 client: put back, not trusted', async () => {
@@ -574,6 +669,39 @@ describe('clearing a holder', () => {
     ).rejects.toThrow(/still holds the journey name after it was cleared/);
   });
 
+  test('says whether the holder may have been changed: a read that fails after the write does, a write that fails or that changes nothing does not', async () => {
+    stored.set(key('client', 'zion-client'), CLIENT);
+    readOAuth2Client
+      .mockImplementationOnce(readOAuth2Client.getMockImplementation())
+      .mockRejectedValueOnce(new Error('read refused'));
+
+    let error = await clearJourneyReference(
+      REFERENCES['oauth2-client'],
+      JOURNEY
+    ).catch((caught) => caught);
+
+    expect(error.message).toContain(
+      'was written, but it could not be read again to check it (read refused)'
+    );
+    expect(error.holderChanged).toBe(true);
+
+    stored.set(key('client', 'zion-client'), CLIENT);
+    updateOAuth2Client.mockRejectedValueOnce(new Error('AM said no'));
+    error = await clearJourneyReference(
+      REFERENCES['oauth2-client'],
+      JOURNEY
+    ).catch((caught) => caught);
+    expect(error.holderChanged).toBeUndefined();
+
+    updateOAuth2Client.mockImplementationOnce(async () => {});
+    error = await clearJourneyReference(
+      REFERENCES['oauth2-client'],
+      JOURNEY
+    ).catch((caught) => caught);
+    expect(error.message).toContain('still holds the journey name');
+    expect(error.holderChanged).toBe(false);
+  });
+
   test('a failed read or write is not swallowed', async () => {
     await expect(
       clearJourneyReference(REFERENCES['oauth2-client'], JOURNEY)
@@ -620,6 +748,22 @@ describe('removing the journey from a theme', () => {
       unlinkJourneyReference(REFERENCES.theme, JOURNEY)
     ).rejects.toThrow(/does not link journey 'ZionLogin' any more/);
     expect(updateTheme).not.toHaveBeenCalled();
+  });
+
+  test('a theme whose read after the write fails is flagged as changed', async () => {
+    stored.set(key('theme', 'theme-1'), THEME);
+    library.theme.readTheme
+      .mockImplementationOnce(library.theme.readTheme.getMockImplementation())
+      .mockRejectedValueOnce(new Error('read refused'));
+
+    const error = await unlinkJourneyReference(REFERENCES.theme, JOURNEY).catch(
+      (caught) => caught
+    );
+
+    expect(error.message).toContain(
+      'was written, but it could not be read again to check it (read refused)'
+    );
+    expect(error.holderChanged).toBe(true);
   });
 
   test('a theme that still links the journey after the write is a failure', async () => {
