@@ -3,36 +3,51 @@
 exports[`CLI help interface for 'config-manager delete journeys' should be expected english 1`] = `
 "Usage: frodo config-manager delete journeys [options] [host] [realm] [username] [password]
 
-[Experimental] Delete a journey by name or delete all journeys and clean up
-orphaned nodes in the selected realms.
+[Experimental] Delete one journey by id, or delete all journeys and clean up
+orphaned nodes in the selected realms. A journey that other objects still name
+is not deleted without --force.
 
 Arguments:
-  host               AM base URL, e.g.: https://cdk.iam.example.com/am. To use a
-                     connection profile, just specify a unique substring or
-                     alias.
-  realm              Realm. Specify realm as '/' for the root realm or 'realm'
-                     or '/parent/child' otherwise. (default: "alpha" for
-                     Identity Cloud tenants, "/" otherwise.)
-  username           Username to login with. Must be an admin user with
-                     appropriate rights to manage authentication journeys/trees.
-                     If given without a password, and it matches the username
-                     already stored in the connection profile for the target
-                     host, frodo uses that profile's stored password instead of
-                     requiring it on the command line.
-  password           Password.
+  host                   AM base URL, e.g.: https://cdk.iam.example.com/am. To
+                         use a connection profile, just specify a unique
+                         substring or alias.
+  realm                  Realm. Specify realm as '/' for the root realm or
+                         'realm' or '/parent/child' otherwise. (default: "alpha"
+                         for Identity Cloud tenants, "/" otherwise.)
+  username               Username to login with. Must be an admin user with
+                         appropriate rights to manage authentication
+                         journeys/trees. If given without a password, and it
+                         matches the username already stored in the connection
+                         profile for the target host, frodo uses that profile's
+                         stored password instead of requiring it on the command
+                         line.
+  password               Password.
 
 Options:
-  --allow-failures   Report operations that fail, but still exit with code 0.
-                     Without this option the command runs every operation,
-                     prints a summary of what failed and exits with code 1.
-  -d, --dry-run      Show which journeys would be deleted.
-  -n, --name <name>  Delete the journey with this exact ID. Requires a realm
-                     argument.
-  -y, --yes          Skip confirmation for bulk deletion. Required for bulk
-                     deletion without a terminal.
-  -h, --help         Help
-  -hh, --help-more   Help with all options.
-  -hhh, --help-all   Help with all options, environment variables, and usage
-                     examples.
+  --allow-failures       Report operations that fail, but still exit with code
+                         0. Without this option the command runs every
+                         operation, prints a summary of what failed and exits
+                         with code 1.
+  -d, --dry-run          Show what would be deleted or changed without deleting
+                         or changing anything.
+  --force                Delete the journey with -i although other objects still
+                         name it. First the journey is cleared in the OAuth2
+                         clients, SAML providers and AI agents that name it, and
+                         removed from the themes that link it. Every other
+                         object that names it is left alone, it names a journey
+                         that does not exist afterwards. What was cleared and
+                         what was left is printed. Only with -i.
+  -i, --journey-id <id>  Id (name) of the journey to delete. Requires a realm
+                         argument. If it is left out, all journeys are deleted.
+                         (alias: -n, --name)
+  --keep-links           With --force: leave the links of the themes to the
+                         journey as they are. Only with -i and --force.
+  -y, --yes              Do not ask for confirmation before deleting all
+                         journeys, or before deleting a journey with --force.
+                         Required without a terminal.
+  -h, --help             Help
+  -hh, --help-more       Help with all options.
+  -hhh, --help-all       Help with all options, environment variables, and usage
+                         examples.
 "
 `;

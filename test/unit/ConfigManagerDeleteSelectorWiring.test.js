@@ -58,6 +58,12 @@ const WIRING = {
     id: 0,
     name: null,
   },
+  journeys: {
+    module: 'configManagerOps/FrConfigJourneysOps',
+    fn: 'configManagerDeleteJourneys',
+    id: 0,
+    name: null,
+  },
   scripts: {
     module: 'configManagerOps/FrConfigScriptOps',
     fn: 'configManagerDeleteScripts',
@@ -260,7 +266,7 @@ afterEach(() => {
 describe('the delete commands: a named delete never asks, and the selectors reach the ops function', () => {
   it('has an entry for every delete row of the selectors, and no pull or push row', () => {
     expect(deleteRows.map(typeOf).sort()).toEqual(Object.keys(WIRING).sort());
-    expect(deleteRows).toHaveLength(16);
+    expect(deleteRows).toHaveLength(17);
   });
 
   it.each(deleteRows.map((row) => [typeOf(row), row]))(

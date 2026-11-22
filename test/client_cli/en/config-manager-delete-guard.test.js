@@ -203,6 +203,67 @@ describe('what is not refused', () => {
   });
 });
 
+describe('a delete of a named journey', () => {
+  // the realm comes from the environment: a named journey needs one
+  const env = { FRODO_REALM: 'alpha' };
+
+  test.each([
+    'frodo config-manager delete journeys -i ZionLogin --force',
+    'frodo config-manager delete journeys -i ZionLogin --force --keep-links',
+  ])('"%s" changes the objects that name the journey: it is refused before the login without -y', async (command) => {
+    const { code, stderr } = await run(command, env);
+
+    expect(code).toBe(1);
+    expect(stderr).toContain("Refusing to delete journey 'ZionLogin' and change the objects that name it");
+    expect(stderr).toContain('-y/--yes');
+    expect(stderr).toContain('--dry-run');
+    expect(stderr).not.toMatch(/ECONNREFUSED|connect/i);
+  });
+
+  test.each([
+    'frodo config-manager delete journeys -i ZionLogin',
+    'frodo config-manager delete journeys -n ZionLogin',
+    'frodo config-manager delete journeys --name ZionLogin',
+    'frodo config-manager delete journeys -i ZionLogin -d',
+    'frodo config-manager delete journeys -i ZionLogin --force -d',
+    'frodo config-manager delete journeys -i ZionLogin --force -y',
+    'frodo config-manager delete journeys -i ZionLogin --force --keep-links -y',
+  ])('"%s" goes on to the login', async (command) => {
+    const { stderr } = await run(command, env);
+
+    expect(stderr).not.toContain('Refusing to delete');
+    expect(stderr).not.toContain('unknown option');
+  });
+
+  test.each([
+    ['frodo config-manager delete journeys --force -y', 'applies to a named journey only'],
+    ['frodo config-manager delete journeys --keep-links -y', 'applies to a named journey only'],
+    ['frodo config-manager delete journeys -i ZionLogin --keep-links', '--keep-links applies together with --force only'],
+  ])('"%s" is refused before the login', async (command, message) => {
+    const { code, stderr } = await run(command, env);
+
+    expect(code).toBe(1);
+    expect(stderr).toContain(message);
+    expect(stderr).not.toMatch(/ECONNREFUSED|connect/i);
+  });
+
+  test('without a realm it is an error before the login', async () => {
+    const { code, stderr } = await run('frodo config-manager delete journeys -i ZionLogin --force -y');
+
+    expect(code).toBe(1);
+    expect(stderr).toContain('The -i, --journey-id option requires a realm argument');
+    expect(stderr).not.toMatch(/ECONNREFUSED|connect/i);
+  });
+});
+
+describe('the refusal of journeys says that the journeys of the login go too', () => {
+  test('the refusal names the journeys of the login and the orphaned nodes', async () => {
+    const { stderr } = await run('frodo config-manager delete journeys');
+
+    expect(stderr).toContain('all journeys (the journeys that the realm uses for login included) and all orphaned nodes in the selected realms');
+  });
+});
+
 describe('the dry run of the oauth types and of schedules has the short form -d', () => {
   // -d is the dry run on every command of the group that has one:
   // https://github.com/rockcarver/frodo-cli/blob/main/docs/decisions/0057-options-of-the-configuration-commands.md
@@ -308,9 +369,9 @@ describe('a delete that names one object, for every command and every spelling o
   // to the login, and the login fails on the host that cannot be reached.
   const rows = EXPECTED_SELECTORS.filter((row) => row.command.includes(' delete '));
   const typeOf = (row) => row.command.split(' ').pop();
-  // a named telemetry exporter needs its category, a named secret mapping needs a realm
+  // a named telemetry exporter needs its category, a named secret mapping or journey needs a realm
   const extraOf = (row) => (typeOf(row) === 'telemetry' ? ' -c otlp' : '');
-  const envOf = (row) => (typeOf(row) === 'secret-mappings' ? { FRODO_REALM: 'alpha' } : {});
+  const envOf = (row) => (['secret-mappings', 'journeys'].includes(typeOf(row)) ? { FRODO_REALM: 'alpha' } : {});
   const selectorsOf = (row) => [
     ['-i', 'x'],
     [row.id, 'x'],
@@ -334,8 +395,8 @@ describe('a delete that names one object, for every command and every spelling o
     ...(row.aliases.includes('--name') ? [['--name', "''"], ['--name=']] : []),
   ];
 
-  test('has the 16 delete rows', () => {
-    expect(rows).toHaveLength(16);
+  test('has the 17 delete rows', () => {
+    expect(rows).toHaveLength(17);
   });
 
   test.each(rows.map((row) => [typeOf(row), row]))(

@@ -786,9 +786,9 @@ describe('the selectors of the configuration commands', () => {
     }));
   }, 120000);
 
-  it('lists the commands that have been renamed: the 24 pull commands of C4a, the 25 push commands of C4b and the 16 delete commands of C4c, and the three pull commands that got a selector with C5, and every row is a command', () => {
-    // a floor that grew with each step: 24 (pull), 49 (push), 65 (delete), 68 (the three pulls of C5)
-    expect(EXPECTED_SELECTORS.length).toBeGreaterThanOrEqual(68);
+  it('lists the commands that have been renamed: the 24 pull commands of C4a, the 25 push commands of C4b and the 16 delete commands of C4c and `delete journeys`, and the three pull commands that got a selector with C5, and every row is a command', () => {
+    // a floor that grew with each step: 24 (pull), 49 (push), 65 (delete), 68 (the three pulls of C5), 69 (delete journeys)
+    expect(EXPECTED_SELECTORS.length).toBeGreaterThanOrEqual(69);
     expect(checked.rows).toBe(EXPECTED_SELECTORS.length);
     expect(checked.rowsMatched).toBe(EXPECTED_SELECTORS.length);
     expect(
@@ -800,7 +800,7 @@ describe('the selectors of the configuration commands', () => {
     expect(
       EXPECTED_SELECTORS.filter((row) => row.command.includes(' delete '))
         .length
-    ).toBe(16);
+    ).toBe(17);
   });
 
   it('has the options of every row, and nothing else on -i and -n: one -i, a -n of its own only for a name that can change, the conflicts in both directions', () => {

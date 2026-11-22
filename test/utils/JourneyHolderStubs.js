@@ -5,7 +5,7 @@
  * memory and answer what Access Management answers: a write of an existing
  * object is a patch (what is sent replaces the fields it holds and the other
  * fields stay), and a theme write replaces the theme. Every call is recorded,
- * in order, as `['read' | 'write', kind, ...arguments]`.
+ * in order, as `['read' | 'write', holderType, ...arguments]`.
  */
 
 /** Merges `patch` into `target` the way Access Management applies a write to an existing object. */
@@ -23,26 +23,27 @@ export function mergePatch(target, patch) {
 /**
  * Creates the stubs.
  * @param {typeof import('@jest/globals').jest} jest the jest object of the test
- * @returns {object} `stored` (a Map from `kind:id` to the stored object), `calls`, `key(kind, id)` and `library`: the part of `frodo` that the stubs stand for
+ * @returns {object} `stored` (a Map from `holderType:id` to the stored object), `calls`, `key(holderType, id)` and `library`: the part of `frodo` that the stubs stand for
  */
 export function createHolderStubs(jest) {
   const stored = new Map();
   const calls = [];
-  const key = (kind, id) => `${kind}:${id}`;
+  const key = (holderType, id) => `${holderType}:${id}`;
   const copy = (data) => JSON.parse(JSON.stringify(data));
 
-  const reader = (kind) =>
+  const reader = (holderType) =>
     jest.fn(async (id, ...rest) => {
-      calls.push(['read', kind, id, ...rest]);
-      if (!stored.has(key(kind, id))) throw new Error(`no ${kind} ${id}`);
-      return copy(stored.get(key(kind, id)));
+      calls.push(['read', holderType, id, ...rest]);
+      if (!stored.has(key(holderType, id)))
+        throw new Error(`no ${holderType} ${id}`);
+      return copy(stored.get(key(holderType, id)));
     });
-  const patcher = (kind) =>
+  const patcher = (holderType) =>
     jest.fn(async (id, data, ...rest) => {
-      calls.push(['write', kind, id, copy(data), ...rest]);
+      calls.push(['write', holderType, id, copy(data), ...rest]);
       stored.set(
-        key(kind, id),
-        mergePatch(stored.get(key(kind, id)) ?? {}, copy(data))
+        key(holderType, id),
+        mergePatch(stored.get(key(holderType, id)) ?? {}, copy(data))
       );
     });
 

@@ -405,9 +405,9 @@ describe('clearing a holder', () => {
     ['ai-agent', AGENT, 'agent', updateAIAgent],
   ])(
     '%s: a holder that does not name the journey any more is not written',
-    async (source, data, kind, update) => {
+    async (source, data, holderType, update) => {
       stored.set(
-        key(kind, REFERENCES[source].id),
+        key(holderType, REFERENCES[source].id),
         mergePatch(data, {
           advancedOAuth2ClientConfig: {
             treeName: { inherited: false, value: 'Other' },

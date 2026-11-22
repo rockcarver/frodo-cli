@@ -203,6 +203,54 @@ const CASES = [
     fn: 'configManagerDeleteScripts',
   },
   {
+    name: 'config-manager delete journeys',
+    file: 'src/configManagerOps/FrConfigJourneysOps.ts',
+    summaryName: (id) => `journey '${id}' in realm 'alpha'`,
+    unit: 'deletion',
+    arrange({ failing, attempted, spy }) {
+      spy('src/utils/FrConfig')
+        .realmList.mockReset()
+        .mockResolvedValue(['alpha']);
+      frodo.authn.journey.readJourneys
+        .mockReset()
+        .mockResolvedValue(IDS.map((id) => ({ _id: id })));
+      frodo.authn.node.findOrphanedNodes.mockReset().mockResolvedValue([]);
+      // the library tries every journey and answers with the status of each: a
+      // journey that could not be deleted has the status error and carries the error
+      frodo.authn.journey.deleteJourneys
+        .mockReset()
+        .mockImplementation(async () => {
+          const status = {};
+          for (const id of IDS) {
+            attempted.push(id);
+            status[id] = failing.has(id)
+              ? {
+                  status: 'error',
+                  nodes: {},
+                  error: new FrodoError(
+                    `Error deleting alpha realm journey ${id}`,
+                    new Error(`could not delete ${id}`)
+                  ),
+                }
+              : { status: 'success', nodes: {} };
+          }
+          return status;
+        });
+    },
+    empty: () =>
+      frodo.authn.journey.deleteJourneys.mockReset().mockResolvedValue({}),
+    emptyMessage: /No journeys found to delete in realm 'alpha'\./,
+    notFound: (m) =>
+      m.configManagerDeleteJourneys('zzz', 'alpha', false, false),
+    failToRead: ({ spy }) =>
+      spy('src/utils/FrConfig')
+        .realmList.mockReset()
+        .mockRejectedValue(new Error('read failed')),
+    run: (m, allowFailures) =>
+      m.configManagerDeleteJourneys(undefined, undefined, false, allowFailures),
+    fn: 'configManagerDeleteJourneys',
+  },
+  {
     name: 'config-manager delete themes',
     file: 'src/configManagerOps/FrConfigThemeOps.ts',
     summaryName: (id) => `/${id}`,

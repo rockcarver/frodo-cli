@@ -360,6 +360,12 @@ export const EXPECTED_SELECTORS = [
     aliases: ['-n', '--name'],
   },
   {
+    command: 'frodo config-manager delete journeys',
+    id: '--journey-id',
+    name: null,
+    aliases: ['-n', '--name'],
+  },
+  {
     command: 'frodo config-manager delete scripts',
     id: '--script-id',
     name: '--script-name',
