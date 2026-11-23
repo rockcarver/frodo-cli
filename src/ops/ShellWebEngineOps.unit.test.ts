@@ -334,6 +334,25 @@ describe('ShellWebEngineOps', () => {
     expect(await value('2 + 2')).toBe(4);
   });
 
+  it('takes the awaited rejection as the outcome when the same callback also throws', async () => {
+    // The callback rejects the promise the input awaits and then throws: the
+    // throw reaches the engine as an uncaught exception (flagged, printed),
+    // and the awaited rejection, which the REPL reports a few microtask hops
+    // later, is the outcome. The flag must be gone by then: cleared by a
+    // timer instead of the next microtask, the input would never end.
+    const outcome = await engine.evaluate(
+      'await new Promise((resolve, reject) => setTimeout(() => { reject(new Error("rejected-a")); throw new Error("thrown-b") }, 20))'
+    );
+    expect(outcome.status).toBe('error');
+    expect(
+      ((outcome as Extract<EvalOutcome, { status: 'error' }>).error as Error)
+        .message
+    ).toBe('rejected-a');
+    expect(logs.join('')).toContain('thrown-b');
+    expect(logs.join('')).not.toContain('rejected-a');
+    expect(await value('1 + 1')).toBe(2);
+  });
+
   it('keeps working after an error', async () => {
     await engine.evaluate('throw new Error("x")');
     expect(await value('"still alive"')).toBe('still alive');
