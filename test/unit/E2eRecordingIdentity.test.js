@@ -73,10 +73,24 @@ const PINNED_FILE =
  * Cut out of 5.0.0-49 `dist/index.js` and 5.0.0-50 `dist/index.mjs`, the six
  * functions are equal once white space is removed and that one spelling is
  * normalised, so the identity code did not change when the file changed.
+ *
+ * 5.0.0-51 loads Polly only when FRODO_MOCK is set, and the six functions
+ * changed in one way: `getFrodoArgsId` and `getFrodoCommand` read a module
+ * variable `argv` (a copy of `process.argv` taken when the library loads, or
+ * the command line the caller hands over) where 5.0.0-50 read the live
+ * `process.argv`. The other four are byte for byte the same. With
+ * `process.argv` read as `argv` in the 5.0.0-50 text (the debug message text
+ * `process.argv=` stays), all six functions are equal once white space is
+ * removed, so a recording is named the same way. What the new source can change
+ * is the command line a name is made from, not the way it is made: the CLI
+ * rewrites `process.argv` after the library has loaded (the dotted options of
+ * `ObjectOption`, the expanded help). The replays of the recordings prove the
+ * names stay what they were. The fingerprint was 84c8be3f1cf85e8bd3c1b5799ceee3d05884bf520d9dc5ce348bba8dc5c535ac
+ * for 5.0.0-50.
  */
 const LIB_IDENTITY = {
-  version: '5.0.0-50',
-  sha256: '84c8be3f1cf85e8bd3c1b5799ceee3d05884bf520d9dc5ce348bba8dc5c535ac',
+  version: '5.0.0-51',
+  sha256: '46aeede557b20548e22474e8c7c15ede1b66af02dac328c056238b2cf0bcd8f1',
 };
 
 /** Fewer files or commands than this means the collector found too little. */
