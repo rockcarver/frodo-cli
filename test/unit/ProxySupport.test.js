@@ -7,6 +7,7 @@ import tls from 'tls';
 import { fileURLToPath } from 'url';
 import { ERROR_CODE_HINTS } from '../../src/utils/ErrorCodeHints.ts';
 import { closedPort, startForwardProxy } from '../utils/ForwardProxy.js';
+import { selfSignedCertificate } from '../utils/SelfSignedCertificate.js';
 import { createShellTestHome, removeShellTestHome } from '../utils/ShellPty.js';
 import { startFakeAm } from '../utils/StartFakeAm.js';
 
@@ -70,33 +71,6 @@ const REALM_LIST = REALMS.map((realm) => `/${realm}`);
 // the CLI answers a dead proxy within a second or two; this only has to tell it
 // from a request that waits for a timeout (the CLI's is 30 seconds)
 const QUICKLY_MS = 15000;
-
-/** A self-signed certificate for 127.0.0.1, or undefined without the openssl command. */
-function selfSignedCertificate(dir) {
-  const key = path.join(dir, 'key.pem');
-  const cert = path.join(dir, 'cert.pem');
-  const made = cp.spawnSync(
-    'openssl',
-    [
-      'req',
-      '-x509',
-      '-newkey',
-      'rsa:2048',
-      '-nodes',
-      '-keyout',
-      key,
-      '-out',
-      cert,
-      '-days',
-      '1',
-      '-subj',
-      '/CN=127.0.0.1',
-    ],
-    { encoding: 'utf8' }
-  );
-  if (made.status !== 0) return undefined;
-  return { key: fs.readFileSync(key), cert: fs.readFileSync(cert) };
-}
 
 /** An https server on loopback that passes the decrypted bytes on to a plain http port. */
 async function startTlsFront({ key, cert }, targetPort) {
