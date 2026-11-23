@@ -16,7 +16,9 @@ import {
   forgetResolverChoices,
   hiddenNote,
   isActive,
+  isLoneNegated,
   selectableMembers,
+  valueOfFlag,
 } from '../../src/utils/interactive/OptionConflicts.ts';
 import { fullName, loadCommandTree } from '../utils/CommandExamples.js';
 
@@ -380,5 +382,102 @@ describe('the resolver sets options only through commitOption', () => {
     };
     walk(path.join(ROOT, 'src'));
     expect(offenders).toEqual([]);
+  });
+});
+
+describe('negated options (--no-x): the flag as typed gives the attribute false, and the resting value is true', () => {
+  /** `--no-validate` conflicts with `--all`; `--no-deps` has a twin `--deps` that shares its attribute. */
+  function negated() {
+    const command = new Command('control').exitOverride();
+    command.addOption(
+      new Option('--no-validate', 'Do not validate').conflicts(['all'])
+    );
+    command.addOption(new Option('-a, --all').conflicts(['validate']));
+    command.addOption(new Option('--deps'));
+    command.addOption(new Option('--no-deps'));
+    command.addOption(new Option('-x, --extra'));
+    command.action(() => {});
+    return command;
+  }
+  const optionNamed = (command, flags) =>
+    command.options.find((option) => option.flags === flags);
+
+  it('knows a lone negated option, and a negated option that has a positive twin', () => {
+    const command = negated();
+    expect(isLoneNegated(command, optionNamed(command, '--no-validate'))).toBe(
+      true
+    );
+    expect(isLoneNegated(command, optionNamed(command, '--no-deps'))).toBe(
+      false
+    );
+    expect(isLoneNegated(command, optionNamed(command, '--deps'))).toBe(false);
+    expect(isLoneNegated(command, optionNamed(command, '-x, --extra'))).toBe(
+      false
+    );
+  });
+
+  it('gives a picked flag the value that typing it gives: false for a lone negated option, true for the others', () => {
+    const typedCommand = negated();
+    typedCommand.parse(['--no-validate', '-x'], { from: 'user' });
+    const command = negated();
+    command.parse([], { from: 'user' });
+
+    for (const [flags, attribute] of [
+      ['--no-validate', 'validate'],
+      ['-x, --extra', 'extra'],
+    ]) {
+      const option = optionNamed(command, flags);
+      expect(valueOfFlag(command, option)).toBe(
+        typedCommand.getOptionValue(attribute)
+      );
+    }
+    // a negated option with a positive twin has no resting value, and the pair shares one attribute
+    expect(valueOfFlag(command, optionNamed(command, '--no-deps'))).toBe(true);
+  });
+
+  it('a negated option that is not picked keeps true, and is not active', () => {
+    const command = negated();
+    command.parse([], { from: 'user' });
+    expect(command.getOptionValue('validate')).toBe(true);
+    expect(isActive(command, 'validate')).toBe(false);
+  });
+
+  it('a picked negated option is committed as false, from the command line, and is active', () => {
+    const command = negated();
+    command.parse([], { from: 'user' });
+    const option = optionNamed(command, '--no-validate');
+
+    const result = commitOption(
+      command,
+      'validate',
+      valueOfFlag(command, option)
+    );
+
+    expect(result.status).toBe('committed');
+    expect(command.getOptionValue('validate')).toBe(false);
+    expect(command.getOptionValueSource('validate')).toBe('cli');
+    expect(isActive(command, 'validate')).toBe(true);
+  });
+
+  it('a picked negated option blocks an option that conflicts with it, as the typed flag does', () => {
+    const command = negated();
+    command.parse(['--no-validate'], { from: 'user' });
+    expect(commitOption(command, 'all', true).status).toBe('blocked');
+  });
+
+  it('puts a negated option that another pick replaced back to true, not to undefined', () => {
+    const command = negated();
+    command.parse([], { from: 'user' });
+    expect(commitOption(command, 'validate', false).status).toBe('committed');
+
+    const result = commitOption(command, 'all', true);
+
+    expect(result.status).toBe('committed');
+    expect(result.cleared.map((option) => option.attributeName())).toEqual([
+      'validate',
+    ]);
+    expect(command.getOptionValue('validate')).toBe(true);
+    expect(command.getOptionValueSource('validate')).toBe('default');
+    expect(isActive(command, 'validate')).toBe(false);
   });
 });

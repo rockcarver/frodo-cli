@@ -69,6 +69,48 @@ function optionOf(command: Command, attribute: string): Option | undefined {
 }
 
 /**
+ * Whether the option is the only one for its attribute and is negated (`--no-deps`, with no `--deps`):
+ * commander gives its attribute the value `true` until the flag is written, and `false` when it is.
+ * A negated option that has a positive twin shares the attribute with it and has no such default.
+ * @param {Command} command the command that declares the option
+ * @param {Option} option the option
+ * @returns {boolean} true for a lone negated option
+ */
+export function isLoneNegated(command: Command, option: Option): boolean {
+  return (
+    option.negate &&
+    !command.options.some(
+      (other) =>
+        !other.negate && other.attributeName() === option.attributeName()
+    )
+  );
+}
+
+/**
+ * The value that writing a boolean option as a flag gives its attribute, as commander stores it: `true`,
+ * and `false` for a lone negated option (`--no-deps` gives `deps` the value `false`). What the resolver
+ * commits for a boolean option the user picked, so that the command runs as if the flag was typed.
+ * @param {Command} command the command that declares the option
+ * @param {Option} option the option
+ * @returns {boolean} the value of the attribute once the flag is written
+ */
+export function valueOfFlag(command: Command, option: Option): boolean {
+  return !isLoneNegated(command, option);
+}
+
+/**
+ * What an option holds when nobody has set it: its default, and `true` for a lone negated option that has
+ * none (the value commander gives it), so that clearing such an option does not leave it undefined.
+ */
+function restingValueOf(command: Command, option: Option): unknown {
+  if (Array.isArray(option.defaultValue)) return [...option.defaultValue];
+  if (isLoneNegated(command, option) && option.defaultValue === undefined) {
+    return true;
+  }
+  return option.defaultValue;
+}
+
+/**
  * Whether the option holds a value that commander counts for conflicts: one
  * that is defined and did not come from the default (command line, env, or a
  * value the resolver committed). Mirrors Command#_checkForConflictingLocalOptions.
@@ -168,10 +210,11 @@ export function commitOption(
 
   for (const option of active) {
     const name = option.attributeName();
-    const fallback = Array.isArray(option.defaultValue)
-      ? [...option.defaultValue]
-      : option.defaultValue;
-    command.setOptionValueWithSource(name, fallback, 'default');
+    command.setOptionValueWithSource(
+      name,
+      restingValueOf(command, option),
+      'default'
+    );
     set.delete(name);
   }
   command.setOptionValueWithSource(attribute, value, 'cli');

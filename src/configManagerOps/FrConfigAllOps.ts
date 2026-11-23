@@ -129,7 +129,7 @@ export const deploymentMapAll: Record<string, ExportStep[]> = {
     step('endpoints', () => configManagerExportEndpoints()),
     step('internal-roles', () => configManagerExportInternalRoles()),
     step('journeys', (options) =>
-      configManagerExportJourneys(undefined, options.realm)
+      configManagerExportJourneys(undefined, options.realm, false)
     ),
     step('kba', () => configManagerExportKbaConfig()),
     step('locales', () => configManagerExportLocales()),
@@ -282,7 +282,7 @@ export const deploymentMapAll: Record<string, ExportStep[]> = {
     step('endpoints', () => configManagerExportEndpoints()),
     step('internal-roles', () => configManagerExportInternalRoles()),
     step('journeys', (options) =>
-      configManagerExportJourneys(undefined, options.realm)
+      configManagerExportJourneys(undefined, options.realm, false)
     ),
     step('kba', () => configManagerExportKbaConfig()),
     step('locales', () => configManagerExportLocales()),
@@ -445,7 +445,7 @@ export const deploymentMapAll: Record<string, ExportStep[]> = {
     step('cors', () => configManagerExportCors()),
     step('custom-nodes', () => configManagerExportCustomNodes()),
     step('journeys', (options) =>
-      configManagerExportJourneys(undefined, options.realm)
+      configManagerExportJourneys(undefined, options.realm, false)
     ),
     step(
       'raw',
@@ -532,7 +532,7 @@ export const deploymentMapAllStatic: Record<string, ExportStep[]> = {
     step('endpoints', () => configManagerExportEndpoints()),
     step('idm-authentication', () => configManagerExportIdmAuthentication()),
     step('journeys', (options) =>
-      configManagerExportJourneys(undefined, options.realm)
+      configManagerExportJourneys(undefined, options.realm, false)
     ),
     step('kba', () => configManagerExportKbaConfig()),
     step('locales', () => configManagerExportLocales()),
@@ -573,7 +573,7 @@ export const deploymentMapAllStatic: Record<string, ExportStep[]> = {
     step('email-templates', () => configManagerExportEmailTemplates()),
     step('endpoints', () => configManagerExportEndpoints()),
     step('journeys', (options) =>
-      configManagerExportJourneys(undefined, options.realm)
+      configManagerExportJourneys(undefined, options.realm, false)
     ),
     step('kba', () => configManagerExportKbaConfig()),
     step('locales', () => configManagerExportLocales()),
@@ -610,7 +610,7 @@ export const deploymentMapAllStatic: Record<string, ExportStep[]> = {
     step('cors', () => configManagerExportCors()),
     step('custom-nodes', () => configManagerExportCustomNodes()),
     step('journeys', (options) =>
-      configManagerExportJourneys(undefined, options.realm)
+      configManagerExportJourneys(undefined, options.realm, false)
     ),
     step('scripts', (options) =>
       configManagerExportScripts(undefined, options.realm)
