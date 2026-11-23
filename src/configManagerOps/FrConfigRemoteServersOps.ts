@@ -1,4 +1,5 @@
 import { frodo, type IdObjectSkeletonInterface } from '@rockcarver/frodo-lib';
+import { pulledFilePath } from '../utils/ConfigTreePath';
 import { printError } from '../utils/Console';
 
 const { readConfigEntity, importConfigEntities } = frodo.idm.config;
@@ -16,7 +17,9 @@ export async function configManagerExportRemoteServers(): Promise<boolean> {
     saveJsonToFile(
       exportData,
       getFilePath(
-        'sync/rcs/provisioner.openicf.connectorinfoprovider.json',
+        pulledFilePath(
+          'sync/rcs/provisioner.openicf.connectorinfoprovider.json'
+        ),
         true
       ),
       false

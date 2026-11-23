@@ -2,7 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import { frodo, type ScriptTask } from '@rockcarver/frodo-lib';
 import { extractFrConfigDataToFile } from '../utils/Config';
-import { referencedFilePath } from '../utils/ConfigTreePath';
+import { pulledFilePath, referencedFilePath } from '../utils/ConfigTreePath';
 import { printError, printMessage } from '../utils/Console';
 import { causeOf } from '../utils/ErrorCause';
 import { safeFileName } from '../utils/FrConfig';
@@ -72,7 +72,7 @@ export async function configManagerExportIgaWorkflows(
           }
           saveJsonToFile(
             step,
-            getFilePath(`${stepPath}/${uniqueId}.json`, true),
+            getFilePath(pulledFilePath(`${stepPath}/${uniqueId}.json`), true),
             false,
             true
           );
@@ -81,7 +81,10 @@ export async function configManagerExportIgaWorkflows(
 
         saveJsonToFile(
           workflow,
-          getFilePath(`${workflowPath}/${workflowName}.json`, true),
+          getFilePath(
+            pulledFilePath(`${workflowPath}/${workflowName}.json`),
+            true
+          ),
           false,
           true
         );

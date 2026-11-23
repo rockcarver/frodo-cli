@@ -7,7 +7,11 @@ import {
   type PolicySkeleton,
   type ResourceTypeSkeleton,
 } from '@rockcarver/frodo-lib';
-import { isOneSafeSegment, realmFolderOf } from '../utils/ConfigTreePath';
+import {
+  isOneSafeSegment,
+  pulledFilePath,
+  realmFolderOf,
+} from '../utils/ConfigTreePath';
 import {
   createProgressIndicator,
   printError,
@@ -203,7 +207,9 @@ async function exportOnePolicy(
       saveJsonToFile(
         policySet,
         getFilePath(
-          `${authzDir}/policy-sets/${policySet.name}/${policySet.name}.json`,
+          pulledFilePath(
+            `${authzDir}/policy-sets/${policySet.name}/${policySet.name}.json`
+          ),
           true
         ),
         false,
@@ -213,7 +219,9 @@ async function exportOnePolicy(
       saveJsonToFile(
         policy,
         getFilePath(
-          `${authzDir}/policy-sets/${policySet.name}/policies/${policy.name}.json`,
+          pulledFilePath(
+            `${authzDir}/policy-sets/${policySet.name}/policies/${policy.name}.json`
+          ),
           true
         ),
         false,
@@ -223,7 +231,9 @@ async function exportOnePolicy(
       saveJsonToFile(
         resourceType,
         getFilePath(
-          `${authzDir}/resource-types/${resourceType.name}.json`,
+          pulledFilePath(
+            `${authzDir}/resource-types/${resourceType.name}.json`
+          ),
           true
         ),
         false,
@@ -289,7 +299,9 @@ export async function configManagerExportAuthzPolicySets(
             saveJsonToFile(
               policySet,
               getFilePath(
-                `${authzDir}/policy-sets/${policySet.name}/${policySet.name}.json`,
+                pulledFilePath(
+                  `${authzDir}/policy-sets/${policySet.name}/${policySet.name}.json`
+                ),
                 true
               ),
               false,
@@ -301,7 +313,9 @@ export async function configManagerExportAuthzPolicySets(
               saveJsonToFile(
                 policy,
                 getFilePath(
-                  `${authzDir}/policy-sets/${policySet.name}/policies/${policy.name}.json`,
+                  pulledFilePath(
+                    `${authzDir}/policy-sets/${policySet.name}/policies/${policy.name}.json`
+                  ),
                   true
                 ),
                 false,
@@ -315,7 +329,9 @@ export async function configManagerExportAuthzPolicySets(
               saveJsonToFile(
                 resourceType,
                 getFilePath(
-                  `${authzDir}/resource-types/${resourceType.name}.json`,
+                  pulledFilePath(
+                    `${authzDir}/resource-types/${resourceType.name}.json`
+                  ),
                   true
                 ),
                 false,

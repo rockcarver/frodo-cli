@@ -5,6 +5,7 @@ import {
   state,
   type SecretStoreMappingSkeleton,
 } from '@rockcarver/frodo-lib';
+import { pulledFilePath } from '../utils/ConfigTreePath';
 import { printError, printMessage, verboseMessage } from '../utils/Console';
 import { causeOf } from '../utils/ErrorCause';
 import { realmList } from '../utils/FrConfig';
@@ -67,7 +68,12 @@ export async function configManagerExportSecretMappings(
         found = true;
         try {
           const fileName = `realms/${currentRealm}/secret-mappings/${mapping._id}.json`;
-          saveJsonToFile(mapping, getFilePath(fileName, true), false, true);
+          saveJsonToFile(
+            mapping,
+            getFilePath(pulledFilePath(fileName), true),
+            false,
+            true
+          );
           run.recordSuccess();
         } catch (error) {
           printError(

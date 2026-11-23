@@ -4,6 +4,7 @@ import {
   type FrodoError,
   type IdObjectSkeletonInterface,
 } from '@rockcarver/frodo-lib';
+import { pulledFilePath } from '../utils/ConfigTreePath';
 import { printError, printMessage } from '../utils/Console';
 import { causeOf } from '../utils/ErrorCause';
 import { OperationRun } from '../utils/OperationRun';
@@ -49,7 +50,12 @@ export async function configManagerExportLocales(
       const localeName = locale._id.split('/')[1];
       try {
         const localeFilename = `locales/${localeName}.json`;
-        saveJsonToFile(locale, getFilePath(localeFilename, true), false, true);
+        saveJsonToFile(
+          locale,
+          getFilePath(pulledFilePath(localeFilename), true),
+          false,
+          true
+        );
         run.recordSuccess();
       } catch (error) {
         printError(error, `Error exporting locale ${localeName}`);

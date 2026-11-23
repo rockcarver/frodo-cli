@@ -7,6 +7,7 @@ import {
   FrodoError,
   type IdObjectSkeletonInterface,
 } from '@rockcarver/frodo-lib';
+import { pulledFilePath } from '../utils/ConfigTreePath';
 import {
   createProgressIndicator,
   printError,
@@ -57,7 +58,7 @@ export async function configManagerExportRaw(
         verboseMessage(`Saving ${response._id} at ${config.path}.json.`);
         saveJsonToFile(
           response,
-          getFilePath(`raw/${config.path}.json`, true),
+          getFilePath(pulledFilePath(`raw/${config.path}.json`), true),
           false,
           true
         );

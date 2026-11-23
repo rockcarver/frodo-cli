@@ -5,7 +5,7 @@ import {
   type FrodoError,
   type IdObjectSkeletonInterface,
 } from '@rockcarver/frodo-lib';
-import { objectFilePath } from '../utils/ConfigTreePath';
+import { objectFilePath, pulledFilePath } from '../utils/ConfigTreePath';
 import { printError, printMessage, verboseMessage } from '../utils/Console';
 import { realmList } from '../utils/FrConfig';
 import { OperationRun } from '../utils/OperationRun';
@@ -60,7 +60,7 @@ async function exportOrgPrivileges(
     const orgPrivileges: IdObjectSkeletonInterface = await readConfigEntity(id);
     saveJsonToFile(
       orgPrivileges,
-      getFilePath(`org-privileges/${id}.json`, true),
+      getFilePath(pulledFilePath(`org-privileges/${id}.json`), true),
       false,
       // as before the files were consolidated: the realm files keep the revision, the assignments do not
       id !== PRIVILEGE_ASSIGNMENTS

@@ -5,6 +5,7 @@ import {
   type TelemetryExporterCategory,
   type TelemetryExportInterface,
 } from '@rockcarver/frodo-lib';
+import { pulledFilePath } from '../utils/ConfigTreePath';
 import {
   createProgressIndicator,
   printError,
@@ -59,7 +60,10 @@ export async function configManagerExportTelemetry(
         }
         saveJsonToFile(
           exportProvider,
-          getFilePath(`telemetry/${cat}/${provider.id}.json`, true),
+          getFilePath(
+            pulledFilePath(`telemetry/${cat}/${provider.id}.json`),
+            true
+          ),
           false
         );
         run.recordSuccess();

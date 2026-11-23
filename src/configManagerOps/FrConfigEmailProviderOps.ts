@@ -1,4 +1,5 @@
 import { frodo, type IdObjectSkeletonInterface } from '@rockcarver/frodo-lib';
+import { pulledFilePath } from '../utils/ConfigTreePath';
 import { printError } from '../utils/Console';
 
 const { readConfigEntity, importConfigEntities } = frodo.idm.config;
@@ -15,7 +16,7 @@ export async function configManagerExportEmailProviderConfiguration(): Promise<b
 
     saveJsonToFile(
       emailProvider,
-      getFilePath('email-provider/external.email.json', true),
+      getFilePath(pulledFilePath('email-provider/external.email.json'), true),
       false,
       true
     );

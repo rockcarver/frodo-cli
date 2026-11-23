@@ -28,7 +28,11 @@ import {
   skippedFilesMessage,
   skippedForDedicatedKind,
 } from '../ops/DedicatedAgentKinds';
-import { isOneSafeSegment, realmFolderOf } from '../utils/ConfigTreePath';
+import {
+  isOneSafeSegment,
+  pulledFilePath,
+  realmFolderOf,
+} from '../utils/ConfigTreePath';
 import {
   createProgressIndicator,
   printError,
@@ -308,7 +312,9 @@ export async function configManagerExportOAuth2Agents(
               saveJsonToFile(
                 config,
                 getFilePath(
-                  `realms/${realm === '/' ? 'root' : realm}/realm-config/agents/${agentType}/${agent.id}.json`,
+                  pulledFilePath(
+                    `realms/${realm === '/' ? 'root' : realm}/realm-config/agents/${agentType}/${agent.id}.json`
+                  ),
                   true
                 ),
                 false,

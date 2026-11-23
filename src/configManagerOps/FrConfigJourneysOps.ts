@@ -17,6 +17,7 @@ import {
   fileNameOf,
   objectFilePath,
   objectFolderPath,
+  pulledFilePath,
   realmFolderOf,
   referencedFilePath,
 } from '../utils/ConfigTreePath';
@@ -69,15 +70,12 @@ export async function configManagerExportJourneys(
       )
         continue;
       // the tenant names the realm: it is the name of a folder here, never a path
-      let realmDir: string;
-      try {
-        realmDir = realmFolderOf(realmName);
-      } catch (error) {
-        const reason = printable(causeOf(error));
-        printMessage(`${reason} Its journeys are not pulled.`, 'error');
-        run.recordFailure(`realm ${printable(realmName)}`, reason);
-        continue;
-      }
+      const realmDir = run.deriveOrFail(
+        `realm ${realmName}`,
+        () => realmFolderOf(realmName),
+        'Its journeys are not pulled.'
+      );
+      if (realmDir === undefined) continue;
       state.setRealm(realmName);
       // a journey that was read is counted when its files are written, so only the failures are counted here
       const report = run.resultCallback();
@@ -182,7 +180,12 @@ async function processNodeExport(
     ) as any;
     saveJsonToFile(
       script,
-      objectFilePath(getFilePath(`${scriptsDir}scripts-config`), script._id),
+      getFilePath(
+        pulledFilePath(
+          objectFilePath(`${scriptsDir}scripts-config`, script._id)
+        ),
+        true
+      ),
       false,
       true,
       true
@@ -190,7 +193,7 @@ async function processNodeExport(
   }
   saveJsonToFile(
     node,
-    getFilePath(`${nodeFileDir}.json`, true),
+    getFilePath(pulledFilePath(`${nodeFileDir}.json`), true),
     false,
     true,
     true
@@ -230,7 +233,10 @@ async function processJourneysExport(
       const journeyDir = objectFolderPath(journeysDir, treeId);
       const nodeDir = `${journeyDir}/nodes`;
       if (clean) {
-        fs.rmSync(getFilePath(nodeDir), { recursive: true, force: true });
+        fs.rmSync(getFilePath(pulledFilePath(nodeDir)), {
+          recursive: true,
+          force: true,
+        });
       }
       for (const node of Object.values(journey.nodes)) {
         if (
@@ -260,7 +266,7 @@ async function processJourneysExport(
       // the file of the journey has the name of its folder, which is the name a push reads
       saveJsonToFile(
         journey.tree,
-        getFilePath(objectFilePath(journeyDir, treeId), true),
+        getFilePath(pulledFilePath(objectFilePath(journeyDir, treeId)), true),
         false,
         true,
         true

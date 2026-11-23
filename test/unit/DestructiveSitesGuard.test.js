@@ -63,17 +63,17 @@ const SHELL_REMOVAL =
 const ALLOWED = [
   {
     module: 'src/configManagerOps/FrConfigJourneysOps.ts',
-    call: 'fs.rmSync(getFilePath(nodeDir), { recursive: true, force: true })',
+    call: 'fs.rmSync(getFilePath(pulledFilePath(nodeDir)), { recursive: true, force: true })',
     via: [
       'const journeyDir = objectFolderPath(journeysDir, treeId);',
       'const nodeDir = `${journeyDir}/nodes`;',
-      'realmDir = realmFolderOf(realmName);',
+      '() => realmFolderOf(realmName),',
     ],
-    why: 'the `nodes` folder of a journey that `pull journeys --clean` pulls: the realm is `realmFolderOf` and the id of the journey is `objectFolderPath`, one name each',
+    why: 'the `nodes` folder of a journey that `pull journeys --clean` pulls: the realm is `realmFolderOf` and the id of the journey is `objectFolderPath`, one name each, and the path passes the gate of a pull',
   },
   {
     module: 'src/ops/ApplicationMigrateOps.ts',
-    call: 'fs.rmSync(path.join(treeDir, file))',
+    call: 'fs.rmSync(path.join(treeDir, pulledFilePath(file)))',
     via: ['realmDir = realmFolderOf(object.realm);'],
     why: 'a file that `kindPathFiles` found: the realm of the object is `realmFolderOf` (a realm that is not a folder name has no files), the id is one segment',
   },

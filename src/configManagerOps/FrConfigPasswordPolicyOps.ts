@@ -1,5 +1,6 @@
 import fs from 'fs';
 import { frodo, state } from '@rockcarver/frodo-lib';
+import { pulledFilePath } from '../utils/ConfigTreePath';
 import { printError, printMessage } from '../utils/Console';
 import { causeOf } from '../utils/ErrorCause';
 import { realmList } from '../utils/FrConfig';
@@ -40,7 +41,7 @@ export async function configManagerExportPasswordPolicy(
         const fileName = `realms/${currentRealm === '/' ? 'root' : currentRealm}/password-policy/${objectName}-password-policy.json`;
         saveJsonToFile(
           passwordPolicy,
-          getFilePath(fileName, true),
+          getFilePath(pulledFilePath(fileName), true),
           false,
           true
         );

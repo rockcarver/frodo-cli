@@ -5,6 +5,7 @@ import { extractFrConfigDataToFile } from '../utils/Config';
 import {
   objectFilePath,
   objectFolderPath,
+  pulledFilePath,
   referencedFilePath,
 } from '../utils/ConfigTreePath';
 import { printError, printMessage } from '../utils/Console';
@@ -127,14 +128,17 @@ export async function configManagerExportManagedObjects(
             const schemaFileName = `${objectPath}/schema/${managedObject.name}.schema.${customRelationship}.json`;
             saveJsonToFile(
               schemaData,
-              getFilePath(schemaFileName, true),
+              getFilePath(pulledFilePath(schemaFileName), true),
               false
             );
           }
         }
         saveJsonToFile(
           managedObject,
-          getFilePath(`${objectPath}/${managedObject.name}.json`, true),
+          getFilePath(
+            pulledFilePath(`${objectPath}/${managedObject.name}.json`),
+            true
+          ),
           false
         );
       });

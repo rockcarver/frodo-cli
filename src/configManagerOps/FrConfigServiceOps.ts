@@ -7,6 +7,7 @@ import {
   type ServiceNextDescendent,
 } from '@rockcarver/frodo-lib';
 import { combinedServiceError, importedServiceNameOf } from '../ops/ServiceOps';
+import { pulledFilePath } from '../utils/ConfigTreePath';
 import {
   createProgressIndicator,
   printError,
@@ -100,7 +101,9 @@ export async function configManagerExportServices(
               saveJsonToFile(
                 descendent,
                 getFilePath(
-                  `${fileDir}/${service._type._id}/${descendent._id}.json`,
+                  pulledFilePath(
+                    `${fileDir}/${service._type._id}/${descendent._id}.json`
+                  ),
                   true
                 ),
                 false,
@@ -111,7 +114,10 @@ export async function configManagerExportServices(
           delete service.nextDescendents;
           saveJsonToFile(
             service,
-            getFilePath(`${fileDir}/${service._type._id}.json`, true),
+            getFilePath(
+              pulledFilePath(`${fileDir}/${service._type._id}.json`),
+              true
+            ),
             false,
             true
           );

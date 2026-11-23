@@ -16,6 +16,7 @@ import {
 import {
   isOneSafeSegment,
   objectFilePath,
+  pulledFilePath,
   realmFolderOf,
 } from '../utils/ConfigTreePath';
 import {
@@ -64,7 +65,7 @@ export async function exportCircleOfTrustToFile(
   const fileDirectory = `realms/${realmDir}/realm-config/saml/COT`;
   saveJsonToFile(
     cotResult.saml.cot[cotId],
-    getFilePath(`${fileDirectory}/${cotId}.json`, true),
+    getFilePath(pulledFilePath(`${fileDirectory}/${cotId}.json`), true),
     false,
     true
   );
@@ -363,7 +364,10 @@ export async function configManagerExportSaml(
 
           saveJsonToFile(
             saveObject,
-            getFilePath(`${fileDirectory}/${fileName}.json`, true),
+            getFilePath(
+              pulledFilePath(`${fileDirectory}/${fileName}.json`),
+              true
+            ),
             false,
             true
           );

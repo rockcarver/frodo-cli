@@ -1,6 +1,10 @@
 import fs from 'fs';
 import { frodo, state, type ScriptSkeleton } from '@rockcarver/frodo-lib';
-import { objectFilePath, referencedFilePath } from '../utils/ConfigTreePath';
+import {
+  objectFilePath,
+  pulledFilePath,
+  referencedFilePath,
+} from '../utils/ConfigTreePath';
 import {
   createProgressIndicator,
   printError,
@@ -44,7 +48,9 @@ export function exportScriptToFiles(script: ScriptSkeleton, realm: string) {
   saveJsonToFile(
     { ...script, script: fileObj },
     getFilePath(
-      `realms/${realmDir}/scripts/scripts-config/${script._id}.json`,
+      pulledFilePath(
+        `realms/${realmDir}/scripts/scripts-config/${script._id}.json`
+      ),
       true
     ),
     false,
@@ -53,7 +59,10 @@ export function exportScriptToFiles(script: ScriptSkeleton, realm: string) {
   );
   saveTextToFile(
     decodedScript,
-    getFilePath(`realms/${realmDir}/scripts/${relScriptPath}`, true)
+    getFilePath(
+      pulledFilePath(`realms/${realmDir}/scripts/${relScriptPath}`),
+      true
+    )
   );
 }
 

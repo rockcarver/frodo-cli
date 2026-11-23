@@ -4,6 +4,7 @@ import {
   FrodoError,
   type CustomNodeSkeleton,
 } from '@rockcarver/frodo-lib';
+import { pulledFilePath } from '../utils/ConfigTreePath';
 import { printError, printMessage } from '../utils/Console';
 import { causeOf } from '../utils/ErrorCause';
 import { fileFilter } from '../utils/FrConfig';
@@ -55,18 +56,21 @@ export async function configManagerExportCustomNodes(
     const run = new OperationRun({ unit: 'custom node', allowFailures });
     for (const node of customNodes) {
       try {
-        const nodeDir = getFilePath(
-          `custom-nodes/nodes/${node.displayName}/`,
-          true
-        );
+        const nodeFolder = `custom-nodes/nodes/${node.displayName}`;
         const scriptFileName = `${node.displayName}.js`;
         const jsonFileName = `${node.displayName}.json`;
 
-        saveTextToFile(`${node.script}`, nodeDir + scriptFileName);
+        saveTextToFile(
+          `${node.script}`,
+          getFilePath(pulledFilePath(`${nodeFolder}/${scriptFileName}`), true)
+        );
         (node as any).script = { file: scriptFileName };
 
-        const filePath = nodeDir + jsonFileName;
-        saveJsonToFile(node, filePath, false);
+        saveJsonToFile(
+          node,
+          getFilePath(pulledFilePath(`${nodeFolder}/${jsonFileName}`), true),
+          false
+        );
         run.recordSuccess();
       } catch (error) {
         printError(error, `Error exporting custom node ${node.displayName}`);

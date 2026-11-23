@@ -7,7 +7,7 @@ import {
   OwnedObjects,
   skipsOwnedObjects,
 } from '../ops/ApplicationOwnedObjects';
-import { objectFilePath } from '../utils/ConfigTreePath';
+import { objectFilePath, pulledFilePath } from '../utils/ConfigTreePath';
 import { printError, printMessage } from '../utils/Console';
 import { causeOf } from '../utils/ErrorCause';
 import { countItems, importItemsOfFile } from '../utils/ImportItems';
@@ -67,7 +67,10 @@ export async function configManagerExportConnectorDefinitions(
       await run.run(connectorName, () => {
         saveJsonToFile(
           connector,
-          getFilePath(`sync/connectors/${connectorName}.json`, true),
+          getFilePath(
+            pulledFilePath(`sync/connectors/${connectorName}.json`),
+            true
+          ),
           false,
           true
         );

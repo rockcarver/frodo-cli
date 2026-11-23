@@ -1,4 +1,5 @@
 import { frodo, type IdObjectSkeletonInterface } from '@rockcarver/frodo-lib';
+import { pulledFilePath } from '../utils/ConfigTreePath';
 import { printError } from '../utils/Console';
 
 const { readConfigEntity, updateConfigEntity } = frodo.idm.config;
@@ -13,7 +14,10 @@ export async function configManagerExportIdmAuthentication(): Promise<boolean> {
     const exportData = await readConfigEntity('authentication');
     saveJsonToFile(
       exportData,
-      getFilePath('idm-authentication-config/authentication.json', true),
+      getFilePath(
+        pulledFilePath('idm-authentication-config/authentication.json'),
+        true
+      ),
       false
     );
     return true;

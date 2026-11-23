@@ -19,6 +19,7 @@ import {
 import {
   objectFilePath,
   objectFolderPath,
+  pulledFilePath,
   realmFolderOf,
   referencedFilePath,
 } from '../utils/ConfigTreePath';
@@ -400,7 +401,7 @@ export async function pullApplication(
   await piece('the application record', () =>
     saveJsonToFile(
       escapePlaceholders(record),
-      getFilePath(`${folder}/application.json`, true),
+      getFilePath(pulledFilePath(`${folder}/application.json`), true),
       false,
       false
     )
@@ -442,7 +443,7 @@ export async function pullApplication(
       }
       saveJsonToFile(
         file,
-        getFilePath(`${folder}/oauth2-client.json`, true),
+        getFilePath(pulledFilePath(`${folder}/oauth2-client.json`), true),
         false,
         false,
         true
@@ -461,7 +462,7 @@ export async function pullApplication(
       const role = provider.from === 'ssoEntities.idpPrivateId' ? 'idp' : 'sp';
       saveJsonToFile(
         { config, metadata },
-        getFilePath(`${folder}/saml/${role}.json`, true),
+        getFilePath(pulledFilePath(`${folder}/saml/${role}.json`), true),
         false,
         true
       );
@@ -473,7 +474,7 @@ export async function pullApplication(
       const definition = await frodo.idm.connector.readConnector(connector.id);
       saveJsonToFile(
         escapePlaceholders(definition),
-        getFilePath(`${folder}/connector.json`, true),
+        getFilePath(pulledFilePath(`${folder}/connector.json`), true),
         false,
         true
       );

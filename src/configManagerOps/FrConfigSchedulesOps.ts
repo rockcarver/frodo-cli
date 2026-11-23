@@ -5,7 +5,7 @@ import {
   type IdObjectSkeletonInterface,
 } from '@rockcarver/frodo-lib';
 import { extractFrConfigDataToFile } from '../utils/Config';
-import { referencedFilePath } from '../utils/ConfigTreePath';
+import { pulledFilePath, referencedFilePath } from '../utils/ConfigTreePath';
 import { printError, printMessage } from '../utils/Console';
 import { causeOf } from '../utils/ErrorCause';
 import { fileFilter } from '../utils/FrConfig';
@@ -81,7 +81,7 @@ export async function configManagerExportSchedules(
         const scheduleFilename = `${scheduleDir}/${scheduleName}.json`;
         saveJsonToFile(
           schedule,
-          getFilePath(scheduleFilename, true),
+          getFilePath(pulledFilePath(scheduleFilename), true),
           false,
           true
         );

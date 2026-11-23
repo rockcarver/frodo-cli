@@ -11,6 +11,7 @@ import { extractFrConfigDataToFile } from '../utils/Config';
 import {
   objectFilePath,
   objectFolderPath,
+  pulledFilePath,
   referencedFilePath,
 } from '../utils/ConfigTreePath';
 import { printError, printMessage, verboseMessage } from '../utils/Console';
@@ -57,7 +58,12 @@ export function exportMappingToDirectory(
   });
 
   const fileName = `${mappingPath}/${mapping.name}.json`;
-  saveJsonToFile(mapping, getFilePath(fileName, true), false, true);
+  saveJsonToFile(
+    mapping,
+    getFilePath(pulledFilePath(fileName), true),
+    false,
+    true
+  );
 }
 
 /**

@@ -1,4 +1,5 @@
 import { frodo, type IdObjectSkeletonInterface } from '@rockcarver/frodo-lib';
+import { pulledFilePath } from '../utils/ConfigTreePath';
 import { printError } from '../utils/Console';
 
 const { readConfigEntity, importConfigEntities } = frodo.idm.config;
@@ -11,7 +12,11 @@ const { getFilePath, saveJsonToFile, readJsonFile } = frodo.utils;
 export async function configManagerExportAudit(): Promise<boolean> {
   try {
     const exportData = await readConfigEntity('audit');
-    saveJsonToFile(exportData, getFilePath('audit/audit.json', true), false);
+    saveJsonToFile(
+      exportData,
+      getFilePath(pulledFilePath('audit/audit.json'), true),
+      false
+    );
     return true;
   } catch (error) {
     printError(error, `Error exporting IDM audit configuration`);

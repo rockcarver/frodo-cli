@@ -1,5 +1,6 @@
 import fs from 'fs';
 import { frodo } from '@rockcarver/frodo-lib';
+import { pulledFilePath } from '../utils/ConfigTreePath';
 import { printError, printMessage } from '../utils/Console';
 import { causeOf } from '../utils/ErrorCause';
 import { countItems, importItemsOfFile } from '../utils/ImportItems';
@@ -45,7 +46,7 @@ export async function configManagerExportInternalRoles(
       await run.run(role.name, () => {
         saveJsonToFile(
           role,
-          getFilePath(`internal-roles/${role.name}.json`, true),
+          getFilePath(pulledFilePath(`internal-roles/${role.name}.json`), true),
           false,
           true
         );

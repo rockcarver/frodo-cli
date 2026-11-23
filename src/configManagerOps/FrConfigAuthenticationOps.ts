@@ -1,5 +1,6 @@
 import fs from 'fs';
 import { frodo, state } from '@rockcarver/frodo-lib';
+import { pulledFilePath } from '../utils/ConfigTreePath';
 import { printError, printMessage } from '../utils/Console';
 import { realmList } from '../utils/FrConfig';
 import { OperationRun } from '../utils/OperationRun';
@@ -39,7 +40,9 @@ export async function configManagerExportAuthentication(
         saveJsonToFile(
           exportData,
           getFilePath(
-            `realms/${realm === '/' ? 'root' : realm}/realm-config/authentication.json`,
+            pulledFilePath(
+              `realms/${realm === '/' ? 'root' : realm}/realm-config/authentication.json`
+            ),
             true
           ),
           false,

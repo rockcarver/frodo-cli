@@ -1,5 +1,6 @@
 import fs from 'fs';
 import { frodo, type IdObjectSkeletonInterface } from '@rockcarver/frodo-lib';
+import { pulledFilePath } from '../utils/ConfigTreePath';
 import { printError, printMessage } from '../utils/Console';
 import { causeOf } from '../utils/ErrorCause';
 import { lodashMerge } from '../utils/FrConfig';
@@ -50,7 +51,9 @@ export async function configManagerExportServiceObjectsFromFile(
           saveJsonToFile(
             mergedAttributes,
             getFilePath(
-              `service-objects/${objectType}/${object.searchValue}.json`,
+              pulledFilePath(
+                `service-objects/${objectType}/${object.searchValue}.json`
+              ),
               true
             ),
             false,

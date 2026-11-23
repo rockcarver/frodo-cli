@@ -1,7 +1,7 @@
 import fs from 'fs';
 import { frodo } from '@rockcarver/frodo-lib';
 import { extractFrConfigDataToFile } from '../utils/Config';
-import { referencedFilePath } from '../utils/ConfigTreePath';
+import { pulledFilePath, referencedFilePath } from '../utils/ConfigTreePath';
 import { printError, printMessage, verboseMessage } from '../utils/Console';
 import { causeOf, isNotFoundError } from '../utils/ErrorCause';
 import { OperationRun } from '../utils/OperationRun';
@@ -32,7 +32,10 @@ export async function configManagerExportTermsAndConditions(): Promise<boolean> 
     }
     saveJsonToFile(
       exportData,
-      getFilePath('terms-conditions/terms-conditions.json', true),
+      getFilePath(
+        pulledFilePath('terms-conditions/terms-conditions.json'),
+        true
+      ),
       false
     );
     return true;

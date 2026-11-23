@@ -4,6 +4,7 @@ import {
   type SecretSkeleton,
   type VersionOfSecretSkeleton,
 } from '@rockcarver/frodo-lib';
+import { pulledFilePath } from '../utils/ConfigTreePath';
 import {
   createProgressIndicator,
   printError,
@@ -134,7 +135,7 @@ export async function configManagerExportSecrets(
 
         saveJsonToFile(
           cleanSecret,
-          getFilePath(`esvs/secrets/${secret._id}.json`, true),
+          getFilePath(pulledFilePath(`esvs/secrets/${secret._id}.json`), true),
           false
         );
         run.recordSuccess();

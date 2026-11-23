@@ -6,7 +6,7 @@ import {
   type ThemeExportInterface,
   type ThemeSkeleton,
 } from '@rockcarver/frodo-lib';
-import { referencedFilePath } from '../utils/ConfigTreePath';
+import { pulledFilePath, referencedFilePath } from '../utils/ConfigTreePath';
 import { printError, printMessage } from '../utils/Console';
 import { causeOf } from '../utils/ErrorCause';
 import { decodeOrNot, encodeOrNot, realmList } from '../utils/FrConfig';
@@ -71,7 +71,7 @@ async function exportThemesOfRealm(
             const fileName = `${field.name}.html`;
             saveTextToFile(
               decodeOrNot(theme[field.name] as string, field.encoded),
-              getFilePath(`${themeDir}/${fileName}`, true)
+              getFilePath(pulledFilePath(`${themeDir}/${fileName}`), true)
             );
             theme[field.name] = { file: fileName };
           }
@@ -82,7 +82,7 @@ async function exportThemesOfRealm(
             const localeFilename = `${locale}.html`;
             saveTextToFile(
               decodeOrNot(theme[field.name][locale], field.encoded),
-              getFilePath(`${fieldDir}/${localeFilename}`, true)
+              getFilePath(pulledFilePath(`${fieldDir}/${localeFilename}`), true)
             );
             theme[field.name][locale] = {
               file: `${field.name}/${localeFilename}`,
@@ -98,7 +98,7 @@ async function exportThemesOfRealm(
     }
     saveJsonToFile(
       theme,
-      getFilePath(`${themeDir}/${theme.name}.json`, true),
+      getFilePath(pulledFilePath(`${themeDir}/${theme.name}.json`), true),
       false
     );
   }

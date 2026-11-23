@@ -363,23 +363,22 @@ describe('a journey whose id is a hostile name', () => {
     expect(printed.join('\n')).not.toMatch(/fail|error/i);
   });
 
-  test('known gap: two ids that a file name cuts to the same 250 bytes are one folder, the later journey overwrites the earlier one without a word', async () => {
+  test('an id that is longer than a file name can be fails that journey alone, naming it: it is not cut, so two long ids never become one folder', async () => {
     const first = `a/${'x'.repeat(300)}`;
     const second = `a/${'x'.repeat(280)}`;
-    tenant({ [first]: journey(first), [second]: journey(second) });
+    tenant({
+      [first]: journey(first),
+      [second]: journey(second),
+      A: journey('A'),
+    });
 
-    expect(await pull()).toBe(true);
+    expect(await pull()).toBe(false);
 
     const journeys = path.join(configFolder, 'realms', 'alpha', 'journeys');
-    const [folder, ...others] = fs.readdirSync(journeys);
-    expect(others).toEqual([]);
-    expect(Buffer.byteLength(folder)).toBe(250);
-    expect(
-      JSON.parse(
-        fs.readFileSync(path.join(journeys, folder, `${folder}.json`), 'utf8')
-      )._id
-    ).toBe(second);
-    expect(printed.join('\n')).not.toMatch(/fail|error/i);
+    expect(fs.readdirSync(journeys)).toEqual(['A']);
+    const said = printed.join('\n');
+    expect(said).toContain('longer than 255 bytes');
+    expect(said).toContain('2 of 3 journeys failed');
   });
 
   test('a journey whose tree has another id than its key is written under its key', async () => {

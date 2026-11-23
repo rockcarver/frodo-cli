@@ -1,5 +1,6 @@
 import fs from 'fs';
 import { frodo, type VariableSkeleton } from '@rockcarver/frodo-lib';
+import { pulledFilePath } from '../utils/ConfigTreePath';
 import {
   createProgressIndicator,
   printError,
@@ -116,7 +117,10 @@ export async function configManagerExportVariables(
 
         saveJsonToFile(
           variableObject,
-          getFilePath(`esvs/variables/${variable._id}.json`, true),
+          getFilePath(
+            pulledFilePath(`esvs/variables/${variable._id}.json`),
+            true
+          ),
           false
         );
 

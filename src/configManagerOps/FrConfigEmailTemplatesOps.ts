@@ -1,7 +1,7 @@
 import fs from 'fs';
 import { frodo } from '@rockcarver/frodo-lib';
 import { extractFrConfigDataToFile } from '../utils/Config';
-import { referencedFilePath } from '../utils/ConfigTreePath';
+import { pulledFilePath, referencedFilePath } from '../utils/ConfigTreePath';
 import { printError, printMessage } from '../utils/Console';
 import { causeOf } from '../utils/ErrorCause';
 import { countItems, importItemsOfFile } from '../utils/ImportItems';
@@ -64,7 +64,10 @@ export async function configManagerExportEmailTemplates(
         }
         saveJsonToFile(
           template,
-          getFilePath(`${templatePath}/${templateName}.json`, true),
+          getFilePath(
+            pulledFilePath(`${templatePath}/${templateName}.json`),
+            true
+          ),
           false,
           true
         );
