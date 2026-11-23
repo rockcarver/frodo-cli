@@ -66,7 +66,13 @@ $.last      // status, headers and body of the last response
 Relative URLs resolve against the connected environment: paths under
 `/openidm` (and bare paths) go to the IDM origin, `/am/...` paths go to AM.
 Absolute URLs pass through, with credentials attached only when the target
-is the connected host.
+is the connected host. A call to another host carries no credential and none
+of the connection's header overrides.
+
+The calls go out like those of every other command: the proxy variables
+(`HTTP_PROXY`, `HTTPS_PROXY`, `NO_PROXY`), `--insecure`, `--retry` and
+`--curlirize` apply, and a call that the server refuses with 401 is sent once
+more with a renewed credential when the login can be renewed.
 
 Results resolve with the parsed response body; HTTP error statuses reject
 with a `ShellRestError` whose `.result` carries the full response
