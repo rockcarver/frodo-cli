@@ -509,6 +509,7 @@ describe.each(COMMANDS)('%s', (name, setup, operationName, statusType) => {
 
         const { exitCode } = await run(setup, ['--full', '-y']);
 
+        expect(calls).toEqual(lifecycle);
         expect(confirm).not.toHaveBeenCalled();
         expect(exitCode).toBe(0);
       });
