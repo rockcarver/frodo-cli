@@ -63,6 +63,17 @@ describe('staleBuildWarnings: the linked frodo-lib', () => {
     expect(staleBuildWarnings({ root, env: {} })).toEqual([]);
   });
 
+  it('reads dist/index.mjs, the one build of the library from 5.0.0-50 on', () => {
+    linkLib();
+    write(path.join(lib, 'src', 'ops', 'A.ts'), 1);
+    write(path.join(lib, 'dist', 'index.mjs'), 2);
+    expect(staleBuildWarnings({ root, env: {} })).toEqual([]);
+    write(path.join(lib, 'src', 'ops', 'B.ts'), 3);
+    const [warning, ...rest] = staleBuildWarnings({ root, env: {} });
+    expect(rest).toEqual([]);
+    expect(warning).toContain('1 source file newer');
+  });
+
   it('warns, naming the clone, the count and the newest file, when the source is newer', () => {
     linkLib();
     write(path.join(lib, 'dist', 'index.js'), 1);
@@ -102,7 +113,7 @@ describe('staleBuildWarnings: the linked frodo-lib', () => {
     linkLib();
     write(path.join(lib, 'src', 'ops', 'A.ts'), 1);
     const [warning] = staleBuildWarnings({ root, env: {} });
-    expect(warning).toContain('has no dist/index.js');
+    expect(warning).toContain('has no dist/index.mjs');
     expect(warning).toContain('npm run build');
   });
 });
