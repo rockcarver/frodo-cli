@@ -361,6 +361,23 @@ const FAMILIES = [
     nonames: ['CON', 'nul.txt'],
   },
   {
+    family: 'scripts (a context)',
+    under: 'realms/alpha/scripts',
+    folderOnly: true,
+    arrange: (values) =>
+      facade.script.readScripts.mockResolvedValue(
+        values.map((context, index) => ({
+          _id: `s${index}`,
+          name: `S${index}`,
+          context,
+          language: 'JAVASCRIPT',
+          script: b64('x'),
+        }))
+      ),
+    run: () => scripts.configManagerExportScripts([], 'alpha'),
+    files: (n) => [`realms/alpha/scripts/scripts-content/${n}/S0.js`],
+  },
+  {
     family: 'scripts (an id)',
     under: 'realms/alpha/scripts',
     arrange: (values) =>
