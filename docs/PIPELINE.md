@@ -14,7 +14,7 @@ described in the job sections that follow.)
 ```mermaid
 flowchart TD
     PR["PR to main<br/>or push to main"] --> CH["Detect code changes<br/>(skips tests for docs-only PRs)"]
-    CH -->|"guidance files, no code"| G["Validate guidance<br/>(decision records, skills, Dependabot policy)"]
+    CH -->|"guidance files, no code"| G["Validate guidance<br/>(decision records, skills, rule files, Dependabot policy)"]
     PR --> B["Build<br/>(version bump, dist bundle)<br/>required check"]
     B --> T["Test (26)"]
     B --> X["Cross-Platform Tests<br/>(credential file permissions)"]
@@ -108,7 +108,11 @@ which answers two questions:
   `.github/dependabot.yml` and `.github/workflows/dependabot-auto-merge.yml`
   (the policy is decided by the shared action
   `gearsnlevers/dependabot-auto-merge-action`, pinned in that workflow;
-  `test/unit/DependabotPolicy.test.js` reads both files).
+  `test/unit/DependabotPolicy.test.js` reads both files). One more test reads a
+  folder that is on neither list: `test/unit/ClaudeRules.test.js` compares
+  `.claude/rules/` with `.github/instructions/` ([core 0026](decisions/core/0026-agent-guidance-has-one-source-and-per-tool-copies-are-generated-from-it.md)),
+  so a pull request that changes `.claude/rules/` counts as code and runs the
+  whole matrix, where the guidance tests run too.
 
 The script is read from the pull request's **base** commit (the contents API
 at `base.sha`), never from its head: a pull request does not choose the rules
@@ -170,8 +174,9 @@ files, `.github/dependabot.yml` or the Dependabot auto-merge workflow and
 nothing else. It checks out the pull request head, runs `npm ci` and
 `npm run test:guidance`
 ([../tools/run-guidance-tests.mjs](../tools/run-guidance-tests.mjs)), which runs
-only `test/unit/DecisionRecords.test.js`, `test/unit/Skills.test.js` and
-`test/unit/DependabotPolicy.test.js` and fails if any of them is missing. No build, no tenant, no binary: about a
+only `test/unit/DecisionRecords.test.js`, `test/unit/Skills.test.js`,
+`test/unit/DependabotPolicy.test.js` and `test/unit/ClaudeRules.test.js` and
+fails if any of them is missing. No build, no tenant, no binary: about a
 minute, most of it `npm ci`. The same command runs locally.
 
 ### Build
