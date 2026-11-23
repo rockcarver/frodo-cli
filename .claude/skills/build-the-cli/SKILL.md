@@ -41,7 +41,7 @@ Do not edit `src/` or rebuild `dist/` while a test run is in progress: the test 
 ## Check before you finish
 
 ```console
-npm run check                      # ESLint + Prettier check on src/**/*.ts (npm run fix writes)
+npm run check                      # ESLint + Prettier on src/**/*.ts (npm run fix writes), CHANGELOG.md untouched
 npx tsc --noEmit
 npx tsdown
 npm test                           # the whole suite, replays recordings, no network

@@ -258,8 +258,10 @@ rule made lint slow and turned formatting errors into lint errors),
 `eslint-plugin-jsx-a11y`, `eslint-plugin-import`.
 
 **Scripts**: `npm run fix` = `eslint --fix && prettier --write "src/**/*.ts"`
-(prettier last, so it wins), `npm run check` = `eslint && prettier --check`,
-and `lint` / `lint:fix` alias them. CI runs `npm run check`.
+(prettier last, so it wins), `npm run check` = `eslint && prettier --check`
+and the pull request rules (`npm run check:pull-request`, see
+[PIPELINE.md](PIPELINE.md)), and `lint` / `lint:fix` alias them. CI runs
+`npm run check`.
 
 **ESLint 10 findings fixed in the migration**: dead initializers on `let`
 declarations (`no-useless-assignment`, including two real shadowing bugs
