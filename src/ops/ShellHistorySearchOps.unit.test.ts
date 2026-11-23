@@ -170,6 +170,44 @@ function longCorpus(): [string, string][] {
     while (word.length < length) [previous, word] = [word, word + previous];
     return word.slice(0, length);
   };
+  // Around the two rules that choose the search: a word of more than 300
+  // characters, and a word times a line above 100,000 (at it and one over,
+  // with the word at the start, in the middle, at the end, and not in the line)
+  const edges: [number, number][] = [
+    [299, 335],
+    [299, 334],
+    [300, 333],
+    [300, 334],
+    [301, 332],
+    [301, 333],
+    [302, 331],
+    [302, 332],
+    [400, 250],
+    [400, 251],
+    [1000, 100],
+    [1000, 101],
+    [301, 1000],
+    [300, 1000],
+    [5, 20000],
+    [5, 20001],
+  ];
+  for (const [wordLength, lineLength] of edges) {
+    const line = Array.from({ length: lineLength }, () => 'ab'[next(2)]).join(
+      ''
+    );
+    for (const at of [
+      0,
+      Math.floor((lineLength - wordLength) / 2),
+      lineLength - wordLength,
+    ]) {
+      const word = line.slice(at, at + wordLength);
+      pairs.push([word, line]);
+      pairs.push([
+        `${word.slice(0, -1)}${word.endsWith('a') ? 'b' : 'a'}`,
+        line,
+      ]);
+    }
+  }
   for (let n = 0; n < 90; n++) {
     const line = fibonacci(1100).slice(next(100));
     const length = 260 + next(140);
@@ -517,10 +555,12 @@ describe('the scorer that reads the query once', () => {
       const expected = referenceScore(query, line);
       expect(scoreHistoryMatch(query, line)).toEqual(expected);
       if (expected) matches += 1;
-      // above this the scorer does not trust indexOf (see the scorer)
-      if (query.length * line.length > 100000) beyond += 1;
+      // beyond this the scorer does not trust indexOf (see the scorer)
+      if (query.length > 300 && query.length * line.length > 100000) {
+        beyond += 1;
+      }
     }
-    expect(beyond).toBeGreaterThanOrEqual(250);
+    expect(beyond).toBeGreaterThanOrEqual(150);
     expect(matches).toBeGreaterThan(30);
     expect(pairs.length - matches).toBeGreaterThan(30);
     // a word that is in the line as it stands, found by the other search
@@ -559,16 +599,31 @@ describe('the scorer that reads the query once', () => {
 
   describe('on input made to be slow', () => {
     /**
-     * Quick: under 300 ms, or under 300 times what one pass over the line
-     * costs on this machine at this moment (the scorer's search for a word
-     * is linear in the line; what indexOf takes is the word times the line).
+     * Quick: under 100 ms, or under 60 times what one pass over the line
+     * costs on this machine at this moment. The scorer's search for a long
+     * word takes about 10 such passes; what indexOf takes for the inputs
+     * below is hundreds of passes and more, however fast the machine is.
      */
     function expectQuick(line: string, run: () => void) {
       const pass = quickest(() => line.toLowerCase().indexOf('\u0000'));
-      expect(quickest(run)).toBeLessThan(Math.max(300, 300 * pass));
+      expect(quickest(run)).toBeLessThan(Math.max(100, 60 * pass));
     }
 
-    it('says at once that a word of 2000 characters is not in a line of a million characters', () => {
+    it('says at once that a word of 5000 characters is not in a line of a million characters', () => {
+      const line = 'a'.repeat(1_000_000);
+      const word = `${'a'.repeat(2500)}b${'a'.repeat(2500)}`;
+      expect(scoreHistoryMatch(word, line)).toBeNull();
+      expectQuick(line, () => scoreHistoryMatch(word, line));
+    });
+
+    it('says at once that a word of 2000 characters is not in a line of 4 million characters', () => {
+      const line = 'a'.repeat(4_000_000);
+      const word = `${'a'.repeat(1000)}b${'a'.repeat(1000)}`;
+      expect(scoreHistoryMatch(word, line)).toBeNull();
+      expectQuick(line, () => scoreHistoryMatch(word, line));
+    });
+
+    it('says at once that a word of 1000 or 2000 characters is not in a line of a million characters', () => {
       const line = 'a'.repeat(1_000_000);
       const word = `${'a'.repeat(1000)}b${'a'.repeat(1000)}`;
       expect(scoreHistoryMatch(word, line)).toBeNull();
@@ -576,6 +631,30 @@ describe('the scorer that reads the query once', () => {
       const other = `${'a'.repeat(500)}b${'a'.repeat(500)}`;
       expect(scoreHistoryMatch(other, line)).toBeNull();
       expectQuick(line, () => scoreHistoryMatch(other, line));
+    });
+
+    it('leaves a short word to indexOf, however long the lines are', () => {
+      // 40 scripts of 200,000 characters, in lower case, as the history of
+      // someone who pastes scripts holds: a word of 5, 8 or 200 characters is
+      // searched for as fast as one pass over the line, not 10 to 30 times slower
+      const lines = Array.from(
+        { length: 40 },
+        (_, i) =>
+          `${'const journeys = await frodo.journey.readjourneys();\n'.repeat(3800)}${i}`
+      );
+      for (const word of ['zzzzz', 'journeyx', 'z'.repeat(200)]) {
+        const scorer = createHistoryScorer(word);
+        expect(lines.every((line) => scorer(line) === null)).toBe(true);
+        const pass = quickest(() =>
+          lines.forEach((line) => {
+            const t = line.toLowerCase();
+            t.indexOf(word);
+            t.indexOf(word[0]);
+          })
+        );
+        const scoring = quickest(() => lines.forEach((line) => scorer(line)));
+        expect(scoring).toBeLessThan(4 * pass + 2);
+      }
     });
 
     it('finds such a word as a subsequence when the line has the letters but not next to each other', () => {

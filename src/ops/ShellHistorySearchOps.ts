@@ -57,11 +57,13 @@ const CTRL_O = 0x0f;
  * second argument is true (listing the best lines does not need them, and
  * leaving them out takes about half the time).
  *
- * The search for an exact word is `indexOf` while the word times the line is
- * small, and a search that takes the length of the line plus the length of
- * the word above that: `indexOf` of the engine takes the word times the line
- * for some inputs, a second or more for a word of 2000 characters in a line
- * of a million.
+ * The search for an exact word is `indexOf`, unless the word has more than 300
+ * characters and its length times the length of the line is above 100,000:
+ * then it is a search that takes the length of the line plus the length of
+ * the word. `indexOf` of the engine takes the word times the line for some
+ * inputs, but only for long words (a second or more for a word of 2000
+ * characters in a line of a million), and for a short word it is much faster
+ * than a search written here.
  *
  * The web console's page ranks its history search with this very function:
  * the page carries its source (`Function.prototype.toString` in
@@ -114,7 +116,7 @@ export function createHistoryScorer(
       const q = entry.word;
       if (q.length > t.length) return null;
       let direct: number;
-      if (q.length * t.length <= 100000) {
+      if (q.length <= 300 || q.length * t.length <= 100000) {
         direct = t.indexOf(q);
       } else {
         entry.table = entry.table || tableOf(q);
