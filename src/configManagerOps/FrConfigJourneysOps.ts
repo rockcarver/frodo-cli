@@ -307,10 +307,10 @@ function missingDependency(
 ): MissingDependencyError {
   const hint = dependencies
     ? 'Pull the dependency too, or push with --no-deps.'
-    : 'Pull the dependency too.';
+    : 'Pull the dependency too, or push the journey with -i.';
   return new MissingDependencyError(
     journey,
-    `Journey '${journey}' needs ${needed}, but ${problem}: ${shownPath(file)}\n${hint}`
+    `Journey '${journey}' requires ${needed}, but ${problem}: ${shownPath(file)}\n${hint}`
   );
 }
 

@@ -288,10 +288,12 @@ describe('push journeys', () => {
 
     expect(importJourneys).not.toHaveBeenCalled();
     expect(summary()).toBe(
-      "1 of 1 journey failed:\n  - alpha/A: Journey 'A' needs the journey 'B', but its file is missing: realms/alpha/journeys/B/B.json"
+      "1 of 1 journey failed:\n  - alpha/A: Journey 'A' requires the journey 'B', but its file is missing: realms/alpha/journeys/B/B.json"
     );
     // the dependencies are off already, so the way out is not to push with the option again
-    expect(printed()).toContain('Pull the dependency too.');
+    expect(printed()).toContain(
+      'Pull the dependency too, or push the journey with -i.'
+    );
     expect(printed()).not.toContain('--no-deps');
   });
 
@@ -305,7 +307,7 @@ describe('push journeys', () => {
 
     expect(importedNames()).toEqual(['C']);
     expect(summary()).toBe(
-      "1 of 2 journeys failed:\n  - alpha/A: Journey 'A' needs the journey 'B', but its file is missing: realms/alpha/journeys/B/B.json"
+      "1 of 2 journeys failed:\n  - alpha/A: Journey 'A' requires the journey 'B', but its file is missing: realms/alpha/journeys/B/B.json"
     );
     expect(printed()).toContain(
       'Pull the dependency too, or push with --no-deps.'
@@ -319,7 +321,7 @@ describe('push journeys', () => {
 
     expect(importJourneys).not.toHaveBeenCalled();
     expect(summary()).toContain(
-      "alpha/A: Journey 'A' needs the journey 'B', but its file is missing"
+      "alpha/A: Journey 'A' requires the journey 'B', but its file is missing"
     );
   });
 
@@ -330,7 +332,7 @@ describe('push journeys', () => {
 
     expect(importJourneys).not.toHaveBeenCalled();
     expect(summary()).toBe(
-      "1 of 1 journey failed:\n  - alpha/A: Journey 'A' needs the script 'S', but its file is missing: realms/alpha/scripts/scripts-config/S.json"
+      "1 of 1 journey failed:\n  - alpha/A: Journey 'A' requires the script 'S', but its file is missing: realms/alpha/scripts/scripts-config/S.json"
     );
     expect(printed()).toContain(
       'Pull the dependency too, or push with --no-deps.'
@@ -353,7 +355,7 @@ describe('push journeys', () => {
 
     expect(importJourneys).not.toHaveBeenCalled();
     expect(summary()).toBe(
-      `1 of 1 journey failed:\n  - alpha/A: Journey 'A' needs the script 'S', but its content file is missing: realms/alpha/scripts/scripts-content/${CONTEXT}/S.js`
+      `1 of 1 journey failed:\n  - alpha/A: Journey 'A' requires the script 'S', but its content file is missing: realms/alpha/scripts/scripts-content/${CONTEXT}/S.js`
     );
   });
 
@@ -377,7 +379,7 @@ describe('push journeys', () => {
     expect(importedNames()).toEqual(['C']);
     expect(imported()[0].C.scripts.S.script).toEqual(['// S']);
     expect(summary()).toBe(
-      "1 of 2 journeys failed:\n  - alpha/A: Journey 'A' needs the script 'Missing', but its file is missing: realms/alpha/scripts/scripts-config/Missing.json"
+      "1 of 2 journeys failed:\n  - alpha/A: Journey 'A' requires the script 'Missing', but its file is missing: realms/alpha/scripts/scripts-config/Missing.json"
     );
     expect(printMessage.mock.calls.at(-1)[1]).toBe('error');
   });
@@ -391,7 +393,7 @@ describe('push journeys', () => {
     expect(await push(undefined, true, true)).toBe(true);
 
     expect(importedNames()).toEqual(['C']);
-    expect(summary()).toContain("alpha/A: Journey 'A' needs the script");
+    expect(summary()).toContain("alpha/A: Journey 'A' requires the script");
     expect(summary()).toContain(
       'The exit code stays 0 because --allow-failures was given.'
     );
@@ -410,8 +412,8 @@ describe('push journeys', () => {
     const lines = summary().split('\n');
     expect(lines[0]).toBe('2 of 2 journeys failed:');
     expect(lines.slice(1).sort()).toEqual([
-      "  - alpha/A: Journey 'B' needs the script 'Missing', but its file is missing: realms/alpha/scripts/scripts-config/Missing.json",
-      "  - alpha/B: Journey 'B' needs the script 'Missing', but its file is missing: realms/alpha/scripts/scripts-config/Missing.json",
+      "  - alpha/A: Journey 'B' requires the script 'Missing', but its file is missing: realms/alpha/scripts/scripts-config/Missing.json",
+      "  - alpha/B: Journey 'B' requires the script 'Missing', but its file is missing: realms/alpha/scripts/scripts-config/Missing.json",
     ]);
   });
 
