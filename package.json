@@ -58,6 +58,7 @@
     "mcp:test-oauth2-mayact": "node tools/mcp-oauth2-mayact-update-test.mjs",
     "check:mcp-sdk-track": "node tools/check-mcp-sdk-track.mjs",
     "check:pull-request": "node tools/check-pull-request.mjs",
+    "generate:claude-rules": "node tools/generate-claude-rules.mjs",
     "lint": "npm run check",
     "lint:fix": "npm run fix",
     "fix": "eslint --fix \"src/**/*.ts\" && prettier --write \"src/**/*.ts\"",
