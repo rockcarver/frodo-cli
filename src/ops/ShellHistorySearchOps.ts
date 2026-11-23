@@ -36,12 +36,21 @@ const CTRL_O = 0x0f;
 
 /**
  * Score one history line against a query, or return null when it does not
- * match. The query's characters must appear in the line in order (a
- * subsequence, any case), each at its earliest place. An exact substring
- * beats every subsequence (1000 plus the length of the line). Otherwise each
- * hit right after the one before adds 6, any other hit adds 1, and the
- * skipped characters before each hit and after the last one subtract. The
- * indexes are the positions (UTF-16 units) of the hits, for highlighting.
+ * match. A space in the query separates words (the package that ranked this
+ * search before did the same): every word must match the line, in any order
+ * and also where the words overlap, and the score is the sum of the scores
+ * of the words. A query without a word matches every line with the score 0,
+ * so that the history keeps its order (the newest entry first).
+ *
+ * One word matches when it is an exact substring of the line (any case), or
+ * when its characters appear in the line in order (a subsequence), each at
+ * its earliest place. An exact match scores 1000, plus 6 for each character
+ * of the word, minus the length of the line (at most 999 of it): the shorter
+ * line is the better one, and an exact match beats every subsequence. A
+ * subsequence scores 6 for each hit right after the one before, 1 for any
+ * other hit, minus the characters skipped before each hit and after the last
+ * one. The indexes are the positions (UTF-16 units) of the hits, in
+ * ascending order and each once, for highlighting.
  *
  * The web console's page ranks its history search with this very function:
  * the page carries its source (`Function.prototype.toString` in
@@ -55,29 +64,34 @@ export function scoreHistoryMatch(
   query: string,
   line: string
 ): { score: number; indexes: number[] } | null {
-  const q = query.toLowerCase();
+  const words = query
+    .toLowerCase()
+    .split(/\s+/)
+    .filter((word) => word.length > 0);
   const t = line.toLowerCase();
-  const direct = t.indexOf(q);
-  if (direct !== -1) {
-    const indexes: number[] = [];
-    for (let k = 0; k < q.length; k++) indexes.push(direct + k);
-    return { score: 1000 + line.length, indexes };
-  }
-  let pos = 0;
-  let last = -2;
+  const marked = new Set<number>();
   let score = 0;
-  const indexes: number[] = [];
-  for (let i = 0; i < q.length; i++) {
-    const at = t.indexOf(q[i], pos);
-    if (at === -1) return null;
-    indexes.push(at);
-    score += at === last + 1 ? 6 : 1;
-    score -= Math.max(0, at - pos);
-    last = at;
-    pos = at + 1;
+  for (const q of words) {
+    const direct = t.indexOf(q);
+    if (direct !== -1) {
+      for (let k = 0; k < q.length; k++) marked.add(direct + k);
+      score += 1000 + 6 * q.length - Math.min(line.length, 999);
+      continue;
+    }
+    let pos = 0;
+    let last = -2;
+    for (let i = 0; i < q.length; i++) {
+      const at = t.indexOf(q[i], pos);
+      if (at === -1) return null;
+      marked.add(at);
+      score += at === last + 1 ? 6 : 1;
+      score -= Math.max(0, at - pos);
+      last = at;
+      pos = at + 1;
+    }
+    score -= Math.max(0, line.length - pos);
   }
-  score -= Math.max(0, line.length - pos);
-  return { score, indexes };
+  return { score, indexes: Array.from(marked).sort((a, b) => a - b) };
 }
 
 const CYAN = '\x1b[36m';
