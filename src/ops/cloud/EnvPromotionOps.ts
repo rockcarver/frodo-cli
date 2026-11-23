@@ -27,7 +27,7 @@ type PromotionStatus = Awaited<ReturnType<typeof readPromotionStatus>>;
  * platform. `statusType` is the type that the status of the platform reports
  * while it works on one of them (a dry run is reported as a promotion).
  */
-type Kind = {
+type Operation = {
   /** what it is called in a sentence */
   noun: string;
   /** what the question asks to do, as a verb phrase */
@@ -37,19 +37,19 @@ type Kind = {
   canFindEncryptedSecrets: boolean;
 };
 
-const PROMOTION: Kind = {
+const PROMOTION: Operation = {
   noun: 'promotion',
   what: 'run a promotion',
   statusType: 'promotion',
   canFindEncryptedSecrets: true,
 };
-const DRY_RUN: Kind = {
+const DRY_RUN: Operation = {
   noun: 'dry-run promotion',
   what: 'run a dry-run promotion',
   statusType: 'promotion',
   canFindEncryptedSecrets: true,
 };
-const ROLLBACK: Kind = {
+const ROLLBACK: Operation = {
   noun: 'rollback',
   what: 'roll back the previous promotion',
   statusType: 'rollback',
@@ -122,16 +122,16 @@ function timeoutMilliseconds(seconds?: number): number | undefined {
 
 /**
  * What the question before an operation tells the person, above the question.
- * @param {Kind} kind the operation
+ * @param {Operation} op the operation
  * @param {boolean} full whether the command also locks and unlocks the environments
  * @returns {string} the warning
  */
-function warningFor(kind: Kind, full: boolean): string {
+function warningFor(op: Operation, full: boolean): string {
   const host = state.getHost();
   const locks = full
     ? ' It locks both environments first and unlocks them when it has ended.'
     : '';
-  switch (kind) {
+  switch (op) {
     case PROMOTION:
       return `This promotes the configuration of the lower environment to ${host}: all differences between the two environments are carried over. It runs for several minutes.${locks}`;
     case DRY_RUN:
@@ -145,21 +145,21 @@ function warningFor(kind: Kind, full: boolean): string {
  * Ask whether the operation may start (the shared question of the guard: a
  * terminal is asked and the default answer is no, `yes` skips it, and without a
  * terminal and without `yes` it is refused).
- * @param {Kind} kind the operation
+ * @param {Operation} op the operation
  * @param {boolean} full whether the command also locks and unlocks the environments
  * @param {boolean} yes whether `--yes` was given
  * @returns {Promise<boolean>} true if the operation may start; the reason was printed otherwise
  */
 function mayStart(
-  kind: Kind,
+  op: Operation,
   full: boolean,
   yes: boolean | undefined
 ): Promise<boolean> {
   return confirmProceed({
-    what: kind.what,
+    what: op.what,
     yes,
     dryRunAvailable: false,
-    warning: warningFor(kind, full),
+    warning: warningFor(op, full),
   });
 }
 
@@ -216,29 +216,29 @@ function isInProgress(status: PromotionStatus): boolean {
  * holds encrypted secrets. This is another consent than the one for the start
  * of the command, so `--yes` does not answer it. Without a terminal nobody can
  * be asked, and the command says what to pass to answer it in advance.
- * @param {Kind} kind the operation
+ * @param {Operation} op the operation
  * @param {string[]} encryptedSecrets the encrypted secrets the platform found
  * @returns {Promise<boolean>} true if the person said to go on without fixing them
  */
 async function mayIgnoreEncryptedSecrets(
-  kind: Kind,
+  op: Operation,
   encryptedSecrets: string[]
 ): Promise<boolean> {
   const list = encryptedSecrets.join('\n');
   const advice = `Add environment secrets and variables (ESVs) for them to ${state.getHost()} and run the command again, or run it again with -I, --ignore-encrypted-secrets to go on without them.`;
   if (!canPrompt()) {
     printMessage(
-      `The ${kind.noun} stopped because the configuration holds encrypted secrets:\n${list}\nThere is no interactive terminal to ask whether to go on without them, and -y, --yes does not answer this question. ${advice}`,
+      `The ${op.noun} stopped because the configuration holds encrypted secrets:\n${list}\nThere is no interactive terminal to ask whether to go on without them, and -y, --yes does not answer this question. ${advice}`,
       'error'
     );
     return false;
   }
   try {
     return await confirmProceed({
-      what: `run the ${kind.noun} again and ignore the encrypted secrets`,
+      what: `run the ${op.noun} again and ignore the encrypted secrets`,
       yes: false,
       dryRunAvailable: false,
-      warning: `The ${kind.noun} stopped because the configuration holds encrypted secrets:\n${list}\n${advice}`,
+      warning: `The ${op.noun} stopped because the configuration holds encrypted secrets:\n${list}\n${advice}`,
     });
   } catch {
     // a question that is closed with Ctrl-C is a no, and the lock must still be released
@@ -251,9 +251,9 @@ async function mayIgnoreEncryptedSecrets(
  * ago, so a lock that exists now is only released when the state is `locked`
  * (the request may have taken the lock before it failed). Any other state is
  * left alone: it is not ours.
- * @param {Kind} kind the operation
+ * @param {Operation} op the operation
  */
-async function releaseAfterFailedLock(kind: Kind): Promise<void> {
+async function releaseAfterFailedLock(op: Operation): Promise<void> {
   let now: LockStatus | undefined;
   try {
     now = await readLockStatus(false);
@@ -262,14 +262,14 @@ async function releaseAfterFailedLock(kind: Kind): Promise<void> {
   }
   if (!now) {
     printMessage(
-      `The ${kind.noun} did not start. The lock state cannot be read, so nothing was unlocked. Look at it with:\n${checkLockCommand()}`,
+      `The ${op.noun} did not start. The lock state cannot be read, so nothing was unlocked. Look at it with:\n${checkLockCommand()}`,
       'error'
     );
     return;
   }
   if (now.result !== 'locked' || !now.promotionId) {
     printMessage(
-      `The ${kind.noun} did not start. The environments are ${now.result}; nothing was unlocked.`,
+      `The ${op.noun} did not start. The environments are ${now.result}; nothing was unlocked.`,
       'warn'
     );
     return;
@@ -277,13 +277,13 @@ async function releaseAfterFailedLock(kind: Kind): Promise<void> {
   try {
     await unlockEnvironment(now.promotionId, true);
     printMessage(
-      `The ${kind.noun} did not start. The lock request failed after the environments were locked, and they are unlocked again (lock id ${now.promotionId}).`,
+      `The ${op.noun} did not start. The lock request failed after the environments were locked, and they are unlocked again (lock id ${now.promotionId}).`,
       'warn'
     );
   } catch (error) {
     printError(error);
     printMessage(
-      `The ${kind.noun} did not start. The environments are still locked (lock id ${now.promotionId}). Release them with:\n${unlockCommand(now.promotionId)}`,
+      `The ${op.noun} did not start. The environments are still locked (lock id ${now.promotionId}). Release them with:\n${unlockCommand(now.promotionId)}`,
       'error'
     );
   }
@@ -310,26 +310,26 @@ type UnlockResult = 'done' | 'failed' | 'kept';
  *   release it;
  * - after a lock request that failed it unlocks only a state that is `locked`.
  * @param {object} options what to run
- * @param {Kind} options.kind the operation
+ * @param {Operation} options.op the operation
  * @param {boolean} options.yes whether `--yes` was given
  * @param {boolean} options.ignoreEncryptedSecrets whether to go on although the platform finds encrypted secrets
  * @param {(ignoreEncryptedSecrets: boolean) => Promise<string | object>} options.start starts the operation, waits for it to end and answers what the platform said; it throws when it fails
  * @returns {Promise<boolean>} true if the lock, the operation and the unlock all succeeded
  */
 async function runBetweenLockAndUnlock({
-  kind,
+  op,
   yes,
   ignoreEncryptedSecrets,
   start,
 }: {
-  kind: Kind;
+  op: Operation;
   yes?: boolean;
   ignoreEncryptedSecrets: boolean;
   start: (ignoreEncryptedSecrets: boolean) => Promise<string | object>;
 }): Promise<boolean> {
   // Asked first and the state read after it: the person can take minutes to
   // answer, and the state that is read must be the state the lock is taken in.
-  if (!(await mayStart(kind, true, yes))) return false;
+  if (!(await mayStart(op, true, yes))) return false;
 
   let before: LockStatus;
   try {
@@ -337,7 +337,7 @@ async function runBetweenLockAndUnlock({
   } catch (error) {
     printError(error);
     printMessage(
-      `The lock state cannot be read. Nothing was sent: the ${kind.noun} did not start.`,
+      `The lock state cannot be read. Nothing was sent: the ${op.noun} did not start.`,
       'error'
     );
     return false;
@@ -345,7 +345,7 @@ async function runBetweenLockAndUnlock({
   if (before.result !== 'unlocked') {
     const ids = lockIdsOf(before);
     printMessage(
-      `Not starting the ${kind.noun}: the environments are not unlocked (state ${before.result}${ids.length ? `, lock id ${ids.join(', ')}` : ''}). Nothing was sent. Another promotion or rollback may be running, or a lock was left behind. Look at:\n${checkLockCommand()}\n${checkStatusCommand()}${ids.length ? `\nA lock that was left behind is released with:\n${unlockCommand(ids[0])}` : ''}`,
+      `Not starting the ${op.noun}: the environments are not unlocked (state ${before.result}${ids.length ? `, lock id ${ids.join(', ')}` : ''}). Nothing was sent. Another promotion or rollback may be running, or a lock was left behind. Look at:\n${checkLockCommand()}\n${checkStatusCommand()}${ids.length ? `\nA lock that was left behind is released with:\n${unlockCommand(ids[0])}` : ''}`,
       'error'
     );
     return false;
@@ -358,7 +358,7 @@ async function runBetweenLockAndUnlock({
     printError(error);
   }
   if (!lockId) {
-    await releaseAfterFailedLock(kind);
+    await releaseAfterFailedLock(op);
     return false;
   }
   printMessage(
@@ -366,39 +366,39 @@ async function runBetweenLockAndUnlock({
     'info'
   );
 
-  let operation: OperationResult;
+  let operationResult: OperationResult;
   let ignore = ignoreEncryptedSecrets;
   for (;;) {
     try {
       printMessage(await start(ignore), 'data');
-      operation = 'done';
+      operationResult = 'done';
       break;
     } catch (error) {
       printError(error);
       const status = await readStatusOrUndefined();
       if (!status || isInProgress(status)) {
-        operation = 'unfinished';
+        operationResult = 'unfinished';
         break;
       }
-      operation = 'failed';
+      operationResult = 'failed';
       // an ERROR of an earlier run (another promotion id) is not ours to report
       const ours =
         status.status === 'ERROR' &&
         status.promotionId === lockId &&
-        status.type === kind.statusType;
+        status.type === op.statusType;
       if (!ours) break;
       if (status.missingESVs?.length) {
         printMessage(
-          `The ${kind.noun} stopped: ${state.getHost()} lacks configuration that it needs. Add these secrets and variables there, then run the command again:\n${status.missingESVs.join('\n')}`,
+          `The ${op.noun} stopped: ${state.getHost()} lacks configuration that it needs. Add these secrets and variables there, then run the command again:\n${status.missingESVs.join('\n')}`,
           'error'
         );
         break;
       }
       if (
-        kind.canFindEncryptedSecrets &&
+        op.canFindEncryptedSecrets &&
         status.encryptedSecrets?.length &&
         !ignore &&
-        (await mayIgnoreEncryptedSecrets(kind, status.encryptedSecrets))
+        (await mayIgnoreEncryptedSecrets(op, status.encryptedSecrets))
       ) {
         ignore = true;
         continue;
@@ -407,20 +407,20 @@ async function runBetweenLockAndUnlock({
     }
   }
 
-  let unlock: UnlockResult;
-  if (operation === 'unfinished') {
-    unlock = 'kept';
+  let unlockResult: UnlockResult;
+  if (operationResult === 'unfinished') {
+    unlockResult = 'kept';
     printMessage(
-      `The lock stays on purpose (lock id ${lockId}): the ${kind.noun} may still be running, or its state cannot be read, and unlocking the environments under a running operation is not safe. See where it stands with:\n${checkStatusCommand()}\nWhen it has ended, release the lock with:\n${unlockCommand(lockId)}`,
+      `The lock stays on purpose (lock id ${lockId}): the ${op.noun} may still be running, or its state cannot be read, and unlocking the environments under a running operation is not safe. See where it stands with:\n${checkStatusCommand()}\nWhen it has ended, release the lock with:\n${unlockCommand(lockId)}`,
       'error'
     );
   } else {
     try {
       await unlockEnvironment(lockId, true);
-      unlock = 'done';
+      unlockResult = 'done';
     } catch (error) {
       printError(error);
-      unlock = 'failed';
+      unlockResult = 'failed';
       printMessage(
         `The environments are still locked (lock id ${lockId}). Release them with:\n${unlockCommand(lockId)}`,
         'error'
@@ -428,9 +428,9 @@ async function runBetweenLockAndUnlock({
     }
   }
 
-  const ok = operation === 'done' && unlock === 'done';
+  const ok = operationResult === 'done' && unlockResult === 'done';
   printMessage(
-    `Lock: done. ${kind.noun.charAt(0).toUpperCase()}${kind.noun.slice(1)}: ${operation === 'unfinished' ? 'not finished' : operation}. Unlock: ${unlock === 'kept' ? 'kept on purpose' : unlock}.`,
+    `Lock: done. ${op.noun.charAt(0).toUpperCase()}${op.noun.slice(1)}: ${operationResult === 'unfinished' ? 'not finished' : operationResult}. Unlock: ${unlockResult === 'kept' ? 'kept on purpose' : unlockResult}.`,
     ok ? 'info' : 'error'
   );
   return ok;
@@ -487,7 +487,7 @@ export async function rollbackPromotion({
   try {
     if (full) {
       return await runBetweenLockAndUnlock({
-        kind: ROLLBACK,
+        op: ROLLBACK,
         yes,
         ignoreEncryptedSecrets: false,
         start: () => start(true),
@@ -590,7 +590,7 @@ export async function runPromotion({
   full?: boolean;
   yes?: boolean;
 }): Promise<boolean> {
-  const kind = dryRun ? DRY_RUN : PROMOTION;
+  const op = dryRun ? DRY_RUN : PROMOTION;
   const start = async (waitForIt: boolean, ignore: boolean) =>
     promoteConfiguration(
       {
@@ -608,13 +608,13 @@ export async function runPromotion({
   try {
     if (full) {
       return await runBetweenLockAndUnlock({
-        kind,
+        op,
         yes,
         ignoreEncryptedSecrets,
         start: (ignore) => start(true, ignore),
       });
     }
-    if (!(await mayStart(kind, false, yes))) return false;
+    if (!(await mayStart(op, false, yes))) return false;
     printMessage(await start(wait, ignoreEncryptedSecrets), 'data');
     return true;
   } catch (error) {
