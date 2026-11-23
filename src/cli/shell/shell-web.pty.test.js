@@ -9,6 +9,7 @@ import {
   makeHome,
   removeHome,
   startFrodo,
+  waitFor,
 } from '../../../test/utils/WebShell.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -33,7 +34,6 @@ function findChrome() {
 }
 
 const CHROME = findChrome();
-const CDP_TIMEOUT_MS = 20_000;
 const CDP_CALL_TIMEOUT_MS = 30_000;
 
 /** Targets seen at the CDP endpoint, for failure diagnostics. */
@@ -91,7 +91,14 @@ function stopChrome(chrome, userData) {
   } catch {
     chrome.kill('SIGKILL');
   }
-  fs.rmSync(userData, { recursive: true, force: true });
+  // A killed browser's helpers may write into the profile for a moment more,
+  // which makes the removal fail once with ENOTEMPTY: try again.
+  fs.rmSync(userData, {
+    recursive: true,
+    force: true,
+    maxRetries: 10,
+    retryDelay: 100,
+  });
   for (const entry of running) {
     if (entry.chrome === chrome) running.delete(entry);
   }
@@ -142,17 +149,6 @@ async function cdpFetch(path, port, opts = {}) {
     throw new Error(`CDP ${path} -> ${reply.status}`);
   }
   return reply.json();
-}
-
-async function waitFor(watch, timeoutMs = CDP_TIMEOUT_MS, everyMs = 100) {
-  const deadline = Date.now() + timeoutMs;
-  let last;
-  while (Date.now() < deadline) {
-    last = await watch().catch((e) => `ERROR: ${e.message}`);
-    if (last !== null && last !== undefined && last !== false) return last;
-    await new Promise((r) => setTimeout(r, everyMs));
-  }
-  throw new Error(`Timed out waiting; last value: ${JSON.stringify(last)}`);
 }
 
 /** One headless Chrome tab driven over CDP; every expression returns a value. */
@@ -361,7 +357,9 @@ describe('frodo shell --web in a real browser', () => {
           // The session header shows the (initially unconnected) console.
           await waitFor(() =>
             /*W*/
-            evaluate(`document.getElementById('info').textContent.length > 0`)
+            evaluate(
+              `(function () { var e = document.getElementById('info'); return !!e && e.textContent.length > 0; })()`
+            )
           );
 
           // Point the engine at the local fake IDM, through the console's
@@ -453,7 +451,7 @@ describe('frodo shell --web in a real browser', () => {
           await waitFor(() =>
             /*W*/
             evaluate(
-              `document.getElementById('search-row').classList.contains('open') ? true : null`
+              `(function () { var r = document.getElementById('search-row'); return r && r.classList.contains('open') ? true : null; })()`
             )
           );
           for (const key of ['s', 'e', 't', 'h']) {
@@ -464,7 +462,7 @@ describe('frodo shell --web in a real browser', () => {
           await waitFor(() =>
             /*W*/
             evaluate(
-              `document.querySelector('#search-row .count').textContent.includes('/') ? true : null`
+              `(function () { var c = document.querySelector('#search-row .count'); return c && c.textContent.includes('/') ? true : null; })()`
             )
           ).catch(async (e) => {
             const state = await evaluate(
@@ -491,13 +489,20 @@ describe('frodo shell --web in a real browser', () => {
               `document.querySelector('#search-row .query').textContent`
             )
           ).toBe('seth');
+          // Enter runs the selection again. Wait for that run to end, not for
+          // an entry with the same text: the first run of it is on the page
+          // already, and a run that ends clears the prompt, which would wipe
+          // what the next step pastes into it.
+          const entriesBeforeRun = await evaluate(
+            `document.querySelectorAll('.entry').length`
+          );
           await evaluate(
             `document.dispatchEvent(new KeyboardEvent('keydown', {key: 'Enter', bubbles: true}))`
           );
           await waitFor(() =>
             /*W*/
             evaluate(
-              `Array.from(document.querySelectorAll('.entry')).some(e => e.querySelector('.result .row') && e.textContent.includes('ready')) && !document.getElementById('search-row').classList.contains('open') ? true : null`
+              `(function () { var r = document.getElementById('search-row'); var es = document.querySelectorAll('.entry'); var last = es[es.length - 1]; return r && !r.classList.contains('open') && es.length === ${entriesBeforeRun + 1} && last.querySelector('.result .row') ? true : null; })()`
             )
           );
 
@@ -514,7 +519,7 @@ describe('frodo shell --web in a real browser', () => {
           await waitFor(() =>
             /*W*/
             evaluate(
-              `document.getElementById('search-row').classList.contains('open') ? true : null`
+              `(function () { var r = document.getElementById('search-row'); return r && r.classList.contains('open') ? true : null; })()`
             )
           );
           for (const key of ['s', 'e', 't', 'h']) {
@@ -525,7 +530,7 @@ describe('frodo shell --web in a real browser', () => {
           await waitFor(() =>
             /*W*/
             evaluate(
-              `document.querySelector('#search-row .count').textContent.includes('/') ? true : null`
+              `(function () { var c = document.querySelector('#search-row .count'); return c && c.textContent.includes('/') ? true : null; })()`
             )
           );
           await evaluate(
@@ -534,7 +539,7 @@ describe('frodo shell --web in a real browser', () => {
           await waitFor(() =>
             /*W*/
             evaluate(
-              `(document.querySelector('.CodeMirror') ? document.querySelector('.CodeMirror').CodeMirror.getValue() : document.getElementById('in').value).includes('setHost') && !document.getElementById('search-row').classList.contains('open') ? true : null`
+              `(function () { var r = document.getElementById('search-row'); var cm = document.querySelector('.CodeMirror'); var el = document.getElementById('in'); var text = cm ? cm.CodeMirror.getValue() : (el ? el.value : ''); return r && !r.classList.contains('open') && text.includes('setHost') ? true : null; })()`
             )
           );
           expect(
@@ -620,7 +625,7 @@ describe('frodo shell --web in a real browser when the engine cannot start', () 
             () =>
               /*W*/
               evaluate(
-                `(function () { var t = document.getElementById('info').textContent; return t.indexOf('session error') >= 0 ? t : null; })()`
+                `(function () { var e = document.getElementById('info'); var t = e ? e.textContent : ''; return t.indexOf('session error') >= 0 ? t : null; })()`
               ),
             30_000
           );
