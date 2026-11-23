@@ -1,4 +1,4 @@
-import { describe, expect, it } from '@jest/globals';
+import { afterAll, describe, expect, it } from '@jest/globals';
 import { spawnSync } from 'node:child_process';
 import fs from 'node:fs';
 import os from 'node:os';
@@ -36,12 +36,25 @@ const lf = (text) => text.replace(/\r\n/g, '\n');
 const ALWAYS_LOADED_CEILING = 7500;
 const LAW_CEILING = 450;
 
-const sourceNames = fs
-  .readdirSync(path.join(ROOT, SOURCE_DIR))
-  .filter((f) => f.endsWith('.instructions.md'))
-  .sort();
+/** Every file below `dir`, as paths relative to it with `/`, sorted. */
 const twinFiles = (dir) =>
-  fs.readdirSync(dir, { recursive: true, withFileTypes: true }).filter((e) => e.isFile()).map((e) => path.relative(dir, path.join(e.parentPath, e.name))).sort();
+  fs
+    .readdirSync(dir, { recursive: true, withFileTypes: true })
+    .filter((e) => e.isFile())
+    .map((e) => path.relative(dir, path.join(e.parentPath, e.name)).split(path.sep).join('/'))
+    .sort();
+const sourceNames = twinFiles(path.join(ROOT, SOURCE_DIR)).filter((f) => f.endsWith('.instructions.md'));
+
+/** The temporary folders that the tests made, removed when the file is done. */
+const made = [];
+const makeTemp = (prefix = 'claude-rules-') => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), prefix));
+  made.push(dir);
+  return dir;
+};
+afterAll(() => {
+  for (const dir of made) fs.rmSync(dir, { recursive: true, force: true });
+});
 
 /** The items of the `paths` list of a twin and the line that follows the front matter. */
 function readTwin(text) {
@@ -62,6 +75,11 @@ describe('parseInstructionFile', () => {
     expect(parseInstructionFile(file(value)).applyTo).toEqual(expected);
   });
 
+  it('ends the front matter at the first closing line, so a horizontal rule of the body stays in the body', () => {
+    const text = "---\napplyTo: 'a/b'\n---\n\n# Title\n\nOne\n\n---\n\nTwo\n";
+    expect(parseInstructionFile(text)).toEqual({ applyTo: ['a/b'], body: '\n# Title\n\nOne\n\n---\n\nTwo\n' });
+  });
+
   it('returns the body unchanged, and reads a CRLF file as LF', () => {
     expect(parseInstructionFile(file("'a/b'")).body).toBe('\n# Title\n');
     expect(parseInstructionFile(file("'a/b'").replace(/\n/g, '\r\n')).body).toBe('\n# Title\n');
@@ -71,6 +89,7 @@ describe('parseInstructionFile', () => {
     ['no front matter', '# Title\n', /no front matter/],
     ['a second key', "---\napplyTo: 'a/b'\nexcludeAgent: 'code-review'\n---\n", /only applyTo.*excludeAgent/],
     ['another key only', "---\ndescription: 'x'\n---\n", /only applyTo/],
+    ['a second applyTo line', "---\napplyTo: 'a/b'\napplyTo: 'c/d'\n---\n", /more than once/],
     ['an empty value', file("''"), /empty/],
     ['a missing value', file(''), /empty/],
     ['an empty item', file("'a/b,,c'"), /empty item/],
@@ -140,9 +159,12 @@ describe('the generator on a temporary tree', () => {
 
   /** A tree with the sources and, when `generated`, the twins that the generator wrote for them. */
   function tree(sources = SOURCES, generated = true) {
-    const root = fs.mkdtempSync(path.join(os.tmpdir(), 'claude-rules-'));
+    const root = makeTemp();
     fs.mkdirSync(path.join(root, SOURCE_DIR), { recursive: true });
-    for (const [name, text] of Object.entries(sources)) fs.writeFileSync(path.join(root, SOURCE_DIR, name), text);
+    for (const [name, text] of Object.entries(sources)) {
+      fs.mkdirSync(path.dirname(path.join(root, SOURCE_DIR, name)), { recursive: true });
+      fs.writeFileSync(path.join(root, SOURCE_DIR, name), text);
+    }
     if (generated) syncRules(root, { write: true });
     return root;
   }
@@ -211,13 +233,43 @@ describe('the generator on a temporary tree', () => {
     expect(run(root, '--check')).toMatchObject({ status: 0 });
   });
 
-  it('writes the missing and changed twins, removes the orphans, and leaves nothing for --check', () => {
+  it('writes the missing and changed twins, removes the orphans and says so, and leaves nothing for --check', () => {
     const root = tree(SOURCES, false);
     fs.mkdirSync(path.join(root, TARGET_DIR), { recursive: true });
     fs.writeFileSync(path.join(root, TARGET_DIR, 'orphan.md'), '# orphan\n');
-    expect(run(root)).toMatchObject({ status: 0 });
+    const { status, out } = run(root);
+    expect(status).toBe(0);
+    expect(out).toContain('written or removed');
+    expect(out).toContain(`${TARGET_DIR}/orphan.md: has no source`);
+    expect(fs.existsSync(path.join(root, TARGET_DIR, 'orphan.md'))).toBe(false);
     expect(twinFiles(path.join(root, TARGET_DIR))).toEqual(Object.keys(SOURCES));
     expect(run(root, '--check')).toMatchObject({ status: 0 });
+  });
+
+  it('gives a source in a subfolder a twin in the same subfolder, and reports a stale or orphan one there', () => {
+    const root = tree({ ...SOURCES, 'sub/c.instructions.md': "---\napplyTo: 'src/c/**'\n---\n\n# C\n" });
+    expect(twinFiles(path.join(root, TARGET_DIR))).toEqual([...Object.keys(SOURCES), 'sub/c.instructions.md']);
+    expect(fs.readFileSync(path.join(root, TARGET_DIR, 'sub/c.instructions.md'), 'utf8')).toContain(
+      `Source: ${SOURCE_DIR}/sub/c.instructions.md.`
+    );
+    expect(run(root, '--check')).toMatchObject({ status: 0 });
+    fs.rmSync(path.join(root, TARGET_DIR, 'sub/c.instructions.md'));
+    const { status, out } = run(root, '--check');
+    expect(status).toBe(1);
+    expect(out).toContain(`${TARGET_DIR}/sub/c.instructions.md: missing`);
+  });
+
+  it('checks when it is started through a symlinked folder, where argv[1] is not the real path', () => {
+    const root = tree();
+    fs.appendFileSync(path.join(root, SOURCE_DIR, 'a.instructions.md'), 'x');
+    const link = path.join(makeTemp('claude-rules-link-'), 'tools');
+    fs.symlinkSync(path.dirname(GENERATOR), link, 'junction');
+    const result = spawnSync(process.execPath, [path.join(link, path.basename(GENERATOR)), '--check', '--root', root], {
+      encoding: 'utf8',
+      env: { ...process.env, HOME: root },
+    });
+    expect(result.status).toBe(1);
+    expect(result.stderr).toContain(`${TARGET_DIR}/a.instructions.md: differs`);
   });
 
   it('ignores a file of the instructions folder that is not an instruction file', () => {
@@ -269,9 +321,17 @@ describe('the twins of this repository', () => {
     // A link to a sibling instruction file reaches the sibling twin, which has the same name.
     const asSource = (file) => file.replace(path.join(ROOT, TARGET_DIR), path.join(ROOT, SOURCE_DIR));
     for (const link of links) {
-      const fromTwin = path.resolve(ROOT, TARGET_DIR, link);
+      const fromTwin = path.resolve(ROOT, TARGET_DIR, path.dirname(name), link);
       expect(fs.existsSync(fromTwin)).toBe(true);
-      expect(asSource(fromTwin)).toBe(path.resolve(ROOT, SOURCE_DIR, link));
+      expect(asSource(fromTwin)).toBe(path.resolve(ROOT, SOURCE_DIR, path.dirname(name), link));
+    }
+  });
+
+  it('can be regenerated with the npm script that AGENTS.md, CONTRIBUTE.md and the github-files rule name', () => {
+    const scripts = JSON.parse(read('package.json')).scripts;
+    expect(scripts['generate:claude-rules']).toBe('node tools/generate-claude-rules.mjs');
+    for (const file of ['AGENTS.md', 'docs/CONTRIBUTE.md', `${SOURCE_DIR}/github-files.instructions.md`]) {
+      expect(read(file)).toContain('npm run generate:claude-rules');
     }
   });
 
@@ -298,12 +358,24 @@ describe('AGENTS.md', () => {
     });
   });
 
+  it.each([
+    [1, /accepted record is binding.*stop and say so.*adds or supersedes a record/],
+    [2, /CHANGELOG\.md/],
+    [3, /snapshot or a recording.*never write or edit a recording by hand/],
+    [4, /`frodo` facade/],
+    [5, /`dependencies`.*stays empty.*a new package needs a maintainer's yes/],
+  ])('law %i keeps its subject', (number, subject) => {
+    expect(laws[number - 1]).toMatch(subject);
+  });
+
   it('keeps the rule that a maintainer is the last lever', () => {
     expect(agents).toContain('core/0002-a-maintainer-stays-the-last-lever-on-agent-work.md');
   });
 
   it('says how to answer which instruction files were loaded', () => {
-    expect(agents).toMatch(/If asked which instruction files you loaded, list AGENTS\.md and each rule you have actually read this session; do not guess\./);
+    expect(agents).toMatch(
+      /If asked which instruction files you loaded, list AGENTS\.md and each rule that has been loaded into your context this session; do not guess\./
+    );
   });
 
   it('says where Claude Code reads its scoped rules, and never that it reads the instruction folder', () => {

@@ -1,10 +1,10 @@
 #!/usr/bin/env node
-// Writes .claude/rules/ (read by Claude Code) from .github/instructions/ (read
-// by GitHub Copilot). The instruction files are the one source: every file of
-// .claude/rules/ is a generated twin with the same name, a `paths` list in
-// place of `applyTo`, and the body unchanged. `--check` writes nothing, names
-// every file that differs and exits 1. `--root <dir>` works on another tree.
-// The same file is kept in frodo-cli (tools/) and frodo-lib (scripts/): core 0026.
+// Writes .claude/rules/ (Claude Code) from .github/instructions/ (GitHub Copilot). The instruction files are the
+// one source; each file of .claude/rules/ is its twin: same path, `paths` in place of `applyTo`, body unchanged.
+// A glob feature that is not translated (braces, negation, character classes) is rejected. Without `--check` it
+// writes the twins and removes every file of .claude/rules/ that has no source; `--check` writes nothing, names
+// every file that differs and exits 1; `--root <dir>` works on another tree. The same file is kept in frodo-cli
+// (tools/) and frodo-lib (scripts/): core 0026.
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -17,14 +17,14 @@ const SELF = fileURLToPath(import.meta.url);
 export const COMMAND = `node ${path.basename(path.dirname(SELF))}/${path.basename(SELF)}`;
 
 const lf = (text) => text.replace(/\r\n/g, '\n');
-
 /** The globs of the `applyTo` line of an instruction file and its body (everything after the front matter, unchanged). */
 export function parseInstructionFile(text) {
   const match = /^---\n([\s\S]*?)\n---\n/.exec(lf(text));
   if (!match) throw new Error('no front matter block');
   const lines = match[1].split('\n').filter((line) => line.trim() !== '');
   const other = lines.find((line) => !line.startsWith('applyTo:'));
-  if (other || lines.length !== 1) throw new Error(`front matter may hold only applyTo, found "${other ?? lines.join(' ')}"`);
+  if (other) throw new Error(`front matter may hold only applyTo, found "${other}"`);
+  if (lines.length !== 1) throw new Error(lines.length ? 'applyTo is given more than once' : 'applyTo is missing');
   const value = lines[0].slice('applyTo:'.length).trim().replace(/^(['"])(.*)\1$/, '$2');
   if (value === '') throw new Error('applyTo is empty');
   const applyTo = value.split(',').map((item) => item.trim());
@@ -49,14 +49,15 @@ export function renderRule(text, { source, command = COMMAND }) {
   return `---\npaths:\n${paths}\n---\n${header}\n${body}`;
 }
 
+/** Every file below `dir`, as paths relative to it with `/`, sorted. */
 const listFiles = (dir, prefix = '') =>
   fs.existsSync(dir)
-    ? fs.readdirSync(dir, { withFileTypes: true }).flatMap((e) => (e.isDirectory() ? listFiles(path.join(dir, e.name), `${prefix}${e.name}/`) : [`${prefix}${e.name}`]))
+    ? fs.readdirSync(dir, { withFileTypes: true }).flatMap((e) => (e.isDirectory() ? listFiles(path.join(dir, e.name), `${prefix}${e.name}/`) : [`${prefix}${e.name}`])).sort()
     : [];
 
 /** Brings TARGET_DIR in line with SOURCE_DIR under `root` (writes only when `write`); returns what was out of line, one line per file. */
 export function syncRules(root, { write = false } = {}) {
-  const sources = fs.existsSync(path.join(root, SOURCE_DIR)) ? fs.readdirSync(path.join(root, SOURCE_DIR)).filter((f) => f.endsWith(SOURCE_SUFFIX)).sort() : [];
+  const sources = listFiles(path.join(root, SOURCE_DIR)).filter((f) => f.endsWith(SOURCE_SUFFIX));
   const found = new Set(listFiles(path.join(root, TARGET_DIR)));
   const problems = [];
   for (const name of sources) {
@@ -75,10 +76,14 @@ export function syncRules(root, { write = false } = {}) {
   return problems;
 }
 
-if (process.argv[1] === SELF) {
+/** Whether Node started this file; real paths are compared, because through a symlinked folder argv[1] differs from the module URL. */
+const isEntryPoint = () => {
+  try { return fs.realpathSync(process.argv[1]) === fs.realpathSync(SELF); } catch { return false; }
+};
+
+if (isEntryPoint()) {
   const args = process.argv.slice(2);
-  const rootAt = args.indexOf('--root');
-  const root = rootAt >= 0 ? path.resolve(args[rootAt + 1]) : path.resolve(path.dirname(SELF), '..');
+  const root = path.resolve(args.includes('--root') ? args[args.indexOf('--root') + 1] : path.join(path.dirname(SELF), '..'));
   try {
     const check = args.includes('--check');
     const problems = syncRules(root, { write: !check });
@@ -86,7 +91,7 @@ if (process.argv[1] === SELF) {
       console.error(`${problems.join('\n')}\nThe twins in ${TARGET_DIR}/ are generated: run \`${COMMAND}\` and commit the result.`);
       process.exitCode = 1;
     } else {
-      console.log(check ? `${TARGET_DIR}/ is in line with ${SOURCE_DIR}/` : `${problems.length} file(s) changed in ${TARGET_DIR}/`);
+      console.log(check ? `${TARGET_DIR}/ is in line with ${SOURCE_DIR}/` : `${problems.length} file(s) written or removed in ${TARGET_DIR}/${problems.length ? `:\n${problems.join('\n')}` : ''}`);
     }
   } catch (error) {
     console.error(`${COMMAND}: ${error.message}`);
