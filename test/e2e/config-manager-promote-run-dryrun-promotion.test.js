@@ -2,8 +2,9 @@
 
 /*
  * The "--wait" and "--wait --timeout 6" recordings were recorded with the CLI on a promotion pair (the host of the
- * commands is the upper environment), one command at a time. The two environments were locked before each command
- * (frodo config-manager promote lock-tenants) and unlocked after its promotion had finished; a "--timeout 6" run
+ * commands is the upper environment), one command at a time. The two environments were locked once (frodo
+ * config-manager promote lock-tenants) for the whole recording session, every command ran under that lock, and the
+ * lock was released at the end by the recording of the unlock test; a "--timeout 6" run
  * times out in the CLI while the promotion goes on, and its recording ends there. Record with FRODO_NO_UPDATE_CHECK=1
  * and, for a tenant that is not a frodo development host, FRODO_MOCK_HOSTS=<origin of the host>. Only repeated
  * identical status polls of the "--wait" recordings were trimmed: the first poll of every state and the last poll
