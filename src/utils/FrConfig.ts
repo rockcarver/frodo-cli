@@ -1,10 +1,11 @@
 import fs from 'fs';
 import { frodo } from '@rockcarver/frodo-lib';
 import sanitize from 'sanitize-filename';
+import { objectFilePath } from './ConfigTreePath';
 
 const { readRealms } = frodo.realm;
 
-const { findFilesByName, isBase64Encoded } = frodo.utils;
+const { findFilesByName, getFilePath, isBase64Encoded } = frodo.utils;
 
 export async function realmList(): Promise<string[]> {
   const realms = await readRealms();
@@ -48,10 +49,20 @@ export function replaceAllInJson(
   return JSON.parse(contentString);
 }
 
+/**
+ * Whether the config folder that the command works on (the directory option, else the current
+ * directory) holds the script config of a script.
+ * @param {string} fileName the id of the script, which names its file
+ * @param {string} realmDir the folder of the realm below `realms`
+ * @returns {boolean} true if `realms/<realmDir>/scripts/scripts-config` holds `<fileName>.json`
+ */
 export function existScript(fileName: string, realmDir: string): boolean {
-  const scriptDir = `realms/${realmDir}/scripts/scripts-config`;
-  if (!fs.existsSync(scriptDir)) return false;
-  const result = findFilesByName(`${fileName}.json`, true, scriptDir);
+  const folder = getFilePath(`realms/${realmDir}/scripts/scripts-config`);
+  if (!fs.existsSync(folder)) return false;
+  // the name of the file of an id is the one that a pull writes and a push reads
+  const name = objectFilePath(folder, fileName).slice(folder.length + 1);
+  // the library searches by joining names to this path, so it ends with a slash
+  const result = findFilesByName(name, true, `${folder}/`);
   return result.length > 0;
 }
 

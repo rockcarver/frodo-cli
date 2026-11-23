@@ -200,6 +200,11 @@ const OPTIONS_RECORD_WHY =
 const SELECTORS_RECORD_WHY =
   'the selector of the command was renamed to -i, --<type>-id by https://github.com/rockcarver/frodo-cli/blob/main/docs/decisions/0057-options-of-the-configuration-commands.md (options of the configuration commands); -n and --name stay as its alias, and the recording keeps its name';
 
+const DEPENDENCIES_RECORD_WHY =
+  'journeys are pulled and pushed with their dependencies by default, and --no-deps turns that off (https://github.com/rockcarver/frodo-cli/blob/main/docs/decisions/0057-options-of-the-configuration-commands.md, options of the configuration commands); the command was recorded when the dependencies were off by default, or with the option that turned them on, and the recording keeps its name';
+
+const SELECTORS_AND_DEPENDENCIES_RECORD_WHY = `${SELECTORS_RECORD_WHY}; also, ${DEPENDENCIES_RECORD_WHY}`;
+
 export const RENAMED = [
   {
     file: 'service-import.e2e.test.js',
@@ -245,24 +250,38 @@ export const RENAMED = [
   },
   {
     file: 'config-manager-push-journeys.e2e.test.js',
-    cmd: 'frodo config-manager push journeys -F --push-dependencies -D test/e2e/exports/fr-config-manager/forgeops',
+    cmd: 'frodo config-manager push journeys -F -D test/e2e/exports/fr-config-manager/forgeops',
     was: 'frodo config-manager push journeys -Fd -D test/e2e/exports/fr-config-manager/forgeops',
     pin: '0_Fd_D',
-    why: OPTIONS_RECORD_WHY,
+    why: DEPENDENCIES_RECORD_WHY,
   },
   {
     file: 'config-manager-push-journeys.e2e.test.js',
-    cmd: 'frodo config-manager push journeys --push-dependencies -D test/e2e/exports/fr-config-manager/forgeops',
+    cmd: 'frodo config-manager push journeys -D test/e2e/exports/fr-config-manager/forgeops',
     was: 'frodo config-manager push journeys -d -D test/e2e/exports/fr-config-manager/forgeops',
     pin: '0_d_D',
-    why: OPTIONS_RECORD_WHY,
+    why: DEPENDENCIES_RECORD_WHY,
   },
   {
     file: 'config-manager-push-journeys.e2e.test.js',
-    cmd: 'frodo config-manager push journeys -Fn ConfigManagerPushTest --push-dependencies  -D test/e2e/exports/fr-config-manager/forgeops',
+    cmd: 'frodo config-manager push journeys -Fn ConfigManagerPushTest -D test/e2e/exports/fr-config-manager/forgeops',
     was: 'frodo config-manager push journeys -Fn ConfigManagerPushTest -d  -D test/e2e/exports/fr-config-manager/forgeops',
     pin: '0_Fn_d_D',
-    why: OPTIONS_RECORD_WHY,
+    why: DEPENDENCIES_RECORD_WHY,
+  },
+  {
+    file: 'config-manager-push-journeys.e2e.test.js',
+    cmd: 'frodo config-manager push journeys -D test/e2e/exports/fr-config-manager/forgeops --no-deps',
+    was: 'frodo config-manager push journeys -D test/e2e/exports/fr-config-manager/forgeops',
+    pin: '0_D',
+    why: DEPENDENCIES_RECORD_WHY,
+  },
+  {
+    file: 'config-manager-push-journeys.e2e.test.js',
+    cmd: 'frodo config-manager push journeys --directory test/e2e/exports/fr-config-manager/forgeops --no-deps',
+    was: 'frodo config-manager push journeys --directory test/e2e/exports/fr-config-manager/forgeops',
+    pin: '0_directory',
+    why: DEPENDENCIES_RECORD_WHY,
   },
   {
     file: 'config-manager-push-raw.e2e.test.js',
@@ -308,10 +327,24 @@ export const RENAMED = [
   },
   {
     file: 'config-manager-pull-journeys.e2e.test.js',
-    cmd: 'frodo config-manager pull journeys --clean -D ConfigJourneytestDir4 --pull-dependencies',
+    cmd: 'frodo config-manager pull journeys --clean -D ConfigJourneytestDir4',
     was: 'frodo config-manager pull journeys -cD ConfigJourneytestDir4 --pull-dependencies',
     pin: '0_cD_pull-dependencies',
-    why: OPTIONS_RECORD_WHY,
+    why: DEPENDENCIES_RECORD_WHY,
+  },
+  {
+    file: 'config-manager-pull-journeys.e2e.test.js',
+    cmd: 'frodo config-manager pull journeys -D ConfigJourneytestDir1 --no-deps',
+    was: 'frodo config-manager pull journeys -D ConfigJourneytestDir1',
+    pin: '0_D',
+    why: DEPENDENCIES_RECORD_WHY,
+  },
+  {
+    file: 'config-manager-pull-journeys.e2e.test.js',
+    cmd: 'frodo config-manager pull journeys -D ConfigJourneyTestDir2 -m forgeops --no-deps',
+    was: 'frodo config-manager pull journeys -D ConfigJourneyTestDir2 -m forgeops',
+    pin: '0_D_m',
+    why: DEPENDENCIES_RECORD_WHY,
   },
   {
     file: 'iga-workflow-delete.e2e.test.js',
@@ -413,10 +446,10 @@ export const RENAMED = [
   },
   {
     file: 'config-manager-pull-journeys.e2e.test.js',
-    cmd: 'frodo config-manager pull journeys -i BravoTestRegistration -D ConfigJourneytestDir3 -m forgeops',
+    cmd: 'frodo config-manager pull journeys -i BravoTestRegistration -D ConfigJourneytestDir3 -m forgeops --no-deps',
     was: 'frodo config-manager pull journeys -n BravoTestRegistration -D ConfigJourneytestDir3 -m forgeops',
     pin: '0_n_D_m',
-    why: SELECTORS_RECORD_WHY,
+    why: SELECTORS_AND_DEPENDENCIES_RECORD_WHY,
   },
   {
     file: 'config-manager-pull-secret-mappings.e2e.test.js',
@@ -497,10 +530,10 @@ export const RENAMED = [
   },
   {
     file: 'config-manager-push-journeys.e2e.test.js',
-    cmd: 'frodo config-manager push journeys -i ProgressiveProfile -D test/e2e/exports/fr-config-manager/forgeops',
+    cmd: 'frodo config-manager push journeys -i ProgressiveProfile -D test/e2e/exports/fr-config-manager/forgeops --no-deps',
     was: 'frodo config-manager push journeys -n ProgressiveProfile -D test/e2e/exports/fr-config-manager/forgeops',
     pin: '0_n_D',
-    why: SELECTORS_RECORD_WHY,
+    why: SELECTORS_AND_DEPENDENCIES_RECORD_WHY,
   },
   {
     file: 'config-manager-push-secrets.e2e.test.js',

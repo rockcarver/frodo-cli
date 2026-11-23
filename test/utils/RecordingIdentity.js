@@ -279,7 +279,10 @@ function endOfGroup(source, start) {
  * hashed with sha256. The ported functions above are right for the library
  * they were read from; when this fingerprint changes, the library changed how
  * it names a recording and the port has to be read again.
- * @param {string} bundleSource the text of frodo-lib's `dist/index.js`
+ * @param {string} bundleSource the text of frodo-lib's `dist/index.mjs`, the one
+ * build the library ships from 5.0.0-50 on (the CommonJS `dist/index.js` of
+ * 5.0.0-49 holds the same six functions, apart from the bundler's
+ * `path.default.parse(` where the ES module has `path.parse(`)
  * @returns {string} the sha256 as hex
  * @throws {Error} `bundle layout changed` when an anchor is missing or found
  * more than once

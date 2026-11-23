@@ -8,14 +8,15 @@
 // behind. There is no `frodo telemetry delete` CLI command yet (see
 // frodo-lib's src/ops/cloud/TelemetryOps.ts -- the op exists, just not a CLI
 // wrapper), so this is a standalone stopgap script for recording-mode setup
-// only. It uses frodo-lib's CJS build directly (not the ESM one, which
-// real-ESM Jest can't load, and not `@rockcarver/frodo-lib` package
-// resolution, since this script isn't run from inside a package that
-// depends on it) via an explicit relative path into the linked package.
+// only. It requires frodo-lib's one build, dist/index.mjs (an ES module that
+// CommonJS programs can require, see frodo-lib's decision record 0020; before
+// 5.0.0-50 this was the CommonJS dist/index.js), and not `@rockcarver/frodo-lib`
+// package resolution, since this script isn't run from inside a package that
+// depends on it, via an explicit relative path into the linked package.
 
 const path = require('node:path');
 const { frodo } = require(
-  path.join(__dirname, '..', '..', '..', 'node_modules', '@rockcarver', 'frodo-lib', 'dist', 'index.js')
+  path.join(__dirname, '..', '..', '..', 'node_modules', '@rockcarver', 'frodo-lib', 'dist', 'index.mjs')
 );
 
 const host = process.argv[2];
