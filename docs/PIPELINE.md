@@ -183,8 +183,9 @@ minute, most of it `npm ci`. The same command runs locally.
 - Updates manifests with `gearsnlevers/manifest-version-update-action@v1`
 - Runs the MCP SDK track check, the npm bundle build (`tsdown` + `tsc`),
   `npm run check` (ESLint 10 + Prettier, including import order — see
-  [BUILD-ENV.md](BUILD-ENV.md) §5), and a critical-level security audit (check
-  only: it fails the build on a critical advisory and never rewrites the lockfile)
+  [BUILD-ENV.md](BUILD-ENV.md) §5 — and the pull request rules, below), and a
+  critical-level security audit (check only: it fails the build on a critical
+  advisory and never rewrites the lockfile)
 - Uploads `package.json`, `package-lock.json` and `dist/` as the `build`
   artifact that every downstream job consumes
 
@@ -193,6 +194,37 @@ bundle). Note this job intentionally does NOT build the SEA binary — that
 requires Node 26 and is the binary jobs' product (see
 [BUILD-ENV.md](BUILD-ENV.md) §6). The Test job pins Node 26 and runs the
 suite against the SEA binary itself.
+
+### Pull request rules
+
+`npm run check` ends with `npm run check:pull-request`
+([../tools/check-pull-request.mjs](../tools/check-pull-request.mjs) reads git and
+the event; the rules and their messages are the pure functions of
+[../tools/pull-request-rules.mjs](../tools/pull-request-rules.mjs), tested by
+`test/unit/PullRequestRules.test.js`). It runs in the `Lint` step of the `Build`
+job because that job runs for every pull request whatever the classifier says,
+checks out the whole history and has the event payload. One rule today: a pull
+request does not change `CHANGELOG.md`, which the Release job writes from the
+titles and descriptions of what merged.
+
+- Compared with: in a `pull_request` event, the merge base of the event's base
+  commit and `HEAD` (a three-dot comparison, so a branch that is behind a
+  release commit is not blamed for it). A fork that is behind does not have the
+  base commit; it is fetched from the base repository by its SHA. If the base
+  cannot be resolved the check fails with exit code 2 (re-run the job), so the
+  guard is never silently off in CI. At a terminal (no event) it compares with
+  `origin/main`, and passes with a note when there is none; on any other event
+  (`push`, `workflow_dispatch`) it passes with a note.
+- The net change decides: an edit that a later commit reverts is clean, and a
+  rename or deletion of the file counts as a change.
+- The one exemption is the release commit: the subject
+  `Updated changelog and version for release v<version>` (with or without
+  `[skip ci]`) and only `CHANGELOG.md`, `package.json` and `package-lock.json`.
+  The shape decides, never the name of the author. The Release job pushes that
+  commit straight to `main`, and a person who finishes a half-done release
+  through a pull request uses the same subject. Any other correction of the file
+  goes straight to `main` or merges with the administrator bypass of the ruleset.
+- It is code in the pull request it judges, so it stops accidents, not intent.
 
 ### Test
 
