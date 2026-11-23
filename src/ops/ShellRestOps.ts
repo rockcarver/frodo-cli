@@ -1,26 +1,38 @@
-import https from 'node:https';
 import { frodo, state } from '@rockcarver/frodo-lib';
-import axios, { AxiosInstance, AxiosResponse } from 'axios';
 
 /*
  * jQuery-style REST facade for the frodo JS console (`frodo shell`).
  *
  * Exposes the jQuery API surface ($.ajax, $.get, $.post, $.put, $.patch,
- * $.delete, $.head) over frodo-lib's own credential model, so scripts typed
- * in the console authenticate exactly like frodo commands do:
+ * $.delete, $.head) over frodo-lib's own request instances, so scripts typed
+ * in the console authenticate and travel exactly like frodo commands do:
  *
- * - browser-login sessions get their per-call token exchange through the
- *   state's credential provider;
- * - bearer-token sessions get a staleness check plus on-demand refresh;
- * - AM-domain calls fall back to the session cookie;
- * - header overrides, insecure TLS and retry config all apply.
+ * - /openidm calls use the IDM instance, /am calls the AM instance, and both
+ *   resolve their credential (bearer token, session cookie, browser-login
+ *   provider, refresh of a stale token, one renewal after a 401) in
+ *   frodo-lib, in one place;
+ * - a call to another host uses the instance that carries no credential;
+ * - header overrides, insecure TLS, proxies, retries and --curlirize all
+ *   apply, because they are properties of those instances.
  *
- * The credential resolution below deliberately mirrors frodo-lib's
- * api/BaseApi.ts (resolveAmRequestCredential / resolveBearerRequestCredential
- * / attachCredentialInterceptor). frodo-lib does not export its axios
- * generators, so this is replicated here for the console only. Known debt:
- * drifts if frodo-lib's interceptors change.
+ * What stays here is what only the console decides: which instance a URL
+ * gets, how the URL is encoded, the console's own User-Agent and transaction
+ * id, the session-cookie fallback for IDM calls, and the shape of the result.
  */
+
+/** The part of a response that the console reads. */
+type RestResponse = {
+  status: number;
+  statusText?: string;
+  headers?: object;
+  data: unknown;
+};
+/** What a request instance rejects with when it got an answer or none at all. */
+type RestFailure = {
+  isAxiosError?: boolean;
+  message: string;
+  response?: RestResponse;
+};
 
 export type ShellRestResult = {
   status: number;
@@ -36,105 +48,54 @@ const timeoutMs = 30000;
 const userAgent = `@rockcarver/frodo-cli (frodo shell)`;
 const transactionId = `frodo-console-${Date.now()}`;
 
-const { AVAILABLE_SCOPES, TOKEN_FRESHNESS_BUFFER_MS } = frodo.utils.constants;
-
-/** Scopes IDM calls require, matching frodo-lib's own IDM api calls. */
-const IDM_SCOPES = [AVAILABLE_SCOPES.IdmFullScope];
-/** Scopes AM calls require, matching frodo-lib's general AM api calls. */
-const AM_SCOPES = [AVAILABLE_SCOPES.AmFullScope];
-
-type CredentialHeader = { header: string; value: string };
-
-function isStale(meta?: { expires?: number }): boolean {
-  if (!meta || typeof meta.expires !== 'number') return false;
-  return meta.expires - Date.now() <= TOKEN_FRESHNESS_BUFFER_MS;
-}
-
 /**
- * Throw the no-refresh-path error for a stale credential, flagging
- * browser-login sessions the way frodo-lib does.
+ * The headers that mark a request as coming from the console: its User-Agent
+ * and its transaction id (frodo-lib sends its own for every other command).
+ * A header that the state's authentication or configuration header overrides
+ * define, in any letter case, is left out: the user's override wins.
+ *
+ * @param overrides the header overrides of the state (names matter, values do not)
  */
-function throwCannotSilentlyRefresh(credentialLabel: string): never {
-  if (state.getAuthMode() === 'interactive') {
-    state.setNeedsReauthentication(true);
-  }
-  throw new Error(
-    `Cached ${credentialLabel} has expired and cannot be silently refreshed. Re-authenticate to continue.`
+export function consoleHeaders(
+  overrides: Record<string, string> = {}
+): Record<string, string> {
+  const defined = new Set(
+    Object.keys(overrides).map((name) => name.toLowerCase())
+  );
+  const marks: Record<string, string> = {
+    'User-Agent': userAgent,
+    'X-ForgeRock-TransactionId': transactionId,
+  };
+  return Object.fromEntries(
+    Object.entries(marks).filter(([name]) => !defined.has(name.toLowerCase()))
   );
 }
 
 /**
- * Refresh the credential through the state's refresh handler when one is
- * installed; throw when the credential is stale and no handler exists.
- * Returns true when a refresh ran (the caller re-reads the credential).
- */
-async function refreshIfStale(
-  meta: { expires?: number } | undefined,
-  credentialLabel: string
-): Promise<boolean> {
-  if (!isStale(meta)) return false;
-  const refresh = state.getTokenRefreshHandler();
-  if (refresh) {
-    await refresh();
-    return true;
-  }
-  throwCannotSilentlyRefresh(credentialLabel);
-}
-
-/**
- * Resolve the credential (header name + value) for a request, following
- * frodo-lib's per-domain rules.
+ * The session cookie as a credential for an IDM call. frodo-lib's IDM
+ * instance is bearer-only: on session-cookie-only deployments it sends no
+ * credential on IDM calls. The browser console authenticates to IDM through
+ * same-origin cookies; the closest equivalent here is to offer the AM session
+ * cookie when there is no bearer token, which works where IDM trusts the AM
+ * session. frodo-lib's instance leaves a request alone that already carries
+ * Authorization or Cookie, so this is passed as a header of the request. It
+ * returns nothing when there is a bearer token, no session cookie, or when a
+ * header override already names Authorization or Cookie.
  *
- * @param domain `idm` or `am`
+ * @param session the credentials of the state
+ * @param overrides the header overrides of the state (names matter, values do not)
  */
-async function resolveCredential(
-  domain: 'idm' | 'am'
-): Promise<CredentialHeader | null> {
-  // Browser-login mode short-circuits everything: the provider performs the
-  // per-call RFC 8693 exchange and hands back the header to use. AM domain
-  // calls pass their required scopes; IDM is a genuine OAuth2 resource
-  // server that accepts the primary token directly.
-  const provider = state.getAmCredentialProvider();
-  if (provider) {
-    return provider(domain === 'am' ? AM_SCOPES : IDM_SCOPES);
-  }
-
-  if (domain === 'idm') {
-    // frodo-lib's IDM resolvers are bearer-only: on session-cookie-only
-    // deployments frodo-lib sends no credential on IDM calls. The browser
-    // console authenticates to IDM via same-origin cookies; the closest
-    // CLI-side equivalent is to offer the AM session cookie as a fallback
-    // when there is no bearer token, which works on deployments where IDM
-    // trusts the AM session.
-    await refreshIfStale(state.getBearerTokenMeta(), 'bearer token');
-    const token = state.getBearerToken();
-    if (token) {
-      return { header: 'Authorization', value: `Bearer ${token}` };
-    }
-    const cookieName = state.getCookieName();
-    const cookieValue = state.getCookieValue();
-    if (cookieName && cookieValue) {
-      return { header: 'Cookie', value: `${cookieName}=${cookieValue}` };
-    }
-    return null;
-  }
-
-  // AM domain: bearer token when the session was told to use one, else the
-  // session cookie. Staleness is checked against whichever credential applies.
-  const useBearer = state.getUseBearerTokenForAmApis();
-  const meta = useBearer
-    ? state.getBearerTokenMeta()
-    : state.getUserSessionTokenMeta();
-  await refreshIfStale(meta, useBearer ? 'bearer token' : 'session token');
-  if (useBearer) {
-    const token = state.getBearerToken();
-    return token ? { header: 'Authorization', value: `Bearer ${token}` } : null;
-  }
-  const cookieName = state.getCookieName();
-  const cookieValue = state.getCookieValue();
-  return cookieName && cookieValue
-    ? { header: 'Cookie', value: `${cookieName}=${cookieValue}` }
-    : null;
+export function idmCookieFallback(
+  session: { bearerToken?: string; cookieName?: string; cookieValue?: string },
+  overrides: Record<string, string> = {}
+): Record<string, string> {
+  if (session.bearerToken) return {};
+  if (!session.cookieName || !session.cookieValue) return {};
+  const defined = new Set(
+    Object.keys(overrides).map((name) => name.toLowerCase())
+  );
+  if (defined.has('authorization') || defined.has('cookie')) return {};
+  return { Cookie: `${session.cookieName}=${session.cookieValue}` };
 }
 
 /**
@@ -225,91 +186,59 @@ export function encodeUrlPathAndQuery(url: string): string {
 }
 
 /**
- * Build the axios instance for one console request: the same base headers,
- * timeout and insecure-TLS handling frodo-lib's generators apply.
+ * Open the frodo-lib request instance for one console request, one instance
+ * per request: the header overrides are read when it is made.
+ *
+ * - idm: the IDM instance (bearer token; the session cookie when there is none)
+ * - am: the AM instance (session cookie or bearer token, browser-login provider)
+ * - none: another host. The instance that frodo-lib makes for requests to
+ *   hosts that are not the tenant: it carries no credential, and the
+ *   authentication and configuration header overrides of the state, which
+ *   belong to the tenant, are not sent either.
  */
-function buildInstance(): AxiosInstance {
-  const headers: Record<string, string> = {
-    'User-Agent': userAgent,
-    'X-ForgeRock-TransactionId': transactionId,
-    'Content-Type': 'application/json',
+function openInstance(domain: 'idm' | 'am' | 'none') {
+  if (domain === 'none') {
+    return frodo.factory.generateReleaseApi('', {
+      timeout: timeoutMs,
+      headers: consoleHeaders(),
+    });
+  }
+  const overrides = {
+    ...(state.getAuthenticationHeaderOverrides() ?? {}),
+    ...(state.getConfigurationHeaderOverrides() ?? {}),
   };
-  for (const [key, value] of Object.entries(
-    state.getAuthenticationHeaderOverrides()
-  )) {
-    headers[key] = value;
-  }
-  return axios.create({
+  const override = {
     timeout: timeoutMs,
-    headers,
-    ...(state.getAllowInsecureConnection()
-      ? { httpsAgent: insecureAgent() }
-      : {}),
-  });
-}
-
-let insecureAgentInstance: https.Agent | undefined;
-
-/**
- * One shared insecure HTTPS agent for the console session (rejectUnauthorized
- * false), created lazily and only when --allow-insecure-connection is set.
- */
-function insecureAgent(): https.Agent {
-  if (!insecureAgentInstance) {
-    insecureAgentInstance = new https.Agent({ rejectUnauthorized: false });
-  }
-  return insecureAgentInstance as https.Agent;
-}
-
-/**
- * Attach the credential resolution interceptor to an instance. Skips
- * resolution when the caller already set Authorization/Cookie explicitly
- * (matching frodo-lib's attachCredentialInterceptor).
- */
-function attachCredential(
-  instance: AxiosInstance,
-  domain: 'idm' | 'am' | 'none'
-): void {
-  instance.interceptors.request.use(async (config) => {
-    const headers = config.headers;
-    const has = (name: string) => {
-      if (headers && typeof (headers as { has?: unknown }).has === 'function') {
-        return (headers as unknown as { has: (n: string) => boolean }).has(
-          name
-        );
-      }
-      const plain = (headers ?? {}) as Record<string, unknown>;
-      return Object.keys(plain).some(
-        (key) => key.toLowerCase() === name.toLowerCase()
-      );
-    };
-    if (domain === 'none' || has('Authorization') || has('Cookie')) {
-      return config;
-    }
-    const credential = await resolveCredential(domain);
-    if (credential) {
-      (config.headers as Record<string, string>)[credential.header] =
-        credential.value;
-    }
-    return config;
-  });
+    headers: {
+      ...consoleHeaders(overrides),
+      ...(domain === 'idm'
+        ? idmCookieFallback(
+            {
+              bearerToken: state.getBearerToken(),
+              cookieName: state.getCookieName(),
+              cookieValue: state.getCookieValue(),
+            },
+            overrides
+          )
+        : {}),
+    },
+  };
+  return domain === 'idm'
+    ? frodo.factory.generateIdmApi(override)
+    : frodo.factory.generateAmApi({}, override);
 }
 
 async function request(
   method: string,
   url: string,
   data?: unknown,
-  options: {
-    headers?: Record<string, string>;
-    domain?: 'idm' | 'am' | 'none';
-  } = {}
+  options: { headers?: Record<string, string> } = {}
 ): Promise<ShellRestResult> {
   const { absoluteUrl, domain } = resolveUrl(url);
   const encoded = encodeUrlPathAndQuery(absoluteUrl);
-  const instance = buildInstance();
-  attachCredential(instance, options.domain ?? domain);
+  const instance = openInstance(domain);
 
-  let response: AxiosResponse;
+  let response: RestResponse;
   try {
     response = await instance.request({
       url: encoded,
@@ -318,15 +247,18 @@ async function request(
       headers: options.headers,
     });
   } catch (error) {
-    if (axios.isAxiosError(error)) {
-      if (error.response) {
-        const result = toResult(error.response);
+    const failure = error as RestFailure | undefined;
+    if (failure?.isAxiosError === true) {
+      if (failure.response) {
+        const result = toResult(failure.response);
         lastResult = result;
         throw new ShellRestError(result, { cause: error });
       }
       throw new Error(
-        `${method.toUpperCase()} ${url} failed: ${error.message}`,
-        { cause: error }
+        `${method.toUpperCase()} ${url} failed: ${failure.message}`,
+        {
+          cause: error,
+        }
       );
     }
     throw error;
@@ -336,7 +268,7 @@ async function request(
   return result;
 }
 
-function toResult(response: AxiosResponse): ShellRestResult {
+function toResult(response: RestResponse): ShellRestResult {
   const headers: Record<string, string> = {};
   for (const [key, value] of Object.entries(response.headers ?? {})) {
     headers[key] = Array.isArray(value) ? value.join(', ') : String(value);
