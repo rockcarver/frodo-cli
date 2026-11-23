@@ -5,19 +5,24 @@ import { describe, expect, test } from '@jest/globals';
 import ts from 'typescript';
 
 /**
- * Every place in `src/` that removes a file or a folder is listed here, with the reason that what
- * it removes is not a path that a tenant names. A new call of `rm`, `rmSync`, `rmdir`,
- * `rmdirSync`, `unlink` or `unlinkSync` (also as `fs.promises.rm` or a name that was imported)
- * fails this file until it is listed, so that whoever adds it says where its path comes from. A
- * path that holds a value from the tenant (the id of a journey, the realm of an object) is built
- * with the functions of `src/utils/ConfigTreePath.ts`, and the entry of such a place also says
- * which call of them the module has to hold. The behaviour of the two places that remove what the
- * tenant names is in ConfigManagerPullJourneysStayInside.test.js and
+ * Every place in `src/` that removes a file or a folder, or renames one over another, is listed
+ * here, with the reason that what it removes is not a path that a tenant names. A new call of
+ * `rm`, `rmSync`, `rmdir`, `rmdirSync`, `unlink`, `unlinkSync`, `rimraf`, `rename` or `renameSync`
+ * (also as `fs.promises.rm`, `fs['rmSync']` or a name that was imported), and a new call of
+ * `exec`, `execSync`, `execFile`, `execFileSync`, `spawn` or `spawnSync` whose command is `rm`,
+ * `rmdir`, `unlink`, `mv`, `shred` or `rimraf`, fails this file until it is listed, so that whoever
+ * adds it says where its path comes from. The test files of `src/` are scanned like the rest. This
+ * is a tripwire for those names, not a wall: a command that is built at run time, or a function
+ * that is reached by a computed name, is not seen. A path that holds a value from the tenant (the
+ * id of a journey, the realm of an object) is built with the functions of
+ * `src/utils/ConfigTreePath.ts`, and the entry of such a place also says which call of them the
+ * module has to hold anywhere in it. The behaviour of the two places that remove what the tenant
+ * names is in ConfigManagerPullJourneysStayInside.test.js and
  * ApplicationMigrateHostileRealm.test.js.
  *
  * The scan looks at the syntax of the source, not at its text, so a reformatted call, or a call
  * in a comment or a string, is not mistaken for another. The text that an entry holds is compared
- * without white space.
+ * without white space and without a trailing comma.
  */
 
 const root = path.resolve(
@@ -33,12 +38,27 @@ const REMOVERS = new Set([
   'unlink',
   'unlinkSync',
   'rimraf',
+  'rename',
+  'renameSync',
 ]);
+
+/** The functions that run a command, and what a command that removes something starts with (`rm -rf x`, `/bin/rm`). */
+const SHELL_RUNNERS = new Set([
+  'exec',
+  'execSync',
+  'execFile',
+  'execFileSync',
+  'spawn',
+  'spawnSync',
+]);
+const SHELL_REMOVAL =
+  /(?:^|[^\w-])(?:rm|rmdir|unlink|mv|shred|rimraf)(?![\w-])/;
 
 /**
  * The places that remove something, and why each is safe.
- * `call` is the text of the call, `via` the text that the module has to hold as well (the
- * functions that make the path of a value from the tenant a name inside the config folder).
+ * `call` is the text of the call, `count` how many times the module holds it (one when it is not
+ * said), `via` the text that the module has to hold as well (the functions that make the path of a
+ * value from the tenant a name inside the config folder).
  */
 const ALLOWED = [
   {
@@ -66,7 +86,9 @@ const ALLOWED = [
   {
     module: 'src/configManagerOps/FrConfigRawOps.ts',
     call: 'fs.rmSync(dir, { recursive: true, force: true })',
-    via: ["const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'frodo-stdin-'));"],
+    via: [
+      "const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'frodo-stdin-'));",
+    ],
     why: 'the private folder that `mkdtempSync` made in the temporary folder of the machine, for the text of standard input',
   },
   {
@@ -74,6 +96,12 @@ const ALLOWED = [
     call: 'fs.rmSync(temporary, { force: true })',
     via: ['const temporary = `${file}.${process.pid}.${Date.now()}.tmp`;'],
     why: 'the temporary file next to the layout marker, named from the process and the time',
+  },
+  {
+    module: 'src/utils/TreeLayout.ts',
+    call: 'fs.renameSync(temporary, file)',
+    via: ['const temporary = `${file}.${process.pid}.${Date.now()}.tmp`;'],
+    why: 'the temporary file next to the layout marker is renamed over the marker: both names are made from the folder of the tree and constants',
   },
   {
     module: 'src/ops/ConfigOps.ts',
@@ -99,13 +127,66 @@ const ALLOWED = [
     via: [],
     why: 'the folder that the launcher made itself, only when it is empty',
   },
+  {
+    module: 'src/cli/shell/shell-web.pty.test.js',
+    call: 'fs.rmSync(userData, { recursive: true, force: true, maxRetries: 10, retryDelay: 100 })',
+    why: 'the temporary folder that the test made with `mkdtempSync` in the temporary folder of the machine',
+  },
+  {
+    module: 'src/cli/shell/shell-web.pty.test.js',
+    call: 'fs.rmSync(tools, { recursive: true, force: true })',
+    why: 'the temporary folder that the test made with `mkdtempSync` in the temporary folder of the machine',
+  },
+  {
+    module: 'src/cli/shell/shell-web.pty.test.js',
+    call: 'fs.rmSync(dir, { recursive: true, force: true })',
+    why: 'the temporary folder that the test made with `mkdtempSync` in the temporary folder of the machine',
+  },
+  {
+    module: 'src/ops/ShellHistoryOps.unit.test.ts',
+    call: 'fs.rmSync(home, { recursive: true, force: true })',
+    count: 3,
+    why: 'the temporary folder that the test made with `mkdtempSync` in the temporary folder of the machine',
+  },
+  {
+    module: 'src/ops/ShellWebEngineOps.unit.test.ts',
+    call: 'fs.rmSync(home, { recursive: true, force: true })',
+    why: 'the temporary folder that the test made with `mkdtempSync` in the temporary folder of the machine',
+  },
+  {
+    module: 'src/ops/ShellWebLauncher.unit.test.ts',
+    call: 'fs.rmSync(base, { recursive: true, force: true })',
+    why: 'the temporary folder that the test made with `mkdtempSync` in the temporary folder of the machine',
+  },
+  {
+    module: 'src/ops/ShellWebServerOps.unit.test.ts',
+    call: "fs.rmSync(profilesFile.slice(0, profilesFile.lastIndexOf('/')), { recursive: true, force: true })",
+    why: 'the temporary folder that the test made with `mkdtempSync` in the temporary folder of the machine',
+  },
+  {
+    module: 'src/ops/ShellWebServerOps.unit.test.ts',
+    call: "fs.rmSync(stub.slice(0, stub.lastIndexOf('/')), { recursive: true, force: true })",
+    why: 'the temporary folder that the test made with `mkdtempSync` in the temporary folder of the machine',
+  },
+  {
+    module: 'src/ops/ShellWebServerOps.unit.test.ts',
+    call: 'fs.rmSync(dir, { recursive: true, force: true })',
+    why: 'the temporary folder that the test made with `mkdtempSync` in the temporary folder of the machine',
+  },
+  {
+    module: 'src/utils/interactive/FileSystemPaths.test.ts',
+    call: 'fs.rmSync(root, { recursive: true, force: true })',
+    why: 'the temporary folder that the test made with `mkdtempSync` in the temporary folder of the machine',
+  },
 ];
 
-const withoutWhiteSpace = (text) => text.replace(/\s+/g, '');
+/** The text without white space and without a comma before a closing bracket, as a formatter may write it. */
+const withoutWhiteSpace = (text) =>
+  text.replace(/\s+/g, '').replace(/,([)}\]])/g, '$1');
 
 /**
  * Every call of a function that removes something, and every other mention of such a name (an
- * import, a function that is kept in a variable).
+ * import, a function that is kept in a variable, a name in brackets).
  * @param {string} source the text of a module
  * @returns {{ line: number, text: string }[]} the place, and the call it is the function of
  */
@@ -117,24 +198,42 @@ function removalsOf(source) {
     true
   );
   const found = [];
+  const add = (node, text) => {
+    const { line } = sourceFile.getLineAndCharacterOfPosition(node.getStart());
+    found.push({ line: line + 1, text });
+  };
+  /** The call that a node is the function of, or the node. */
+  const callOf = (node) =>
+    ts.isCallExpression(node.parent) && node.parent.expression === node
+      ? node.parent
+      : node;
   const visit = (node) => {
     if (ts.isIdentifier(node) && REMOVERS.has(node.text)) {
       // `fs.rmSync(...)`: the name is the property of an access that is the function of a call
-      let named = node;
+      const named =
+        ts.isPropertyAccessExpression(node.parent) && node.parent.name === node
+          ? node.parent
+          : node;
+      add(node, callOf(named).getText());
+    } else if (
+      ts.isElementAccessExpression(node) &&
+      ts.isStringLiteralLike(node.argumentExpression) &&
+      REMOVERS.has(node.argumentExpression.text)
+    ) {
+      add(node, callOf(node).getText());
+    } else if (ts.isCallExpression(node) && node.arguments.length > 0) {
+      const callee = node.expression;
+      const name = ts.isIdentifier(callee)
+        ? callee.text
+        : ts.isPropertyAccessExpression(callee)
+          ? callee.name.text
+          : undefined;
       if (
-        ts.isPropertyAccessExpression(node.parent) &&
-        node.parent.name === node
+        SHELL_RUNNERS.has(name) &&
+        SHELL_REMOVAL.test(node.arguments[0].getText())
       ) {
-        named = node.parent;
+        add(node, node.getText());
       }
-      const call =
-        ts.isCallExpression(named.parent) && named.parent.expression === named
-          ? named.parent
-          : named;
-      const { line } = sourceFile.getLineAndCharacterOfPosition(
-        node.getStart()
-      );
-      found.push({ line: line + 1, text: call.getText() });
     }
     ts.forEachChild(node, visit);
   };
@@ -151,7 +250,7 @@ function removalsOf(source) {
  */
 function problemsOf(modules, allowed) {
   const problems = [];
-  const left = allowed.map((entry) => ({ ...entry, found: 0 }));
+  const left = allowed.map((entry) => ({ count: 1, ...entry, found: 0 }));
   for (const [module, source] of Object.entries(modules)) {
     for (const { line, text } of removalsOf(source)) {
       const entry = left.find(
@@ -167,8 +266,12 @@ function problemsOf(modules, allowed) {
     const source = modules[entry.module];
     if (entry.found === 0) {
       problems.push(`${entry.module}: ${entry.call} is listed but not there`);
+    } else if (entry.found !== entry.count) {
+      problems.push(
+        `${entry.module}: ${entry.call} is there ${entry.found} times and listed ${entry.count} times`
+      );
     } else if (source !== undefined) {
-      for (const text of entry.via) {
+      for (const text of entry.via ?? []) {
         if (!withoutWhiteSpace(source).includes(withoutWhiteSpace(text))) {
           problems.push(`${entry.module}: ${entry.call} lacks ${text}`);
         }
@@ -178,8 +281,8 @@ function problemsOf(modules, allowed) {
   return problems;
 }
 
-/** The modules of `src/`, by their path: everything that is shipped, no test. */
-function shippedModules() {
+/** The modules of `src/`, by their path: everything that is shipped and every test file beside it. */
+function modulesOfSrc() {
   const modules = {};
   const walk = (folder) => {
     for (const entry of fs.readdirSync(path.join(root, folder), {
@@ -187,10 +290,7 @@ function shippedModules() {
     })) {
       const relative = `${folder}/${entry.name}`;
       if (entry.isDirectory()) walk(relative);
-      else if (
-        /\.(?:ts|tsx|js|mjs|cjs)$/.test(entry.name) &&
-        !entry.name.includes('.test.')
-      ) {
+      else if (/\.(?:ts|tsx|mts|cts|js|jsx|mjs|cjs)$/.test(entry.name)) {
         modules[relative] = fs.readFileSync(path.join(root, relative), 'utf8');
       }
     }
@@ -228,6 +328,47 @@ describe('the scan itself', () => {
     ]);
   });
 
+  test('a name in brackets, a rename and a command that removes are found', () => {
+    const found = removalsOf(`
+      fs['rmSync'](a);
+      fs[\`unlinkSync\`](a);
+      fs.renameSync(a, b);
+      await fs.promises.rename(a, b);
+      execSync('rm -rf ' + a);
+      childProcess.execSync(\`rmdir \${a}\`);
+      spawnSync('rm', ['-rf', a]);
+      cp.execFileSync('/bin/rm', [a]);
+      exec('mv a b');
+    `);
+
+    expect(found.map((one) => one.text)).toEqual([
+      "fs['rmSync'](a)",
+      'fs[`unlinkSync`](a)',
+      'fs.renameSync(a, b)',
+      'fs.promises.rename(a, b)',
+      "execSync('rm -rf ' + a)",
+      'childProcess.execSync(`rmdir ${a}`)',
+      "spawnSync('rm', ['-rf', a])",
+      "cp.execFileSync('/bin/rm', [a])",
+      "exec('mv a b')",
+    ]);
+  });
+
+  test('a command that does not remove anything is not mistaken for one', () => {
+    expect(
+      removalsOf(`
+        execFileSync('ps', ['-p', pid]);
+        spawn(command, args);
+        execSync('git status');
+        execSync('npm run format');
+        spawnSync('open', ['rm.html']);
+        /rm/.exec(text);
+        fs.readFileSync(a);
+        fs.writeFileSync(a, b);
+      `)
+    ).toEqual([]);
+  });
+
   test('other names, comments and strings are not mistaken for a removal', () => {
     expect(
       removalsOf(`
@@ -258,12 +399,41 @@ describe('the scan itself', () => {
     ]);
   });
 
+  test('a second removal of the same text is a problem unless it is listed twice', () => {
+    const source = 'fs.rmSync(a); fs.rmSync(a);';
+
+    expect(problemsOf({ 'm.ts': source }, only)).toEqual([
+      'm.ts: fs.rmSync(a) is there 2 times and listed 1 times',
+    ]);
+    expect(problemsOf({ 'm.ts': source }, [{ ...only[0], count: 2 }])).toEqual(
+      []
+    );
+    expect(
+      problemsOf({ 'm.ts': 'fs.rmSync(a);' }, [{ ...only[0], count: 2 }])
+    ).toEqual(['m.ts: fs.rmSync(a) is there 1 times and listed 2 times']);
+  });
+
+  test('a trailing comma that a formatter writes does not matter', () => {
+    const entry = [
+      { ...only[0], call: 'fs.rmSync(a, { force: true, recursive: true })' },
+    ];
+
+    expect(
+      problemsOf(
+        { 'm.ts': 'fs.rmSync(a, {\n force: true,\n recursive: true,\n});' },
+        entry
+      )
+    ).toEqual([]);
+  });
+
   test('a listed removal is found however the call is written', () => {
     expect(problemsOf({ 'm.ts': 'fs.rmSync(\n  a\n);' }, only)).toEqual([]);
   });
 
   test('a listed removal is a problem when the text that makes its path safe is not in the module', () => {
-    const entry = [{ ...only[0], via: ['const dir = objectFolderPath(f, id);'] }];
+    const entry = [
+      { ...only[0], via: ['const dir = objectFolderPath(f, id);'] },
+    ];
 
     expect(problemsOf({ 'm.ts': 'fs.rmSync(a);' }, entry)).toEqual([
       'm.ts: fs.rmSync(a) lacks const dir = objectFolderPath(f, id);',
@@ -279,9 +449,15 @@ describe('the scan itself', () => {
 
 describe('the removals of src/', () => {
   test('every one is listed, every listed one is there, and the paths that hold a value of the tenant are made by the functions for it', () => {
-    const modules = shippedModules();
-    // the scan reads the whole source, and every module an entry names is in it
+    const modules = modulesOfSrc();
+    // the scan reads the whole source, test files included, and every module an entry names is in it
     expect(Object.keys(modules).length).toBeGreaterThan(500);
+    expect(Object.keys(modules)).toContain(
+      'src/ops/ShellHistoryOps.unit.test.ts'
+    );
+    expect(Object.keys(modules)).toContain(
+      'src/cli/shell/shell-web.pty.test.js'
+    );
     for (const { module } of ALLOWED) {
       expect(Object.keys(modules)).toContain(module);
     }
