@@ -90,6 +90,7 @@ describe('parseInstructionFile', () => {
     ['a second key', "---\napplyTo: 'a/b'\nexcludeAgent: 'code-review'\n---\n", /only applyTo.*excludeAgent/],
     ['another key only', "---\ndescription: 'x'\n---\n", /only applyTo/],
     ['a second applyTo line', "---\napplyTo: 'a/b'\napplyTo: 'c/d'\n---\n", /more than once/],
+    ['no applyTo line', '---\n\n---\n\n# Title\n', /applyTo is missing/],
     ['an empty value', file("''"), /empty/],
     ['a missing value', file(''), /empty/],
     ['an empty item', file("'a/b,,c'"), /empty item/],
