@@ -11,6 +11,7 @@ import {
   jest,
 } from '@jest/globals';
 import { frodo } from '@rockcarver/frodo-lib';
+import { ShellHistory } from './ShellHistoryOps';
 import { createWebEngine, EvalOutcome, WebEngine } from './ShellWebEngineOps';
 
 /**
@@ -321,6 +322,16 @@ describe('ShellWebEngineOps', () => {
     ).toBe('awaited-error');
     expect(logs.join('')).toContain('side-error');
     expect(logs.join('')).not.toContain('awaited-error');
+  });
+
+  it('fails only the input whose history entry cannot be written, and runs the next input', async () => {
+    jest.spyOn(ShellHistory.prototype, 'addLine').mockImplementationOnce(() => {
+      throw new Error('history write failed');
+    });
+    await expect(engine.evaluate('1 + 1')).rejects.toThrow(
+      'history write failed'
+    );
+    expect(await value('2 + 2')).toBe(4);
   });
 
   it('keeps working after an error', async () => {
