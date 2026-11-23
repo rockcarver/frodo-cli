@@ -1,7 +1,13 @@
 import fs from 'fs';
 import { frodo } from '@rockcarver/frodo-lib';
 import { extractFrConfigDataToFile } from '../utils/Config';
-import { referencedFilePath } from '../utils/ConfigTreePath';
+import {
+  nameInFolder,
+  nameInStem,
+  pulledFilePath,
+  PulledPaths,
+  referencedFilePath,
+} from '../utils/ConfigTreePath';
 import { printError, printMessage, verboseMessage } from '../utils/Console';
 import { causeOf, isNotFoundError } from '../utils/ErrorCause';
 import { OperationRun } from '../utils/OperationRun';
@@ -17,22 +23,38 @@ const { readConfigEntity, importConfigEntities, updateConfigEntity } =
 export async function configManagerExportTermsAndConditions(): Promise<boolean> {
   try {
     const exportData = (await readConfigEntity('selfservice.terms')) as any;
-    for (const version of exportData.versions) {
-      for (const [language, text] of Object.entries(
-        version.termsTranslations
-      )) {
-        const languageFileName = `${version.version}/${language}.html`;
-        const directoryName = `terms-conditions`;
-        version.termsTranslations[language] = extractFrConfigDataToFile(
-          text,
-          languageFileName,
-          directoryName
-        );
-      }
+    const pulledPaths = new PulledPaths();
+    const directoryName = `terms-conditions`;
+    // the tenant names the version and the languages: each is one name here, never a path; every file is checked before the first one is written
+    const files = exportData.versions.flatMap((version) =>
+      Object.entries(version.termsTranslations).map(([language, text]) => ({
+        version,
+        language,
+        text,
+        // the reference starts with the version, so a leading drive letter is written as `%3A`
+        reference: `${nameInStem(version.version)}/${nameInFolder(language)}.html`,
+      }))
+    );
+    for (const { version, language, reference } of files) {
+      pulledPaths.owner = `${version.version}/${language}`;
+      pulledFilePath(`${directoryName}/${reference}`, pulledPaths);
     }
+    for (const { version, language, text, reference } of files) {
+      pulledPaths.owner = `${version.version}/${language}`;
+      version.termsTranslations[language] = extractFrConfigDataToFile(
+        text,
+        reference,
+        directoryName,
+        pulledPaths
+      );
+    }
+    pulledPaths.owner = undefined;
     saveJsonToFile(
       exportData,
-      getFilePath('terms-conditions/terms-conditions.json', true),
+      getFilePath(
+        pulledFilePath('terms-conditions/terms-conditions.json', pulledPaths),
+        true
+      ),
       false
     );
     return true;

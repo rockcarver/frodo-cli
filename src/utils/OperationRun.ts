@@ -49,6 +49,15 @@ function reasonOf(error: unknown): string {
   return message.split('\n')[0].trim();
 }
 
+/** A name as a message shows it: a control character is written as `\u0001`, so that it cannot change what the terminal shows. */
+function printable(name: string): string {
+  return String(name).replace(
+    /\p{Cc}/gu,
+    (character) =>
+      `\\u${(character.codePointAt(0) as number).toString(16).padStart(4, '0')}`
+  );
+}
+
 /** The unit in the plural when there is not exactly one: policy, policies. */
 function pluralOf(unit: string, count: number): string {
   if (count === 1) return unit;
@@ -166,6 +175,32 @@ export class OperationRun {
    */
   recordSuccess(): void {
     this.total++;
+  }
+
+  /**
+   * Works out what an object of a pull is written as: a realm, a name or an id of the tenant made
+   * into a folder or a file. An object whose name is not a name that a file can have (`..`, empty,
+   * a path that would leave the config folder) is one failure: the reason is printed, the failure
+   * is recorded, nothing is written for the object, and the caller goes on with the next one.
+   * @param name what the object is called in the summary
+   * @param derive the work, which throws when the object has no name that a file can have
+   * @param left Optional. What is not pulled, for the message (`Its themes are not pulled.`)
+   * @returns what `derive` returns, or undefined after the failure was recorded
+   */
+  deriveOrFail<T>(name: string, derive: () => T, left?: string): T | undefined {
+    try {
+      return derive();
+    } catch (error) {
+      // a control character in the name is written as text first, so that the first line is the whole reason
+      const reason = printable(
+        error instanceof Error ? error.message : String(error)
+      )
+        .split('\n')[0]
+        .trim();
+      printMessage(left ? `${reason} ${left}` : reason, 'error');
+      this.recordFailure(printable(name), reason);
+      return undefined;
+    }
   }
 
   /**

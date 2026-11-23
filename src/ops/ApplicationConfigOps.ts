@@ -17,8 +17,11 @@ import {
   importScriptFromFiles,
 } from '../configManagerOps/FrConfigScriptOps';
 import {
+  nameInFolder,
   objectFilePath,
   objectFolderPath,
+  pulledFilePath,
+  PulledPaths,
   realmFolderOf,
   referencedFilePath,
 } from '../utils/ConfigTreePath';
@@ -380,6 +383,8 @@ export async function pullApplication(
   readMappings: () => Promise<any[]>
 ): Promise<void> {
   const incomplete: string[] = [];
+  // the files of this application: two names that one file system takes for one hold one file
+  const pulledPaths = new PulledPaths();
   const piece = async (what: string, work: () => Promise<void> | void) => {
     try {
       await work();
@@ -400,7 +405,7 @@ export async function pullApplication(
   await piece('the application record', () =>
     saveJsonToFile(
       escapePlaceholders(record),
-      getFilePath(`${folder}/application.json`, true),
+      getFilePath(pulledFilePath(`${folder}/application.json`), true),
       false,
       false
     )
@@ -442,7 +447,7 @@ export async function pullApplication(
       }
       saveJsonToFile(
         file,
-        getFilePath(`${folder}/oauth2-client.json`, true),
+        getFilePath(pulledFilePath(`${folder}/oauth2-client.json`), true),
         false,
         false,
         true
@@ -461,7 +466,7 @@ export async function pullApplication(
       const role = provider.from === 'ssoEntities.idpPrivateId' ? 'idp' : 'sp';
       saveJsonToFile(
         { config, metadata },
-        getFilePath(`${folder}/saml/${role}.json`, true),
+        getFilePath(pulledFilePath(`${folder}/saml/${role}.json`), true),
         false,
         true
       );
@@ -473,7 +478,7 @@ export async function pullApplication(
       const definition = await frodo.idm.connector.readConnector(connector.id);
       saveJsonToFile(
         escapePlaceholders(definition),
-        getFilePath(`${folder}/connector.json`, true),
+        getFilePath(pulledFilePath(`${folder}/connector.json`), true),
         false,
         true
       );
@@ -494,9 +499,11 @@ export async function pullApplication(
           const mapping = structuredClone(found);
           delete mapping._rev;
           if (String(mapping._id ?? '').startsWith('sync/')) delete mapping._id;
+          // the mapping is named by its owner: its name is the name of a folder here, never a path
           exportMappingToDirectory(
             mapping,
-            `${folder}/mappings/${mappingName}`
+            `${folder}/mappings/${nameInFolder(mappingName)}`,
+            pulledPaths
           );
         });
       }
@@ -515,12 +522,12 @@ export async function pullApplication(
         );
         return;
       }
-      exportScriptToFiles(script, realm);
+      exportScriptToFiles(script, realm, pulledPaths);
     });
   }
   for (const reference of shared('circleOfTrust')) {
     await piece(`circle of trust ${reference.id}`, () =>
-      exportCircleOfTrustToFile(reference.id, realm)
+      exportCircleOfTrustToFile(reference.id, realm, pulledPaths)
     );
   }
 

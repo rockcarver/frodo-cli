@@ -93,9 +93,7 @@ const { realmList } = spies.get(path.resolve(root, 'src/utils/FrConfig'));
 
 const ops = await import(path.resolve(root, FILE));
 
-const { fileFilter, safeFileName } = spies.get(
-  path.resolve(root, 'src/utils/FrConfig')
-);
+const { fileFilter } = spies.get(path.resolve(root, 'src/utils/FrConfig'));
 const { stopProgressIndicator } = spies.get(consoleTarget);
 
 // the summary is the one message of the shape "N of M <units> failed"
@@ -147,7 +145,6 @@ beforeEach(() => {
     current = realm;
   });
   fileFilter.mockReset().mockReturnValue(true);
-  safeFileName.mockReset().mockImplementation((name) => name);
   realmList.mockReset().mockResolvedValue(['alpha', 'bravo']);
   frodo.utils.getFilePath
     .mockReset()

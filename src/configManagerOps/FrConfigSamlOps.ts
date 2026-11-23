@@ -15,7 +15,10 @@ import {
 } from '../ops/ApplicationOwnedObjects';
 import {
   isOneSafeSegment,
+  nameInFolder,
   objectFilePath,
+  pulledFilePath,
+  PulledPaths,
   realmFolderOf,
 } from '../utils/ConfigTreePath';
 import {
@@ -53,18 +56,27 @@ type Saml2PullExportInterface = {
  * by the commands that pull a circle of trust because an application uses it.
  * @param {string} cotId id of the circle of trust
  * @param {string} realm the realm of the circle of trust (`/` is written as `root`); it must be the current realm of the state
+ * @param {PulledPaths} pulledPaths Optional. The files of this pull, to refuse a file that another one replaces on a file system that ignores case
+ * @throws {Error} if the realm or the id is not a name that a file can have
  * @throws {FrodoError} if the circle of trust cannot be read or its file cannot be written
  */
 export async function exportCircleOfTrustToFile(
   cotId: string,
-  realm: string
+  realm: string,
+  pulledPaths?: PulledPaths
 ): Promise<void> {
+  // the tenant names the realm and the circle of trust: each is one name here, never a path
+  const realmDir = realmFolderOf(realm);
+  const fileName = nameInFolder(cotId);
+  if (pulledPaths) pulledPaths.owner = cotId;
   const cotResult = await exportCircleOfTrust(cotId);
-  const realmDir = realm === '/' ? 'root' : realm;
   const fileDirectory = `realms/${realmDir}/realm-config/saml/COT`;
   saveJsonToFile(
     cotResult.saml.cot[cotId],
-    getFilePath(`${fileDirectory}/${cotId}.json`, true),
+    getFilePath(
+      pulledFilePath(`${fileDirectory}/${fileName}.json`, pulledPaths),
+      true
+    ),
     false,
     true
   );
@@ -164,16 +176,13 @@ async function everythingOfSaml(
       state.getDeploymentType() === CLOUD_DEPLOYMENT_TYPE_KEY
     )
       continue;
-    let realmDir: string;
-    try {
-      realmDir = realmFolderOf(currentRealm);
-    } catch {
-      printMessage(
-        `Skipping realm '${currentRealm}': its name is not '/', a name or a path of names.`,
-        'warn'
-      );
-      continue;
-    }
+    // the tenant names the realm: it is the name of a folder here, never a path
+    const realmDir = run.deriveOrFail(
+      `realm ${currentRealm}`,
+      () => realmFolderOf(currentRealm),
+      'Its SAML providers and circles of trust are not pulled.'
+    );
+    if (realmDir === undefined) continue;
     state.setRealm(currentRealm);
     try {
       const providers = wantProviders ? await readSaml2ProviderStubs() : [];
@@ -274,6 +283,7 @@ export async function configManagerExportSaml(
         : JSON.parse(fs.readFileSync(file, 'utf8'));
     if (!objects) return false;
     const owned = skipsOwnedObjects(layout) ? new OwnedObjects() : undefined;
+    const pulledPaths = new PulledPaths();
     for (const realm of Object.keys(objects)) {
       if (
         realm === '/' &&
@@ -281,8 +291,14 @@ export async function configManagerExportSaml(
           frodo.utils.constants.CLOUD_DEPLOYMENT_TYPE_KEY
       )
         continue;
+      // the tenant, or the file, names the realm: it is the name of a folder here, never a path
+      const realmDir = run.deriveOrFail(
+        `realm ${realm}`,
+        () => realmFolderOf(realm),
+        'Its SAML providers and circles of trust are not pulled.'
+      );
+      if (realmDir === undefined) continue;
       state.setRealm(realm);
-      const realmDir = realm === '/' ? 'root' : realm;
       let ownershipKnown = true;
       if (owned) {
         try {
@@ -354,16 +370,20 @@ export async function configManagerExportSaml(
             : metadata;
           saveObject.metadata = metaData;
 
-          let fileName;
-          if (samlProvider.fileName) {
-            fileName = samlProvider.fileName;
-          } else {
-            fileName = safeFileNameUnderscore(samlProvider.entityId);
-          }
+          // the file name is the one the config file gives, or the entity id: one name, never a path
+          pulledPaths.owner = samlProvider.fileName || samlProvider.entityId;
+          const fileName = nameInFolder(
+            samlProvider.fileName
+              ? samlProvider.fileName
+              : safeFileNameUnderscore(samlProvider.entityId)
+          );
 
           saveJsonToFile(
             saveObject,
-            getFilePath(`${fileDirectory}/${fileName}.json`, true),
+            getFilePath(
+              pulledFilePath(`${fileDirectory}/${fileName}.json`, pulledPaths),
+              true
+            ),
             false,
             true
           );
@@ -381,7 +401,7 @@ export async function configManagerExportSaml(
       }
       for (const cot of objects[realm].circlesOfTrust ?? []) {
         try {
-          await exportCircleOfTrustToFile(cot, realm);
+          await exportCircleOfTrustToFile(cot, realm, pulledPaths);
           run.recordSuccess();
         } catch (error) {
           printError(

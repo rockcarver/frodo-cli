@@ -18,6 +18,7 @@ import { frodo, FrodoError, state } from '@rockcarver/frodo-lib';
 import {
   fileNameOf,
   objectFilePath,
+  pulledFilePath,
   realmFolderOf,
 } from '../utils/ConfigTreePath';
 import { printError, printMessage, verboseMessage } from '../utils/Console';
@@ -483,7 +484,9 @@ export async function pullAgentKind(
             saveJsonToFile(
               config,
               getFilePath(
-                agentKindFilePath(kind.agentType, currentRealm, fileName),
+                pulledFilePath(
+                  agentKindFilePath(kind.agentType, currentRealm, fileName)
+                ),
                 true
               ),
               false,

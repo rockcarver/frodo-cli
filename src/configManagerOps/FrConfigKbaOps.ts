@@ -1,4 +1,5 @@
 import { frodo, type IdObjectSkeletonInterface } from '@rockcarver/frodo-lib';
+import { pulledFilePath } from '../utils/ConfigTreePath';
 import { printError } from '../utils/Console';
 
 const { readConfigEntity, importConfigEntities } = frodo.idm.config;
@@ -13,7 +14,7 @@ export async function configManagerExportKbaConfig(): Promise<boolean> {
     const exportData = await readConfigEntity('selfservice.kba');
     saveJsonToFile(
       exportData,
-      getFilePath('kba/selfservice.kba.json', true),
+      getFilePath(pulledFilePath('kba/selfservice.kba.json'), true),
       false
     );
     return true;

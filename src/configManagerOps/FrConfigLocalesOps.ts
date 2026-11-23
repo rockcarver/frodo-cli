@@ -4,6 +4,11 @@ import {
   type FrodoError,
   type IdObjectSkeletonInterface,
 } from '@rockcarver/frodo-lib';
+import {
+  nameInFolder,
+  pulledFilePath,
+  PulledPaths,
+} from '../utils/ConfigTreePath';
 import { printError, printMessage } from '../utils/Console';
 import { causeOf } from '../utils/ErrorCause';
 import { OperationRun } from '../utils/OperationRun';
@@ -45,11 +50,19 @@ export async function configManagerExportLocales(
       return true;
     }
     const run = new OperationRun({ unit: 'locale', allowFailures });
+    const pulledPaths = new PulledPaths();
     for (const locale of locales) {
       const localeName = locale._id.split('/')[1];
       try {
-        const localeFilename = `locales/${localeName}.json`;
-        saveJsonToFile(locale, getFilePath(localeFilename, true), false, true);
+        // the tenant names the locale: its name is the name of its file here, never a path
+        pulledPaths.owner = localeName;
+        const localeFilename = `locales/${nameInFolder(localeName)}.json`;
+        saveJsonToFile(
+          locale,
+          getFilePath(pulledFilePath(localeFilename, pulledPaths), true),
+          false,
+          true
+        );
         run.recordSuccess();
       } catch (error) {
         printError(error, `Error exporting locale ${localeName}`);
@@ -74,6 +87,8 @@ export async function configManagerImportLocales(
   allowFailures: boolean = false
 ): Promise<boolean> {
   try {
+    // `.` and `..` name no locale: the words of a pull
+    if (name) nameInFolder(name);
     printMessage(`Updating locale${name ? ` ${name}` : 's'}`);
     const localesDir = `${getWorkingDirectory()}/locales`;
     if (!fs.existsSync(localesDir)) {

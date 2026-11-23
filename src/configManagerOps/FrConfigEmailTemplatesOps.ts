@@ -1,7 +1,13 @@
 import fs from 'fs';
 import { frodo } from '@rockcarver/frodo-lib';
 import { extractFrConfigDataToFile } from '../utils/Config';
-import { referencedFilePath } from '../utils/ConfigTreePath';
+import {
+  nameInFolder,
+  nameInStem,
+  pulledFilePath,
+  PulledPaths,
+  referencedFilePath,
+} from '../utils/ConfigTreePath';
 import { printError, printMessage } from '../utils/Console';
 import { causeOf } from '../utils/ErrorCause';
 import { countItems, importItemsOfFile } from '../utils/ImportItems';
@@ -39,32 +45,56 @@ export async function configManagerExportEmailTemplates(
       printMessage('No email templates found to export.', 'info');
       return true;
     }
+    const pulledPaths = new PulledPaths();
     for (const template of templates) {
       const templateName = template._id.split('/')[1];
       await run.run(templateName, async () => {
-        const templatePath = `email-templates/${templateName}`;
-        await splitLangToFile(
-          template.html,
-          templatePath,
-          templateName,
-          'html'
-        );
-        await splitLangToFile(
-          template.message,
-          templatePath,
-          templateName,
-          'md'
-        );
+        // the tenant names the template: its name is the name of its folder and its files here, never a path
+        const folderName = nameInFolder(templateName);
+        // a file reference starts with the name of the template, so it is the stem of the names of the files
+        const stem = nameInStem(templateName);
+        const templatePath = `email-templates/${folderName}`;
+        const languages = [
+          ...plannedLanguages(template.html, stem, 'html'),
+          ...plannedLanguages(template.message, stem, 'md'),
+        ];
+        const cssFilename = `${stem}.css`;
+        const jsonFile = `${templatePath}/${folderName}.json`;
+        // every file is checked before the first one is written
+        for (const { language, fileName } of languages) {
+          pulledPaths.owner = `${templateName}.${language}`;
+          pulledFilePath(`${templatePath}/${fileName}`, pulledPaths);
+        }
         if (template.styles) {
-          const cssFilename = `${templateName}.css`;
-          extractFrConfigDataToFile(template.styles, cssFilename, templatePath);
+          pulledPaths.owner = `${templateName}.css`;
+          pulledFilePath(`${templatePath}/${cssFilename}`, pulledPaths);
+        }
+        pulledPaths.owner = templateName;
+        pulledFilePath(jsonFile, pulledPaths);
+
+        for (const { property, language, fileName, text } of languages) {
+          pulledPaths.owner = `${templateName}.${language}`;
+          extractFrConfigDataToFile(text, fileName, templatePath, pulledPaths);
+          property[language] = {
+            file: fileName,
+          };
+        }
+        if (template.styles) {
+          pulledPaths.owner = `${templateName}.css`;
+          extractFrConfigDataToFile(
+            template.styles,
+            cssFilename,
+            templatePath,
+            pulledPaths
+          );
           template.styles = {
             file: cssFilename,
           };
         }
+        pulledPaths.owner = templateName;
         saveJsonToFile(
           template,
-          getFilePath(`${templatePath}/${templateName}.json`, true),
+          getFilePath(pulledFilePath(jsonFile, pulledPaths), true),
           false,
           true
         );
@@ -78,17 +108,33 @@ export async function configManagerExportEmailTemplates(
   return false;
 }
 
-async function splitLangToFile(property, templatePath, templateName, suffix) {
-  if (!property) {
-    return;
-  }
-  Object.entries(property).forEach(([language, text]) => {
-    const fileName = `${templateName}.${language}.${suffix}`;
-    extractFrConfigDataToFile(text, fileName, templatePath);
-    property[language] = {
-      file: fileName,
-    };
-  });
+/**
+ * The files of the languages of one property of a template (`html` or `message`): the name of each
+ * file is the stem of the template, the language, and the suffix. The language is a name that the
+ * tenant gives, so it is one name here, never a path.
+ * @param {Record<string, unknown> | undefined} property the languages of the property, by language
+ * @param {string} stem the start of the name of every file of the template
+ * @param {string} suffix the extension of the files, without the dot
+ * @returns {{ property: Record<string, unknown>; language: string; fileName: string; text: unknown }[]} one entry for each language
+ * @throws {Error} if a language is not a name that a file can have
+ */
+function plannedLanguages(
+  property: Record<string, unknown> | undefined,
+  stem: string,
+  suffix: string
+): {
+  property: Record<string, unknown>;
+  language: string;
+  fileName: string;
+  text: unknown;
+}[] {
+  if (!property) return [];
+  return Object.entries(property).map(([language, text]) => ({
+    property,
+    language,
+    fileName: `${stem}.${nameInFolder(language)}.${suffix}`,
+    text,
+  }));
 }
 
 /**
@@ -107,6 +153,8 @@ export async function configManagerImportEmailTemplates(
 ): Promise<boolean> {
   const run = new OperationRun({ unit: 'email template', allowFailures });
   try {
+    // `.` and `..` name no email template: the words of a pull
+    if (templateName) nameInFolder(templateName);
     const templatesDir = `${getWorkingDirectory()}/email-templates`;
     if (!fs.existsSync(templatesDir)) {
       printMessage(

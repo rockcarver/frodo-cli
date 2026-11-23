@@ -158,10 +158,29 @@ const HOSTILE = [
 describe.each(['name', 'context', '_id'])(
   'a script whose %s is a hostile name',
   (field) => {
-    // an id as typed is the name of its file, as it is for every other kind of the config folder: a
-    // name that the file system cannot hold fails the write for that journey, it cannot go anywhere else
-    const names = HOSTILE.filter(
-      ([what]) => !(field === '_id' && what === 'is very long')
+    // a name that leaves no name for a file (`.`, `..`) or that no file name can hold (more than 255
+    // bytes) is not written: the journey fails, and nothing is written outside the config folder
+    // the name of a script is written as the file name of a name, which is empty for any run of dots
+    const REFUSED = [
+      'is only dots',
+      'is one dot',
+      'is very long',
+      ...(field === 'name' ? ['is three dots'] : []),
+    ];
+    const names = HOSTILE.filter(([what]) => !REFUSED.includes(what));
+
+    test.each(HOSTILE.filter(([what]) => REFUSED.includes(what)))(
+      'that %s names no file: the journey fails, and nothing is written outside the config folder',
+      async (_what, name) => {
+        tenantScript({ [field]: name });
+
+        expect(await pull()).toBe(false);
+
+        expect(fs.readdirSync(root)).toEqual(['a']);
+        for (const file of filesBelow(root)) {
+          expect(file.startsWith(`${configFolder}${path.sep}`)).toBe(true);
+        }
+      }
     );
 
     test.each(names)(

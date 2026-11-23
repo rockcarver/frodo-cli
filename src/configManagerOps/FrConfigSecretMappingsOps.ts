@@ -5,6 +5,12 @@ import {
   state,
   type SecretStoreMappingSkeleton,
 } from '@rockcarver/frodo-lib';
+import {
+  nameInFolder,
+  pulledFilePath,
+  PulledPaths,
+  realmFolderOf,
+} from '../utils/ConfigTreePath';
 import { printError, printMessage, verboseMessage } from '../utils/Console';
 import { causeOf } from '../utils/ErrorCause';
 import { realmList } from '../utils/FrConfig';
@@ -42,8 +48,16 @@ export async function configManagerExportSecretMappings(
       realm && realm !== DEFAULT_REALM_KEY ? [realm] : await realmList();
     const run = new OperationRun({ unit: 'secret mapping', allowFailures });
     let found = false;
+    const pulledPaths = new PulledPaths();
     for (const currentRealm of realms) {
       if (currentRealm === '/') continue;
+      // the tenant names the realm: it is the name of a folder here, never a path
+      const realmDir = run.deriveOrFail(
+        `realm ${currentRealm}`,
+        () => realmFolderOf(currentRealm),
+        'Its secret mappings are not pulled.'
+      );
+      if (realmDir === undefined) continue;
       state.setRealm(currentRealm);
       let mappings: SecretStoreMappingSkeleton[];
       try {
@@ -66,8 +80,14 @@ export async function configManagerExportSecretMappings(
         }
         found = true;
         try {
-          const fileName = `realms/${currentRealm}/secret-mappings/${mapping._id}.json`;
-          saveJsonToFile(mapping, getFilePath(fileName, true), false, true);
+          pulledPaths.owner = mapping._id;
+          const fileName = `realms/${realmDir}/secret-mappings/${nameInFolder(mapping._id)}.json`;
+          saveJsonToFile(
+            mapping,
+            getFilePath(pulledFilePath(fileName, pulledPaths), true),
+            false,
+            true
+          );
           run.recordSuccess();
         } catch (error) {
           printError(

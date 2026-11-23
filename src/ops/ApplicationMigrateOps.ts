@@ -2,7 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import { frodo, state } from '@rockcarver/frodo-lib';
 import { existingConfigFile } from '../configManagerOps/ConfigFileStep';
-import { realmFolderOf } from '../utils/ConfigTreePath';
+import { pulledFilePath, realmFolderOf } from '../utils/ConfigTreePath';
 import { printError, printMessage, verboseMessage } from '../utils/Console';
 import { causeOf } from '../utils/ErrorCause';
 import { realmList, safeFileNameUnderscore } from '../utils/FrConfig';
@@ -633,7 +633,7 @@ export async function configManagerMigrateApplications(
     for (const { object, files } of remove) {
       for (const file of files) {
         try {
-          fs.rmSync(path.join(treeDir, file));
+          fs.rmSync(path.join(treeDir, pulledFilePath(file)));
           removed.push(file);
           run.recordSuccess();
           printMessage(`Removed ${file} (${describeObject(object)})`);

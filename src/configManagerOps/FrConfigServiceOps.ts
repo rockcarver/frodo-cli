@@ -8,6 +8,12 @@ import {
 } from '@rockcarver/frodo-lib';
 import { combinedServiceError, importedServiceNameOf } from '../ops/ServiceOps';
 import {
+  nameInFolder,
+  pulledFilePath,
+  PulledPaths,
+  realmFolderOf,
+} from '../utils/ConfigTreePath';
+import {
   createProgressIndicator,
   printError,
   printMessage,
@@ -53,14 +59,21 @@ export async function configManagerExportServices(
       realm && realm !== DEFAULT_REALM_KEY ? [realm] : await realmList();
     const run = new OperationRun({ unit: 'service', allowFailures });
     let exported = 0;
+    const pulledPaths = new PulledPaths();
     for (const realm of realms) {
       if (
         realm === '/' &&
         state.getDeploymentType() === CLOUD_DEPLOYMENT_TYPE_KEY
       )
         continue;
+      // the tenant names the realm: it is the name of a folder here, never a path
+      const realmDir = run.deriveOrFail(
+        `realm ${realm}`,
+        () => realmFolderOf(realm),
+        'Its services are not pulled.'
+      );
+      if (realmDir === undefined) continue;
       state.setRealm(realm);
-      const realmDir = realm === '/' ? 'root' : realm;
       let services: FullService[];
       try {
         services = await getFullServices(false);
@@ -97,10 +110,14 @@ export async function configManagerExportServices(
         try {
           if (service.nextDescendents?.length > 0) {
             for (const descendent of service.nextDescendents) {
+              pulledPaths.owner = `${service._type._id}/${descendent._id}`;
               saveJsonToFile(
                 descendent,
                 getFilePath(
-                  `${fileDir}/${service._type._id}/${descendent._id}.json`,
+                  pulledFilePath(
+                    `${fileDir}/${nameInFolder(service._type._id)}/${nameInFolder(descendent._id)}.json`,
+                    pulledPaths
+                  ),
                   true
                 ),
                 false,
@@ -109,9 +126,16 @@ export async function configManagerExportServices(
             }
           }
           delete service.nextDescendents;
+          pulledPaths.owner = service._type._id;
           saveJsonToFile(
             service,
-            getFilePath(`${fileDir}/${service._type._id}.json`, true),
+            getFilePath(
+              pulledFilePath(
+                `${fileDir}/${nameInFolder(service._type._id)}.json`,
+                pulledPaths
+              ),
+              true
+            ),
             false,
             true
           );

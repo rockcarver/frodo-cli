@@ -1,5 +1,10 @@
 import fs from 'fs';
 import { frodo, state } from '@rockcarver/frodo-lib';
+import {
+  pulledFilePath,
+  PulledPaths,
+  realmFolderOf,
+} from '../utils/ConfigTreePath';
 import { printError, printMessage } from '../utils/Console';
 import { realmList } from '../utils/FrConfig';
 import { OperationRun } from '../utils/OperationRun';
@@ -26,6 +31,7 @@ export async function configManagerExportAuthentication(
     const realms =
       realm && realm !== DEFAULT_REALM_KEY ? [realm] : await realmList();
     const run = new OperationRun({ unit: 'realm', allowFailures });
+    const pulledPaths = new PulledPaths();
     for (const realm of realms) {
       if (
         realm === '/' &&
@@ -34,12 +40,18 @@ export async function configManagerExportAuthentication(
       )
         continue;
       await run.run(realm, async () => {
+        // the tenant names the realm: it is the name of a folder here, never a path
+        const realmDir = realmFolderOf(realm);
+        pulledPaths.owner = realm;
         state.setRealm(realm);
         const exportData = await _readAuthenticationSettings(false);
         saveJsonToFile(
           exportData,
           getFilePath(
-            `realms/${realm === '/' ? 'root' : realm}/realm-config/authentication.json`,
+            pulledFilePath(
+              `realms/${realmDir}/realm-config/authentication.json`,
+              pulledPaths
+            ),
             true
           ),
           false,

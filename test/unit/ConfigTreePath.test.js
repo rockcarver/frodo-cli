@@ -7,8 +7,12 @@ import {
   assertInside,
   fileNameOf,
   isOneSafeSegment,
+  nameInFolder,
+  nameInStem,
   objectFilePath,
   objectFolderPath,
+  pulledFilePath,
+  PulledPaths,
   realmFolderOf,
   referencedFilePath,
   safeFileName,
@@ -177,14 +181,22 @@ describe('objectFilePath', () => {
     // a control character of the C1 block is not part of a plain name either
     ['a\u0085b', `${FOLDER}/a%C2%85b.json`],
     ['a\u009fb', `${FOLDER}/a%C2%9Fb.json`],
-    ['..', `${FOLDER}/.json`],
-    ['.', `${FOLDER}/.json`],
   ])('%j is the file %s', (selector, expected) => {
     expect(objectFilePath(FOLDER, value(selector))).toBe(expected);
   });
 
+  it.each([['..'], ['.']])(
+    '%j is not the name of an object, as it is not for a folder',
+    (selector) => {
+      expect(() => objectFilePath(FOLDER, selector)).toThrow(
+        `'${selector}' does not name an object: an id or a name is not a path`
+      );
+    }
+  );
+
   it('puts every file directly into its folder, whatever the selector says', () => {
     for (const [selector] of FILE_NAMES) {
+      if (selector === '..' || selector === '.') continue;
       const file = objectFilePath(FOLDER, value(selector));
 
       expect(path.dirname(file)).toBe(FOLDER);
@@ -744,6 +756,12 @@ describe('the paths after the library has rewritten them', () => {
           // `.` and `..` do not name an object
           expect(error.message).toContain('does not name an object');
         }
+        if (name === '..' || name === '.') {
+          expect(() => objectFilePath(folder, name)).toThrow(
+            'does not name an object'
+          );
+          return;
+        }
         const file = objectFilePath(folder, name);
         expect(staysInside(folder, file)).toBe(true);
         expect(path.dirname(real(file))).toBe(real(folder).replace(/\/$/, ''));
@@ -1036,5 +1054,392 @@ describe('what a helper accepts is what the library reads (the real getFilePath 
 
     expect(violations.slice(0, 5)).toEqual([]);
     expect(accepted).toBeGreaterThan(50000);
+  });
+});
+
+/**
+ * The one gate that every file of a pull passes before `getFilePath(..., true)` creates the folders of
+ * the path: the file is inside the config folder, or the pull of that object stops.
+ */
+describe('pulledFilePath', () => {
+  it.each([
+    ['realms/alpha/journeys/Login/Login.json'],
+    ['custom-nodes/nodes/My Node/My Node.js'],
+    ['raw//openidm/config/cluster.json'],
+    ['a:b.json'],
+    ['..foo.json'],
+    ['foo..'],
+    ['.hidden/x.json'],
+    ['a/./b.json'],
+    ['x'],
+    [`${'n'.repeat(250)}.json`],
+    [`${'é'.repeat(125)}.json`],
+  ])('lets %j through, unchanged', (relative) => {
+    expect(pulledFilePath(relative)).toBe(relative);
+  });
+
+  it.each([
+    ['../x', "goes up with '..'"],
+    ['a/../../x', "goes up with '..'"],
+    ['..', "goes up with '..'"],
+    ['a/..', "goes up with '..'"],
+    ['/x', 'is an absolute path'],
+    ['/', 'is an absolute path'],
+    ['a\\b', 'holds a backslash'],
+    ['..\\x', 'holds a backslash'],
+    ['C:/x', "holds 'C:'"],
+    ['..C:/x', "holds 'C:'"],
+    ['.C:./x', "holds 'C:'"],
+    ['ABC:x.json', "holds 'C:'"],
+    ['c:/x', 'is an absolute path'],
+    ['c:', 'is an absolute path'],
+    ['a\u0000b', 'holds a control character'],
+    ['a\nb', 'holds a control character'],
+    ['a\u0085b', 'holds a control character'],
+    ['a/\tb', 'holds a control character'],
+  ])('refuses %j: it %s', (relative, why) => {
+    expect(() => pulledFilePath(relative)).toThrow(
+      new RegExp(`must stay inside the config folder: it ${why}\\.$`)
+    );
+  });
+
+  it.each([[''], ['.'], ['./'], [undefined], [null], [42], [{}], [['a']]])(
+    'refuses %j: a file needs a path',
+    (relative) => {
+      expect(() => pulledFilePath(relative)).toThrow(
+        'A file of the config folder needs a path.'
+      );
+    }
+  );
+
+  it('writes a control character in the message as text, so that it cannot change what the terminal shows', () => {
+    expect(() => pulledFilePath('a\u001b[31mb/..')).toThrow(
+      "The path 'a\\u001b[31mb/..' must stay inside"
+    );
+  });
+
+  it('refuses a name of more than 255 bytes, naming it, and lets 255 through', () => {
+    expect(pulledFilePath(`d/${'n'.repeat(255)}`)).toBe(`d/${'n'.repeat(255)}`);
+    expect(() => pulledFilePath(`d/${'n'.repeat(256)}`)).toThrow(
+      `The file name '${'n'.repeat(100)}...' is longer than 255 bytes, extension included, so it cannot be the name of a file.`
+    );
+    // bytes, not characters
+    expect(() => pulledFilePath(`d/${'é'.repeat(128)}`)).toThrow(
+      'is longer than 255 bytes'
+    );
+    expect(pulledFilePath(`d/${'é'.repeat(127)}`)).toBe(`d/${'é'.repeat(127)}`);
+  });
+
+  describe('with the files of the pull so far', () => {
+    it('lets the same file through twice: it is the same file', () => {
+      const written = new PulledPaths();
+
+      expect(pulledFilePath('themes/A/A.json', written)).toBe(
+        'themes/A/A.json'
+      );
+      expect(pulledFilePath('themes/A/A.json', written)).toBe(
+        'themes/A/A.json'
+      );
+      expect(pulledFilePath('themes//A/./A.json', written)).toBe(
+        'themes//A/./A.json'
+      );
+    });
+
+    it.each([
+      ['a file that differs in case', 'themes/A/A.json', 'themes/a/a.json'],
+      [
+        'a folder that differs in case',
+        'themes/Login/n.json',
+        'themes/login/x.json',
+      ],
+      [
+        'a name in two Unicode forms',
+        'themes/\u00e9/x.json',
+        'themes/e\u0301/x.json',
+      ],
+      ['an upper case letter with an accent', 'x/\u00c9.json', 'x/\u00e9.json'],
+    ])(
+      'refuses %s, so that the later object does not replace the earlier one',
+      (_what, first, second) => {
+        const written = new PulledPaths();
+        pulledFilePath(first, written);
+
+        expect(() => pulledFilePath(second, written)).toThrow(
+          /is the same as .* on a file system that ignores case or Unicode form \(or reads a character that is not text as another one\), and that one was pulled already\.$/
+        );
+        // nothing of the refused path was kept: the first one is still the one that was pulled
+        expect(() => pulledFilePath(first, written)).not.toThrow();
+      }
+    );
+
+    it('shows the two names of a collision with their escapes, so that names that look alike are told apart', () => {
+      const written = new PulledPaths();
+      pulledFilePath('esvs/variables/\u00e9.json', written);
+
+      expect(() =>
+        pulledFilePath('esvs/variables/e\u0301.json', written)
+      ).toThrow(
+        'The path "esvs/variables/e\\u0301.json" is the same as "esvs/variables/\\u00e9.json" on a file system'
+      );
+    });
+
+    it('takes two lone surrogates for one name: a file system writes both as U+FFFD', () => {
+      const written = new PulledPaths();
+      pulledFilePath('esvs/variables/\ud800.json', written);
+
+      expect(() =>
+        pulledFilePath('esvs/variables/\ud801.json', written)
+      ).toThrow('is the same as');
+    });
+
+    it('keeps no state between two pulls: a pull without the map checks nothing of the sort', () => {
+      const first = new PulledPaths();
+      pulledFilePath('themes/A/A.json', first);
+
+      expect(pulledFilePath('themes/a/a.json', new PulledPaths())).toBe(
+        'themes/a/a.json'
+      );
+      expect(pulledFilePath('themes/a/a.json')).toBe('themes/a/a.json');
+    });
+
+    it('refuses a second object whose name becomes the same file name, naming both', () => {
+      const written = new PulledPaths();
+      written.owner = 'a/b';
+      pulledFilePath('esvs/variables/a%2Fb.json', written);
+
+      written.owner = 'a%2Fb';
+      expect(() =>
+        pulledFilePath('esvs/variables/a%2Fb.json', written)
+      ).toThrow(
+        'The file "esvs/variables/a%2Fb.json" is the file of "a%2Fb" and of "a/b", which was pulled already: two names that become one file name.'
+      );
+      // the same object writes its file again (a check before the write, and the write itself)
+      written.owner = 'a/b';
+      expect(() =>
+        pulledFilePath('esvs/variables/a%2Fb.json', written)
+      ).not.toThrow();
+    });
+
+    it('lets two objects share a folder: only a file belongs to one object', () => {
+      const written = new PulledPaths();
+      written.owner = 'one';
+      pulledFilePath('esvs/variables/one.json', written);
+      written.owner = 'two';
+
+      expect(() =>
+        pulledFilePath('esvs/variables/two.json', written)
+      ).not.toThrow();
+    });
+
+    it('does not compare owners when one of them is not known', () => {
+      const written = new PulledPaths();
+      pulledFilePath('x/a.json', written);
+      written.owner = 'late';
+
+      expect(() => pulledFilePath('x/a.json', written)).not.toThrow();
+      written.owner = 'other';
+      // the first owner that is known is kept: 'late' wrote it first
+      expect(() => pulledFilePath('x/a.json', written)).toThrow(
+        'two names that become one file name'
+      );
+    });
+
+    it('lets different names through that only look alike', () => {
+      const written = new PulledPaths();
+      pulledFilePath('themes/a/a.json', written);
+
+      for (const other of [
+        'themes/b/b.json',
+        'themes/a_/a_.json',
+        'themes/a%2Fb/a%2Fb.json',
+        'Themes2/a/a.json',
+      ]) {
+        expect(() => pulledFilePath(other, written)).not.toThrow();
+      }
+    });
+  });
+});
+
+describe('nameInFolder and nameInStem', () => {
+  it.each([
+    ['Login', 'Login'],
+    ['My Theme', 'My Theme'],
+    ['alpha_user', 'alpha_user'],
+    ['ünï', 'ünï'],
+    ['a:b', 'a:b'],
+    ['Login:SSO', 'Login:SSO'],
+    ['..foo', '..foo'],
+    ['.hidden', '.hidden'],
+    ['a.b', 'a.b'],
+    ['-x', '-x'],
+    ['con', 'con'],
+    ['a.', 'a.'],
+    ['a/b', 'a%2Fb'],
+    ['a\\b', 'a%5Cb'],
+    ['../x', '..%2Fx'],
+    ['..\\..\\x', '..%5C..%5Cx'],
+    ['/etc/x', '%2Fetc%2Fx'],
+    ['C:\\x', 'C%3A%5Cx'],
+    ['ABC:x', 'ABC%3Ax'],
+    ['a\nb', 'a%0Ab'],
+    ['a\tb', 'a%09b'],
+    ['a\u0000b', 'a%00b'],
+    ['a*b/c', 'ab%2Fc'],
+  ])('the name %j is the name %j in a folder', (value, expected) => {
+    expect(nameInFolder(value)).toBe(expected);
+  });
+
+  it.each([[''], ['.'], ['..']])(
+    '%j leaves no name: it is refused, naming it',
+    (value) => {
+      expect(() => nameInFolder(value)).toThrow(
+        `'${value}' does not name an object: an id or a name is not a path`
+      );
+      expect(() => nameInStem(value)).toThrow('does not name an object');
+    }
+  );
+
+  it('does not cut a long name: it fails, naming it, so that two long names never become one', () => {
+    expect(nameInFolder('n'.repeat(300))).toBe('n'.repeat(300));
+    expect(() => nameInFolder(`a/${'n'.repeat(300)}`)).toThrow(
+      'is longer than 255 bytes once encoded, so it cannot be the name of a file.'
+    );
+    // a name of 255 bytes that holds a slash is 257 bytes once the slash is written as %2F
+    expect(() => nameInFolder(`a/${'n'.repeat(253)}`)).toThrow(
+      'is longer than 255 bytes once encoded'
+    );
+    expect(nameInFolder(`a/${'n'.repeat(251)}`)).toBe(`a%2F${'n'.repeat(251)}`);
+  });
+
+  it('turns a number into its text, as a template does', () => {
+    expect(nameInFolder(1.5)).toBe('1.5');
+    expect(nameInFolder(7)).toBe('7');
+  });
+
+  it.each([
+    ['Login', 'Login'],
+    ['Login:SSO', 'Login:SSO'],
+    ['a:b', 'a%3Ab'],
+    ['C:', 'C%3A'],
+    ['x:y:z', 'x%3Ay:z'],
+    ['a/b', 'a%2Fb'],
+    ['1:2', '1:2'],
+  ])(
+    'the stem of a file that a file refers to: %j is %j',
+    (value, expected) => {
+      expect(nameInStem(value)).toBe(expected);
+    }
+  );
+
+  it('a file that is named by a stem is a reference that referencedFilePath accepts, for every name', () => {
+    for (const value of [
+      'Login',
+      'a:b',
+      'Login:SSO',
+      'C:',
+      'z:',
+      'a/b',
+      '..C:',
+      '../x',
+      'x\\y',
+      'é',
+      '.hidden',
+    ]) {
+      const reference = `${nameInStem(value)}.onCreate.js`;
+
+      expect(() => referencedFilePath('/w/folder', reference)).not.toThrow();
+    }
+  });
+});
+
+/**
+ * The safety argument for the gate as a test: `getFilePath` of the library rewrites a path after it
+ * was judged (`\` is `/`, every `C:` goes), so whatever the gate lets through must be read as it was
+ * judged, and must be inside the working directory.
+ */
+describe('what the gate lets through is what the library reads (the real getFilePath over a corpus)', () => {
+  const PIECES = [
+    '..',
+    '.',
+    'C:',
+    'c:',
+    ':',
+    '\\',
+    '/',
+    'a',
+    'x.json',
+    'C',
+    '\n',
+    '.json',
+  ];
+  let dir;
+  let before;
+  beforeAll(() => {
+    before = state.getDirectory();
+    dir = fs.mkdtempSync(path.join(os.tmpdir(), 'config-tree-gate-'));
+    state.setDirectory(dir);
+  });
+  afterAll(() => {
+    state.setDirectory(before);
+    fs.rmSync(dir, { recursive: true, force: true });
+  });
+
+  const corpus = function* (max = 5) {
+    const walk = function* (prefix, depth) {
+      yield prefix;
+      if (depth === max) return;
+      for (const piece of PIECES) yield* walk(prefix + piece, depth + 1);
+    };
+    yield* walk('', 0);
+  };
+
+  it('is inside the working directory, and the library reads the path as it was judged', () => {
+    const violations = [];
+    let accepted = 0;
+    let refused = 0;
+    for (const relative of corpus()) {
+      let passed;
+      try {
+        passed = pulledFilePath(relative);
+      } catch {
+        refused++;
+        continue;
+      }
+      accepted++;
+      const read = frodo.utils.getFilePath(passed);
+      const inside = path.relative(dir, read);
+      if (
+        path.normalize(read) !== path.join(dir, passed) ||
+        inside === '' ||
+        path.isAbsolute(inside) ||
+        inside.split(path.sep)[0] === '..'
+      ) {
+        violations.push(relative);
+      }
+    }
+
+    expect(violations.slice(0, 5)).toEqual([]);
+    expect(accepted).toBeGreaterThan(20000);
+    expect(refused).toBeGreaterThan(50000);
+  });
+
+  it('can fail: a gate that only looks for `..` lets a path through that the library reads as one that goes up', () => {
+    const lax = (relative) => {
+      if (relative.split('/').includes('..')) throw new Error('refused');
+      return relative;
+    };
+    const violations = [];
+    for (const relative of corpus(3)) {
+      let passed;
+      try {
+        passed = lax(relative);
+      } catch {
+        continue;
+      }
+      const inside = path.relative(dir, frodo.utils.getFilePath(passed));
+      if (inside.split(path.sep)[0] === '..') violations.push(relative);
+    }
+
+    expect(violations).toEqual(expect.arrayContaining(['..C:', '..\\']));
   });
 });

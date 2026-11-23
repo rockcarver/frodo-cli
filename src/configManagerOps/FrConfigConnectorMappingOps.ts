@@ -9,8 +9,12 @@ import {
 } from '../ops/ApplicationOwnedObjects';
 import { extractFrConfigDataToFile } from '../utils/Config';
 import {
+  nameInFolder,
+  nameInStem,
   objectFilePath,
   objectFolderPath,
+  pulledFilePath,
+  PulledPaths,
   referencedFilePath,
 } from '../utils/ConfigTreePath';
 import { printError, printMessage, verboseMessage } from '../utils/Console';
@@ -31,12 +35,23 @@ const { readConfigEntity, importConfigEntities, importSubConfigEntity } =
  * changed: its script sources are replaced by the file references.
  * @param {any} mapping the mapping, with its `name`
  * @param {string} mappingPath the directory (relative to the working directory) that holds the files of this mapping
+ * @param {PulledPaths} pulledPaths Optional. The files of this pull, to refuse a file that another one replaces on a file system that ignores case
+ * @throws {Error} if the name of the mapping, or the name of a property that has a script, is not a name that a file can have
  * @throws {FrodoError} if a file cannot be written
  */
 export function exportMappingToDirectory(
   mapping: any,
-  mappingPath: string
+  mappingPath: string,
+  pulledPaths?: PulledPaths
 ): void {
+  // the tenant names the mapping and its properties: each is one name here, never a path
+  const mappingName = nameInFolder(mapping.name);
+  const fileName = `${mappingPath}/${mappingName}.json`;
+  const own = (owner: string) => {
+    if (pulledPaths) pulledPaths.owner = owner;
+  };
+  const scripts: { key: string; value: any; filename: string; text: string }[] =
+    [];
   Object.entries(mapping).forEach(([key, value]: [string, any]) => {
     if (
       value &&
@@ -44,20 +59,39 @@ export function exportMappingToDirectory(
       value.type === 'text/javascript' &&
       value.source
     ) {
-      const scriptText = Array.isArray(value.source)
-        ? value.source.join('\n')
-        : value.source;
-
-      const scriptFilename = `${mapping.name}.${key}.js`;
-      (value as any).file = scriptFilename; // Replace source code with file reference
-      extractFrConfigDataToFile(scriptText, scriptFilename, mappingPath);
-
-      delete value.source;
+      scripts.push({
+        key,
+        value,
+        // the reference starts with this name, so a leading drive letter is written as `%3A`
+        filename: `${nameInStem(mapping.name)}.${nameInFolder(key)}.js`,
+        text: Array.isArray(value.source)
+          ? value.source.join('\n')
+          : value.source,
+      });
     }
   });
+  // every file is checked before the first one is written
+  for (const { key, filename } of scripts) {
+    own(`${mapping.name}.${key}`);
+    pulledFilePath(`${mappingPath}/${filename}`, pulledPaths);
+  }
+  own(mapping.name);
+  pulledFilePath(fileName, pulledPaths);
 
-  const fileName = `${mappingPath}/${mapping.name}.json`;
-  saveJsonToFile(mapping, getFilePath(fileName, true), false, true);
+  for (const { key, value, filename, text } of scripts) {
+    value.file = filename; // Replace source code with file reference
+    own(`${mapping.name}.${key}`);
+    extractFrConfigDataToFile(text, filename, mappingPath, pulledPaths);
+    delete value.source;
+  }
+
+  own(mapping.name);
+  saveJsonToFile(
+    mapping,
+    getFilePath(pulledFilePath(fileName, pulledPaths), true),
+    false,
+    true
+  );
 }
 
 /**
@@ -114,6 +148,7 @@ export async function configManagerExportMappings(
       printMessage('No connector mappings found to export.', 'info');
       return true;
     }
+    const pulledPaths = new PulledPaths();
     for (const mapping of selected as any[]) {
       const owners = owned
         ? owned.ownersInAnyRealm('mapping', mapping.name)
@@ -126,7 +161,11 @@ export async function configManagerExportMappings(
         continue;
       }
       await run.run(mapping.name, () => {
-        exportMappingToDirectory(mapping, `${fileDir}/${mapping.name}`);
+        exportMappingToDirectory(
+          mapping,
+          `${fileDir}/${nameInFolder(mapping.name)}`,
+          pulledPaths
+        );
       });
     }
     return run.finish();

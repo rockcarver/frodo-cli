@@ -1,5 +1,10 @@
 import fs from 'fs';
 import { frodo, type IdObjectSkeletonInterface } from '@rockcarver/frodo-lib';
+import {
+  nameInFolder,
+  pulledFilePath,
+  PulledPaths,
+} from '../utils/ConfigTreePath';
 import { printError, printMessage } from '../utils/Console';
 import { causeOf } from '../utils/ErrorCause';
 import { lodashMerge } from '../utils/FrConfig';
@@ -24,10 +29,12 @@ export async function configManagerExportServiceObjectsFromFile(
   try {
     const objects = readJsonFile(file, false);
     const run = new OperationRun({ unit: 'service object', allowFailures });
+    const pulledPaths = new PulledPaths();
     for (const objectType of Object.keys(objects)) {
       for (const object of objects[objectType]) {
         const name = `${objectType} - ${object.searchValue}`;
         try {
+          pulledPaths.owner = `${objectType}/${object.searchValue}`;
           const queryFilter = `${object.searchField} eq "${object.searchValue}"`;
           const queryResult = await queryManagedObjects(
             objectType,
@@ -50,7 +57,11 @@ export async function configManagerExportServiceObjectsFromFile(
           saveJsonToFile(
             mergedAttributes,
             getFilePath(
-              `service-objects/${objectType}/${object.searchValue}.json`,
+              // the config file names the object type and the search value: each is one name here, never a path
+              pulledFilePath(
+                `service-objects/${nameInFolder(objectType)}/${nameInFolder(object.searchValue)}.json`,
+                pulledPaths
+              ),
               true
             ),
             false,

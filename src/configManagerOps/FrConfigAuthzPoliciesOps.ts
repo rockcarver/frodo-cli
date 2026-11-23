@@ -7,7 +7,13 @@ import {
   type PolicySkeleton,
   type ResourceTypeSkeleton,
 } from '@rockcarver/frodo-lib';
-import { isOneSafeSegment, realmFolderOf } from '../utils/ConfigTreePath';
+import {
+  isOneSafeSegment,
+  nameInFolder,
+  pulledFilePath,
+  PulledPaths,
+  realmFolderOf,
+} from '../utils/ConfigTreePath';
 import {
   createProgressIndicator,
   printError,
@@ -88,16 +94,13 @@ async function everythingOfAuthz(
   }
   let found = false;
   for (const currentRealm of realms) {
-    let realmDir: string;
-    try {
-      realmDir = realmFolderOf(currentRealm);
-    } catch {
-      printMessage(
-        `Skipping realm '${currentRealm}': its name is not '/', a name or a path of names.`,
-        'warn'
-      );
-      continue;
-    }
+    // the tenant names the realm: it is the name of a folder here, never a path
+    const realmDir = run.deriveOrFail(
+      `realm ${currentRealm}`,
+      () => realmFolderOf(currentRealm),
+      'Its policy sets are not pulled.'
+    );
+    if (realmDir === undefined) continue;
     state.setRealm(currentRealm);
     try {
       const names: string[] = [];
@@ -164,8 +167,9 @@ async function exportOnePolicy(
   try {
     const realm = await singleRealm('policy', onlyRealm);
     if (realm === undefined) return false;
+    let realmDir: string;
     try {
-      realmFolderOf(realm);
+      realmDir = realmFolderOf(realm);
     } catch {
       printMessage(
         `The realm '${realm}' is not '/', a name or a path of names.`,
@@ -194,36 +198,49 @@ async function exportOnePolicy(
       return false;
     }
     const run = new OperationRun({ unit: 'policy', allowFailures });
-    await run.run(`${realm === '/' ? 'root' : realm}/${policyId}`, async () => {
+    const pulledPaths = new PulledPaths();
+    await run.run(`${realmDir}/${policyId}`, async () => {
       const policySet = await readPolicySet(setName);
       policySet._id = policySet.name;
       const resourceType = await readResourceType(policy.resourceTypeUuid);
       resourceType._id = resourceType.uuid;
-      const authzDir = `realms/${realm === '/' ? 'root' : realm}/authorization`;
+      const authzDir = `realms/${realmDir}/authorization`;
+      pulledPaths.owner = policySet.name;
       saveJsonToFile(
         policySet,
         getFilePath(
-          `${authzDir}/policy-sets/${policySet.name}/${policySet.name}.json`,
+          pulledFilePath(
+            `${authzDir}/policy-sets/${nameInFolder(policySet.name)}/${nameInFolder(policySet.name)}.json`,
+            pulledPaths
+          ),
           true
         ),
         false,
         true,
         true
       );
+      pulledPaths.owner = `${policySet.name}/${policy.name}`;
       saveJsonToFile(
         policy,
         getFilePath(
-          `${authzDir}/policy-sets/${policySet.name}/policies/${policy.name}.json`,
+          pulledFilePath(
+            `${authzDir}/policy-sets/${nameInFolder(policySet.name)}/policies/${nameInFolder(policy.name)}.json`,
+            pulledPaths
+          ),
           true
         ),
         false,
         true,
         true
       );
+      pulledPaths.owner = resourceType.name;
       saveJsonToFile(
         resourceType,
         getFilePath(
-          `${authzDir}/resource-types/${resourceType.name}.json`,
+          pulledFilePath(
+            `${authzDir}/resource-types/${nameInFolder(resourceType.name)}.json`,
+            pulledPaths
+          ),
           true
         ),
         false,
@@ -277,6 +294,7 @@ export async function configManagerExportAuthzPolicySets(
       ),
       'Exporting policy sets...'
     );
+    const pulledPaths = new PulledPaths();
     for (const realm of Object.keys(policySets)) {
       for (const setName of policySets[realm]) {
         await run.run(
@@ -285,11 +303,16 @@ export async function configManagerExportAuthzPolicySets(
             state.setRealm(realm);
             const policySet = await readPolicySet(setName);
             policySet._id = policySet.name;
-            const authzDir = `realms/${realm === '/' ? 'root' : realm}/authorization`;
+            // the tenant, or the file, names the realm: it is the name of a folder here, never a path
+            const authzDir = `realms/${realmFolderOf(realm)}/authorization`;
+            pulledPaths.owner = policySet.name;
             saveJsonToFile(
               policySet,
               getFilePath(
-                `${authzDir}/policy-sets/${policySet.name}/${policySet.name}.json`,
+                pulledFilePath(
+                  `${authzDir}/policy-sets/${nameInFolder(policySet.name)}/${nameInFolder(policySet.name)}.json`,
+                  pulledPaths
+                ),
                 true
               ),
               false,
@@ -298,10 +321,14 @@ export async function configManagerExportAuthzPolicySets(
             );
             const policies = await readPoliciesByPolicySet(policySet.name);
             for (const policy of policies) {
+              pulledPaths.owner = `${policySet.name}/${policy.name}`;
               saveJsonToFile(
                 policy,
                 getFilePath(
-                  `${authzDir}/policy-sets/${policySet.name}/policies/${policy.name}.json`,
+                  pulledFilePath(
+                    `${authzDir}/policy-sets/${nameInFolder(policySet.name)}/policies/${nameInFolder(policy.name)}.json`,
+                    pulledPaths
+                  ),
                   true
                 ),
                 false,
@@ -312,10 +339,14 @@ export async function configManagerExportAuthzPolicySets(
                 policy.resourceTypeUuid
               );
               resourceType._id = resourceType.uuid;
+              pulledPaths.owner = resourceType.name;
               saveJsonToFile(
                 resourceType,
                 getFilePath(
-                  `${authzDir}/resource-types/${resourceType.name}.json`,
+                  pulledFilePath(
+                    `${authzDir}/resource-types/${nameInFolder(resourceType.name)}.json`,
+                    pulledPaths
+                  ),
                   true
                 ),
                 false,

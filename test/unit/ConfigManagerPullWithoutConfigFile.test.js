@@ -564,15 +564,19 @@ describe('pull saml without a config file', () => {
     );
   });
 
-  test('a realm whose name is not a name or a path of names is skipped with a warning, and the others are pulled', async () => {
+  test('a realm whose name is not a name or a path of names is one failed operation, named in the summary, and the others are pulled', async () => {
     world.realms = ['alpha', '../escape', 'bravo'];
     world.providers['../escape'] = ['urn:escape:sp'];
 
-    expect(await configManagerExportSaml(null)).toBe(true);
+    expect(await configManagerExportSaml(null)).toBe(false);
 
-    expect(warnings()).toEqual([
-      "Skipping realm '../escape': its name is not '/', a name or a path of names.",
-    ]);
+    expect(warnings()).toEqual([]);
+    expect(errorMessages()).toContain(
+      "The realm '../escape' is not '/', a name or a path of names. Its SAML providers and circles of trust are not pulled."
+    );
+    expect(summaries()).toHaveLength(1);
+    expect(summaries()[0]).toMatch(/^1 of \d+ items failed/);
+    expect(summaries()[0]).toContain('realm ../escape');
     expect(listCalls.filter((call) => call.endsWith('@../escape'))).toEqual([]);
     expect(paths().some((p) => p.includes('escape'))).toBe(false);
     expect(paths().filter((p) => p.startsWith('realms/bravo/'))).not.toEqual(
@@ -591,16 +595,18 @@ describe('pull saml without a config file', () => {
   });
 
   test.each([['..C:'], ['.C:.'], ['a/..C:'], ['C:'], ['ABC:x']])(
-    'a realm named %j is skipped with a warning, and nothing is written for it',
+    'a realm named %j is a failure of that realm, and nothing is written for it',
     async (realm) => {
       world.realms = ['alpha', realm, 'bravo'];
       world.providers[realm] = ['urn:escape:sp'];
 
-      expect(await configManagerExportSaml(null)).toBe(true);
+      expect(await configManagerExportSaml(null)).toBe(false);
 
-      expect(warnings()).toEqual([
-        `Skipping realm '${realm}': its name is not '/', a name or a path of names.`,
-      ]);
+      expect(warnings()).toEqual([]);
+      expect(errorMessages()).toContain(
+        `The realm '${realm}' is not '/', a name or a path of names. Its SAML providers and circles of trust are not pulled.`
+      );
+      expect(summaries()[0]).toContain(`realm ${realm}`);
       expect(listCalls.filter((call) => call.endsWith(`@${realm}`))).toEqual(
         []
       );
@@ -811,14 +817,16 @@ describe('pull authz-policies without a config file', () => {
     }
   );
 
-  test('a realm whose name is not a name or a path of names is skipped with a warning, and the others are pulled', async () => {
+  test('a realm whose name is not a name or a path of names is one failed operation, named in the summary, and the others are pulled', async () => {
     world.realms = ['alpha', 'a\\b', 'bravo'];
 
-    expect(await configManagerExportAuthzPolicySets(null)).toBe(true);
+    expect(await configManagerExportAuthzPolicySets(null)).toBe(false);
 
-    expect(warnings()).toEqual([
-      "Skipping realm 'a\\b': its name is not '/', a name or a path of names.",
-    ]);
+    expect(warnings()).toEqual([]);
+    expect(errorMessages()).toContain(
+      "The realm 'a\\b' is not '/', a name or a path of names. Its policy sets are not pulled."
+    );
+    expect(summaries()[0]).toContain('realm a\\b');
     expect(paths().filter((p) => p.startsWith('realms/bravo/'))).not.toEqual(
       []
     );
@@ -841,15 +849,17 @@ describe('pull authz-policies without a config file', () => {
   });
 
   test.each([['..C:'], ['.C:.'], ['a/..C:'], ['C:'], ['ABC:x']])(
-    'a realm named %j is skipped with a warning, and nothing is written for it',
+    'a realm named %j is a failure of that realm, and nothing is written for it',
     async (realm) => {
       world.realms = ['alpha', realm, 'bravo'];
 
-      expect(await configManagerExportAuthzPolicySets(null)).toBe(true);
+      expect(await configManagerExportAuthzPolicySets(null)).toBe(false);
 
-      expect(warnings()).toEqual([
-        `Skipping realm '${realm}': its name is not '/', a name or a path of names.`,
-      ]);
+      expect(warnings()).toEqual([]);
+      expect(errorMessages()).toContain(
+        `The realm '${realm}' is not '/', a name or a path of names. Its policy sets are not pulled.`
+      );
+      expect(summaries()[0]).toContain(`realm ${realm}`);
       expect(paths().filter((p) => p.startsWith('realms/bravo/'))).not.toEqual(
         []
       );
@@ -1080,29 +1090,33 @@ describe('pull oauth2-agents without a config file', () => {
     }
   );
 
-  test('a realm whose name is not a name or a path of names is skipped with a warning, and the others are pulled', async () => {
+  test('a realm whose name is not a name or a path of names is one failed operation, named in the summary, and the others are pulled', async () => {
     world.realms = ['alpha', '..', 'bravo'];
 
-    expect(await configManagerExportOAuth2Agents(null)).toBe(true);
+    expect(await configManagerExportOAuth2Agents(null)).toBe(false);
 
-    expect(warnings()).toEqual([
-      "Skipping realm '..': its name is not '/', a name or a path of names.",
-    ]);
+    expect(warnings()).toEqual([]);
+    expect(errorMessages()).toContain(
+      "The realm '..' is not '/', a name or a path of names. Its agents are not pulled."
+    );
+    expect(summaries()[0]).toContain('realm ..');
     expect(paths().filter((p) => p.startsWith('realms/bravo/'))).not.toEqual(
       []
     );
   });
 
   test.each([['..C:'], ['.C:.'], ['a/..C:'], ['C:'], ['ABC:x']])(
-    'a realm named %j is skipped with a warning, and nothing is written for it',
+    'a realm named %j is a failure of that realm, and nothing is written for it',
     async (realm) => {
       world.realms = ['alpha', realm, 'bravo'];
 
-      expect(await configManagerExportOAuth2Agents(null)).toBe(true);
+      expect(await configManagerExportOAuth2Agents(null)).toBe(false);
 
-      expect(warnings()).toEqual([
-        `Skipping realm '${realm}': its name is not '/', a name or a path of names.`,
-      ]);
+      expect(warnings()).toEqual([]);
+      expect(errorMessages()).toContain(
+        `The realm '${realm}' is not '/', a name or a path of names. Its agents are not pulled.`
+      );
+      expect(summaries()[0]).toContain(`realm ${realm}`);
       expect(paths().filter((p) => p.startsWith('realms/bravo/'))).not.toEqual(
         []
       );
