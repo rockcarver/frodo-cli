@@ -15,7 +15,7 @@
 ```console
 npm ci
 npx tsdown                              # rebuild dist/ (about 2 s)
-npm run check                           # ESLint + Prettier check of src/**/*.ts (npm run fix writes)
+npm run check                           # ESLint, Prettier (src/**/*.ts) and the pull request rules (npm run fix writes)
 npx tsc --noEmit                        # type check
 npm run test:only -- <path pattern>     # for example test/unit/UsageExamples.test.js
 npm test                                # the whole suite
@@ -51,4 +51,4 @@ How to do a recurring task (add a command, record a decision, build the CLI or t
 | `src/help/SampleData.ts`                      | Sample values for usage examples.                                                                               |
 | `test/unit`, `test/client_cli/en`, `test/e2e` | Unit and PTY tests, `-h` output snapshots, recorded end-to-end tests.                                           |
 
-More specific rules load when you open a matching file: GitHub Copilot reads them from `.github/instructions/`, Claude Code from `.claude/rules/`, which is generated from them (`npm run generate:claude-rules`; never edit it): [cli-commands](.github/instructions/cli-commands.instructions.md), [interactive-layering](.github/instructions/interactive-layering.instructions.md), [tests](.github/instructions/tests.instructions.md), [dependencies](.github/instructions/dependencies.instructions.md), [github-files](.github/instructions/github-files.instructions.md). If asked which instruction files you loaded, list AGENTS.md and each rule you have actually read this session; do not guess.
+More specific rules load when you open a matching file: GitHub Copilot reads them from `.github/instructions/`, Claude Code from `.claude/rules/`, which is generated from them (`npm run generate:claude-rules`; never edit it): [cli-commands](.github/instructions/cli-commands.instructions.md), [interactive-layering](.github/instructions/interactive-layering.instructions.md), [tests](.github/instructions/tests.instructions.md), [dependencies](.github/instructions/dependencies.instructions.md), [github-files](.github/instructions/github-files.instructions.md). If asked which instruction files you loaded, list AGENTS.md and each rule that has been loaded into your context this session; do not guess.
