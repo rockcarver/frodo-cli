@@ -122,14 +122,32 @@ describe('ShellWebEngineOps', () => {
   it('gives scripts the console names', async () => {
     expect(await value('typeof frodo.info.getInfo')).toBe('function');
     expect(await value('typeof $.get')).toBe('function');
-    expect(await value('_.sum([1, 2, 3])')).toBe(6);
     expect(await value('typeof state.getHost')).toBe('function');
     expect(await value('typeof help')).toBe('function');
   });
 
-  it('keeps lodash in _ after a result is produced', async () => {
+  it('leaves _ to the REPL: it is not bound, and a result does not set it', async () => {
+    // This engine runs its own evaluator, which never feeds the REPL's
+    // last-result slot, so `_` stays undefined until a script assigns it.
+    expect(await value('typeof _')).toBe('undefined');
     await value('1 + 1');
-    expect(await value('typeof _.map')).toBe('function');
+    expect(await value('_')).toBeUndefined();
+    expect(await value('typeof _')).toBe('undefined');
+  });
+
+  it('keeps a value a script assigns to _', async () => {
+    expect(await value('_ = 5')).toBe(5);
+    expect(await value('_ + 1')).toBe(6);
+    // The REPL says "Expression assignment to _ now disabled." when a script
+    // assigns it. That sentence is about the terminal's last-result feature,
+    // which this engine does not have (it is misleading here), so it stays
+    // out of the log stream.
+    expect(logs.join('')).not.toContain('Expression assignment to _');
+  });
+
+  it('keeps other output that contains an underscore in the log stream', async () => {
+    await value('console.log("a_b and _c")');
+    expect(logs.join('')).toContain('a_b and _c');
   });
 
   it('reports unfinished input instead of an error', async () => {
@@ -179,22 +197,30 @@ describe('ShellWebEngineOps', () => {
     await engine.reset();
     expect(await value('typeof mine')).toBe('undefined');
     expect(await value('typeof myFn')).toBe('undefined');
-    // The console surroundings are back: frodo, state, _, help.
+    // The console surroundings are back: frodo, state, $, help.
     expect(await value('typeof frodo')).toBe('object');
     expect(await value('typeof state')).toBe('object');
-    expect(await value('typeof _')).toBe('function');
+    expect(await value('typeof $')).toBe('object');
     expect(await value('typeof help')).toBe('function');
+    // `_` is not one of them: a fresh context leaves it to the REPL.
+    expect(await value('typeof _')).toBe('undefined');
     // And the fresh context still evaluates.
     expect(await value('var after = "kept"; after')).toBe('kept');
   });
 
-  it('reset survives the lodash notice and an error before it', async () => {
+  it('reset keeps a value a script assigned to _', async () => {
+    expect(await value('_ = 5')).toBe(5);
+    await engine.reset();
+    // The console names are installed again and none of them is `_`, so
+    // nothing overwrites what the script assigned (the REPL keeps it).
+    expect(await value('_')).toBe(5);
+  });
+
+  it('reset survives an error before it', async () => {
     const thrown = await engine.evaluate('throw new Error("boom")');
     expect(thrown.status).toBe('error');
     await engine.reset();
     expect(await value('1 + 1')).toBe(2);
-    // The REPL's context-creation notice never reaches the log stream.
-    expect(logs.join('')).not.toContain('Expression assignment to _');
   });
 
   it('reset runs in order with evals (no mid-script wipe)', async () => {

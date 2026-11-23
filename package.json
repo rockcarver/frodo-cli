@@ -146,7 +146,6 @@
     "fs-extra": "^11.1.1",
     "fuzzysort": "^3.1.0",
     "jest": "30.5.2",
-    "lodash": "^4.17.21",
     "log-update": "^4.0.0",
     "loglevel": "^1.9.1",
     "map-stream": "^0.0.7",

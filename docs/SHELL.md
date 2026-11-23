@@ -40,12 +40,19 @@ Exit with `.exit` or Ctrl+D.
 | `am`       | The AM realm JSON APIs (below) |
 | `$`        | REST with authentication attached (below) |
 | `state`    | frodo-lib's session state: `state.getHost()`, `state.getRealm()`, ... |
-| `_`        | lodash |
 | `help`     | Browsable API docs (below) |
 
 Top-level `await` works, and `let`/`const`/function/class declarations
 persist between inputs, so multi-line exploration flows the way a browser
 devtools console does.
+
+`_` is not a frodo name. In the terminal console it is the Node.js REPL's own
+`_`: the value of the last result (`1 + 1`, then `_ + 1` is 3), until you
+assign to it. The web console does not keep a last result, so there `_` is
+`undefined` until you assign it. For JSON data, `frodo.utils.json` has
+in-house helpers (`get`, `put`, `findInArray`, `getPaths`, `cloneDeep`,
+`mergeDeep`; they are not drop-in replacements for lodash functions, and `get`
+takes a path array), and the JavaScript built-ins cover the rest.
 
 ## REST: the `$` facade
 
