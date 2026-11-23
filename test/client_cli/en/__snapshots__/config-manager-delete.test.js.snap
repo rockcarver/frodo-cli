@@ -22,6 +22,10 @@ Commands:
   custom-nodes               [Experimental] Delete custom nodes.
   email-templates            [Experimental] Delete email template objects.
   endpoints                  [Experimental] Delete custom endpoint objects.
+  journeys                   [Experimental] Delete one journey by id, or delete
+                             all journeys and clean up orphaned nodes in the
+                             selected realms. A journey that other objects still
+                             name is not deleted without --force.
   locales                    [Experimental] Delete locale objects.
   oauth-cimd-profiles        [Experimental] Delete CIMD profiles.
   oauth-issuers              [Experimental] Delete trusted JWT issuers.

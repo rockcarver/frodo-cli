@@ -3,6 +3,8 @@ import fs from 'fs';
 import {
   frodo,
   state,
+  type FrodoError,
+  type JourneyReference,
   type NodeSkeleton,
   type ScriptSkeleton,
   type SingleTreeExportInterface,
@@ -33,12 +35,28 @@ import {
   missingNodesReason,
 } from '../utils/JourneyExportErrors';
 import { OperationRun } from '../utils/OperationRun';
+import {
+  clearJourneyReference,
+  describeReference,
+  planJourneyDelete,
+  referenceLine,
+  unlinkJourneyReference,
+  unreadableSources,
+  type ClearingError,
+  type JourneyDeletePlan,
+} from './JourneyReferenceClearing';
 
 const { saveJsonToFile, getFilePath, readJsonFile } = frodo.utils;
 const { exportScript } = frodo.script;
-const { exportJourneys, importJourneys, createSingleTreeExportTemplate } =
-  frodo.authn.journey;
-const { DEFAULT_REALM_KEY } = frodo.utils.constants;
+const {
+  exportJourneys,
+  importJourneys,
+  createSingleTreeExportTemplate,
+  readJourneys,
+  deleteJourney,
+  deleteJourneys,
+} = frodo.authn.journey;
+const { DEFAULT_REALM_KEY, CLOUD_DEPLOYMENT_TYPE_KEY } = frodo.utils.constants;
 
 /**
  * Export journeys in fr-config-manager format
@@ -667,4 +685,521 @@ export async function configManagerImportJourneys(
     if (run.hasFailures) run.finish();
   }
   return false;
+}
+
+/** What a delete of journeys needs to know besides the id, the realm and the dry run. */
+export type DeleteJourneysOptions = {
+  /** Delete a named journey although other objects still name it: clear them first. */
+  force?: boolean;
+  /** With `force`: leave the links of the themes as they are. */
+  keepLinks?: boolean;
+  /** With `dryRun`: the dry run is the plan that is shown before a question, so its text says plan and not dry run. */
+  plan?: boolean;
+};
+
+/** The deletion of one journey or of every journey is one operation of the run, and so is each orphaned node. */
+const DELETE_UNIT = 'deletion';
+
+/**
+ * Delete one journey by id, or every journey of the realms and then their
+ * orphaned nodes. Skips the root realm on Cloud deployments when no journey is
+ * named.
+ *
+ * A named journey is looked up in the list of the realm (an exact, case-sensitive
+ * match) and the listed id is what is deleted: the id of the command line is
+ * never put into a request, so it cannot be anything but an id. Before it is
+ * deleted, the library is asked what still names it. Anything that does, hard or
+ * soft, stops the delete, until `force` is given: then the journey is cleared
+ * out of the OAuth2 clients, SAML providers and AI agents that name it, removed
+ * from the themes that link it (unless `keepLinks`), and deleted; every other
+ * holder is left alone and reported.
+ *
+ * A dry run deletes nothing, orphaned nodes included, and writes nothing: it
+ * reads, and says what would be done.
+ * @param {string} id Exact journey id. A named delete needs a single realm. An empty id is an error, never "all".
+ * @param {string} realm Realm to process. Omit to use every realm, for a delete of all journeys.
+ * @param {boolean} dryRun Show what would be done without doing any of it.
+ * @param {boolean} allowFailures Keep the result true when a deletion failed. Neither a named journey that does not exist, nor a refusal because something still names it, nor a failed clearing is a failure that it can turn into success.
+ * @param {DeleteJourneysOptions} options `force` and `keepLinks`, for a named delete, and `plan`.
+ * @returns {Promise<boolean>} False if the arguments are refused, the realms cannot be listed, a named journey is not in the realm or is still named by something and `force` was not given, a clearing failed, or, unless failures are allowed, a deletion failed. Nothing to delete is a success.
+ */
+export async function configManagerDeleteJourneys(
+  id?: string,
+  realm?: string,
+  dryRun = false,
+  allowFailures = false,
+  { force = false, keepLinks = false, plan = false }: DeleteJourneysOptions = {}
+): Promise<boolean> {
+  // "not given" and "given but empty" are different: an empty id must never
+  // select every journey
+  if (id === '') {
+    printMessage(
+      'The journey id must not be empty. To delete all journeys, leave out the id.',
+      'error'
+    );
+    return false;
+  }
+  const concreteRealm =
+    realm && realm !== DEFAULT_REALM_KEY ? realm : undefined;
+  if (id !== undefined && !concreteRealm) {
+    printMessage(
+      'The -i, --journey-id option requires a realm argument to be specified.',
+      'error'
+    );
+    return false;
+  }
+  // the realm is set per realm below; the caller (for example the question of
+  // the bulk-delete guard, which names the realm) must find it as it was
+  const realmBefore = state.getRealm();
+  try {
+    if (id !== undefined) {
+      return await deleteNamedJourney(
+        id,
+        concreteRealm,
+        dryRun,
+        allowFailures,
+        force,
+        keepLinks,
+        plan
+      );
+    }
+    let realms: string[];
+    try {
+      realms = concreteRealm ? [concreteRealm] : await realmList();
+    } catch (error) {
+      printError(error, 'Error reading realms');
+      return false;
+    }
+    return await deleteAllJourneys(realms, dryRun, allowFailures);
+  } finally {
+    state.setRealm(realmBefore);
+  }
+}
+
+/** The message of a realm that holds no journey. */
+function printNoJourneys(realm: string): void {
+  printMessage(`No journeys found to delete in realm '${realm}'.`, 'warn');
+}
+
+/** The lines that say what a delete with `--force` does, before it does it. */
+function planLines(
+  journeyId: string,
+  realm: string,
+  plan: JourneyDeletePlan,
+  lookupFailed = false,
+  asPlan = false
+): string[] {
+  // the plan before a question is not a dry run: it says what is about to be done
+  const lines = [
+    asPlan
+      ? `Plan: journey '${journeyId}' in realm '${realm}' would be deleted.`
+      : `Dry run: would delete journey '${journeyId}' in realm '${realm}'.`,
+  ];
+  const section = (title: string, items: { toString(): string }[]) => {
+    if (items.length === 0) return;
+    lines.push(`  ${title}`, ...items.map((item) => `    - ${item}`));
+  };
+  section(
+    'Before that, clear the journey in these:',
+    plan.clear.map(describeReference)
+  );
+  section(
+    'Before that, remove the journey from the list of journeys of these themes (--keep-links leaves it):',
+    plan.removeLinks.map(describeReference)
+  );
+  section(
+    'Keep the link in these themes (--keep-links):',
+    plan.kept.map(describeReference)
+  );
+  section(
+    'Leave these alone, they would name a journey that does not exist afterwards:',
+    plan.dangling.map(referenceLine)
+  );
+  if (lookupFailed) {
+    // an empty plan is not "nothing names it": the sources could not all be read
+    lines.push(
+      '  What else names the journey is not known: not every source could be read, so nothing is cleared.'
+    );
+  } else if (lines.length === 1) {
+    lines.push(
+      asPlan
+        ? '  Nothing else names the journey: no other object is changed.'
+        : '  nothing else names the journey.'
+    );
+  }
+  return lines;
+}
+
+/** What still names the journey, one line each, for a message. */
+function namedByLines(references: JourneyReference[]): string[] {
+  return references.map((reference) => `  - ${referenceLine(reference)}`);
+}
+
+/**
+ * Asks the library what names a journey. A lookup that cannot read every source
+ * fails closed (it never answers from a part of the sources), and so does this.
+ * @param {string} journeyId the journey
+ * @returns {Promise<{ references?: JourneyReference[]; unreadable?: string[] }>} the references, or one line for each source that could not be read
+ */
+async function lookUpReferences(
+  journeyId: string
+): Promise<{ references?: JourneyReference[]; unreadable?: string[] }> {
+  try {
+    return {
+      references: await frodo.authn.journey.findJourneyReferences(journeyId),
+    };
+  } catch (error) {
+    return { unreadable: unreadableSources(error) };
+  }
+}
+
+/**
+ * Delete one journey of one realm. See {@link configManagerDeleteJourneys}.
+ * @param {string} id the id of the command line
+ * @param {string} realm the realm
+ * @param {boolean} dryRun show what would be done
+ * @param {boolean} allowFailures keep the result true when the delete failed
+ * @param {boolean} force go ahead although something names the journey
+ * @param {boolean} keepLinks leave the links of the themes
+ * @param {boolean} asPlan the dry run is the plan shown before a question
+ * @returns {Promise<boolean>} true if the command succeeded
+ */
+async function deleteNamedJourney(
+  id: string,
+  realm: string,
+  dryRun: boolean,
+  allowFailures: boolean,
+  force: boolean,
+  keepLinks: boolean,
+  asPlan: boolean
+): Promise<boolean> {
+  state.setRealm(realm);
+  let journeys: TreeSkeleton[];
+  try {
+    journeys = await readJourneys();
+  } catch (error) {
+    printError(error, `Error reading the journeys of realm '${realm}'`);
+    return false;
+  }
+  const journey = journeys.find((candidate) => candidate._id === id);
+  const { references, unreadable } = await lookUpReferences(id);
+
+  if (!journey) {
+    // a named journey that is not there is not an operation that failed among
+    // others: it fails the command whatever --allow-failures says
+    printMessage(`Journey '${id}' not found in realm '${realm}'.`, 'error');
+    if (references && references.length > 0) {
+      printMessage(
+        `Still named in realm '${realm}':\n${namedByLines(references).join('\n')}` +
+          (references.some((reference) => reference.source === 'ai-agent')
+            ? '\nAn AI agent that names a journey that does not exist can no longer be updated or deleted. To repair it, create a journey with that name, clear the journey in the AI agent, and delete the journey again.'
+            : ''),
+        'warn'
+      );
+    }
+    return false;
+  }
+  // the listed id is what is deleted, never the text that was typed
+  const target = journey._id as string;
+
+  if (unreadable) {
+    printMessage(
+      `Cannot tell what still names journey '${target}' in realm '${realm}': these could not be read:\n${unreadable
+        .map((line) => `  - ${line}`)
+        .join('\n')}`,
+      'error'
+    );
+    if (!force) {
+      printMessage(
+        'Nothing was deleted. --force deletes the journey without that check.',
+        'error'
+      );
+      return false;
+    }
+    printMessage(
+      `Because --force was given, the journey ${dryRun ? 'would be' : 'is'} deleted without that check: nothing that names it is cleared, and Access Management can still refuse the delete.`,
+      'warn'
+    );
+  }
+
+  const found = references ?? [];
+  if (found.length > 0 && !force) {
+    printMessage(
+      `${dryRun ? 'Dry run: the delete would be refused. ' : ''}Journey '${target}' in realm '${realm}' is still named by:\n${namedByLines(found).join('\n')}\nNothing was deleted. --force deletes it anyway: it clears the journey in OAuth2 clients, SAML providers and AI agents, removes it from the themes (--keep-links leaves them), and leaves every other holder naming a journey that does not exist.`,
+      'error'
+    );
+    return false;
+  }
+
+  const plan = planJourneyDelete(found, { keepLinks });
+  if (dryRun) {
+    printMessage(
+      planLines(target, realm, plan, unreadable !== undefined, asPlan).join(
+        '\n'
+      )
+    );
+    return true;
+  }
+
+  // clear first, then delete: an AI agent that names a journey that is gone can
+  // no longer be updated, so nothing is deleted after a clearing that failed
+  const run = new OperationRun({ unit: 'step', allowFailures });
+  // the holders that were changed and stay so, and the ones whose step failed
+  // after it wrote them, so that they may differ from what they were
+  const changedHolders: string[] = [];
+  const notRestored: string[] = [];
+  const stepFailed = (error: unknown, reference: JourneyReference) => {
+    if ((error as ClearingError).holderChanged) {
+      notRestored.push(describeReference(reference));
+    }
+  };
+  let stepsDone = true;
+  for (const reference of plan.clear) {
+    const done = await run.run(
+      `clear the journey in ${describeReference(reference)}`,
+      async () => {
+        try {
+          const { was } = await clearJourneyReference(reference, target);
+          changedHolders.push(describeReference(reference));
+          printMessage(
+            `Cleared the journey in ${describeReference(reference)} (it held '${was}').`
+          );
+        } catch (error) {
+          stepFailed(error, reference);
+          throw error;
+        }
+      },
+      { dependent: true }
+    );
+    stepsDone &&= done;
+  }
+  for (const reference of plan.removeLinks) {
+    const done = await run.run(
+      `remove the journey from ${describeReference(reference)}`,
+      async () => {
+        try {
+          const { was } = await unlinkJourneyReference(reference, target);
+          changedHolders.push(describeReference(reference));
+          printMessage(
+            `Removed journey '${target}' from ${describeReference(reference)} (the list held '${was}').`
+          );
+        } catch (error) {
+          stepFailed(error, reference);
+          throw error;
+        }
+      },
+      { dependent: true }
+    );
+    stepsDone &&= done;
+  }
+  const deleteStep = `delete journey '${target}'`;
+  let deleted = false;
+  if (!stepsDone) {
+    // a step before it failed and stopped the run: the summary says that the
+    // delete was not attempted
+    await run.run(deleteStep, () => undefined);
+  } else {
+    try {
+      // the library answers a failed delete with a status that carries the
+      // error, and does not throw
+      const status = await deleteJourney(target, {
+        deep: false,
+        verbose: false,
+        progress: false,
+      });
+      if (status.status !== 'success') {
+        throw (
+          (status as { error?: FrodoError }).error ??
+          new Error(
+            `Journey '${target}' in realm '${realm}' could not be deleted.`
+          )
+        );
+      }
+      run.recordSuccess();
+      deleted = true;
+      printMessage(`Deleted journey '${target}' in realm '${realm}'.`);
+    } catch (error) {
+      printError(error as Error);
+      // the summary carries the cause, as the one of a delete of all journeys
+      // does. The delete is a step like any other that fails: --allow-failures
+      // applies, and the closing text below says what stays changed
+      run.recordFailure(deleteStep, causeOf(error));
+    }
+  }
+  if (deleted) {
+    if (plan.kept.length > 0) {
+      printMessage(
+        `Kept the link of the journey in these themes (--keep-links):\n${plan.kept.map((reference) => `  - ${describeReference(reference)}`).join('\n')}`,
+        'warn'
+      );
+    }
+    if (plan.dangling.length > 0) {
+      printMessage(
+        `Left alone, these now name a journey that does not exist:\n${plan.dangling.map((reference) => `  - ${referenceLine(reference)}`).join('\n')}`,
+        'warn'
+      );
+    }
+  } else if (stepsDone && force) {
+    // the delete itself failed, although everything before it went well: say
+    // what still names the journey
+    const again = await lookUpReferences(target);
+    if (again.references && again.references.length > 0) {
+      printMessage(
+        `Still named by:\n${namedByLines(again.references).join('\n')}`,
+        'warn'
+      );
+    }
+  }
+  const succeeded = run.finish();
+  if (!deleted && (changedHolders.length > 0 || notRestored.length > 0)) {
+    printMessage(
+      `Journey '${target}' was not deleted.` +
+        (changedHolders.length > 0
+          ? `\nChanged before, and they stay changed: ${changedHolders.join('; ')}.`
+          : '') +
+        (notRestored.length > 0
+          ? `\nChanged by the step that failed, and NOT restored: ${notRestored.join('; ')}.`
+          : '') +
+        `\nTo undo, set the journey '${target}' in each of them again. To finish, run the command again: a holder that was cleared no longer names it.`,
+      'warn'
+    );
+  }
+  return succeeded;
+}
+
+/**
+ * Delete every journey of the realms, then every orphaned node of each realm.
+ * See {@link configManagerDeleteJourneys}.
+ * @param {string[]} realms the realms
+ * @param {boolean} dryRun show what would be deleted
+ * @param {boolean} allowFailures keep the result true when a deletion failed
+ * @returns {Promise<boolean>} true if the command succeeded
+ */
+async function deleteAllJourneys(
+  realms: string[],
+  dryRun: boolean,
+  allowFailures: boolean
+): Promise<boolean> {
+  if (realms.length === 0) {
+    printMessage('No realms found to delete journeys from.', 'warn');
+    return true;
+  }
+  const run = new OperationRun({ unit: DELETE_UNIT, allowFailures });
+  let journeyCount = 0;
+  let orphanCount = 0;
+  if (dryRun) {
+    printMessage(
+      'Dry run: nothing is deleted. A delete of all journeys deletes every journey of the realm, the journeys that the realm uses for login included, and then every orphaned node of the realm, also a node that never belonged to a deleted journey.'
+    );
+  }
+  for (const currentRealm of realms) {
+    if (
+      currentRealm === '/' &&
+      state.getDeploymentType() === CLOUD_DEPLOYMENT_TYPE_KEY
+    ) {
+      printMessage('The root realm (/) is skipped on a Cloud tenant.');
+      continue;
+    }
+    state.setRealm(currentRealm);
+
+    try {
+      if (dryRun) {
+        const journeys = await readJourneys();
+        for (const journey of journeys) {
+          printMessage(
+            `Dry run: would delete journey '${journey._id}' in realm '${currentRealm}'.`
+          );
+        }
+        journeyCount += journeys.length;
+        if (journeys.length === 0) printNoJourneys(currentRealm);
+      } else {
+        // without `deep`: the delete of a journey already takes its nodes with it,
+        // and the orphaned nodes that are left are cleaned up below. The library
+        // tries every journey and answers with the status of each, a failed one
+        // included (it carries the error); it throws only when it cannot list them
+        const statuses = await deleteJourneys({ deep: false, verbose: false });
+        for (const [journeyId, status] of Object.entries(statuses)) {
+          if (status.status === 'success') {
+            printMessage(
+              `Deleted journey '${journeyId}' in realm '${currentRealm}'.`
+            );
+            run.recordSuccess();
+            journeyCount += 1;
+          } else {
+            const error = (status as { error?: FrodoError }).error;
+            printError(
+              error ??
+                new Error(
+                  `Journey '${journeyId}' in realm '${currentRealm}' could not be deleted.`
+                )
+            );
+            run.recordFailure(
+              `journey '${journeyId}' in realm '${currentRealm}'`,
+              error === undefined ? undefined : causeOf(error)
+            );
+          }
+        }
+        if (Object.keys(statuses).length === 0) printNoJourneys(currentRealm);
+      }
+    } catch (error) {
+      printError(
+        error,
+        `Error deleting the journeys of realm '${currentRealm}'`
+      );
+      run.recordFailure(
+        `the journeys of realm '${currentRealm}'`,
+        causeOf(error)
+      );
+    }
+
+    try {
+      const orphans = await frodo.authn.node.findOrphanedNodes();
+      const describeNode = (node: NodeSkeleton) =>
+        `orphaned node '${node._id}' (${node._type._id}${node._type.version ? ` ${node._type.version}` : ''}) in realm '${currentRealm}'`;
+      if (orphans.length === 0) {
+        printMessage(`No orphaned nodes found in realm '${currentRealm}'.`);
+      } else if (dryRun) {
+        for (const node of orphans) {
+          printMessage(`Dry run: would delete ${describeNode(node)}.`);
+        }
+        orphanCount += orphans.length;
+      } else {
+        const failed = new Set(
+          (
+            await frodo.authn.node.removeOrphanedNodes(
+              orphans,
+              run.resultCallback()
+            )
+          ).map((node) => node._id)
+        );
+        for (const node of orphans) {
+          if (!failed.has(node._id)) {
+            printMessage(`Deleted ${describeNode(node)}.`);
+            orphanCount += 1;
+          }
+        }
+      }
+    } catch (error) {
+      printError(
+        error,
+        `Error deleting the orphaned nodes of realm '${currentRealm}'`
+      );
+      run.recordFailure(
+        `the orphaned nodes of realm '${currentRealm}'`,
+        causeOf(error)
+      );
+    }
+  }
+
+  printMessage('--- Journey deletion summary ---');
+  if (dryRun) {
+    printMessage(`Journeys that would be deleted: ${journeyCount}`);
+    printMessage(
+      `Orphaned nodes that would be deleted: ${orphanCount} (only the orphaned nodes that exist now; nodes that the deleted journeys would leave behind are not counted)`
+    );
+  } else {
+    printMessage(`Journeys deleted: ${journeyCount}`);
+    printMessage(`Orphaned nodes deleted: ${orphanCount}`);
+  }
+  return run.finish();
 }

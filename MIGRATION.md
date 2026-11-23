@@ -405,6 +405,68 @@ lists first, and nothing is deleted if either cannot be read). See
 and
 [a command that runs many operations runs them all, then fails if any failed](https://github.com/rockcarver/frodo-cli/blob/main/docs/decisions/0040-a-command-that-runs-many-operations-runs-them-all-then-fails-if-any-failed.md).
 
+**New command: `frodo config-manager delete journeys`** deletes one journey, or
+every journey of the selected realms and then the orphaned nodes of those realms.
+`-i, --journey-id <id>` (alias `-n, --name`) names the journey and needs a realm
+argument. The journey is looked up in the list of the realm, an exact and
+case-sensitive match, and the id that the list holds is what is deleted, so a
+value that is written as a path (`-i ../x`) is a journey that does not exist
+([a selector is an id or a name, never a path](https://github.com/rockcarver/frodo-cli/blob/main/docs/decisions/0059-a-selector-is-an-id-or-a-name-never-a-path.md)).
+A journey that is not in the realm exits with code 1, also with
+`--allow-failures`, because the id names one journey.
+
+A named delete asks the library what still names the journey: other journeys, the
+default and the self-service journeys of the realm, the OAuth2 provider, OAuth2
+clients, SAML providers, AI agents, agent groups, CIMD profiles, themes and
+policies. **Anything that does stops the delete**, whether the library calls the
+dependency hard (the holder breaks without the journey) or soft (a theme that
+links it): the command says which holder and which field, deletes nothing and
+exits with code 1, also with `--allow-failures`. If a source cannot be read, the
+command says which, and deletes nothing. An empty answer is not proof that a
+journey is unused: a journey that an application, an SDK or a link starts by its
+name, or a journey name inside a script or a URL, is not seen.
+
+`--force` (long form only; `-f` is the data file of other journey commands)
+deletes the journey anyway. It first clears the journey in the OAuth2 clients,
+SAML providers and AI agents that name it (Access Management refuses to delete a
+journey that an OAuth2 client or a SAML provider names, and an AI agent that names
+a journey that is gone can no longer be updated or deleted), by writing the
+placeholder `[Empty]` into that one field (the whole holder is written back with
+only that field changed, then read again: if anything else changed, the holder is
+written back as it was, the fields that changed are named, and the journey is not
+deleted), and it removes the journey from the list of journeys of the themes that
+link it. It deletes the journey after that and prints what it cleared, what it
+removed and every holder that it left alone (journeys, realm settings, agent
+groups, CIMD profiles and policies are never changed: they name a journey that
+does not exist afterwards). A step that fails stops the run before the journey is
+deleted, and the command then lists the holders that were changed before and stay
+changed, and the ones whose step failed after it wrote them and that may differ
+from what they were (to undo, set the journey in them again; to finish, run the
+command again). A failed clearing, restore or unlink stops the run and exits with
+code 1 also with `--allow-failures`, because the delete cannot run without it; a
+delete that fails, with or without changed holders, follows `--allow-failures` like
+any other failed operation, and the output says what stays changed. The fields
+that differ after a clearing are named by their path, never by their value.
+`--keep-links` leaves the links
+of the themes as they are, for a journey that is deleted to be recreated under the
+same name; it needs `--force`, and `--force` and `--keep-links` need `-i`. Because
+`--force` changes other objects, it asks on a terminal after it has shown what it
+would change (the same plan that `-d` prints), and without a terminal it is
+refused before the login unless you pass `-y`/`--yes` (or `-d`/`--dry-run`); a
+theme write rewrites the theme configuration of the tenant. See
+[a command that can delete more than the one object it names asks first](https://github.com/rockcarver/frodo-cli/blob/main/docs/decisions/0037-a-command-that-can-delete-more-than-the-one-object-it-names-asks-first.md).
+
+Without `-i` the command deletes every journey of the selected realms, the journeys
+that the realm uses for login included, and then every orphaned node of the realm,
+also a node that never belonged to a deleted journey (the Cloud root realm is
+skipped). It asks first, as every delete of more than one object does, and
+without a terminal it is refused before the login unless you pass `-y`. A dry run
+deletes nothing, orphaned nodes included: it lists the journeys and the orphaned
+nodes that exist now, and says "would". It deletes every journey and every node it
+can, prints one summary of what failed with the reason of Access Management, and
+exits with code 1 if any failed; `--allow-failures` keeps the exit code at 0 for
+failed deletes ([a command that runs many operations runs them all, then fails if any failed](https://github.com/rockcarver/frodo-cli/blob/main/docs/decisions/0040-a-command-that-runs-many-operations-runs-them-all-then-fails-if-any-failed.md)).
+
 **`config-manager push secrets --prune` asks before it deletes, and `-p` is
 gone**: `--prune` deletes the old versions of every secret it pushes, and in 4.x
 it did so without asking. In 5.x, on a terminal, it reads the tenant, shows the
@@ -785,6 +847,7 @@ entity and drop the others.
 | `delete applications`              | `-i, --app-id`, `-n, --app-name`       | `--name`       |
 | `delete custom-nodes`              | `-i, --node-id`, `-n, --node-name`     | `--name`       |
 | `delete endpoints`                 | `-i, --endpoint-id`                    | `-n`, `--name` |
+| `delete journeys`                  | `-i, --journey-id`                     | `-n`, `--name` |
 | `delete scripts`                   | `-i, --script-id`, `-n, --script-name` | `--name`       |
 | `delete themes`                    | `-i, --theme-id`, `-n, --theme-name`   | `--name`       |
 | `delete email-templates`           | `-i, --template-id`                    | `-n`, `--name` |
