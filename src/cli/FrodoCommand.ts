@@ -40,6 +40,7 @@ import {
   RIGHT,
 } from '../utils/interactive/EscapableSelectPrompt.js';
 import { EXIT_ALL, EXIT_ALL_SIGNAL } from '../utils/interactive/ExitAll.js';
+import { isLoneNegated } from '../utils/interactive/OptionConflicts.js';
 import { passStateApplied } from '../utils/interactive/PassLogin.js';
 import { positionalValue } from '../utils/interactive/PositionalArgs.js';
 import { canPrompt, setNeverPrompt } from '../utils/interactive/PromptGate.js';
@@ -1395,7 +1396,14 @@ export function replayEditorOptionStates(command: Command): void {
     if (skip.has(name)) continue;
     if (Object.keys(stateMap).includes(name)) {
       const value = command.getOptionValue(name);
-      if (value === undefined || value === false || value === '') continue;
+      // false is the value of a flag that is written for a negated option (--no-cache), and is no value
+      // for any other
+      if (
+        value === undefined ||
+        (value === false && !isLoneNegated(command, option)) ||
+        value === ''
+      )
+        continue;
       if (command.getOptionValueSource(name) !== 'cli') continue;
       const handler: any = stateMap[name];
       handler(value, command.opts());

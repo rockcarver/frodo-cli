@@ -705,7 +705,9 @@ Serialization rules (`serializeCommand`): exactly the tokens a user
 would retype. Positionals first (`password` masked), then options the
 USER provided this invocation (commander defaults and unset options
 never serialize; user-typed negatable flags serialize as the flag
-alone; repeated list options serialize as repeated flags). Realm
+alone; repeated list options serialize as repeated flags). A negated option
+(`--no-deps`) that is picked in the editor is committed as commander stores it
+when the flag is typed, `false`, so the command runs as the preview shows. Realm
 sentinels never display — the deployment type's realm prints instead
 when known, except for a `config-manager` command that uses its realm
 (`.usesRealm()`): there the sentinel means every realm, so no realm prints.
