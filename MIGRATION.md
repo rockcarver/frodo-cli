@@ -106,7 +106,9 @@ promise shows the promise (it used to wait for the result: write `await` in
 front of it, as in the terminal console), error messages are Node's own wording,
 and an unfinished comment waits for more input instead of failing. The
 names a script declares with `let`, `const` or `class` complete even when the
-input that declared them then failed.
+input that declared them then failed. A name that the console already has (the
+built-in module names such as `fs` or `path`, or a global) is not offered as a
+completion again when a script declares it; its members still complete.
 
 **The console's REST calls (`$`) are sent by the library's request instances**:
 `$` in `frodo shell` built its own HTTP client and copied the library's
