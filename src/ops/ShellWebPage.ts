@@ -10,6 +10,8 @@
  * blocks carrying this response's nonce may run or style anything.
  */
 
+import { scoreHistoryMatch } from './ShellHistorySearchOps';
+
 const TOKEN_SHAPE = /^[A-Za-z0-9_-]+$/;
 
 export type ContentSecurityPolicyOptions = {
@@ -330,35 +332,13 @@ const SCRIPT = String.raw`
     refreshSession().catch(function () {});
   });
 
-  // A small fzf-style scorer: subsequence match, greedily earliest, with a
-  // bonus for consecutive hits and a penalty for the length of the gaps
-  // and the tail. Exact substring beats every subsequence. Returns the
-  // matched indexes for highlighting, or null when it does not match.
-  function scoreMatch(query, line) {
-    var q = query.toLowerCase();
-    var t = line.toLowerCase();
-    var direct = t.indexOf(q);
-    if (direct !== -1) {
-      var idx = [];
-      for (var k = 0; k < q.length; k++) idx.push(direct + k);
-      return { score: 1000 + line.length, indexes: idx };
-    }
-    var pos = 0;
-    var indexes = [];
-    var score = 0;
-    var last = -2;
-    for (var i = 0; i < q.length; i++) {
-      var at = t.indexOf(q[i], pos);
-      if (at === -1) return null;
-      indexes.push(at);
-      score += at === last + 1 ? 6 : 1;
-      score -= Math.max(0, at - pos);
-      last = at;
-      pos = at + 1;
-    }
-    score -= Math.max(0, line.length - pos);
-    return { score: score, indexes: indexes };
-  }
+  // The scorer of the history search: the very function that the terminal
+  // console's Ctrl+R search ranks with (its source is carried here), so both
+  // consoles list the same commands in the same order. It returns the score
+  // and the matched indexes for highlighting, or null when nothing matches.
+  // history-score:begin
+  var scoreMatch = ${scoreHistoryMatch.toString()};
+  // history-score:end
 
   function runSearch(query) {
     if (!query) {

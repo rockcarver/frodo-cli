@@ -1,4 +1,5 @@
 import { PassThrough } from 'node:stream';
+import vm from 'node:vm';
 import {
   afterEach,
   beforeEach,
@@ -13,11 +14,14 @@ import {
   scoreHistoryMatch,
   SearchHooks,
 } from './ShellHistorySearchOps';
+import { renderConsolePage } from './ShellWebPage';
 
 /**
- * The Ctrl+R search of the terminal console ranks with `scoreHistoryMatch`.
- * These tests pin the scoring rules and the list that the terminal console
- * builds from them.
+ * The Ctrl+R search of the terminal console and the history search of the
+ * web console's page rank with ONE scorer, `scoreHistoryMatch`: the page
+ * carries the source of that function. These tests pin the scoring rules,
+ * the list that the terminal console builds from them, and that the page
+ * runs the very same text.
  */
 
 describe('scoreHistoryMatch', () => {
@@ -302,5 +306,87 @@ describe('the Ctrl+R list of the terminal console', () => {
     await type('é');
     expect(total()).toBe(1);
     expect(lines[lines.length - 1]).toBe('café');
+  });
+});
+
+describe('the history search of the web console page', () => {
+  const page = renderConsolePage({ nonce: 'abc', csrf: 'def' });
+
+  /** The text between the two marks that the page carries around the scorer. */
+  function carriedText(): string {
+    const [, afterBegin] = page.split('// history-score:begin');
+    const [carried] = (afterBegin ?? '').split('// history-score:end');
+    if (!carried) throw new Error('the page does not carry the scorer');
+    return carried;
+  }
+
+  /** A repeatable corpus: random lines, and queries cut out of them. */
+  function corpus(): [string, string][] {
+    let seed = 20261122;
+    const next = (bound: number) => {
+      seed = (seed * 1664525 + 1013904223) % 4294967296;
+      return Math.floor((seed / 4294967296) * bound);
+    };
+    const alphabet = [...'abcdeABCDE  --__//..xyz019é日😀'];
+    const pick = () => alphabet[next(alphabet.length)];
+    const pairs: [string, string][] = [
+      ['', ''],
+      ['', 'a'],
+      ['a', ''],
+      ['abc', 'abc'],
+      ['ABC', 'abc'],
+      ['😀', '😀'],
+      ['é', 'café'],
+      ['i', 'İstanbul'],
+    ];
+    for (let n = 0; n < 400; n++) {
+      const line = Array.from({ length: next(40) }, pick).join('');
+      let query: string;
+      switch (n % 4) {
+        case 0: // unrelated
+          query = Array.from({ length: 1 + next(4) }, pick).join('');
+          break;
+        case 1: // a piece of the line
+          query = line.slice(next(line.length + 1), 1 + next(line.length + 1));
+          break;
+        case 2: // the line with characters dropped: a subsequence
+          query = [...line].filter(() => next(3) > 0).join('');
+          break;
+        default: // the line with the case changed
+          query = [...line]
+            .map((c) => (next(2) ? c.toUpperCase() : c))
+            .join('');
+      }
+      pairs.push([query, line]);
+    }
+    return pairs;
+  }
+
+  it('carries the text of the scorer of the terminal console', () => {
+    expect(carriedText()).toContain(scoreHistoryMatch.toString());
+  });
+
+  it('scores 400 queries the way the terminal console does', () => {
+    const scoreMatch = vm.runInNewContext(`${carriedText()}\nscoreMatch`);
+    const pairs = corpus();
+    expect(pairs.length).toBeGreaterThanOrEqual(400);
+    let matches = 0;
+    for (const [query, line] of pairs) {
+      const expected = scoreHistoryMatch(query, line);
+      // the page's function lives in another realm: compare as JSON
+      expect(JSON.stringify(scoreMatch(query, line))).toBe(
+        JSON.stringify(expected)
+      );
+      if (expected) matches += 1;
+    }
+    // a corpus where nothing, or everything, matches proves nothing
+    expect(matches).toBeGreaterThan(100);
+    expect(pairs.length - matches).toBeGreaterThan(50);
+  });
+
+  it('asks that scorer for the score and for the characters to mark', () => {
+    expect(page).toMatch(/var m = scoreMatch\(query, history\[i\]\.text\);/);
+    expect(page).toMatch(/hits\.push\(\{ idx: i, score: m\.score \}\)/);
+    expect(page).toMatch(/m \? m\.indexes : \[\]/);
   });
 });
