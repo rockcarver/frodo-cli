@@ -567,6 +567,16 @@ describe('L6b a URL that names the tenant for one reader and another host for th
       'tenant',
     ],
     [
+      'https for the http tenant is another origin',
+      `https://127.0.0.1:${T}/openidm/x`,
+      'nobody',
+    ],
+    [
+      'the same with an upper case scheme',
+      `HTTPS://127.0.0.1:${T}/am/json/x`,
+      'nobody',
+    ],
+    [
       'a path with two slashes at its start stays on the tenant',
       `//127.0.0.1:${O}/x`,
       'tenant',
@@ -595,13 +605,32 @@ describe('L6b a URL that names the tenant for one reader and another host for th
       });
       expected.push({
         label,
-        receiver: who === 'other' ? 'other' : 'tenant',
+        receiver: who === 'other' || who === 'nobody' ? who : 'tenant',
         override: toTenant,
         configOverride: toTenant,
         secrets: [],
       });
     }
     expect(found).toEqual(expected);
+  });
+
+  test('a URL of another scheme opens the instance without a credential', async () => {
+    bearer();
+    session();
+    const T = new URL(tenant.root).port;
+    const idm = jest.spyOn(frodo.factory, 'generateIdmApi');
+    const am = jest.spyOn(frodo.factory, 'generateAmApi');
+    const release = jest.spyOn(frodo.factory, 'generateReleaseApi');
+    // an https URL for the http tenant: the server cannot answer it, the
+    // request still goes out without a credential
+    await rejection($.get(`https://127.0.0.1:${T}/openidm/x`));
+    await rejection($.get(`https://127.0.0.1:${T}/am/json/x`, AM_API));
+    expect(release).toHaveBeenCalledTimes(2);
+    expect(idm).not.toHaveBeenCalled();
+    expect(am).not.toHaveBeenCalled();
+    // the same scheme and address is the tenant's
+    await $.get(`http://127.0.0.1:${T}/openidm/x`);
+    expect(idm).toHaveBeenCalledTimes(1);
   });
 
   test('a call to the tenant written another way carries the cookie (AM) or the bearer token (IDM)', async () => {
@@ -880,26 +909,31 @@ describe('answers', () => {
     session();
     state.setAuthenticationHeaderOverrides({ 'X-Api-Key': OVERRIDE });
     state.setConfigurationHeaderOverrides({ 'X-Config': OVERRIDE });
+    // an IDM call and an AM call, each with a header named like the session cookie
+    const calls = [
+      ['/openidm/redirect', {}, { authorization: `Bearer ${BEARER}` }],
+      ['/am/redirect', AM_API, { cookie: sessionCookie() }],
+    ];
     for (const status of [301, 302, 303, 307, 308]) {
-      tenant.reset();
-      other.reset();
-      tenant.control.redirectStatus = status;
-      tenant.control.redirectTo = `${other.root}/landed`;
-      // a header the caller names after the session cookie goes the same way
-      await $.get('/openidm/redirect', { [COOKIE_NAME]: SESSION });
-      expect(tenant.seen).toHaveLength(1);
-      expect(tenant.last().authorization).toBe(`Bearer ${BEARER}`);
-      expect(tenant.last().apiKey).toBe(OVERRIDE);
-      expect(other.seen).toHaveLength(1);
-      expect(other.last().url).toBe('/landed');
-      expect(other.last().authorization).toBeUndefined();
-      expect(other.last().cookie).toBeUndefined();
-      expect(other.last().apiKey).toBeUndefined();
-      expect(other.last().headers['x-config']).toBeUndefined();
-      expect(other.last().headers[COOKIE_NAME.toLowerCase()]).toBeUndefined();
-      const text = JSON.stringify(other.last().headers);
-      for (const secret of [BEARER, SESSION, OVERRIDE]) {
-        expect(text).not.toContain(secret);
+      for (const [path, headers, carries] of calls) {
+        tenant.reset();
+        other.reset();
+        tenant.control.redirectStatus = status;
+        tenant.control.redirectTo = `${other.root}/landed`;
+        await $.get(path, { ...headers, [COOKIE_NAME]: SESSION });
+        expect(tenant.seen).toHaveLength(1);
+        expect(tenant.last()).toMatchObject({ ...carries, apiKey: OVERRIDE });
+        expect(other.seen).toHaveLength(1);
+        expect(other.last().url).toBe('/landed');
+        expect(other.last().authorization).toBeUndefined();
+        expect(other.last().cookie).toBeUndefined();
+        expect(other.last().apiKey).toBeUndefined();
+        expect(other.last().headers['x-config']).toBeUndefined();
+        expect(other.last().headers[COOKIE_NAME.toLowerCase()]).toBeUndefined();
+        const text = JSON.stringify(other.last().headers);
+        for (const secret of [BEARER, SESSION, OVERRIDE]) {
+          expect(text).not.toContain(secret);
+        }
       }
     }
   });
@@ -1142,6 +1176,25 @@ describeHttps('L20 an https tenant with a self-signed certificate', () => {
     expect(secure.seen).toHaveLength(0);
     state.setAllowInsecureConnection(true);
     expect(await $.get('/openidm/info/ping')).toEqual({ ok: true });
+    expect(secure.last().authorization).toBe(`Bearer ${BEARER}`);
+  });
+
+  test('an http URL for the https tenant is not the tenant: no credential goes out in clear', async () => {
+    state.setAllowInsecureConnection(true);
+    session();
+    const port = new URL(secure.root).port;
+    const idm = jest.spyOn(frodo.factory, 'generateIdmApi');
+    const release = jest.spyOn(frodo.factory, 'generateReleaseApi');
+    await rejection($.get(`http://127.0.0.1:${port}/openidm/x`));
+    await rejection($.get(`http://127.0.0.1:443/openidm/x`));
+    expect(idm).not.toHaveBeenCalled();
+    expect(release).toHaveBeenCalledTimes(2);
+    expect(secure.seen).toHaveLength(0);
+    // the https URL of the same address is the tenant's
+    expect(await $.get(`https://127.0.0.1:${port}/openidm/x`)).toEqual({
+      ok: true,
+    });
+    expect(idm).toHaveBeenCalledTimes(1);
     expect(secure.last().authorization).toBe(`Bearer ${BEARER}`);
   });
 

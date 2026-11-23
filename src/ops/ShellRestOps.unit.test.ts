@@ -121,6 +121,54 @@ describe('ShellRestOps resolveUrl', () => {
     ).toBe('idm');
   });
 
+  it('counts the scheme and the port: another origin of the tenant host is not the tenant', () => {
+    state.setHost('https://openam.example.com/am');
+    // a typed or followed http:// URL for an https tenant would send the
+    // credential in clear
+    for (const url of [
+      'http://openam.example.com/openidm/managed/user',
+      'http://openam.example.com:80/openidm/managed/user',
+      'http://openam.example.com:443/openidm/managed/user',
+      'https://openam.example.com:80/openidm/managed/user',
+      'HTTP://OPENAM.EXAMPLE.COM/am/json/x',
+    ]) {
+      expect(resolveUrl(url).domain).toBe('none');
+    }
+    // the default port, written or not, is the tenant's own origin
+    for (const url of [
+      'https://openam.example.com/openidm/managed/user',
+      'https://openam.example.com:443/openidm/managed/user',
+      'HTTPS://OPENAM.EXAMPLE.COM:00443/openidm/managed/user',
+    ]) {
+      expect(resolveUrl(url).domain).toBe('idm');
+    }
+    state.setHost('http://openam.example.com/am');
+    for (const url of [
+      'https://openam.example.com/openidm/managed/user',
+      'https://openam.example.com:80/openidm/managed/user',
+      'http://openam.example.com:8080/openidm/managed/user',
+    ]) {
+      expect(resolveUrl(url).domain).toBe('none');
+    }
+    for (const url of [
+      'http://openam.example.com/am/json/x',
+      'http://openam.example.com:80/am/json/x',
+      'HTTP://OPENAM.EXAMPLE.COM:80/am/json/x',
+    ]) {
+      expect(resolveUrl(url).domain).toBe('am');
+    }
+  });
+
+  it('knows the /openidm path in any letter case', () => {
+    state.setHost('https://openam.example.com/am');
+    expect(
+      resolveUrl('https://openam.example.com/OPENIDM/managed/user').domain
+    ).toBe('idm');
+    expect(resolveUrl('/OpenIDM/managed/user')).toMatchObject({
+      domain: 'idm',
+    });
+  });
+
   it('honors an explicit IDM host override', () => {
     state.setHost('https://openam.example.com/am');
     state.setIdmHost('https://openidm.example.com');
