@@ -509,6 +509,14 @@ fails the same way for one that is not in the folder. `pull all` and `pull
 all-static` are unchanged: the scripts have a step of their own, and the
 journeys step pulls the journeys only.
 
+The files of a script that a pull of journeys writes are named as the rest of
+the config folder names what the tenant names: a name, a context or an id that a
+file name cannot hold (one with `/`, `\`, `:` or a control character, or `..`)
+is written percent-encoded, `/` as `%2F`, and a push reads it back. Before, a `/`
+in the name of a script made folders, and `..` wrote a file outside the config
+folder. `pull journeys --clean` clears the node files below the folder of `-D`;
+it cleared them below the current directory.
+
 **Selectors of the `config-manager` commands are `-i, --<type>-id` and `-n,
 --<type>-name`, and `-n` and `--name` keep working**: inside `frodo
 config-manager` an object is selected by its identifier with `-i, --<type>-id`
