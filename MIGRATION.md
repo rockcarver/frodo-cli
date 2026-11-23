@@ -86,6 +86,17 @@ error`; the binary now starts its engines itself. An engine that cannot start no
 ends the page's request with the reason, and the page asks again after a growing
 pause instead of at once.
 
+**`frodo shell`: `_` is no longer lodash**: the console (terminal and web) bound
+`_` to the lodash library in 5.0.0-30, the only release that did, and no longer
+ships lodash. In the terminal console `_` is now the Node.js REPL's own `_`, the
+value of the last result (`1 + 1`, then `_ + 1` is 3). The web console keeps no
+last result, so there `_` is `undefined` until a script assigns it, and a value
+a script assigned now survives the console's Reset JS (it used to be replaced by
+lodash). `frodo.utils.json` has in-house helpers (`get`, `put`, `findInArray`,
+`getPaths`, `cloneDeep`, `mergeDeep`) for JSON search and merge; they are not
+drop-in replacements for lodash functions, and `get` takes a path array.
+Otherwise use the JavaScript built-ins.
+
 **The npm package runs the CLI in one process, and a signal ends it with the
 signal's status**: in 4.x `frodo` (`dist/launch.cjs`, the npm `bin` entry and the
 Docker image) started a second Node process and copied its exit code, which was 0
