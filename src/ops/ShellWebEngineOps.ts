@@ -433,7 +433,10 @@ export function createWebEngine(options: {
     const plain = text.replace(ANSI, '');
     // The REPL prints this when a script assigns `_`. It is about the
     // terminal's "last result" feature, which this engine's own evaluator
-    // does not have, so for this console the sentence would be untrue.
+    // does not have, so for this console the sentence is misleading. The
+    // same notice for `_error` is not filtered (a half measure). When this
+    // engine gets the REPL's own evaluator the sentence becomes true, and
+    // this filter and its test go.
     if (plain.trim() === 'Expression assignment to _ now disabled.') return;
     if (plain.length > 0) options.onLog(plain);
   };

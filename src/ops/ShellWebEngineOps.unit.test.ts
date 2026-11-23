@@ -140,8 +140,14 @@ describe('ShellWebEngineOps', () => {
     expect(await value('_ + 1')).toBe(6);
     // The REPL says "Expression assignment to _ now disabled." when a script
     // assigns it. That sentence is about the terminal's last-result feature,
-    // which this engine does not have, so it stays out of the log stream.
+    // which this engine does not have (it is misleading here), so it stays
+    // out of the log stream.
     expect(logs.join('')).not.toContain('Expression assignment to _');
+  });
+
+  it('keeps other output that contains an underscore in the log stream', async () => {
+    await value('console.log("a_b and _c")');
+    expect(logs.join('')).toContain('a_b and _c');
   });
 
   it('reports unfinished input instead of an error', async () => {
@@ -196,8 +202,18 @@ describe('ShellWebEngineOps', () => {
     expect(await value('typeof state')).toBe('object');
     expect(await value('typeof $')).toBe('object');
     expect(await value('typeof help')).toBe('function');
+    // `_` is not one of them: a fresh context leaves it to the REPL.
+    expect(await value('typeof _')).toBe('undefined');
     // And the fresh context still evaluates.
     expect(await value('var after = "kept"; after')).toBe('kept');
+  });
+
+  it('reset keeps a value a script assigned to _', async () => {
+    expect(await value('_ = 5')).toBe(5);
+    await engine.reset();
+    // The console names are installed again and none of them is `_`, so
+    // nothing overwrites what the script assigned (the REPL keeps it).
+    expect(await value('_')).toBe(5);
   });
 
   it('reset survives an error before it', async () => {
