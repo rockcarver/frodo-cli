@@ -14,10 +14,10 @@
 
 /*
 // Cloud
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_TEST_NAME=0 frodo config-manager promote run-promotion
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_TEST_NAME=0_p_uid_t frodo config-manager promote run-promotion -P provisional-report -uI --description 'provisional report' -t ticket
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_TEST_NAME=0_wait frodo config-manager promote run-promotion  --wait
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_TEST_NAME=0_wait_timeout frodo config-manager promote run-promotion  --wait --timeout 6
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-matrix.example.com/am FRODO_TEST_NAME=0 frodo config-manager promote run-promotion -y
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-matrix.example.com/am FRODO_TEST_NAME=0_p_uid_t frodo config-manager promote run-promotion -P provisional-report -uI --description 'provisional report' -t ticket -y
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-matrix.example.com/am FRODO_TEST_NAME=0_wait frodo config-manager promote run-promotion  --wait -y
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-matrix.example.com/am FRODO_TEST_NAME=0_wait_timeout frodo config-manager promote run-promotion  --wait --timeout 6 -y
 */
 
 import { getEnv, testSuccess, testFail } from './utils/TestUtils';

@@ -14,10 +14,10 @@
 
 /*
 // Cloud
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_TEST_NAME=0 frodo config-manager promote rollback
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_TEST_NAME=0_p_ud_t frodo config-manager promote rollback -P provisional-report -u --description 'provisional report' -t ticket
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_TEST_NAME=0_wait frodo config-manager promote rollback --wait
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_TEST_NAME=0_wait_timeout frodo config-manager promote rollback --wait --timeout 6
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-matrix.example.com/am FRODO_TEST_NAME=0 frodo config-manager promote rollback -y
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-matrix.example.com/am FRODO_TEST_NAME=0_p_ud_t frodo config-manager promote rollback -P provisional-report -u --description 'provisional report' -t ticket -y
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-matrix.example.com/am FRODO_TEST_NAME=0_wait frodo config-manager promote rollback --wait -y
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-matrix.example.com/am FRODO_TEST_NAME=0_wait_timeout frodo config-manager promote rollback --wait --timeout 6 -y
 */
 
 import { getEnv, testSuccess, testFail } from './utils/TestUtils';
