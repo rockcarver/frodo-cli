@@ -18,16 +18,25 @@ import ts from 'typescript';
  * What it catches (each form has a test below that fails when it is not caught):
  * - a call of a function that writes, creates, copies, links, opens or removes (`saveJsonToFile`,
  *   `saveTextToFile`, `writeFileSync`, `appendFile`, `mkdir`, `rm`, `cpSync`, `copyFile`, `linkSync`,
- *   `symlink`, `openSync`, `truncate`, `rename`, `createWriteStream`, also through `fs.promises`), and
- *   every `getFilePath(..., true)` (which creates the folders), whose path is not a call of the gate,
- *   or of `getFilePath` with one in it, or of `path.join` or `path.resolve` whose every argument is
- *   such a call, a string, or a base that the table below allows, or a variable of the same function
- *   that is declared once, never assigned again, and holds one of those;
+ *   `symlink`, `openSync`, `truncate`, `rename`, `createWriteStream`, also through `fs.promises`, also
+ *   through `bind`, `call` or an optional call, also on a module that was imported at run time when the
+ *   function is called by its name), and every `getFilePath(..., true)` (which creates the folders),
+ *   whose path is not a call of the gate, or of `getFilePath` with one in it, or of `path.join` or
+ *   `path.resolve` whose every argument is such a call, a string, or a base that the table below
+ *   allows, or a variable of the same function that is declared once, never assigned again, and holds
+ *   one of those. Everything else is a finding, so also a path that a call that is not listed builds
+ *   (`buildPath(x)`), a gated path that a string is added to, a value that is changed through a property,
+ *   an array or a closure, and a helper of a scanned module whose path comes from its caller (the
+ *   helper has to gate inside);
  * - any call of `extractDataToFile`, the writer of the commands of the first generation, which does
  *   not pass the gate;
  * - such a function that is used as a value (`const save = utils.saveJsonToFile`, `{ writeFileSync: w }`
- *   of a destructuring, an argument), and a member of `fs` or of the library utilities that is chosen
- *   by a computed key (`fs['write' + 'FileSync']`);
+ *   of a destructuring, an argument), and a member of `fs`, `fsp`, `promises`, `fs.promises`, `utils` or
+ *   `frodo.utils` that is chosen by a computed key (`fs['write' + 'FileSync']`, `fs[key]`) when the
+ *   receiver is written as one of those names;
+ * - a function that is called `pulledFilePath` and is declared in the module (a function, a variable, a
+ *   parameter, a method), imported under a rename, or imported by that name from a module that is not
+ *   ConfigTreePath;
  * - a template that goes to the gate with a bare property of an object that the tenant sent (`x.name`,
  *   `y._id`) in it: such a value goes through `nameInFolder`, `nameInStem`, `encodedName` or
  *   `realmFolderOf` first, or a table says why not;
@@ -35,19 +44,20 @@ import ts from 'typescript';
  *   here, and so does a write that is added without a row.
  *
  * What it does not catch (so a person who reads a pull for a new write must not rely on it for these):
- * - a write that a scanned module hands to a function of a module that is not in the list above (the
- *   helper is not read: it is read only when its module is one of those listed), and a write that a
- *   scanned module makes through a helper of the list whose own path comes from its caller;
- * - a path built by a call that is not listed here (a helper that returns a path that passed the gate,
- *   or one that did not), a value that is changed through a property, an array or a closure;
- * - a function that is called `pulledFilePath` but is not the gate, when it is declared in the module
- *   or imported under a rename from another module (the declaration is a finding; a gate that is
- *   imported from a module of another name is a finding too) - a gate that is replaced inside
- *   ConfigTreePath.ts itself is seen only by the table of gate calls and the unit tests of the gate;
+ * - a write that a scanned module hands to a helper of a module that is not in the list above (that
+ *   module is not read);
+ * - a computed key on a receiver that is not written as one of the names above: `(fs as any)[key]`, an
+ *   alias such as `const f: any = fs; f['write' + 'FileSync'](x)`, a module that was imported at run time
+ *   (`m['write' + 'FileSync'](x)`);
+ * - a function that is called `pulledFilePath` and is not the gate when it is a member of an own object
+ *   (`T.pulledFilePath(x)`), is reached through a namespace import of another module, or is re-exported
+ *   under that name; and a gate that is replaced inside ConfigTreePath.ts itself, which only the table of
+ *   gate calls and the unit tests of the gate can see;
  * - writers that the table does not list: a write by a child process (`execFileSync('tee', [path])`;
- *   the guard of the removals, DestructiveSitesGuard.test.js, looks for the removals), `eval`, a dynamic
- *   `import`, a constructor other than `WriteStream`, a metadata call that the table does not name, a
- *   function of the library that writes and is not named in the table.
+ *   the guard of the removals, DestructiveSitesGuard.test.js, looks for the removals), `eval`, a
+ *   constructor other than `WriteStream` (also one that is reached through `require`), a metadata call
+ *   that the table does not name (`lchmodSync`), a function of the library that writes and is not named
+ *   in the table.
  */
 
 const root = path.resolve(
