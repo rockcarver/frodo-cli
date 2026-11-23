@@ -585,6 +585,33 @@ the files back. Before, a `/` in the name of a script made folders, and `..`
 wrote a file outside the config folder. `pull journeys --clean` clears the node
 files below the folder of `-D`; it cleared them below the current directory.
 
+The folder and the file of a journey that a pull writes, and the folder of its
+realm, are named as the rest of the config folder names what the tenant names: a
+name that the tenant gives is one name, so it cannot lead out of the config
+folder. A journey id that holds `/`, `\`, `C:` or a control character is written
+percent-encoded and a push finds it again: `a/b` is the folder `a%2Fb` with the
+file `a%2Fb.json` (it was written as the folders `a/b`), and `ABC:x` is `ABC%3Ax`
+(the library removed the `C:` and wrote `ABx`). An id that
+is empty, `.` or `..` is not pulled: the summary names the journey as failed and
+the command exits with code 1, or 0 with `--allow-failures`. A realm is `/`, a
+name or a path of names. A realm with a part that is `.` or `..`, or that holds a
+backslash, `C:`, a control character, `%`, `?` or `#`, and an empty realm, are
+not pulled either, and are named in the same way. Before, a realm that holds `%`,
+`?` or `#` was written as it was, and `.`, `..` and an empty realm wrote the
+journeys above or beside the `realms` folder. An id or a realm that goes up
+(`../x`, `..\x`, `..C:/x`) wrote the files of the journey outside the config
+folder, and `pull journeys --clean` could remove a folder `nodes` outside it.
+`migrate applications` no longer looks for the files of an OAuth2 client or a
+SAML provider in a realm that is not a name: the tree has none.
+
+What a pull wrote before stays where it is: a folder `a/b` or `ABx` of an older
+pull is not moved or removed, so delete it and pull again. Two ids that are
+written as one folder (`a/b` and the id `a%2Fb`, or two long ids with a `/` that
+are cut to the same 250 bytes) are not told apart yet: the later journey of a
+pull overwrites the earlier one without a message. A link to another folder
+inside the config folder is not looked at either: a journey folder or a realm
+folder that is a link still leads out of the config folder.
+
 **A `--no-` option that is picked in the interactive editor does what it says**:
 the editor wrote `true` for every option that it picked. For an option that is
 negated (`--no-deps`, `--no-validate`, `-N, --no-metadata`, `--no-cache`,
