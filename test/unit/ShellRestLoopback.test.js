@@ -1101,6 +1101,10 @@ describe('network settings of the library apply', () => {
     await fresh.get(`${other.root}/anything`);
     expect(release).toHaveBeenCalledTimes(1);
     expect(release).toHaveBeenCalledWith('', timeout);
+    // a URL that cannot be read is not the tenant's either
+    const unreadable = await rejection(fresh.get('http://[unreadable/x'));
+    expect(unreadable.message).toBe('Invalid URL');
+    expect(release).toHaveBeenCalledTimes(2);
     expect(idm).toHaveBeenCalledTimes(1);
     expect(am).toHaveBeenCalledTimes(1);
   });

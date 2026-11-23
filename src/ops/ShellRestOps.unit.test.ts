@@ -70,6 +70,7 @@ describe('ShellRestOps resolveUrl', () => {
       'https://openam.example.com:8443/am/json/x',
       'https://openam.example.com./am/json/x',
       'https://example.com/am/json/x',
+      'https://[unreadable/am/json/x',
     ]) {
       expect(resolveUrl(url).domain).toBe('none');
     }
