@@ -118,7 +118,7 @@ suite('config-manager promote --full through the CLI', () => {
    * that is still running after MAX_RUN_MS is killed with its launcher (the exit
    * code is then null).
    */
-  function promote(server, command, args) {
+  function promote(server, command, args, { signal, when } = {}) {
     return new Promise((resolve, reject) => {
       const child = cp.spawn(
         binaryPath,
@@ -166,10 +166,24 @@ suite('config-manager promote --full through the CLI', () => {
           // it ended on its own just now
         }
       }, MAX_RUN_MS);
+      // `when` is asked every 100 ms; once it says yes, `signal` goes to the process group, as a Ctrl-C does
+      const watch =
+        signal && when
+          ? setInterval(() => {
+              if (!when()) return;
+              clearInterval(watch);
+              try {
+                process.kill(-child.pid, signal);
+              } catch {
+                // it ended on its own just now
+              }
+            }, 100)
+          : undefined;
       child.once('error', reject);
-      child.once('close', (code) => {
+      child.once('close', (code, signalName) => {
         clearTimeout(guard);
-        resolve({ code, stdout, stderr });
+        clearInterval(watch);
+        resolve({ code, signal: signalName, stdout, stderr });
       });
     });
   }
@@ -212,9 +226,9 @@ suite('config-manager promote --full through the CLI', () => {
    */
   const lifecycle = (start, { failed = false } = {}) => [
     STATE, // the state read of the command: the environments must be unlocked
-    STATE, // the library reads it again before it asks for the lock
-    'POST lock',
-    STATE, // the lock answered `locking`: one read says `locked`
+    'GET promote', // the command refuses to lock while an operation runs
+    'POST lock', // requested without waiting: its answer carries the id of THIS request
+    STATE, // the wait reads the state first and joins its own request: it says `locked`
     'GET promote', // the library refuses to start while an operation runs
     `POST ${start}`,
     'GET promote', // the first read of the wait
@@ -572,7 +586,9 @@ suite('config-manager promote --full through the CLI', () => {
         expect(stderr).toContain(`lock id ${LOCK_ID}`);
         expect(stderr).toContain(`promote unlock-tenants --id ${LOCK_ID}`);
         expect(stderr).toContain('check-promotion-status');
-        expect(stderr).toContain('Promotion: not finished. Unlock: kept on purpose.');
+        expect(stderr).toContain(
+          'Promotion: not finished. Unlock: kept on purpose.'
+        );
         expect(code).toBe(1);
         expect(await lockNow(server)).toBe('locked');
       },
@@ -580,7 +596,7 @@ suite('config-manager promote --full through the CLI', () => {
     );
 
     it(
-      'an operation that already runs when the lock is taken is not started and its lock is not touched: no promotion request, no unlock, exit 1',
+      'an operation that runs at the start is refused BEFORE anything is locked: only the state and the status are read, nothing to release, exit 1',
       async () => {
         const server = await fake({
           status: {
@@ -597,11 +613,44 @@ suite('config-manager promote --full through the CLI', () => {
           '-y',
         ]);
 
+        expect(calls()).toEqual([STATE, 'GET promote']);
+        expect(stderr).toContain('already running');
+        expect(stderr).toContain('Nothing was locked');
+        expect(code).toBe(1);
+        expect(await lockNow(server)).toBe('unlocked');
+      },
+      TIMEOUT
+    );
+
+    it(
+      'an operation that starts after the status read of the command, so that the library refuses: nothing is started, the lock that was taken is kept and named, no unlock, exit 1',
+      async () => {
+        const server = await fake({
+          // the command reads READY, the library one request later reads RUNNING
+          status: [
+            { status: 'READY', message: 'Environment ready for promotion' },
+            {
+              status: 'RUNNING',
+              message: 'Start promotion',
+              promotionId: OTHER_LOCK_ID,
+              type: 'promotion',
+            },
+          ],
+          promote: [{ statuses: [COMPLETED] }],
+        });
+
+        const { code, stderr } = await promote(server, 'run-promotion', [
+          '--full',
+          '-y',
+        ]);
+
         expect(calls().some((call) => call === 'POST promote')).toBe(false);
         expect(calls().some((call) => call.startsWith('DELETE'))).toBe(false);
         expect(stderr).toContain('already running');
         expect(stderr).toContain('The lock stays on purpose');
+        expect(stderr).toContain(`promote unlock-tenants --id ${LOCK_ID}`);
         expect(code).toBe(1);
+        expect(await lockNow(server)).toBe('locked');
       },
       TIMEOUT
     );
@@ -696,18 +745,19 @@ suite('config-manager promote --full through the CLI', () => {
     );
   });
 
-  describe('a lock request that fails', () => {
+  describe('a lock request that fails: nothing is ever unlocked after it', () => {
     it(
-      'refused with no lock taken: nothing is unlocked, no promotion request, exit 1',
+      'refused with no lock taken: the state is read, nothing is unlocked, no promotion request, exit 1',
       async () => {
         const server = await fake({ lockRequest: 'refuse' });
 
-        const { code } = await promote(server, 'run-promotion', [
+        const { code, stderr } = await promote(server, 'run-promotion', [
           '--full',
           '-y',
         ]);
 
-        expect(calls()).toEqual([STATE, STATE, 'POST lock', STATE]);
+        expect(calls()).toEqual([STATE, 'GET promote', 'POST lock', STATE]);
+        expect(stderr).toContain('nothing was locked');
         expect(code).toBe(1);
         expect(await lockNow(server)).toBe('unlocked');
       },
@@ -715,19 +765,153 @@ suite('config-manager promote --full through the CLI', () => {
     );
 
     it(
-      'refused after the lock was taken: the state is `locked`, so it is released by its id, exit 1',
+      'refused after the lock was taken: the state is `locked`, but the request returned no id, so the lock is NOT unlocked: the output names it and the command that releases it, exit 1',
       async () => {
         const server = await fake({ lockRequest: 'refuse-but-lock' });
+
+        const { code, stderr } = await promote(server, 'run-promotion', [
+          '--full',
+          '-y',
+        ]);
+
+        expect(calls().some((call) => call.startsWith('DELETE'))).toBe(false);
+        expect(calls()).not.toContain('POST promote');
+        expect(stderr).toContain(`lock id ${LOCK_ID}`);
+        expect(stderr).toContain(`promote unlock-tenants --id ${LOCK_ID}`);
+        expect(code).toBe(1);
+        expect(await lockNow(server)).toBe('locked');
+      },
+      TIMEOUT
+    );
+
+    it(
+      'refused because somebody else holds the lock now (a 409): their lock is NOT unlocked, the output names their id and the command, exit 1',
+      async () => {
+        const server = await fake({
+          lockRequest: 'conflict',
+          foreignLockId: OTHER_LOCK_ID,
+        });
+
+        const { code, stderr } = await promote(server, 'run-promotion', [
+          '--full',
+          '-y',
+        ]);
+
+        expect(calls().some((call) => call.startsWith('DELETE'))).toBe(false);
+        expect(calls()).not.toContain('POST promote');
+        expect(stderr).toContain(`lock id ${OTHER_LOCK_ID}`);
+        expect(stderr).toContain('cannot tell whether this one is somebody');
+        expect(code).toBe(1);
+        expect(await lockNow(server)).toBe('locked');
+      },
+      TIMEOUT
+    );
+  });
+
+  describe('the lock that the wait returns is not the one that was asked for', () => {
+    it.each(COMMANDS)(
+      '%s: somebody else takes the lock between the request and the wait: nothing is started, their lock is NOT unlocked, their id is named, exit 1',
+      async (command, start) => {
+        const server = await fake({
+          // the 2nd state read is the one of the wait, right after the request
+          onLockRead: {
+            2: { result: 'locked', promotionId: OTHER_LOCK_ID },
+          },
+          [start]: [{ statuses: [COMPLETED] }],
+        });
+
+        const { code, stderr } = await promote(server, command, [
+          '--full',
+          '-y',
+        ]);
+
+        expect(calls()).toEqual([STATE, 'GET promote', 'POST lock', STATE]);
+        expect(stderr).toContain(`lock id ${OTHER_LOCK_ID}`);
+        expect(stderr).toContain(`lock id ${LOCK_ID}`);
+        expect(stderr).toContain('somebody else');
+        expect(stderr).toContain(
+          `promote unlock-tenants --id ${OTHER_LOCK_ID}`
+        );
+        expect(code).toBe(1);
+        expect(await lockNow(server)).toBe('locked');
+      },
+      TIMEOUT
+    );
+
+    it(
+      'somebody else locks between the state read of the command and its request: the request conflicts, nothing is unlocked',
+      async () => {
+        // the lock of somebody else appears with the first state read answered `unlocked`
+        const server = await fake({
+          lockRequest: 'conflict',
+          foreignLockId: OTHER_LOCK_ID,
+        });
 
         const { code } = await promote(server, 'run-promotion', [
           '--full',
           '-y',
         ]);
 
-        expect(calls()).not.toContain('POST promote');
-        expect(calls()).toContain(`DELETE lock/${LOCK_ID}`);
+        expect(calls().some((call) => call.startsWith('DELETE'))).toBe(false);
         expect(code).toBe(1);
+      },
+      TIMEOUT
+    );
+  });
+
+  describe('the lock wait takes time', () => {
+    it(
+      'the state answers `locking` and `unlocking` first: the library waits for real, and the lifecycle still ends unlocked, exit 0',
+      async () => {
+        const server = await fake({
+          lockPolls: 1,
+          unlockPolls: 1,
+          promote: [{ statuses: [COMPLETED] }],
+        });
+
+        const { code, stderr } = await promote(server, 'run-promotion', [
+          '--full',
+          '-y',
+        ]);
+
+        const reads = calls().filter((call) => call === STATE).length;
+        // the command, the join read of the wait, one poll after one sleep, the read before the unlock, one poll after one sleep
+        expect(reads).toBe(6);
+        expect(stderr).toMatch(/Lock: done\. .*: done\. Unlock: done\./);
+        expect(code).toBe(0);
         expect(await lockNow(server)).toBe('unlocked');
+      },
+      TIMEOUT
+    );
+
+    it.each(['SIGINT', 'SIGTERM'])(
+      '%s during the lock wait: the person has already been told the lock id and how to release it, and no unlock is sent',
+      async (signal) => {
+        const server = await fake({
+          lockPolls: 5,
+          promote: [{ statuses: [COMPLETED] }],
+        });
+
+        const result = await promote(
+          server,
+          'run-promotion',
+          ['--full', '-y'],
+          {
+            signal,
+            // the command read the state, asked for the lock and went into the wait: it has read `locking` twice
+            when: () => calls().filter((call) => call === STATE).length >= 3,
+          }
+        );
+
+        expect(result.signal ?? result.code).toBeTruthy();
+        expect(calls().some((call) => call.startsWith('DELETE'))).toBe(false);
+        expect(result.stderr).toContain('may end up locked');
+        expect(result.stderr).toContain(`lock id ${LOCK_ID}`);
+        expect(result.stderr).toContain(
+          `promote unlock-tenants --id ${LOCK_ID}`
+        );
+        // the platform goes on locking by itself
+        expect(await lockNow(server)).not.toBe('unlocked');
       },
       TIMEOUT
     );

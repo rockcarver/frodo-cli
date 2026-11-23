@@ -57,7 +57,7 @@ export default function setup() {
     .addOption(
       new Option(
         '--full',
-        'Lock both environments, roll back the previous promotion, wait for the rollback and unlock the environments again, in one command. Implies --wait and --unlock-after. It starts only when both environments are unlocked. --timeout bounds the rollback only: a rollback that is still running when the wait ends keeps the lock on purpose, and the command says how to release it. Missing ESVs are listed.'
+        'Lock both environments, roll back the previous promotion, wait for the rollback and unlock the environments again, in one command. Implies --wait and --unlock-after. It starts only when both environments are unlocked. If the command is stopped while it runs (Ctrl-C), the lock stays; the command has printed its id and how to release it. --timeout bounds the rollback only: a rollback that is still running when the wait ends keeps the lock on purpose, and the command says how to release it. Missing ESVs are listed.'
       )
     )
     .addOption(

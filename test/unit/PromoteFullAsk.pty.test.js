@@ -220,13 +220,17 @@ suite('promote questions, on a real terminal', () => {
       expect(result.exitCode).toBe(0);
     }, 180000);
 
-    it('a no does not run it again, unlocks, and exits 1', async () => {
+    it('a no does not run it again, says so in its own words, unlocks, and exits 1', async () => {
       const result = await onTerminal(
         { promote: [{ statuses: [ENCRYPTED] }, { statuses: [COMPLETED] }] },
         ['run-promotion', '--full', '-y'],
         [ENCRYPTED_QUESTION, { type: 'send_line', text: 'n' }, ENDED]
       );
 
+      expect(result.plainOutput).toContain(
+        'The promotion was not run again; the environments are unlocked next.'
+      );
+      expect(result.plainOutput).not.toContain('Nothing was changed.');
       expect(promoteBodies()).toHaveLength(1);
       expect(calls()).toContain(`DELETE lock/${LOCK_ID}`);
       expect(result.exitCode).toBe(1);

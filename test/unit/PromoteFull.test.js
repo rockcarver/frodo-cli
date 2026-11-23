@@ -180,9 +180,16 @@ describe.each(COMMANDS)('%s', (name, setup, operationName, statusType) => {
     operationName === 'rollbackPromotion'
       ? rollbackPromotion
       : promoteConfiguration;
-  /** The calls to the platform, in order, without the status reads that follow a failure. */
+  /**
+   * The calls to the platform, in order, without the status reads that follow a
+   * failure: the state, the status (no operation may run), the lock request (no
+   * wait: it returns the id of THIS request), the wait for it, the operation, the
+   * unlock.
+   */
   const lifecycle = [
     'readLockStatus',
+    'readPromotionStatus',
+    'lockEnvironment',
     'lockEnvironment',
     operationName,
     'unlockEnvironment',
@@ -190,6 +197,8 @@ describe.each(COMMANDS)('%s', (name, setup, operationName, statusType) => {
   /** The operation fails: the status is read once more to find out what to do with the lock. */
   const afterFailure = [
     'readLockStatus',
+    'readPromotionStatus',
+    'lockEnvironment',
     'lockEnvironment',
     operationName,
     'readPromotionStatus',
@@ -202,9 +211,12 @@ describe.each(COMMANDS)('%s', (name, setup, operationName, statusType) => {
 
       expect(calls).toEqual(lifecycle);
       expect(readLockStatus).toHaveBeenCalledWith(false);
-      expect(lockEnvironment).toHaveBeenCalledWith(true);
+      // requested without waiting, then waited for
+      expect(lockEnvironment.mock.calls).toEqual([[false], [true]]);
       expect(unlockEnvironment).toHaveBeenCalledWith(LOCK_ID, true);
-      expect(printed('info')).toContain(`lock id ${LOCK_ID}`);
+      // the hint with the id is printed before the wait, not only after it
+      expect(printed('warn')).toContain(`lock id ${LOCK_ID}`);
+      expect(printed('warn')).toContain(`unlock-tenants --id ${LOCK_ID}`);
       expect(printed('info')).toContain('Lock: done.');
       expect(printed('info')).toContain('Unlock: done.');
       expect(exitCode).toBe(0);
@@ -236,7 +248,7 @@ describe.each(COMMANDS)('%s', (name, setup, operationName, statusType) => {
         2000
       );
       // the lock and the unlock keep the library's own timeout
-      expect(lockEnvironment).toHaveBeenCalledWith(true);
+      expect(lockEnvironment.mock.calls).toEqual([[false], [true]]);
       expect(unlockEnvironment).toHaveBeenCalledWith(LOCK_ID, true);
     });
 
@@ -281,7 +293,7 @@ describe.each(COMMANDS)('%s', (name, setup, operationName, statusType) => {
       expect(exitCode).toBe(1);
     });
 
-    describe('a lock request that fails', () => {
+    describe('a lock request that fails: nothing is ever unlocked after it', () => {
       beforeEach(() => {
         lockEnvironment.mockRejectedValue(new Error('lock refused'));
       });
@@ -292,31 +304,15 @@ describe.each(COMMANDS)('%s', (name, setup, operationName, statusType) => {
         // the state is read again after the failure, and left alone
         expect(calls).toEqual([
           'readLockStatus',
+          'readPromotionStatus',
           'lockEnvironment',
           'readLockStatus',
         ]);
         expect(exitCode).toBe(1);
       });
 
-      test('with the environments `locked` the lock is released by its id, and the operation does not start, exit 1', async () => {
-        readLockStatus
-          .mockResolvedValueOnce(UNLOCKED)
-          .mockResolvedValue(LOCKED);
-
-        const { exitCode } = await run(setup, ['--full', '-y']);
-
-        expect(calls).toEqual([
-          'readLockStatus',
-          'lockEnvironment',
-          'readLockStatus',
-          'unlockEnvironment',
-        ]);
-        expect(unlockEnvironment).toHaveBeenCalledWith(LOCK_ID, true);
-        expect(exitCode).toBe(1);
-      });
-
-      test.each(['locking', 'unlocking', 'error'])(
-        'with the environments %s nothing is unlocked: that is not a lock this command can tell is its own',
+      test.each(['locked', 'locking', 'unlocking', 'error'])(
+        'with the environments %s nothing is unlocked, whatever its id: the lock is named with the command that releases it, exit 1',
         async (result) => {
           readLockStatus
             .mockResolvedValueOnce(UNLOCKED)
@@ -325,12 +321,24 @@ describe.each(COMMANDS)('%s', (name, setup, operationName, statusType) => {
           const { exitCode } = await run(setup, ['--full', '-y']);
 
           expect(unlockEnvironment).not.toHaveBeenCalled();
-          // the lock it may have left behind is named, with how to release it
-          expect(printed('warn')).toContain(`lock id ${OTHER_ID}`);
-          expect(printed('warn')).toContain(`unlock-tenants --id ${OTHER_ID}`);
+          expect(operation()).not.toHaveBeenCalled();
+          expect(errors()).toContain(`lock id ${OTHER_ID}`);
+          expect(errors()).toContain(`unlock-tenants --id ${OTHER_ID}`);
           expect(exitCode).toBe(1);
         }
       );
+
+      test('with the lock its own request took (state locked, our id) it is still NOT unlocked: the request returned no id', async () => {
+        readLockStatus
+          .mockResolvedValueOnce(UNLOCKED)
+          .mockResolvedValue(LOCKED);
+
+        const { exitCode } = await run(setup, ['--full', '-y']);
+
+        expect(unlockEnvironment).not.toHaveBeenCalled();
+        expect(errors()).toContain(`unlock-tenants --id ${LOCK_ID}`);
+        expect(exitCode).toBe(1);
+      });
 
       test('with a state that cannot be read nothing is unlocked, and the output says how to look at it, exit 1', async () => {
         readLockStatus
@@ -344,14 +352,99 @@ describe.each(COMMANDS)('%s', (name, setup, operationName, statusType) => {
         expect(exitCode).toBe(1);
       });
 
-      test('a lock that answers without an id is treated as a failed lock', async () => {
+      test('a lock request that answers without an id is treated as a failed lock', async () => {
         lockEnvironment.mockReset();
-        lockEnvironment.mockResolvedValue({ result: 'locked' });
+        lockEnvironment.mockResolvedValue({ result: 'locking' });
 
         const { exitCode } = await run(setup, ['--full', '-y']);
 
         expect(operation()).not.toHaveBeenCalled();
+        expect(unlockEnvironment).not.toHaveBeenCalled();
         expect(exitCode).toBe(1);
+      });
+    });
+
+    describe('the lock that the wait returns is not the one that was asked for', () => {
+      beforeEach(() => {
+        // the request returns our id, the wait returns the lock of somebody else
+        lockEnvironment
+          .mockReset()
+          .mockResolvedValueOnce({ result: 'locking', promotionId: LOCK_ID })
+          .mockResolvedValue({ result: 'locked', promotionId: OTHER_ID });
+      });
+
+      test('nothing is started and nothing is unlocked: their lock is named with the command, exit 1', async () => {
+        const { exitCode } = await run(setup, ['--full', '-y']);
+
+        expect(calls).toEqual([
+          'readLockStatus',
+          'readPromotionStatus',
+          'lockEnvironment',
+          'lockEnvironment',
+        ]);
+        expect(unlockEnvironment).not.toHaveBeenCalled();
+        expect(errors()).toContain(`lock id ${OTHER_ID}`);
+        expect(errors()).toContain(`lock id ${LOCK_ID}`);
+        expect(errors()).toContain('somebody else');
+        expect(errors()).toContain(`unlock-tenants --id ${OTHER_ID}`);
+        expect(exitCode).toBe(1);
+      });
+
+      test('a wait that returns no id at all is not our lock either', async () => {
+        lockEnvironment
+          .mockReset()
+          .mockResolvedValueOnce({ result: 'locking', promotionId: LOCK_ID })
+          .mockResolvedValue({ result: 'locked' });
+
+        const { exitCode } = await run(setup, ['--full', '-y']);
+
+        expect(operation()).not.toHaveBeenCalled();
+        expect(unlockEnvironment).not.toHaveBeenCalled();
+        expect(exitCode).toBe(1);
+      });
+    });
+
+    describe('a wait for the lock that fails after the request was accepted', () => {
+      test('the lock is NOT unlocked and the operation does not start: the id and the command are named, exit 1', async () => {
+        lockEnvironment
+          .mockReset()
+          .mockResolvedValueOnce({ result: 'locking', promotionId: LOCK_ID })
+          .mockRejectedValue(new Error('timed out'));
+
+        const { exitCode } = await run(setup, ['--full', '-y']);
+
+        expect(operation()).not.toHaveBeenCalled();
+        expect(unlockEnvironment).not.toHaveBeenCalled();
+        expect(printError).toHaveBeenCalled();
+        expect(errors()).toContain(`unlock-tenants --id ${LOCK_ID}`);
+        expect(exitCode).toBe(1);
+      });
+    });
+
+    describe('an operation that runs at the start', () => {
+      test('is refused before anything is locked: only the state and the status are read, exit 1', async () => {
+        readPromotionStatus.mockResolvedValue({
+          ...READY,
+          status: 'RUNNING',
+          type: 'promotion',
+        });
+
+        const { exitCode } = await run(setup, ['--full', '-y']);
+
+        expect(calls).toEqual(['readLockStatus', 'readPromotionStatus']);
+        expect(errors()).toContain('already running');
+        expect(errors()).toContain('Nothing was locked');
+        expect(exitCode).toBe(1);
+      });
+
+      test('a status that cannot be read at the start does not end the run, as in the library', async () => {
+        readPromotionStatus.mockRejectedValueOnce(new Error('no answer'));
+
+        const { exitCode } = await run(setup, ['--full', '-y']);
+
+        expect(calls[0]).toBe('readLockStatus');
+        expect(calls).toContain(operationName);
+        expect(exitCode).toBe(0);
       });
     });
 
@@ -422,12 +515,17 @@ describe.each(COMMANDS)('%s', (name, setup, operationName, statusType) => {
         'a status %s after the failure (a timeout): the lock is NOT released, the output names it and says how to release it, exit 1',
         async (status) => {
           operation().mockRejectedValue(new Error('timed out'));
-          readPromotionStatus.mockResolvedValue({ ...READY, status });
+          // the first read is the one before the lock request: nothing runs yet
+          readPromotionStatus
+            .mockResolvedValueOnce(READY)
+            .mockResolvedValue({ ...READY, status });
 
           const { exitCode } = await run(setup, ['--full', '-y', '-T', '1']);
 
           expect(calls).toEqual([
             'readLockStatus',
+            'readPromotionStatus',
+            'lockEnvironment',
             'lockEnvironment',
             operationName,
             'readPromotionStatus',
@@ -444,7 +542,9 @@ describe.each(COMMANDS)('%s', (name, setup, operationName, statusType) => {
 
       test('a status that cannot be read after the failure: the lock is NOT released, exit 1', async () => {
         operation().mockRejectedValue(new Error('timed out'));
-        readPromotionStatus.mockRejectedValue(new Error('no answer'));
+        readPromotionStatus
+          .mockResolvedValueOnce(READY)
+          .mockRejectedValue(new Error('no answer'));
 
         const { exitCode } = await run(setup, ['--full', '-y']);
 
@@ -611,7 +711,8 @@ describe.each(COMMANDS.filter(([, , , type]) => type === 'promotion'))(
       expect(
         ofCommand().map((config) => config.ignoreEncryptedSecrets)
       ).toEqual([false, true]);
-      expect(lockEnvironment).toHaveBeenCalledTimes(1);
+      // one lock request and its wait, one unlock: the repeated run is in the same lock
+      expect(lockEnvironment).toHaveBeenCalledTimes(2);
       expect(unlockEnvironment).toHaveBeenCalledTimes(1);
       expect(confirm).toHaveBeenCalledTimes(1);
       expect(confirm.mock.calls[0][0].default).toBe(false);
@@ -626,13 +727,15 @@ describe.each(COMMANDS.filter(([, , , type]) => type === 'promotion'))(
       expect(confirm).toHaveBeenCalledTimes(1);
     });
 
-    test('with a terminal a no does not run it again, releases the lock, exit 1', async () => {
+    test('with a terminal a no does not run it again, releases the lock, exit 1, and says so in its own words', async () => {
       terminal = true;
       confirm.mockResolvedValue(false);
 
       const { exitCode } = await run(setup, ['--full', '-y']);
 
       expect(promoteConfiguration).toHaveBeenCalledTimes(1);
+      expect(printed('warn')).toContain('was not run again');
+      expect(printed('warn')).not.toContain('Nothing was changed.');
       expect(unlockEnvironment).toHaveBeenCalledWith(LOCK_ID, true);
       expect(exitCode).toBe(1);
     });

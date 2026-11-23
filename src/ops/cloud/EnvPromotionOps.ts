@@ -239,6 +239,7 @@ async function mayIgnoreEncryptedSecrets(
       yes: false,
       dryRunAvailable: false,
       warning: `The ${op.noun} stopped because the configuration holds encrypted secrets:\n${list}\n${advice}`,
+      declined: `The ${op.noun} was not run again; the environments are unlocked next.`,
     });
   } catch {
     // a question that is closed with Ctrl-C is a no, and the lock must still be released
@@ -247,13 +248,16 @@ async function mayIgnoreEncryptedSecrets(
 }
 
 /**
- * After a lock request that failed: the environments were unlocked a moment
- * ago, so a lock that exists now is only released when the state is `locked`
- * (the request may have taken the lock before it failed). Any other state is
- * left alone: it is not ours.
+ * After a lock request that failed, or that did not return an id: say what the
+ * environments are in, and release NOTHING. The only lock this command ever
+ * releases is the one whose id came back from its own lock request; after a
+ * failed request there is no such id, and a lock that exists now may as well be
+ * somebody else's (the likeliest reason for a refused request is a lock that
+ * somebody else holds). The state is read once and named, with the id and the
+ * command that releases it.
  * @param {Operation} op the operation
  */
-async function releaseAfterFailedLock(op: Operation): Promise<void> {
+async function explainFailedLock(op: Operation): Promise<void> {
   let now: LockStatus | undefined;
   try {
     now = await readLockStatus(false);
@@ -267,29 +271,37 @@ async function releaseAfterFailedLock(op: Operation): Promise<void> {
     );
     return;
   }
-  if (now.result !== 'locked' || !now.promotionId) {
-    // a lock that is still being taken, or that is being released, is not
-    // released from here: this command cannot tell that it is its own
-    const ids = lockIdsOf(now);
+  const ids = lockIdsOf(now);
+  if (now.result === 'unlocked') {
     printMessage(
-      `The ${op.noun} did not start. The environments are ${now.result}${ids.length ? ` (lock id ${ids.join(', ')})` : ''}; nothing was unlocked. Look at:\n${checkLockCommand()}${ids.length ? `\nIf that lock is left over from the lock request of this command, release it with:\n${unlockCommand(ids[0])}` : ''}`,
+      `The ${op.noun} did not start. The environments are unlocked: nothing was locked.`,
       'warn'
     );
     return;
   }
-  try {
-    await unlockEnvironment(now.promotionId, true);
-    printMessage(
-      `The ${op.noun} did not start. The lock request failed after the environments were locked, and they are unlocked again (lock id ${now.promotionId}).`,
-      'warn'
-    );
-  } catch (error) {
-    printError(error);
-    printMessage(
-      `The ${op.noun} did not start. The environments are still locked (lock id ${now.promotionId}). Release them with:\n${unlockCommand(now.promotionId)}`,
-      'error'
-    );
-  }
+  printMessage(
+    `The ${op.noun} did not start. The environments are ${now.result}${ids.length ? ` (lock id ${ids.join(', ')})` : ''}. This command releases no lock that its own lock request did not return, and cannot tell whether this one is somebody else's, so nothing was unlocked. Look at:\n${checkLockCommand()}${ids.length ? `\nIf that lock is left over from the lock request of this command, release it with:\n${unlockCommand(ids[0])}` : ''}`,
+    'error'
+  );
+}
+
+/**
+ * The lock that came back from the wait is not the one this command asked
+ * for: somebody else holds the environments. Nothing is started and nothing is
+ * released.
+ * @param {Operation} op the operation
+ * @param {string} ownId the id that the lock request of this command returned
+ * @param {string | undefined} foundId the id that the wait returned
+ */
+function explainForeignLock(
+  op: Operation,
+  ownId: string,
+  foundId: string | undefined
+): void {
+  printMessage(
+    `The ${op.noun} did not start. The environments are locked by ${foundId ? `lock id ${foundId}` : 'a lock without an id'}, not by the lock that this command asked for (lock id ${ownId}). That lock is somebody else's, so nothing was started and nothing was unlocked. Look at:\n${checkLockCommand()}${foundId ? `\nA lock that is left over is released with:\n${unlockCommand(foundId)}` : ''}`,
+    'error'
+  );
 }
 
 /** How the operation of `--full` ended: `unfinished` is still running, or its state cannot be read. */
@@ -302,16 +314,21 @@ type UnlockResult = 'done' | 'failed' | 'kept';
  * Run an operation between a lock and an unlock of the environments (`--full`).
  *
  * The lock contract:
- * - it starts only when both environments are unlocked (read right before the
- *   lock request, after the question), so the lock it takes is its own and the
- *   unlock at the end does not release the lock of somebody else;
- * - it unlocks after every outcome that has ended: success, an error of the
- *   platform, a refused request, an answer of no to the encrypted secrets;
+ * - it starts only when both environments are unlocked and no operation runs
+ *   (read right before the lock request, after the question);
+ * - the only lock it ever releases is the one whose id came back from its own
+ *   lock request. It keeps that id across the wait and requires the lock that
+ *   the wait returns to carry it: any other id is somebody else's lock, nothing
+ *   is started and nothing is released;
+ * - it unlocks that lock after every outcome that has ended: success, an error
+ *   of the platform, a refused request, an answer of no to the encrypted
+ *   secrets;
  * - it does not unlock while the platform is still working on the operation (a
  *   `--timeout` that ended the wait leaves it running) or when the status cannot
  *   be read: the lock stays, on purpose, and the output says so and how to
  *   release it;
- * - after a lock request that failed it unlocks only a state that is `locked`.
+ * - after a lock request that failed it releases nothing: it names the state, the
+ *   lock id and the command that releases it.
  * @param {object} options what to run
  * @param {Operation} options.op the operation
  * @param {boolean} options.yes whether `--yes` was given
@@ -354,20 +371,53 @@ async function runBetweenLockAndUnlock({
     return false;
   }
 
+  // an operation that runs is refused before anything is locked, so that
+  // there is nothing to release for a run that never began (a status that
+  // cannot be read does not end the run, as in the library)
+  const running = await readStatusOrUndefined();
+  if (running?.status === 'RUNNING') {
+    printMessage(
+      `Not starting the ${op.noun}: an operation is already running on ${state.getHost()} (status ${running.status}, type ${running.type ?? 'unknown'}, promotion id ${running.promotionId ?? 'unknown'}). Nothing was locked and nothing was sent. See where it stands with:\n${checkStatusCommand()}`,
+      'error'
+    );
+    return false;
+  }
+
+  printMessage(
+    `Locking both environments. If this command is stopped now, they may end up locked; this shows it:\n${checkLockCommand()}`,
+    'info'
+  );
+  // The lock is requested without waiting, so that the id that comes back is
+  // the id of THIS request, and kept across the wait: a lock that the wait
+  // returns with another id is somebody else's.
   let lockId: string | undefined;
   try {
-    lockId = (await lockEnvironment(true)).promotionId;
+    lockId = (await lockEnvironment(false)).promotionId;
   } catch (error) {
     printError(error);
   }
   if (!lockId) {
-    await releaseAfterFailedLock(op);
+    await explainFailedLock(op);
     return false;
   }
   printMessage(
-    `Locked both environments (lock id ${lockId}). If this command is stopped before it has unlocked them, release the lock with:\n${unlockCommand(lockId)}`,
-    'info'
+    `The lock request was accepted (lock id ${lockId}). It can take minutes. If this command is stopped before it has unlocked the environments again, they stay locked: release them with:\n${unlockCommand(lockId)}`,
+    'warn'
   );
+  try {
+    const locked = await lockEnvironment(true);
+    if (locked.promotionId !== lockId) {
+      explainForeignLock(op, lockId, locked.promotionId);
+      return false;
+    }
+  } catch (error) {
+    printError(error);
+    printMessage(
+      `The ${op.noun} did not start. The lock request was accepted (lock id ${lockId}), but the wait for the lock failed: the environments may be locking or locked. Nothing was unlocked. Look at:\n${checkLockCommand()}\nIf the lock is left over, release it with:\n${unlockCommand(lockId)}`,
+      'error'
+    );
+    return false;
+  }
 
   let operationResult: OperationResult;
   let ignore = ignoreEncryptedSecrets;

@@ -63,7 +63,7 @@ export default function setup() {
     .addOption(
       new Option(
         '--full',
-        'Lock both environments, run the dry-run promotion, wait for it and unlock the environments again, in one command. Implies --wait and --unlock-after. It starts only when both environments are unlocked. --timeout bounds the dry-run promotion only: one that is still running when the wait ends keeps the lock on purpose, and the command says how to release it. Missing ESVs are listed. Encrypted secrets are asked about at a terminal; --ignore-encrypted-secrets answers that in advance, and --yes does not.'
+        'Lock both environments, run the dry-run promotion, wait for it and unlock the environments again, in one command. Implies --wait and --unlock-after. It starts only when both environments are unlocked. If the command is stopped while it runs (Ctrl-C), the lock stays; the command has printed its id and how to release it. --timeout bounds the dry-run promotion only: one that is still running when the wait ends keeps the lock on purpose, and the command says how to release it. Missing ESVs are listed. Encrypted secrets are asked about at a terminal; --ignore-encrypted-secrets answers that in advance, and --yes does not.'
       )
     )
     .addOption(
