@@ -11,6 +11,7 @@ import {
   nameInStem,
   objectFilePath,
   objectFolderPath,
+  PulledPaths,
   pulledFilePath,
   realmFolderOf,
   referencedFilePath,
@@ -1120,7 +1121,7 @@ describe('pulledFilePath', () => {
   it('refuses a name of more than 255 bytes, naming it, and lets 255 through', () => {
     expect(pulledFilePath(`d/${'n'.repeat(255)}`)).toBe(`d/${'n'.repeat(255)}`);
     expect(() => pulledFilePath(`d/${'n'.repeat(256)}`)).toThrow(
-      `The name '${'n'.repeat(100)}...' is longer than 255 bytes, so it cannot be the name of a file.`
+      `The file name '${'n'.repeat(100)}...' is longer than 255 bytes, extension included, so it cannot be the name of a file.`
     );
     // bytes, not characters
     expect(() => pulledFilePath(`d/${'é'.repeat(128)}`)).toThrow(
@@ -1131,7 +1132,7 @@ describe('pulledFilePath', () => {
 
   describe('with the files of the pull so far', () => {
     it('lets the same file through twice: it is the same file', () => {
-      const written = new Map();
+      const written = new PulledPaths();
 
       expect(pulledFilePath('themes/A/A.json', written)).toBe(
         'themes/A/A.json'
@@ -1160,7 +1161,7 @@ describe('pulledFilePath', () => {
     ])(
       'refuses %s, so that the later object does not replace the earlier one',
       (_what, first, second) => {
-        const written = new Map();
+        const written = new PulledPaths();
         pulledFilePath(first, written);
 
         expect(() => pulledFilePath(second, written)).toThrow(
@@ -1172,17 +1173,59 @@ describe('pulledFilePath', () => {
     );
 
     it('keeps no state between two pulls: a pull without the map checks nothing of this kind', () => {
-      const first = new Map();
+      const first = new PulledPaths();
       pulledFilePath('themes/A/A.json', first);
 
-      expect(pulledFilePath('themes/a/a.json', new Map())).toBe(
+      expect(pulledFilePath('themes/a/a.json', new PulledPaths())).toBe(
         'themes/a/a.json'
       );
       expect(pulledFilePath('themes/a/a.json')).toBe('themes/a/a.json');
     });
 
+    it('refuses a second object whose name becomes the same file name, naming both', () => {
+      const written = new PulledPaths();
+      written.owner = 'a/b';
+      pulledFilePath('esvs/variables/a%2Fb.json', written);
+
+      written.owner = 'a%2Fb';
+      expect(() =>
+        pulledFilePath('esvs/variables/a%2Fb.json', written)
+      ).toThrow(
+        "The file 'esvs/variables/a%2Fb.json' is the file of 'a%2Fb' and of 'a/b', which was pulled already: two names that become one file name."
+      );
+      // the same object writes its file again (a check before the write, and the write itself)
+      written.owner = 'a/b';
+      expect(() =>
+        pulledFilePath('esvs/variables/a%2Fb.json', written)
+      ).not.toThrow();
+    });
+
+    it('lets two objects share a folder: only a file belongs to one object', () => {
+      const written = new PulledPaths();
+      written.owner = 'one';
+      pulledFilePath('esvs/variables/one.json', written);
+      written.owner = 'two';
+
+      expect(() =>
+        pulledFilePath('esvs/variables/two.json', written)
+      ).not.toThrow();
+    });
+
+    it('does not compare owners when one of them is not known', () => {
+      const written = new PulledPaths();
+      pulledFilePath('x/a.json', written);
+      written.owner = 'late';
+
+      expect(() => pulledFilePath('x/a.json', written)).not.toThrow();
+      written.owner = 'other';
+      // the first owner that is known is kept: 'late' wrote it first
+      expect(() => pulledFilePath('x/a.json', written)).toThrow(
+        'two names that become one file name'
+      );
+    });
+
     it('lets different names through that only look alike', () => {
-      const written = new Map();
+      const written = new PulledPaths();
       pulledFilePath('themes/a/a.json', written);
 
       for (const other of [

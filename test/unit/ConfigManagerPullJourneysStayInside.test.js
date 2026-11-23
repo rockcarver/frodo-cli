@@ -345,13 +345,10 @@ describe('a journey whose id is a hostile name', () => {
     expect(said).not.toMatch(/\u001b/);
   });
 
-  // KNOWN GAP, pinned as it is today: two ids that are written as one folder are not told apart. The
-  // journey that comes later overwrites the one before, the command says nothing and succeeds. A later
-  // change that reports such a pair as a failure of the second journey changes these two tests on purpose.
-  test('known gap: the ids `a/b` and `a%2Fb` are one folder, the later journey overwrites the earlier one without a word', async () => {
+  test('the ids `a/b` and `a%2Fb` are one folder: the later journey fails, naming both, and the earlier one is written', async () => {
     tenant({ 'a/b': journey('a/b'), 'a%2Fb': journey('a%2Fb') });
 
-    expect(await pull()).toBe(true);
+    expect(await pull()).toBe(false);
 
     const journeys = path.join(configFolder, 'realms', 'alpha', 'journeys');
     expect(fs.readdirSync(journeys)).toEqual(['a%2Fb']);
@@ -359,8 +356,18 @@ describe('a journey whose id is a hostile name', () => {
       JSON.parse(
         fs.readFileSync(path.join(journeys, 'a%2Fb', 'a%2Fb.json'), 'utf8')
       )._id
-    ).toBe('a%2Fb');
-    expect(printed.join('\n')).not.toMatch(/fail|error/i);
+    ).toBe('a/b');
+    // the later journey wrote no node into the folder of the earlier one
+    expect(fs.readdirSync(path.join(journeys, 'a%2Fb', 'nodes')).sort()).toEqual([
+      'Check - n1.json',
+      'Page - p1',
+      'Page - p1.json',
+    ]);
+    const said = printed.join('\n');
+    expect(said).toContain(
+      "is the file of 'a%2Fb' and of 'a/b', which was pulled already: two names that become one file name."
+    );
+    expect(said).toContain('1 of 2 journeys failed');
   });
 
   test('an id that is longer than a file name can be fails that journey alone, naming it: it is not cut, so two long ids never become one folder', async () => {

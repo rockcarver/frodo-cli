@@ -7,22 +7,38 @@ import ts from 'typescript';
 /**
  * Every file that a pull writes, and every file that it removes, passes the gate `pulledFilePath`
  * (src/utils/ConfigTreePath.ts) before the library creates the folders of its path. The behaviour of
- * each family is in ConfigManagerPullHostileNames.test.js; this file keeps a write from being forgotten:
+ * each family is in ConfigManagerPullHostileNames.test.js. This file is a tripwire for the common forms
+ * of a write, not a proof that no write escapes the gate: it keeps a write from being forgotten, it
+ * cannot see one that is built at run time.
  *
- * - every module of src/configManagerOps, the application, remote proxy and agent kind modules of
- *   src/ops, and the shared writer of src/utils/Config.ts are read (a new module is scanned without
- *   being listed here);
- * - a call of `saveJsonToFile`, `saveTextToFile`, `writeFileSync`, `mkdirSync`, `rmSync` and the
- *   like, and every `getFilePath(..., true)` (which creates the folders), has a path that is a call
- *   of the gate, or of `getFilePath` or `path.join` with one in it, or a variable that the same
- *   function got from such a call, or a row of the exemption table below that says why it is none;
- * - the path that goes to the gate holds no bare property of an object that the tenant sent (`x.name`,
- *   `y._id`) in a template: such a value goes through `nameInFolder`, `nameInStem` or `realmFolderOf`
- *   first, or the table says why not;
- * - the number of gate calls of each module is the number in the table, so a call that is removed
- *   fails here, and so does a write that is added without a row.
+ * What it reads: every module of src/configManagerOps, the application, remote proxy and agent kind
+ * modules of src/ops, and the shared writer of src/utils/Config.ts (a new module is scanned without
+ * being listed here), by the syntax of the source, so a reformatted call is still found.
  *
- * The scan looks at the syntax of the source, not at its text, so a reformatted call is still found.
+ * What it catches (each form has a test below that fails when it is not caught):
+ * - a call of a function that writes, creates, copies, links, opens or removes (`saveJsonToFile`,
+ *   `saveTextToFile`, `writeFileSync`, `appendFile`, `mkdir`, `rm`, `cpSync`, `copyFile`, `linkSync`,
+ *   `symlink`, `openSync`, `truncate`, `rename`, `createWriteStream`, also through `fs.promises`), and
+ *   every `getFilePath(..., true)` (which creates the folders), whose path is not a call of the gate,
+ *   or of `getFilePath` with one in it, or of `path.join` or `path.resolve` whose every argument is
+ *   such a call, a string, or a base that the table below allows, or a variable of the same function
+ *   that is declared once, never assigned again, and holds one of those;
+ * - any call of `extractDataToFile`, the writer of the commands of the first generation, which does
+ *   not pass the gate;
+ * - such a function that is used as a value (`const save = utils.saveJsonToFile`, `{ writeFileSync: w }`
+ *   of a destructuring, an argument), and a member of `fs` or of the library utilities that is chosen
+ *   by a computed key (`fs['write' + 'FileSync']`);
+ * - a template that goes to the gate with a bare property of an object that the tenant sent (`x.name`,
+ *   `y._id`) in it: such a value goes through `nameInFolder`, `nameInStem`, `encodedName` or
+ *   `realmFolderOf` first, or a table says why not;
+ * - the number of gate calls of each module is the number in a table, so a call that is removed fails
+ *   here, and so does a write that is added without a row.
+ *
+ * What it does not catch: a write through a function of another module that the scanned module calls
+ * (the function is scanned in its own module), a path built by a call that is not listed (a helper
+ * that returns a gated path), a value that is changed through a property or a closure, `eval`, a
+ * dynamic `import`, and a write by a child process (the guard of the removals, DestructiveSitesGuard.test.js,
+ * looks for those).
  */
 
 const root = path.resolve(
@@ -50,24 +66,66 @@ function modulesOfPull() {
   return [...all, ...ops, SHARED_WRITER].sort();
 }
 
-/** The calls that write, create or remove something, and the position of their path (-1: every argument). */
+/**
+ * The calls that write, create, copy, link, open or remove something, and the position of their path:
+ * -1 is each of the first two arguments (a source and a target), -3 is a writer that has no gate at all
+ * (so every call of it is a finding).
+ */
 const WRITES = {
   saveJsonToFile: 1,
   saveTextToFile: 1,
+  saveToFile: 1,
+  extractDataToFile: -3,
   writeFileSync: 0,
-  appendFileSync: 0,
   writeFile: 0,
+  appendFileSync: 0,
+  appendFile: 0,
   mkdirSync: 0,
   mkdir: 0,
+  mkdtempSync: 0,
+  mkdtemp: 0,
   rmSync: 0,
   rm: 0,
   rmdirSync: 0,
+  rmdir: 0,
   unlinkSync: 0,
+  unlink: 0,
+  truncateSync: 0,
+  truncate: 0,
   renameSync: -1,
+  rename: -1,
   copyFileSync: -1,
+  copyFile: -1,
+  cpSync: -1,
+  cp: -1,
+  linkSync: -1,
+  link: -1,
   symlinkSync: -1,
+  symlink: -1,
+  openSync: 0,
+  open: 0,
   createWriteStream: 0,
 };
+
+/** The bases that a `path.join` or `path.resolve` may start from without the gate, by module. */
+const ALLOWED_BASES = [
+  {
+    module: 'src/ops/ApplicationMigrateOps.ts',
+    text: 'treeDir',
+    reason:
+      'the root of the tree that the person named, a parameter of the command; what is joined to it passes the gate',
+  },
+];
+
+/** The objects whose members are written through (a computed key on them is a finding). */
+const WRITER_OBJECTS = new Set([
+  'fs',
+  'fsp',
+  'promises',
+  'fs.promises',
+  'utils',
+  'frodo.utils',
+]);
 
 /**
  * The writes that are not a pull of what a tenant names, and the reason. `inFunction` is the function
@@ -164,38 +222,80 @@ function functionNameOf(node) {
   return '(module)';
 }
 
-/** The value that a variable of the function is given, by its name (the first declaration of that name). */
+/**
+ * The value that a variable of the function holds, by its name: the initializer of its only
+ * declaration, or undefined when the name is declared more than once, is assigned again, or has no
+ * initializer (a parameter, a destructuring): such a variable is not known to hold a gated path.
+ */
 function initializerOf(name, scope) {
-  let found;
+  const declarations = [];
+  let assigned = false;
   const visit = (node) => {
-    if (found) return;
     if (
       ts.isVariableDeclaration(node) &&
       ts.isIdentifier(node.name) &&
-      node.name.text === name &&
-      node.initializer
+      node.name.text === name
     ) {
-      found = node.initializer;
-      return;
+      declarations.push(node.initializer);
+    } else if (
+      ts.isBinaryExpression(node) &&
+      node.operatorToken.kind >= ts.SyntaxKind.FirstAssignment &&
+      node.operatorToken.kind <= ts.SyntaxKind.LastAssignment &&
+      ts.isIdentifier(unwrap(node.left)) &&
+      unwrap(node.left).text === name
+    ) {
+      assigned = true;
+    } else if (
+      ts.isBindingElement(node) &&
+      ts.isIdentifier(node.name) &&
+      node.name.text === name
+    ) {
+      declarations.push(undefined);
+    } else if (
+      ts.isParameter(node) &&
+      ts.isIdentifier(node.name) &&
+      node.name.text === name
+    ) {
+      declarations.push(undefined);
     }
     ts.forEachChild(node, visit);
   };
   if (scope) visit(scope);
-  return found;
+  return declarations.length === 1 && !assigned ? declarations[0] : undefined;
 }
 
 /**
  * Whether the expression is the path of a file that has passed the gate: a call of it, a call of
- * `getFilePath` or `path.join` with such a path in it, or a variable of the function that holds one.
+ * `getFilePath` with such a path as its first argument, a call of `path.join` or `path.resolve` whose
+ * every argument is a string, such a path or an allowed base, or a variable of the function that holds
+ * one and is never assigned again.
  */
-function isGated(expression, scope, seen = new Set()) {
+function isGated(expression, scope, module = '', seen = new Set()) {
   const node = unwrap(expression);
   if (!node) return false;
   if (ts.isCallExpression(node)) {
     const name = calleeName(node);
     if (name === 'pulledFilePath') return true;
-    if (name === 'getFilePath' || name === 'join' || name === 'resolve') {
-      return node.arguments.some((argument) => isGated(argument, scope, seen));
+    if (name === 'getFilePath') {
+      return isGated(node.arguments[0], scope, module, seen);
+    }
+    if (name === 'join' || name === 'resolve') {
+      return (
+        node.arguments.length > 0 &&
+        node.arguments.every(
+          (argument) =>
+            ts.isStringLiteralLike(unwrap(argument)) ||
+            ALLOWED_BASES.some(
+              (base) =>
+                base.module === module &&
+                base.text === unwrap(argument).getText()
+            ) ||
+            isGated(argument, scope, module, seen)
+        ) &&
+        node.arguments.some((argument) =>
+          isGated(argument, scope, module, seen)
+        )
+      );
     }
     return false;
   }
@@ -203,7 +303,7 @@ function isGated(expression, scope, seen = new Set()) {
     if (seen.has(node.text)) return false;
     seen.add(node.text);
     const initializer = initializerOf(node.text, scope);
-    return initializer ? isGated(initializer, scope, seen) : false;
+    return initializer ? isGated(initializer, scope, module, seen) : false;
   }
   return false;
 }
@@ -242,6 +342,94 @@ function writesOf(source) {
     scope: functionOf(write.node) ?? source,
   }));
 }
+
+/**
+ * The places where a function that writes is used as a value, not called (an alias, an argument, a
+ * renamed member of a destructuring), and where a member of the file system or of the library utilities
+ * is chosen by a computed key: [{ line, text }].
+ */
+function aliasesOf(source) {
+  const found = [];
+  const note = (node, what) =>
+    found.push({
+      line: source.getLineAndCharacterOfPosition(node.getStart()).line + 1,
+      text: `${what}: ${node.getText().slice(0, 60)}`,
+      function: functionNameOf(node),
+    });
+  const visit = (node) => {
+    if (ts.isIdentifier(node) && Object.hasOwn(WRITES, node.text)) {
+      const parent = node.parent;
+      const isCallee = (access) =>
+        ts.isCallExpression(access.parent) &&
+        access.parent.expression === access;
+      if (ts.isCallExpression(parent) && parent.expression === node) {
+        // a call: judged by writesOf
+      } else if (ts.isBindingElement(parent) || ts.isImportSpecifier(parent)) {
+        // `{ writeFileSync }` names the function; `{ writeFileSync: w }` renames it
+        if (parent.propertyName === node) note(parent, 'renamed');
+      } else if (
+        ts.isPropertyAccessExpression(parent) &&
+        parent.name === node
+      ) {
+        if (!isCallee(parent)) note(parent, 'used as a value');
+      } else if (
+        ts.isFunctionDeclaration(parent) ||
+        ts.isMethodDeclaration(parent) ||
+        ts.isParameter(parent) ||
+        ts.isVariableDeclaration(parent) ||
+        ts.isPropertyAssignment(parent) ||
+        ts.isPropertySignature(parent)
+      ) {
+        // a name that is declared, or a key
+        if (ts.isVariableDeclaration(parent) && parent.initializer) {
+          // `const writeFileSync = ...` declares a function of the same name that is not the one of `fs`
+        }
+      } else {
+        note(parent, 'used as a value');
+      }
+    }
+    if (
+      ts.isElementAccessExpression(node) &&
+      !ts.isStringLiteralLike(node.argumentExpression) &&
+      WRITER_OBJECTS.has(node.expression.getText())
+    ) {
+      note(node, 'computed member');
+    }
+    ts.forEachChild(node, visit);
+  };
+  visit(source);
+  return found;
+}
+
+/** What the scan finds in a source: the writes whose path is not gated and the aliases, each as a line of text. */
+function findingsOf(source, module) {
+  const lines = [];
+  for (const write of writesOf(source)) {
+    if (exemptionOf(module, write)) continue;
+    for (const pathNode of write.paths) {
+      if (!pathNode || !isGated(pathNode, write.scope, module)) {
+        lines.push(
+          `${module}:${write.line} ${write.name}(...) in ${write.function}`
+        );
+      }
+    }
+  }
+  for (const alias of aliasesOf(source)) {
+    if (
+      EXEMPT.some(
+        (row) => row.module === module && row.inFunction === alias.function
+      )
+    ) {
+      continue;
+    }
+    lines.push(`${module}:${alias.line} ${alias.text} in ${alias.function}`);
+  }
+  return lines;
+}
+
+/** The syntax tree of a text. */
+const sourceOfText = (text) =>
+  ts.createSourceFile('snippet.ts', text, ts.ScriptTarget.Latest, true);
 
 /** The number of calls of the gate in a module. */
 function gateCallsOf(source) {
@@ -293,19 +481,7 @@ describe('every write of a pull passes the gate', () => {
   test.each(MODULES)(
     '%s: the path of every write is a call of the gate or comes from one',
     (module) => {
-      const ungated = [];
-      for (const write of writesOf(sourceOf(module))) {
-        if (exemptionOf(module, write)) continue;
-        for (const pathNode of write.paths) {
-          if (!pathNode || !isGated(pathNode, write.scope)) {
-            ungated.push(
-              `${module}:${write.line} ${write.name}(...) in ${write.function}`
-            );
-          }
-        }
-      }
-
-      expect(ungated).toEqual([]);
+      expect(findingsOf(sourceOf(module), module)).toEqual([]);
     }
   );
 
@@ -341,7 +517,7 @@ describe('every write of a pull passes the gate', () => {
     );
     expect(gated.length).toBeGreaterThanOrEqual(3);
     for (const write of gated) {
-      expect(isGated(write.paths[0], write.scope)).toBe(true);
+      expect(isGated(write.paths[0], write.scope, SHARED_WRITER)).toBe(true);
     }
   });
 });
@@ -424,6 +600,89 @@ describe('no value that a tenant sends is joined to a path as it is', () => {
   );
 });
 
+describe('the scan can fail: each form of a write that it knows is found', () => {
+  const FORMS = [
+    [
+      'a write with a path that did not pass the gate',
+      'saveJsonToFile({}, getFilePath(x, true));',
+    ],
+    [
+      'a call of a writer through an alias',
+      'const save = utils.saveJsonToFile; save({}, getFilePath(pulledFilePath(x), true));',
+    ],
+    ['an alias that is passed as an argument', 'run(fs.writeFileSync);'],
+    [
+      'a member of a destructuring that is renamed',
+      "const { writeFileSync: w } = fs; w(pulledFilePath(x), 'y');",
+    ],
+    [
+      'the writer of the commands of the first generation',
+      "extractDataToFile('text', 'file.js', 'dir');",
+    ],
+    ['fs.cpSync', "fs.cpSync(pulledFilePath('a'), x);"],
+    ['fs.copyFile', "fs.copyFile(x, pulledFilePath('a'), done);"],
+    ['fs.promises.writeFile', "fs.promises.writeFile(x, 'y');"],
+    ['fsp.appendFile', "fsp.appendFile(x, 'y');"],
+    ['fs.openSync', "fs.openSync(x, 'w');"],
+    ['fs.linkSync', "fs.linkSync(pulledFilePath('a'), x);"],
+    ['fs.symlinkSync', "fs.symlinkSync(x, pulledFilePath('a'));"],
+    ['fs.truncateSync', 'fs.truncateSync(x);'],
+    ['fs.mkdirSync', 'fs.mkdirSync(x, { recursive: true });'],
+    ['a computed key on fs', "fs['write' + 'FileSync'](x, 'y');"],
+    [
+      'a join with a base that is not gated',
+      "fs.writeFileSync(path.join(raw, pulledFilePath('fixed.json')), 'y');",
+    ],
+    [
+      'a variable that is assigned a raw path later',
+      "let p = pulledFilePath('a'); p = raw; fs.writeFileSync(p, 'y');",
+    ],
+    [
+      'a variable that is declared twice',
+      "{ const p = pulledFilePath('a'); } const p = raw; fs.writeFileSync(p, 'y');",
+    ],
+    [
+      'a parameter',
+      "function inner(p) { fs.writeFileSync(p, 'y'); } inner(x);",
+    ],
+    [
+      'a removal without the gate',
+      'fs.rmSync(getFilePath(nodeDir), { recursive: true });',
+    ],
+  ];
+
+  test.each(FORMS)('%s', (_what, body) => {
+    const text = `export function f(x, raw, nodeDir) { ${body} }`;
+
+    expect(findingsOf(sourceOfText(text), 'snippet.ts').length).toBeGreaterThan(
+      0
+    );
+  });
+
+  test.each([
+    [
+      'a path of the gate',
+      'const p = pulledFilePath(`a/${x}.json`); saveJsonToFile({}, getFilePath(p, true));',
+    ],
+    [
+      'the gate inside the call',
+      "fs.writeFileSync(getFilePath(pulledFilePath(x)), 'y');",
+    ],
+    [
+      'a join of gated paths and strings',
+      "fs.rmSync(path.join(pulledFilePath('a'), 'b'));",
+    ],
+    [
+      'the functions named by a destructuring',
+      'const { saveJsonToFile, getFilePath } = frodo.utils;',
+    ],
+  ])('%s is not a finding', (_what, body) => {
+    const text = `export function f(x) { ${body} }`;
+
+    expect(findingsOf(sourceOfText(text), 'snippet.ts')).toEqual([]);
+  });
+});
+
 /**
  * How many calls of the gate each module has: one for each file that a family writes, as the source
  * has them. A module that is not in the table has none.
@@ -445,7 +704,7 @@ const GATE_CALLS = {
   'src/configManagerOps/FrConfigIdmAuthenticationOpts.ts': 1,
   'src/configManagerOps/FrConfigIgaWorkflowsOps.ts': 4,
   'src/configManagerOps/FrConfigInternalRolesOps.ts': 1,
-  'src/configManagerOps/FrConfigJourneysOps.ts': 4,
+  'src/configManagerOps/FrConfigJourneysOps.ts': 5,
   'src/configManagerOps/FrConfigKbaOps.ts': 1,
   'src/configManagerOps/FrConfigLocalesOps.ts': 1,
   'src/configManagerOps/FrConfigManagedObjectsOps.ts': 3,

@@ -619,9 +619,10 @@ SAML provider in a realm that is not a name: the tree has none.
 
 What a pull wrote before stays where it is: a folder `a/b` or `ABx` of an older
 pull is not moved or removed, so delete it and pull again. Two ids that are
-written as the same name (`a/b` and the id `a%2Fb`) are not told apart yet: the
-later journey of a pull overwrites the earlier one without a message. A link to
-another folder inside the config folder is not looked at either: a journey folder or a realm
+written as the same name (`a/b` and the id `a%2Fb`) are a failure of the later
+journey now, as for every other pull (see the entry on names that a tenant gives
+below). A link to another folder inside the config folder is not looked at
+either: a journey folder or a realm
 folder that is a link still leads out of the config folder.
 
 **A `--no-` option that is picked in the interactive editor does what it says**:
@@ -956,12 +957,15 @@ value is now one name, so it cannot lead out of the config folder:
   pushed.
 - A name that is `.`, `..` or empty, a realm that is not `/`, a name or a path of
   names (a part that is `.` or `..`, or one that holds a backslash, `C:`, a
-  control character, `%`, `?` or `#`), a name of more than 255 bytes (it is not
-  cut), and a name that is the same file as another one of the same pull on a file
-  system that ignores case or Unicode form (`A` and `a`, `\u00e9` and `e\u0301`:
-  the later one) are not pulled. The object is named as failed, the other objects
-  are written, and the command exits with code 1, or 0 with `--allow-failures`, as
-  for any object that cannot be pulled. The realm of `pull saml`, `pull
+  control character, `%`, `?` or `#`), a file name of more than 255 bytes with its
+  extension (`.json`, `.js`, `.html`), so a name of 251 bytes is too long (the name
+  is not cut), two names that become one file name in one pull (`a/b` and `a%2Fb`
+  are both `a%2Fb`, and the names `a*b` and `ab` of two scripts are both `ab`: the
+  later one) and two names that are one file on a file system
+  that ignores case or Unicode form (`A` and `a`, `\u00e9` and `e\u0301`: the later
+  one) are not pulled. The message names both objects. The object is named as
+  failed, the other objects are written, and the command exits with code 1, or 0
+  with `--allow-failures`, as for any object that cannot be pulled. The realm of `pull saml`, `pull
   oauth2-agents` and `pull authz-policies` that is not a name was skipped with a
   warning and exit code 0: it is a failure now. Two journeys, scripts or themes
   that differ only in case worked on Linux and fail now.
@@ -969,6 +973,10 @@ value is now one name, so it cannot lead out of the config folder:
   one that leaves the config folder, holds a backslash, `C:` or a control character.
   `pull journeys --clean` and `migrate applications` remove files only inside the
   config folder.
+- A language of terms and conditions that holds a `/` is pulled as one file
+  (`a%2Fb.html`), but `push terms-and-conditions` reads the language as it is in the
+  file and does not find it; a language code that holds a `/` does not exist in
+  practice, and the push says that the file is missing.
 - The names of an older pull are not moved or removed: a nested folder `a/b` of
   `endpoints` or `themes` stays where it is, so delete it and pull again. A link
   of the file system inside the config folder is still not followed. The names

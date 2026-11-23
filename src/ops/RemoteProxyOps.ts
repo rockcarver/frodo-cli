@@ -12,7 +12,7 @@ import {
   nameInFolder,
   objectFilePath,
   pulledFilePath,
-  type PulledPaths,
+  PulledPaths,
 } from '../utils/ConfigTreePath';
 import {
   createProgressIndicator,
@@ -1036,11 +1036,12 @@ export async function configManagerExportRemoteProxies(
       ? [await remoteProxy.readRemoteProxy(name)]
       : keepAddressable(await remoteProxy.readRemoteProxies());
     const written: Record<string, RemoteProxySkeleton> = {};
-    const pulledPaths: PulledPaths = new Map();
+    const pulledPaths = new PulledPaths();
     for (const proxy of proxies) {
       const proxyName = getName(proxy);
       await run.run(proxyName, () => {
         // the tenant names the remote proxy: its name is the name of its file here, never a path
+        pulledPaths.owner = proxyName;
         saveJsonToFile(
           proxy,
           getFilePath(

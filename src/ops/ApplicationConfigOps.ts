@@ -21,9 +21,9 @@ import {
   objectFilePath,
   objectFolderPath,
   pulledFilePath,
+  PulledPaths,
   realmFolderOf,
   referencedFilePath,
-  type PulledPaths,
 } from '../utils/ConfigTreePath';
 import { printError, printMessage, verboseMessage } from '../utils/Console';
 import { causeOf } from '../utils/ErrorCause';
@@ -384,7 +384,7 @@ export async function pullApplication(
 ): Promise<void> {
   const incomplete: string[] = [];
   // the files of this application: two names that one file system takes for one hold one file
-  const pulledPaths: PulledPaths = new Map();
+  const pulledPaths = new PulledPaths();
   const piece = async (what: string, work: () => Promise<void> | void) => {
     try {
       await work();

@@ -8,8 +8,8 @@ import {
 import {
   nameInFolder,
   pulledFilePath,
+  PulledPaths,
   realmFolderOf,
-  type PulledPaths,
 } from '../utils/ConfigTreePath';
 import { printError, printMessage, verboseMessage } from '../utils/Console';
 import { causeOf } from '../utils/ErrorCause';
@@ -48,7 +48,7 @@ export async function configManagerExportSecretMappings(
       realm && realm !== DEFAULT_REALM_KEY ? [realm] : await realmList();
     const run = new OperationRun({ unit: 'secret mapping', allowFailures });
     let found = false;
-    const pulledPaths: PulledPaths = new Map();
+    const pulledPaths = new PulledPaths();
     for (const currentRealm of realms) {
       if (currentRealm === '/') continue;
       // the tenant names the realm: it is the name of a folder here, never a path
@@ -80,6 +80,7 @@ export async function configManagerExportSecretMappings(
         }
         found = true;
         try {
+          pulledPaths.owner = mapping._id;
           const fileName = `realms/${realmDir}/secret-mappings/${nameInFolder(mapping._id)}.json`;
           saveJsonToFile(
             mapping,

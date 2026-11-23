@@ -8,7 +8,7 @@ import {
 import {
   nameInFolder,
   pulledFilePath,
-  type PulledPaths,
+  PulledPaths,
 } from '../utils/ConfigTreePath';
 import {
   createProgressIndicator,
@@ -49,10 +49,11 @@ export async function configManagerExportTelemetry(
       return true;
     }
     const run = new OperationRun({ unit: 'telemetry exporter', allowFailures });
-    const pulledPaths: PulledPaths = new Map();
+    const pulledPaths = new PulledPaths();
     for (const { cat, provider } of items) {
       try {
         // the tenant names the category and the exporter: each is one name here, never a path
+        pulledPaths.owner = `${cat}/${provider.id}`;
         const exporterFile = pulledFilePath(
           `telemetry/${nameInFolder(cat)}/${nameInFolder(provider.id)}.json`,
           pulledPaths

@@ -108,8 +108,9 @@ export function nameInFolder(value: string): string {
 }
 
 /**
- * How many bytes the file name of an id has before it is cut (the characters of a path written as
- * `%XX`, a `*` removed).
+ * How many bytes the file name of an id has when the function that makes it cuts it (at 255 bytes,
+ * silently): the characters of a path written as `%XX`, and a `*` still in it, because the cut is made
+ * before the `*` is removed.
  * @param {string} text the id or the name
  * @returns {number} the length in bytes
  */
@@ -120,7 +121,6 @@ function encodedBytes(text: string): number {
       .replace(/[\u0000-\u001f\u0080-\u009f/?<>\\:|"]/g, (character) =>
         encodeURIComponent(character)
       )
-      .replaceAll('*', '')
   );
 }
 
@@ -137,9 +137,11 @@ function nameTooLong(name: string): Error {
 
 /**
  * The file name of a name that a file is always named after in its encoded form (the script of a
- * pull is `<name>.js`, with `:`, `?` and the other characters of a path written as `%XX`, as before):
- * {@link safeFileName}, which is neither cut nor empty. A name that leaves nothing (`.`, `..`, a
- * device name of Windows) or is more than 255 bytes once encoded is refused, naming it.
+ * pull is `<name>.js`, with `:`, `?` and the other characters of a path written as `%XX`, as before).
+ * It is {@link safeFileName} that does not cut and is not empty: where `safeFileName` cuts a name at 255
+ * bytes without a word, and `fileNameOf` (the agent types) cuts it at 250, this function refuses a name
+ * that leaves nothing (`.`, `..`, a run of dots, a device name of Windows) or that is more than 255 bytes
+ * once encoded, naming it, so that two long names never become one.
  * @param {string} value the name
  * @returns {string} the file name without the extension
  * @throws {Error} if the value leaves no name, or is longer than a file name can be
@@ -302,11 +304,19 @@ function shownInMessage(text: string): string {
 }
 
 /**
- * The files and folders that a pull has written so far, by what two names that one file system
- * takes for one share (the path in lower case and in one Unicode form), to the path as it was
- * written. One pull makes one.
+ * The files and folders that a pull has written so far, by what two names that one file system takes
+ * for one share (the path in lower case and in one Unicode form), with the path as it was written and
+ * the object that wrote it. One pull makes one. The caller sets `owner` to the name that the tenant
+ * gave to the object whose files come next (`a/b`), so that two objects whose names become one file
+ * name (`a/b` and `a%2Fb`) are told apart.
  */
-export type PulledPaths = Map<string, string>;
+export class PulledPaths {
+  /** The name, as the tenant gave it, of the object that the next files are written for. */
+  owner: string | undefined;
+
+  /** The path in one form, to the path as it was written and the owner of that file. */
+  readonly claims = new Map<string, { spelled: string; owner?: string }>();
+}
 
 /**
  * What two names share when a file system takes them for one: case and Unicode form do not count.
@@ -332,11 +342,15 @@ function sameOnAnyFileSystem(name: string): string {
  * With the files of the pull so far, it also refuses a file, or a folder above it, that is the same
  * as one that was written under another spelling (`A.json` and `a.json`, or a name in two Unicode
  * forms), on every file system: such an object would replace the other where the file system
- * ignores the difference. The same spelling twice is the same file and is allowed.
+ * ignores the difference. The same spelling twice is the same file and is allowed for the same object.
+ * With `written.owner` set (the name that the tenant gave to the object whose files come next), a file
+ * that two objects name alike (`a/b` and `a%2Fb` are both `a%2Fb`) is refused for the later one, naming
+ * both. Without `written` the gate is a pure function of the path; with it, the call records the path
+ * in `written`.
  * @param {string} relative the path of the file, relative to the config folder
- * @param {PulledPaths} written Optional. The files of this pull that were written already; the path is added to it.
+ * @param {PulledPaths} written Optional. The files of this pull that were claimed already; the path is added to it.
  * @returns {string} the path
- * @throws {Error} if the path is not inside the config folder, a name in it is too long, or the file is the same file as another one of the pull
+ * @throws {Error} if the path is not inside the config folder, a name in it is too long, or the file is the same file as one that another object of the pull has
  */
 export function pulledFilePath(
   relative: string,
@@ -364,7 +378,9 @@ export function pulledFilePath(
   }
   for (const segment of segments) {
     if (Buffer.byteLength(segment) > MAX_PATH_SEGMENT_BYTES) {
-      throw nameTooLong(segment);
+      throw new Error(
+        `The file name '${shownInMessage(segment)}' is longer than ${MAX_PATH_SEGMENT_BYTES} bytes, extension included, so it cannot be the name of a file.`
+      );
     }
   }
   if (written) {
@@ -372,16 +388,37 @@ export function pulledFilePath(
     const spelled = segments.map((_, index) =>
       segments.slice(0, index + 1).join('/')
     );
-    for (const prefix of spelled) {
-      const first = written.get(sameOnAnyFileSystem(prefix));
-      if (first !== undefined && first !== prefix) {
+    for (const [index, prefix] of spelled.entries()) {
+      const first = written.claims.get(sameOnAnyFileSystem(prefix));
+      if (first !== undefined && first.spelled !== prefix) {
         throw new Error(
-          `The path '${shownInMessage(prefix)}' is the same as '${shownInMessage(first)}' on a file system that ignores case or Unicode form, and that one was pulled already.`
+          `The path '${shownInMessage(prefix)}' is the same as '${shownInMessage(first.spelled)}' on a file system that ignores case or Unicode form, and that one was pulled already.`
+        );
+      }
+      // a file belongs to one object: a second object with the same file name would replace the first
+      if (
+        first !== undefined &&
+        index === spelled.length - 1 &&
+        first.owner !== undefined &&
+        written.owner !== undefined &&
+        first.owner !== written.owner
+      ) {
+        throw new Error(
+          `The file '${shownInMessage(prefix)}' is the file of '${shownInMessage(written.owner)}' and of '${shownInMessage(first.owner)}', which was pulled already: two names that become one file name.`
         );
       }
     }
-    for (const prefix of spelled)
-      written.set(sameOnAnyFileSystem(prefix), prefix);
+    for (const [index, prefix] of spelled.entries()) {
+      const key = sameOnAnyFileSystem(prefix);
+      const known = written.claims.get(key);
+      written.claims.set(key, {
+        spelled: prefix,
+        owner:
+          index === spelled.length - 1
+            ? (known?.owner ?? written.owner)
+            : undefined,
+      });
+    }
   }
   return relative;
 }

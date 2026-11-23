@@ -7,7 +7,7 @@ import {
 import {
   nameInFolder,
   pulledFilePath,
-  type PulledPaths,
+  PulledPaths,
 } from '../utils/ConfigTreePath';
 import { printError, printMessage } from '../utils/Console';
 import { causeOf } from '../utils/ErrorCause';
@@ -58,10 +58,11 @@ export async function configManagerExportCustomNodes(
       return false;
     }
     const run = new OperationRun({ unit: 'custom node', allowFailures });
-    const pulledPaths: PulledPaths = new Map();
+    const pulledPaths = new PulledPaths();
     for (const node of customNodes) {
       try {
         // the tenant names the custom node: its display name is the name of its folder and its files here, never a path
+        pulledPaths.owner = node.displayName;
         const nodeName = nameInFolder(node.displayName);
         const nodeFolder = `custom-nodes/nodes/${nodeName}`;
         const scriptFileName = `${nodeName}.js`;

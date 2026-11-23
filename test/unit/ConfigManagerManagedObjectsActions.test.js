@@ -38,6 +38,7 @@ jest.unstable_mockModule('../../src/utils/Console', () => ({
 
 const { configManagerExportManagedObjects } =
   await import('../../src/configManagerOps/FrConfigManagedObjectsOps');
+const { PulledPaths } = await import('../../src/utils/ConfigTreePath.ts');
 
 describe('configManagerExportManagedObjects', () => {
   beforeEach(() => {
@@ -70,19 +71,19 @@ describe('configManagerExportManagedObjects', () => {
       'create();',
       'alpha_user.onCreate.js',
       dir,
-      expect.any(Map)
+      expect.any(PulledPaths)
     );
     expect(extractFrConfigDataToFile).toHaveBeenCalledWith(
       'reset();',
       'alpha_user.actions.resetPassword.js',
       dir,
-      expect.any(Map)
+      expect.any(PulledPaths)
     );
     expect(extractFrConfigDataToFile).toHaveBeenCalledWith(
       'store();',
       'alpha_user.mail.onStore.js',
       dir,
-      expect.any(Map)
+      expect.any(PulledPaths)
     );
     expect(extractFrConfigDataToFile).toHaveBeenCalledTimes(3);
   });

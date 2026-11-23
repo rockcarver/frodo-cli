@@ -10,8 +10,8 @@ import { combinedServiceError, importedServiceNameOf } from '../ops/ServiceOps';
 import {
   nameInFolder,
   pulledFilePath,
+  PulledPaths,
   realmFolderOf,
-  type PulledPaths,
 } from '../utils/ConfigTreePath';
 import {
   createProgressIndicator,
@@ -59,7 +59,7 @@ export async function configManagerExportServices(
       realm && realm !== DEFAULT_REALM_KEY ? [realm] : await realmList();
     const run = new OperationRun({ unit: 'service', allowFailures });
     let exported = 0;
-    const pulledPaths: PulledPaths = new Map();
+    const pulledPaths = new PulledPaths();
     for (const realm of realms) {
       if (
         realm === '/' &&
@@ -110,6 +110,7 @@ export async function configManagerExportServices(
         try {
           if (service.nextDescendents?.length > 0) {
             for (const descendent of service.nextDescendents) {
+              pulledPaths.owner = `${service._type._id}/${descendent._id}`;
               saveJsonToFile(
                 descendent,
                 getFilePath(
@@ -125,6 +126,7 @@ export async function configManagerExportServices(
             }
           }
           delete service.nextDescendents;
+          pulledPaths.owner = service._type._id;
           saveJsonToFile(
             service,
             getFilePath(

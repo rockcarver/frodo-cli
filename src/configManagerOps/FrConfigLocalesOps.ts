@@ -7,7 +7,7 @@ import {
 import {
   nameInFolder,
   pulledFilePath,
-  type PulledPaths,
+  PulledPaths,
 } from '../utils/ConfigTreePath';
 import { printError, printMessage } from '../utils/Console';
 import { causeOf } from '../utils/ErrorCause';
@@ -50,11 +50,12 @@ export async function configManagerExportLocales(
       return true;
     }
     const run = new OperationRun({ unit: 'locale', allowFailures });
-    const pulledPaths: PulledPaths = new Map();
+    const pulledPaths = new PulledPaths();
     for (const locale of locales) {
       const localeName = locale._id.split('/')[1];
       try {
         // the tenant names the locale: its name is the name of its file here, never a path
+        pulledPaths.owner = localeName;
         const localeFilename = `locales/${nameInFolder(localeName)}.json`;
         saveJsonToFile(
           locale,

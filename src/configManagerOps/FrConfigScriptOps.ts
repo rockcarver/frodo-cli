@@ -5,9 +5,9 @@ import {
   nameInFolder,
   objectFilePath,
   pulledFilePath,
+  PulledPaths,
   realmFolderOf,
   referencedFilePath,
-  type PulledPaths,
 } from '../utils/ConfigTreePath';
 import {
   createProgressIndicator,
@@ -53,6 +53,7 @@ export function exportScriptToFiles(
   );
   // the tenant names the realm, the id, the context and the script: each is one name here, never a path
   const realmDir = realmFolderOf(realm);
+  if (pulledPaths) pulledPaths.owner = script._id;
   const scriptName = encodedName(script.name);
   const relScriptPath = `scripts-content/${nameInFolder(script.context)}/${scriptName}.js`;
   const fileObj = { file: relScriptPath };
@@ -110,7 +111,7 @@ export async function configManagerExportScripts(
     }
     const run = new OperationRun({ unit: 'script', allowFailures });
     let cannotExportNamed = false;
-    const pulledPaths: PulledPaths = new Map();
+    const pulledPaths = new PulledPaths();
     for (const currentRealm of realms) {
       if (
         currentRealm === '/' &&

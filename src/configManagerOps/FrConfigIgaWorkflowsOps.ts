@@ -5,8 +5,8 @@ import { extractFrConfigDataToFile } from '../utils/Config';
 import {
   encodedName,
   pulledFilePath,
+  PulledPaths,
   referencedFilePath,
-  type PulledPaths,
 } from '../utils/ConfigTreePath';
 import { printError, printMessage } from '../utils/Console';
 import { causeOf } from '../utils/ErrorCause';
@@ -50,7 +50,7 @@ export async function configManagerExportIgaWorkflows(
       return true;
     }
     const run = new OperationRun({ unit: 'workflow', allowFailures });
-    const pulledPaths: PulledPaths = new Map();
+    const pulledPaths = new PulledPaths();
     for (const workflow of workflows) {
       try {
         // the tenant names the workflow and its steps: each is one name here, never a path
@@ -60,8 +60,12 @@ export async function configManagerExportIgaWorkflows(
           encodedName(`${step.displayName} - ${step.name}`)
         );
         // every file is checked before the first one is written
+        const ownerOfStep = (index: number) =>
+          `${workflow.name}/${workflow.steps[index].displayName} - ${workflow.steps[index].name}`;
+        pulledPaths.owner = workflow.name;
         pulledFilePath(`${workflowPath}/${workflowName}.json`, pulledPaths);
-        for (const uniqueId of uniqueIds) {
+        for (const [index, uniqueId] of uniqueIds.entries()) {
+          pulledPaths.owner = ownerOfStep(index);
           pulledFilePath(
             `${workflowPath}/steps/${uniqueId}/${uniqueId}.json`,
             pulledPaths
@@ -72,6 +76,7 @@ export async function configManagerExportIgaWorkflows(
         workflow.steps.forEach((step, index) => {
           const uniqueId = uniqueIds[index];
           const stepPath = `${stepsPath}/${uniqueId}`;
+          pulledPaths.owner = ownerOfStep(index);
           if (
             step.type === 'scriptTask' &&
             step.scriptTask &&
@@ -100,6 +105,7 @@ export async function configManagerExportIgaWorkflows(
         });
         delete workflow.steps;
 
+        pulledPaths.owner = workflow.name;
         saveJsonToFile(
           workflow,
           getFilePath(

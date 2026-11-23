@@ -11,7 +11,7 @@ import {
   nameInFolder,
   objectFilePath,
   pulledFilePath,
-  type PulledPaths,
+  PulledPaths,
 } from '../utils/ConfigTreePath';
 import { printError, printMessage } from '../utils/Console';
 import { causeOf } from '../utils/ErrorCause';
@@ -53,7 +53,7 @@ export async function configManagerExportConnectorDefinitions(
       : await readConnectors();
     let exportable = 0;
     let skipped = 0;
-    const pulledPaths: PulledPaths = new Map();
+    const pulledPaths = new PulledPaths();
     for (const connector of connectors) {
       const connectorName = connector._id.split('/')[1];
       // This filters out the RCS configuration (which we want since it's not technically a connector)
@@ -71,6 +71,7 @@ export async function configManagerExportConnectorDefinitions(
       }
       exportable++;
       await run.run(connectorName, () => {
+        pulledPaths.owner = connectorName;
         saveJsonToFile(
           connector,
           // the tenant names the connector: its name is the name of its file here, never a path

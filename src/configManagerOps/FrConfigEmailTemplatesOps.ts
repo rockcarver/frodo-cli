@@ -5,8 +5,8 @@ import {
   nameInFolder,
   nameInStem,
   pulledFilePath,
+  PulledPaths,
   referencedFilePath,
-  type PulledPaths,
 } from '../utils/ConfigTreePath';
 import { printError, printMessage } from '../utils/Console';
 import { causeOf } from '../utils/ErrorCause';
@@ -45,7 +45,7 @@ export async function configManagerExportEmailTemplates(
       printMessage('No email templates found to export.', 'info');
       return true;
     }
-    const pulledPaths: PulledPaths = new Map();
+    const pulledPaths = new PulledPaths();
     for (const template of templates) {
       const templateName = template._id.split('/')[1];
       await run.run(templateName, async () => {
@@ -61,21 +61,26 @@ export async function configManagerExportEmailTemplates(
         const cssFilename = `${stem}.css`;
         const jsonFile = `${templatePath}/${folderName}.json`;
         // every file is checked before the first one is written
-        for (const { fileName } of languages) {
+        for (const { language, fileName } of languages) {
+          pulledPaths.owner = `${templateName}.${language}`;
           pulledFilePath(`${templatePath}/${fileName}`, pulledPaths);
         }
         if (template.styles) {
+          pulledPaths.owner = `${templateName}.css`;
           pulledFilePath(`${templatePath}/${cssFilename}`, pulledPaths);
         }
+        pulledPaths.owner = templateName;
         pulledFilePath(jsonFile, pulledPaths);
 
         for (const { property, language, fileName, text } of languages) {
+          pulledPaths.owner = `${templateName}.${language}`;
           extractFrConfigDataToFile(text, fileName, templatePath, pulledPaths);
           property[language] = {
             file: fileName,
           };
         }
         if (template.styles) {
+          pulledPaths.owner = `${templateName}.css`;
           extractFrConfigDataToFile(
             template.styles,
             cssFilename,
@@ -86,6 +91,7 @@ export async function configManagerExportEmailTemplates(
             file: cssFilename,
           };
         }
+        pulledPaths.owner = templateName;
         saveJsonToFile(
           template,
           getFilePath(pulledFilePath(jsonFile, pulledPaths), true),

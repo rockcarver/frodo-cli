@@ -8,8 +8,8 @@ import {
   objectFilePath,
   objectFolderPath,
   pulledFilePath,
+  PulledPaths,
   referencedFilePath,
-  type PulledPaths,
 } from '../utils/ConfigTreePath';
 import { printError, printMessage } from '../utils/Console';
 import { OperationRun } from '../utils/OperationRun';
@@ -46,7 +46,8 @@ function extractScripts(
   objectPath: string,
   getFileName: (key: string) => string,
   hook?: string,
-  pulledPaths?: PulledPaths
+  pulledPaths?: PulledPaths,
+  owner?: string
 ) {
   (Object.entries(obj) as [string, any][]).forEach(([key, value]) => {
     if (hook && value[hook]) value = value[hook];
@@ -56,6 +57,7 @@ function extractScripts(
       value.type === 'text/javascript' &&
       value.source
     ) {
+      if (pulledPaths) pulledPaths.owner = `${owner}.${key}`;
       const scriptFilename = getFileName(key);
       value.file = scriptFilename;
       extractFrConfigDataToFile(
@@ -102,7 +104,7 @@ export async function configManagerExportManagedObjects(
       printMessage('No managed objects found to export.', 'info');
       return true;
     }
-    const pulledPaths: PulledPaths = new Map();
+    const pulledPaths = new PulledPaths();
     for (const managedObject of selected) {
       await run.run(managedObject.name, async () => {
         // the tenant names the object and its properties: each is one name here, never a path
@@ -110,13 +112,15 @@ export async function configManagerExportManagedObjects(
         // a file reference starts with the name of the object, so it is the stem of the names of the scripts
         const stem = nameInStem(managedObject.name);
         const objectPath = `managed-objects/${objectName}`;
+        pulledPaths.owner = managedObject.name;
         pulledFilePath(`${objectPath}/${objectName}.json`, pulledPaths);
         extractScripts(
           managedObject,
           objectPath,
           (k) => `${stem}.${nameInFolder(k)}.js`,
           undefined,
-          pulledPaths
+          pulledPaths,
+          managedObject.name
         );
         if (managedObject.actions)
           extractScripts(
@@ -124,7 +128,8 @@ export async function configManagerExportManagedObjects(
             objectPath,
             (k) => `${stem}.actions.${nameInFolder(k)}.js`,
             undefined,
-            pulledPaths
+            pulledPaths,
+            `${managedObject.name}.actions`
           );
         SCRIPT_HOOKS.forEach((hook) => {
           extractScripts(
@@ -132,7 +137,8 @@ export async function configManagerExportManagedObjects(
             objectPath,
             (k) => `${stem}.${nameInFolder(k)}.${hook}.js`,
             hook,
-            pulledPaths
+            pulledPaths,
+            `${managedObject.name}.${hook}`
           );
         });
         if (pullCustomRelationships) {
@@ -145,6 +151,7 @@ export async function configManagerExportManagedObjects(
               managedObject.name,
               customRelationship
             );
+            pulledPaths.owner = `${managedObject.name}.schema.${customRelationship}`;
             const schemaFileName = `${objectPath}/schema/${objectName}.schema.${nameInFolder(customRelationship)}.json`;
             saveJsonToFile(
               schemaData,
@@ -153,6 +160,7 @@ export async function configManagerExportManagedObjects(
             );
           }
         }
+        pulledPaths.owner = managedObject.name;
         saveJsonToFile(
           managedObject,
           getFilePath(

@@ -3,7 +3,7 @@ import { frodo, type VariableSkeleton } from '@rockcarver/frodo-lib';
 import {
   nameInFolder,
   pulledFilePath,
-  type PulledPaths,
+  PulledPaths,
 } from '../utils/ConfigTreePath';
 import {
   createProgressIndicator,
@@ -108,10 +108,11 @@ export async function configManagerExportVariables(
       variableList.length,
       'Exporting variables'
     );
-    const pulledPaths: PulledPaths = new Map();
+    const pulledPaths = new PulledPaths();
     for (const variable of variableList) {
       await run.run(variable._id, () => {
         // the tenant names the variable: its id is the name of its file here, never a path
+        pulledPaths.owner = variable._id;
         const variableFile = pulledFilePath(
           `esvs/variables/${nameInFolder(variable._id)}.json`,
           pulledPaths

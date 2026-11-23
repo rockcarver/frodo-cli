@@ -32,8 +32,8 @@ import {
   isOneSafeSegment,
   nameInFolder,
   pulledFilePath,
+  PulledPaths,
   realmFolderOf,
-  type PulledPaths,
 } from '../utils/ConfigTreePath';
 import {
   createProgressIndicator,
@@ -231,7 +231,7 @@ export async function configManagerExportOAuth2Agents(
     // what the files do not hold: the properties that are not set on their agents
     let leftOut = 0;
     let written = 0;
-    const pulledPaths: PulledPaths = new Map();
+    const pulledPaths = new PulledPaths();
     for (const realm of Object.keys(configFileData)) {
       if (
         realm === '/' &&
@@ -288,6 +288,7 @@ export async function configManagerExportOAuth2Agents(
             async () => {
               // the tenant, or the file, names the realm, the type and the id: each is one name here, never a path
               const realmDir = realmFolderOf(realm);
+              pulledPaths.owner = `${agentType}/${agent.id}`;
               const agentFile = pulledFilePath(
                 `realms/${realmDir}/realm-config/agents/${nameInFolder(agentType)}/${nameInFolder(agent.id)}.json`,
                 pulledPaths

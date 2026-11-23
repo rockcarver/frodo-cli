@@ -3,7 +3,7 @@ import { frodo, type IdObjectSkeletonInterface } from '@rockcarver/frodo-lib';
 import {
   nameInFolder,
   pulledFilePath,
-  type PulledPaths,
+  PulledPaths,
 } from '../utils/ConfigTreePath';
 import { printError, printMessage } from '../utils/Console';
 import { causeOf } from '../utils/ErrorCause';
@@ -29,11 +29,12 @@ export async function configManagerExportServiceObjectsFromFile(
   try {
     const objects = readJsonFile(file, false);
     const run = new OperationRun({ unit: 'service object', allowFailures });
-    const pulledPaths: PulledPaths = new Map();
+    const pulledPaths = new PulledPaths();
     for (const objectType of Object.keys(objects)) {
       for (const object of objects[objectType]) {
         const name = `${objectType} - ${object.searchValue}`;
         try {
+          pulledPaths.owner = `${objectType}/${object.searchValue}`;
           const queryFilter = `${object.searchField} eq "${object.searchValue}"`;
           const queryResult = await queryManagedObjects(
             objectType,

@@ -9,7 +9,7 @@ import {
   nameInFolder,
   objectFilePath,
   pulledFilePath,
-  type PulledPaths,
+  PulledPaths,
 } from '../utils/ConfigTreePath';
 import { printError, printMessage, verboseMessage } from '../utils/Console';
 import { realmList } from '../utils/FrConfig';
@@ -64,6 +64,7 @@ async function exportOrgPrivileges(
   pulledPaths: PulledPaths
 ): Promise<void> {
   try {
+    pulledPaths.owner = id;
     const orgPrivileges: IdObjectSkeletonInterface = await readConfigEntity(id);
     saveJsonToFile(
       orgPrivileges,
@@ -114,7 +115,7 @@ export async function configManagerExportOrgPrivileges(
     const asked =
       name !== undefined || (!!realm && realm !== DEFAULT_REALM_KEY);
     const run = new OperationRun({ unit: 'configuration', allowFailures });
-    const pulledPaths: PulledPaths = new Map();
+    const pulledPaths = new PulledPaths();
     for (const id of name !== undefined ? [name] : ids) {
       await run.run(id, () =>
         exportOrgPrivileges(

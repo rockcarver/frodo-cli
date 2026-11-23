@@ -3,8 +3,8 @@ import { frodo, state } from '@rockcarver/frodo-lib';
 import {
   nameInFolder,
   pulledFilePath,
+  PulledPaths,
   realmFolderOf,
-  type PulledPaths,
 } from '../utils/ConfigTreePath';
 import { printError, printMessage } from '../utils/Console';
 import { causeOf } from '../utils/ErrorCause';
@@ -30,7 +30,7 @@ export async function configManagerExportPasswordPolicy(
     const realms =
       realm && realm !== DEFAULT_REALM_KEY ? [realm] : await realmList();
     const run = new OperationRun({ unit: 'realm', allowFailures });
-    const pulledPaths: PulledPaths = new Map();
+    const pulledPaths = new PulledPaths();
     for (const currentRealm of realms) {
       if (
         currentRealm === '/' &&
@@ -42,6 +42,7 @@ export async function configManagerExportPasswordPolicy(
       try {
         // the tenant names the realm: it is the name of a folder here, never a path
         const realmDir = realmFolderOf(currentRealm);
+        pulledPaths.owner = currentRealm;
         const objectName = `${currentRealm === '/' ? '' : `${currentRealm}_`}user`;
         const passwordPolicy = await readConfigEntity(
           `fieldPolicy/${objectName}`

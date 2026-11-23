@@ -9,8 +9,8 @@ import {
   nameInFolder,
   nameInStem,
   pulledFilePath,
+  PulledPaths,
   referencedFilePath,
-  type PulledPaths,
 } from '../utils/ConfigTreePath';
 import { printError, printMessage } from '../utils/Console';
 import { causeOf } from '../utils/ErrorCause';
@@ -55,11 +55,12 @@ export async function configManagerExportSchedules(
       return true;
     }
     const run = new OperationRun({ unit: 'schedule', allowFailures });
-    const pulledPaths: PulledPaths = new Map();
+    const pulledPaths = new PulledPaths();
     for (const schedule of schedules as any[]) {
       const scheduleName = schedule._id.split('/')[1];
       try {
         // the tenant names the schedule: its name is the name of its folder and its files here, never a path
+        pulledPaths.owner = scheduleName;
         const folderName = nameInFolder(scheduleName);
         const scheduleDir = `schedules/${folderName}`;
         // the reference starts with the name, so a leading drive letter is written as `%3A`

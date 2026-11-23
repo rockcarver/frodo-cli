@@ -11,8 +11,8 @@ import {
   isOneSafeSegment,
   nameInFolder,
   pulledFilePath,
+  PulledPaths,
   realmFolderOf,
-  type PulledPaths,
 } from '../utils/ConfigTreePath';
 import {
   createProgressIndicator,
@@ -198,13 +198,14 @@ async function exportOnePolicy(
       return false;
     }
     const run = new OperationRun({ unit: 'policy', allowFailures });
-    const pulledPaths: PulledPaths = new Map();
+    const pulledPaths = new PulledPaths();
     await run.run(`${realmDir}/${policyId}`, async () => {
       const policySet = await readPolicySet(setName);
       policySet._id = policySet.name;
       const resourceType = await readResourceType(policy.resourceTypeUuid);
       resourceType._id = resourceType.uuid;
       const authzDir = `realms/${realmDir}/authorization`;
+      pulledPaths.owner = policySet.name;
       saveJsonToFile(
         policySet,
         getFilePath(
@@ -218,6 +219,7 @@ async function exportOnePolicy(
         true,
         true
       );
+      pulledPaths.owner = `${policySet.name}/${policy.name}`;
       saveJsonToFile(
         policy,
         getFilePath(
@@ -231,6 +233,7 @@ async function exportOnePolicy(
         true,
         true
       );
+      pulledPaths.owner = resourceType.name;
       saveJsonToFile(
         resourceType,
         getFilePath(
@@ -291,7 +294,7 @@ export async function configManagerExportAuthzPolicySets(
       ),
       'Exporting policy sets...'
     );
-    const pulledPaths: PulledPaths = new Map();
+    const pulledPaths = new PulledPaths();
     for (const realm of Object.keys(policySets)) {
       for (const setName of policySets[realm]) {
         await run.run(
@@ -302,6 +305,7 @@ export async function configManagerExportAuthzPolicySets(
             policySet._id = policySet.name;
             // the tenant, or the file, names the realm: it is the name of a folder here, never a path
             const authzDir = `realms/${realmFolderOf(realm)}/authorization`;
+            pulledPaths.owner = policySet.name;
             saveJsonToFile(
               policySet,
               getFilePath(
@@ -317,6 +321,7 @@ export async function configManagerExportAuthzPolicySets(
             );
             const policies = await readPoliciesByPolicySet(policySet.name);
             for (const policy of policies) {
+              pulledPaths.owner = `${policySet.name}/${policy.name}`;
               saveJsonToFile(
                 policy,
                 getFilePath(
@@ -334,6 +339,7 @@ export async function configManagerExportAuthzPolicySets(
                 policy.resourceTypeUuid
               );
               resourceType._id = resourceType.uuid;
+              pulledPaths.owner = resourceType.name;
               saveJsonToFile(
                 resourceType,
                 getFilePath(

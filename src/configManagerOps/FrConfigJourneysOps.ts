@@ -19,9 +19,9 @@ import {
   objectFilePath,
   objectFolderPath,
   pulledFilePath,
+  PulledPaths,
   realmFolderOf,
   referencedFilePath,
-  type PulledPaths,
 } from '../utils/ConfigTreePath';
 import { printError, printMessage } from '../utils/Console';
 import { causeOf } from '../utils/ErrorCause';
@@ -64,7 +64,7 @@ export async function configManagerExportJourneys(
       realm && realm !== DEFAULT_REALM_KEY ? [realm] : await realmList();
     let found = false;
     let hintAtFindings = false;
-    const pulledPaths: PulledPaths = new Map();
+    const pulledPaths = new PulledPaths();
     for (const realmName of realmNames) {
       if (
         realmName === '/' &&
@@ -181,6 +181,7 @@ async function processNodeExport(
     ).script[node.script];
     const scriptsDir = `realms/${realmDir}/scripts/`;
     // the tenant names the script: its name, context and id are file names here, never paths
+    pulledPaths.owner = script._id;
     script.script = extractFrConfigDataToFile(
       script.script,
       `scripts-content/${nameInFolder(String(script.context))}/${encodedName(String(script.name))}.js`,
@@ -201,6 +202,7 @@ async function processNodeExport(
       true
     );
   }
+  pulledPaths.owner = node._id;
   saveJsonToFile(
     node,
     getFilePath(pulledFilePath(`${nodeFileDir}.json`, pulledPaths), true),
@@ -229,7 +231,7 @@ async function processJourneysExport(
   clean: boolean = false,
   run?: OperationRun,
   exported: Set<string> = new Set(),
-  pulledPaths: PulledPaths = new Map()
+  pulledPaths = new PulledPaths()
 ): Promise<void> {
   const journeysDir = `realms/${realmDir}/journeys`;
   for (const [treeId, journey] of Object.entries(journeys)) {
@@ -244,6 +246,9 @@ async function processJourneysExport(
       // the tenant names the journey: its id is the name of its folder and of its file, never a path
       const journeyDir = objectFolderPath(journeysDir, treeId);
       const nodeDir = `${journeyDir}/nodes`;
+      // the file of the journey is claimed first: a second journey that has the same file name fails before it writes a node
+      pulledPaths.owner = treeId;
+      pulledFilePath(objectFilePath(journeyDir, treeId), pulledPaths);
       if (clean) {
         fs.rmSync(getFilePath(pulledFilePath(nodeDir, pulledPaths)), {
           recursive: true,
@@ -278,6 +283,7 @@ async function processJourneysExport(
         );
       }
       // the file of the journey has the name of its folder, which is the name a push reads
+      pulledPaths.owner = treeId;
       saveJsonToFile(
         journey.tree,
         getFilePath(

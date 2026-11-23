@@ -14,8 +14,8 @@ import {
   objectFilePath,
   objectFolderPath,
   pulledFilePath,
+  PulledPaths,
   referencedFilePath,
-  type PulledPaths,
 } from '../utils/ConfigTreePath';
 import { printError, printMessage, verboseMessage } from '../utils/Console';
 import { isNotFoundError } from '../utils/ErrorCause';
@@ -47,7 +47,11 @@ export function exportMappingToDirectory(
   // the tenant names the mapping and its properties: each is one name here, never a path
   const mappingName = nameInFolder(mapping.name);
   const fileName = `${mappingPath}/${mappingName}.json`;
-  const scripts: { value: any; filename: string; text: string }[] = [];
+  const own = (owner: string) => {
+    if (pulledPaths) pulledPaths.owner = owner;
+  };
+  const scripts: { key: string; value: any; filename: string; text: string }[] =
+    [];
   Object.entries(mapping).forEach(([key, value]: [string, any]) => {
     if (
       value &&
@@ -56,6 +60,7 @@ export function exportMappingToDirectory(
       value.source
     ) {
       scripts.push({
+        key,
         value,
         // the reference starts with this name, so a leading drive letter is written as `%3A`
         filename: `${nameInStem(mapping.name)}.${nameInFolder(key)}.js`,
@@ -66,17 +71,21 @@ export function exportMappingToDirectory(
     }
   });
   // every file is checked before the first one is written
-  for (const { filename } of scripts) {
+  for (const { key, filename } of scripts) {
+    own(`${mapping.name}.${key}`);
     pulledFilePath(`${mappingPath}/${filename}`, pulledPaths);
   }
+  own(mapping.name);
   pulledFilePath(fileName, pulledPaths);
 
-  for (const { value, filename, text } of scripts) {
+  for (const { key, value, filename, text } of scripts) {
     value.file = filename; // Replace source code with file reference
+    own(`${mapping.name}.${key}`);
     extractFrConfigDataToFile(text, filename, mappingPath, pulledPaths);
     delete value.source;
   }
 
+  own(mapping.name);
   saveJsonToFile(
     mapping,
     getFilePath(pulledFilePath(fileName, pulledPaths), true),
@@ -139,7 +148,7 @@ export async function configManagerExportMappings(
       printMessage('No connector mappings found to export.', 'info');
       return true;
     }
-    const pulledPaths: PulledPaths = new Map();
+    const pulledPaths = new PulledPaths();
     for (const mapping of selected as any[]) {
       const owners = owned
         ? owned.ownersInAnyRealm('mapping', mapping.name)

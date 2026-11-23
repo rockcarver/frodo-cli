@@ -3,7 +3,7 @@ import { frodo } from '@rockcarver/frodo-lib';
 import {
   nameInFolder,
   pulledFilePath,
-  type PulledPaths,
+  PulledPaths,
 } from '../utils/ConfigTreePath';
 import { printError, printMessage } from '../utils/Console';
 import { causeOf } from '../utils/ErrorCause';
@@ -46,9 +46,10 @@ export async function configManagerExportInternalRoles(
     const withPrivileges = roles.filter(
       (role) => role.privileges && role.privileges.length > 0
     );
-    const pulledPaths: PulledPaths = new Map();
+    const pulledPaths = new PulledPaths();
     for (const role of withPrivileges) {
       await run.run(role.name, () => {
+        pulledPaths.owner = role.name;
         // the tenant names the role: its name is the name of its file here, never a path
         saveJsonToFile(
           role,

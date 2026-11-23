@@ -116,10 +116,27 @@ const terms = await ops('FrConfigTermsAndConditionsOps');
 const serviceObjects = await ops('FrConfigServiceObjectsOps');
 const journeys = await ops('FrConfigJourneysOps');
 const remoteProxies = await import('../../src/ops/RemoteProxyOps.ts');
+const applications = await import('../../src/ops/ApplicationConfigOps.ts');
 
 const CONTEXT = 'AUTHENTICATION_TREE_DECISION_NODE';
 /** The config files that a family hands to its command. */
 const ctx = {};
+
+/** One application pulled into a folder of its own, with the mappings that the tenant holds in `ctx.mappings`. */
+async function pullAnApplication() {
+  try {
+    await applications.pullApplication(
+      { _id: 'app-1', name: 'App' },
+      'alpha',
+      'realms/alpha/applications/App',
+      async () => ctx.mappings
+    );
+    return true;
+  } catch (error) {
+    printed.push(String(error?.message ?? error));
+    return false;
+  }
+}
 const NO_DATA = {};
 
 /**
@@ -174,13 +191,32 @@ const NAMES = [
   { label: 'ends with a space', value: 'a ', how: 'raw' },
   { label: 'is %2e%2e', value: '%2e%2e', how: 'raw' },
   { label: 'starts with two dots', value: '..foo', how: 'raw' },
+  {
+    // the function that makes a file name cuts at 255 bytes before it drops the asterisks: such a name would be cut silently
+    label: 'holds asterisks that make it too long for a file name',
+    value: `/${'*'.repeat(200)}${'n'.repeat(100)}`,
+    how: 'toolong',
+  },
   { label: 'differs in case', value: ['A', 'a'], how: 'pair' },
+  {
+    label: 'is the same name once encoded',
+    value: ['a/b', 'a%2Fb'],
+    how: 'pair',
+    pairAs: ['a%2Fb', 'a%2Fb'],
+  },
   {
     label: 'differs in Unicode form',
     value: ['\u00e9', 'e\u0301'],
     how: 'pair',
   },
 ];
+
+/**
+ * Names that Windows reads as other names (a device name, a trailing dot or space): the rows for them
+ * expect what a file system of macOS or Linux does, so they are not run on Windows.
+ */
+const WINDOWS_READS_OTHERWISE = ['CON', 'nul.txt', 'a.', 'a '];
+const onWindows = process.platform === 'win32';
 
 /** Names that are names already: their files and folders are as they always were, byte for byte. */
 const ORDINARY = [
@@ -368,14 +404,14 @@ const FAMILIES = [
       facade.script.readScripts.mockResolvedValue(
         values.map((context, index) => ({
           _id: `s${index}`,
-          name: `S${index}`,
+          name: 'S',
           context,
           language: 'JAVASCRIPT',
           script: b64('x'),
         }))
       ),
     run: () => scripts.configManagerExportScripts([], 'alpha'),
-    files: (n) => [`realms/alpha/scripts/scripts-content/${n}/S0.js`],
+    files: (n) => [`realms/alpha/scripts/scripts-content/${n}/S.js`],
   },
   {
     family: 'scripts (an id)',
@@ -909,6 +945,127 @@ const FAMILIES = [
     files: (n) => [`service-objects/alpha_user/${n}.json`],
   },
   {
+    family: 'org privileges (a realm, part of an id)',
+    under: 'org-privileges',
+    arrange: (values) => {
+      facade.realm.readRealms.mockResolvedValue(
+        values.map((name) => ({ name }))
+      );
+      facade.idm.config.readConfigEntity.mockImplementation(async (id) => ({
+        _id: id,
+      }));
+    },
+    run: () => orgPrivileges.configManagerExportOrgPrivileges(),
+    files: (n) => [`org-privileges/${n}OrgPrivileges.json`],
+    others: ['org-privileges/privilegeAssignments.json'],
+    // the realm is only a part of an id there, so a name that leaves no name is a name with the suffix
+    override: {
+      'dot dot': { how: 'raw', as: '..' },
+      dot: { how: 'raw', as: '.' },
+      empty: { how: 'raw', as: '' },
+    },
+  },
+  {
+    family: 'applications (an owned mapping)',
+    under: 'realms/alpha/applications/App',
+    arrange: (values) => {
+      facade.app.readApplicationReferences.mockResolvedValue({
+        references: values.map((id) => ({
+          ownership: 'owned',
+          kind: 'mapping',
+          id,
+        })),
+        problems: [],
+      });
+      ctx.mappings = values.map((name) => ({ name, _id: `sync/${name}` }));
+    },
+    run: () => pullAnApplication(),
+    files: (n) => [`realms/alpha/applications/App/mappings/${n}/${n}.json`],
+    others: ['realms/alpha/applications/App/application.json'],
+  },
+  {
+    family: 'applications (a shared script)',
+    under: 'realms/alpha',
+    arrange: (values) => {
+      facade.app.readApplicationReferences.mockResolvedValue({
+        references: values.map((name, index) => ({
+          ownership: 'shared',
+          kind: 'script',
+          id: `s${index}`,
+          name,
+        })),
+        problems: [],
+      });
+      facade.script.readScript.mockImplementation(async (id) => ({
+        _id: id,
+        name: values[Number(id.slice(1))],
+        context: CONTEXT,
+        language: 'JAVASCRIPT',
+        script: b64('x'),
+      }));
+      ctx.mappings = [];
+    },
+    run: () => pullAnApplication(),
+    files: (n) => [`realms/alpha/scripts/scripts-content/${CONTEXT}/${n}.js`],
+    others: ['realms/alpha/applications/App/application.json'],
+    rawAs: (value) =>
+      ({ 'a.': 'a', 'a ': 'a%20' })[value] ?? value.replaceAll(':', '%3A'),
+    nonames: ['CON', 'nul.txt'],
+  },
+  {
+    family: 'applications (a shared circle of trust)',
+    under: 'realms/alpha',
+    arrange: (values) => {
+      facade.app.readApplicationReferences.mockResolvedValue({
+        references: values.map((id) => ({
+          ownership: 'shared',
+          kind: 'circleOfTrust',
+          id,
+        })),
+        problems: [],
+      });
+      facade.saml2.circlesOfTrust.exportCircleOfTrust.mockImplementation(
+        async (cot) => ({ saml: { cot: { [cot]: { _id: cot } } } })
+      );
+      ctx.mappings = [];
+    },
+    run: () => pullAnApplication(),
+    files: (n) => [`realms/alpha/realm-config/saml/COT/${n}.json`],
+    others: ['realms/alpha/applications/App/application.json'],
+  },
+  {
+    family: 'iga workflows (the name of a step)',
+    under: 'iga/workflows',
+    objectsAreKeys: true,
+    arrange: (values) =>
+      facade.cloud.iga.workflow.readWorkflows.mockResolvedValue([
+        {
+          id: 'w1',
+          name: 'W',
+          mutable: true,
+          steps: values.map((displayName, index) => ({
+            displayName,
+            name: 's1',
+            type: 'approvalTask',
+            index,
+          })),
+        },
+        { id: 'w2', name: 'Other', mutable: true, steps: [] },
+      ]),
+    run: () => igaWorkflows.configManagerExportIgaWorkflows(),
+    files: (n) => [`iga/workflows/W/steps/${n} - s1/${n} - s1.json`],
+    others: ['iga/workflows/Other/Other.json'],
+    // a step is called `<name> - <name of the step>`: a name that is only dots is a name with the suffix, and a
+    // device name of Windows with a suffix is not (the whole text is reserved)
+    override: {
+      'dot dot': { how: 'raw', as: '..' },
+      dot: { how: 'raw', as: '.' },
+      empty: { how: 'raw', as: '' },
+    },
+    nonames: ['nul.txt'],
+    rawAs: (value) => value.replaceAll(':', '%3A'),
+  },
+  {
     family: 'journeys',
     under: 'realms/alpha/journeys',
     arrange: (values) =>
@@ -961,6 +1118,7 @@ const REALM_FAMILIES = [
   },
   {
     family: 'scripts',
+    derives: true,
     arrange: () =>
       facade.script.readScripts.mockResolvedValue([
         {
@@ -976,6 +1134,7 @@ const REALM_FAMILIES = [
   },
   {
     family: 'services',
+    derives: true,
     arrange: () =>
       facade.service.getFullServices.mockResolvedValue([
         { _id: 'x', _type: { _id: 'x' } },
@@ -985,6 +1144,7 @@ const REALM_FAMILIES = [
   },
   {
     family: 'authz policy sets',
+    derives: true,
     arrange: () => {
       facade.authz.policySet.readPolicySets.mockResolvedValue([{ name: 'ps' }]);
       facade.authz.policySet.readPolicySet.mockResolvedValue({ name: 'ps' });
@@ -995,6 +1155,7 @@ const REALM_FAMILIES = [
   },
   {
     family: 'saml',
+    derives: true,
     arrange: () => {
       facade.saml2.entityProvider.readSaml2ProviderStubs.mockResolvedValue([]);
       facade.saml2.circlesOfTrust.readCirclesOfTrust.mockResolvedValue([
@@ -1009,6 +1170,7 @@ const REALM_FAMILIES = [
   },
   {
     family: 'oauth2 agents',
+    derives: true,
     arrange: () => {
       facade.agent.readAgents.mockResolvedValue([
         { _id: 'one', _type: { _id: 'WebAgent' } },
@@ -1045,6 +1207,7 @@ const REALM_FAMILIES = [
   },
   {
     family: 'secret mappings',
+    derives: true,
     arrange: () =>
       facade.secretStore.readSecretStoreMappings.mockResolvedValue([
         { _id: 'm' },
@@ -1054,6 +1217,7 @@ const REALM_FAMILIES = [
   },
   {
     family: 'journeys',
+    derives: true,
     arrange: () =>
       facade.authn.journey.exportJourneys.mockResolvedValue({
         trees: {
@@ -1085,7 +1249,9 @@ describe.each(FAMILIES.filter((family) => family.family !== 'raw'))(
   'pull $family: the names of a tenant',
   (family) => {
     const rows = NAMES.filter(
-      (name) => !valuesOf(name.value).some((value) => family.skipValue?.(value))
+      (name) =>
+        !valuesOf(name.value).some((value) => family.skipValue?.(value)) &&
+        !(onWindows && WINDOWS_READS_OTHERWISE.includes(name.value))
     );
 
     test.each(rows.map((name) => [name.label, name]))(
@@ -1095,12 +1261,15 @@ describe.each(FAMILIES.filter((family) => family.family !== 'raw'))(
         family.arrange(values);
         const before = outside();
         // a name that is only the name of a folder holds 255 bytes; one that a file system cannot have leaves no name
+        const overridden = family.override?.[name.label];
         const how =
-          family.folderOnly && name.label === '255 bytes'
+          overridden?.how ??
+          (family.folderOnly && name.label === '255 bytes'
             ? 'raw'
             : family.nonames?.includes(name.value)
               ? 'noname'
-              : name.how;
+              : name.how);
+        const classed = overridden ? { ...name, ...overridden } : name;
 
         const result = await family.run();
 
@@ -1115,7 +1284,7 @@ describe.each(FAMILIES.filter((family) => family.family !== 'raw'))(
         if (how === 'raw' || how === 'encoded') {
           expect(result).toBe(true);
           for (const file of family.files(
-            encodedAs(family, { ...name, how })
+            encodedAs(family, { ...classed, how })
           )) {
             expect(written).toContain(file);
           }
@@ -1129,14 +1298,17 @@ describe.each(FAMILIES.filter((family) => family.family !== 'raw'))(
             expect(said).toMatch(/longer than 255 bytes|ENAMETOOLONG/);
           } else {
             expect(said).toMatch(
-              /is the same as .* on a file system that ignores case/
+              /is the same as .* on a file system that ignores case|two names that become one file name/
             );
             if (!family.objectsAreKeys) {
               // one of the two is written (the families that sort their objects write the other one first)
               expect(
-                values.some((value) =>
+                values.some((value, index) =>
                   family
-                    .files(encodedAs(family, { how: 'raw', value }))
+                    .files(
+                      name.pairAs?.[index] ??
+                        encodedAs(family, { how: 'raw', value })
+                    )
                     .every((file) => written.includes(file))
                 )
               ).toBe(true);
@@ -1234,50 +1406,59 @@ describe('pull raw: a path is a path by design, and stays inside the config fold
 describe.each(REALM_FAMILIES)(
   'pull $family: the realms of a tenant',
   (family) => {
-    test.each(REALMS.map((realm) => [JSON.stringify(realm.value), realm]))(
-      'the realm %s',
-      async (_label, realm) => {
-        const realms = valuesOf(realm.value);
-        facade.realm.readRealms.mockResolvedValue(
-          [...realms, 'bravo'].map((name) => ({ name }))
-        );
-        family.arrange();
-        const before = outside();
+    test.each(
+      REALMS.filter(
+        (realm) => !(onWindows && WINDOWS_READS_OTHERWISE.includes(realm.value))
+      ).map((realm) => [JSON.stringify(realm.value), realm])
+    )('the realm %s', async (_label, realm) => {
+      const realms = valuesOf(realm.value);
+      facade.realm.readRealms.mockResolvedValue(
+        [...realms, 'bravo'].map((name) => ({ name }))
+      );
+      family.arrange();
+      const before = outside();
 
-        const result = await family.run();
+      const result = await family.run();
 
-        expect(outside()).toEqual(before);
-        const said = printed.join('\n');
-        const written = Object.keys(inside());
-        // the other realm is pulled whatever the realm of the tenant is
-        for (const file of family.files('bravo', 'bravo')) {
+      expect(outside()).toEqual(before);
+      const said = printed.join('\n');
+      const written = Object.keys(inside());
+      // the other realm is pulled whatever the realm of the tenant is
+      for (const file of family.files('bravo', 'bravo')) {
+        expect(written).toContain(file);
+      }
+      const how = family.toolongAlso?.includes(realm.value)
+        ? 'toolong'
+        : realm.how;
+      if (how === 'written') {
+        expect(result).toBe(true);
+        for (const file of family.files(realm.as, realm.value)) {
           expect(written).toContain(file);
         }
-        const how = family.toolongAlso?.includes(realm.value)
-          ? 'toolong'
-          : realm.how;
-        if (how === 'written') {
-          expect(result).toBe(true);
-          for (const file of family.files(realm.as, realm.value)) {
-            expect(written).toContain(file);
-          }
-        } else if (how === 'refused') {
-          expect(result).toBe(false);
-          expect(said).toContain("is not '/', a name or a path of names");
-        } else if (how === 'toolong') {
-          expect(result).toBe(false);
-          expect(said).toMatch(/longer than 255 bytes|ENAMETOOLONG/);
-        } else {
-          expect(result).toBe(false);
-          expect(said).toMatch(
-            /is the same as .* on a file system that ignores case/
+      } else if (how === 'refused') {
+        expect(result).toBe(false);
+        expect(said).toContain("is not '/', a name or a path of names");
+        if (family.derives && /\p{Cc}/u.test(realm.value)) {
+          // a control character of the name is written as text in the summary, so that it cannot change the terminal
+          const escaped = realm.value.replace(
+            /\p{Cc}/gu,
+            (c) => `\\u${c.codePointAt(0).toString(16).padStart(4, '0')}`
           );
+          expect(said).toContain(`realm ${escaped}`);
         }
-        for (const file of written) {
-          expect(file.startsWith('realms/')).toBe(true);
-        }
+      } else if (how === 'toolong') {
+        expect(result).toBe(false);
+        expect(said).toMatch(/longer than 255 bytes|ENAMETOOLONG/);
+      } else {
+        expect(result).toBe(false);
+        expect(said).toMatch(
+          /is the same as .* on a file system that ignores case/
+        );
       }
-    );
+      for (const file of written) {
+        expect(file.startsWith('realms/')).toBe(true);
+      }
+    });
   }
 );
 
@@ -1287,5 +1468,26 @@ describe('a link of the file system inside the config folder', () => {
   // is the one place where it attaches (a pull of everything, about eighty writes, pass it).
   test.todo(
     'a pull does not write through a folder of the tree that is a link to a folder outside it'
+  );
+});
+
+describe('two names that the file name function makes one', () => {
+  test.each(['scripts', 'iga workflows'])(
+    'pull %s: `a*b` and `ab` are the file `ab`: the later fails, naming both',
+    async (family) => {
+      const row = FAMILIES.find((candidate) => candidate.family === family);
+      row.arrange(['a*b', 'ab']);
+
+      expect(await row.run()).toBe(false);
+
+      expect(printed.join('\n')).toContain(
+        'two names that become one file name'
+      );
+      expect(
+        filesInside().some(
+          (file) => file.endsWith('/ab.js') || file.endsWith('/ab.json')
+        )
+      ).toBe(true);
+    }
   );
 });

@@ -7,7 +7,7 @@ import {
 import {
   nameInFolder,
   pulledFilePath,
-  type PulledPaths,
+  PulledPaths,
 } from '../utils/ConfigTreePath';
 import {
   createProgressIndicator,
@@ -110,10 +110,11 @@ export async function configManagerExportSecrets(
 
     const run = new OperationRun({ unit: 'secret', allowFailures });
     let exported = 0;
-    const pulledPaths: PulledPaths = new Map();
+    const pulledPaths = new PulledPaths();
     for (const secret of secrets) {
       try {
         // the tenant names the secret: its id is the name of its file here, never a path
+        pulledPaths.owner = secret._id;
         const secretFile = pulledFilePath(
           `esvs/secrets/${nameInFolder(secret._id)}.json`,
           pulledPaths

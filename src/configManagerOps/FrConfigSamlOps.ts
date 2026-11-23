@@ -18,8 +18,8 @@ import {
   nameInFolder,
   objectFilePath,
   pulledFilePath,
+  PulledPaths,
   realmFolderOf,
-  type PulledPaths,
 } from '../utils/ConfigTreePath';
 import {
   createProgressIndicator,
@@ -68,6 +68,7 @@ export async function exportCircleOfTrustToFile(
   // the tenant names the realm and the circle of trust: each is one name here, never a path
   const realmDir = realmFolderOf(realm);
   const fileName = nameInFolder(cotId);
+  if (pulledPaths) pulledPaths.owner = cotId;
   const cotResult = await exportCircleOfTrust(cotId);
   const fileDirectory = `realms/${realmDir}/realm-config/saml/COT`;
   saveJsonToFile(
@@ -282,7 +283,7 @@ export async function configManagerExportSaml(
         : JSON.parse(fs.readFileSync(file, 'utf8'));
     if (!objects) return false;
     const owned = skipsOwnedObjects(layout) ? new OwnedObjects() : undefined;
-    const pulledPaths: PulledPaths = new Map();
+    const pulledPaths = new PulledPaths();
     for (const realm of Object.keys(objects)) {
       if (
         realm === '/' &&
@@ -370,6 +371,7 @@ export async function configManagerExportSaml(
           saveObject.metadata = metaData;
 
           // the file name is the one the config file gives, or the entity id: one name, never a path
+          pulledPaths.owner = samlProvider.fileName || samlProvider.entityId;
           const fileName = nameInFolder(
             samlProvider.fileName
               ? samlProvider.fileName

@@ -9,8 +9,8 @@ import {
   nameInFolder,
   nameInStem,
   pulledFilePath,
+  PulledPaths,
   referencedFilePath,
-  type PulledPaths,
 } from '../utils/ConfigTreePath';
 import { printError, printMessage } from '../utils/Console';
 import { causeOf } from '../utils/ErrorCause';
@@ -52,11 +52,12 @@ export async function configManagerExportEndpoints(
       return false;
     }
     const run = new OperationRun({ unit: 'endpoint', allowFailures });
-    const pulledPaths: PulledPaths = new Map();
+    const pulledPaths = new PulledPaths();
     for (const endpoint of targets) {
       const endpointName = endpoint._id.split('/')[1];
       try {
         // the tenant names the endpoint: its name is the name of its folder and its files here, never a path
+        pulledPaths.owner = endpointName;
         const folderName = nameInFolder(endpointName);
         const endpointDir = `endpoints/${folderName}`;
         // the reference starts with the name, so a leading drive letter is written as `%3A`

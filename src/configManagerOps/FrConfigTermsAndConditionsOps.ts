@@ -5,8 +5,8 @@ import {
   nameInFolder,
   nameInStem,
   pulledFilePath,
+  PulledPaths,
   referencedFilePath,
-  type PulledPaths,
 } from '../utils/ConfigTreePath';
 import { printError, printMessage, verboseMessage } from '../utils/Console';
 import { causeOf, isNotFoundError } from '../utils/ErrorCause';
@@ -23,7 +23,7 @@ const { readConfigEntity, importConfigEntities, updateConfigEntity } =
 export async function configManagerExportTermsAndConditions(): Promise<boolean> {
   try {
     const exportData = (await readConfigEntity('selfservice.terms')) as any;
-    const pulledPaths: PulledPaths = new Map();
+    const pulledPaths = new PulledPaths();
     const directoryName = `terms-conditions`;
     // the tenant names the version and the languages: each is one name here, never a path; every file is checked before the first one is written
     const files = exportData.versions.flatMap((version) =>
@@ -35,10 +35,12 @@ export async function configManagerExportTermsAndConditions(): Promise<boolean> 
         reference: `${nameInStem(version.version)}/${nameInFolder(language)}.html`,
       }))
     );
-    for (const { reference } of files) {
+    for (const { version, language, reference } of files) {
+      pulledPaths.owner = `${version.version}/${language}`;
       pulledFilePath(`${directoryName}/${reference}`, pulledPaths);
     }
     for (const { version, language, text, reference } of files) {
+      pulledPaths.owner = `${version.version}/${language}`;
       version.termsTranslations[language] = extractFrConfigDataToFile(
         text,
         reference,
@@ -46,6 +48,7 @@ export async function configManagerExportTermsAndConditions(): Promise<boolean> 
         pulledPaths
       );
     }
+    pulledPaths.owner = undefined;
     saveJsonToFile(
       exportData,
       getFilePath(
