@@ -472,10 +472,10 @@ have, and it gives you what you got without an option:
 | `push journeys`                     | `push journeys --no-deps` |
 | `push journeys --push-dependencies` | `push journeys`           |
 
-A script that passes `--pull-dependencies` or `--push-dependencies` fails before
-it connects to anything, with `error: unknown option` and exit code 1: drop the
-option. A script that passes neither now gets the dependencies: add `--no-deps`
-to keep what it did.
+A script that passes `--pull-dependencies`, `--push-dependencies` or `-d`, the
+short form that both had before, fails before it connects to anything, with
+`error: unknown option` and exit code 1: drop the option. A script that passes
+none of them now gets the dependencies: add `--no-deps` to keep what it did.
 
 A pull writes the scripts that the journeys use, into `scripts-config` and
 `scripts-content` (a script that is in the config folder already is not pulled
@@ -493,7 +493,7 @@ asks. The message names the journey and the file, with the path below the config
 folder:
 
 ```text
-Journey 'Login' needs the script 'S', but its file is missing: realms/alpha/scripts/scripts-config/S.json
+Journey 'Login' requires the script 'S', but its file is missing: realms/alpha/scripts/scripts-config/S.json
 Pull the dependency too, or push with --no-deps.
 ```
 
