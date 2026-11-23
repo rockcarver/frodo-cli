@@ -108,6 +108,35 @@ and an unfinished comment waits for more input instead of failing. The
 names a script declares with `let`, `const` or `class` complete even when the
 input that declared them then failed.
 
+**The console's REST calls (`$`) are sent by the library's request instances**:
+`$` in `frodo shell` built its own HTTP client and copied the library's
+credential handling. It now uses the same request instances as every command,
+so the network settings of the session apply to it. What a script can notice: an
+error that it prints (`console.log(error)`, `util.inspect(error)`) shows the
+`Authorization` and `Cookie` values it was sent with as `<redacted>`, where it
+printed them in clear. Printing and copying the error is safe now; reading is
+not hidden: `error.cause.config` and `error.cause.request` still hold the request
+as it was sent, the credential values included, and a script (or the web
+console, when you evaluate `error.cause.config`) can read them by name. The
+header overrides of the connection go to the tenant only: they used to go to
+every host the console called, and the configuration header overrides were never
+sent. A call to another host now carries no credential and no override, also
+when a redirect leads there, and a URL is judged by the origin it is sent to
+(scheme, host and port: one with a backslash before an `@` is sent to the host
+after it, and an `http://` URL for an `https://` environment is another origin
+and carries no credential). `HTTP_PROXY`,
+`HTTPS_PROXY` and `NO_PROXY` work as for every command (SOCKS and PAC proxies,
+proxy credentials and the messages about a failing proxy too), `--retry`
+applies, and `--curlirize` prints a curl command for each call with the credential values
+replaced by `<redacted>`. A call that the server refuses with 401 is sent once
+more with a renewed credential when the login can be renewed (a `POST` too), and
+in a browser-login session a refused `GET` (403) is tried once with a wider
+credential, as for every command. In a browser-login session `/openidm` calls
+send the primary token, as every IDM command does, and no longer ask for a token
+exchange for each call. A credential that has expired and cannot be renewed ends
+the call with a longer message that starts as before (`Cached bearer token has
+expired and cannot be silently refreshed`), and nothing is sent.
+
 **The npm package runs the CLI in one process, and a signal ends it with the
 signal's status**: in 4.x `frodo` (`dist/launch.cjs`, the npm `bin` entry and the
 Docker image) started a second Node process and copied its exit code, which was 0
