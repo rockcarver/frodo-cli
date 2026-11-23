@@ -122,6 +122,14 @@ const CONTEXT = 'AUTHENTICATION_TREE_DECISION_NODE';
 /** The config files that a family hands to its command. */
 const ctx = {};
 
+/** A reference of an application to an object, in the shape that the library gives it (the type of the object is in the property that the library names for it). */
+const reference = (ownership, type, id, more = {}) => ({
+  ownership,
+  kind: type,
+  id,
+  ...more,
+});
+
 /** One application pulled into a folder of its own, with the mappings that the tenant holds in `ctx.mappings`. */
 async function pullAnApplication() {
   try {
@@ -201,6 +209,18 @@ const NAMES = [
   {
     label: 'is two lone surrogates, which a file system writes alike',
     value: ['\ud800', '\ud801'],
+    how: 'pair',
+    pairAs: ['\ufffd', '\ufffd'],
+  },
+  {
+    label: 'is two lone low surrogates',
+    value: ['\udc00', '\udc01'],
+    how: 'pair',
+    pairAs: ['\ufffd', '\ufffd'],
+  },
+  {
+    label: 'is a lone high and a lone low surrogate',
+    value: ['\ud800', '\udc00'],
     how: 'pair',
     pairAs: ['\ufffd', '\ufffd'],
   },
@@ -983,11 +1003,7 @@ const FAMILIES = [
     under: 'realms/alpha/applications/App',
     arrange: (values) => {
       facade.app.readApplicationReferences.mockResolvedValue({
-        references: values.map((id) => ({
-          ownership: 'owned',
-          kind: 'mapping',
-          id,
-        })),
+        references: values.map((id) => reference('owned', 'mapping', id)),
         problems: [],
       });
       ctx.mappings = values.map((name) => ({ name, _id: `sync/${name}` }));
@@ -1001,12 +1017,9 @@ const FAMILIES = [
     under: 'realms/alpha',
     arrange: (values) => {
       facade.app.readApplicationReferences.mockResolvedValue({
-        references: values.map((name, index) => ({
-          ownership: 'shared',
-          kind: 'script',
-          id: `s${index}`,
-          name,
-        })),
+        references: values.map((name, index) =>
+          reference('shared', 'script', `s${index}`, { name })
+        ),
         problems: [],
       });
       facade.script.readScript.mockImplementation(async (id) => ({
@@ -1030,11 +1043,9 @@ const FAMILIES = [
     under: 'realms/alpha',
     arrange: (values) => {
       facade.app.readApplicationReferences.mockResolvedValue({
-        references: values.map((id) => ({
-          ownership: 'shared',
-          kind: 'circleOfTrust',
-          id,
-        })),
+        references: values.map((id) =>
+          reference('shared', 'circleOfTrust', id)
+        ),
         problems: [],
       });
       facade.saml2.circlesOfTrust.exportCircleOfTrust.mockImplementation(
