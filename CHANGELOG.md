@@ -7,6 +7,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+## [v5.0.0-31] - 2026-11-23
+
+### Added
+- `frodo shell --web` now opens the default browser automatically unless `--no-open` is specified, enhancing user convenience. (PR #1414)
+- `config-manager pull journeys` and `config-manager push journeys` now include journey dependencies by default. Use `--no-deps` to exclude them. (PR #1418)
+- Introduced `--config-file` option for `pull` commands, allowing configuration via a specified file. This applies to all relevant `pull` commands. (PR #1393)
+- Added `config-manager delete tenant-config` command, which deletes tenant configuration and shows a plan for secret deletions. (PR #1399)
+
+### Changed
+- The web console (`frodo shell --web`) now evaluates using Node's own REPL evaluator, removing the dependency on `acorn`. (PR #1427)
+- The history search in both consoles now uses a unified in-house scorer, replacing `fuzzysort`. (PR #1422)
+- REST calls in the console now utilize the library's request instances, removing the dependency on `axios`. (PR #1423)
+- The console no longer binds lodash to `_`, and lodash has been removed from the project. (PR #1421)
+- The application now starts in a single process, with source maps being opt-in, improving performance. (PR #1412)
+
+### Fixed
+- Resolved an issue where a name from the tenant could lead to an incorrect pull of journeys or migration of applications outside the config folder. (PR #1433)
+- Fixed the `journey disable` command to print the cause of a failure, aligning it with the `journey enable` command. (PR #1400)
+- Corrected a file reference issue in the config tree to ensure it remains inside the config folder. (PR #1398)
+- The web shell now functions correctly from the native binary and provides error messages when an engine fails to start. (PR #1413)
+
+### Security
+- Sensitive values in MCP tool results are now replaced with `<redacted>` to enhance security. (PR #1396)
+- Updated `frodo-lib` to version 5.0.0-51, which includes security enhancements and improved handling of HTTP traffic recording. (PR #1432)
+
 ## [v5.0.0-30] - 2026-11-20
 
 ### Added
@@ -3364,6 +3389,7 @@ Frodo CLI 2.x automatically refreshes session and access tokens before they expi
 - Fixed problem with adding connection profiles
 - Miscellaneous bug fixes
 
+[v5.0.0-31]: https://github.com/rockcarver/frodo-cli/compare/v5.0.0-30...v5.0.0-31
 [v5.0.0-30]: https://github.com/rockcarver/frodo-cli/compare/v5.0.0-29...v5.0.0-30
 [v5.0.0-29]: https://github.com/rockcarver/frodo-cli/compare/v5.0.0-28...v5.0.0-29
 [v5.0.0-28]: https://github.com/rockcarver/frodo-cli/compare/v5.0.0-27...v5.0.0-28
