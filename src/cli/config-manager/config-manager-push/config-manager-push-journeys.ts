@@ -14,13 +14,15 @@ export default function setup() {
     .addOption(
       selectorOption(
         '-i, --journey-id <id>',
-        'Journey id, imports the specified Journey.',
+        'Journey id, imports the specified journey and, unless --no-deps is given, its inner journeys.',
         ['-n', '--name']
       )
     )
-
     .addOption(
-      new Option('--push-dependencies', 'Push scripts and inner journeys')
+      new Option(
+        '--no-deps',
+        'Do not push the scripts that the journeys use, nor the inner journeys of a journey that is named.'
+      )
     )
     .addOption(
       new Option('--no-validate', 'Do not validate journeys before import.')
@@ -42,11 +44,11 @@ export default function setup() {
         process.exitCode = 1;
         return;
       }
-      verboseMessage('Importing email provider configuration.');
+      verboseMessage('Importing journeys...');
       const outcome = await configManagerImportJourneys(
         options.journeyId,
         realmOfRun(command, realm),
-        options.pushDependencies,
+        options.deps,
         options.validate,
         options.allowFailures
       );

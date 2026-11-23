@@ -413,7 +413,7 @@ const PLACES = {
   },
   'src/configManagerOps/FrConfigJourneysOps.ts': {
     referencedFilePath: 1, // S15
-    objectFilePath: 2, // S17, and the file of an inner journey (S18)
+    objectFilePath: 3, // S17, the file of an inner journey (S18), and the file that a pull writes for a script (ConfigManagerJourneyScriptNames.test.js)
     objectFolderPath: 2, // the selector, and the folder of an inner journey (S18)
   },
   'src/configManagerOps/FrConfigTermsAndConditionsOps.ts': {

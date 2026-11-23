@@ -1,3 +1,4 @@
+import path from 'node:path';
 import fs from 'fs';
 import {
   frodo,
@@ -13,6 +14,7 @@ import {
 } from '../ops/JourneyFindingsHint';
 import { extractFrConfigDataToFile } from '../utils/Config';
 import {
+  fileNameOf,
   objectFilePath,
   objectFolderPath,
   referencedFilePath,
@@ -40,7 +42,7 @@ const { DEFAULT_REALM_KEY } = frodo.utils.constants;
  * the realms or the journeys of a realm ends the command whatever `allowFailures` says.
  * @param {string} name exports only the specifically named journey
  * @param {string} realm exports journeys only in specified realm
- * @param {boolean} pullDependencies include journey dependencies
+ * @param {boolean} pullDependencies true (the default) to export the scripts that the journeys use and, when a journey is named, its inner journeys, false to export the journeys alone
  * @param {boolean} clean if true clear existing configuration, otherwise false
  * @param {boolean} allowFailures true to succeed although some journeys could not be exported (the failures are still summarised)
  * @returns {Promise<boolean>} A promise that resolves to false if a journey cannot be exported (unless failures are allowed) or the named journey does not exist, true otherwise
@@ -48,7 +50,7 @@ const { DEFAULT_REALM_KEY } = frodo.utils.constants;
 export async function configManagerExportJourneys(
   name?: string,
   realm?: string,
-  pullDependencies: boolean = false,
+  pullDependencies: boolean = true,
   clean: boolean = false,
   allowFailures: boolean = false
 ): Promise<boolean> {
@@ -123,7 +125,7 @@ export async function configManagerExportJourneys(
  * @param {string} displayName the node display name
  * @param {string} nodeDir the node directory
  * @param {string} realmDir the realm directory
- * @param {boolean} pullDependencies include journey dependencies
+ * @param {boolean} pullDependencies include the script of the node
  * @param {SingleTreeExportInterface} journey the journey export
  */
 async function processNodeExport(
@@ -160,14 +162,15 @@ async function processNodeExport(
       })
     ).script[node.script];
     const scriptsDir = `realms/${realmDir}/scripts/`;
+    // the tenant names the script: its name, context and id are file names here, never paths
     script.script = extractFrConfigDataToFile(
       script.script,
-      `scripts-content/${script.context}/${script.name}.js`,
+      `scripts-content/${fileNameOf(String(script.context))}/${fileNameOf(String(script.name))}.js`,
       scriptsDir
     ) as any;
     saveJsonToFile(
       script,
-      getFilePath(`${scriptsDir}scripts-config/${script._id}.json`, true),
+      objectFilePath(getFilePath(`${scriptsDir}scripts-config`), script._id),
       false,
       true,
       true
@@ -186,27 +189,33 @@ async function processNodeExport(
  * Helper that processes journeys for export
  * @param {Record<string, SingleTreeExportInterface>} journeys The journeys to process
  * @param {string} name processes only the specifically named journey
- * @param {boolean} pullDependencies include journey dependencies
+ * @param {boolean} pullDependencies include the scripts of the journeys and, when a journey is named, its inner journeys
  * @param {boolean} clean if true clear existing configuration, otherwise false
  * @param {OperationRun} run Optional. Runs the export of each journey as an operation of this run, so that a journey that cannot be written does not stop the others. Without it the first error is thrown.
+ * @param {Set<string>} exported Optional. The journeys that were exported already, so that journeys that use each other are exported once and the recursion ends.
  */
 async function processJourneysExport(
   journeys: Record<string, SingleTreeExportInterface>,
   name?: string,
-  pullDependencies: boolean = false,
+  pullDependencies: boolean = true,
   clean: boolean = false,
-  run?: OperationRun
+  run?: OperationRun,
+  exported: Set<string> = new Set()
 ): Promise<void> {
   const realmDir = state.getRealm() === '/' ? 'root' : state.getRealm();
   for (const [treeId, journey] of Object.entries(journeys)) {
     if (name && treeId !== name) {
       continue;
     }
+    if (exported.has(treeId)) {
+      continue;
+    }
+    exported.add(treeId);
     const exportJourney = async () => {
       const journeyDir = `realms/${realmDir}/journeys/${treeId}`;
       const nodeDir = `${journeyDir}/nodes`;
       if (clean) {
-        fs.rmSync(nodeDir, { recursive: true, force: true });
+        fs.rmSync(getFilePath(nodeDir), { recursive: true, force: true });
       }
       for (const node of Object.values(journey.nodes)) {
         if (
@@ -218,7 +227,9 @@ async function processJourneysExport(
             journeys,
             node.tree,
             pullDependencies,
-            clean
+            clean,
+            undefined,
+            exported
           );
         }
         await processNodeExport(
@@ -243,12 +254,79 @@ async function processJourneysExport(
   }
 }
 
+/** The value of `script` of a node that has no script: there is nothing to export and nothing to push. */
+const EMPTY_SCRIPT = '[Empty]';
+
 function journeyNodeNeedsScript(node) {
   return (
     // eslint-disable-next-line no-prototype-builtins
     node.hasOwnProperty('script') &&
+    node.script !== EMPTY_SCRIPT &&
     // eslint-disable-next-line no-prototype-builtins
     (!node.hasOwnProperty('useScript') || node.useScript)
+  );
+}
+
+/**
+ * A file that a journey needs is not in the config folder. The journey cannot be pushed, and neither can a journey that
+ * needs it: `journeys` names them, the one that needs the file first.
+ */
+class MissingDependencyError extends Error {
+  readonly journeys: string[];
+
+  constructor(journey: string, message: string) {
+    super(message);
+    this.journeys = [journey];
+  }
+}
+
+/**
+ * A name from a file of the config folder as a message shows it: a control character is written as
+ * `\u0001`, so that it cannot change what the terminal shows.
+ * @param {string} name the name
+ * @returns {string} the name without control characters
+ */
+function printable(name: string): string {
+  return String(name).replace(
+    /\p{Cc}/gu,
+    (character) =>
+      `\\u${(character.codePointAt(0) as number).toString(16).padStart(4, '0')}`
+  );
+}
+
+/**
+ * A path of the config folder as the user knows it: below `realms`, with forward slashes, without the folder that the
+ * directory option names.
+ * @param {string} file a path inside the `realms` folder
+ * @returns {string} the path, for example `realms/alpha/journeys/Login/Login.json`
+ */
+function shownPath(file: string): string {
+  const relative = path.relative(getFilePath('realms'), file);
+  return `realms/${relative.split(path.sep).join('/')}`;
+}
+
+/**
+ * The error of a journey that needs a file that is not there.
+ * @param {string} journey the journey that needs it
+ * @param {string} needed what the journey needs, for example `the script 'S'`
+ * @param {string} problem what is missing, for example `its file is missing`
+ * @param {string} file the file that was looked for
+ * @param {boolean} dependencies true if the dependencies are pushed, which can be turned off
+ * @returns {MissingDependencyError} the error to throw
+ */
+function missingDependency(
+  journey: string,
+  needed: string,
+  problem: string,
+  file: string,
+  dependencies: boolean
+): MissingDependencyError {
+  const hint = dependencies
+    ? 'Pull the dependency too, or push with --no-deps.'
+    : 'Pull the dependency too, or push the journey with -i.';
+  return new MissingDependencyError(
+    journey,
+    `Journey '${printable(journey)}' requires ${printable(needed)}, but ${problem}: ${shownPath(file)}\n${hint}`
   );
 }
 
@@ -258,12 +336,15 @@ function journeyNodeNeedsScript(node) {
  * @param {boolean} pushScripts whether script export is enabled
  * @param {Record<string, ScriptSkeleton>} scripts map of script id to script object, populated by this function
  * @param {string} realmDir on-disk realm directory name
+ * @param {string} journeyName the journey that has the node
+ * @throws {MissingDependencyError} if the file of the script, or its content file, is not there
  */
 function readNodeScript(
   node: NodeSkeleton,
   pushScripts: boolean,
   scripts: Record<string, ScriptSkeleton>,
-  realmDir: string
+  realmDir: string,
+  journeyName: string
 ): void {
   if (!pushScripts || !journeyNodeNeedsScript(node) || scripts[node.script])
     return;
@@ -274,8 +355,13 @@ function readNodeScript(
     node.script
   );
   if (!fs.existsSync(scriptConfigFile)) {
-    printMessage(`Script config not found: ${scriptConfigFile}`, 'error');
-    return;
+    throw missingDependency(
+      journeyName,
+      `the script '${node.script}'`,
+      'its file is missing',
+      scriptConfigFile,
+      true
+    );
   }
 
   const script = readJsonFile(scriptConfigFile) as any;
@@ -283,8 +369,13 @@ function readNodeScript(
   if (script.script?.file) {
     const contentFile = referencedFilePath(baseDir, script.script.file);
     if (!fs.existsSync(contentFile)) {
-      printMessage(`Script content not found: ${contentFile}`, 'error');
-      return;
+      throw missingDependency(
+        journeyName,
+        `the script '${node.script}'`,
+        'its content file is missing',
+        contentFile,
+        true
+      );
     }
     script.script = fs.readFileSync(contentFile, 'utf8').split('\n');
   }
@@ -299,7 +390,9 @@ function readNodeScript(
  * @param {string} journeysBaseDir base directory containing all journeys for the realm
  * @param {string} realmDir path to the realm the journey
  * @param {Set<string>} processedJourneys set of already-processed journey names to prevent processing the same journey multiple times
+ * @param {string} neededBy the journey that has this one as an inner journey, if this is read as an inner journey
  * @returns {Record<string, SingleTreeExportInterface>} map of journey names to their import data
+ * @throws {MissingDependencyError} if a script, a content file or an inner journey that a journey needs is not there
  */
 function processJourneyImport(
   journeyName: string,
@@ -307,7 +400,8 @@ function processJourneyImport(
   pushScripts: boolean,
   journeysBaseDir: string,
   realmDir: string,
-  processedJourneys: Set<string> = new Set()
+  processedJourneys: Set<string> = new Set(),
+  neededBy?: string
 ): Record<string, SingleTreeExportInterface> {
   if (processedJourneys.has(journeyName)) {
     return {};
@@ -315,9 +409,17 @@ function processJourneyImport(
   processedJourneys.add(journeyName);
 
   const journeyDir = objectFolderPath(journeysBaseDir, journeyName);
-  const tree = readJsonFile(
-    objectFilePath(journeyDir, journeyName)
-  ) as TreeSkeleton;
+  const journeyFile = objectFilePath(journeyDir, journeyName);
+  if (neededBy !== undefined && !fs.existsSync(journeyFile)) {
+    throw missingDependency(
+      neededBy,
+      `the journey '${journeyName}'`,
+      'its file is missing',
+      journeyFile,
+      pushScripts
+    );
+  }
+  const tree = readJsonFile(journeyFile) as TreeSkeleton;
 
   const journeyData = createSingleTreeExportTemplate();
   journeyData.tree = tree;
@@ -336,7 +438,13 @@ function processJourneyImport(
         if (pushInnerJourneys && node._type?._id === 'InnerTreeEvaluatorNode') {
           innerTreeNames.push(node.tree);
         } else {
-          readNodeScript(node, pushScripts, journeyData.scripts, realmDir);
+          readNodeScript(
+            node,
+            pushScripts,
+            journeyData.scripts,
+            realmDir,
+            journeyName
+          );
         }
       }
 
@@ -349,7 +457,13 @@ function processJourneyImport(
             `${pageNodeDir}/${innerFile}`
           ) as NodeSkeleton;
           journeyData.innerNodes[innerNode._id] = innerNode;
-          readNodeScript(innerNode, pushScripts, journeyData.scripts, realmDir);
+          readNodeScript(
+            innerNode,
+            pushScripts,
+            journeyData.scripts,
+            realmDir,
+            journeyName
+          );
         }
       }
     }
@@ -360,15 +474,27 @@ function processJourneyImport(
   };
 
   for (const innerTreeName of innerTreeNames) {
-    const innerTrees = processJourneyImport(
-      innerTreeName,
-      pushInnerJourneys,
-      pushScripts,
-      journeysBaseDir,
-      realmDir,
-      processedJourneys
-    );
-    Object.assign(trees, innerTrees);
+    try {
+      const innerTrees = processJourneyImport(
+        innerTreeName,
+        pushInnerJourneys,
+        pushScripts,
+        journeysBaseDir,
+        realmDir,
+        processedJourneys,
+        journeyName
+      );
+      Object.assign(trees, innerTrees);
+    } catch (error) {
+      // this journey needs the one that cannot be pushed, so it cannot be pushed either
+      if (
+        error instanceof MissingDependencyError &&
+        !error.journeys.includes(journeyName)
+      ) {
+        error.journeys.push(journeyName);
+      }
+      throw error;
+    }
   }
 
   return trees;
@@ -376,13 +502,15 @@ function processJourneyImport(
 
 /**
  * Import journeys from fr-config-manager file structure
- * Every journey is imported even when another one failed, and one summary names the failed ones. The library imports
- * the journeys of a realm as one batch, reports each journey to the result callback, and rejects the batch as a whole
- * when it does not validate or has unresolved dependencies: that fails the realm, and the other realms are still
- * imported.
+ * Every journey is imported even when another one failed, and one summary names the failed ones. A journey whose
+ * script files or inner journey files are missing is not imported, and neither is a journey that needs it. The library
+ * imports the journeys of a realm as one batch and reports each journey to the result callback: a journey that does not
+ * validate, or that needs a journey that is neither installed nor imported, fails alone. The batch of a realm is
+ * rejected as a whole only when the installed journeys cannot be listed: that fails the realm, and the other realms are
+ * still imported.
  * @param {string} name optional journey name to import
  * @param {string} realm optional realm to import to
- * @param {boolean} dependencies if true, push scripts and inner tree dependencies
+ * @param {boolean} dependencies true (the default) to push the scripts that the journeys use and the inner journeys of a journey that is named, false to push the journey alone
  * @param {boolean} validate if true, validate the journeys on import
  * @param {boolean} allowFailures true to succeed although some journeys could not be imported (the failures are still summarised)
  * @returns false if there is no journey to import (no journey files, or the named one does not exist) or a journey or realm cannot be imported (unless failures are allowed), true otherwise
@@ -390,7 +518,7 @@ function processJourneyImport(
 export async function configManagerImportJourneys(
   name?: string,
   realm?: string,
-  dependencies: boolean = false,
+  dependencies: boolean = true,
   validate: boolean = true,
   allowFailures: boolean = false
 ): Promise<boolean> {
@@ -412,6 +540,8 @@ export async function configManagerImportJourneys(
       .map((dirent) => dirent.name);
 
     let found = false;
+    // a journey is one failure, whether it is read on its own or as the dependency of another journey
+    const failedJourneys = new Set<string>();
 
     for (const realmDir of realmDirs) {
       state.setRealm(realmDir === 'root' ? '/' : realmDir);
@@ -435,7 +565,6 @@ export async function configManagerImportJourneys(
             .map((dirent) => dirent.name);
 
       const trees: Record<string, any> = {};
-      const processed = new Set<string>();
 
       for (const journeyName of journeyNames) {
         if (!fs.existsSync(objectFolderPath(journeysBaseDir, journeyName)))
@@ -450,14 +579,22 @@ export async function configManagerImportJourneys(
               pushInnerJourneys,
               pushScripts,
               journeysBaseDir,
-              realmDir,
-              processed
+              realmDir
             )
           );
         } catch (error) {
-          // the files of this journey cannot be read: the others are still imported
-          printError(error, `Error reading journey ${journeyName}`);
-          run.recordFailure(`${realmDir}/${journeyName}`, causeOf(error));
+          // the files of this journey, or of a journey that it needs, cannot be read: the others are still imported
+          printError(error, `Error reading journey ${printable(journeyName)}`);
+          const failed =
+            error instanceof MissingDependencyError
+              ? error.journeys
+              : [journeyName];
+          for (const failedName of failed) {
+            const failure = `${realmDir}/${printable(failedName)}`;
+            if (failedJourneys.has(failure)) continue;
+            failedJourneys.add(failure);
+            run.recordFailure(failure, causeOf(error));
+          }
         }
       }
 
