@@ -145,7 +145,11 @@ the key) and `await explore(value)` for any value.
 ## History: Ctrl+R
 
 `Ctrl+R` opens a fuzzy search over past commands; Ctrl+R cycles matches,
-Enter runs the selection, Esc cancels. Entries remember when they ran and
+Enter runs the selection, Esc cancels. A space in the query separates
+words that may match in any order (`export config` finds `frodo config
+export -A`), and of two exact matches the shorter command comes first.
+Letters are matched as typed: accents are not folded, so `cafe` does not
+find `café`. Entries remember when they ran and
 against which environment, shown as a dim annotation (`2h ago ·
 https://tenant...`). The `.history` dot-command prints the full history
 with those columns; `.history clear` deletes it; `.history trim <n>` keeps
