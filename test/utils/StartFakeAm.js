@@ -48,6 +48,7 @@ const fakeAmPath = fileURLToPath(new URL('./FakeAm.mjs', import.meta.url));
  * @param {string} [options.sessionToken] the `tokenId` that a plain login ends with (default: `fake-token`)
  * @param {boolean} [options.emptyCollections] answers every collection query the fake has no route for as an empty collection (`GET` with a `_queryFilter`, `POST` with `_action=nextdescendents`: `200` with no result), so a command that reads many kinds of configuration runs through on an empty tenant (default: they answer 404)
  * @param {{ apply?: object, states?: object[] }} [options.directConfiguration] makes the fake serve the direct configuration session of a Cloud tenant (init, apply, abort and state, and the service account scopes a login reads): `apply` is what the apply call answers (default `{ editable: false }`), `states` what the state reads answer one after the other, the last one again after that (default `[{ editable: false }]`); the request log shows every call (default: the session API answers 404)
+ * @param {{ lock?: { result: string, promotionId?: string }, lockId?: string, lockRequest?: 'refuse' | 'refuse-but-lock', unlockRequest?: 'refuse', status?: object, promote?: object[], rollback?: object[] }} [options.promotion] makes the fake serve the environment promotion API of a Cloud tenant as a small state machine (the lock, the promotion status, the promote and rollback requests, and the service account scopes a login reads): the lock before the first request, the id a lock request gets, requests that are refused, the status before any request, and one scripted run (`{ request: 'refuse' }` or `{ statuses: [...] }`) per promote and per rollback request; the request log shows every call and its body (default: the API answers 404). See the header of FakeAm.mjs for the details
  * @param {boolean} [options.cimdRootDenied] makes the root realm answer the type list and the profiles with the Cloud `403` "This operation is not available in PingOne Advanced Identity Cloud."
  * @returns {Promise<{ port: number, stop: () => void }>}
  */
@@ -89,6 +90,7 @@ export async function startFakeAm({
   accessToken,
   sessionToken,
   directConfiguration,
+  promotion,
 } = {}) {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'fake-am-'));
   const written = (name, data) => {
@@ -168,6 +170,11 @@ export async function startFakeAm({
           }
         : {}),
       ...(cimdCompleteOnCreate ? { FAKE_AM_CIMD_COMPLETE_ON_CREATE: '1' } : {}),
+      ...(promotion
+        ? {
+            FAKE_AM_PROMOTION_FILE: written('promotion.json', promotion),
+          }
+        : {}),
       ...(cimdRootDenied ? { FAKE_AM_CIMD_ROOT_DENIED: '1' } : {}),
       ...(features
         ? { FAKE_AM_FEATURES_FILE: written('features.json', features) }
