@@ -10,6 +10,8 @@
  * blocks carrying this response's nonce may run or style anything.
  */
 
+import { createHistoryScorer } from './ShellHistorySearchOps';
+
 const TOKEN_SHAPE = /^[A-Za-z0-9_-]+$/;
 
 export type ContentSecurityPolicyOptions = {
@@ -330,35 +332,13 @@ const SCRIPT = String.raw`
     refreshSession().catch(function () {});
   });
 
-  // A small fzf-style scorer: subsequence match, greedily earliest, with a
-  // bonus for consecutive hits and a penalty for the length of the gaps
-  // and the tail. Exact substring beats every subsequence. Returns the
-  // matched indexes for highlighting, or null when it does not match.
-  function scoreMatch(query, line) {
-    var q = query.toLowerCase();
-    var t = line.toLowerCase();
-    var direct = t.indexOf(q);
-    if (direct !== -1) {
-      var idx = [];
-      for (var k = 0; k < q.length; k++) idx.push(direct + k);
-      return { score: 1000 + line.length, indexes: idx };
-    }
-    var pos = 0;
-    var indexes = [];
-    var score = 0;
-    var last = -2;
-    for (var i = 0; i < q.length; i++) {
-      var at = t.indexOf(q[i], pos);
-      if (at === -1) return null;
-      indexes.push(at);
-      score += at === last + 1 ? 6 : 1;
-      score -= Math.max(0, at - pos);
-      last = at;
-      pos = at + 1;
-    }
-    score -= Math.max(0, line.length - pos);
-    return { score: score, indexes: indexes };
-  }
+  // The history search. Its scorer is the very function that the terminal
+  // console's Ctrl+R search ranks with (its source is carried here), so both
+  // consoles list the same commands in the same order. It reads the query once
+  // and returns a function that gives the score and the matched indexes (for
+  // highlighting) of a line, or null when the line does not match.
+  // history-search:begin
+  var createHistoryScorer = ${createHistoryScorer.toString()};
 
   function runSearch(query) {
     if (!query) {
@@ -368,9 +348,10 @@ const SCRIPT = String.raw`
       for (var r = 0; r < history.length && r < 50; r++) recents.push(r);
       return recents;
     }
+    var scoreLine = createHistoryScorer(query);
     var hits = [];
     for (var i = 0; i < history.length; i++) {
-      var m = scoreMatch(query, history[i].text);
+      var m = scoreLine(history[i].text);
       if (m) hits.push({ idx: i, score: m.score });
     }
     hits.sort(function (a, b) { return b.score - a.score; });
@@ -442,11 +423,12 @@ const SCRIPT = String.raw`
     var total = search.matches.length;
     var start = Math.max(0, Math.min(search.cursor - SEARCH_VISIBLE + 1, total - SEARCH_VISIBLE));
     var end = Math.min(start + SEARCH_VISIBLE, total);
+    // No query yet: nothing to highlight; the rows are just the recents.
+    var scoreRow = search.query ? createHistoryScorer(search.query) : null;
     for (var i = start; i < end; i++) {
       var idx = search.matches[i];
       var entry = history[idx];
-      // No query yet: nothing to highlight; the rows are just the recents.
-      var m = search.query ? scoreMatch(search.query, entry.text) : null;
+      var m = scoreRow ? scoreRow(entry.text, true) : null;
       searchCandsEl.appendChild(
         renderCandidate(entry, m ? m.indexes : [], i === search.cursor)
       );
@@ -454,6 +436,7 @@ const SCRIPT = String.raw`
     var selected = searchCandsEl.querySelector('.cand.selected');
     if (selected) selected.scrollIntoView({ block: 'nearest' });
   }
+  // history-search:end
 
   function openSearch() {
     // Seeded, not empty: with no query runSearch('') returns the most recent
