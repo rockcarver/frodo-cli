@@ -1,4 +1,5 @@
 /* eslint-disable no-console */
+import { randomUUID } from 'node:crypto';
 import { inspect } from 'node:util';
 import {
   frodo,
@@ -9,7 +10,6 @@ import {
 } from '@rockcarver/frodo-lib';
 import Table, { Table as TableType } from 'cli-table3';
 import { stderr as logUpdateStderr } from 'log-update';
-import { v4 as uuidv4 } from 'uuid';
 import { accessAdviceFor } from './AccessErrorAdvice';
 import { airGappedHintFor } from './AirGapHint';
 import c from './ColorTheme';
@@ -442,7 +442,7 @@ export function createProgressIndicator(
   total: number = 0,
   message: string = ''
 ): string {
-  const id = uuidv4();
+  const id = randomUUID();
   debugMessage(`createProgressIndicator: start [${id}]`);
   indicators.set(id, {
     id,

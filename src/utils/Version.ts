@@ -2,10 +2,10 @@ import fs from 'fs';
 import os from 'os';
 import path from 'path';
 import { frodo } from '@rockcarver/frodo-lib';
-import Color from 'colors';
 import { compareVersions } from 'compare-versions';
 import pkg from '../../package.json' with { type: 'json' };
 import { isAirGapped } from './AirGapConfig.js';
+import c from './ColorTheme.js';
 import { isTruthyOptInValue } from './EnvFlags.js';
 import { readUpdateCheckEnabled } from './UpdateCheckConfig.js';
 
@@ -69,8 +69,6 @@ let versionObject: VersionObject = {
 
 /** The one check of this process, shared by every call of `getVersions`. */
 let remoteVersionCheck: Promise<void> | undefined;
-
-Color.enable();
 
 function getCliVersion() {
   return `${pkg.version}`;
@@ -279,19 +277,20 @@ export async function getVersions(checkOnly: boolean) {
     if (usingBinary) {
       newVersionString +=
         compareVersions(getCliVersion(), versionObject.github) == -1
-          ? `\ncli (github): v${versionObject.github}`.green
+          ? c.positive(`\ncli (github): v${versionObject.github}`)
           : ``;
     } else {
       newVersionString +=
         compareVersions(getCliVersion(), versionObject.npm) == -1
-          ? `\ncli (npm): v${versionObject.npm}`.green
+          ? c.positive(`\ncli (npm): v${versionObject.npm}`)
           : ``;
     }
   }
   if (checkOnly) {
     if (updateAvailable) {
-      return `A new version of frodo is available.\nPlease run 'frodo -v' for more details.\n`
-        .green;
+      return c.positive(
+        `A new version of frodo is available.\nPlease run 'frodo -v' for more details.\n`
+      );
     } else {
       return ``;
     }

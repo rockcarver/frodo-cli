@@ -151,6 +151,19 @@ exchange for each call. A credential that has expired and cannot be renewed ends
 the call with a longer message that starts as before (`Cached bearer token has
 expired and cannot be silently refreshed`), and nothing is sent.
 
+**The update notice takes its colour from the colour theme and honours
+`NO_COLOR`**: the notice that a newer version of `frodo` is available (at the
+start of a command and in `frodo -v`) was always green, whatever the
+environment said, also with `NO_COLOR` set or when the output was piped. It is
+now coloured with the theme's colour for good news: bright green instead of
+green in the default (dark) theme, `dark-vibrant` and the blue themes, the same
+green in `dark-regular`, `light-regular`, `light-vibrant` and the `yellow-regular`
+and `yellow-vibrant` themes, and plain text in the `light` and `yellow` themes,
+which have no colour for it. With `NO_COLOR` set it is plain text. The words of
+the notice are unchanged. The `uuid` and `colors` packages are no longer bundled;
+`colors` also added colour properties (`'text'.green`) to every string of the
+process, and they no longer exist.
+
 **The npm package runs the CLI in one process, and a signal ends it with the
 signal's status**: in 4.x `frodo` (`dist/launch.cjs`, the npm `bin` entry and the
 Docker image) started a second Node process and copied its exit code, which was 0

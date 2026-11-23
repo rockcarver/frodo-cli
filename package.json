@@ -135,7 +135,6 @@
     "chokidar": "^6.0.0",
     "cli-progress": "^3.11.2",
     "cli-table3": "^0.6.3",
-    "colors": "1.4.0",
     "commander": "^15.0.0",
     "compare-versions": "^6.1.0",
     "eslint": "10.15.0",
@@ -159,7 +158,6 @@
     "tsdown": "0.23.7",
     "typescript": "^5.9.3",
     "typescript-eslint": "8.72.2",
-    "uuid": "^14.0.2",
     "winston": "^3.19.0",
     "zod": "^4.3.6"
   },
