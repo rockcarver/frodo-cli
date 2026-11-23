@@ -431,10 +431,9 @@ export function createWebEngine(options: {
   const bindings = createConsoleBindings();
   const log = (text: string): void => {
     const plain = text.replace(ANSI, '');
-    // The REPL prints this whenever it builds a context (it dislikes the
-    // pre-bound lodash `_`). At startup the tab's stream is not open yet,
-    // so it is invisible; after a reset it would surface as junk above the
-    // reset note. It says nothing the console user needs.
+    // The REPL prints this when a script assigns `_`. It is about the
+    // terminal's "last result" feature, which this engine's own evaluator
+    // does not have, so for this console the sentence would be untrue.
     if (plain.trim() === 'Expression assignment to _ now disabled.') return;
     if (plain.length > 0) options.onLog(plain);
   };

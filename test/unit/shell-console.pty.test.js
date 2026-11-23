@@ -5,17 +5,14 @@ import {
 } from '../utils/ShellPty.js';
 
 describe('frodo shell PTY (console mode)', () => {
-  test('evaluates expressions with top-level await, lodash, and the $ facade', async () => {
+  test('evaluates expressions with top-level await, the last result in _, and the $ facade', async () => {
     const homeDir = createShellTestHome();
     try {
       const result = runShellScenario({
         args: ['shell'],
         homeDir,
         actions: [
-          // wait_prompt matches '>\s$' which the REPL's one-time
-          // "Expression assignment to _ now disabled" notice breaks
-          // (it prints after the first prompt); match 'frodo>' instead.
-          { type: 'wait_plain', regex: 'frodo>' },
+          { type: 'wait_prompt' },
           { type: 'clear_output' },
           { type: 'send_line', text: '1 + 1' },
           { type: 'wait_plain', regex: '\\b2\\b' },
@@ -24,8 +21,9 @@ describe('frodo shell PTY (console mode)', () => {
           { type: 'send_line', text: 'x + 2' },
           { type: 'wait_plain', regex: '\\b42\\b' },
           { type: 'clear_output' },
-          { type: 'send_line', text: 'typeof _' },
-          { type: 'wait_plain', regex: "'function'" },
+          // `_` is the REPL's own last result, not a name Frodo binds.
+          { type: 'send_line', text: '_ + 1' },
+          { type: 'wait_plain', regex: '\\b43\\b' },
           { type: 'clear_output' },
           { type: 'send_line', text: 'typeof $' },
           { type: 'wait_plain', regex: "'object'" },
