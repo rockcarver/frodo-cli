@@ -5,7 +5,13 @@ import {
   type IdObjectSkeletonInterface,
 } from '@rockcarver/frodo-lib';
 import { extractFrConfigDataToFile } from '../utils/Config';
-import { referencedFilePath } from '../utils/ConfigTreePath';
+import {
+  nameInFolder,
+  nameInStem,
+  pulledFilePath,
+  PulledPaths,
+  referencedFilePath,
+} from '../utils/ConfigTreePath';
 import { printError, printMessage } from '../utils/Console';
 import { causeOf } from '../utils/ErrorCause';
 import { fileFilter } from '../utils/FrConfig';
@@ -49,11 +55,20 @@ export async function configManagerExportSchedules(
       return true;
     }
     const run = new OperationRun({ unit: 'schedule', allowFailures });
+    const pulledPaths = new PulledPaths();
     for (const schedule of schedules as any[]) {
       const scheduleName = schedule._id.split('/')[1];
       try {
-        const scheduleDir = `schedules/${scheduleName}`;
-        const scriptFilename = `${scheduleName}.js`;
+        // the tenant names the schedule: its name is the name of its folder and its files here, never a path
+        pulledPaths.owner = scheduleName;
+        const folderName = nameInFolder(scheduleName);
+        const scheduleDir = `schedules/${folderName}`;
+        // the reference starts with the name, so a leading drive letter is written as `%3A`
+        const scriptFilename = `${nameInStem(scheduleName)}.js`;
+        const scheduleFilename = `${scheduleDir}/${folderName}.json`;
+        // both files are checked before the first one is written
+        pulledFilePath(`${scheduleDir}/${scriptFilename}`, pulledPaths);
+        pulledFilePath(scheduleFilename, pulledPaths);
         if (
           schedule.invokeService === 'script' &&
           schedule.invokeContext?.script?.source
@@ -61,7 +76,8 @@ export async function configManagerExportSchedules(
           extractFrConfigDataToFile(
             schedule.invokeContext.script.source,
             scriptFilename,
-            scheduleDir
+            scheduleDir,
+            pulledPaths
           );
           delete schedule.invokeContext.script.source;
           schedule.invokeContext.script.file = scriptFilename;
@@ -72,16 +88,16 @@ export async function configManagerExportSchedules(
           extractFrConfigDataToFile(
             schedule.invokeContext.task.script.source,
             scriptFilename,
-            scheduleDir
+            scheduleDir,
+            pulledPaths
           );
           delete schedule.invokeContext.task.script.source;
           schedule.invokeContext.task.script.file = scriptFilename;
         }
 
-        const scheduleFilename = `${scheduleDir}/${scheduleName}.json`;
         saveJsonToFile(
           schedule,
-          getFilePath(scheduleFilename, true),
+          getFilePath(pulledFilePath(scheduleFilename, pulledPaths), true),
           false,
           true
         );
@@ -111,6 +127,8 @@ export async function configManagerImportSchedules(
   allowFailures: boolean = false
 ): Promise<boolean> {
   try {
+    // `.` and `..` name no schedule: the words of a pull
+    if (schedulesName) nameInFolder(schedulesName);
     const schedulesPath = getFilePath('schedules');
     if (!fs.existsSync(schedulesPath)) {
       printMessage(`Schedules folder not found: ${schedulesPath}`, 'error');

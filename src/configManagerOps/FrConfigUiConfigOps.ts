@@ -1,4 +1,5 @@
 import { frodo, type IdObjectSkeletonInterface } from '@rockcarver/frodo-lib';
+import { pulledFilePath } from '../utils/ConfigTreePath';
 import { printError } from '../utils/Console';
 
 const { readConfigEntity, importConfigEntities } = frodo.idm.config;
@@ -13,7 +14,7 @@ export async function configManagerExportUiConfig(): Promise<boolean> {
     const exportData = await readConfigEntity('ui/configuration');
     saveJsonToFile(
       exportData,
-      getFilePath('ui/ui-configuration.json', true),
+      getFilePath(pulledFilePath('ui/ui-configuration.json'), true),
       false
     );
     return true;

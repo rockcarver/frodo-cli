@@ -24,6 +24,7 @@ import { getCustomNodeExportFromFile } from '../ops/NodeOps';
 import { getScriptExportByScriptFile } from '../ops/ScriptOps';
 import { getThemeExportFromFile } from '../ops/ThemeOps';
 import { errorHandler } from '../ops/utils/OpsUtils';
+import { pulledFilePath, type PulledPaths } from './ConfigTreePath';
 import { printMessage } from './Console';
 
 const { getFilePath, readFiles, saveTextToFile, saveJsonToFile } = frodo.utils;
@@ -366,12 +367,26 @@ export function extractDataToFile(
   return `file://${file}`;
 }
 
+/**
+ * Extracts data to a file of a configuration tree in the format of config-manager. The path of the
+ * file passes the gate of a pull, so that it is inside the config folder.
+ * @param {any} data The data to extract
+ * @param {string} file The relative file path to the directory
+ * @param {string} directory The directory within the base directory to start. If not provided, defaults to base directory.
+ * @param {PulledPaths} pulledPaths Optional. The files of this pull, to refuse a file that another one of the pull replaces on a file system that ignores case
+ * @returns {{ file: string }} the reference to the extracted file, as it is written into the file that refers to it
+ * @throws {Error} if the path is not inside the config folder
+ */
 export function extractFrConfigDataToFile(
   data: any,
   file: string,
-  directory?: string
+  directory?: string,
+  pulledPaths?: PulledPaths
 ): { file: string } {
-  const filePath = getFilePath((directory ? `${directory}/` : '') + file, true);
+  const filePath = getFilePath(
+    pulledFilePath((directory ? `${directory}/` : '') + file, pulledPaths),
+    true
+  );
   if (typeof data === 'object') {
     saveJsonToFile(data, filePath, false);
   } else {

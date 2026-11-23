@@ -1,4 +1,5 @@
 import { frodo, state, type FullService } from '@rockcarver/frodo-lib';
+import { pulledFilePath } from '../utils/ConfigTreePath';
 import { printError, printMessage } from '../utils/Console';
 
 const { getFilePath, saveJsonToFile, readJsonFile } = frodo.utils;
@@ -35,7 +36,7 @@ export async function configManagerExportCors(): Promise<boolean> {
 
     saveJsonToFile(
       newCorsObject,
-      getFilePath('cors/cors-config.json', true),
+      getFilePath(pulledFilePath('cors/cors-config.json'), true),
       false,
       true
     );

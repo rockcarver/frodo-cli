@@ -1,5 +1,10 @@
 import fs from 'fs';
 import { frodo } from '@rockcarver/frodo-lib';
+import {
+  nameInFolder,
+  pulledFilePath,
+  PulledPaths,
+} from '../utils/ConfigTreePath';
 import { printError, printMessage } from '../utils/Console';
 import { causeOf } from '../utils/ErrorCause';
 import { countItems, importItemsOfFile } from '../utils/ImportItems';
@@ -41,11 +46,20 @@ export async function configManagerExportInternalRoles(
     const withPrivileges = roles.filter(
       (role) => role.privileges && role.privileges.length > 0
     );
+    const pulledPaths = new PulledPaths();
     for (const role of withPrivileges) {
       await run.run(role.name, () => {
+        pulledPaths.owner = role.name;
+        // the tenant names the role: its name is the name of its file here, never a path
         saveJsonToFile(
           role,
-          getFilePath(`internal-roles/${role.name}.json`, true),
+          getFilePath(
+            pulledFilePath(
+              `internal-roles/${nameInFolder(role.name)}.json`,
+              pulledPaths
+            ),
+            true
+          ),
           false,
           true
         );
@@ -85,6 +99,8 @@ export async function configManagerImportInternalRoles(
 ): Promise<boolean> {
   const run = new OperationRun({ unit: 'internal role', allowFailures });
   try {
+    // `.` and `..` name no internal role: the words of a pull
+    if (internalRoleName) nameInFolder(internalRoleName);
     const internalRolesDir = `${getWorkingDirectory()}/internal-roles`;
     if (!fs.existsSync(internalRolesDir)) {
       printMessage(

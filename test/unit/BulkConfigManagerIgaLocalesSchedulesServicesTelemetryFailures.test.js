@@ -23,7 +23,7 @@ import {
  *
  * Same technique as ConfigManagerDeleteFailures.test.js: the library is a deep
  * stub and every relative import of the modules under test is a set of spies,
- * while OperationRun, ErrorCause and the modules themselves stay real. The files
+ * while OperationRun, ErrorCause, ConfigTreePath and the modules themselves stay real. The files
  * of a push are real files in a temporary folder.
  */
 
@@ -239,9 +239,6 @@ const CASES = [
     unit: 'workflow',
     reason: (id) => `could not save ${id}`,
     arrange({ failing, attempted, spy }) {
-      spy('src/utils/FrConfig')
-        .safeFileName.mockReset()
-        .mockImplementation((name) => name);
       frodo.cloud.iga.workflow.readWorkflows.mockReset().mockResolvedValue(
         IDS.map((id) => ({
           id: `id-${id}`,
@@ -478,7 +475,8 @@ for (const file of FILES) {
     if (
       modulesUnderTest.has(target) ||
       target.endsWith('/utils/OperationRun') ||
-      target.endsWith('/utils/ErrorCause')
+      target.endsWith('/utils/ErrorCause') ||
+      target.endsWith('/utils/ConfigTreePath')
     ) {
       continue;
     }

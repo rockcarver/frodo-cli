@@ -1,6 +1,7 @@
 import fs from 'fs';
 import { readFile } from 'fs/promises';
 import { frodo, type ContentSecurityPolicy } from '@rockcarver/frodo-lib';
+import { pulledFilePath } from '../utils/ConfigTreePath';
 import { printError, printMessage } from '../utils/Console';
 import { lodashMerge } from '../utils/FrConfig';
 import { OperationRun } from '../utils/OperationRun';
@@ -39,7 +40,12 @@ export async function configManagerExportCsp(
       lodashMerge(csp, configFileData);
     }
 
-    saveJsonToFile(csp, getFilePath('csp/csp.json', true), false, true);
+    saveJsonToFile(
+      csp,
+      getFilePath(pulledFilePath('csp/csp.json'), true),
+      false,
+      true
+    );
     return true;
   } catch (error) {
     printError(error);

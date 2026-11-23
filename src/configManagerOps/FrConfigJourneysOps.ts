@@ -14,9 +14,12 @@ import {
 } from '../ops/JourneyFindingsHint';
 import { extractFrConfigDataToFile } from '../utils/Config';
 import {
-  fileNameOf,
+  encodedName,
+  nameInFolder,
   objectFilePath,
   objectFolderPath,
+  pulledFilePath,
+  PulledPaths,
   realmFolderOf,
   referencedFilePath,
 } from '../utils/ConfigTreePath';
@@ -61,6 +64,7 @@ export async function configManagerExportJourneys(
       realm && realm !== DEFAULT_REALM_KEY ? [realm] : await realmList();
     let found = false;
     let hintAtFindings = false;
+    const pulledPaths = new PulledPaths();
     for (const realmName of realmNames) {
       if (
         realmName === '/' &&
@@ -69,15 +73,12 @@ export async function configManagerExportJourneys(
       )
         continue;
       // the tenant names the realm: it is the name of a folder here, never a path
-      let realmDir: string;
-      try {
-        realmDir = realmFolderOf(realmName);
-      } catch (error) {
-        const reason = printable(causeOf(error));
-        printMessage(`${reason} Its journeys are not pulled.`, 'error');
-        run.recordFailure(`realm ${printable(realmName)}`, reason);
-        continue;
-      }
+      const realmDir = run.deriveOrFail(
+        `realm ${realmName}`,
+        () => realmFolderOf(realmName),
+        'Its journeys are not pulled.'
+      );
+      if (realmDir === undefined) continue;
       state.setRealm(realmName);
       // a journey that was read is counted when its files are written, so only the failures are counted here
       const report = run.resultCallback();
@@ -112,7 +113,9 @@ export async function configManagerExportJourneys(
         name,
         pullDependencies,
         clean,
-        run
+        run,
+        undefined,
+        pulledPaths
       );
     }
     if (hintAtFindings) printJourneyFindingsHint();
@@ -139,6 +142,7 @@ export async function configManagerExportJourneys(
  * @param {string} realmDir the realm directory
  * @param {boolean} pullDependencies include the script of the node
  * @param {SingleTreeExportInterface} journey the journey export
+ * @param {PulledPaths} pulledPaths the files of this pull, to refuse a file that another one replaces on a file system that ignores case
  */
 async function processNodeExport(
   node: NodeSkeleton,
@@ -146,7 +150,8 @@ async function processNodeExport(
   nodeDir: string,
   realmDir: string,
   pullDependencies: boolean,
-  journey: SingleTreeExportInterface
+  journey: SingleTreeExportInterface,
+  pulledPaths: PulledPaths
 ) {
   const nodeFileDir = `${nodeDir}/${safeFileName(`${displayName} - ${node._id}`)}`;
   if (node._type?._id === 'PageNode') {
@@ -157,7 +162,8 @@ async function processNodeExport(
         nodeFileDir,
         realmDir,
         pullDependencies,
-        journey
+        journey,
+        pulledPaths
       );
     }
   }
@@ -175,22 +181,31 @@ async function processNodeExport(
     ).script[node.script];
     const scriptsDir = `realms/${realmDir}/scripts/`;
     // the tenant names the script: its name, context and id are file names here, never paths
+    pulledPaths.owner = script._id;
     script.script = extractFrConfigDataToFile(
       script.script,
-      `scripts-content/${fileNameOf(String(script.context))}/${fileNameOf(String(script.name))}.js`,
-      scriptsDir
+      `scripts-content/${nameInFolder(String(script.context))}/${encodedName(String(script.name))}.js`,
+      scriptsDir,
+      pulledPaths
     ) as any;
     saveJsonToFile(
       script,
-      objectFilePath(getFilePath(`${scriptsDir}scripts-config`), script._id),
+      getFilePath(
+        pulledFilePath(
+          `${scriptsDir}scripts-config/${nameInFolder(script._id)}.json`,
+          pulledPaths
+        ),
+        true
+      ),
       false,
       true,
       true
     );
   }
+  pulledPaths.owner = node._id;
   saveJsonToFile(
     node,
-    getFilePath(`${nodeFileDir}.json`, true),
+    getFilePath(pulledFilePath(`${nodeFileDir}.json`, pulledPaths), true),
     false,
     true,
     true
@@ -206,6 +221,7 @@ async function processNodeExport(
  * @param {boolean} clean if true clear existing configuration, otherwise false
  * @param {OperationRun} run Optional. Runs the export of each journey as an operation of this run, so that a journey that cannot be written does not stop the others. Without it the first error is thrown.
  * @param {Set<string>} exported Optional. The journeys that were exported already, so that journeys that use each other are exported once and the recursion ends.
+ * @param {PulledPaths} pulledPaths Optional. The files of this pull, to refuse a file that another one replaces on a file system that ignores case
  */
 async function processJourneysExport(
   journeys: Record<string, SingleTreeExportInterface>,
@@ -214,7 +230,8 @@ async function processJourneysExport(
   pullDependencies: boolean = true,
   clean: boolean = false,
   run?: OperationRun,
-  exported: Set<string> = new Set()
+  exported: Set<string> = new Set(),
+  pulledPaths = new PulledPaths()
 ): Promise<void> {
   const journeysDir = `realms/${realmDir}/journeys`;
   for (const [treeId, journey] of Object.entries(journeys)) {
@@ -229,8 +246,14 @@ async function processJourneysExport(
       // the tenant names the journey: its id is the name of its folder and of its file, never a path
       const journeyDir = objectFolderPath(journeysDir, treeId);
       const nodeDir = `${journeyDir}/nodes`;
+      // the file of the journey is claimed first: a second journey that has the same file name fails before it writes a node
+      pulledPaths.owner = treeId;
+      pulledFilePath(objectFilePath(journeyDir, treeId), pulledPaths);
       if (clean) {
-        fs.rmSync(getFilePath(nodeDir), { recursive: true, force: true });
+        fs.rmSync(getFilePath(pulledFilePath(nodeDir, pulledPaths)), {
+          recursive: true,
+          force: true,
+        });
       }
       for (const node of Object.values(journey.nodes)) {
         if (
@@ -245,7 +268,8 @@ async function processJourneysExport(
             pullDependencies,
             clean,
             undefined,
-            exported
+            exported,
+            pulledPaths
           );
         }
         await processNodeExport(
@@ -254,13 +278,18 @@ async function processJourneysExport(
           nodeDir,
           realmDir,
           pullDependencies,
-          journey
+          journey,
+          pulledPaths
         );
       }
       // the file of the journey has the name of its folder, which is the name a push reads
+      pulledPaths.owner = treeId;
       saveJsonToFile(
         journey.tree,
-        getFilePath(objectFilePath(journeyDir, treeId), true),
+        getFilePath(
+          pulledFilePath(objectFilePath(journeyDir, treeId), pulledPaths),
+          true
+        ),
         false,
         true,
         true

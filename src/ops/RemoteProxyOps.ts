@@ -8,7 +8,12 @@ import {
   type RemoteProxySkeleton,
 } from '@rockcarver/frodo-lib';
 import c from '../utils/ColorTheme';
-import { objectFilePath } from '../utils/ConfigTreePath';
+import {
+  nameInFolder,
+  objectFilePath,
+  pulledFilePath,
+  PulledPaths,
+} from '../utils/ConfigTreePath';
 import {
   createProgressIndicator,
   createTable,
@@ -1031,12 +1036,21 @@ export async function configManagerExportRemoteProxies(
       ? [await remoteProxy.readRemoteProxy(name)]
       : keepAddressable(await remoteProxy.readRemoteProxies());
     const written: Record<string, RemoteProxySkeleton> = {};
+    const pulledPaths = new PulledPaths();
     for (const proxy of proxies) {
       const proxyName = getName(proxy);
       await run.run(proxyName, () => {
+        // the tenant names the remote proxy: its name is the name of its file here, never a path
+        pulledPaths.owner = proxyName;
         saveJsonToFile(
           proxy,
-          getFilePath(`${CONFIG_MANAGER_DIRECTORY}/${proxyName}.json`, true),
+          getFilePath(
+            pulledFilePath(
+              `${CONFIG_MANAGER_DIRECTORY}/${nameInFolder(proxyName)}.json`,
+              pulledPaths
+            ),
+            true
+          ),
           false,
           true
         );

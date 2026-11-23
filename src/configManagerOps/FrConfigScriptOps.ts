@@ -1,6 +1,14 @@
 import fs from 'fs';
 import { frodo, state, type ScriptSkeleton } from '@rockcarver/frodo-lib';
-import { objectFilePath, referencedFilePath } from '../utils/ConfigTreePath';
+import {
+  encodedName,
+  nameInFolder,
+  objectFilePath,
+  pulledFilePath,
+  PulledPaths,
+  realmFolderOf,
+  referencedFilePath,
+} from '../utils/ConfigTreePath';
 import {
   createProgressIndicator,
   printError,
@@ -8,7 +16,7 @@ import {
   stopProgressIndicator,
 } from '../utils/Console';
 import { causeOf } from '../utils/ErrorCause';
-import { fileFilter, realmList, safeFileName } from '../utils/FrConfig';
+import { fileFilter, realmList } from '../utils/FrConfig';
 import { OperationRun } from '../utils/OperationRun';
 
 const {
@@ -31,30 +39,40 @@ const { readScripts, readScriptByName, updateScript, deleteScript } =
  * (an application) uses it.
  * @param {ScriptSkeleton} script the script, as the library reads it
  * @param {string} realm the realm the script belongs to (`/` is written as `root`)
+ * @param {PulledPaths} pulledPaths Optional. The files of this pull, to refuse a script whose file another one replaces on a file system that ignores case
+ * @throws {Error} if the realm, the id, the context or the name of the script is not a name that a file can have
  * @throws {FrodoError} if a file cannot be written
  */
-export function exportScriptToFiles(script: ScriptSkeleton, realm: string) {
+export function exportScriptToFiles(
+  script: ScriptSkeleton,
+  realm: string,
+  pulledPaths?: PulledPaths
+) {
   const decodedScript = decodeBase64(
     Array.isArray(script.script) ? script.script.join('\n') : script.script
   );
-  const scriptName = safeFileName(script.name);
-  const relScriptPath = `scripts-content/${script.context}/${scriptName}.js`;
+  // the tenant names the realm, the id, the context and the script: each is one name here, never a path
+  const realmDir = realmFolderOf(realm);
+  if (pulledPaths) pulledPaths.owner = script._id;
+  const scriptName = encodedName(script.name);
+  const relScriptPath = `scripts-content/${nameInFolder(script.context)}/${scriptName}.js`;
   const fileObj = { file: relScriptPath };
-  const realmDir = realm === '/' ? 'root' : realm;
+  const configFile = pulledFilePath(
+    `realms/${realmDir}/scripts/scripts-config/${nameInFolder(script._id)}.json`,
+    pulledPaths
+  );
+  const contentFile = pulledFilePath(
+    `realms/${realmDir}/scripts/${relScriptPath}`,
+    pulledPaths
+  );
   saveJsonToFile(
     { ...script, script: fileObj },
-    getFilePath(
-      `realms/${realmDir}/scripts/scripts-config/${script._id}.json`,
-      true
-    ),
+    getFilePath(configFile, true),
     false,
     false,
     true
   );
-  saveTextToFile(
-    decodedScript,
-    getFilePath(`realms/${realmDir}/scripts/${relScriptPath}`, true)
-  );
+  saveTextToFile(decodedScript, getFilePath(contentFile, true));
 }
 
 /**
@@ -93,6 +111,7 @@ export async function configManagerExportScripts(
     }
     const run = new OperationRun({ unit: 'script', allowFailures });
     let cannotExportNamed = false;
+    const pulledPaths = new PulledPaths();
     for (const currentRealm of realms) {
       if (
         currentRealm === '/' &&
@@ -104,6 +123,16 @@ export async function configManagerExportScripts(
             'warn'
           );
         }
+        continue;
+      }
+      // the tenant names the realm: it is the name of a folder here, never a path
+      if (
+        run.deriveOrFail(
+          `realm ${currentRealm}`,
+          () => realmFolderOf(currentRealm),
+          'Its scripts are not pulled.'
+        ) === undefined
+      ) {
         continue;
       }
       state.setRealm(currentRealm);
@@ -159,7 +188,7 @@ export async function configManagerExportScripts(
         }
 
         try {
-          exportScriptToFiles(s, currentRealm);
+          exportScriptToFiles(s, currentRealm, pulledPaths);
           run.recordSuccess();
         } catch (error) {
           printError(

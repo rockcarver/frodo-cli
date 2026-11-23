@@ -22,7 +22,7 @@ import {
  *
  * Same technique as ConfigManagerDeleteFailures.test.js: the library is a deep
  * stub and every relative import of the module under test is a set of spies,
- * while OperationRun, ErrorCause and the module itself stay real. The files of
+ * while OperationRun, ErrorCause, ConfigTreePath and the module itself stay real. The files of
  * the config folder are real, in a temporary folder.
  */
 
@@ -71,7 +71,8 @@ const mocked = new Map();
     const target = path.resolve(importer, from).replace(/\.(js|ts)$/, '');
     if (
       target.endsWith('/utils/OperationRun') ||
-      target.endsWith('/utils/ErrorCause')
+      target.endsWith('/utils/ErrorCause') ||
+      target.endsWith('/utils/ConfigTreePath')
     ) {
       continue;
     }

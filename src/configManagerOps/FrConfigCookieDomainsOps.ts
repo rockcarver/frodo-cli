@@ -1,4 +1,5 @@
 import { frodo } from '@rockcarver/frodo-lib';
+import { pulledFilePath } from '../utils/ConfigTreePath';
 import { printError } from '../utils/Console';
 
 const { getFilePath, saveJsonToFile, readJsonFile } = frodo.utils;
@@ -13,7 +14,7 @@ export async function configManagerExportCookieDomains(): Promise<boolean> {
     const exportData = await readCookieDomains();
     saveJsonToFile(
       exportData,
-      getFilePath('cookie-domains/cookie-domains.json', true),
+      getFilePath(pulledFilePath('cookie-domains/cookie-domains.json'), true),
       false
     );
     return true;

@@ -4,6 +4,11 @@ import {
   FrodoError,
   type CustomNodeSkeleton,
 } from '@rockcarver/frodo-lib';
+import {
+  nameInFolder,
+  pulledFilePath,
+  PulledPaths,
+} from '../utils/ConfigTreePath';
 import { printError, printMessage } from '../utils/Console';
 import { causeOf } from '../utils/ErrorCause';
 import { fileFilter } from '../utils/FrConfig';
@@ -53,20 +58,36 @@ export async function configManagerExportCustomNodes(
       return false;
     }
     const run = new OperationRun({ unit: 'custom node', allowFailures });
+    const pulledPaths = new PulledPaths();
     for (const node of customNodes) {
       try {
-        const nodeDir = getFilePath(
-          `custom-nodes/nodes/${node.displayName}/`,
-          true
-        );
-        const scriptFileName = `${node.displayName}.js`;
-        const jsonFileName = `${node.displayName}.json`;
+        // the tenant names the custom node: its display name is the name of its folder and its files here, never a path
+        pulledPaths.owner = node.displayName;
+        const nodeName = nameInFolder(node.displayName);
+        const nodeFolder = `custom-nodes/nodes/${nodeName}`;
+        const scriptFileName = `${nodeName}.js`;
+        const jsonFileName = `${nodeName}.json`;
+        // both files are checked before the first one is written
+        pulledFilePath(`${nodeFolder}/${scriptFileName}`, pulledPaths);
+        pulledFilePath(`${nodeFolder}/${jsonFileName}`, pulledPaths);
 
-        saveTextToFile(`${node.script}`, nodeDir + scriptFileName);
+        saveTextToFile(
+          `${node.script}`,
+          getFilePath(
+            pulledFilePath(`${nodeFolder}/${scriptFileName}`, pulledPaths),
+            true
+          )
+        );
         (node as any).script = { file: scriptFileName };
 
-        const filePath = nodeDir + jsonFileName;
-        saveJsonToFile(node, filePath, false);
+        saveJsonToFile(
+          node,
+          getFilePath(
+            pulledFilePath(`${nodeFolder}/${jsonFileName}`, pulledPaths),
+            true
+          ),
+          false
+        );
         run.recordSuccess();
       } catch (error) {
         printError(error, `Error exporting custom node ${node.displayName}`);
@@ -122,6 +143,8 @@ export async function configManagerImportCustomNodes(
 ): Promise<boolean> {
   const run = new OperationRun({ unit: 'custom node', allowFailures });
   try {
+    // `.` and `..` name no custom node: the words of a pull
+    if (nodeName) nameInFolder(nodeName);
     const nodesDir = `${getWorkingDirectory()}/custom-nodes/nodes`;
     if (!fs.existsSync(nodesDir)) {
       printMessage(

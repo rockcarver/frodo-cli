@@ -5,6 +5,11 @@ import {
   type VersionOfSecretSkeleton,
 } from '@rockcarver/frodo-lib';
 import {
+  nameInFolder,
+  pulledFilePath,
+  PulledPaths,
+} from '../utils/ConfigTreePath';
+import {
   createProgressIndicator,
   printError,
   printMessage,
@@ -105,8 +110,15 @@ export async function configManagerExportSecrets(
 
     const run = new OperationRun({ unit: 'secret', allowFailures });
     let exported = 0;
+    const pulledPaths = new PulledPaths();
     for (const secret of secrets) {
       try {
+        // the tenant names the secret: its id is the name of its file here, never a path
+        pulledPaths.owner = secret._id;
+        const secretFile = pulledFilePath(
+          `esvs/secrets/${nameInFolder(secret._id)}.json`,
+          pulledPaths
+        );
         const cleanSecret: Partial<SecretSkeleton> = {
           _id: secret._id,
           description: secret.description,
@@ -132,11 +144,7 @@ export async function configManagerExportSecrets(
           cleanSecret.versions = versionInfo;
         }
 
-        saveJsonToFile(
-          cleanSecret,
-          getFilePath(`esvs/secrets/${secret._id}.json`, true),
-          false
-        );
+        saveJsonToFile(cleanSecret, getFilePath(secretFile, true), false);
         run.recordSuccess();
         exported++;
         updateProgressIndicator(indicatorId, `Exported secret ${secret._id}`);

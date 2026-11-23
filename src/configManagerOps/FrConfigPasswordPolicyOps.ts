@@ -1,5 +1,11 @@
 import fs from 'fs';
 import { frodo, state } from '@rockcarver/frodo-lib';
+import {
+  nameInFolder,
+  pulledFilePath,
+  PulledPaths,
+  realmFolderOf,
+} from '../utils/ConfigTreePath';
 import { printError, printMessage } from '../utils/Console';
 import { causeOf } from '../utils/ErrorCause';
 import { realmList } from '../utils/FrConfig';
@@ -24,6 +30,7 @@ export async function configManagerExportPasswordPolicy(
     const realms =
       realm && realm !== DEFAULT_REALM_KEY ? [realm] : await realmList();
     const run = new OperationRun({ unit: 'realm', allowFailures });
+    const pulledPaths = new PulledPaths();
     for (const currentRealm of realms) {
       if (
         currentRealm === '/' &&
@@ -33,14 +40,17 @@ export async function configManagerExportPasswordPolicy(
         continue;
       }
       try {
+        // the tenant names the realm: it is the name of a folder here, never a path
+        const realmDir = realmFolderOf(currentRealm);
+        pulledPaths.owner = currentRealm;
         const objectName = `${currentRealm === '/' ? '' : `${currentRealm}_`}user`;
         const passwordPolicy = await readConfigEntity(
           `fieldPolicy/${objectName}`
         );
-        const fileName = `realms/${currentRealm === '/' ? 'root' : currentRealm}/password-policy/${objectName}-password-policy.json`;
+        const fileName = `realms/${realmDir}/password-policy/${nameInFolder(`${objectName}-password-policy`)}.json`;
         saveJsonToFile(
           passwordPolicy,
-          getFilePath(fileName, true),
+          getFilePath(pulledFilePath(fileName, pulledPaths), true),
           false,
           true
         );
