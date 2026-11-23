@@ -857,6 +857,10 @@ describe('answers', () => {
     expect(tenant.last().url).toBe(
       '/openidm/managed/alpha_user?_queryFilter=userName+eq+%22bjensen%22&_fields=a%5B0%5D,%27b%27'
     );
+    // a quote in the path (an id such as o'brien) is encoded too; the request
+    // layer would leave it as it is
+    await $.get("/openidm/managed/alpha_user/o'brien");
+    expect(tenant.last().url).toBe('/openidm/managed/alpha_user/o%27brien');
   });
 
   test('L16 json, text, invalid json, no content, and 12 MiB in each direction', async () => {
