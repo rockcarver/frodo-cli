@@ -9,11 +9,17 @@ import { Command } from 'commander';
  * sequence (state read, question, lock, operation, unlock) and the contract of
  * the lock:
  *
- * - it starts only when both environments are unlocked;
- * - after every outcome that has ended the lock is released by its id;
+ * - it starts only when both environments are unlocked and no operation runs;
+ * - the only lock it releases is the one whose id came back from its own lock
+ *   request, by that id, after every outcome that has ended;
  * - while the platform still works on the operation, or when its status cannot
  *   be read, it is not released;
- * - after a failed lock request only a state `locked` is released.
+ * - after a failed lock request nothing is released, and a lock that the wait
+ *   returns with another id is not released either.
+ *
+ * What these tests cannot show: a platform that answers a lock request on a held
+ * lock with the id of the HELD lock gives the request, the wait and the lock the
+ * same id, and the comparison of the ids does not see it.
  *
  * The same sequences run against the real library and the fake tenant in
  * PromoteFullFakeAm.test.js, and the questions that need a terminal in
@@ -383,10 +389,13 @@ describe.each(COMMANDS)('%s', (name, setup, operationName, statusType) => {
           'lockEnvironment',
         ]);
         expect(unlockEnvironment).not.toHaveBeenCalled();
-        expect(errors()).toContain(`lock id ${OTHER_ID}`);
-        expect(errors()).toContain(`lock id ${LOCK_ID}`);
-        expect(errors()).toContain('somebody else');
+        expect(errors()).toContain(`${OTHER_ID} instead of ${LOCK_ID}`);
+        // it says what is known, not whose the lock is
+        expect(errors()).toContain('cannot tell whose lock it is');
+        expect(errors()).not.toContain("somebody else's");
+        // the ids that may be left over are named, with the command for each
         expect(errors()).toContain(`unlock-tenants --id ${OTHER_ID}`);
+        expect(errors()).toContain(`unlock-tenants --id ${LOCK_ID}`);
         expect(exitCode).toBe(1);
       });
 

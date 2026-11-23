@@ -826,12 +826,13 @@ suite('config-manager promote --full through the CLI', () => {
         ]);
 
         expect(calls()).toEqual([STATE, 'GET promote', 'POST lock', STATE]);
-        expect(stderr).toContain(`lock id ${OTHER_LOCK_ID}`);
-        expect(stderr).toContain(`lock id ${LOCK_ID}`);
-        expect(stderr).toContain('somebody else');
+        expect(stderr).toContain(`${OTHER_LOCK_ID} instead of ${LOCK_ID}`);
+        expect(stderr).toContain('cannot tell whose lock it is');
+        expect(stderr).not.toContain("somebody else's");
         expect(stderr).toContain(
           `promote unlock-tenants --id ${OTHER_LOCK_ID}`
         );
+        expect(stderr).toContain(`promote unlock-tenants --id ${LOCK_ID}`);
         expect(code).toBe(1);
         expect(await lockNow(server)).toBe('locked');
       },

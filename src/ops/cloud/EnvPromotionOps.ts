@@ -286,9 +286,11 @@ async function explainFailedLock(op: Operation): Promise<void> {
 }
 
 /**
- * The lock that came back from the wait is not the one this command asked
- * for: somebody else holds the environments. Nothing is started and nothing is
- * released.
+ * The lock that came back from the wait has another id than the lock request of
+ * this command returned. The command cannot tell whose lock it is: somebody
+ * else's, or a second lock request that the library sent while the first was not
+ * yet visible and that got an id of its own. Nothing is started and nothing is
+ * released; both ids are named with the command that releases a lock by its id.
  * @param {Operation} op the operation
  * @param {string} ownId the id that the lock request of this command returned
  * @param {string | undefined} foundId the id that the wait returned
@@ -299,7 +301,7 @@ function explainForeignLock(
   foundId: string | undefined
 ): void {
   printMessage(
-    `The ${op.noun} did not start. The environments are locked by ${foundId ? `lock id ${foundId}` : 'a lock without an id'}, not by the lock that this command asked for (lock id ${ownId}). That lock is somebody else's, so nothing was started and nothing was unlocked. Look at:\n${checkLockCommand()}${foundId ? `\nA lock that is left over is released with:\n${unlockCommand(foundId)}` : ''}`,
+    `The ${op.noun} did not start. The lock that came back has another id than the one this command asked for (${foundId ?? 'no id'} instead of ${ownId}): this command cannot tell whose lock it is. Nothing was started and nothing was unlocked. Look at:\n${checkLockCommand()}\nA lock that is left over is released by its id:${foundId ? `\n${unlockCommand(foundId)}` : ''}\n${unlockCommand(ownId)}`,
     'error'
   );
 }
@@ -314,12 +316,20 @@ type UnlockResult = 'done' | 'failed' | 'kept';
  * Run an operation between a lock and an unlock of the environments (`--full`).
  *
  * The lock contract:
- * - it starts only when both environments are unlocked and no operation runs
- *   (read right before the lock request, after the question);
+ * - it starts only when both environments are unlocked and no operation runs,
+ *   read right before the lock request (after the question); a lock that
+ *   somebody else takes in the two round trips after that reading is not seen by
+ *   this reading;
  * - the only lock it ever releases is the one whose id came back from its own
- *   lock request. It keeps that id across the wait and requires the lock that
- *   the wait returns to carry it: any other id is somebody else's lock, nothing
- *   is started and nothing is released;
+ *   lock request. It keeps that id across the wait and compares it with the id
+ *   that the wait returns: another id is not the lock this command asked for,
+ *   and then nothing is started and nothing is released. This comparison sees a
+ *   lock that somebody else took in between only if the platform gives every
+ *   lock request its own id. If the platform answers a lock request on a lock
+ *   that is held with the id of the HELD lock, the comparison cannot see it, and
+ *   the command would go on under that lock and release it. Whether the platform
+ *   answers like that is not verified; the attended recording session is to
+ *   probe it;
  * - it unlocks that lock after every outcome that has ended: success, an error
  *   of the platform, a refused request, an answer of no to the encrypted
  *   secrets;
@@ -387,9 +397,14 @@ async function runBetweenLockAndUnlock({
     `Locking both environments. If this command is stopped now, they may end up locked; this shows it:\n${checkLockCommand()}`,
     'info'
   );
-  // The lock is requested without waiting, so that the id that comes back is
-  // the id of THIS request, and kept across the wait: a lock that the wait
-  // returns with another id is somebody else's.
+  // The lock is requested without waiting, so that the answer carries the id of
+  // THIS request. That id is kept across the wait and compared with the id that
+  // the wait returns. The comparison catches a lock that somebody else took in
+  // between only if the platform gives every lock request its own id: if it
+  // answers a lock request on a held lock with the id of the HELD lock, the
+  // comparison cannot see it (the window is the two round trips between the
+  // reading of the state and this request; this platform behaviour is not
+  // verified, the attended recording session is to probe it).
   let lockId: string | undefined;
   try {
     lockId = (await lockEnvironment(false)).promotionId;
