@@ -117,7 +117,7 @@ describe('frodo shell PTY (console mode)', () => {
           // ctrl-r, then a fuzzy query, then Enter to re-run
           { type: 'key', name: 'ctrl_r' },
           { type: 'send', text: 'markerAA' },
-          { type: 'wait_plain', regex: '\\(fuzzy-search\\).*1/1' },
+          { type: 'wait_plain', regex: '\\(fuzzy-search\\) markerAA 1/1' },
           { type: 'capture', label: 'search' },
           { type: 'clear_output' },
           { type: 'key', name: 'enter' },
