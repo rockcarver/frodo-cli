@@ -1,3 +1,4 @@
+import * as realCrypto from 'node:crypto';
 import {
   afterEach,
   beforeEach,
@@ -11,6 +12,11 @@ import {
 // itself (crypto.randomUUID) and not by a package. Two indicators never share
 // an id: the id is the key of the table of running indicators, so a repeated
 // id would make one indicator replace another.
+
+// `node:crypto` as Console.ts imports it: the real function behind a spy, so
+// that a test can see the calls and give out a known value
+const randomUUID = jest.fn((...args) => realCrypto.randomUUID(...args));
+jest.unstable_mockModule('node:crypto', () => ({ ...realCrypto, randomUUID }));
 
 jest.unstable_mockModule('@rockcarver/frodo-lib', () => ({
   frodo: { utils: {} },
@@ -37,6 +43,9 @@ let errorOutput;
 
 beforeEach(() => {
   errorOutput = jest.spyOn(console, 'error').mockImplementation(() => {});
+  randomUUID
+    .mockReset()
+    .mockImplementation((...args) => realCrypto.randomUUID(...args));
 });
 
 afterEach(() => {
@@ -80,5 +89,24 @@ describe('the id of a progress indicator', () => {
       /not found/.test(String(text))
     );
     expect(notFound).toEqual([]);
+  });
+
+  test('comes from randomUUID of node:crypto, one call for each indicator, and not from Math.random', () => {
+    const random = jest.spyOn(Math, 'random');
+    randomUUID
+      .mockReturnValueOnce('11111111-1111-4111-8111-111111111111')
+      .mockReturnValueOnce('22222222-2222-4222-8222-222222222222');
+    const first = createProgressIndicator('indeterminate', 0, 'One');
+    const second = createProgressIndicator('indeterminate', 0, 'Two');
+    try {
+      expect(first).toBe('11111111-1111-4111-8111-111111111111');
+      expect(second).toBe('22222222-2222-4222-8222-222222222222');
+      expect(randomUUID).toHaveBeenCalledTimes(2);
+      expect(random).not.toHaveBeenCalled();
+    } finally {
+      random.mockRestore();
+      stopProgressIndicator(first);
+      stopProgressIndicator(second);
+    }
   });
 });
