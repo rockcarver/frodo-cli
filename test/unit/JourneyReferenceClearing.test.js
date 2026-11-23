@@ -89,10 +89,12 @@ describe('the table: what --force does for each source of the library', () => {
 
       const plan = planJourneyDelete([reference]);
 
-      const where = { clear: 'clear', unlink: 'unlink', leave: 'dangling' }[
-        EXPECTED[source]
-      ];
-      for (const list of ['clear', 'unlink', 'kept', 'dangling']) {
+      const where = {
+        clear: 'clear',
+        unlink: 'removeLinks',
+        leave: 'dangling',
+      }[EXPECTED[source]];
+      for (const list of ['clear', 'removeLinks', 'kept', 'dangling']) {
         expect([list, plan[list]]).toEqual([
           list,
           list === where ? [reference] : [],
@@ -114,7 +116,7 @@ describe('the plan', () => {
       keepLinks: true,
     });
 
-    expect(plan.unlink).toEqual([]);
+    expect(plan.removeLinks).toEqual([]);
     expect(plan.kept).toEqual([REFERENCES.theme]);
     expect(plan.clear.map((r) => r.source)).toEqual([
       'oauth2-client',
@@ -135,7 +137,7 @@ describe('the plan', () => {
   test('plans nothing for no reference', () => {
     expect(planJourneyDelete([])).toEqual({
       clear: [],
-      unlink: [],
+      removeLinks: [],
       kept: [],
       dangling: [],
     });

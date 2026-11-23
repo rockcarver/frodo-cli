@@ -776,7 +776,7 @@ function planLines(
   );
   section(
     'Before that, remove the journey from the list of journeys of these themes (--keep-links leaves it):',
-    plan.unlink.map(describeReference)
+    plan.removeLinks.map(describeReference)
   );
   section(
     'Keep the link in these themes (--keep-links):',
@@ -944,7 +944,7 @@ async function deleteNamedJourney(
     );
     stepsDone &&= done;
   }
-  for (const reference of plan.unlink) {
+  for (const reference of plan.removeLinks) {
     const done = await run.run(
       `remove the journey from ${describeReference(reference)}`,
       async () => {

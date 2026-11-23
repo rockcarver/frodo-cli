@@ -99,7 +99,7 @@ export type JourneyDeletePlan = {
   /** Holders whose reference is cleared before the journey is deleted. */
   clear: ClearableReference[];
   /** Themes that link the journey and are changed. */
-  unlink: ThemeReference[];
+  removeLinks: ThemeReference[];
   /** Themes that link the journey and are not changed (`--keep-links`). */
   kept: ThemeReference[];
   /** Holders that are reported and not changed: they point at nothing afterwards. */
@@ -120,7 +120,7 @@ export function planJourneyDelete(
 ): JourneyDeletePlan {
   const plan: JourneyDeletePlan = {
     clear: [],
-    unlink: [],
+    removeLinks: [],
     kept: [],
     dangling: [],
   };
@@ -132,7 +132,9 @@ export function planJourneyDelete(
     if (action === 'clear' && !inherited) {
       plan.clear.push(reference as ClearableReference);
     } else if (action === 'unlink') {
-      (keepLinks ? plan.kept : plan.unlink).push(reference as ThemeReference);
+      (keepLinks ? plan.kept : plan.removeLinks).push(
+        reference as ThemeReference
+      );
     } else {
       plan.dangling.push(reference);
     }
