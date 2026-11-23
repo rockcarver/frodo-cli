@@ -12,6 +12,8 @@
 //   2), so the guard is never silently off in CI. A re-run fixes a network flake.
 // - no event (a developer or an agent at a terminal): origin/main when it
 //   exists, otherwise a note and exit 0. CI is the guard, this is a convenience.
+//   Here a change that is staged or edited but not committed yet counts too, so
+//   "edit, run check, commit" gets its warning before the commit.
 // - any other event (push, workflow_dispatch): a note and exit 0. The Release
 //   job's own commit lands on main by push and must pass.
 //
@@ -26,7 +28,12 @@
 // git is run without a shell (execFileSync), so this works the same on Windows.
 import { execFileSync } from 'node:child_process';
 import fs from 'node:fs';
-import { formatProblems, matchesPaths, RULES } from './pull-request-rules.mjs';
+import {
+  formatProblems,
+  matchesPaths,
+  RULES,
+  workflowError,
+} from './pull-request-rules.mjs';
 
 const PREFIX = 'check:pull-request:';
 const SHA = /^[0-9a-f]{40}(?:[0-9a-f]{24})?$/;
@@ -34,14 +41,6 @@ const FETCH_TIMEOUT_MS = 300000;
 
 /** A reason that the base cannot be resolved or git cannot answer. */
 class Undecided extends Error {}
-
-/** The data of a workflow command: `%`, CR and LF are escaped, or the line would end early. */
-function escapeData(text) {
-  return String(text)
-    .replace(/%/g, '%25')
-    .replace(/\r/g, '%0D')
-    .replace(/\n/g, '%0A');
-}
 
 /** A commit id as people read it; a name such as origin/main stays as it is. */
 function short(revision) {
@@ -136,7 +135,8 @@ function commitsTouching(mergeBase, pathspec) {
     .filter(Boolean);
   return shas.map((sha) => ({
     sha,
-    subject: git(['log', '-1', '--format=%s', sha]).trim(),
+    // `--` after every revision: a file named like one must not make git ask
+    subject: git(['log', '-1', '--format=%s', sha, '--']).trim(),
     files: git([
       'diff-tree',
       '--root',
@@ -146,14 +146,26 @@ function commitsTouching(mergeBase, pathspec) {
       '--no-renames',
       '-z',
       sha,
+      '--',
     ])
       .split('\0')
       .filter(Boolean),
   }));
 }
 
-/** Prints the answer of every rule; returns 0 or 1. */
-function checkRules(base) {
+/** The files that differ from HEAD in the index or the working tree. */
+function uncommittedFiles() {
+  return git(['diff', '--name-only', '--no-renames', '-z', 'HEAD', '--'])
+    .split('\0')
+    .filter(Boolean);
+}
+
+/**
+ * Prints the answer of every rule; returns 0 or 1. `workingTree`: also look at
+ * what is staged or edited but not committed yet (a person at a terminal, not
+ * CI, where the commit is what counts).
+ */
+function checkRules(base, { workingTree = false } = {}) {
   let mergeBase;
   try {
     mergeBase = git(['merge-base', base, 'HEAD']).trim();
@@ -171,16 +183,19 @@ function checkRules(base) {
     '-z',
     mergeBase,
     'HEAD',
+    '--',
   ])
     .split('\0')
     .filter(Boolean);
+  const edited = workingTree ? uncommittedFiles() : [];
   const problems = [];
   for (const rule of RULES) {
     const netChanged = changed.some((file) => matchesPaths(file, rule.paths));
+    const uncommitted = edited.some((file) => matchesPaths(file, rule.paths));
     // :(top,literal) so that it works from a subfolder and a name is no pattern
     const pathspec = rule.paths.map((path) => `:(top,literal)${path}`);
     const commits = netChanged ? commitsTouching(mergeBase, pathspec) : [];
-    problems.push(...rule.check({ netChanged, commits }));
+    problems.push(...rule.check({ netChanged, commits, uncommitted }));
   }
   if (problems.length === 0) {
     console.log(
@@ -193,7 +208,7 @@ function checkRules(base) {
     for (const rule of RULES) {
       if (problems.some((problem) => problem.rule === rule.id)) {
         console.error(
-          `::error title=Pull request rule ${rule.id}::${rule.summary}`
+          workflowError(`Pull request rule ${rule.id}`, rule.summary)
         );
       }
     }
@@ -221,7 +236,7 @@ function run() {
     );
     return 0;
   }
-  return checkRules('origin/main');
+  return checkRules('origin/main', { workingTree: true });
 }
 
 const failClosed = process.env.GITHUB_EVENT_NAME === 'pull_request';
@@ -235,7 +250,7 @@ try {
     );
     if (process.env.GITHUB_ACTIONS === 'true') {
       console.error(
-        `::error title=Pull request rules::${escapeData(`cannot decide: ${reason}`)}`
+        workflowError('Pull request rules', `cannot decide: ${reason}`)
       );
     }
     process.exitCode = 2;

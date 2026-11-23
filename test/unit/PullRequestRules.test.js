@@ -11,6 +11,7 @@ import {
   matchesPaths,
   RELEASE_FILES,
   RULES,
+  workflowError,
 } from '../../tools/pull-request-rules.mjs';
 
 /**
@@ -48,13 +49,14 @@ describe('isReleaseCommit', () => {
     }
   });
 
-  it('accepts all three release files and each of them alone', () => {
+  it('accepts all three release files together and each of them alone', () => {
     expect(isReleaseCommit({ subject: RELEASE, files: RELEASE_FILES })).toBe(
       true
     );
-    expect(isReleaseCommit({ subject: RELEASE, files: ['CHANGELOG.md'] })).toBe(
-      true
-    );
+    expect(RELEASE_FILES).toHaveLength(3);
+    for (const file of RELEASE_FILES) {
+      expect(isReleaseCommit({ subject: RELEASE, files: [file] })).toBe(true);
+    }
   });
 
   it('rejects a feature subject, even when it only changes the release files', () => {
@@ -72,6 +74,24 @@ describe('isReleaseCommit', () => {
     ]) {
       expect(
         isReleaseCommit({ subject: RELEASE, files: ['CHANGELOG.md', other] })
+      ).toBe(false);
+    }
+  });
+
+  it('rejects a file that merely starts with the name of a release file', () => {
+    for (const near of [
+      'CHANGELOG.md.bak',
+      'package.json.bak',
+      'package.json.js',
+      'package.jsonx',
+      'package-lock.jsonx',
+      'package-lock.json.orig',
+      'CHANGELOG.mdx',
+      'docs/package.json',
+    ]) {
+      expect(isReleaseCommit({ subject: RELEASE, files: [near] })).toBe(false);
+      expect(
+        isReleaseCommit({ subject: RELEASE, files: ['CHANGELOG.md', near] })
       ).toBe(false);
     }
   });
@@ -208,6 +228,40 @@ describe('changelogProblems', () => {
     expect(problems[0].sha).toBe('');
     expect(problems[0].subject).toMatch(/merge commit/);
   });
+
+  it('names an uncommitted change, with or without a clean net result', () => {
+    const only = changelogProblems({
+      netChanged: false,
+      commits: [],
+      uncommitted: true,
+    });
+    expect(only).toHaveLength(1);
+    expect(only[0].sha).toBe('');
+    expect(only[0].subject).toMatch(/uncommitted/);
+    // a release commit is no excuse for an edit that is not committed yet
+    expect(
+      changelogProblems({
+        netChanged: true,
+        commits: [release],
+        uncommitted: true,
+      })
+    ).toEqual(only);
+    // and it is one more problem beside the commits
+    expect(
+      changelogProblems({
+        netChanged: true,
+        commits: [feature],
+        uncommitted: true,
+      })
+    ).toHaveLength(2);
+  });
+
+  it('says nothing about uncommitted changes unless it is told of them', () => {
+    expect(
+      changelogProblems({ netChanged: false, commits: [], uncommitted: false })
+    ).toEqual([]);
+    expect(changelogProblems({ netChanged: false, commits: [] })).toEqual([]);
+  });
 });
 
 describe('the message for the contributor', () => {
@@ -222,14 +276,33 @@ describe('the message for the contributor', () => {
 
   it('says what to do and where the rule is written', () => {
     expect(text).toContain('CHANGELOG.md');
+    expect(text).toContain('release pipeline');
     expect(text).toContain('title and description');
     expect(text).toContain('git checkout abc123456 -- CHANGELOG.md');
-    expect(text).toContain('release commit');
     expect(text).toContain('AGENTS.md');
+    expect(text).toContain('docs/PIPELINE.md');
+    expect(text).toContain('"Pull request rules"');
   });
 
-  it('names the commit', () => {
+  it('does not spell out how the one exemption is passed', () => {
+    // whoever is blocked reads this text, and an agent would follow it as a recipe
+    expect(text).not.toMatch(/Updated changelog/i);
+    expect(text).not.toContain('[skip ci]');
+    expect(text).not.toContain('package.json');
+    expect(text).not.toContain('package-lock.json');
+    expect(text).not.toMatch(/release commit/i);
+  });
+
+  it('names the commit and the uncommitted change', () => {
     expect(text).toContain('012345678 feat: add a command');
+    const both = formatProblems(
+      [
+        ...problems,
+        { rule: 'changelog', sha: '', subject: 'an uncommitted change' },
+      ],
+      { mergeBase: 'abc123456' }
+    );
+    expect(both).toContain('(an uncommitted change)');
   });
 
   it('is empty when nothing is wrong', () => {
@@ -243,6 +316,15 @@ describe('the message for the contributor', () => {
       expect(rule.summary).not.toMatch(/@/);
       expect(rule.summary.split('\n')).toHaveLength(1);
     }
+  });
+
+  it('writes a workflow command whose parts cannot end it early', () => {
+    expect(workflowError('Pull request rule changelog', 'one line')).toBe(
+      '::error title=Pull request rule changelog::one line'
+    );
+    expect(workflowError('a,b: c%', '100% of\r\ntwo lines')).toBe(
+      '::error title=a%2Cb%3A c%25::100%25 of%0D%0Atwo lines'
+    );
   });
 
   it('has one entry per rule, with the files it looks at', () => {
@@ -365,7 +447,8 @@ describeIfGit('the runner, in a throw-away git repository', () => {
   /**
    * Runs the guard in `cwd` (default: the repository). `base` is the base
    * commit of the fake pull_request event; `eventName: ''` runs it with no
-   * event, as a developer does.
+   * event, as a developer does. `env` adds environment variables, `eventPath`
+   * names the event file instead of writing one.
    */
   function guard(
     repo,
@@ -374,21 +457,25 @@ describeIfGit('the runner, in a throw-away git repository', () => {
       cloneUrl = 'file:///no-such-upstream-for-this-test',
       eventName = 'pull_request',
       eventText,
+      eventPath,
+      env: extraEnv = {},
       cwd = repo.dir,
     } = {}
   ) {
-    const env = gitEnv(repo.home);
+    const env = { ...gitEnv(repo.home), ...extraEnv };
     if (eventName) {
-      const eventFile = path.join(repo.home, 'event.json');
-      fs.writeFileSync(
-        eventFile,
-        eventText ??
-          JSON.stringify({
-            pull_request: {
-              base: { sha: base, repo: { clone_url: cloneUrl } },
-            },
-          })
-      );
+      const eventFile = eventPath ?? path.join(repo.home, 'event.json');
+      if (!eventPath) {
+        fs.writeFileSync(
+          eventFile,
+          eventText ??
+            JSON.stringify({
+              pull_request: {
+                base: { sha: base, repo: { clone_url: cloneUrl } },
+              },
+            })
+        );
+      }
       env.GITHUB_EVENT_NAME = eventName;
       env.GITHUB_EVENT_PATH = eventFile;
     }
@@ -428,6 +515,9 @@ describeIfGit('the runner, in a throw-away git repository', () => {
     expect(result.err).toContain(
       `${sha.slice(0, 9)} feat: a command and its changelog entry`
     );
+    // the way through is not spelled out to whoever is blocked
+    expect(result.err).toContain('docs/PIPELINE.md');
+    expect(result.err).not.toMatch(/Updated changelog/i);
   });
 
   it('G2: passes a branch that leaves the file alone', () => {
@@ -677,6 +767,109 @@ describeIfGit('the runner, in a throw-away git repository', () => {
     const result = guard(repo, { base });
     expect(result.status).toBe(1);
     expect(result.err).toContain('merge commit');
+  });
+
+  /** A clone of a repository, on a branch, so that origin/main exists (a person at a terminal). */
+  function terminalBranch(label) {
+    const clone = makeRepo(label, { from: makeRepo(`${label}-upstream`) });
+    clone.git('checkout', '-q', '-b', 'feature');
+    return clone;
+  }
+
+  it('G15: in GitHub Actions a violation prints an annotation, and so does a refusal to decide', () => {
+    const repo = makeRepo('g15');
+    const base = repo.git('rev-parse', 'HEAD');
+    repo.git('checkout', '-q', '-b', 'feature');
+    repo.commit('feat: an entry', { 'CHANGELOG.md': '# Changelog\n\nentry\n' });
+
+    const violation = guard(repo, { base, env: { GITHUB_ACTIONS: 'true' } });
+    expect(violation.status).toBe(1);
+    expect(violation.err).toMatch(
+      /^::error title=Pull request rule changelog::CHANGELOG\.md is generated at release time\./m
+    );
+    // the long text stays in the log, the annotation is one line
+    expect(
+      violation.err.split('\n').filter((line) => line.startsWith('::error'))
+    ).toHaveLength(1);
+    expect(guard(repo, { base }).err).not.toContain('::error');
+
+    // a path with a percent sign: the escaping keeps the command in one piece
+    const missing = path.join(repo.home, 'event 100%.json');
+    const undecided = guard(repo, {
+      eventPath: missing,
+      env: { GITHUB_ACTIONS: 'true' },
+    });
+    expect(undecided.status).toBe(2);
+    expect(undecided.err).toMatch(
+      /^::error title=Pull request rules::cannot decide: cannot read the event file: .*100%25\.json/m
+    );
+    expect(guard(repo, { eventPath: missing }).err).not.toContain('::error');
+  });
+
+  it('G16: at a terminal a change that is staged or edited but not committed counts', () => {
+    const clone = terminalBranch('g16');
+    clone.commit('feat: code only', { 'src/a.ts': 'export const a = 2;\n' });
+    expect(guard(clone, { eventName: '' }).status).toBe(0);
+
+    // edited, not staged
+    clone.write('CHANGELOG.md', '# Changelog\n\nentry\n');
+    const edited = guard(clone, { eventName: '' });
+    expect(edited.status).toBe(1);
+    expect(edited.err).toContain('uncommitted change');
+    expect(edited.err).toContain('git checkout');
+
+    // staged
+    clone.git('add', 'CHANGELOG.md');
+    expect(guard(clone, { eventName: '' }).status).toBe(1);
+
+    // undone with the recipe of the message
+    clone.git('checkout', 'origin/main', '--', 'CHANGELOG.md');
+    expect(guard(clone, { eventName: '' }).status).toBe(0);
+
+    // an uncommitted edit of another file is no business of this rule
+    clone.write('src/a.ts', 'export const a = 9;\n');
+    expect(guard(clone, { eventName: '' }).status).toBe(0);
+
+    // deleted in the working tree
+    fs.rmSync(path.join(clone.dir, 'CHANGELOG.md'));
+    expect(guard(clone, { eventName: '' }).status).toBe(1);
+  });
+
+  it('G16: in a pull_request event the commit decides, not the working tree', () => {
+    const repo = makeRepo('g16b');
+    const base = repo.git('rev-parse', 'HEAD');
+    repo.git('checkout', '-q', '-b', 'feature');
+    repo.commit('feat: code only', { 'src/a.ts': 'export const a = 2;\n' });
+    repo.write('CHANGELOG.md', '# Changelog\n\nedited by a build step\n');
+    expect(guard(repo, { base }).status).toBe(0);
+  });
+
+  it('G17: a root file named HEAD, like the base commit or like a commit, does not confuse git', () => {
+    const repo = makeRepo('g17');
+    const base = repo.git('rev-parse', 'HEAD');
+    repo.git('checkout', '-q', '-b', 'feature');
+    const edit = repo.commit('feat: an entry', {
+      'CHANGELOG.md': '# Changelog\n\nentry\n',
+    });
+    repo.commit('chore: odd file names', {
+      HEAD: 'x\n',
+      [base]: 'x\n',
+      [edit]: 'x\n',
+    });
+    const result = guard(repo, { base });
+    expect(result.status).toBe(1);
+    expect(result.err).toContain(`${edit.slice(0, 9)} feat: an entry`);
+
+    const clean = makeRepo('g17b');
+    const cleanBase = clean.git('rev-parse', 'HEAD');
+    clean.git('checkout', '-q', '-b', 'feature');
+    clean.commit('chore: odd file names', { HEAD: 'x\n', [cleanBase]: 'x\n' });
+    expect(guard(clean, { base: cleanBase }).status).toBe(0);
+
+    // the same at a terminal, which also compares with the working tree
+    const local = terminalBranch('g17c');
+    local.commit('chore: odd file names', { HEAD: 'x\n' });
+    expect(guard(local, { eventName: '' }).status).toBe(0);
   });
 });
 

@@ -62,27 +62,48 @@ export function matchesPaths(file, paths) {
  * `commits`: the non-merge commits of the branch that touch the file, as
  * `{ sha, subject, files }`.
  *
+ * `uncommitted`: the index or the working tree differs from HEAD in the file.
+ * The runner passes it only outside a pull request, where the next thing a
+ * person does is commit it.
+ *
  * Returns one problem per commit that is not a release commit. A net change
  * that no commit explains (a merge commit that resolved a conflict by editing
- * the file) is one problem without a sha: it fails closed.
+ * the file) is one problem without a sha: it fails closed. An uncommitted
+ * change is one more problem without a sha.
  */
-export function changelogProblems({ netChanged, commits }) {
-  if (!netChanged) {
-    return [];
-  }
-  const touching = Array.isArray(commits) ? commits : [];
-  if (touching.length === 0) {
-    return [
-      {
+export function changelogProblems({
+  netChanged,
+  commits,
+  uncommitted = false,
+}) {
+  const problems = [];
+  if (netChanged) {
+    const touching = Array.isArray(commits) ? commits : [];
+    if (touching.length === 0) {
+      problems.push({
         rule: 'changelog',
         sha: '',
         subject: 'a merge commit or a history rewrite changed the file',
-      },
-    ];
+      });
+    }
+    for (const commit of touching) {
+      if (!isReleaseCommit(commit)) {
+        problems.push({
+          rule: 'changelog',
+          sha: commit.sha,
+          subject: commit.subject,
+        });
+      }
+    }
   }
-  return touching
-    .filter((commit) => !isReleaseCommit(commit))
-    .map(({ sha, subject }) => ({ rule: 'changelog', sha, subject }));
+  if (uncommitted) {
+    problems.push({
+      rule: 'changelog',
+      sha: '',
+      subject: 'an uncommitted change, staged or in the working tree',
+    });
+  }
+  return problems;
 }
 
 /** The text of a violation of the `changelog` rule. */
@@ -91,19 +112,34 @@ function changelogMessage({ mergeBase, problems }) {
   const lines = [
     'This branch changes CHANGELOG.md, and a pull request must leave it alone.',
     '',
-    'CHANGELOG.md is generated at release time from the titles and descriptions of what merged. Write a clear pull request title and description instead, and undo the change:',
+    'CHANGELOG.md is written by the release pipeline from the titles and descriptions of what merged. Write a clear pull request title and description instead, and undo the change:',
     `  git checkout ${base} -- CHANGELOG.md`,
     '  git commit -m "chore: leave CHANGELOG.md to the release"',
     '',
-    'Commits that change it:',
+    'What changes it:',
     ...problems.map(({ sha, subject }) =>
       sha ? `  ${sha.slice(0, 9)} ${subject}` : `  (${subject})`
     ),
     '',
-    'The one exception is the release commit: the subject "Updated changelog and version for release v<version>", changing only CHANGELOG.md, package.json and package-lock.json.',
-    'The rule is written in AGENTS.md and docs/CONTRIBUTE.md.',
+    'The rule is written in AGENTS.md and docs/CONTRIBUTE.md. How this check decides, and how a maintainer lets a correction of the file through, is in docs/PIPELINE.md, section "Pull request rules".',
   ];
   return lines.join('\n');
+}
+
+/**
+ * One workflow command that makes GitHub show an annotation of the run:
+ * `::error title=<title>::<message>`. `%`, CR and LF are escaped in both parts
+ * (and `:` and `,` in the title), or the command would end early.
+ */
+export function workflowError(title, message) {
+  const data = (text) =>
+    String(text)
+      .replace(/%/g, '%25')
+      .replace(/\r/g, '%0D')
+      .replace(/\n/g, '%0A');
+  const property = (text) =>
+    data(text).replace(/:/g, '%3A').replace(/,/g, '%2C');
+  return `::error title=${property(title)}::${data(message)}`;
 }
 
 /**
