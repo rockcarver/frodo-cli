@@ -61,6 +61,61 @@ describe('ShellRestOps resolveUrl', () => {
     expect(other.domain).toBe('none');
   });
 
+  it('attaches no credential to a host that only looks like the connected one', () => {
+    state.setHost('https://openam.example.com/am');
+    for (const url of [
+      'https://evil-openam.example.com/openidm/managed/user',
+      'https://openam.example.com.evil.test/am/json/x',
+      'https://sub.openam.example.com/am/json/x',
+      'https://openam.example.com:8443/am/json/x',
+      'https://openam.example.com./am/json/x',
+      'https://example.com/am/json/x',
+    ]) {
+      expect(resolveUrl(url).domain).toBe('none');
+    }
+  });
+
+  it('judges the host of a URL as it is sent, after its characters are encoded', () => {
+    state.setHost('https://openam.example.com/am');
+    // the host as typed is the tenant, the host as sent (a backslash becomes
+    // %5C, which ends the user name of the user information) is another one
+    for (const url of [
+      'https://openam.example.com\\@evil.test/am/json/x',
+      'https://openam.example.com\\@evil.test/openidm/managed/user',
+      'https://openam.example.com@evil.test/am/json/x',
+      'https://openam.example.com%2f@evil.test/am/json/x',
+    ]) {
+      expect(resolveUrl(url).domain).toBe('none');
+    }
+    // the other way round the request goes to the tenant, and only there
+    expect(
+      resolveUrl('https://evil.test\\@openam.example.com/am/json/x').domain
+    ).toBe('am');
+    // the host is the tenant's whatever its letter case or default port
+    expect(resolveUrl('HTTPS://OPENAM.EXAMPLE.COM:443/openidm/x').domain).toBe(
+      'idm'
+    );
+    expect(resolveUrl('https://openam.example.com/am/json/x\t').domain).toBe(
+      'am'
+    );
+  });
+
+  it('decides IDM or AM on the path of an absolute URL, not on its query or its fragment', () => {
+    state.setHost('https://openam.example.com/am');
+    expect(
+      resolveUrl('https://openam.example.com/am/json/x?next=/openidm/managed')
+        .domain
+    ).toBe('am');
+    expect(
+      resolveUrl('https://openam.example.com/am/json/x#/openidm/y').domain
+    ).toBe('am');
+    expect(
+      resolveUrl(
+        'https://openam.example.com/openidm/managed/user?_fields=/am/x'
+      ).domain
+    ).toBe('idm');
+  });
+
   it('honors an explicit IDM host override', () => {
     state.setHost('https://openam.example.com/am');
     state.setIdmHost('https://openidm.example.com');

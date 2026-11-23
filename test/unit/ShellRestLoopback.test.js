@@ -14,7 +14,11 @@ import {
   idmCookieFallback,
   ShellRestError,
 } from '../../src/ops/ShellRestOps.ts';
-import { describeNode, toJson } from '../../src/ops/ShellWebSerializeOps.ts';
+import {
+  createRemoteRegistry,
+  describeNode,
+  toJson,
+} from '../../src/ops/ShellWebSerializeOps.ts';
 import { closedPort, startForwardProxy } from '../utils/ForwardProxy.js';
 import { selfSignedCertificate } from '../utils/SelfSignedCertificate.js';
 
@@ -57,7 +61,7 @@ function routeOf(url) {
 /**
  * A fake tenant (or another host) on loopback. It writes down every request
  * and answers by path: `/renew` accepts one token only, `/deny` refuses all,
- * `/flaky` fails once, `/redirect` sends the caller to `redirectTo`, `/text`,
+ * `/flaky` fails once, `/redirect` sends the caller to `redirectTo` with the status `redirectStatus`, `/text`,
  * `/badjson`, `/empty` and `/big` answer with the body they are named for,
  * `/reply` answers what a test queued, anything else is `200 {"ok":true}`.
  */
@@ -66,7 +70,11 @@ async function startServer({ tls } = {}) {
   const replies = [];
   const sockets = new Set();
   let flaked = false;
-  const control = { redirectTo: undefined, renewedToken: 'renewed-token' };
+  const control = {
+    redirectTo: undefined,
+    redirectStatus: 302,
+    renewedToken: 'renewed-token',
+  };
   const json = (res, status, body, headers = {}) => {
     res.writeHead(status, { 'content-type': 'application/json', ...headers });
     res.end(JSON.stringify(body));
@@ -114,7 +122,7 @@ async function startServer({ tls } = {}) {
         return json(res, 200, { flaky: false });
       }
       if (route.startsWith('/redirect')) {
-        res.writeHead(302, { location: control.redirectTo });
+        res.writeHead(control.redirectStatus, { location: control.redirectTo });
         return res.end();
       }
       if (route.startsWith('/text')) {
@@ -156,6 +164,7 @@ async function startServer({ tls } = {}) {
       replies.length = 0;
       flaked = false;
       control.redirectTo = undefined;
+      control.redirectStatus = 302;
     },
     stop: () =>
       new Promise((resolve) => {
@@ -434,6 +443,184 @@ describe('credentials of a call', () => {
   });
 });
 
+describe('L6b a URL that names the tenant for one reader and another host for the next', () => {
+  /**
+   * Sends `$.get(url)` with a bearer token, a session cookie, a header override
+   * and a configuration override all set, and says which of the two servers
+   * got the request and what of the tenant's it carried.
+   */
+  async function whoGets(url) {
+    tenant.reset();
+    other.reset();
+    await $.get(url).catch(() => undefined);
+    // one request, to one server
+    expect(tenant.seen.length + other.seen.length).toBeLessThanOrEqual(1);
+    const receiver = tenant.seen.length
+      ? 'tenant'
+      : other.seen.length
+        ? 'other'
+        : 'nobody';
+    const request = (receiver === 'tenant' ? tenant : other).last();
+    const headers = JSON.stringify(request?.headers ?? {});
+    return {
+      receiver,
+      override: request?.apiKey === OVERRIDE,
+      configOverride: request?.headers['x-config'] === OVERRIDE,
+      // the secrets themselves, in any header
+      secrets: [BEARER, SESSION, OVERRIDE].filter((secret) =>
+        headers.includes(secret)
+      ),
+    };
+  }
+
+  // [what the URL tries, the URL, who gets it]; a request to the tenant carries
+  // the header overrides, any other request carries nothing of the tenant's
+  const table = (T, O) => [
+    [
+      'backslash ends the host as typed',
+      `http://127.0.0.1:${T}\\@127.0.0.1:${O}/am/json/x`,
+      'other',
+    ],
+    [
+      'the same on an /openidm path',
+      `http://127.0.0.1:${T}\\@127.0.0.1:${O}/openidm/x`,
+      'other',
+    ],
+    [
+      'the tenant as user information',
+      `http://127.0.0.1:${T}@127.0.0.1:${O}/am/json/x`,
+      'other',
+    ],
+    [
+      'an encoded slash in the user information',
+      `http://127.0.0.1:${T}%2f@127.0.0.1:${O}/x`,
+      'other',
+    ],
+    [
+      'an encoded backslash in the user information',
+      `http://127.0.0.1:${T}%5c@127.0.0.1:${O}/x`,
+      'other',
+    ],
+    [
+      'a tab in the user information',
+      `http://127.0.0.1:${T}\t@127.0.0.1:${O}/x`,
+      'other',
+    ],
+    [
+      'a new line in the user information',
+      `http://127.0.0.1:${T}\n@127.0.0.1:${O}/x`,
+      'other',
+    ],
+    [
+      'user information of its own',
+      `http://user:pw@127.0.0.1:${O}/openidm/x`,
+      'other',
+    ],
+    [
+      'another port of the same address',
+      `http://127.0.0.1:${O}/openidm/x`,
+      'other',
+    ],
+    [
+      'upper case scheme, another port',
+      `HTTP://127.0.0.1:${O}/am/json/x`,
+      'other',
+    ],
+    [
+      'another name of the same machine is another host',
+      `http://localhost:${T}/openidm/x`,
+      'tenant-without-credentials',
+    ],
+    [
+      'the tenant address spelt as a number',
+      `http://2130706433:${T}/openidm/x`,
+      'tenant',
+    ],
+    [
+      'upper case scheme on the tenant',
+      `HTTP://127.0.0.1:${T}/openidm/x`,
+      'tenant',
+    ],
+    [
+      'the other host as user information of the tenant',
+      `http://127.0.0.1:${O}\\@127.0.0.1:${T}/am/json/x`,
+      'tenant',
+    ],
+    [
+      'a new line before the tenant host',
+      `http://127.0.0.1:${O}\n@127.0.0.1:${T}/am/json/x`,
+      'tenant',
+    ],
+    [
+      'the other host in the path',
+      `http://127.0.0.1:${T}/%2f@127.0.0.1:${O}/x`,
+      'tenant',
+    ],
+    [
+      'the other host in the query',
+      `http://127.0.0.1:${T}?@127.0.0.1:${O}/x`,
+      'tenant',
+    ],
+    [
+      'the other host in the fragment',
+      `http://127.0.0.1:${T}#@127.0.0.1:${O}/x`,
+      'tenant',
+    ],
+    [
+      'a path with two slashes at its start stays on the tenant',
+      `//127.0.0.1:${O}/x`,
+      'tenant',
+    ],
+  ];
+
+  test('every request goes where the URL as sent says, and carries the tenant credential only there', async () => {
+    bearer();
+    session();
+    state.setAuthenticationHeaderOverrides({ 'X-Api-Key': OVERRIDE });
+    state.setConfigurationHeaderOverrides({ 'X-Config': OVERRIDE });
+    const T = new URL(tenant.root).port;
+    const O = new URL(other.root).port;
+    const found = [];
+    const expected = [];
+    for (const [label, url, who] of table(T, O)) {
+      const got = await whoGets(url);
+      const toTenant = who === 'tenant';
+      found.push({
+        label,
+        receiver: got.receiver,
+        override: got.override,
+        configOverride: got.configOverride,
+        // a call that is not the tenant's has none of the secrets in any header
+        secrets: toTenant ? [] : got.secrets,
+      });
+      expected.push({
+        label,
+        receiver: who === 'other' ? 'other' : 'tenant',
+        override: toTenant,
+        configOverride: toTenant,
+        secrets: [],
+      });
+    }
+    expect(found).toEqual(expected);
+  });
+
+  test('a call to the tenant written another way carries the cookie (AM) or the bearer token (IDM)', async () => {
+    bearer();
+    session();
+    const T = new URL(tenant.root).port;
+    await $.get(`HTTP://127.0.0.1:${T}/am/json/x`, AM_API);
+    expect(tenant.last()).toMatchObject({
+      cookie: sessionCookie(),
+      authorization: undefined,
+    });
+    await $.get(`http://2130706433:${T}/openidm/x`);
+    expect(tenant.last()).toMatchObject({
+      authorization: `Bearer ${BEARER}`,
+      cookie: undefined,
+    });
+  });
+});
+
 describe('L7 a 401 renews the credential once', () => {
   const realNow = Date.now.bind(Date);
   let skew = 0;
@@ -574,6 +761,16 @@ describe('answers', () => {
     }
   });
 
+  test('L10 a response header that arrives more than once is one value, joined with a comma', async () => {
+    tenant.reply(
+      200,
+      { ok: true },
+      { 'set-cookie': ['a=1; Path=/', 'b=2; Path=/'] }
+    );
+    await $.get('/openidm/reply');
+    expect($.last.headers['set-cookie']).toBe('a=1; Path=/, b=2; Path=/');
+  });
+
   test('L12 a request that gets no answer says which one failed and keeps the last result', async () => {
     bearer();
     await $.get('/openidm/info/ping');
@@ -674,18 +871,49 @@ describe('answers', () => {
     expect(tenant.last().bytes).toBeGreaterThan(12 * 1024 * 1024);
   });
 
-  test('L17 a redirect to another host is followed without the credential', async () => {
+  test('L17 a redirect to another host is followed without the credential, the header overrides or the session header', async () => {
     bearer();
     session();
     state.setAuthenticationHeaderOverrides({ 'X-Api-Key': OVERRIDE });
-    tenant.control.redirectTo = `${other.root}/landed`;
+    state.setConfigurationHeaderOverrides({ 'X-Config': OVERRIDE });
+    for (const status of [301, 302, 303, 307, 308]) {
+      tenant.reset();
+      other.reset();
+      tenant.control.redirectStatus = status;
+      tenant.control.redirectTo = `${other.root}/landed`;
+      // a header the caller names after the session cookie goes the same way
+      await $.get('/openidm/redirect', { [COOKIE_NAME]: SESSION });
+      expect(tenant.seen).toHaveLength(1);
+      expect(tenant.last().authorization).toBe(`Bearer ${BEARER}`);
+      expect(tenant.last().apiKey).toBe(OVERRIDE);
+      expect(other.seen).toHaveLength(1);
+      expect(other.last().url).toBe('/landed');
+      expect(other.last().authorization).toBeUndefined();
+      expect(other.last().cookie).toBeUndefined();
+      expect(other.last().apiKey).toBeUndefined();
+      expect(other.last().headers['x-config']).toBeUndefined();
+      expect(other.last().headers[COOKIE_NAME.toLowerCase()]).toBeUndefined();
+      const text = JSON.stringify(other.last().headers);
+      for (const secret of [BEARER, SESSION, OVERRIDE]) {
+        expect(text).not.toContain(secret);
+      }
+    }
+  });
+
+  test('L17 a redirect within the tenant keeps what the first request carried', async () => {
+    bearer();
+    session();
+    state.setAuthenticationHeaderOverrides({ 'X-Api-Key': OVERRIDE });
+    tenant.control.redirectTo = `${tenant.root}/openidm/landed`;
     await $.get('/openidm/redirect');
-    expect(tenant.seen).toHaveLength(1);
-    expect(tenant.last().authorization).toBe(`Bearer ${BEARER}`);
-    expect(other.seen).toHaveLength(1);
-    expect(other.last().url).toBe('/landed');
-    expect(other.last().authorization).toBeUndefined();
-    expect(other.last().cookie).toBeUndefined();
+    expect(tenant.seen.map((r) => r.url)).toEqual([
+      '/openidm/redirect',
+      '/openidm/landed',
+    ]);
+    for (const request of tenant.seen) {
+      expect(request.authorization).toBe(`Bearer ${BEARER}`);
+      expect(request.apiKey).toBe(OVERRIDE);
+    }
   });
 });
 
@@ -725,7 +953,7 @@ describe('L11 an error does not print what it was sent with', () => {
     expectNoSecrets(error, [BEARER]);
   });
 
-  test('the web console describes the error without them', async () => {
+  test('the web console describes the error, and lets a script open its cause, without them', async () => {
     bearer();
     state.setAuthenticationHeaderOverrides({ 'X-Api-Key': OVERRIDE });
     tenant.reply(404, { code: 404, message: 'Not Found' });
@@ -733,6 +961,25 @@ describe('L11 an error does not print what it was sent with', () => {
     const node = describeNode(buildRoot(error), 0);
     expect(node.kind).toBe('error');
     for (const text of [JSON.stringify(node), toJson(error).text]) {
+      expect(text).not.toContain(BEARER);
+      expect(text).not.toContain(OVERRIDE);
+    }
+    // what the browser can ask for next: `e.cause` as a result, opened node by
+    // node where it can be opened (at most 800 nodes), and its JSON
+    const registry = createRemoteRegistry();
+    const root = registry.describeResult(error.cause);
+    const shown = [];
+    const queue = [root];
+    for (let i = 0; i < queue.length && i < 800; i++) {
+      const next = queue[i];
+      shown.push(JSON.stringify(next), registry.json(next.id)?.text ?? '');
+      if (next.expandable) {
+        queue.push(...(registry.children(next.id, 0, 200)?.items ?? []));
+      }
+    }
+    // the JSON of the cause (copy and download) is the way to its request
+    expect(registry.json(root.id).text.length).toBeGreaterThan(100);
+    for (const text of shown) {
       expect(text).not.toContain(BEARER);
       expect(text).not.toContain(OVERRIDE);
     }
