@@ -3,10 +3,13 @@ import path from 'path';
 import { frodo } from '@rockcarver/frodo-lib';
 import { extractFrConfigDataToFile } from '../utils/Config';
 import {
+  nameInFolder,
+  nameInStem,
   objectFilePath,
   objectFolderPath,
   pulledFilePath,
   referencedFilePath,
+  type PulledPaths,
 } from '../utils/ConfigTreePath';
 import { printError, printMessage } from '../utils/Console';
 import { OperationRun } from '../utils/OperationRun';
@@ -42,7 +45,8 @@ function extractScripts(
   obj: object,
   objectPath: string,
   getFileName: (key: string) => string,
-  hook?: string
+  hook?: string,
+  pulledPaths?: PulledPaths
 ) {
   (Object.entries(obj) as [string, any][]).forEach(([key, value]) => {
     if (hook && value[hook]) value = value[hook];
@@ -54,7 +58,12 @@ function extractScripts(
     ) {
       const scriptFilename = getFileName(key);
       value.file = scriptFilename;
-      extractFrConfigDataToFile(value.source, scriptFilename, objectPath);
+      extractFrConfigDataToFile(
+        value.source,
+        scriptFilename,
+        objectPath,
+        pulledPaths
+      );
       delete value.source;
     }
   });
@@ -93,26 +102,37 @@ export async function configManagerExportManagedObjects(
       printMessage('No managed objects found to export.', 'info');
       return true;
     }
+    const pulledPaths: PulledPaths = new Map();
     for (const managedObject of selected) {
       await run.run(managedObject.name, async () => {
-        const objectPath = `managed-objects/${managedObject.name}`;
+        // the tenant names the object and its properties: each is one name here, never a path
+        const objectName = nameInFolder(managedObject.name);
+        // a file reference starts with the name of the object, so it is the stem of the names of the scripts
+        const stem = nameInStem(managedObject.name);
+        const objectPath = `managed-objects/${objectName}`;
+        pulledFilePath(`${objectPath}/${objectName}.json`, pulledPaths);
         extractScripts(
           managedObject,
           objectPath,
-          (k) => `${managedObject.name}.${k}.js`
+          (k) => `${stem}.${nameInFolder(k)}.js`,
+          undefined,
+          pulledPaths
         );
         if (managedObject.actions)
           extractScripts(
             managedObject.actions,
             objectPath,
-            (k) => `${managedObject.name}.actions.${k}.js`
+            (k) => `${stem}.actions.${nameInFolder(k)}.js`,
+            undefined,
+            pulledPaths
           );
         SCRIPT_HOOKS.forEach((hook) => {
           extractScripts(
             managedObject.schema.properties,
             objectPath,
-            (k) => `${managedObject.name}.${k}.${hook}.js`,
-            hook
+            (k) => `${stem}.${nameInFolder(k)}.${hook}.js`,
+            hook,
+            pulledPaths
           );
         });
         if (pullCustomRelationships) {
@@ -125,10 +145,10 @@ export async function configManagerExportManagedObjects(
               managedObject.name,
               customRelationship
             );
-            const schemaFileName = `${objectPath}/schema/${managedObject.name}.schema.${customRelationship}.json`;
+            const schemaFileName = `${objectPath}/schema/${objectName}.schema.${nameInFolder(customRelationship)}.json`;
             saveJsonToFile(
               schemaData,
-              getFilePath(pulledFilePath(schemaFileName), true),
+              getFilePath(pulledFilePath(schemaFileName, pulledPaths), true),
               false
             );
           }
@@ -136,7 +156,7 @@ export async function configManagerExportManagedObjects(
         saveJsonToFile(
           managedObject,
           getFilePath(
-            pulledFilePath(`${objectPath}/${managedObject.name}.json`),
+            pulledFilePath(`${objectPath}/${objectName}.json`, pulledPaths),
             true
           ),
           false

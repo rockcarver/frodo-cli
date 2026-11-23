@@ -191,7 +191,12 @@ export class OperationRun {
     try {
       return derive();
     } catch (error) {
-      const reason = printable(causeOf(error));
+      // a control character in the name is written as text first, so that the first line is the whole reason
+      const reason = printable(
+        error instanceof Error ? error.message : String(error)
+      )
+        .split('\n')[0]
+        .trim();
       printMessage(left ? `${reason} ${left}` : reason, 'error');
       this.recordFailure(printable(name), reason);
       return undefined;

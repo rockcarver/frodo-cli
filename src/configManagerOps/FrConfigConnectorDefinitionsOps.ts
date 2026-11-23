@@ -7,7 +7,12 @@ import {
   OwnedObjects,
   skipsOwnedObjects,
 } from '../ops/ApplicationOwnedObjects';
-import { objectFilePath, pulledFilePath } from '../utils/ConfigTreePath';
+import {
+  nameInFolder,
+  objectFilePath,
+  pulledFilePath,
+  type PulledPaths,
+} from '../utils/ConfigTreePath';
 import { printError, printMessage } from '../utils/Console';
 import { causeOf } from '../utils/ErrorCause';
 import { countItems, importItemsOfFile } from '../utils/ImportItems';
@@ -48,6 +53,7 @@ export async function configManagerExportConnectorDefinitions(
       : await readConnectors();
     let exportable = 0;
     let skipped = 0;
+    const pulledPaths: PulledPaths = new Map();
     for (const connector of connectors) {
       const connectorName = connector._id.split('/')[1];
       // This filters out the RCS configuration (which we want since it's not technically a connector)
@@ -67,8 +73,12 @@ export async function configManagerExportConnectorDefinitions(
       await run.run(connectorName, () => {
         saveJsonToFile(
           connector,
+          // the tenant names the connector: its name is the name of its file here, never a path
           getFilePath(
-            pulledFilePath(`sync/connectors/${connectorName}.json`),
+            pulledFilePath(
+              `sync/connectors/${nameInFolder(connectorName)}.json`,
+              pulledPaths
+            ),
             true
           ),
           false,

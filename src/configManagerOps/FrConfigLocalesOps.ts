@@ -4,7 +4,11 @@ import {
   type FrodoError,
   type IdObjectSkeletonInterface,
 } from '@rockcarver/frodo-lib';
-import { pulledFilePath } from '../utils/ConfigTreePath';
+import {
+  nameInFolder,
+  pulledFilePath,
+  type PulledPaths,
+} from '../utils/ConfigTreePath';
 import { printError, printMessage } from '../utils/Console';
 import { causeOf } from '../utils/ErrorCause';
 import { OperationRun } from '../utils/OperationRun';
@@ -46,13 +50,15 @@ export async function configManagerExportLocales(
       return true;
     }
     const run = new OperationRun({ unit: 'locale', allowFailures });
+    const pulledPaths: PulledPaths = new Map();
     for (const locale of locales) {
       const localeName = locale._id.split('/')[1];
       try {
-        const localeFilename = `locales/${localeName}.json`;
+        // the tenant names the locale: its name is the name of its file here, never a path
+        const localeFilename = `locales/${nameInFolder(localeName)}.json`;
         saveJsonToFile(
           locale,
-          getFilePath(pulledFilePath(localeFilename), true),
+          getFilePath(pulledFilePath(localeFilename, pulledPaths), true),
           false,
           true
         );

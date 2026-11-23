@@ -4,7 +4,11 @@ import {
   FrodoError,
   type CustomNodeSkeleton,
 } from '@rockcarver/frodo-lib';
-import { pulledFilePath } from '../utils/ConfigTreePath';
+import {
+  nameInFolder,
+  pulledFilePath,
+  type PulledPaths,
+} from '../utils/ConfigTreePath';
 import { printError, printMessage } from '../utils/Console';
 import { causeOf } from '../utils/ErrorCause';
 import { fileFilter } from '../utils/FrConfig';
@@ -54,21 +58,33 @@ export async function configManagerExportCustomNodes(
       return false;
     }
     const run = new OperationRun({ unit: 'custom node', allowFailures });
+    const pulledPaths: PulledPaths = new Map();
     for (const node of customNodes) {
       try {
-        const nodeFolder = `custom-nodes/nodes/${node.displayName}`;
-        const scriptFileName = `${node.displayName}.js`;
-        const jsonFileName = `${node.displayName}.json`;
+        // the tenant names the custom node: its display name is the name of its folder and its files here, never a path
+        const nodeName = nameInFolder(node.displayName);
+        const nodeFolder = `custom-nodes/nodes/${nodeName}`;
+        const scriptFileName = `${nodeName}.js`;
+        const jsonFileName = `${nodeName}.json`;
+        // both files are checked before the first one is written
+        pulledFilePath(`${nodeFolder}/${scriptFileName}`, pulledPaths);
+        pulledFilePath(`${nodeFolder}/${jsonFileName}`, pulledPaths);
 
         saveTextToFile(
           `${node.script}`,
-          getFilePath(pulledFilePath(`${nodeFolder}/${scriptFileName}`), true)
+          getFilePath(
+            pulledFilePath(`${nodeFolder}/${scriptFileName}`, pulledPaths),
+            true
+          )
         );
         (node as any).script = { file: scriptFileName };
 
         saveJsonToFile(
           node,
-          getFilePath(pulledFilePath(`${nodeFolder}/${jsonFileName}`), true),
+          getFilePath(
+            pulledFilePath(`${nodeFolder}/${jsonFileName}`, pulledPaths),
+            true
+          ),
           false
         );
         run.recordSuccess();

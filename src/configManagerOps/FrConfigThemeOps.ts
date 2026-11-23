@@ -6,7 +6,13 @@ import {
   type ThemeExportInterface,
   type ThemeSkeleton,
 } from '@rockcarver/frodo-lib';
-import { pulledFilePath, referencedFilePath } from '../utils/ConfigTreePath';
+import {
+  nameInFolder,
+  pulledFilePath,
+  realmFolderOf,
+  referencedFilePath,
+  type PulledPaths,
+} from '../utils/ConfigTreePath';
 import { printError, printMessage } from '../utils/Console';
 import { causeOf } from '../utils/ErrorCause';
 import { decodeOrNot, encodeOrNot, realmList } from '../utils/FrConfig';
@@ -40,19 +46,27 @@ const THEME_HTML_FIELDS = [
 ];
 
 /**
- * Exports the themes of one realm to the config folder.
+ * Exports the themes of one realm to the config folder. The tenant names the realm, the theme and the
+ * locales of a field: each is one name here, never a path. A theme that has no name that a file can
+ * have (or whose file would replace another one on a file system that ignores case) is not written
+ * at all, one failure of that theme is recorded in the run, and the other themes of the realm are still
+ * written. Any other error stops the realm, as it did before.
  * @param {string} realm The realm to export from
+ * @param {OperationRun} run The run of the command, which records the themes that cannot be written
+ * @param {PulledPaths} pulledPaths The files of this pull, to refuse a file that another one replaces on a file system that ignores case
  * @param {string} id Optional id (`_id`) of the one theme to export
  * @param {string} name Optional name of the one theme to export
- * @returns {Promise<number>} how many themes were exported
+ * @returns {Promise<{ exported: number; failed: number }>} how many themes were exported, and how many of them could not be written
  */
 async function exportThemesOfRealm(
   realm: string,
+  run: OperationRun,
+  pulledPaths: PulledPaths,
   id?: string,
   name?: string
-): Promise<number> {
+): Promise<{ exported: number; failed: number }> {
+  const realmDir = realmFolderOf(realm);
   state.setRealm(realm);
-  const realmDir = realm === '/' ? 'root' : realm;
   const themes = (await readThemes()).filter((theme) =>
     id !== undefined
       ? theme._id === id
@@ -60,8 +74,38 @@ async function exportThemesOfRealm(
         ? theme.name === name
         : true
   );
+  let failed = 0;
   for (const theme of themes) {
-    const themeDir = `realms/${realmDir}/themes/${theme.name}`;
+    // the names of the theme and of its locales are worked out, and the files checked, before the first one is written
+    let themeName: string;
+    try {
+      themeName = nameInFolder(theme.name);
+      const themeDir = `realms/${realmDir}/themes/${themeName}`;
+      for (const field of THEME_HTML_FIELDS) {
+        const value = theme[field.name];
+        if (!value) continue;
+        if (typeof value === 'string') {
+          pulledFilePath(`${themeDir}/${field.name}.html`, pulledPaths);
+        } else if (typeof value === 'object') {
+          for (const locale of Object.keys(value)) {
+            pulledFilePath(
+              `${themeDir}/${field.name}/${nameInFolder(locale)}.html`,
+              pulledPaths
+            );
+          }
+        }
+      }
+      pulledFilePath(`${themeDir}/${themeName}.json`, pulledPaths);
+    } catch (error) {
+      printError(
+        error,
+        `Error exporting theme '${theme.name}' of realm '${realm}'`
+      );
+      run.recordFailure(`${realmDir}/${theme.name}`, causeOf(error));
+      failed++;
+      continue;
+    }
+    const themeDir = `realms/${realmDir}/themes/${themeName}`;
     for (const field of THEME_HTML_FIELDS) {
       if (!theme[field.name]) continue;
 
@@ -71,7 +115,10 @@ async function exportThemesOfRealm(
             const fileName = `${field.name}.html`;
             saveTextToFile(
               decodeOrNot(theme[field.name] as string, field.encoded),
-              getFilePath(pulledFilePath(`${themeDir}/${fileName}`), true)
+              getFilePath(
+                pulledFilePath(`${themeDir}/${fileName}`, pulledPaths),
+                true
+              )
             );
             theme[field.name] = { file: fileName };
           }
@@ -79,10 +126,13 @@ async function exportThemesOfRealm(
         case 'object': {
           const fieldDir = `${themeDir}/${field.name}`;
           for (const locale of Object.keys(theme[field.name])) {
-            const localeFilename = `${locale}.html`;
+            const localeFilename = `${nameInFolder(locale)}.html`;
             saveTextToFile(
               decodeOrNot(theme[field.name][locale], field.encoded),
-              getFilePath(pulledFilePath(`${fieldDir}/${localeFilename}`), true)
+              getFilePath(
+                pulledFilePath(`${fieldDir}/${localeFilename}`, pulledPaths),
+                true
+              )
             );
             theme[field.name][locale] = {
               file: `${field.name}/${localeFilename}`,
@@ -98,11 +148,14 @@ async function exportThemesOfRealm(
     }
     saveJsonToFile(
       theme,
-      getFilePath(pulledFilePath(`${themeDir}/${theme.name}.json`), true),
+      getFilePath(
+        pulledFilePath(`${themeDir}/${themeName}.json`, pulledPaths),
+        true
+      ),
       false
     );
   }
-  return themes.length;
+  return { exported: themes.length, failed };
 }
 
 /**
@@ -136,6 +189,7 @@ export async function configManagerExportThemes(
     }
     const run = new OperationRun({ unit: 'realm', allowFailures });
     let selectedNotFound = false;
+    const pulledPaths: PulledPaths = new Map();
     for (const currentRealm of realmNames) {
       if (
         currentRealm === '/' &&
@@ -150,7 +204,13 @@ export async function configManagerExportThemes(
         continue;
       }
       try {
-        const exported = await exportThemesOfRealm(currentRealm, id, name);
+        const { exported, failed } = await exportThemesOfRealm(
+          currentRealm,
+          run,
+          pulledPaths,
+          id,
+          name
+        );
         if (selected !== undefined && exported === 0) {
           // the one theme that was asked for: nothing for the flag to allow
           printMessage(
@@ -159,7 +219,8 @@ export async function configManagerExportThemes(
           );
           selectedNotFound = true;
         }
-        run.recordSuccess();
+        // a theme that could not be written is a failure of its own
+        if (failed === 0) run.recordSuccess();
       } catch (error) {
         printError(error, `Error exporting themes of realm '${currentRealm}'`);
         run.recordFailure(currentRealm, causeOf(error));

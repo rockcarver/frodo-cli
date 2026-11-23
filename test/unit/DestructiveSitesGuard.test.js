@@ -63,7 +63,7 @@ const SHELL_REMOVAL =
 const ALLOWED = [
   {
     module: 'src/configManagerOps/FrConfigJourneysOps.ts',
-    call: 'fs.rmSync(getFilePath(pulledFilePath(nodeDir)), { recursive: true, force: true })',
+    call: 'fs.rmSync(getFilePath(pulledFilePath(nodeDir, pulledPaths)), { recursive: true, force: true })',
     via: [
       'const journeyDir = objectFolderPath(journeysDir, treeId);',
       'const nodeDir = `${journeyDir}/nodes`;',

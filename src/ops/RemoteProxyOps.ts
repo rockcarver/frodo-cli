@@ -9,6 +9,7 @@ import {
 } from '@rockcarver/frodo-lib';
 import c from '../utils/ColorTheme';
 import {
+  nameInFolder,
   objectFilePath,
   pulledFilePath,
   type PulledPaths,
@@ -1044,7 +1045,7 @@ export async function configManagerExportRemoteProxies(
           proxy,
           getFilePath(
             pulledFilePath(
-              objectFilePath(CONFIG_MANAGER_DIRECTORY, proxyName),
+              `${CONFIG_MANAGER_DIRECTORY}/${nameInFolder(proxyName)}.json`,
               pulledPaths
             ),
             true

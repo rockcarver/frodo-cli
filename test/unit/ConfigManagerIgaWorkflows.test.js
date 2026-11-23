@@ -13,7 +13,7 @@ import {
 /**
  * `frodo config-manager pull iga-workflows` writes a workflow to a directory
  * named after it, with the steps in a `steps` folder inside; the name goes
- * through safeFileName so that it cannot leave the folder. A workflow without
+ * through the file name of an id so that it cannot leave the folder. A workflow without
  * steps has no `steps` folder, and `push iga-workflows` imports it as it is.
  */
 
@@ -40,9 +40,7 @@ jest.unstable_mockModule('../../src/utils/Console', () => ({
   printError: jest.fn(),
   printMessage: jest.fn(),
 }));
-jest.unstable_mockModule('../../src/utils/FrConfig', () => ({
-  safeFileName: (name) => name.replace(/[^a-zA-Z0-9 _.-]/g, '_'),
-}));
+jest.unstable_mockModule('../../src/utils/FrConfig', () => ({}));
 
 const { configManagerExportIgaWorkflows, configManagerImportIgaWorkflows } =
   await import('../../src/configManagerOps/FrConfigIgaWorkflowsOps');
@@ -63,7 +61,7 @@ describe('IGA workflows in the fr-config-manager format', () => {
     ]);
     expect(await configManagerExportIgaWorkflows()).toBe(true);
     expect(saveJsonToFile.mock.calls[0][1]).toBe(
-      'iga/workflows/.._evil_name/.._evil_name.json'
+      'iga/workflows/..%2Fevil%2Fname/..%2Fevil%2Fname.json'
     );
   });
 

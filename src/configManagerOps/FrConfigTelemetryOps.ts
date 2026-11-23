@@ -5,7 +5,11 @@ import {
   type TelemetryExporterCategory,
   type TelemetryExportInterface,
 } from '@rockcarver/frodo-lib';
-import { pulledFilePath } from '../utils/ConfigTreePath';
+import {
+  nameInFolder,
+  pulledFilePath,
+  type PulledPaths,
+} from '../utils/ConfigTreePath';
 import {
   createProgressIndicator,
   printError,
@@ -45,8 +49,14 @@ export async function configManagerExportTelemetry(
       return true;
     }
     const run = new OperationRun({ unit: 'telemetry exporter', allowFailures });
+    const pulledPaths: PulledPaths = new Map();
     for (const { cat, provider } of items) {
       try {
+        // the tenant names the category and the exporter: each is one name here, never a path
+        const exporterFile = pulledFilePath(
+          `telemetry/${nameInFolder(cat)}/${nameInFolder(provider.id)}.json`,
+          pulledPaths
+        );
         const exportProvider = provider as any;
         if (exportProvider.headers) {
           const placeholders: Record<string, string> = {};
@@ -58,14 +68,7 @@ export async function configManagerExportTelemetry(
           });
           exportProvider.headers = placeholders;
         }
-        saveJsonToFile(
-          exportProvider,
-          getFilePath(
-            pulledFilePath(`telemetry/${cat}/${provider.id}.json`),
-            true
-          ),
-          false
-        );
+        saveJsonToFile(exportProvider, getFilePath(exporterFile, true), false);
         run.recordSuccess();
       } catch (error) {
         printError(error, `Error exporting telemetry exporter ${provider.id}`);

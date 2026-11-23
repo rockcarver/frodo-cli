@@ -347,6 +347,84 @@ describe('every write of a pull passes the gate', () => {
 });
 
 /**
+ * The values that a template of a path may hold without a function of the tree path in front of them:
+ * a variable that was made by one, a constant, or what the table below says is none of the tenant's.
+ */
+const BARE_PROPERTY_EXEMPT = [
+  {
+    module: 'src/configManagerOps/FrConfigRawOps.ts',
+    text: 'config.path',
+    reason:
+      'the path of a raw config is a path by design (`/openidm/config/cluster`), taken from the list that the person gave; it passes the gate, which keeps it inside the config folder',
+  },
+  {
+    module: 'src/configManagerOps/FrConfigThemeOps.ts',
+    text: 'field.name',
+    reason:
+      'the name of one of the fixed fields of a theme (`journeyHeader`, `accountFooter`, ...), a constant of the module',
+  },
+];
+
+/** The templates of the path that goes to the gate: [{ line, text }] for each bare property access in them. */
+function bareValuesOf(source) {
+  const found = [];
+  const visit = (node) => {
+    if (ts.isCallExpression(node) && calleeName(node) === 'pulledFilePath') {
+      const argument = unwrap(node.arguments[0]);
+      const templates = [];
+      if (argument && ts.isTemplateExpression(argument)) {
+        templates.push(argument);
+      } else if (argument && ts.isIdentifier(argument)) {
+        // a variable of the same function that holds a template
+        const initializer = unwrap(
+          initializerOf(argument.text, functionOf(node) ?? source)
+        );
+        if (initializer && ts.isTemplateExpression(initializer)) {
+          templates.push(initializer);
+        }
+      }
+      for (const template of templates) {
+        for (const span of template.templateSpans) {
+          const expression = unwrap(span.expression);
+          if (
+            ts.isPropertyAccessExpression(expression) ||
+            ts.isElementAccessExpression(expression)
+          ) {
+            found.push({
+              line:
+                source.getLineAndCharacterOfPosition(expression.getStart())
+                  .line + 1,
+              text: expression.getText(),
+            });
+          }
+        }
+      }
+    }
+    ts.forEachChild(node, visit);
+  };
+  visit(source);
+  return found;
+}
+
+describe('no value that a tenant sends is joined to a path as it is', () => {
+  test.each(MODULES)(
+    '%s: a template that goes to the gate holds no bare property (`x.name`, `y._id`)',
+    (module) => {
+      const bare = bareValuesOf(sourceOf(module)).filter(
+        ({ text }) =>
+          !BARE_PROPERTY_EXEMPT.some(
+            (row) => row.module === module && row.text === text
+          )
+      );
+
+      expect(bare.map(({ line, text }) => `${module}:${line} ${text}`)).toEqual(
+        []
+      );
+    }
+  );
+});
+
+/**
  * How many calls of the gate each module has: one for each file that a family writes, as the source
  * has them. A module that is not in the table has none.
  */
@@ -356,36 +434,36 @@ const GATE_CALLS = {
   'src/configManagerOps/FrConfigAuthenticationOps.ts': 1,
   'src/configManagerOps/FrConfigAuthzPoliciesOps.ts': 6,
   'src/configManagerOps/FrConfigConnectorDefinitionsOps.ts': 1,
-  'src/configManagerOps/FrConfigConnectorMappingOps.ts': 1,
+  'src/configManagerOps/FrConfigConnectorMappingOps.ts': 3,
   'src/configManagerOps/FrConfigCookieDomainsOps.ts': 1,
   'src/configManagerOps/FrConfigCorsOps.ts': 1,
   'src/configManagerOps/FrConfigCspOps.ts': 1,
-  'src/configManagerOps/FrConfigCustomNodesOps.ts': 2,
+  'src/configManagerOps/FrConfigCustomNodesOps.ts': 4,
   'src/configManagerOps/FrConfigEmailProviderOps.ts': 1,
-  'src/configManagerOps/FrConfigEmailTemplatesOps.ts': 1,
-  'src/configManagerOps/FrConfigEndpointsOps.ts': 1,
+  'src/configManagerOps/FrConfigEmailTemplatesOps.ts': 4,
+  'src/configManagerOps/FrConfigEndpointsOps.ts': 3,
   'src/configManagerOps/FrConfigIdmAuthenticationOpts.ts': 1,
-  'src/configManagerOps/FrConfigIgaWorkflowsOps.ts': 2,
+  'src/configManagerOps/FrConfigIgaWorkflowsOps.ts': 4,
   'src/configManagerOps/FrConfigInternalRolesOps.ts': 1,
   'src/configManagerOps/FrConfigJourneysOps.ts': 4,
   'src/configManagerOps/FrConfigKbaOps.ts': 1,
   'src/configManagerOps/FrConfigLocalesOps.ts': 1,
-  'src/configManagerOps/FrConfigManagedObjectsOps.ts': 2,
+  'src/configManagerOps/FrConfigManagedObjectsOps.ts': 3,
   'src/configManagerOps/FrConfigOauth2AgentOps.ts': 1,
   'src/configManagerOps/FrConfigOrgPrivilegesOps.ts': 1,
   'src/configManagerOps/FrConfigPasswordPolicyOps.ts': 1,
   'src/configManagerOps/FrConfigRawOps.ts': 1,
   'src/configManagerOps/FrConfigRemoteServersOps.ts': 1,
   'src/configManagerOps/FrConfigSamlOps.ts': 2,
-  'src/configManagerOps/FrConfigSchedulesOps.ts': 1,
+  'src/configManagerOps/FrConfigSchedulesOps.ts': 3,
   'src/configManagerOps/FrConfigScriptOps.ts': 2,
   'src/configManagerOps/FrConfigSecretMappingsOps.ts': 1,
   'src/configManagerOps/FrConfigSecretOps.ts': 1,
   'src/configManagerOps/FrConfigServiceObjectsOps.ts': 1,
   'src/configManagerOps/FrConfigServiceOps.ts': 2,
   'src/configManagerOps/FrConfigTelemetryOps.ts': 1,
-  'src/configManagerOps/FrConfigTermsAndConditionsOps.ts': 1,
-  'src/configManagerOps/FrConfigThemeOps.ts': 3,
+  'src/configManagerOps/FrConfigTermsAndConditionsOps.ts': 2,
+  'src/configManagerOps/FrConfigThemeOps.ts': 6,
   'src/configManagerOps/FrConfigUiConfigOps.ts': 1,
   'src/configManagerOps/FrConfigVariableOps.ts': 1,
   'src/ops/ApplicationConfigOps.ts': 4,

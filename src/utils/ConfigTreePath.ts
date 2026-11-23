@@ -136,6 +136,27 @@ function nameTooLong(name: string): Error {
 }
 
 /**
+ * The file name of a name that a file is always named after in its encoded form (the script of a
+ * pull is `<name>.js`, with `:`, `?` and the other characters of a path written as `%XX`, as before):
+ * {@link safeFileName}, which is neither cut nor empty. A name that leaves nothing (`.`, `..`, a
+ * device name of Windows) or is more than 255 bytes once encoded is refused, naming it.
+ * @param {string} value the name
+ * @returns {string} the file name without the extension
+ * @throws {Error} if the value leaves no name, or is longer than a file name can be
+ */
+export function encodedName(value: string): string {
+  const text = String(value);
+  if (encodedBytes(text) > MAX_PATH_SEGMENT_BYTES) throw nameTooLong(text);
+  const name = safeFileName(text);
+  if (name === '') {
+    throw new Error(
+      `'${shownInMessage(text)}' does not name an object: an id or a name is not a path`
+    );
+  }
+  return name;
+}
+
+/**
  * The name that an id or a name has as the start of a file name that a file of the tree refers to
  * (`<name>.<key>.js`, `<name>.<language>.html`): {@link nameInFolder}, and a name that starts with a
  * letter and a colon (`a:b`) writes that colon as `%3A`, because a reference that starts so is a

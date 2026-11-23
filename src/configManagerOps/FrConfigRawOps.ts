@@ -7,7 +7,7 @@ import {
   FrodoError,
   type IdObjectSkeletonInterface,
 } from '@rockcarver/frodo-lib';
-import { pulledFilePath } from '../utils/ConfigTreePath';
+import { pulledFilePath, type PulledPaths } from '../utils/ConfigTreePath';
 import {
   createProgressIndicator,
   printError,
@@ -50,6 +50,7 @@ export async function configManagerExportRaw(
 
     // Create export json file for every item in the provided json file
     const run = new OperationRun({ unit: 'raw config', allowFailures });
+    const pulledPaths: PulledPaths = new Map();
     for (const config of jsonData) {
       const name = String(config?.path ?? JSON.stringify(config));
       try {
@@ -58,7 +59,11 @@ export async function configManagerExportRaw(
         verboseMessage(`Saving ${response._id} at ${config.path}.json.`);
         saveJsonToFile(
           response,
-          getFilePath(pulledFilePath(`raw/${config.path}.json`), true),
+          // the path is a path by design (`/openidm/config/cluster`), and it stays inside the config folder
+          getFilePath(
+            pulledFilePath(`raw/${config.path}.json`, pulledPaths),
+            true
+          ),
           false,
           true
         );

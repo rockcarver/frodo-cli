@@ -17,11 +17,13 @@ import {
   importScriptFromFiles,
 } from '../configManagerOps/FrConfigScriptOps';
 import {
+  nameInFolder,
   objectFilePath,
   objectFolderPath,
   pulledFilePath,
   realmFolderOf,
   referencedFilePath,
+  type PulledPaths,
 } from '../utils/ConfigTreePath';
 import { printError, printMessage, verboseMessage } from '../utils/Console';
 import { causeOf } from '../utils/ErrorCause';
@@ -381,6 +383,8 @@ export async function pullApplication(
   readMappings: () => Promise<any[]>
 ): Promise<void> {
   const incomplete: string[] = [];
+  // the files of this application: two names that one file system takes for one hold one file
+  const pulledPaths: PulledPaths = new Map();
   const piece = async (what: string, work: () => Promise<void> | void) => {
     try {
       await work();
@@ -495,9 +499,11 @@ export async function pullApplication(
           const mapping = structuredClone(found);
           delete mapping._rev;
           if (String(mapping._id ?? '').startsWith('sync/')) delete mapping._id;
+          // the mapping is named by its owner: its name is the name of a folder here, never a path
           exportMappingToDirectory(
             mapping,
-            `${folder}/mappings/${mappingName}`
+            `${folder}/mappings/${nameInFolder(mappingName)}`,
+            pulledPaths
           );
         });
       }
@@ -516,12 +522,12 @@ export async function pullApplication(
         );
         return;
       }
-      exportScriptToFiles(script, realm);
+      exportScriptToFiles(script, realm, pulledPaths);
     });
   }
   for (const reference of shared('circleOfTrust')) {
     await piece(`circle of trust ${reference.id}`, () =>
-      exportCircleOfTrustToFile(reference.id, realm)
+      exportCircleOfTrustToFile(reference.id, realm, pulledPaths)
     );
   }
 

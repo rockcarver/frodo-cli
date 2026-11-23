@@ -5,7 +5,12 @@ import {
   type FrodoError,
   type IdObjectSkeletonInterface,
 } from '@rockcarver/frodo-lib';
-import { objectFilePath, pulledFilePath } from '../utils/ConfigTreePath';
+import {
+  nameInFolder,
+  objectFilePath,
+  pulledFilePath,
+  type PulledPaths,
+} from '../utils/ConfigTreePath';
 import { printError, printMessage, verboseMessage } from '../utils/Console';
 import { realmList } from '../utils/FrConfig';
 import { OperationRun } from '../utils/OperationRun';
@@ -49,18 +54,23 @@ async function orgPrivilegesIds(realm?: string): Promise<string[]> {
 
 /**
  * Saves one organization privileges configuration.
- * @param id The id of the configuration entity
+ * @param id The id of the configuration entity (it holds the name of the realm, so it is a name of a file, never a path)
  * @param ignoreMissing True to treat a configuration that does not exist as nothing to export instead of an error
+ * @param pulledPaths The files of this pull, to refuse a file that another one replaces on a file system that ignores case
  */
 async function exportOrgPrivileges(
   id: string,
-  ignoreMissing: boolean
+  ignoreMissing: boolean,
+  pulledPaths: PulledPaths
 ): Promise<void> {
   try {
     const orgPrivileges: IdObjectSkeletonInterface = await readConfigEntity(id);
     saveJsonToFile(
       orgPrivileges,
-      getFilePath(pulledFilePath(`org-privileges/${id}.json`), true),
+      getFilePath(
+        pulledFilePath(`org-privileges/${nameInFolder(id)}.json`, pulledPaths),
+        true
+      ),
       false,
       // as before the files were consolidated: the realm files keep the revision, the assignments do not
       id !== PRIVILEGE_ASSIGNMENTS
@@ -104,9 +114,14 @@ export async function configManagerExportOrgPrivileges(
     const asked =
       name !== undefined || (!!realm && realm !== DEFAULT_REALM_KEY);
     const run = new OperationRun({ unit: 'configuration', allowFailures });
+    const pulledPaths: PulledPaths = new Map();
     for (const id of name !== undefined ? [name] : ids) {
       await run.run(id, () =>
-        exportOrgPrivileges(id, id !== PRIVILEGE_ASSIGNMENTS && !asked)
+        exportOrgPrivileges(
+          id,
+          id !== PRIVILEGE_ASSIGNMENTS && !asked,
+          pulledPaths
+        )
       );
     }
     return run.finish();

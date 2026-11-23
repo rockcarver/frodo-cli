@@ -69,17 +69,20 @@ describe('configManagerExportManagedObjects', () => {
     expect(extractFrConfigDataToFile).toHaveBeenCalledWith(
       'create();',
       'alpha_user.onCreate.js',
-      dir
+      dir,
+      expect.any(Map)
     );
     expect(extractFrConfigDataToFile).toHaveBeenCalledWith(
       'reset();',
       'alpha_user.actions.resetPassword.js',
-      dir
+      dir,
+      expect.any(Map)
     );
     expect(extractFrConfigDataToFile).toHaveBeenCalledWith(
       'store();',
       'alpha_user.mail.onStore.js',
-      dir
+      dir,
+      expect.any(Map)
     );
     expect(extractFrConfigDataToFile).toHaveBeenCalledTimes(3);
   });

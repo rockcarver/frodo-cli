@@ -7,7 +7,12 @@ import {
   type ServiceNextDescendent,
 } from '@rockcarver/frodo-lib';
 import { combinedServiceError, importedServiceNameOf } from '../ops/ServiceOps';
-import { pulledFilePath } from '../utils/ConfigTreePath';
+import {
+  nameInFolder,
+  pulledFilePath,
+  realmFolderOf,
+  type PulledPaths,
+} from '../utils/ConfigTreePath';
 import {
   createProgressIndicator,
   printError,
@@ -54,14 +59,21 @@ export async function configManagerExportServices(
       realm && realm !== DEFAULT_REALM_KEY ? [realm] : await realmList();
     const run = new OperationRun({ unit: 'service', allowFailures });
     let exported = 0;
+    const pulledPaths: PulledPaths = new Map();
     for (const realm of realms) {
       if (
         realm === '/' &&
         state.getDeploymentType() === CLOUD_DEPLOYMENT_TYPE_KEY
       )
         continue;
+      // the tenant names the realm: it is the name of a folder here, never a path
+      const realmDir = run.deriveOrFail(
+        `realm ${realm}`,
+        () => realmFolderOf(realm),
+        'Its services are not pulled.'
+      );
+      if (realmDir === undefined) continue;
       state.setRealm(realm);
-      const realmDir = realm === '/' ? 'root' : realm;
       let services: FullService[];
       try {
         services = await getFullServices(false);
@@ -102,7 +114,8 @@ export async function configManagerExportServices(
                 descendent,
                 getFilePath(
                   pulledFilePath(
-                    `${fileDir}/${service._type._id}/${descendent._id}.json`
+                    `${fileDir}/${nameInFolder(service._type._id)}/${nameInFolder(descendent._id)}.json`,
+                    pulledPaths
                   ),
                   true
                 ),
@@ -115,7 +128,10 @@ export async function configManagerExportServices(
           saveJsonToFile(
             service,
             getFilePath(
-              pulledFilePath(`${fileDir}/${service._type._id}.json`),
+              pulledFilePath(
+                `${fileDir}/${nameInFolder(service._type._id)}.json`,
+                pulledPaths
+              ),
               true
             ),
             false,

@@ -5,7 +5,13 @@ import {
   type FrodoError,
 } from '@rockcarver/frodo-lib';
 import { extractFrConfigDataToFile } from '../utils/Config';
-import { pulledFilePath, referencedFilePath } from '../utils/ConfigTreePath';
+import {
+  nameInFolder,
+  nameInStem,
+  pulledFilePath,
+  referencedFilePath,
+  type PulledPaths,
+} from '../utils/ConfigTreePath';
 import { printError, printMessage } from '../utils/Console';
 import { causeOf } from '../utils/ErrorCause';
 import { fileFilter } from '../utils/FrConfig';
@@ -46,19 +52,31 @@ export async function configManagerExportEndpoints(
       return false;
     }
     const run = new OperationRun({ unit: 'endpoint', allowFailures });
+    const pulledPaths: PulledPaths = new Map();
     for (const endpoint of targets) {
       const endpointName = endpoint._id.split('/')[1];
       try {
-        const endpointDir = `endpoints/${endpointName}`;
-        const scriptFilename = `${endpointName}.${endpoint.type === 'groovy' ? 'groovy' : 'js'}`;
+        // the tenant names the endpoint: its name is the name of its folder and its files here, never a path
+        const folderName = nameInFolder(endpointName);
+        const endpointDir = `endpoints/${folderName}`;
+        // the reference starts with the name, so a leading drive letter is written as `%3A`
+        const scriptFilename = `${nameInStem(endpointName)}.${endpoint.type === 'groovy' ? 'groovy' : 'js'}`;
+        const endpointFilename = `${endpointDir}/${folderName}.json`;
+        // both files are checked before the first one is written
+        pulledFilePath(`${endpointDir}/${scriptFilename}`, pulledPaths);
+        pulledFilePath(endpointFilename, pulledPaths);
 
-        extractFrConfigDataToFile(endpoint.source, scriptFilename, endpointDir);
+        extractFrConfigDataToFile(
+          endpoint.source,
+          scriptFilename,
+          endpointDir,
+          pulledPaths
+        );
         delete endpoint.source;
         endpoint.file = `${scriptFilename}`;
-        const endpointFilename = `${endpointDir}/${endpointName}.json`;
         saveJsonToFile(
           endpoint,
-          getFilePath(pulledFilePath(endpointFilename), true),
+          getFilePath(pulledFilePath(endpointFilename, pulledPaths), true),
           false,
           true
         );

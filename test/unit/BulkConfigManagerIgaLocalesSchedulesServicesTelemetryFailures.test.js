@@ -239,9 +239,6 @@ const CASES = [
     unit: 'workflow',
     reason: (id) => `could not save ${id}`,
     arrange({ failing, attempted, spy }) {
-      spy('src/utils/FrConfig')
-        .safeFileName.mockReset()
-        .mockImplementation((name) => name);
       frodo.cloud.iga.workflow.readWorkflows.mockReset().mockResolvedValue(
         IDS.map((id) => ({
           id: `id-${id}`,

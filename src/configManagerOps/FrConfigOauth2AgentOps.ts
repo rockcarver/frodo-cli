@@ -30,8 +30,10 @@ import {
 } from '../ops/DedicatedAgentKinds';
 import {
   isOneSafeSegment,
+  nameInFolder,
   pulledFilePath,
   realmFolderOf,
+  type PulledPaths,
 } from '../utils/ConfigTreePath';
 import {
   createProgressIndicator,
@@ -105,16 +107,13 @@ async function everythingOfAgents(
       state.getDeploymentType() === CLOUD_DEPLOYMENT_TYPE_KEY
     )
       continue;
-    let realmDir: string;
-    try {
-      realmDir = realmFolderOf(currentRealm);
-    } catch {
-      printMessage(
-        `Skipping realm '${currentRealm}': its name is not '/', a name or a path of names.`,
-        'warn'
-      );
-      continue;
-    }
+    // the tenant names the realm: it is the name of a folder here, never a path
+    const realmDir = run.deriveOrFail(
+      `realm ${currentRealm}`,
+      () => realmFolderOf(currentRealm),
+      'Its agents are not pulled.'
+    );
+    if (realmDir === undefined) continue;
     state.setRealm(currentRealm);
     try {
       const found = new Map<string, Set<string>>();
@@ -232,6 +231,7 @@ export async function configManagerExportOAuth2Agents(
     // what the files do not hold: the properties that are not set on their agents
     let leftOut = 0;
     let written = 0;
+    const pulledPaths: PulledPaths = new Map();
     for (const realm of Object.keys(configFileData)) {
       if (
         realm === '/' &&
@@ -286,6 +286,12 @@ export async function configManagerExportOAuth2Agents(
           await run.run(
             `${realm === '/' ? 'root' : realm}/${agentType}/${agent.id}`,
             async () => {
+              // the tenant, or the file, names the realm, the type and the id: each is one name here, never a path
+              const realmDir = realmFolderOf(realm);
+              const agentFile = pulledFilePath(
+                `realms/${realmDir}/realm-config/agents/${nameInFolder(agentType)}/${nameInFolder(agent.id)}.json`,
+                pulledPaths
+              );
               const agentResponse = await readAgentByTypeAndId(
                 agentType as AgentType,
                 agent.id
@@ -311,12 +317,7 @@ export async function configManagerExportOAuth2Agents(
               }
               saveJsonToFile(
                 config,
-                getFilePath(
-                  pulledFilePath(
-                    `realms/${realm === '/' ? 'root' : realm}/realm-config/agents/${agentType}/${agent.id}.json`
-                  ),
-                  true
-                ),
+                getFilePath(agentFile, true),
                 false,
                 false,
                 true

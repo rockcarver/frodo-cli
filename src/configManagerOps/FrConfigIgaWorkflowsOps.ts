@@ -2,10 +2,14 @@ import fs from 'fs';
 import path from 'path';
 import { frodo, type ScriptTask } from '@rockcarver/frodo-lib';
 import { extractFrConfigDataToFile } from '../utils/Config';
-import { pulledFilePath, referencedFilePath } from '../utils/ConfigTreePath';
+import {
+  encodedName,
+  pulledFilePath,
+  referencedFilePath,
+  type PulledPaths,
+} from '../utils/ConfigTreePath';
 import { printError, printMessage } from '../utils/Console';
 import { causeOf } from '../utils/ErrorCause';
-import { safeFileName } from '../utils/FrConfig';
 import { OperationRun } from '../utils/OperationRun';
 
 const { saveJsonToFile, getFilePath, readJsonFile, getWorkingDirectory } =
@@ -46,14 +50,27 @@ export async function configManagerExportIgaWorkflows(
       return true;
     }
     const run = new OperationRun({ unit: 'workflow', allowFailures });
+    const pulledPaths: PulledPaths = new Map();
     for (const workflow of workflows) {
-      const workflowName = safeFileName(workflow.name);
       try {
+        // the tenant names the workflow and its steps: each is one name here, never a path
+        const workflowName = encodedName(workflow.name);
         const workflowPath = `iga/workflows/${workflowName}`;
+        const uniqueIds = workflow.steps.map((step) =>
+          encodedName(`${step.displayName} - ${step.name}`)
+        );
+        // every file is checked before the first one is written
+        pulledFilePath(`${workflowPath}/${workflowName}.json`, pulledPaths);
+        for (const uniqueId of uniqueIds) {
+          pulledFilePath(
+            `${workflowPath}/steps/${uniqueId}/${uniqueId}.json`,
+            pulledPaths
+          );
+        }
 
         const stepsPath = `${workflowPath}/steps`;
-        workflow.steps.forEach((step) => {
-          const uniqueId = safeFileName(`${step.displayName} - ${step.name}`);
+        workflow.steps.forEach((step, index) => {
+          const uniqueId = uniqueIds[index];
           const stepPath = `${stepsPath}/${uniqueId}`;
           if (
             step.type === 'scriptTask' &&
@@ -64,7 +81,8 @@ export async function configManagerExportIgaWorkflows(
             extractFrConfigDataToFile(
               (step.scriptTask as ScriptTask).script,
               scriptFilename,
-              stepPath
+              stepPath,
+              pulledPaths
             );
             (step.scriptTask as any).script = {
               file: scriptFilename,
@@ -72,7 +90,10 @@ export async function configManagerExportIgaWorkflows(
           }
           saveJsonToFile(
             step,
-            getFilePath(pulledFilePath(`${stepPath}/${uniqueId}.json`), true),
+            getFilePath(
+              pulledFilePath(`${stepPath}/${uniqueId}.json`, pulledPaths),
+              true
+            ),
             false,
             true
           );
@@ -82,7 +103,7 @@ export async function configManagerExportIgaWorkflows(
         saveJsonToFile(
           workflow,
           getFilePath(
-            pulledFilePath(`${workflowPath}/${workflowName}.json`),
+            pulledFilePath(`${workflowPath}/${workflowName}.json`, pulledPaths),
             true
           ),
           false,
