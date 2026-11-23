@@ -17,6 +17,7 @@ import {
   fileNameOf,
   objectFilePath,
   objectFolderPath,
+  realmFolderOf,
   referencedFilePath,
 } from '../utils/ConfigTreePath';
 import { printError, printMessage } from '../utils/Console';
@@ -67,6 +68,16 @@ export async function configManagerExportJourneys(
           frodo.utils.constants.CLOUD_DEPLOYMENT_TYPE_KEY
       )
         continue;
+      // the tenant names the realm: it is the name of a folder here, never a path
+      let realmDir: string;
+      try {
+        realmDir = realmFolderOf(realmName);
+      } catch (error) {
+        const reason = printable(causeOf(error));
+        printMessage(`${reason} Its journeys are not pulled.`, 'error');
+        run.recordFailure(`realm ${printable(realmName)}`, reason);
+        continue;
+      }
       state.setRealm(realmName);
       // a journey that was read is counted when its files are written, so only the failures are counted here
       const report = run.resultCallback();
@@ -97,6 +108,7 @@ export async function configManagerExportJourneys(
       hintAtFindings ||= await wantsJourneyFindingsHint(exportData);
       await processJourneysExport(
         exportData.trees,
+        realmDir,
         name,
         pullDependencies,
         clean,
@@ -188,6 +200,7 @@ async function processNodeExport(
 /**
  * Helper that processes journeys for export
  * @param {Record<string, SingleTreeExportInterface>} journeys The journeys to process
+ * @param {string} realmDir the folder of the realm of the journeys, from `realmFolderOf`
  * @param {string} name processes only the specifically named journey
  * @param {boolean} pullDependencies include the scripts of the journeys and, when a journey is named, its inner journeys
  * @param {boolean} clean if true clear existing configuration, otherwise false
@@ -196,13 +209,14 @@ async function processNodeExport(
  */
 async function processJourneysExport(
   journeys: Record<string, SingleTreeExportInterface>,
+  realmDir: string,
   name?: string,
   pullDependencies: boolean = true,
   clean: boolean = false,
   run?: OperationRun,
   exported: Set<string> = new Set()
 ): Promise<void> {
-  const realmDir = state.getRealm() === '/' ? 'root' : state.getRealm();
+  const journeysDir = `realms/${realmDir}/journeys`;
   for (const [treeId, journey] of Object.entries(journeys)) {
     if (name && treeId !== name) {
       continue;
@@ -212,7 +226,8 @@ async function processJourneysExport(
     }
     exported.add(treeId);
     const exportJourney = async () => {
-      const journeyDir = `realms/${realmDir}/journeys/${treeId}`;
+      // the tenant names the journey: its id is the name of its folder and of its file, never a path
+      const journeyDir = objectFolderPath(journeysDir, treeId);
       const nodeDir = `${journeyDir}/nodes`;
       if (clean) {
         fs.rmSync(getFilePath(nodeDir), { recursive: true, force: true });
@@ -225,6 +240,7 @@ async function processJourneysExport(
         ) {
           await processJourneysExport(
             journeys,
+            realmDir,
             node.tree,
             pullDependencies,
             clean,
@@ -241,15 +257,16 @@ async function processJourneysExport(
           journey
         );
       }
+      // the file of the journey has the name of its folder, which is the name a push reads
       saveJsonToFile(
         journey.tree,
-        getFilePath(`${journeyDir}/${journey.tree._id}.json`, true),
+        getFilePath(objectFilePath(journeyDir, treeId), true),
         false,
         true,
         true
       );
     };
-    if (run) await run.run(`${realmDir}/${treeId}`, exportJourney);
+    if (run) await run.run(`${realmDir}/${printable(treeId)}`, exportJourney);
     else await exportJourney();
   }
 }
