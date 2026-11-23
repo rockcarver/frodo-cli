@@ -16,8 +16,8 @@ import { state } from '@rockcarver/frodo-lib';
  * the command as typing the flag does: commander stores `false` for the attribute of a negated option
  * and `true` while the flag is not written. The editor wrote `true` for every picked flag, so a picked
  * `--no-deps` showed in the preview and was ignored when the command ran
- * (https://github.com/rockcarver/frodo-cli/blob/main/docs/decisions/0047-the-interactive-prompting-framework-never-changes-a-complete-command-line-and-is-invisible-when-it-is-off.md,
- * a picked option is what a typed one is).
+ * (https://github.com/rockcarver/frodo-cli/blob/main/docs/decisions/0019-the-command-preview-shows-the-exact-command-to-retype.md,
+ * the command preview shows the exact command to retype, so the command must run as the preview says).
  *
  * The prompt that lists the options is replaced by one that picks what a test says; the command files, the
  * editor, the conflict check, the preview and the state handlers are the real ones. Each test compares
