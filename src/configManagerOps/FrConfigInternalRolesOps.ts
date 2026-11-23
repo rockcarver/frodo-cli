@@ -99,6 +99,8 @@ export async function configManagerImportInternalRoles(
 ): Promise<boolean> {
   const run = new OperationRun({ unit: 'internal role', allowFailures });
   try {
+    // `.` and `..` name no internal role: the words of a pull
+    if (internalRoleName) nameInFolder(internalRoleName);
     const internalRolesDir = `${getWorkingDirectory()}/internal-roles`;
     if (!fs.existsSync(internalRolesDir)) {
       printMessage(

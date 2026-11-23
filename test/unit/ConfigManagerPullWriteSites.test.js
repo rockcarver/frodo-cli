@@ -34,11 +34,20 @@ import ts from 'typescript';
  * - the number of gate calls of each module is the number in a table, so a call that is removed fails
  *   here, and so does a write that is added without a row.
  *
- * What it does not catch: a write through a function of another module that the scanned module calls
- * (the function is scanned in its own module), a path built by a call that is not listed (a helper
- * that returns a gated path), a value that is changed through a property or a closure, `eval`, a
- * dynamic `import`, and a write by a child process (the guard of the removals, DestructiveSitesGuard.test.js,
- * looks for those).
+ * What it does not catch (so a person who reads a pull for a new write must not rely on it for these):
+ * - a write that a scanned module hands to a function of a module that is not in the list above (the
+ *   helper is not read: it is read only when its module is one of those listed), and a write that a
+ *   scanned module makes through a helper of the list whose own path comes from its caller;
+ * - a path built by a call that is not listed here (a helper that returns a path that passed the gate,
+ *   or one that did not), a value that is changed through a property, an array or a closure;
+ * - a function that is called `pulledFilePath` but is not the gate, when it is declared in the module
+ *   or imported under a rename from another module (the declaration is a finding; a gate that is
+ *   imported from a module of another name is a finding too) - a gate that is replaced inside
+ *   ConfigTreePath.ts itself is seen only by the table of gate calls and the unit tests of the gate;
+ * - writers that the table does not list: a write by a child process (`execFileSync('tee', [path])`;
+ *   the guard of the removals, DestructiveSitesGuard.test.js, looks for the removals), `eval`, a dynamic
+ *   `import`, a constructor other than `WriteStream`, a metadata call that the table does not name, a
+ *   function of the library that writes and is not named in the table.
  */
 
 const root = path.resolve(
@@ -75,6 +84,7 @@ const WRITES = {
   saveJsonToFile: 1,
   saveTextToFile: 1,
   saveToFile: 1,
+  appendTextToFile: 1,
   extractDataToFile: -3,
   writeFileSync: 0,
   writeFile: 0,
@@ -105,7 +115,19 @@ const WRITES = {
   openSync: 0,
   open: 0,
   createWriteStream: 0,
+  chmodSync: 0,
+  chmod: 0,
+  chownSync: 0,
+  chown: 0,
+  utimesSync: 0,
+  utimes: 0,
 };
+
+/** The constructors whose first argument is a path that is written. */
+const WRITING_CONSTRUCTORS = new Set(['WriteStream']);
+
+/** The gate must come from this module. */
+const GATE_MODULE = /ConfigTreePath(\.ts)?$/;
 
 /** The bases that a `path.join` or `path.resolve` may start from without the gate, by module. */
 const ALLOWED_BASES = [
@@ -312,6 +334,20 @@ function isGated(expression, scope, module = '', seen = new Set()) {
 function writesOf(source) {
   const writes = [];
   const visit = (node) => {
+    if (
+      ts.isNewExpression(node) &&
+      WRITING_CONSTRUCTORS.has(
+        ts.isPropertyAccessExpression(node.expression)
+          ? node.expression.name.text
+          : node.expression.getText()
+      )
+    ) {
+      writes.push({
+        node,
+        name: `new ${node.expression.getText()}`,
+        paths: [node.arguments?.[0]],
+      });
+    }
     if (ts.isCallExpression(node)) {
       const name = calleeName(node);
       if (name && Object.hasOwn(WRITES, name)) {
@@ -392,6 +428,23 @@ function aliasesOf(source) {
       WRITER_OBJECTS.has(node.expression.getText())
     ) {
       note(node, 'computed member');
+    }
+    if (ts.isIdentifier(node) && node.text === 'pulledFilePath') {
+      const parent = node.parent;
+      const declares =
+        ((ts.isFunctionDeclaration(parent) ||
+          ts.isVariableDeclaration(parent) ||
+          ts.isParameter(parent) ||
+          ts.isBindingElement(parent) ||
+          ts.isMethodDeclaration(parent)) &&
+          parent.name === node) ||
+        (ts.isImportSpecifier(parent) &&
+          (parent.propertyName !== undefined ||
+            !GATE_MODULE.test(
+              parent.parent.parent.parent.moduleSpecifier.getText().slice(1, -1)
+            ))) ||
+        (ts.isImportSpecifier(parent) === false && ts.isImportClause(parent));
+      if (declares) note(parent, 'declares or renames the gate');
     }
     ts.forEachChild(node, visit);
   };
@@ -630,6 +683,18 @@ describe('the scan can fail: each form of a write that it knows is found', () =>
     ['fs.linkSync', "fs.linkSync(pulledFilePath('a'), x);"],
     ['fs.symlinkSync', "fs.symlinkSync(x, pulledFilePath('a'));"],
     ['fs.truncateSync', 'fs.truncateSync(x);'],
+    ['appendTextToFile of the library', "utils.appendTextToFile('y', x);"],
+    ['a stream that is opened by its constructor', 'new fs.WriteStream(x);'],
+    ['a change of the mode of a named path', 'fs.chmodSync(x, 0o777);'],
+    ['a change of the times of a named path', 'fs.utimesSync(x, 0, 0);'],
+    [
+      'a function that is called as the gate and declared in the module',
+      'function pulledFilePath(p) { return p; } fs.writeFileSync(pulledFilePath(x), 1);',
+    ],
+    [
+      'a gate that is a variable of the module',
+      'const pulledFilePath = (p) => p; fs.writeFileSync(pulledFilePath(x), 1);',
+    ],
     ['fs.mkdirSync', 'fs.mkdirSync(x, { recursive: true });'],
     ['a computed key on fs', "fs['write' + 'FileSync'](x, 'y');"],
     [
@@ -683,6 +748,16 @@ describe('the scan can fail: each form of a write that it knows is found', () =>
     const text = `export function f(x) { ${body} }`;
 
     expect(findingsOf(sourceOfText(text), 'snippet.ts')).toEqual([]);
+  });
+
+  test.each([
+    ["import { pulledFilePath } from '../utils/ConfigTreePath';", 0],
+    ["import { pulledFilePath } from './Elsewhere';", 1],
+    ["import { other as pulledFilePath } from '../utils/ConfigTreePath';", 1],
+  ])('%s: %s finding(s) for the gate that is imported', (line, count) => {
+    const text = `${line}\nexport function f(x) { return pulledFilePath(x); }`;
+
+    expect(findingsOf(sourceOfText(text), 'snippet.ts')).toHaveLength(count);
   });
 });
 

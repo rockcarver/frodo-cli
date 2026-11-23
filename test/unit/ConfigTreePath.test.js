@@ -1302,10 +1302,11 @@ describe('nameInFolder and nameInStem', () => {
   it('does not cut a long name: it fails, naming it, so that two long names never become one', () => {
     expect(nameInFolder('n'.repeat(300))).toBe('n'.repeat(300));
     expect(() => nameInFolder(`a/${'n'.repeat(300)}`)).toThrow(
-      'is longer than 255 bytes, so it cannot be the name of a file.'
+      'is longer than 255 bytes once encoded, so it cannot be the name of a file.'
     );
+    // a name of 255 bytes that holds a slash is 257 bytes once the slash is written as %2F
     expect(() => nameInFolder(`a/${'n'.repeat(253)}`)).toThrow(
-      'is longer than 255 bytes'
+      'is longer than 255 bytes once encoded'
     );
     expect(nameInFolder(`a/${'n'.repeat(251)}`)).toBe(`a%2F${'n'.repeat(251)}`);
   });

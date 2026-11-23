@@ -87,6 +87,8 @@ export async function configManagerImportLocales(
   allowFailures: boolean = false
 ): Promise<boolean> {
   try {
+    // `.` and `..` name no locale: the words of a pull
+    if (name) nameInFolder(name);
     printMessage(`Updating locale${name ? ` ${name}` : 's'}`);
     const localesDir = `${getWorkingDirectory()}/locales`;
     if (!fs.existsSync(localesDir)) {

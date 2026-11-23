@@ -42,7 +42,26 @@ const REALMS = ['../escape', '../../escape', '..\\escape', '..', '..C:/escape'];
 const COMMANDS = [
   { command: 'services', fakeOptions: { services: [] }, left: 'services' },
   { command: 'journeys', fakeOptions: { trees: [] }, left: 'journeys' },
-  { command: 'scripts', fakeOptions: { scripts: [] }, left: 'scripts' },
+  {
+    command: 'scripts',
+    // the fake serves the scripts of the realm that is a name: the file of one is the proof that it was pulled
+    fakeOptions: { scripts: ['Fine'] },
+    left: 'scripts',
+    written:
+      'realms/alpha/scripts/scripts-content/SOCIAL_IDP_PROFILE_TRANSFORMATION/Fine.js',
+  },
+];
+
+const CONTEXT = 'SOCIAL_IDP_PROFILE_TRANSFORMATION';
+
+/** The names of scripts that the fake serves: the file that a pull makes of each, and the exit code. */
+const SCRIPT_NAMES = [
+  ['../../escape', '..%2F..%2Fescape', 0],
+  ['..\\escape', '..%5Cescape', 0],
+  ['/etc/escape', '%2Fetc%2Fescape', 0],
+  ['a/b', 'a%2Fb', 0],
+  ['..', undefined, 1],
+  ['...', undefined, 1],
 ];
 
 suite(
@@ -107,7 +126,7 @@ suite(
       fakeAm = await startFakeAm({
         journey: 'service-account',
         recordPath: record,
-        realms: ['alpha', realm],
+        realms: realm === undefined ? ['alpha'] : ['alpha', realm],
         ...fakeOptions,
       });
       return new Promise((resolve, reject) => {
@@ -149,7 +168,7 @@ suite(
 
     describe.each(COMMANDS)(
       'pull $command',
-      ({ command, fakeOptions, left }) => {
+      ({ command, fakeOptions, left, written }) => {
         it.each(REALMS.map((realm) => [realm]))(
           'the realm %j is a failure of that realm: exit 1, nothing outside the config folder is touched',
           async (realm) => {
@@ -169,10 +188,45 @@ suite(
               true
             );
             expect(urls.filter((url) => url.includes('escape'))).toEqual([]);
+            // and what that realm has is written
+            if (written) {
+              expect(fs.existsSync(path.join(work, written))).toBe(true);
+            }
           },
           TIMEOUT
         );
       }
     );
+
+    describe('pull scripts: the name of a script that the tenant serves', () => {
+      it.each(SCRIPT_NAMES)(
+        'the name %j is the file %j in the folder of the scripts, and the exit code is %j',
+        async (name, file, exit) => {
+          const outer = path.resolve(work, '..', '..', '..');
+          const before = snapshot(outer, work);
+
+          const { code, output } = await pull('scripts', undefined, {
+            scripts: [name, 'Fine'],
+          });
+
+          expect(code).toBe(exit);
+          expect(snapshot(outer, work)).toEqual(before);
+          const content = path.join(
+            work,
+            'realms/alpha/scripts/scripts-content',
+            CONTEXT
+          );
+          // the other script is pulled whatever the name of this one is
+          expect(fs.readdirSync(content)).toContain('Fine.js');
+          if (file) {
+            expect(fs.readdirSync(content)).toContain(`${file}.js`);
+          } else {
+            expect(output).toContain('does not name an object');
+            expect(fs.readdirSync(content)).toEqual(['Fine.js']);
+          }
+        },
+        TIMEOUT
+      );
+    });
   }
 );

@@ -131,7 +131,7 @@ function encodedBytes(text: string): number {
  */
 function nameTooLong(name: string): Error {
   return new Error(
-    `The name '${shownInMessage(name)}' is longer than ${MAX_PATH_SEGMENT_BYTES} bytes, so it cannot be the name of a file.`
+    `The name '${shownInMessage(name)}' is longer than ${MAX_PATH_SEGMENT_BYTES} bytes once encoded, so it cannot be the name of a file.`
   );
 }
 

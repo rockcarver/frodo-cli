@@ -74,6 +74,8 @@ const schedules = await ops('FrConfigSchedulesOps');
 const customNodes = await ops('FrConfigCustomNodesOps');
 const journeys = await ops('FrConfigJourneysOps');
 const emailTemplates = await ops('FrConfigEmailTemplatesOps');
+const internalRoles = await ops('FrConfigInternalRolesOps');
+const igaWorkflows = await ops('FrConfigIgaWorkflowsOps');
 
 /** The names that a push has to find again. A name with `/` cannot be an id that is split at its first `/`. */
 const NAMES = [
@@ -280,6 +282,9 @@ describe('a push that names `.` or `..` is refused with the words of a pull', ()
     ['schedules', () => schedules.configManagerImportSchedules],
     ['custom nodes', () => customNodes.configManagerImportCustomNodes],
     ['email templates', () => emailTemplates.configManagerImportEmailTemplates],
+    ['locales', () => locales.configManagerImportLocales],
+    ['internal roles', () => internalRoles.configManagerImportInternalRoles],
+    ['iga workflows', () => igaWorkflows.configManagerImportIgaWorkflows],
   ])('%s', async (_family, push) => {
     for (const id of ['..', '.']) {
       printed.length = 0;

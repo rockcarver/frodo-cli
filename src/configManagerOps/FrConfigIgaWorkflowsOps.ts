@@ -4,6 +4,7 @@ import { frodo, type ScriptTask } from '@rockcarver/frodo-lib';
 import { extractFrConfigDataToFile } from '../utils/Config';
 import {
   encodedName,
+  nameInFolder,
   pulledFilePath,
   PulledPaths,
   referencedFilePath,
@@ -143,6 +144,8 @@ export async function configManagerImportIgaWorkflows(
   id?: string
 ): Promise<boolean> {
   try {
+    // `.` and `..` name no workflow: the words of a pull
+    if (name) nameInFolder(name);
     const workflowsDir = `${getWorkingDirectory()}/iga/workflows`;
     if (!fs.existsSync(workflowsDir)) {
       printMessage(`IGA workflows folder not found: ${workflowsDir}`, 'error');

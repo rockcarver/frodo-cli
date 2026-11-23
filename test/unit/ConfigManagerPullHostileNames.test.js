@@ -205,6 +205,13 @@ const NAMES = [
     pairAs: ['\ufffd', '\ufffd'],
   },
   {
+    // the families whose id is split at the first `/` have no row for `a/b`: this pair holds a backslash
+    label: 'is the same name once encoded (a backslash)',
+    value: ['a\\b', 'a%5Cb'],
+    how: 'pair',
+    pairAs: ['a%5Cb', 'a%5Cb'],
+  },
+  {
     label: 'is the same name once encoded',
     value: ['a/b', 'a%2Fb'],
     how: 'pair',
@@ -1509,4 +1516,24 @@ describe('a theme that is refused is named in the reason of its realm', () => {
     expect(said).toContain('1 of 1 realm failed');
     expect(said).toMatch(/- alpha: 1 of 3 themes not pulled, the first 'a': /);
   });
+});
+
+describe('terms and conditions: a collision is found before the first file is written', () => {
+  test.each([
+    ['a version', 'terms and conditions (a version)'],
+    ['a language', 'terms and conditions (a language)'],
+  ])(
+    'two names of %s that become one file name write nothing',
+    async (_what, title) => {
+      const family = FAMILIES.find((candidate) => candidate.family === title);
+      family.arrange(['a/b', 'a%2Fb']);
+
+      expect(await family.run()).toBe(false);
+
+      expect(printed.join('\n')).toContain(
+        'two names that become one file name'
+      );
+      expect(filesInside()).toEqual([]);
+    }
+  );
 });
