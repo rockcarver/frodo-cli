@@ -219,6 +219,9 @@ const HOSTILE_IDS = [
   ['holds a control character', 'x\u0000y', 'x%00y'],
   // a name of three dots is a name: it is neither the folder itself nor its parent
   ['is three dots', '...', '...'],
+  // the library removes every `C:` from a path after it is built, so these must not stay as they are
+  ['holds C: and nothing else wrong', 'ABC:x', 'ABC%3Ax'],
+  ['is two dots and C:', '..C:', '..C%3A'],
 ];
 
 describe('a journey whose id is a hostile name', () => {
@@ -342,6 +345,43 @@ describe('a journey whose id is a hostile name', () => {
     expect(said).not.toMatch(/\u001b/);
   });
 
+  // KNOWN GAP, pinned as it is today: two ids that are written as one folder are not told apart. The
+  // journey that comes later overwrites the one before, the command says nothing and succeeds. A later
+  // change that reports such a pair as a failure of the second journey changes these two tests on purpose.
+  test('known gap: the ids `a/b` and `a%2Fb` are one folder, the later journey overwrites the earlier one without a word', async () => {
+    tenant({ 'a/b': journey('a/b'), 'a%2Fb': journey('a%2Fb') });
+
+    expect(await pull()).toBe(true);
+
+    const journeys = path.join(configFolder, 'realms', 'alpha', 'journeys');
+    expect(fs.readdirSync(journeys)).toEqual(['a%2Fb']);
+    expect(
+      JSON.parse(
+        fs.readFileSync(path.join(journeys, 'a%2Fb', 'a%2Fb.json'), 'utf8')
+      )._id
+    ).toBe('a%2Fb');
+    expect(printed.join('\n')).not.toMatch(/fail|error/i);
+  });
+
+  test('known gap: two ids that a file name cuts to the same 250 bytes are one folder, the later journey overwrites the earlier one without a word', async () => {
+    const first = `a/${'x'.repeat(300)}`;
+    const second = `a/${'x'.repeat(280)}`;
+    tenant({ [first]: journey(first), [second]: journey(second) });
+
+    expect(await pull()).toBe(true);
+
+    const journeys = path.join(configFolder, 'realms', 'alpha', 'journeys');
+    const [folder, ...others] = fs.readdirSync(journeys);
+    expect(others).toEqual([]);
+    expect(Buffer.byteLength(folder)).toBe(250);
+    expect(
+      JSON.parse(
+        fs.readFileSync(path.join(journeys, folder, `${folder}.json`), 'utf8')
+      )._id
+    ).toBe(second);
+    expect(printed.join('\n')).not.toMatch(/fail|error/i);
+  });
+
   test('a journey whose tree has another id than its key is written under its key', async () => {
     const sentinels = plantSentinels();
     tenant({ A: journey('A', '../../../../../../outside') });
@@ -368,6 +408,8 @@ describe('a realm that is a hostile name', () => {
     ['goes up by backslashes', '..\\..\\..\\outside'],
     ['is only dots', '..'],
     ['has a drive letter', 'C:\\outside'],
+    ['holds C: and nothing else wrong', 'ABC:x'],
+    ['hides the way up in C:', '..C:/..C:/..C:/outside'],
     ['holds a control character', 'x\u0000y'],
   ];
 
