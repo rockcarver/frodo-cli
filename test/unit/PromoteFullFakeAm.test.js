@@ -847,13 +847,15 @@ suite('config-manager promote --full through the CLI', () => {
           foreignLockId: OTHER_LOCK_ID,
         });
 
-        const { code } = await promote(server, 'run-promotion', [
+        const { code, stderr } = await promote(server, 'run-promotion', [
           '--full',
           '-y',
         ]);
 
-        expect(calls().some((call) => call.startsWith('DELETE'))).toBe(false);
+        expect(calls()).toEqual([STATE, 'GET promote', 'POST lock', STATE]);
+        expect(stderr).toContain(`lock id ${OTHER_LOCK_ID}`);
         expect(code).toBe(1);
+        expect(await lockNow(server)).toBe('locked');
       },
       TIMEOUT
     );
