@@ -245,6 +245,36 @@ footer { border-top: 1px solid var(--line); padding: 8px 14px; background: var(-
 #hint { margin-top: 4px; color: var(--dim); font-size: 12px; min-height: 16px; white-space: pre-wrap; }
 `;
 
+/** The pause before the page asks again for a session that failed: first (ms), and at most (ms). */
+export const SESSION_RETRY_FIRST_MS = 1500;
+export const SESSION_RETRY_MAX_MS = 30000;
+
+/**
+ * The pause between the asks of a page that cannot get a session (and so an
+ * engine): `firstMs`, then double each time, never more than `maxMs`; `reset`
+ * after a success. The page script carries the source of this function (see
+ * `Function.prototype.toString` in SCRIPT), so it must use nothing outside
+ * itself, and a test runs the very text that the page carries.
+ * @param firstMs the first pause
+ * @param maxMs the longest pause
+ * @returns the pause counter
+ */
+export function createRetryPause(firstMs: number, maxMs: number) {
+  let failures = 0;
+  return {
+    /** The pause to wait now, after one more failure. */
+    next(): number {
+      const wait = Math.min(firstMs * Math.pow(2, failures), maxMs);
+      failures += 1;
+      return wait;
+    },
+    /** A success: the next failure starts over at the first pause. */
+    reset(): void {
+      failures = 0;
+    },
+  };
+}
+
 const SCRIPT = String.raw`
 (function () {
   'use strict';
@@ -257,6 +287,11 @@ const SCRIPT = String.raw`
   // its own): without the flag, a stream retry with a still-null id would
   // retry the session forever instead of opening the stream.
   var sharedEngine = false;
+  // The pause between asks for a session (and so an engine) that fails.
+  // retry-pause:begin
+  var createRetryPause = ${createRetryPause.toString()};
+  var sessionRetry = createRetryPause(${SESSION_RETRY_FIRST_MS}, ${SESSION_RETRY_MAX_MS});
+  // retry-pause:end
 
   function rememberEngine(id) {
     if (id) {
@@ -1079,9 +1114,17 @@ const SCRIPT = String.raw`
     // before it has an id (or lost it) asks for one first; a shared-engine
     // tab goes straight through (it has no id to learn).
     if (!engineId && !sharedEngine) {
-      refreshSession()
-        .catch(function (e) { infoEl.textContent = 'session error: ' + e.message; })
-        .then(function () { listen(); });
+      refreshSession().then(function () {
+        sessionRetry.reset();
+        listen();
+      }, function (e) {
+        infoEl.textContent = 'session error: ' + e.message;
+        setStatus(false);
+        // A server that cannot give this tab an engine answers at once; asking
+        // again without a pause would start one process per answer. Wait, a
+        // little longer each time.
+        setTimeout(listen, sessionRetry.next());
+      });
       return;
     }
     var listenHeaders = { 'X-Frodo-CSRF': csrf };

@@ -40,12 +40,19 @@ Exit with `.exit` or Ctrl+D.
 | `am`       | The AM realm JSON APIs (below) |
 | `$`        | REST with authentication attached (below) |
 | `state`    | frodo-lib's session state: `state.getHost()`, `state.getRealm()`, ... |
-| `_`        | lodash |
 | `help`     | Browsable API docs (below) |
 
 Top-level `await` works, and `let`/`const`/function/class declarations
 persist between inputs, so multi-line exploration flows the way a browser
 devtools console does.
+
+`_` is not a frodo name. In the terminal console it is the Node.js REPL's own
+`_`: the value of the last result (`1 + 1`, then `_ + 1` is 3), until you
+assign to it. The web console does not keep a last result, so there `_` is
+`undefined` until you assign it. For JSON data, `frodo.utils.json` has
+in-house helpers (`get`, `put`, `findInArray`, `getPaths`, `cloneDeep`,
+`mergeDeep`; they are not drop-in replacements for lodash functions, and `get`
+takes a path array), and the JavaScript built-ins cover the rest.
 
 ## REST: the `$` facade
 
@@ -176,14 +183,45 @@ description), and lists what each suggested resource is for.
 ## The web console: `--web`
 
 `frodo shell <host> --web` serves the same console as a local web page and
-opens it in the default browser. A one-time sign-in link is printed to the
-terminal; whoever holds it controls the shell, so it is shown once and
+opens it in the default browser. A one-time sign-in link is always printed to
+the terminal too; whoever holds it controls the shell, so it works once and is
 consumed on use. The server binds to the loopback address only, and shuts
 itself down after 30 idle minutes.
 
+How the browser gets the link: the program that opens a browser is given the
+address of a private launcher file, never the link, because the arguments of a
+program are readable by every other process of the machine while it runs (and a
+browser it starts may keep them). The launcher file is a page that sends the
+browser on to the link. It sits in a new folder of your temporary directory that
+only you can enter (mode 0700), is readable by you alone (mode 0600), and is
+removed as soon as the link is used, after two minutes, and when the console
+stops; a file that a killed run left behind is removed at the next start. A
+process of your own user, or root, can read the file for that time, as it can
+read the credentials of the console anyway. The terminal says "A browser signed
+in to the web console." when the link is used, and, if nothing signs in within
+20 seconds, reminds you once to use the link that was printed. If the page does
+not open (a browser that is packaged so that it cannot read your temporary
+directory, an editor that handles `.html` files, a remote session) use the
+printed link.
+
+`--no-open` (the option of the browser login), or the environment variable
+`FRODO_BROWSER_LOGIN_NO_OPEN` set to a true value, leaves the browser alone: no
+file is made, the link is printed and opening it is up to you. A browser that
+cannot be opened (no desktop, an SSH session, no browser installed, an opener
+that ends with an error) never stops the console: it says so and the printed
+link works the same.
+
+If a tab's engine cannot start, the page shows the reason in place of the
+connection line and the terminal prints it once; the page asks again after a
+pause that grows, and a reload tries at once. The reason is the first error line
+the engine process wrote before it ended.
+
 No username or password is needed for `--web`: each browser tab runs its
 own engine process that signs in from a connection profile picked in the
-page (or the one named on the command line). The page offers the same
+page (or the one named on the command line). In the native binary the engine
+is the binary itself, started again with a private environment variable that
+makes it the engine and not the command line; with npm and in the Docker image
+it is node and a separate worker file. The page offers the same
 prompt, completion, Ctrl+R search, history and object exploration as the
 terminal, plus a connection picker for switching environments, and a
 density toggle (compact by default).

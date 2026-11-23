@@ -5,7 +5,10 @@ import http from 'node:http';
 import { AddressInfo } from 'node:net';
 import path from 'node:path';
 import { createInterface } from 'node:readline';
-import { frodo } from '@rockcarver/frodo-lib';
+import sea from 'node:sea';
+import { frodo, state } from '@rockcarver/frodo-lib';
+import { printError } from '../utils/Console';
+import { liveSecrets, scrubKnownValues } from '../utils/McpResultScrub';
 import { HistoryEntry } from './ShellHistoryOps';
 import { WebEngine } from './ShellWebEngineOps';
 import {
@@ -46,6 +49,12 @@ const BODY_LIMIT = 1024 * 1024;
 const MAX_ACTIVE_REQUESTS = 64;
 const MAX_STREAMS = 8;
 const HEARTBEAT_MS = 15_000;
+/** What the one-time link answers: the cookie, and a page that goes on to the console. */
+const SIGN_IN_PAGE =
+  '<!doctype html>\n<meta charset="utf-8">\n' +
+  '<meta http-equiv="refresh" content="0;url=/">\n' +
+  '<title>frodo console</title>\n' +
+  '<p>Signing in to the frodo console. <a href="/">Continue</a>\n';
 
 export type LogBus = {
   publish(text: string): void;
@@ -122,6 +131,12 @@ export type WebConsoleOptions = {
    * console stays disconnected and the page says so.
    */
   connect?: (host: string) => Promise<boolean>;
+  /**
+   * Called once, when a browser uses the one-time link (the first valid use).
+   * It is told nothing about the link: the console says that a browser signed
+   * in, never what it signed in with.
+   */
+  onSignIn?: () => void;
 };
 
 export type WebConsoleHandle = {
@@ -183,28 +198,257 @@ function savedProfileSummaries(): ProfileSummary[] {
 }
 
 /**
- * The worker entry inside the bundle; tsdown emits it under cli/shell.
- * Tests point the env var at a stub so the real spawn path (protocol,
- * stderr forwarding) runs without the bundle present.
+ * The private environment variable that turns this very executable into a tab
+ * engine. It is an internal switch between the web console and its own child,
+ * not an option of the command line: nothing documents it for people to set.
+ *
+ * The executable of the native binary always runs its embedded program, so a
+ * script path handed to it would be read as a command. The child therefore
+ * gets no path, and this variable tells `src/app.ts` to start the engine
+ * (`src/cli/shell/engine-worker.ts`) in place of the command line parser. The
+ * engine removes the variable from its own environment first, so a process
+ * that a script of the console starts is an ordinary command again and never
+ * another engine.
  */
+export const ENGINE_WORKER_ENV = 'FRODO_ENGINE_WORKER';
+
+/**
+ * Whether this process is to run as a tab engine: the variable is set to `1`
+ * and standard input is not a terminal. The web console starts its engines
+ * over pipes; a person who has the variable in their environment by mistake
+ * sits at a terminal, and gets the command line as always.
+ * @param env the environment of this process
+ * @param stdinIsTerminal whether standard input is a terminal
+ * @returns true when the engine is to start in place of the command line
+ */
+export function startsAsEngine(
+  env: NodeJS.ProcessEnv,
+  stdinIsTerminal: boolean
+): boolean {
+  return env[ENGINE_WORKER_ENV] === '1' && !stdinIsTerminal;
+}
+
+/** The worker entry inside the bundle; tsdown emits it under cli/shell. */
 function workerScriptPath(): string {
-  if (process.env.FRODO_TEST_WORKER_SCRIPT) {
-    return process.env.FRODO_TEST_WORKER_SCRIPT;
-  }
   // src/ops/ShellWebServerOps.ts compiles into dist/ (flat), while the
   // worker entry keeps its source layout: dist/cli/shell/.
   return path.join(__dirname, 'cli', 'shell', 'engine-worker.cjs');
 }
 
-/** Spawn one engine child and wrap its JSON-line protocol. */
+/** What to run for one tab engine: the executable, its arguments and its environment. */
+export type TabEngineCommand = {
+  command: string;
+  args: string[];
+  env: NodeJS.ProcessEnv;
+};
+
+/**
+ * How a tab engine is started.
+ *
+ * - The native binary (`inSea`): the executable itself, with no argument and
+ *   {@link ENGINE_WORKER_ENV} set. A shipped binary never runs a script that
+ *   an environment variable names, so the test seam below does not apply to it.
+ * - The test seam (`FRODO_TEST_WORKER_SCRIPT`), outside the binary: that
+ *   script, run by node, as before.
+ * - Otherwise (npm, Docker, from source): node and the bundled worker file.
+ *
+ * Only the first case carries {@link ENGINE_WORKER_ENV}; the others remove it,
+ * so the child of an engine never has a way to become another one.
+ * @param inSea whether this process is the native binary
+ * @param env the environment of this process
+ * @param workerScript the worker file of the bundle (a test passes its own)
+ * @returns the command to spawn
+ */
+export function tabEngineCommand(
+  inSea: boolean,
+  env: NodeJS.ProcessEnv = process.env,
+  workerScript?: string
+): TabEngineCommand {
+  const childEnv: NodeJS.ProcessEnv = { ...env };
+  delete childEnv[ENGINE_WORKER_ENV];
+  if (inSea) {
+    return {
+      command: process.execPath,
+      args: [],
+      env: { ...childEnv, [ENGINE_WORKER_ENV]: '1' },
+    };
+  }
+  const testScript = env.FRODO_TEST_WORKER_SCRIPT;
+  if (testScript) {
+    return { command: process.execPath, args: [testScript], env: childEnv };
+  }
+  return {
+    command: process.execPath,
+    args: [workerScript ?? workerScriptPath()],
+    env: childEnv,
+  };
+}
+
+/**
+ * An engine process that never came up: it could not be started, or it ended
+ * before it answered anything. The reason is one line that the process wrote
+ * itself, cleaned and shortened; it is the only detail of an engine failure
+ * that leaves the server (see `engineStartFailureReason`).
+ */
+export class TabEngineStartError extends Error {
+  constructor(reason: string) {
+    super(reason);
+    this.name = 'TabEngineStartError';
+  }
+}
+
+const REASON_LIMIT = 200;
+/**
+ * How much of a line is looked at. What a process writes is hostile input: a
+ * line of millions of characters must cost the same as one of two thousand, so
+ * every pattern below runs on at most this much (ten times what is shown, so a
+ * secret that starts in the visible part and goes on is still seen whole by the
+ * rules that match its start).
+ */
+export const REASON_INPUT_LIMIT = 10 * REASON_LIMIT;
+// An escape sequence first, then every other character that can drive a
+// terminal or a page or hide what a line says: the control characters of both
+// ranges (C0 with the delete character, and C1, whose U+009B is an 8-bit
+// escape), the format characters (the bidirectional overrides and marks, zero
+// width characters, the byte order mark), surrogates that stand alone and code
+// points that are not characters. What a process writes to its error output
+// is shown on a terminal and in a page.
+// eslint-disable-next-line no-control-regex
+const ESCAPE_SEQUENCES = /\u001b\[[0-9;?]*[ -/]*[@-~]/g;
+const CONTROL_CHARACTERS = /[\p{Cc}\u2028\u2029]/gu;
+const INVISIBLE_CHARACTERS = /[\p{Cf}\p{Cs}\p{Cn}]/gu;
+// A name that says it is a secret, then its value: `password=...`, `"token":
+// "..."`, `client_secret=...`, `Authorization: Bearer ...`. The value ends at
+// white space, a quote, a comma, a semicolon, an ampersand or a closing brace.
+// The words around the keyword are at most 64 characters, so that a long run of
+// word characters costs a bounded amount per position.
+const SECRET_PAIR =
+  /(["']?[\w.-]{0,64}(?:password|passwd|pwd|passphrase|secret|token|api[_-]?key|credential|authorization|cookie|private[_-]?key)[\w.-]{0,64}["']?\s*[:=]\s*)("[^"]*"|'[^']*'|(?:Bearer|Basic|Digest|Negotiate)\s+[^\s,;"']+|[^\s,;"'&}]+)/gi;
+// Words, and inside them runs of 20 or more characters of a token alphabet that
+// hold a digit and a letter (a base64 key, an identifier of a session). A run is
+// left alone when it is part of a path (a word that starts like one or holds two
+// separators and no base64 sign), when it is an error code (`ERR_HTTP2_ERROR`),
+// or when it sits in a name with dots (a file, a package) and is shorter than 32.
+const WORD = /[^\s"'<>()[\]{},;]+/g;
+const TOKEN_RUN = /[A-Za-z0-9_-]{20,}/g;
+const PATH_START = /^(?:[A-Za-z]:)?[\\/]|^\.{1,2}[\\/]|^~[\\/]/;
+const ERROR_CODE = /^[A-Z][A-Z0-9]*(?:_[A-Z0-9]+)+$/;
+// a run of 32 or more hexadecimal digits
+const HEX_RUN = /\b[0-9a-fA-F]{32,}\b/g;
+
+function redactLongTokens(text: string): string {
+  return text.replace(WORD, (word) => {
+    const separators = (word.match(/[\\/]/g) ?? []).length;
+    if (PATH_START.test(word) || (separators >= 2 && !/[+=]/.test(word))) {
+      return word;
+    }
+    return word.replace(TOKEN_RUN, (run) => {
+      if (ERROR_CODE.test(run)) return run;
+      if (!/\d/.test(run) || !/[A-Za-z]/.test(run)) return run;
+      if (word.includes('.') && run.length < 32) return run;
+      return '<redacted>';
+    });
+  });
+}
+
+/** Characters that can drive a terminal or a page, removed from the start of a line. */
+function cleanLine(line: string): string {
+  return line
+    .slice(0, REASON_INPUT_LIMIT)
+    .replace(ESCAPE_SEQUENCES, '')
+    .replace(CONTROL_CHARACTERS, ' ')
+    .replace(INVISIBLE_CHARACTERS, '')
+    .trim();
+}
+
+/** Scrubs a cleaned line (the whole of it), then cuts it. */
+function scrubAndCut(cleaned: string, secrets: readonly unknown[]): string {
+  let text = scrubKnownValues(cleaned, liveSecrets(state, ...secrets), [], {
+    errorText: true,
+  });
+  text = redactLongTokens(text.replace(SECRET_PAIR, '$1<redacted>')).replace(
+    HEX_RUN,
+    '<redacted>'
+  );
+  return text.length > REASON_LIMIT
+    ? `${text.slice(0, REASON_LIMIT - 1)}…`
+    : text;
+}
+
+/**
+ * One line of what an engine process wrote, made safe to show: only its first
+ * {@link REASON_INPUT_LIMIT} characters are looked at, characters that can drive
+ * a terminal or a page are removed, the secrets are scrubbed from that whole
+ * text, and only then it is cut to {@link REASON_LIMIT} characters (a cut first
+ * would leave the head of a secret that straddles it).
+ *
+ * The scrub is the one of the MCP tool results (Bearer values, tokens of the
+ * JSON web token shape, passwords in URLs, the values the connection holds),
+ * the values the server itself keeps secret, every `name=value` or `name:
+ * value` pair whose name says it is a secret, and any long token that looks
+ * like a key (not a path, an error code or a name with dots).
+ * @param line the text
+ * @param secrets the values that must not appear (the server's own secrets)
+ * @returns one line of at most 200 characters
+ */
+export function safeEngineReason(
+  line: string,
+  secrets: readonly unknown[] = []
+): string {
+  return scrubAndCut(cleanLine(line), secrets);
+}
+
+/**
+ * Why an engine process did not come up: one line of what it wrote to its
+ * error output. The first line that names an error wins (a Node crash starts
+ * with the place of the throw, the error follows), else the first line. A
+ * process that wrote nothing is described by how it ended.
+ * @param stderrLines the lines the process wrote to its error output
+ * @param how how the process ended
+ * @param secrets the values that must not appear in the reason
+ * @returns one line of at most 200 characters, safe to show (see {@link safeEngineReason})
+ */
+export function engineStartFailureReason(
+  stderrLines: string[],
+  how: { code?: number | null; signal?: string | null } = {},
+  secrets: readonly unknown[] = []
+): string {
+  // Notices of the runtime are not a reason: "(node:123) ExperimentalWarning..."
+  const lines = stderrLines
+    .map(cleanLine)
+    .filter((line) => line !== '' && !/^\((?:node:\d+|Use `node )/.test(line));
+  const named = lines.find((line) => /^(?:[A-Za-z]*Error|error)\b/.test(line));
+  const line = named ?? lines[0];
+  if (line) return scrubAndCut(line, secrets);
+  if (how.signal) {
+    return `The engine process was stopped by the signal ${how.signal} before it answered.`;
+  }
+  return `The engine process ended with exit code ${how.code ?? 'unknown'} before it answered.`;
+}
+
+/**
+ * Spawn one engine child and wrap its JSON-line protocol.
+ * @param custom starts the engine itself (a test, or a console that supplies its own)
+ * @param options.secrets values the reason of a failure to start must never show (the server's own secrets)
+ */
 export async function spawnTabEngine(
-  custom?: () => Promise<TabEngine>
+  custom?: () => Promise<TabEngine>,
+  options: { secrets?: readonly unknown[] } = {}
 ): Promise<TabEngine> {
   if (custom) return custom();
-  const child: ChildProcess = spawn(process.execPath, [workerScriptPath()], {
+  const launch = tabEngineCommand(sea.isSea());
+  const child: ChildProcess = spawn(launch.command, launch.args, {
     stdio: ['pipe', 'pipe', 'pipe'],
-    env: { ...process.env },
+    env: launch.env,
   });
+  // What the process wrote to its error output, kept (bounded) until it has
+  // answered once: if it ends before that, the first lines are its reason.
+  const stderrHead: string[] = [];
+  // Set once the process is gone; every later request fails with it.
+  let ended: Error | undefined;
+  // Whether the process ever answered a request: one that did is up, and its
+  // later end is a crash of a working engine, not a failure to start.
+  let answered = false;
   const pending = new Map<
     number,
     { resolve: (value: unknown) => void; reject: (error: Error) => void }
@@ -216,6 +460,9 @@ export async function spawnTabEngine(
   // opened a browser. Each stderr line joins the tab's log stream as-is;
   // it is diagnostics, never protocol (protocol is stdout's JSON lines).
   createInterface({ input: child.stderr! }).on('line', (line) => {
+    if (!answered && stderrHead.length < 20) {
+      stderrHead.push(line.slice(0, REASON_INPUT_LIMIT));
+    }
     for (const listener of logListeners) listener(line);
   });
   const readline = createInterface({ input: child.stdout! });
@@ -232,6 +479,8 @@ export async function spawnTabEngine(
     }
     const id = message.id as number | undefined;
     if (id !== undefined && pending.has(id)) {
+      answered = true;
+      stderrHead.length = 0;
       const p = pending.get(id)!;
       pending.delete(id);
       if (message.error !== undefined) {
@@ -243,15 +492,42 @@ export async function spawnTabEngine(
   });
   const request = (payload: Record<string, unknown>): Promise<any> =>
     new Promise((resolve, reject) => {
+      if (ended) {
+        reject(ended);
+        return;
+      }
       const id = nextId++;
       pending.set(id, { resolve, reject });
       child.stdin!.write(`${JSON.stringify({ ...payload, id })}
 `);
     });
-  child.on('exit', () => {
-    for (const p of pending.values()) p.reject(new Error('Engine exited'));
+  // A process that is already gone refuses the write with an error event on
+  // its stdin; the end of the process is reported below, once, with its reason.
+  child.stdin!.on('error', () => undefined);
+  // The process is gone: fail what waits for it. One that never answered
+  // gets the reason it wrote (the stderr lines are read by now, or a moment
+  // after the exit event, which the short wait below allows for).
+  const finish = (describe: () => string) => {
+    if (ended) return;
+    ended = answered
+      ? new Error('Engine exited')
+      : new TabEngineStartError(describe());
+    for (const p of pending.values()) p.reject(ended);
     pending.clear();
+  };
+  const reasonOf = (code: number | null, signal: string | null) =>
+    engineStartFailureReason(stderrHead, { code, signal }, options.secrets);
+  child.once('close', (code, signal) => finish(() => reasonOf(code, signal)));
+  child.once('exit', (code, signal) => {
+    setTimeout(() => finish(() => reasonOf(code, signal)), 100).unref();
   });
+  // The process could not be started at all (no such file, no permission).
+  child.once('error', (error: NodeJS.ErrnoException) =>
+    finish(
+      () =>
+        `The engine process could not be started (${error.code ?? 'error'}).`
+    )
+  );
   return {
     async evaluate(code) {
       const reply = await request({ op: 'eval', code });
@@ -285,6 +561,7 @@ export async function spawnTabEngine(
       await request({ op: 'reset' });
     },
     dispose() {
+      if (ended) return;
       try {
         child.stdin!.write(`${JSON.stringify({ op: 'dispose' })}
 `);
@@ -373,6 +650,9 @@ export async function startWebConsole(
   let active = 0;
   let port = 0;
   let connecting = false;
+  // The reasons an engine failed to start that the terminal has been told: a
+  // page that retries would otherwise repeat the same line forever.
+  const reportedStartFailures = new Set<string>();
 
   // Engines: the shared one when options.engine is given, otherwise one
   // child process per tab, keyed by the tab's engine id.
@@ -551,9 +831,53 @@ export async function startWebConsole(
       : String(req.headers['x-frodo-engine'] ?? '');
     if (!shared && !engines.has(engineId)) {
       engineId = crypto.randomBytes(8).toString('hex');
-      engines.set(engineId, await spawnTabEngine(options.spawnEngine));
+      engines.set(
+        engineId,
+        await spawnTabEngine(options.spawnEngine, {
+          secrets: [launchToken, sessionSecret, csrf],
+        })
+      );
     }
     const engine = shared ?? engines.get(engineId)!;
+    try {
+      await serveApi(req, res, path, engine, engineId);
+    } catch (error) {
+      if (!(error instanceof TabEngineStartError)) throw error;
+      // This tab's engine never came up. Forget it, so the tab's next try
+      // starts a fresh one instead of reaching a dead process, say why once
+      // in the terminal, and tell the page the reason (and nothing else
+      // about the failure, unlike an internal error).
+      engine.dispose();
+      for (const [id, candidate] of engines) {
+        if (candidate === engine) engines.delete(id);
+      }
+      // The reason is already safe when the engine is ours; one that a caller
+      // supplied is made safe here, with the same steps.
+      const reason = safeEngineReason(error.message, [
+        launchToken,
+        sessionSecret,
+        csrf,
+      ]);
+      if (!reportedStartFailures.has(reason)) {
+        reportedStartFailures.add(reason);
+        printError(
+          new Error(`The console could not start an engine: ${reason}`)
+        );
+      }
+      throw new HttpError(
+        503,
+        `The console could not start an engine: ${reason}`
+      );
+    }
+  }
+
+  async function serveApi(
+    req: http.IncomingMessage,
+    res: http.ServerResponse,
+    path: string,
+    engine: TabEngine,
+    engineId: string | undefined
+  ): Promise<void> {
     // What the connection looks like is each engine's own business: a
     // per-tab engine connects in its child process, so the parent's state
     // knows nothing about it (it would answer "not connected" forever).
@@ -719,15 +1043,24 @@ export async function startWebConsole(
         );
       }
       launchUsed = true;
-      res.writeHead(302, {
-        ...baseHeaders,
-        Location: '/',
+      try {
+        options.onSignIn?.();
+      } catch {
+        // the sign-in never depends on what the caller does with the news
+      }
+      // The answer is a page that goes on to `/`, not a redirect. A browser that
+      // was sent here by another site's page (the launcher file, a `file:`
+      // page) treats the whole redirect chain as cross-site and does not send
+      // a SameSite=Strict cookie on its last step, so the person would meet
+      // "Not signed in". A page that starts the next navigation itself starts
+      // it from this site, and the cookie goes along.
+      send(res, 200, SIGN_IN_PAGE, 'text/html; charset=utf-8', {
+        'Content-Security-Policy': "default-src 'none'",
         // A session cookie would die with the browser, and the link is one-time:
         // the user could lock themselves out by closing the tab. A bounded
         // lifetime keeps the console reachable for a working day.
         'Set-Cookie': `${COOKIE}=${sessionSecret}; HttpOnly; SameSite=Strict; Path=/; Max-Age=28800`,
       });
-      res.end();
       return;
     }
     if (url.pathname.startsWith('/api/')) {

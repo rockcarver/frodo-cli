@@ -705,7 +705,14 @@ Serialization rules (`serializeCommand`): exactly the tokens a user
 would retype. Positionals first (`password` masked), then options the
 USER provided this invocation (commander defaults and unset options
 never serialize; user-typed negatable flags serialize as the flag
-alone; repeated list options serialize as repeated flags). Realm
+alone; repeated list options serialize as repeated flags). A negated option
+(`--no-deps`) that is picked in the editor is committed as commander stores it
+when the flag is typed, `false`, so the command runs as the preview shows. The
+exception is a negated option that has a positive twin sharing its attribute
+(`--deep` and `--no-deep` of `journey delete`, the pairs of `conn save` and
+`conn set`, `--llt-esv` and `--no-llt-esv` of `admin`): the editor does not tell
+the two rows apart and commits `true` for either, as it always did
+(`test/unit/InvocationEditorNegatedOptions.test.js` pins it). Realm
 sentinels never display — the deployment type's realm prints instead
 when known, except for a `config-manager` command that uses its realm
 (`.usesRealm()`): there the sentinel means every realm, so no realm prints.

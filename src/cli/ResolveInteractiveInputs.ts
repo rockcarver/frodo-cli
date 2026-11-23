@@ -119,7 +119,9 @@ import {
   commitOption,
   failWithConflict,
   hiddenNote,
+  isLoneNegated,
   selectableMembers,
+  valueOfFlag,
 } from '../utils/interactive/OptionConflicts';
 import {
   deferredChoicesOf,
@@ -1884,7 +1886,7 @@ async function runInvocationEditor(command: Command): Promise<void> {
   // value actually written, for the --save-defaults partial save.
   const runValueStep = async (
     attributeName: string
-  ): Promise<string | true | typeof EXIT_ALL | undefined> => {
+  ): Promise<string | boolean | typeof EXIT_ALL | undefined> => {
     const option = command.options.find(
       (candidate) => candidate.attributeName() === attributeName
     );
@@ -1913,9 +1915,10 @@ async function runInvocationEditor(command: Command): Promise<void> {
       return value;
     }
     if (!/<[^>]+>|\[[^\]]+\]/.test(option.flags)) {
-      // Boolean flag: selected = true, no value step.
-      if (!commitInEditor(command, option, true)) return undefined;
-      return true;
+      // Boolean flag: selected = the flag as typed (false for --no-deps), no value step.
+      const flagValue = valueOfFlag(command, option);
+      if (!commitInEditor(command, option, flagValue)) return undefined;
+      return flagValue;
     }
     const answer = await promptOptionValue(command, option, {
       default: currentText,
@@ -2041,7 +2044,10 @@ async function runInvocationEditor(command: Command): Promise<void> {
       // that came from this invocation's CLI/env.
       const current = command.getOptionValue(option.attributeName());
       const sourced =
-        current === undefined || current === false
+        current === undefined ||
+        current === false ||
+        // the resting `true` of a --no-x option says nothing about what the flag does
+        (isLoneNegated(command, option) && current === true)
           ? undefined
           : isSecretOption(option)
             ? ' (set)'

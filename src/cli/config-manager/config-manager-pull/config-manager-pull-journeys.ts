@@ -14,11 +14,16 @@ export default function setup() {
     .addOption(
       selectorOption(
         '-i, --journey-id <id>',
-        'Journey id. If specified, only exports the journey with the specified id.',
+        'Journey id. If specified, only exports the journey with the specified id and, unless --no-deps is given, its inner journeys.',
         ['-n', '--name']
       )
     )
-    .addOption(new Option('--pull-dependencies', 'Pull dependencies.'))
+    .addOption(
+      new Option(
+        '--no-deps',
+        'Do not pull the scripts that the journeys use, nor the inner journeys of a journey that is named.'
+      )
+    )
     .addOption(
       new Option('--clean', 'Clear existing configuration before pull.')
     )
@@ -39,7 +44,7 @@ export default function setup() {
         const outcome = await configManagerExportJourneys(
           options.journeyId,
           realmOfRun(command, realm),
-          options.pullDependencies,
+          options.deps,
           options.clean,
           options.allowFailures
         );

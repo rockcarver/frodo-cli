@@ -67,6 +67,36 @@ option keeps following through longer outages until Ctrl-C. Rate limiting (HTTP
 429) is waited out with or without it and does not count as a failure. Refused
 credentials (HTTP 401/403) always stop the tail with exit code 1.
 
+**`frodo shell --web` opens the browser, and works in the native binary**: the
+help and the docs said that the web console opens in a browser, but it only
+printed a one-time sign-in link. It now opens the default browser and prints the
+link as well. The browser is not handed the link: it is handed the address of a
+private file (in a new folder of your temporary directory that only you can
+enter) that sends it on to the link, because the arguments of a program are
+readable by other processes. The file is removed when the link is used, after two
+minutes and when the console stops. `--no-open` (the option of the browser login,
+which it shares) or the environment variable `FRODO_BROWSER_LOGIN_NO_OPEN` set
+to a true value (until now listed in the help and read by nothing) turns the
+opening off, and for the browser login too: only the link is printed. The
+terminal says when a browser signs in, and after 20 seconds without a sign-in
+reminds you of the printed link. A browser that cannot be opened, or an opener
+that ends with an error, never stops the console. In the native binary
+(Homebrew, the release zips) every tab of the web console failed with `Internal
+error`; the binary now starts its engines itself. An engine that cannot start now
+ends the page's request with the reason, and the page asks again after a growing
+pause instead of at once.
+
+**`frodo shell`: `_` is no longer lodash**: the console (terminal and web) bound
+`_` to the lodash library in 5.0.0-30, the only release that did, and no longer
+ships lodash. In the terminal console `_` is now the Node.js REPL's own `_`, the
+value of the last result (`1 + 1`, then `_ + 1` is 3). The web console keeps no
+last result, so there `_` is `undefined` until a script assigns it, and a value
+a script assigned now survives the console's Reset JS (it used to be replaced by
+lodash). `frodo.utils.json` has in-house helpers (`get`, `put`, `findInArray`,
+`getPaths`, `cloneDeep`, `mergeDeep`) for JSON search and merge; they are not
+drop-in replacements for lodash functions, and `get` takes a path array.
+Otherwise use the JavaScript built-ins.
+
 **The npm package runs the CLI in one process, and a signal ends it with the
 signal's status**: in 4.x `frodo` (`dist/launch.cjs`, the npm `bin` entry and the
 Docker image) started a second Node process and copied its exit code, which was 0
@@ -363,7 +393,6 @@ These options have a long form only now:
 | `-f, --file`                 | `pull csp`                        | `--config-file`          |
 | `-i, --include-immutable`    | `pull iga-workflows`              | `--include-immutable`    |
 | `-c, --clean`                | `pull journeys`                   | `--clean`                |
-| `-d, --pull-dependencies`    | `pull journeys`                   | `--pull-dependencies`    |
 | `-u, --custom-relationships` | `pull managed-objects`            | `--custom-relationships` |
 | `-f, --file`                 | `pull oauth2-agents`              | `--config-file`          |
 | `-f, --config-file`          | `pull raw`                        | `--config-file`          |
@@ -373,7 +402,6 @@ These options have a long form only now:
 | `-f, --filename-filter`      | `push custom-nodes`               | `--filename-filter`      |
 | `-f, --filename-filter`      | `push endpoints`                  | `--filename-filter`      |
 | `-d, --draft`                | `push iga-workflows`              | `--draft`                |
-| `-d, --push-dependencies`    | `push journeys`                   | `--push-dependencies`    |
 | `-p, --path`                 | `push raw`                        | `--path`                 |
 | `-i, --stdin`                | `push raw`                        | `--stdin`                |
 | `-c, --check`                | `push restart`                    | `--check`                |
@@ -438,6 +466,87 @@ mean one thing in the group; their long forms are unchanged:
 | `-C, --clean`      | `config import`       | `--clean`      |
 | `-d, --draft-only` | `iga workflow delete` | `--draft-only` |
 | `-C, --clean`      | `service import`      | `--clean`      |
+
+**`pull journeys` and `push journeys` include what a journey needs, and
+`--no-deps` leaves it out**: the scripts that the journeys use, and the inner
+journeys of a journey that is named, were pulled and pushed only with
+`--pull-dependencies` and `--push-dependencies`. They are pulled and pushed by
+default now, and the two options are gone, with no alias, as
+[options of the configuration commands](https://github.com/rockcarver/frodo-cli/blob/main/docs/decisions/0057-options-of-the-configuration-commands.md)
+decided. `--no-deps` is the option that the other commands with dependencies
+have, and it gives you what you got without an option:
+
+| Before                              | Now                       |
+| ----------------------------------- | ------------------------- |
+| `pull journeys`                     | `pull journeys --no-deps` |
+| `pull journeys --pull-dependencies` | `pull journeys`           |
+| `push journeys`                     | `push journeys --no-deps` |
+| `push journeys --push-dependencies` | `push journeys`           |
+
+A script that passes `--pull-dependencies`, `--push-dependencies` or `-d`, the
+short form that both had before, fails before it connects to anything, with
+`error: unknown option` and exit code 1: drop the option. A script that passes
+none of them now gets the dependencies: add `--no-deps` to keep what it did.
+
+A pull writes the scripts that the journeys use, into `scripts-config` and
+`scripts-content` (a script that is in the config folder already is not pulled
+again), and, with `-i`, the inner journeys of the journey that is named. An
+inner journey is written once, however many journeys and nodes use it. A node
+whose script is `[Empty]`, or that does not use its script, has nothing to pull
+or to push. A push reads the same files from the config folder, and **a journey
+whose script file, content file or inner journey file is missing is not pushed,
+and neither is a journey that needs it**: the other journeys are pushed, one
+summary names the journeys that failed (a journey that failed because of a file
+that another one lacks is named too) and the command exits with code 1, or 0
+with `--allow-failures`, as [a command that runs many operations runs them all,
+then fails if any failed](https://github.com/rockcarver/frodo-cli/blob/main/docs/decisions/0040-a-command-that-runs-many-operations-runs-them-all-then-fails-if-any-failed.md)
+asks. The message names the journey and the file, with the path below the config
+folder:
+
+```text
+Journey 'Login' requires the script 'S', but its file is missing: realms/alpha/scripts/scripts-config/S.json
+Pull the dependency too, or push with --no-deps.
+```
+
+This changes a push that had no option: it did not read the scripts, and it
+reads them now, so a folder that has the journeys without the scripts that they
+use fails (pull the scripts, or push with `--no-deps`). With
+`--push-dependencies` a script file that was missing was reported and left out,
+and the journey was pushed anyway; now the journey is not pushed. And `push
+journeys -i <journey>` fails when the files of an inner journey are not in the
+folder, also when the tenant has that journey. A push without `-i` reads the
+inner journeys of every journey, with or without `--no-deps`, as before, and
+fails the same way for one that is not in the folder. `pull all` and `pull
+all-static` are unchanged: the scripts have a step of their own, and the
+journeys step pulls the journeys only.
+
+The files of a script that a pull of journeys writes are named as the rest of
+the config folder names what the tenant names. In the name and the context of a
+script a character that a file name cannot hold (`/`, `\`, `:`, `?`, `"`, `<`,
+`>`, `|` or a control character) is written percent-encoded, `/` as `%2F` and `:`
+as `%3A`, and a name of dots only gives an empty file name. The id of a script
+stays as it is, a `:` included, unless it holds `/`, `\`, `C:` or a control
+character or is `.` or `..`, and is then written in the same way. A push reads
+the files back. Before, a `/` in the name of a script made folders, and `..`
+wrote a file outside the config folder. `pull journeys --clean` clears the node
+files below the folder of `-D`; it cleared them below the current directory.
+
+**A `--no-` option that is picked in the interactive editor does what it says**:
+the editor wrote `true` for every option that it picked. For an option that is
+negated (`--no-deps`, `--no-validate`, `-N, --no-metadata`, `--no-cache`,
+`--no-open`, `--no-decode`, `--no-coords`, `--no-wait`, `--no-prune` and the
+others that have no positive twin) `true` is the value that the option has while
+the flag is not written, so a picked option showed in the command preview and
+was then ignored: `push journeys --prompt` with `--no-deps` picked pushed the
+scripts, and the picked `--no-validate` of `push journeys` still validated. The
+editor writes the value that the typed flag gives, `false`, and the run is the
+command that the preview shows. A default that an older version saved with
+`--save-defaults` for such an option holds `true`: when the command runs it still
+does nothing, but the preview now shows it as if the flag was picked. Clear it
+with `frodo settings defaults --clear '<command path>'` (that clears every saved
+default of the command) and save the flag again; `--no-deps` on `pull journeys`
+and `push journeys` is new, so only the older `--no-` options can have one. The
+editor no longer adds `(default: true)` to the description of these options.
 
 **Selectors of the `config-manager` commands are `-i, --<type>-id` and `-n,
 --<type>-name`, and `-n` and `--name` keep working**: inside `frodo
@@ -1103,9 +1212,13 @@ tenant that had no file; a realm without a file has nothing to import now, a
 folder without `privilegeAssignments.json` warns, and a missing `org-privileges`
 folder, or a file named with `-n` that is not there, is said plainly and exits 1.
 `pull org-privileges` with a realm exported nothing for the realm when the
-privilege assignments failed; it tries both. `push journeys` rejects the batch
-of a realm when the library finds an invalid journey or a missing dependency:
-that realm fails, and the other realms are imported. `pull journeys -n` exits 1
+privilege assignments failed; it tries both. `push journeys` fails a journey
+alone when the library finds it invalid, or finds that it needs a journey that
+is neither on the tenant nor in the files that are pushed, and so does every
+journey that needs the one that failed: the other journeys are imported, and the
+summary names the ones that failed. The library rejects the batch of a realm
+only when it cannot list the journeys that are installed: that realm fails, and
+the other realms are imported. `pull journeys -n` exits 1
 and says so when no realm has the journey (it exited 0 and exported nothing).
 `push oauth2-agents` skips the root realm on Identity Cloud, as the other kinds
 do (frodo-cli#1097). Listing the realms, reading the config file given with
