@@ -374,13 +374,19 @@ describe('ShellWebEngineOps', () => {
 
   it('completes names a declaration destructures or an await declares', async () => {
     await value('const { p1, q1: [r1] } = { p1: { a: 1 }, q1: [{ b: 2 }] }');
+    expect(engine.complete('p1')[0]).toContain('p1');
     expect(engine.complete('p1.')[0]).toContain('p1.a');
+    expect(engine.complete('r1')[0]).toContain('r1');
     expect(engine.complete('r1.')[0]).toContain('r1.b');
     await value('const awaited = await Promise.resolve({ k: 1 })');
+    expect(engine.complete('awaite')[0]).toContain('awaited');
     expect(engine.complete('awaited.')[0]).toContain('awaited.k');
     await value('class Klass { static s = 1 }');
     expect(engine.complete('Klas')[0]).toContain('Klass');
     await value('let m1 = 1, m2 = { z: 1 }');
+    expect(engine.complete('m')[0]).toEqual(
+      expect.arrayContaining(['m1', 'm2'])
+    );
     expect(engine.complete('m2.')[0]).toContain('m2.z');
   });
 
@@ -389,6 +395,7 @@ describe('ShellWebEngineOps', () => {
       'const half = { x: 1 }; throw new Error("after")'
     );
     expect(outcome.status).toBe('error');
+    expect(engine.complete('hal')[0]).toContain('half');
     expect(engine.complete('half.')[0]).toContain('half.x');
   });
 
