@@ -164,10 +164,15 @@ const inside = () => snapshot(configFolder);
 /**
  * The sentinels: a folder `nodes` with a file, where the folder `nodes` of a journey would be if
  * the id of the journey (four levels up from the journeys folder) or the realm (three levels up
- * from the realms folder) were a path that goes up. They are outside the config folder.
+ * from the realms folder) were a path that goes up. They are outside the config folder. The
+ * config folder holds the folders of a tree that was pulled before (a path that goes up through a
+ * folder that is not there leads nowhere).
  * @returns {string[]} the sentinel files
  */
 function plantSentinels() {
+  fs.mkdirSync(path.join(configFolder, 'realms', 'alpha', 'journeys'), {
+    recursive: true,
+  });
   const files = [];
   for (const folder of [
     path.join(root, 'a', 'b', 'c', 'd', 'outside', 'nodes'),
@@ -411,7 +416,9 @@ describe('a realm that is a hostile name', () => {
     }
     expect(outside()).toEqual(before);
     expect(exportJourneys).not.toHaveBeenCalled();
-    expect(fs.existsSync(path.join(configFolder, 'realms'))).toBe(false);
+    expect(fs.readdirSync(path.join(configFolder, 'realms'))).toEqual([
+      'alpha',
+    ]);
   });
 
   test('a failed realm does not fail the command when failures are allowed', async () => {
