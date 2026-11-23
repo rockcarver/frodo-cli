@@ -35,12 +35,14 @@ const CTRL_R = 0x12;
 const CTRL_O = 0x0f;
 
 /**
- * Score one history line against a query, or return null when it does not
- * match. A space in the query separates words (the package that ranked this
- * search before did the same): every word must match the line, in any order
- * and also where the words overlap, and the score is the sum of the scores
- * of the words. A query without a word matches every line with the score 0,
- * so that the history keeps its order (the newest entry first).
+ * Read a query once and return the function that scores history lines
+ * against it: the score and the matched positions of a line, or null when it
+ * does not match. A space in the query separates words: every word must
+ * match the line, in any order and also where the words overlap, and the
+ * score is the sum of the scores of the words (a word that is repeated counts
+ * each time, and is looked for once). A query without a word matches every
+ * line with the score 0, so that the history keeps its order (the newest
+ * entry first).
  *
  * One word matches when it is an exact substring of the line (any case), or
  * when its characters appear in the line in order (a subsequence), each at
@@ -49,49 +51,100 @@ const CTRL_O = 0x0f;
  * line is the better one, and an exact match beats every subsequence. A
  * subsequence scores 6 for each hit right after the one before, 1 for any
  * other hit, minus the characters skipped before each hit and after the last
- * one. The indexes are the positions (UTF-16 units) of the hits, in
- * ascending order and each once, for highlighting.
+ * one. Letters are matched as typed: `cafe` does not match `café`. The
+ * indexes are the positions (UTF-16 units) of the hits, in ascending order
+ * and each once, for highlighting; they are worked out only when the
+ * second argument is true (listing the best lines does not need them, and
+ * leaving them out takes about half the time).
+ *
+ * The search for an exact word is `indexOf` while the word times the line is
+ * small, and a search that takes the length of the line plus the length of
+ * the word above that: `indexOf` of the engine takes the word times the line
+ * for some inputs, a second or more for a word of 2000 characters in a line
+ * of a million.
  *
  * The web console's page ranks its history search with this very function:
  * the page carries its source (`Function.prototype.toString` in
  * ShellWebPage.ts), so it must use nothing outside itself and stay valid
  * JavaScript once the types are removed.
  * @param query what the user typed
- * @param line one history entry
- * @returns the score (higher is better) and the matched positions, or null
+ * @returns the function that scores one history line (higher is better), and
+ *   gives its matched positions if asked to
  */
-export function scoreHistoryMatch(
-  query: string,
-  line: string
-): { score: number; indexes: number[] } | null {
-  const words = query
-    .toLowerCase()
-    .split(/\s+/)
-    .filter((word) => word.length > 0);
-  const t = line.toLowerCase();
-  const marked = new Set<number>();
-  let score = 0;
-  for (const q of words) {
-    const direct = t.indexOf(q);
-    if (direct !== -1) {
-      for (let k = 0; k < q.length; k++) marked.add(direct + k);
-      score += 1000 + 6 * q.length - Math.min(line.length, 999);
-      continue;
-    }
-    let pos = 0;
-    let last = -2;
-    for (let i = 0; i < q.length; i++) {
-      const at = t.indexOf(q[i], pos);
-      if (at === -1) return null;
-      marked.add(at);
-      score += at === last + 1 ? 6 : 1;
-      score -= Math.max(0, at - pos);
-      last = at;
-      pos = at + 1;
-    }
-    score -= Math.max(0, line.length - pos);
+export function createHistoryScorer(
+  query: string
+): (
+  line: string,
+  withIndexes?: boolean
+) => { score: number; indexes: number[] } | null {
+  const counts = new Map<string, number>();
+  for (const word of query.toLowerCase().split(/\s+/)) {
+    if (word.length > 0) counts.set(word, (counts.get(word) || 0) + 1);
   }
-  return { score, indexes: Array.from(marked).sort((a, b) => a - b) };
+  const words = Array.from(counts, ([word, count]) => ({
+    word,
+    count,
+    // for the search that is linear: made when it is first needed
+    table: null as number[] | null,
+  }));
+  // table[i]: the length of the longest start of the word that also ends at
+  // its position i (what a search that never goes back needs).
+  const tableOf = (word: string): number[] => {
+    const table = [0];
+    for (let i = 1, k = 0; i < word.length; i++) {
+      while (k > 0 && word[i] !== word[k]) k = table[k - 1];
+      if (word[i] === word[k]) k++;
+      table.push(k);
+    }
+    return table;
+  };
+  const linearIndexOf = (t: string, word: string, table: number[]): number => {
+    for (let i = 0, k = 0; i < t.length; i++) {
+      while (k > 0 && t[i] !== word[k]) k = table[k - 1];
+      if (t[i] === word[k]) k++;
+      if (k === word.length) return i - k + 1;
+    }
+    return -1;
+  };
+  return (line, withIndexes) => {
+    const t = line.toLowerCase();
+    const marked = withIndexes ? new Set<number>() : null;
+    let score = 0;
+    for (const entry of words) {
+      const q = entry.word;
+      if (q.length > t.length) return null;
+      let direct: number;
+      if (q.length * t.length <= 100000) {
+        direct = t.indexOf(q);
+      } else {
+        entry.table = entry.table || tableOf(q);
+        direct = linearIndexOf(t, q, entry.table);
+      }
+      let part = 0;
+      if (direct !== -1) {
+        if (marked) for (let k = 0; k < q.length; k++) marked.add(direct + k);
+        part = 1000 + 6 * q.length - Math.min(line.length, 999);
+      } else {
+        let pos = 0;
+        let last = -2;
+        for (let i = 0; i < q.length; i++) {
+          const at = t.indexOf(q[i], pos);
+          if (at === -1) return null;
+          if (marked) marked.add(at);
+          part += at === last + 1 ? 6 : 1;
+          part -= Math.max(0, at - pos);
+          last = at;
+          pos = at + 1;
+        }
+        part -= Math.max(0, line.length - pos);
+      }
+      score += entry.count * part;
+    }
+    return {
+      score,
+      indexes: marked ? Array.from(marked).sort((a, b) => a - b) : [],
+    };
+  };
 }
 
 const CYAN = '\x1b[36m';
@@ -191,9 +244,10 @@ export function createConsoleInput(
     // Search newest-first (the history entries are newest-first): the
     // entries the user most likely wants first. Each entry is scored on its
     // own, so duplicate entries match individually.
+    const scoreLine = createHistoryScorer(query);
     const scored: { idx: number; score: number }[] = [];
     history.forEach((entry, idx) => {
-      const match = scoreHistoryMatch(query, entry.text);
+      const match = scoreLine(entry.text);
       if (match) scored.push({ idx, score: match.score });
     });
     // Best score first; equal scores stay newest first (the sort is stable).

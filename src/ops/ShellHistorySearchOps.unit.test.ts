@@ -11,21 +11,260 @@ import {
 import { HistoryEntry } from './ShellHistoryOps';
 import {
   createConsoleInput,
-  scoreHistoryMatch,
+  createHistoryScorer,
   SearchHooks,
 } from './ShellHistorySearchOps';
 import { renderConsolePage } from './ShellWebPage';
 
 /**
  * The Ctrl+R search of the terminal console and the history search of the
- * web console's page rank with ONE scorer, `scoreHistoryMatch`: the page
+ * web console's page rank with ONE scorer, `createHistoryScorer`: the page
  * carries the source of that function. The rules are those of the package
  * that the terminal console used before (`fuzzysort`) where users met them:
  * a space in the query separates words that may match in any order, and of
- * two exact matches the shorter line ranks first. These tests pin the
- * scoring rules, the list that the terminal console builds from them, and
- * that the page runs the very same text.
+ * two exact matches the shorter line ranks first. The letters are matched as
+ * typed (the package also matched `cafe` to `café`; the scorer does not).
+ * These tests pin the scoring rules, the list that the terminal console
+ * builds from them, and that the page runs the very same text and builds its
+ * own list from it the same way.
  */
+
+/** The score of one line for one query: what most tests below ask for. */
+function scoreHistoryMatch(query: string, line: string) {
+  return createHistoryScorer(query)(line, true);
+}
+
+/**
+ * The oracle: the scorer as it was while it still read the query anew for
+ * every line (and left the search for a word in a line to `indexOf`). The
+ * scorer that reads the query once must give its score and its marks for
+ * every pair.
+ */
+function referenceScore(
+  query: string,
+  line: string
+): { score: number; indexes: number[] } | null {
+  const words = query
+    .toLowerCase()
+    .split(/\s+/)
+    .filter((word) => word.length > 0);
+  const t = line.toLowerCase();
+  const marked = new Set<number>();
+  let score = 0;
+  for (const q of words) {
+    const direct = t.indexOf(q);
+    if (direct !== -1) {
+      for (let k = 0; k < q.length; k++) marked.add(direct + k);
+      score += 1000 + 6 * q.length - Math.min(line.length, 999);
+      continue;
+    }
+    let pos = 0;
+    let last = -2;
+    for (let i = 0; i < q.length; i++) {
+      const at = t.indexOf(q[i], pos);
+      if (at === -1) return null;
+      marked.add(at);
+      score += at === last + 1 ? 6 : 1;
+      score -= Math.max(0, at - pos);
+      last = at;
+      pos = at + 1;
+    }
+    score -= Math.max(0, line.length - pos);
+  }
+  return { score, indexes: Array.from(marked).sort((x, y) => x - y) };
+}
+
+/** A repeatable stream of numbers below `bound`. */
+function randomBelow(start: number) {
+  let seed = start;
+  return (bound: number) => {
+    seed = (seed * 1664525 + 1013904223) % 4294967296;
+    return Math.floor((seed / 4294967296) * bound);
+  };
+}
+
+/** A repeatable corpus: random lines, and queries cut out of them. */
+function corpus(): [string, string][] {
+  const next = randomBelow(20261122);
+  const alphabet = [...'abcdeABCDE  \t--__//..xyz019é日😀'];
+  const pick = () => alphabet[next(alphabet.length)];
+  const pairs: [string, string][] = [
+    ['', ''],
+    ['', 'a'],
+    ['a', ''],
+    ['abc', 'abc'],
+    ['ABC', 'abc'],
+    ['😀', '😀'],
+    ['é', 'café'],
+    ['i', 'İstanbul'],
+    [' ', 'a b'],
+    ['b a', 'a b'],
+    ['a  a', 'a'],
+    ['\tÉ\n😀', 'café 😀'],
+    ['ab ab ab', 'xxabxx'],
+  ];
+  for (let n = 0; n < 500; n++) {
+    const line = Array.from({ length: next(40) }, pick).join('');
+    let query: string;
+    switch (n % 5) {
+      case 0: // unrelated
+        query = Array.from({ length: 1 + next(4) }, pick).join('');
+        break;
+      case 1: // a piece of the line
+        query = line.slice(next(line.length + 1), 1 + next(line.length + 1));
+        break;
+      case 2: // the line with characters dropped: a subsequence
+        query = [...line].filter(() => next(3) > 0).join('');
+        break;
+      case 3: // the line with the case changed
+        query = [...line].map((c) => (next(2) ? c.toUpperCase() : c)).join('');
+        break;
+      default: {
+        // two pieces of the line, the second one first
+        const cut = next(line.length + 1);
+        query = `${line.slice(cut, cut + 1 + next(6))} ${line.slice(0, next(cut + 1))}`;
+      }
+    }
+    pairs.push([query, line]);
+  }
+  return pairs;
+}
+
+/**
+ * Lines and words that are long, on a small alphabet so that they repeat
+ * themselves: the word times the line is above what `indexOf` is trusted
+ * with, where the scorer searches for an exact word another way.
+ */
+function longCorpus(): [string, string][] {
+  const next = randomBelow(1123);
+  const pairs: [string, string][] = [];
+  for (let n = 0; n < 200; n++) {
+    const alphabet = n % 3 === 0 ? 'ab' : n % 3 === 1 ? 'abc' : 'aab';
+    const line = Array.from(
+      { length: 400 + next(300) },
+      () => alphabet[next(alphabet.length)]
+    ).join('');
+    const length = 260 + next(140);
+    const start = next(line.length - length + 1);
+    let word = line.slice(start, start + length);
+    switch (n % 4) {
+      case 1: // one character changed: mostly not in the line, a subsequence
+        word = `${word.slice(0, 100)}${word[100] === 'a' ? 'b' : 'a'}${word.slice(101)}`;
+        break;
+      case 2: // the start of the word, and then the start again: a border
+        word = `${word.slice(0, 130)}${word.slice(0, 130)}`;
+        break;
+      case 3: // a run, and one more character
+        word = `${alphabet[0].repeat(length - 1)}${alphabet[alphabet.length - 1]}`;
+        break;
+      default:
+    }
+    pairs.push([word, line]);
+  }
+  return pairs;
+}
+
+/** The seconds of the quickest of three runs. */
+function quickest(run: () => void): number {
+  let best = Infinity;
+  for (let i = 0; i < 3; i++) {
+    const started = performance.now();
+    run();
+    best = Math.min(best, performance.now() - started);
+  }
+  return best;
+}
+
+/** The text of the page between the two marks around the search code. */
+let pageSearchText: string | undefined;
+function carriedText(): string {
+  if (pageSearchText === undefined) {
+    const page = renderConsolePage({ nonce: 'abc', csrf: 'def' });
+    const [, afterBegin] = page.split('// history-search:begin');
+    const [carried] = (afterBegin ?? '').split('// history-search:end');
+    if (!carried) throw new Error('the page does not carry the search');
+    pageSearchText = carried;
+  }
+  return pageSearchText;
+}
+
+type FakeNode = {
+  tag: string;
+  className: string;
+  children: FakeNode[];
+  textContent: string;
+  appendChild(child: FakeNode): FakeNode;
+};
+
+/** Enough of a DOM node for the page's list: children, and text that nests. */
+function fakeNode(tag: string, className = '', text = ''): FakeNode {
+  let own = text;
+  const node: FakeNode & Record<string, unknown> = {
+    tag,
+    className,
+    children: [],
+    appendChild(child: FakeNode) {
+      node.children.push(child);
+      return child;
+    },
+    addEventListener: () => undefined,
+    querySelector: () => null,
+  } as FakeNode & Record<string, unknown>;
+  Object.defineProperty(node, 'textContent', {
+    get: () => own + node.children.map((c) => c.textContent).join(''),
+    set: (value: string) => {
+      own = value;
+      node.children = [];
+    },
+  });
+  return node;
+}
+
+/**
+ * The search code of the page (its scorer, `runSearch`, the candidate rows
+ * and `renderSearch`), the very text that the page carries, run in a context
+ * that has the history and a fake DOM.
+ */
+function loadPageSearch(history: HistoryEntry[]) {
+  const candidates = fakeNode('div');
+  const count = fakeNode('span');
+  const sandbox: Record<string, unknown> = {
+    history,
+    search: null,
+    SEARCH_VISIBLE: 8,
+    searchQueryEl: fakeNode('span'),
+    searchCountEl: count,
+    searchCandsEl: candidates,
+    el: (tag: string, cls?: string, text?: string) =>
+      fakeNode(tag, cls ?? '', text ?? ''),
+    document: {
+      createElement: (tag: string) => fakeNode(tag),
+      createTextNode: (text: string) => fakeNode('#text', '', text),
+    },
+  };
+  vm.runInNewContext(carriedText(), sandbox);
+  const run = sandbox.runSearch as (query: string) => number[];
+  const render = sandbox.renderSearch as () => void;
+  return {
+    /** The texts of the list that `runSearch` builds, in order. */
+    list: (query: string) => run(query).map((idx) => history[idx].text),
+    /** The first rows of the list as drawn: the text and the marked runs. */
+    rows: (query: string) => {
+      sandbox.search = { query, matches: run(query), cursor: 0 };
+      render();
+      return candidates.children.map((row) => ({
+        text: row.children
+          .filter((c) => c.className !== 'when')
+          .map((c) => c.textContent)
+          .join(''),
+        marked: row.children
+          .filter((c) => c.className === 'match')
+          .map((c) => c.textContent),
+      }));
+    },
+    counter: () => count.textContent,
+  };
+}
 
 describe('scoreHistoryMatch', () => {
   it('scores an exact substring above everything else and names its characters', () => {
@@ -234,6 +473,128 @@ describe('scoreHistoryMatch with several words', () => {
   });
 });
 
+describe('the scorer that reads the query once', () => {
+  it('gives the score and the marks of the scorer that read the query for every line', () => {
+    const pairs = corpus();
+    expect(pairs.length).toBeGreaterThanOrEqual(500);
+    let matches = 0;
+    for (const [query, line] of pairs) {
+      const expected = referenceScore(query, line);
+      expect(scoreHistoryMatch(query, line)).toEqual(expected);
+      if (expected) matches += 1;
+    }
+    // a corpus where nothing, or everything, matches proves nothing
+    expect(matches).toBeGreaterThan(100);
+    expect(pairs.length - matches).toBeGreaterThan(50);
+  });
+
+  it('does so for long words and lines too, where it does not leave the search to indexOf', () => {
+    const pairs = longCorpus();
+    let matches = 0;
+    let beyond = 0;
+    for (const [query, line] of pairs) {
+      const expected = referenceScore(query, line);
+      expect(scoreHistoryMatch(query, line)).toEqual(expected);
+      if (expected) matches += 1;
+      // above this the scorer does not trust indexOf (see the scorer)
+      if (query.length * line.length > 100000) beyond += 1;
+    }
+    expect(beyond).toBeGreaterThanOrEqual(150);
+    expect(matches).toBeGreaterThan(30);
+    expect(pairs.length - matches).toBeGreaterThan(30);
+    // a word that is in the line as it stands, found by the other search
+    const found = pairs.filter(([query, line]) =>
+      line.toLowerCase().includes(query.toLowerCase())
+    );
+    expect(found.length).toBeGreaterThan(30);
+  });
+
+  it('works out the marks only when asked, and then scores the same', () => {
+    const scorer = createHistoryScorer('export config');
+    const line = 'frodo config export -A';
+    const marked = scorer(line, true);
+    expect(marked?.indexes).toHaveLength(12);
+    expect(scorer(line)).toEqual({ score: marked?.score, indexes: [] });
+    expect(scorer(line, false)).toEqual({ score: marked?.score, indexes: [] });
+    // and a line that does not match is null either way
+    expect(scorer('frodo journey list')).toBeNull();
+    expect(scorer('frodo journey list', true)).toBeNull();
+    // the same for a word that is a subsequence
+    const fuzzy = createHistoryScorer('cnf');
+    expect(fuzzy(line)?.score).toBe(fuzzy(line, true)?.score);
+    expect(fuzzy(line)?.indexes).toEqual([]);
+  });
+
+  it('keeps nothing from one line for the next', () => {
+    const scorer = createHistoryScorer('abc export');
+    const score = (line: string) => scorer(line, true);
+    const first = score('frodo abc export');
+    const second = score('xxabxc ex port');
+    expect(first).not.toEqual(second);
+    expect(score('frodo abc export')).toEqual(first);
+    expect(score('xxabxc ex port')).toEqual(second);
+    expect(first).toEqual(scoreHistoryMatch('abc export', 'frodo abc export'));
+  });
+
+  describe('on input made to be slow', () => {
+    /**
+     * Quick: under 300 ms, or under 300 times what one pass over the line
+     * costs on this machine at this moment (the scorer's search for a word
+     * is linear in the line; what indexOf takes is the word times the line).
+     */
+    function expectQuick(line: string, run: () => void) {
+      const pass = quickest(() => line.toLowerCase().indexOf('\u0000'));
+      expect(quickest(run)).toBeLessThan(Math.max(300, 300 * pass));
+    }
+
+    it('says at once that a word of 2000 characters is not in a line of a million characters', () => {
+      const line = 'a'.repeat(1_000_000);
+      const word = `${'a'.repeat(1000)}b${'a'.repeat(1000)}`;
+      expect(scoreHistoryMatch(word, line)).toBeNull();
+      expectQuick(line, () => scoreHistoryMatch(word, line));
+      const other = `${'a'.repeat(500)}b${'a'.repeat(500)}`;
+      expect(scoreHistoryMatch(other, line)).toBeNull();
+      expectQuick(line, () => scoreHistoryMatch(other, line));
+    });
+
+    it('finds such a word as a subsequence when the line has the letters but not next to each other', () => {
+      // 1000 a, b, 1000 a: the b has an x before it, so no exact match
+      const line = `${'a'.repeat(500_000)}xb${'a'.repeat(1000)}`;
+      const word = `${'a'.repeat(1000)}b${'a'.repeat(1000)}`;
+      // the first a +1, 999 more +6; b after 499,001 skipped: +1 -499,001;
+      // 1000 a side by side after it +6 each; no tail
+      expect(scoreHistoryMatch(word, line)).toMatchObject({ score: -487005 });
+      expectQuick(line, () => scoreHistoryMatch(word, line));
+    });
+
+    it('finds such a word as an exact match at the end of the line', () => {
+      const line = `${'a'.repeat(999_999)}b`;
+      const word = `${'a'.repeat(1000)}b`;
+      const match = scoreHistoryMatch(word, line);
+      // 1000 + 6 x 1001 - 999
+      expect(match?.score).toBe(6007);
+      expect(match?.indexes).toHaveLength(1001);
+      expect(match?.indexes[0]).toBe(998_999);
+      expect(match?.indexes[1000]).toBe(999_999);
+      expectQuick(line, () => scoreHistoryMatch(word, line));
+    });
+
+    it('scores a word repeated 2000 times as often as it is repeated, for the price of one', () => {
+      const line = `${'a'.repeat(1_000_000)}xbxc`;
+      const once = scoreHistoryMatch('abc', line);
+      // a +1; b after 1,000,000 skipped +1 -1,000,000; c after 1 skipped: +1 -1
+      expect(once?.score).toBe(-999_998);
+      const query = Array.from({ length: 2000 }, () => 'abc').join(' ');
+      const many = scoreHistoryMatch(query, line);
+      expect(many).toEqual({ score: 2000 * -999_998, indexes: once?.indexes });
+      const single = quickest(() => scoreHistoryMatch('abc', line));
+      expect(quickest(() => scoreHistoryMatch(query, line))).toBeLessThan(
+        Math.max(100, 50 * single)
+      );
+    });
+  });
+});
+
 /**
  * The console, driven the way a terminal drives it: bytes on a faked stdin,
  * the rendered frames collected from a faked stdout, the REPL's line buffer
@@ -255,7 +616,7 @@ describe('the Ctrl+R list of the terminal console', () => {
     lines = [];
     jest
       .spyOn(process, 'stdin', 'get')
-      .mockReturnValue(stdin as unknown as typeof process.stdin);
+      .mockImplementation(() => stdin as unknown as typeof process.stdin);
     jest.spyOn(process.stdout, 'write').mockImplementation(((
       chunk: unknown
     ) => {
@@ -379,6 +740,46 @@ describe('the Ctrl+R list of the terminal console', () => {
     expect(await ranked('a')).toEqual(['xa', 'ya', 'za', 'wa']);
   });
 
+  it('lists what the page lists for the same history and query', async () => {
+    const history = entries(
+      'frodo journey export -A -d journeys --verbose',
+      'frodo journey list',
+      'frodo esv secret list -l',
+      'frodo script export -a',
+      'frodo config export -A',
+      'frodo conn list',
+      'frodo journey import -A',
+      'ls',
+      'cat package.json',
+      'frodo config-manager pull journeys',
+      'frodo conn list',
+      'git status',
+      'node dist/launch.cjs info',
+      'export CONFIG=1',
+      ...Array.from({ length: 50 }, (_, i) => `frodo app list -n ${i}`)
+    );
+    const page = loadPageSearch(history);
+    for (const query of [
+      'export config',
+      'list',
+      'cnf',
+      'fje',
+      'e',
+      'frodo ',
+      'frodo',
+      'EXPORT',
+      'zzz',
+    ]) {
+      // a new session for each query
+      teardown?.();
+      stdin = new PassThrough();
+      written = [];
+      lines = [];
+      await openSearch(history);
+      expect(await ranked(query)).toEqual(page.list(query));
+    }
+  });
+
   it('lists a duplicated entry once for each time it was run', async () => {
     await openSearch(entries('foo', 'bar', 'foo'));
     await type('foo');
@@ -460,97 +861,135 @@ describe('the Ctrl+R list of the terminal console', () => {
 });
 
 describe('the history search of the web console page', () => {
-  const page = renderConsolePage({ nonce: 'abc', csrf: 'def' });
-
-  /** The text between the two marks that the page carries around the scorer. */
-  function carriedText(): string {
-    const [, afterBegin] = page.split('// history-score:begin');
-    const [carried] = (afterBegin ?? '').split('// history-score:end');
-    if (!carried) throw new Error('the page does not carry the scorer');
-    return carried;
-  }
-
-  /** A repeatable corpus: random lines, and queries cut out of them. */
-  function corpus(): [string, string][] {
-    let seed = 20261122;
-    const next = (bound: number) => {
-      seed = (seed * 1664525 + 1013904223) % 4294967296;
-      return Math.floor((seed / 4294967296) * bound);
-    };
-    const alphabet = [...'abcdeABCDE  \t--__//..xyz019é日😀'];
-    const pick = () => alphabet[next(alphabet.length)];
-    const pairs: [string, string][] = [
-      ['', ''],
-      ['', 'a'],
-      ['a', ''],
-      ['abc', 'abc'],
-      ['ABC', 'abc'],
-      ['😀', '😀'],
-      ['é', 'café'],
-      ['i', 'İstanbul'],
-      [' ', 'a b'],
-      ['b a', 'a b'],
-      ['a  a', 'a'],
-      ['\tÉ\n😀', 'café 😀'],
-    ];
-    for (let n = 0; n < 500; n++) {
-      const line = Array.from({ length: next(40) }, pick).join('');
-      let query: string;
-      switch (n % 5) {
-        case 0: // unrelated
-          query = Array.from({ length: 1 + next(4) }, pick).join('');
-          break;
-        case 1: // a piece of the line
-          query = line.slice(next(line.length + 1), 1 + next(line.length + 1));
-          break;
-        case 2: // the line with characters dropped: a subsequence
-          query = [...line].filter(() => next(3) > 0).join('');
-          break;
-        case 3: // the line with the case changed
-          query = [...line]
-            .map((c) => (next(2) ? c.toUpperCase() : c))
-            .join('');
-          break;
-        default: {
-          // two pieces of the line, the second one first
-          const cut = next(line.length + 1);
-          query = `${line.slice(cut, cut + 1 + next(6))} ${line.slice(0, next(cut + 1))}`;
-        }
-      }
-      pairs.push([query, line]);
-    }
-    return pairs;
-  }
+  const entries = (...texts: string[]): HistoryEntry[] =>
+    texts.map((text) => ({ text }));
 
   it('carries the text of the scorer of the terminal console', () => {
-    expect(carriedText()).toContain(scoreHistoryMatch.toString());
+    expect(carriedText()).toContain(createHistoryScorer.toString());
   });
 
-  it('scores 500 queries the way the terminal console does', () => {
-    const scoreMatch = vm.runInNewContext(`${carriedText()}\nscoreMatch`);
-    const pairs = corpus();
-    expect(pairs.length).toBeGreaterThanOrEqual(500);
+  it('scores 500 queries, and long ones, the way the terminal console and the oracle do', () => {
+    const createScorer = vm.runInNewContext(
+      `${carriedText()}\ncreateHistoryScorer`
+    );
+    const pairs = [...corpus(), ...longCorpus()];
+    expect(pairs.length).toBeGreaterThanOrEqual(700);
     let matches = 0;
     let words = 0;
     for (const [query, line] of pairs) {
       const expected = scoreHistoryMatch(query, line);
       // the page's function lives in another realm: compare as JSON
-      expect(JSON.stringify(scoreMatch(query, line))).toBe(
-        JSON.stringify(expected)
-      );
+      const carried = JSON.stringify(createScorer(query)(line, true));
+      expect(carried).toBe(JSON.stringify(expected));
+      expect(carried).toBe(JSON.stringify(referenceScore(query, line)));
       if (expected) matches += 1;
       if (expected && /\S\s+\S/.test(query)) words += 1;
     }
     // a corpus where nothing, or everything, matches proves nothing
-    expect(matches).toBeGreaterThan(100);
-    expect(pairs.length - matches).toBeGreaterThan(50);
+    expect(matches).toBeGreaterThan(130);
+    expect(pairs.length - matches).toBeGreaterThan(80);
     // ... and one where queries of several words match
     expect(words).toBeGreaterThan(50);
   });
 
-  it('asks that scorer for the score and for the characters to mark', () => {
-    expect(page).toMatch(/var m = scoreMatch\(query, history\[i\]\.text\);/);
-    expect(page).toMatch(/hits\.push\(\{ idx: i, score: m\.score \}\)/);
-    expect(page).toMatch(/m \? m\.indexes : \[\]/);
+  describe('the list that the page builds', () => {
+    it('puts the best match first, and the shorter of two exact matches before the longer', () => {
+      const page = loadPageSearch(
+        entries('frodo esv secret list -l', 'x l i s t', 'frodo conn list')
+      );
+      expect(page.list('list')).toEqual([
+        'frodo conn list',
+        'frodo esv secret list -l',
+        'x l i s t',
+      ]);
+    });
+
+    it('finds the words of the query in any order', () => {
+      const page = loadPageSearch(
+        entries('frodo journey list', 'frodo config export -A')
+      );
+      expect(page.list('export config')).toEqual(['frodo config export -A']);
+    });
+
+    it('keeps entries of equal score newest first', () => {
+      const page = loadPageSearch(entries('xa', 'ya', 'za', 'wa'));
+      expect(page.list('a')).toEqual(['xa', 'ya', 'za', 'wa']);
+    });
+
+    it('lists 50 of 51 matching entries, the best 50', () => {
+      // 'a' is the oldest, the shortest and so the best; the oldest of the
+      // others, the one of 6 characters at the end, is the one left out
+      const page = loadPageSearch(
+        entries(...Array.from({ length: 50 }, (_, i) => `a-${i}-x`), 'a')
+      );
+      const list = page.list('a');
+      expect(list).toHaveLength(50);
+      expect(list[0]).toBe('a');
+      expect(list[1]).toBe('a-0-x');
+      expect(list[49]).toBe('a-48-x');
+      expect(list).not.toContain('a-49-x');
+    });
+
+    it('lists the 50 newest entries for an empty query, and for white space', () => {
+      const history = entries(
+        ...Array.from({ length: 120 }, (_, i) => `command-${i}`)
+      );
+      const page = loadPageSearch(history);
+      const newest = history.slice(0, 50).map((entry) => entry.text);
+      expect(page.list('')).toEqual(newest);
+      expect(page.list('  ')).toEqual(newest);
+    });
+
+    it('reads the query once for the whole list, not once for each entry', () => {
+      const page = loadPageSearch(
+        entries(
+          ...Array.from({ length: 3000 }, (_, i) => `frodo app list -n ${i}`)
+        )
+      );
+      // the same list as for one word: every score is 2000 times as large
+      const repeated = Array.from({ length: 2000 }, () => 'frodo').join(' ');
+      expect(page.list(repeated)).toEqual(page.list('frodo'));
+      const single = quickest(() => page.list('frodo'));
+      expect(quickest(() => page.list(repeated))).toBeLessThan(
+        Math.max(200, 20 * single)
+      );
+    });
+
+    it('lists nothing when a word matches nowhere, and says so', () => {
+      const page = loadPageSearch(entries('one', 'two'));
+      expect(page.list('one zzz')).toEqual([]);
+      page.rows('one zzz');
+      expect(page.counter()).toBe('no matches');
+    });
+  });
+
+  describe('the rows that the page draws', () => {
+    it('marks the characters of every word of the query', () => {
+      const page = loadPageSearch(entries('frodo config export -A'));
+      expect(page.rows('export config')).toEqual([
+        { text: 'frodo config export -A', marked: ['config', 'export'] },
+      ]);
+      // c, n and f are not together in the line; export is
+      expect(page.rows('cnf export')).toEqual([
+        { text: 'frodo config export -A', marked: ['c', 'nf', 'export'] },
+      ]);
+      expect(page.counter()).toBe(' 1/1');
+    });
+
+    it('marks nothing when there is no query', () => {
+      const page = loadPageSearch(entries('one', 'two'));
+      expect(page.rows('')).toEqual([
+        { text: 'one', marked: [] },
+        { text: 'two', marked: [] },
+      ]);
+    });
+
+    it('draws 8 rows at a time', () => {
+      const page = loadPageSearch(
+        entries(...Array.from({ length: 20 }, (_, i) => `x${i}`))
+      );
+      expect(page.rows('x')).toHaveLength(8);
+      expect(page.counter()).toBe(' 1/20');
+    });
   });
 });
