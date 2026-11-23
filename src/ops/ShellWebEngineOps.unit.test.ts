@@ -23,6 +23,39 @@ import { createWebEngine, EvalOutcome, WebEngine } from './ShellWebEngineOps';
 const sleep = (ms: number): Promise<void> =>
   new Promise((resolve) => setTimeout(resolve, ms));
 
+/**
+ * How long an input may take to have an outcome in these tests. An engine
+ * whose error handler is not wired never answers an input that throws; the
+ * test must fail at once, with a reason, not wait for the test runner.
+ */
+const NO_OUTCOME_MS = 2000;
+
+/** The engine, with every wait that depends on an outcome limited. */
+function failFast(inner: WebEngine): WebEngine {
+  const within = <T>(promise: Promise<T>, what: string): Promise<T> => {
+    let timer: NodeJS.Timeout | undefined;
+    return Promise.race([
+      promise,
+      new Promise<never>((_resolve, reject) => {
+        timer = setTimeout(
+          () =>
+            reject(
+              new Error(
+                `no outcome for ${what} within ${NO_OUTCOME_MS} ms (is the error handler of the engine wired?)`
+              )
+            ),
+          NO_OUTCOME_MS
+        );
+      }),
+    ]).finally(() => clearTimeout(timer));
+  };
+  return {
+    ...inner,
+    evaluate: (code) => within(inner.evaluate(code), `the input ${code}`),
+    reset: () => within(inner.reset(), 'the reset'),
+  };
+}
+
 describe('ShellWebEngineOps', () => {
   let home: string;
   let engine: WebEngine;
@@ -39,9 +72,11 @@ describe('ShellWebEngineOps', () => {
       );
     }
     logs = [];
-    engine = createWebEngine({
-      onLog: (text) => logs.push(text),
-    });
+    engine = failFast(
+      createWebEngine({
+        onLog: (text) => logs.push(text),
+      })
+    );
   });
 
   afterEach(() => {
@@ -260,6 +295,32 @@ describe('ShellWebEngineOps', () => {
     );
     expect(outcome).toEqual({ status: 'ok', value: 'finished' });
     expect(logs.join('')).toContain('stray-boom');
+  });
+
+  it('ends an input with its own value when its own timer raises an error, and the next input waits for it', async () => {
+    // The error of a timer that the input started is not the input's outcome:
+    // the input goes on, and no later input starts on top of it.
+    const first = engine.evaluate(
+      'var finalA = "running"; setTimeout(() => { throw new Error("own-timer") }, 20); await new Promise((r) => setTimeout(r, 150)); finalA = "A finished"; "A value"'
+    );
+    const second = engine.evaluate('finalA');
+    expect(await first).toEqual({ status: 'ok', value: 'A value' });
+    expect(await second).toEqual({ status: 'ok', value: 'A finished' });
+    // The error is printed into the log, where a script's output is.
+    expect(logs.join('')).toContain('own-timer');
+  });
+
+  it('takes the rejection an input awaits as its outcome, not an error that arrived before it', async () => {
+    const outcome = await engine.evaluate(
+      'setTimeout(() => { throw new Error("side-error") }, 10); await new Promise((r) => setTimeout(r, 60)); await Promise.reject(new Error("awaited-error"))'
+    );
+    expect(outcome.status).toBe('error');
+    expect(
+      ((outcome as Extract<EvalOutcome, { status: 'error' }>).error as Error)
+        .message
+    ).toBe('awaited-error');
+    expect(logs.join('')).toContain('side-error');
+    expect(logs.join('')).not.toContain('awaited-error');
   });
 
   it('keeps working after an error', async () => {

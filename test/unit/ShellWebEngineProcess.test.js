@@ -129,6 +129,34 @@ run('the tab engine, as a process of the executable', () => {
     await engine.reply(3);
   }, 120_000);
 
+  test('10: an error raised on the side while an input runs is printed into the log and ends nothing: the input finishes with its own value, and the next input waits for it', async () => {
+    const engine = startWorker();
+
+    // a promise that nobody awaits is rejected and a timer throws, while the
+    // input awaits something else; a second input is sent at once
+    engine.send({
+      op: 'eval',
+      id: 1,
+      code: 'var done = false; Promise.reject(new Error("side-rejection")); setTimeout(() => { throw new Error("side-timer") }, 20); await new Promise((r) => setTimeout(r, 250)); done = true; "own value"',
+    });
+    engine.send({ op: 'eval', id: 2, code: 'done' });
+    const first = await engine.reply(1);
+    expect(first.outcome.status).toBe('ok');
+    expect(previewOf(first)).toBe('"own value"');
+    expect(previewOf(await engine.reply(2))).toBe('true');
+
+    const logged = engine
+      .replies()
+      .filter((r) => r.log)
+      .map((r) => r.log)
+      .join('');
+    expect(logged).toContain('side-rejection');
+    expect(logged).toContain('side-timer');
+
+    engine.send({ op: 'dispose', id: 3 });
+    await engine.reply(3);
+  }, 120_000);
+
   test('2: the engine removes the variable from its own environment, so a command that a script starts is an ordinary command', async () => {
     const engine = startWorker();
 

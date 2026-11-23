@@ -1,4 +1,3 @@
-import { AsyncLocalStorage } from 'node:async_hooks';
 import type { AsyncCompleter } from 'node:readline';
 import repl from 'node:repl';
 import { PassThrough, Writable } from 'node:stream';
@@ -25,13 +24,15 @@ import { IdmCatalog, refreshIdmCatalog } from './ShellIdmCatalogOps';
  *
  * What the evaluator does not do is call back when a script throws or an
  * await rejects: it hands that error to the REPL option `handleError`. The
- * engine takes the error from there. An error belongs to the input it came
- * from, so each input runs in its own async context (the same mechanism the
- * REPL uses to find its own server), and `handleError` reads the input off
- * it: an error of the input that is running becomes its outcome and the
- * REPL is told to print nothing (the browser shows the outcome); any other
- * error, such as a timer of an earlier input firing later, is printed into
- * the log, and fails no input.
+ * engine takes from there the errors that end the input itself: a synchronous
+ * throw, and a rejection that the input awaits at its top level, both reach
+ * the handler as a plain call, and become the outcome of the input that is
+ * running. An error raised on the side (a timer of the script, a promise it
+ * does not await, an event emitter) reaches the handler as an uncaught
+ * exception instead; the engine tells the two apart with a capture callback
+ * of its own (see watchUncaughtExceptions). Such an error is printed into the
+ * log, where the script's output is, and ends nothing: the input goes on, and
+ * the next input waits for it, as it does for any input.
  *
  * This runs whatever code it is given with the connected environment's
  * credentials, exactly as typing it in the terminal would. It must
@@ -67,19 +68,34 @@ export type WebEngine = {
 const ANSI = /\x1b\[[0-9;?]*[ -/]*[@-~]/g;
 
 /**
- * The input that is running. The REPL runs its error handler inside the
- * async context of whatever threw, so reading the context there tells which
- * input an error came from (a timer an earlier input started, firing while a
- * later input awaits, is not an error of the later input).
+ * True while the process hands an uncaught exception to its capture
+ * callbacks, which is how an error raised on the side reaches the REPL: a
+ * timer that throws, a rejected promise nobody awaits. The REPL's own
+ * callback then calls the `handleError` option in the same call stack, so the
+ * flag is true there, and false for the errors that the REPL hands to it
+ * directly (a synchronous throw, an awaited rejection).
  */
-type Flight = {
-  /** True once the input has an outcome. */
-  finished: boolean;
-  /** Give the input its outcome; the first call counts, later ones change nothing. */
-  settle(outcome: EvalOutcome): void;
-};
+let uncaughtArriving = false;
+let watchingUncaught = false;
 
-const flights = new AsyncLocalStorage<Flight>();
+/**
+ * Register the capture callback that sets uncaughtArriving. Callbacks run
+ * most recent first and the first to return true ends the handling, so this
+ * one has to be registered after the REPL's own (made when the first REPL
+ * starts) and has to return false.
+ */
+function watchUncaughtExceptions(): void {
+  if (watchingUncaught) return;
+  watchingUncaught = true;
+  process.addUncaughtExceptionCaptureCallback(() => {
+    uncaughtArriving = true;
+    // The handler runs before the stack unwinds; nothing may stay flagged.
+    queueMicrotask(() => {
+      uncaughtArriving = false;
+    });
+    return false;
+  });
+}
 
 export function createWebEngine(options: {
   /** Text the script printed. Plain text: colour codes are removed. */
@@ -98,6 +114,11 @@ export function createWebEngine(options: {
     if (plain.length > 0) options.onLog(plain);
   };
 
+  // How the input that is running gets its outcome, while it runs (inputs run
+  // one after another, see the queue below): the error handler of the REPL
+  // has no other way to say which input an error ends.
+  let settleRunning: ((outcome: EvalOutcome) => void) | undefined;
+
   const server = repl.start({
     input: new PassThrough(),
     output: new Writable({
@@ -114,20 +135,21 @@ export function createWebEngine(options: {
     // callback: the REPL hands it to this function, synchronously, and takes
     // 'print', 'ignore' or 'unhandled' as the answer.
     handleError(error) {
-      const flight = flights.getStore();
-      if (flight && !flight.finished) {
-        // The error of the input that is running: it is that input's
+      const settle = settleRunning;
+      if (settle && !uncaughtArriving) {
+        // The error that ends the input that is running: it is that input's
         // outcome. The browser shows it from there, so the REPL's own
         // printed copy would show it twice.
-        flight.settle({ status: 'error', error });
+        settle({ status: 'error', error });
         return 'ignore';
       }
-      // An error of no running input (a timer or a callback of an earlier
-      // input): the REPL prints it into the log, where the script's
-      // other output is.
+      // An error raised on the side, or with no input running (a timer of an
+      // earlier input): the REPL prints it into the log, where the script's
+      // other output is. It is no input's outcome.
       return 'print';
     },
   });
+  watchUncaughtExceptions();
   installConsoleContext(server.context, bindings, {
     write: log,
     colors: false,
@@ -233,31 +255,29 @@ export function createWebEngine(options: {
 
   function runOnce(code: string): Promise<EvalOutcome> {
     return new Promise<EvalOutcome>((resolve) => {
-      const flight: Flight = {
-        finished: false,
-        settle(outcome) {
-          if (flight.finished) return;
-          flight.finished = true;
-          resolve(outcome);
-        },
+      // The first outcome counts; the evaluator and the error handler do not
+      // both report one input, but a later call must change nothing.
+      const settle = (outcome: EvalOutcome): void => {
+        if (settleRunning !== settle) return;
+        settleRunning = undefined;
+        resolve(outcome);
       };
-      flights.run(flight, () => {
-        server.eval.call(
-          server,
-          `${code}\n`,
-          server.context,
-          'console',
-          (error, value) => {
-            if (error instanceof repl.Recoverable) {
-              flight.settle({ status: 'incomplete' });
-            } else if (error) {
-              flight.settle({ status: 'error', error });
-            } else {
-              flight.settle({ status: 'ok', value });
-            }
+      settleRunning = settle;
+      server.eval.call(
+        server,
+        `${code}\n`,
+        server.context,
+        'console',
+        (error, value) => {
+          if (error instanceof repl.Recoverable) {
+            settle({ status: 'incomplete' });
+          } else if (error) {
+            settle({ status: 'error', error });
+          } else {
+            settle({ status: 'ok', value });
           }
-        );
-      });
+        }
+      );
     });
   }
 
