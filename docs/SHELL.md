@@ -79,7 +79,8 @@ of the connection's header overrides.
 The calls go out like those of every other command: the proxy variables
 (`HTTP_PROXY`, `HTTPS_PROXY`, `NO_PROXY`), `--insecure`, `--retry` and
 `--curlirize` apply, and a call that the server refuses with 401 is sent once
-more with a renewed credential when the login can be renewed.
+more as it was, a `POST` too, with a renewed credential when the login can be
+renewed (so a `POST` can reach the server twice).
 
 Results resolve with the parsed response body; HTTP error statuses reject
 with a `ShellRestError` whose `.result` carries the full response

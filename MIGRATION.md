@@ -103,14 +103,18 @@ credential handling. It now uses the same request instances as every command,
 so the network settings of the session apply to it. What a script can notice: an
 error that it prints (`console.log(error)`, `util.inspect(error)`) shows the
 `Authorization` and `Cookie` values it was sent with as `<redacted>`, where it
-printed them in clear (`error.cause.config` still holds the request
-configuration and can be read by name). The header overrides of the connection
-go to the tenant only: they used to go to every host the console called, and the
-configuration header overrides were never sent; a call to another host now
-carries no credential and no override. `HTTP_PROXY`, `HTTPS_PROXY` and
-`NO_PROXY` work as for every command (SOCKS and PAC proxies, proxy credentials
-and the messages about a failing proxy too), `--retry` applies, and
-`--curlirize` prints a curl command for each call with the credential values
+printed them in clear. Printing and copying the error is safe now; reading is
+not hidden: `error.cause.config` and `error.cause.request` still hold the request
+as it was sent, the credential values included, and a script (or the web
+console, when you evaluate `error.cause.config`) can read them by name. The
+header overrides of the connection go to the tenant only: they used to go to
+every host the console called, and the configuration header overrides were never
+sent. A call to another host now carries no credential and no override, also
+when a redirect leads there, and a URL is judged by the host it is sent to (one
+with a backslash before an `@` is sent to the host after it). `HTTP_PROXY`,
+`HTTPS_PROXY` and `NO_PROXY` work as for every command (SOCKS and PAC proxies,
+proxy credentials and the messages about a failing proxy too), `--retry`
+applies, and `--curlirize` prints a curl command for each call with the credential values
 replaced by `<redacted>`. A call that the server refuses with 401 is sent once
 more with a renewed credential when the login can be renewed (a `POST` too), and
 in a browser-login session a refused `GET` (403) is tried once with a wider
