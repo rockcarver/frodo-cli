@@ -1,6 +1,6 @@
+import { randomUUID } from 'node:crypto';
 import { frodo, state } from '@rockcarver/frodo-lib';
 import { Option } from 'commander';
-import { v4 as uuidv4 } from 'uuid';
 import { createOAuth2ClientWithAdminPrivileges } from '../../ops/AdminOps';
 import { getTokens } from '../../ops/AuthenticateOps';
 import { printMessage } from '../../utils/Console.js';
@@ -71,8 +71,8 @@ export default function setup() {
           printMessage(
             `Creating oauth2 client with admin privileges in realm "${state.getRealm()}"...`
           );
-          let clientId = uuidv4();
-          let clientSecret = uuidv4();
+          let clientId = randomUUID();
+          let clientSecret = randomUUID();
           if (options.clientId) {
             clientId = options.clientId;
           }

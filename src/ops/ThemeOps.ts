@@ -1,10 +1,10 @@
+import { randomUUID } from 'node:crypto';
 import * as fs from 'fs';
 import {
   frodo,
   type ThemeExportInterface,
   type ThemeSkeleton,
 } from '@rockcarver/frodo-lib';
-import { v4 as uuidv4 } from 'uuid';
 import c from '../utils/ColorTheme';
 import { extractDataToFile, getExtractedData } from '../utils/Config';
 import {
@@ -144,7 +144,7 @@ export async function exportThemeByName(
       `Exporting ${name}`
     );
     const themeData = await readThemeByName(name);
-    if (!themeData._id) themeData._id = uuidv4();
+    if (!themeData._id) themeData._id = randomUUID();
     let fileName = getTypedFilename(name, 'theme');
     if (extract) {
       if (
@@ -273,7 +273,7 @@ export async function exportThemesToFiles(
     );
 
     for (const theme of themes) {
-      if (!theme._id) theme._id = uuidv4();
+      if (!theme._id) theme._id = randomUUID();
 
       const fileBarId = createProgressIndicator(
         'determinate',
