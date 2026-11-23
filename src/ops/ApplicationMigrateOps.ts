@@ -2,6 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import { frodo, state } from '@rockcarver/frodo-lib';
 import { existingConfigFile } from '../configManagerOps/ConfigFileStep';
+import { realmFolderOf } from '../utils/ConfigTreePath';
 import { printError, printMessage, verboseMessage } from '../utils/Console';
 import { causeOf } from '../utils/ErrorCause';
 import { realmList, safeFileNameUnderscore } from '../utils/FrConfig';
@@ -349,7 +350,8 @@ function holdsProvider(file: string, entityId: string): boolean {
  * the OAuth2 client of `pull oauth2-agents`, the provider of `pull saml`, the
  * connector of `pull connector-definitions` and the files of the mapping of
  * `pull connector-mappings`. Shared pieces are not objects of an application
- * and are never looked for.
+ * and are never looked for. An OAuth2 client or SAML provider of a realm that
+ * is not a folder name of the tree has no files.
  * @param {string} treeDir the root of the tree
  * @param {OwnedObject} object the owned object
  * @returns {string[]} the files, relative to the root of the tree
@@ -359,17 +361,27 @@ function kindPathFiles(treeDir: string, object: OwnedObject): string[] {
   const add = (relative: string) => {
     if (fs.existsSync(path.join(treeDir, relative))) found.push(relative);
   };
+  // the tenant names the realm of an object: a realm that is not a folder name of the tree has no files in it, and
+  // no pull wrote one there, so nothing is looked for and nothing can be removed outside the tree
+  let realmDir = '';
+  if (REALM_BOUND_KINDS.includes(object.kind)) {
+    try {
+      realmDir = realmFolderOf(object.realm);
+    } catch {
+      return found;
+    }
+  }
   switch (object.kind) {
     case 'oauth2Client':
       if (isSingleSegment(object.id)) {
         add(
-          `realms/${realmFolder(object.realm)}/realm-config/agents/OAuth2Client/${object.id}.json`
+          `realms/${realmDir}/realm-config/agents/OAuth2Client/${object.id}.json`
         );
       }
       break;
     case 'saml2Provider':
       for (const location of ['hosted', 'remote']) {
-        const dir = `realms/${realmFolder(object.realm)}/realm-config/saml/${location}`;
+        const dir = `realms/${realmDir}/realm-config/saml/${location}`;
         for (const file of filesOf(path.join(treeDir, dir))) {
           if (
             file.endsWith('.json') &&
