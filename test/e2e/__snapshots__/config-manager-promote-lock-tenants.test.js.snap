@@ -3,13 +3,13 @@
 exports[`frodo config-manager promote lock-tenants "frodo config-manager promote lock-tenants": lock tenants if tenants are unlocked" 1`] = `
 "{
   status: 'locked',
-  promotionId: 'bb757dc6-0646-47d7-b63c-c7c6b5668ad7'
+  promotionId: 'd1d00cc5-127a-485f-b541-68542e0d2a7c'
 }
 "
 `;
 
 exports[`frodo config-manager promote lock-tenants "frodo config-manager promote lock-tenants": lock tenants if tenants are unlocked" 2`] = `
 "Experimental feature in use: 'frodo config-manager promote lock-tenants'. This feature may change without notice.
-✔ Environment locked after 20s
+✔ Environment locked after 10s
 "
 `;
