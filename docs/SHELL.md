@@ -44,7 +44,8 @@ Exit with `.exit` or Ctrl+D.
 
 Top-level `await` works, and `let`/`const`/function/class declarations
 persist between inputs, so multi-line exploration flows the way a browser
-devtools console does.
+devtools console does. A promise is a value like any other: `await` it to get
+its result (an input that only produces a promise shows the promise).
 
 `_` is not a frodo name. In the terminal console it is the Node.js REPL's own
 `_`: the value of the last result (`1 + 1`, then `_ + 1` is 3), until you

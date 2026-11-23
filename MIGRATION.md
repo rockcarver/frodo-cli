@@ -97,6 +97,17 @@ lodash). `frodo.utils.json` has in-house helpers (`get`, `put`, `findInArray`,
 drop-in replacements for lodash functions, and `get` takes a path array.
 Otherwise use the JavaScript built-ins.
 
+**`frodo shell --web` evaluates with Node's own REPL evaluator** (prerelease
+feature): the browser console used its own evaluator, written for it, which
+needed two parser packages (`acorn` and `acorn-walk`), and now runs the same
+evaluator as the terminal console. Declarations, top-level `await` and the value
+of the last expression work as before. What differs: an input that produces a
+promise shows the promise (it used to wait for the result: write `await` in
+front of it, as in the terminal console), error messages are Node's own wording,
+and an unfinished comment waits for more input instead of failing. The
+names a script declares with `let`, `const` or `class` complete even when the
+input that declared them then failed.
+
 **The npm package runs the CLI in one process, and a signal ends it with the
 signal's status**: in 4.x `frodo` (`dist/launch.cjs`, the npm `bin` entry and the
 Docker image) started a second Node process and copied its exit code, which was 0
