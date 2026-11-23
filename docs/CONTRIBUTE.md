@@ -141,7 +141,7 @@ npm run test:binary
 
 PRs merge into `main` through ordinary pull requests once the required CI checks pass; the previous `integration` batch-merge workflow has been retired.
 
-Do not edit `CHANGELOG.md` in a PR. It is generated at release time from what merged since the last release (the `Generate and promote AI changelog` step of `.github/workflows/pipeline.yml`), so give the PR a clear title and description. `npm run check` (and the `Lint` step of the `Build` job) fails a branch that changes the file and prints how to undo it; only the release commit itself passes (`tools/check-pull-request.mjs`, `tools/pull-request-rules.mjs`). When a change removes or renames a command, alias or option, add it to [MIGRATION.md](../MIGRATION.md) (see "Maintaining This Guide" there).
+Do not edit `CHANGELOG.md` in a PR. It is generated at release time from what merged since the last release (the `Generate and promote AI changelog` step of `.github/workflows/pipeline.yml`), so give the PR a clear title and description. `npm run check` (and the `Lint` step of the `Build` job) fails a branch that changes the file, committed or not, and prints how to undo it. Only a commit of the shape of the release commit passes, whoever wrote it; how the check decides is in [PIPELINE.md](PIPELINE.md#pull-request-rules), and the rule is in https://github.com/rockcarver/frodo-cli/blob/main/docs/decisions/core/0005-releases-are-started-by-a-maintainer-through-the-pipeline.md (nobody edits `CHANGELOG.md` in a pull request). When a change removes or renames a command, alias or option, add it to [MIGRATION.md](../MIGRATION.md) (see "Maintaining This Guide" there).
 
 ### Code structure and conventions
 

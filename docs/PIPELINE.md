@@ -213,17 +213,23 @@ titles and descriptions of what merged.
   base commit; it is fetched from the base repository by its SHA. If the base
   cannot be resolved the check fails with exit code 2 (re-run the job), so the
   guard is never silently off in CI. At a terminal (no event) it compares with
-  `origin/main`, and passes with a note when there is none; on any other event
-  (`push`, `workflow_dispatch`) it passes with a note.
+  `origin/main`, and passes with a note when there is none; there a change that
+  is staged or edited but not committed yet counts too, so "edit, run the check,
+  commit" gets its warning before the commit. In CI only the commits count. On
+  any other event (`push`, `workflow_dispatch`) it passes with a note.
 - The net change decides: an edit that a later commit reverts is clean, and a
   rename or deletion of the file counts as a change.
-- The one exemption is the release commit: the subject
+- The one exemption is the shape of the release commit: the subject
   `Updated changelog and version for release v<version>` (with or without
   `[skip ci]`) and only `CHANGELOG.md`, `package.json` and `package-lock.json`.
-  The shape decides, never the name of the author. The Release job pushes that
-  commit straight to `main`, and a person who finishes a half-done release
-  through a pull request uses the same subject. Any other correction of the file
-  goes straight to `main` or merges with the administrator bypass of the ruleset.
+  Any commit of that shape passes, whoever wrote it and whatever it puts into
+  those three files; the name of the author never counts. The Release job
+  pushes that commit straight to `main`, and a person who finishes a half-done
+  release through a pull request uses the same subject. Any other correction of
+  the file goes straight to `main` or merges with the administrator bypass of
+  the ruleset. The failure message does not spell the subject out; it points
+  here. The rule itself is
+  [core 0005, releases are started through the pipeline and nobody edits `CHANGELOG.md` in a pull request](https://github.com/rockcarver/frodo-cli/blob/main/docs/decisions/core/0005-releases-are-started-by-a-maintainer-through-the-pipeline.md).
 - It is code in the pull request it judges, so it stops accidents, not intent.
 
 ### Test
