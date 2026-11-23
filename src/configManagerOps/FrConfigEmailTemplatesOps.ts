@@ -153,6 +153,8 @@ export async function configManagerImportEmailTemplates(
 ): Promise<boolean> {
   const run = new OperationRun({ unit: 'email template', allowFailures });
   try {
+    // `.` and `..` name no email template: the words of a pull
+    if (templateName) nameInFolder(templateName);
     const templatesDir = `${getWorkingDirectory()}/email-templates`;
     if (!fs.existsSync(templatesDir)) {
       printMessage(

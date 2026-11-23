@@ -324,7 +324,28 @@ export class PulledPaths {
  * @returns {string} the name in one form
  */
 function sameOnAnyFileSystem(name: string): string {
-  return name.normalize('NFC').toLowerCase().normalize('NFC');
+  // a lone surrogate is written as U+FFFD, so two of them are one name
+  return name
+    .replace(
+      /[\ud800-\udbff](?![\udc00-\udfff])|(?<![\ud800-\udbff])[\udc00-\udfff]/g,
+      '\ufffd'
+    )
+    .normalize('NFC')
+    .toLowerCase()
+    .normalize('NFC');
+}
+
+/**
+ * A name in quotes with every character that is not plain ASCII written as `\uXXXX`, so that two names
+ * that look alike (`\u00e9` and `e\u0301`, `a/b` and `a%2Fb`) are told apart in a message.
+ * @param {string} text the name or the path
+ * @returns {string} the name as a quoted text
+ */
+function quotedWithEscapes(text: string): string {
+  return JSON.stringify(text).replace(
+    /[^\x20-\x7e]/g,
+    (character) => `\\u${character.charCodeAt(0).toString(16).padStart(4, '0')}`
+  );
 }
 
 /**
@@ -392,7 +413,7 @@ export function pulledFilePath(
       const first = written.claims.get(sameOnAnyFileSystem(prefix));
       if (first !== undefined && first.spelled !== prefix) {
         throw new Error(
-          `The path '${shownInMessage(prefix)}' is the same as '${shownInMessage(first.spelled)}' on a file system that ignores case or Unicode form, and that one was pulled already.`
+          `The path ${quotedWithEscapes(prefix)} is the same as ${quotedWithEscapes(first.spelled)} on a file system that ignores case or Unicode form (or reads a character that is not text as another one), and that one was pulled already.`
         );
       }
       // a file belongs to one object: a second object with the same file name would replace the first
@@ -404,7 +425,7 @@ export function pulledFilePath(
         first.owner !== written.owner
       ) {
         throw new Error(
-          `The file '${shownInMessage(prefix)}' is the file of '${shownInMessage(written.owner)}' and of '${shownInMessage(first.owner)}', which was pulled already: two names that become one file name.`
+          `The file ${quotedWithEscapes(prefix)} is the file of ${quotedWithEscapes(written.owner)} and of ${quotedWithEscapes(first.owner)}, which was pulled already: two names that become one file name.`
         );
       }
     }

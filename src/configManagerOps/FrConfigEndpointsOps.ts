@@ -133,6 +133,8 @@ export async function configManagerImportEndpoints(
 ): Promise<boolean> {
   const run = new OperationRun({ unit: 'endpoint', allowFailures });
   try {
+    // `.` and `..` name no endpoint: the words of a pull
+    if (endpointName) nameInFolder(endpointName);
     const endpointsDir = getFilePath(`endpoints`);
     if (!fs.existsSync(endpointsDir)) {
       printMessage(

@@ -346,7 +346,11 @@ describe('a journey whose id is a hostile name', () => {
   });
 
   test('the ids `a/b` and `a%2Fb` are one folder: the later journey fails, naming both, and the earlier one is written', async () => {
-    tenant({ 'a/b': journey('a/b'), 'a%2Fb': journey('a%2Fb') });
+    // the later journey has a node of its own: none of its files may reach the folder of the earlier one
+    const later = journey('a%2Fb');
+    later.tree.nodes.n2 = { displayName: 'Extra' };
+    later.nodes.n2 = { _id: 'n2', _type: { _id: 'ValidatedPasswordNode' } };
+    tenant({ 'a/b': journey('a/b'), 'a%2Fb': later });
 
     expect(await pull()).toBe(false);
 
@@ -365,7 +369,7 @@ describe('a journey whose id is a hostile name', () => {
     ]);
     const said = printed.join('\n');
     expect(said).toContain(
-      "is the file of 'a%2Fb' and of 'a/b', which was pulled already: two names that become one file name."
+      'is the file of "a%2Fb" and of "a/b", which was pulled already: two names that become one file name.'
     );
     expect(said).toContain('1 of 2 journeys failed');
   });

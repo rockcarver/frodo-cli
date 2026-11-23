@@ -73,6 +73,7 @@ const endpoints = await ops('FrConfigEndpointsOps');
 const schedules = await ops('FrConfigSchedulesOps');
 const customNodes = await ops('FrConfigCustomNodesOps');
 const journeys = await ops('FrConfigJourneysOps');
+const emailTemplates = await ops('FrConfigEmailTemplatesOps');
 
 /** The names that a push has to find again. A name with `/` cannot be an id that is split at its first `/`. */
 const NAMES = [
@@ -268,4 +269,24 @@ describe('a journey', () => {
       expect(pushed).toContain(words);
     }
   );
+});
+
+describe('a push that names `.` or `..` is refused with the words of a pull', () => {
+  const WORDS = (id) =>
+    `'${id}' does not name an object: an id or a name is not a path`;
+
+  test.each([
+    ['endpoints', () => endpoints.configManagerImportEndpoints],
+    ['schedules', () => schedules.configManagerImportSchedules],
+    ['custom nodes', () => customNodes.configManagerImportCustomNodes],
+    ['email templates', () => emailTemplates.configManagerImportEmailTemplates],
+  ])('%s', async (_family, push) => {
+    for (const id of ['..', '.']) {
+      printed.length = 0;
+
+      expect(await push()(id)).toBe(false);
+
+      expect(printed.join('\n')).toContain(WORDS(id));
+    }
+  });
 });

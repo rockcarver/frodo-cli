@@ -11,7 +11,7 @@ import ts from 'typescript';
  * of a write, not a proof that no write escapes the gate: it keeps a write from being forgotten, it
  * cannot see one that is built at run time.
  *
- * What it reads: every module of src/configManagerOps, the application, remote proxy and agent kind
+ * What it reads: every module of src/configManagerOps, the application, remote proxy and agent
  * modules of src/ops, and the shared writer of src/utils/Config.ts (a new module is scanned without
  * being listed here), by the syntax of the source, so a reformatted call is still found.
  *
@@ -376,14 +376,12 @@ function aliasesOf(source) {
         ts.isFunctionDeclaration(parent) ||
         ts.isMethodDeclaration(parent) ||
         ts.isParameter(parent) ||
-        ts.isVariableDeclaration(parent) ||
-        ts.isPropertyAssignment(parent) ||
-        ts.isPropertySignature(parent)
+        ts.isPropertySignature(parent) ||
+        ((ts.isVariableDeclaration(parent) ||
+          ts.isPropertyAssignment(parent)) &&
+          parent.name === node)
       ) {
-        // a name that is declared, or a key
-        if (ts.isVariableDeclaration(parent) && parent.initializer) {
-          // `const writeFileSync = ...` declares a function of the same name that is not the one of `fs`
-        }
+        // a name that is declared, or a key: not a use of the function
       } else {
         note(parent, 'used as a value');
       }
@@ -611,6 +609,11 @@ describe('the scan can fail: each form of a write that it knows is found', () =>
       'const save = utils.saveJsonToFile; save({}, getFilePath(pulledFilePath(x), true));',
     ],
     ['an alias that is passed as an argument', 'run(fs.writeFileSync);'],
+    ['a writer that is passed as an argument', 'run(saveJsonToFile);'],
+    [
+      'a writer that is kept in a variable',
+      'const save = saveJsonToFile; save({}, x);',
+    ],
     [
       'a member of a destructuring that is renamed',
       "const { writeFileSync: w } = fs; w(pulledFilePath(x), 'y');",

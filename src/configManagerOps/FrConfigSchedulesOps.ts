@@ -127,6 +127,8 @@ export async function configManagerImportSchedules(
   allowFailures: boolean = false
 ): Promise<boolean> {
   try {
+    // `.` and `..` name no schedule: the words of a pull
+    if (schedulesName) nameInFolder(schedulesName);
     const schedulesPath = getFilePath('schedules');
     if (!fs.existsSync(schedulesPath)) {
       printMessage(`Schedules folder not found: ${schedulesPath}`, 'error');

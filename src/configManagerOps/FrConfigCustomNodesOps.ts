@@ -143,6 +143,8 @@ export async function configManagerImportCustomNodes(
 ): Promise<boolean> {
   const run = new OperationRun({ unit: 'custom node', allowFailures });
   try {
+    // `.` and `..` name no custom node: the words of a pull
+    if (nodeName) nameInFolder(nodeName);
     const nodesDir = `${getWorkingDirectory()}/custom-nodes/nodes`;
     if (!fs.existsSync(nodesDir)) {
       printMessage(

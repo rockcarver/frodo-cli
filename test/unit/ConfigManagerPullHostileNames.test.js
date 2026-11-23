@@ -199,6 +199,12 @@ const NAMES = [
   },
   { label: 'differs in case', value: ['A', 'a'], how: 'pair' },
   {
+    label: 'is two lone surrogates, which a file system writes alike',
+    value: ['\ud800', '\ud801'],
+    how: 'pair',
+    pairAs: ['\ufffd', '\ufffd'],
+  },
+  {
     label: 'is the same name once encoded',
     value: ['a/b', 'a%2Fb'],
     how: 'pair',
@@ -1490,4 +1496,17 @@ describe('two names that the file name function makes one', () => {
       ).toBe(true);
     }
   );
+});
+
+describe('a theme that is refused is named in the reason of its realm', () => {
+  test('the summary counts the realms, and the reason says how many themes were not pulled and names the first', async () => {
+    const row = FAMILIES.find((candidate) => candidate.family === 'themes');
+    row.arrange(['A', 'a', 'b']);
+
+    expect(await row.run()).toBe(false);
+
+    const said = printed.join('\n');
+    expect(said).toContain('1 of 1 realm failed');
+    expect(said).toMatch(/- alpha: 1 of 3 themes not pulled, the first 'a': /);
+  });
 });

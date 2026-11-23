@@ -11,8 +11,8 @@ import {
   nameInStem,
   objectFilePath,
   objectFolderPath,
-  PulledPaths,
   pulledFilePath,
+  PulledPaths,
   realmFolderOf,
   referencedFilePath,
   safeFileName,
@@ -1165,14 +1165,34 @@ describe('pulledFilePath', () => {
         pulledFilePath(first, written);
 
         expect(() => pulledFilePath(second, written)).toThrow(
-          /is the same as .* on a file system that ignores case or Unicode form, and that one was pulled already\.$/
+          /is the same as .* on a file system that ignores case or Unicode form \(or reads a character that is not text as another one\), and that one was pulled already\.$/
         );
         // nothing of the refused path was kept: the first one is still the one that was pulled
         expect(() => pulledFilePath(first, written)).not.toThrow();
       }
     );
 
-    it('keeps no state between two pulls: a pull without the map checks nothing of this kind', () => {
+    it('shows the two names of a collision with their escapes, so that names that look alike are told apart', () => {
+      const written = new PulledPaths();
+      pulledFilePath('esvs/variables/\u00e9.json', written);
+
+      expect(() =>
+        pulledFilePath('esvs/variables/e\u0301.json', written)
+      ).toThrow(
+        'The path "esvs/variables/e\\u0301.json" is the same as "esvs/variables/\\u00e9.json" on a file system'
+      );
+    });
+
+    it('takes two lone surrogates for one name: a file system writes both as U+FFFD', () => {
+      const written = new PulledPaths();
+      pulledFilePath('esvs/variables/\ud800.json', written);
+
+      expect(() =>
+        pulledFilePath('esvs/variables/\ud801.json', written)
+      ).toThrow('is the same as');
+    });
+
+    it('keeps no state between two pulls: a pull without the map checks nothing of the sort', () => {
       const first = new PulledPaths();
       pulledFilePath('themes/A/A.json', first);
 
@@ -1191,7 +1211,7 @@ describe('pulledFilePath', () => {
       expect(() =>
         pulledFilePath('esvs/variables/a%2Fb.json', written)
       ).toThrow(
-        "The file 'esvs/variables/a%2Fb.json' is the file of 'a%2Fb' and of 'a/b', which was pulled already: two names that become one file name."
+        'The file "esvs/variables/a%2Fb.json" is the file of "a%2Fb" and of "a/b", which was pulled already: two names that become one file name.'
       );
       // the same object writes its file again (a check before the write, and the write itself)
       written.owner = 'a/b';
