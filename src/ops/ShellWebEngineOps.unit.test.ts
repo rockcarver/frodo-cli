@@ -1,6 +1,7 @@
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
+import util from 'node:util';
 import {
   afterEach,
   beforeEach,
@@ -10,6 +11,7 @@ import {
   jest,
 } from '@jest/globals';
 import { frodo } from '@rockcarver/frodo-lib';
+import { ShellHistory } from './ShellHistoryOps';
 import { createWebEngine, EvalOutcome, WebEngine } from './ShellWebEngineOps';
 
 /**
@@ -17,6 +19,43 @@ import { createWebEngine, EvalOutcome, WebEngine } from './ShellWebEngineOps';
  * tests pin the behaviors the console relies on, and run it against a
  * temporary home directory because the engine records history on disk.
  */
+
+/** Wait a little, for a timer a script started to fire. */
+const sleep = (ms: number): Promise<void> =>
+  new Promise((resolve) => setTimeout(resolve, ms));
+
+/**
+ * How long an input may take to have an outcome in these tests. An engine
+ * whose error handler is not wired never answers an input that throws; the
+ * test must fail at once, with a reason, not wait for the test runner.
+ */
+const NO_OUTCOME_MS = 2000;
+
+/** The engine, with every wait that depends on an outcome limited. */
+function failFast(inner: WebEngine): WebEngine {
+  const within = <T>(promise: Promise<T>, what: string): Promise<T> => {
+    let timer: NodeJS.Timeout | undefined;
+    return Promise.race([
+      promise,
+      new Promise<never>((_resolve, reject) => {
+        timer = setTimeout(
+          () =>
+            reject(
+              new Error(
+                `no outcome for ${what} within ${NO_OUTCOME_MS} ms (is the error handler of the engine wired?)`
+              )
+            ),
+          NO_OUTCOME_MS
+        );
+      }),
+    ]).finally(() => clearTimeout(timer));
+  };
+  return {
+    ...inner,
+    evaluate: (code) => within(inner.evaluate(code), `the input ${code}`),
+    reset: () => within(inner.reset(), 'the reset'),
+  };
+}
 
 describe('ShellWebEngineOps', () => {
   let home: string;
@@ -34,9 +73,11 @@ describe('ShellWebEngineOps', () => {
       );
     }
     logs = [];
-    engine = createWebEngine({
-      onLog: (text) => logs.push(text),
-    });
+    engine = failFast(
+      createWebEngine({
+        onLog: (text) => logs.push(text),
+      })
+    );
   });
 
   afterEach(() => {
@@ -68,6 +109,24 @@ describe('ShellWebEngineOps', () => {
     expect(
       await value('await new Promise((r) => setTimeout(() => r("late"), 20))')
     ).toBe('late');
+  });
+
+  it('keeps the value of the last expression after statements with await', async () => {
+    expect(await value('const o = { a: await 1 }; o')).toEqual({ a: 1 });
+    expect(await value('const x2 = await 2; x2 + 1')).toBe(3);
+  });
+
+  it('returns a promise that a script does not await as a promise', async () => {
+    // Like the terminal console: a promise is a value, `await` is how a
+    // script gets its result.
+    const outcome = await engine.evaluate('Promise.resolve(3)');
+    expect(outcome.status).toBe('ok');
+    expect(
+      util.types.isPromise(
+        (outcome as Extract<EvalOutcome, { status: 'ok' }>).value
+      )
+    ).toBe(true);
+    expect(await value('await Promise.resolve(3)')).toBe(3);
   });
 
   it('runs inputs from concurrent callers strictly in order', async () => {
@@ -127,8 +186,9 @@ describe('ShellWebEngineOps', () => {
   });
 
   it('leaves _ to the REPL: it is not bound, and a result does not set it', async () => {
-    // This engine runs its own evaluator, which never feeds the REPL's
-    // last-result slot, so `_` stays undefined until a script assigns it.
+    // The engine calls the REPL's evaluator, not the REPL's line handler,
+    // and only the line handler stores a result in the last-result slot, so
+    // `_` stays undefined until a script assigns it.
     expect(await value('typeof _')).toBe('undefined');
     await value('1 + 1');
     expect(await value('_')).toBeUndefined();
@@ -160,6 +220,17 @@ describe('ShellWebEngineOps', () => {
     });
   });
 
+  it('reports an unfinished template literal and comment as unfinished input', async () => {
+    expect(await engine.evaluate('const t = `first line\nsecond')).toEqual({
+      status: 'incomplete',
+    });
+    expect(await engine.evaluate('/* an open comment')).toEqual({
+      status: 'incomplete',
+    });
+    // The finished form of the same input runs.
+    expect(await value('const t = `first line\nsecond`; t.length')).toBe(17);
+  });
+
   it('reports a real syntax error as an error', async () => {
     const outcome = await engine.evaluate('var = ;');
     expect(outcome.status).toBe('error');
@@ -180,6 +251,106 @@ describe('ShellWebEngineOps', () => {
       'await Promise.reject(new Error("no"))'
     );
     expect(outcome.status).toBe('error');
+  });
+
+  it('prints no copy of a rejected await in the log', async () => {
+    // The REPL prints an error it handles itself; the browser shows the
+    // error from the outcome, so a printed copy would show it twice.
+    const outcome = await engine.evaluate(
+      'await Promise.reject(new Error("rejected-copy"))'
+    );
+    expect(outcome.status).toBe('error');
+    expect(
+      (outcome as Extract<EvalOutcome, { status: 'error' }>).error
+    ).toEqual(expect.objectContaining({ message: 'rejected-copy' }));
+    expect(logs.join('')).not.toContain('rejected-copy');
+  });
+
+  it('reports the error of an await that follows statements', async () => {
+    const outcome = await engine.evaluate(
+      'const before = 1; await Promise.reject(new TypeError("after-before"))'
+    );
+    expect(outcome.status).toBe('error');
+    const error = (outcome as Extract<EvalOutcome, { status: 'error' }>)
+      .error as Error;
+    expect(error.name).toBe('TypeError');
+    expect(error.message).toBe('after-before');
+  });
+
+  it('prints an error from a timer, after its input has finished, into the log', async () => {
+    // Nothing is running when the timer fires: the error belongs to no
+    // input, so the REPL prints it, and it fails no later input.
+    expect(
+      await value('setTimeout(() => { throw new Error("late-boom") }, 10); 1')
+    ).toBe(1);
+    await sleep(60);
+    expect(logs.join('')).toContain('late-boom');
+    expect(await value('1 + 1')).toBe(2);
+  });
+
+  it("does not fail the running input with the error of an earlier input's timer", async () => {
+    await value('setTimeout(() => { throw new Error("stray-boom") }, 20); 1');
+    // This input is still awaiting when the stray timer fires.
+    const outcome = await engine.evaluate(
+      'await new Promise((r) => setTimeout(() => r("finished"), 80))'
+    );
+    expect(outcome).toEqual({ status: 'ok', value: 'finished' });
+    expect(logs.join('')).toContain('stray-boom');
+  });
+
+  it('ends an input with its own value when its own timer raises an error, and the next input waits for it', async () => {
+    // The error of a timer that the input started is not the input's outcome:
+    // the input goes on, and no later input starts on top of it.
+    const first = engine.evaluate(
+      'var finalA = "running"; setTimeout(() => { throw new Error("own-timer") }, 20); await new Promise((r) => setTimeout(r, 150)); finalA = "A finished"; "A value"'
+    );
+    const second = engine.evaluate('finalA');
+    expect(await first).toEqual({ status: 'ok', value: 'A value' });
+    expect(await second).toEqual({ status: 'ok', value: 'A finished' });
+    // The error is printed into the log, where a script's output is.
+    expect(logs.join('')).toContain('own-timer');
+  });
+
+  it('takes the rejection an input awaits as its outcome, not an error that arrived before it', async () => {
+    const outcome = await engine.evaluate(
+      'setTimeout(() => { throw new Error("side-error") }, 10); await new Promise((r) => setTimeout(r, 60)); await Promise.reject(new Error("awaited-error"))'
+    );
+    expect(outcome.status).toBe('error');
+    expect(
+      ((outcome as Extract<EvalOutcome, { status: 'error' }>).error as Error)
+        .message
+    ).toBe('awaited-error');
+    expect(logs.join('')).toContain('side-error');
+    expect(logs.join('')).not.toContain('awaited-error');
+  });
+
+  it('fails only the input whose history entry cannot be written, and runs the next input', async () => {
+    jest.spyOn(ShellHistory.prototype, 'addLine').mockImplementationOnce(() => {
+      throw new Error('history write failed');
+    });
+    await expect(engine.evaluate('1 + 1')).rejects.toThrow(
+      'history write failed'
+    );
+    expect(await value('2 + 2')).toBe(4);
+  });
+
+  it('takes the awaited rejection as the outcome when the same callback also throws', async () => {
+    // The callback rejects the promise the input awaits and then throws: the
+    // throw reaches the engine as an uncaught exception (flagged, printed),
+    // and the awaited rejection, which the REPL reports a few microtask hops
+    // later, is the outcome. The flag must be gone by then: cleared by a
+    // timer instead of the next microtask, the input would never end.
+    const outcome = await engine.evaluate(
+      'await new Promise((resolve, reject) => setTimeout(() => { reject(new Error("rejected-a")); throw new Error("thrown-b") }, 20))'
+    );
+    expect(outcome.status).toBe('error');
+    expect(
+      ((outcome as Extract<EvalOutcome, { status: 'error' }>).error as Error)
+        .message
+    ).toBe('rejected-a');
+    expect(logs.join('')).toContain('thrown-b');
+    expect(logs.join('')).not.toContain('rejected-a');
+    expect(await value('1 + 1')).toBe(2);
   });
 
   it('keeps working after an error', async () => {
@@ -290,6 +461,51 @@ describe('ShellWebEngineOps', () => {
     await engine.reset();
     expect(engine.complete('gone')[0]).toEqual([]);
     expect(engine.complete('gone.')[0]).toEqual([]);
+  });
+
+  it('completes names a declaration destructures or an await declares', async () => {
+    await value('const { p1, q1: [r1] } = { p1: { a: 1 }, q1: [{ b: 2 }] }');
+    expect(engine.complete('p1')[0]).toContain('p1');
+    expect(engine.complete('p1.')[0]).toContain('p1.a');
+    expect(engine.complete('r1')[0]).toContain('r1');
+    expect(engine.complete('r1.')[0]).toContain('r1.b');
+    await value('const awaited = await Promise.resolve({ k: 1 })');
+    expect(engine.complete('awaite')[0]).toContain('awaited');
+    expect(engine.complete('awaited.')[0]).toContain('awaited.k');
+    await value('class Klass { static s = 1 }');
+    expect(engine.complete('Klas')[0]).toContain('Klass');
+    await value('let m1 = 1, m2 = { z: 1 }');
+    expect(engine.complete('m')[0]).toEqual(
+      expect.arrayContaining(['m1', 'm2'])
+    );
+    expect(engine.complete('m2.')[0]).toContain('m2.z');
+  });
+
+  it('completes a name that a failed input declared before it threw', async () => {
+    const outcome = await engine.evaluate(
+      'const half = { x: 1 }; throw new Error("after")'
+    );
+    expect(outcome.status).toBe('error');
+    expect(engine.complete('hal')[0]).toContain('half');
+    expect(engine.complete('half.')[0]).toContain('half.x');
+  });
+
+  it("does not offer the names the console starts with as the user's", async () => {
+    // The REPL lists its own names (the built-in modules, the globals) with
+    // the user's let/const/class names; only the user's belong to completion.
+    expect(engine.complete('zli')[0]).toEqual([]);
+    await value('const mine = 1');
+    expect(engine.complete('zli')[0]).toEqual([]);
+    expect(engine.complete('min')[0]).toContain('mine');
+  });
+
+  it("completes names declared after a reset, and still not the console's own", async () => {
+    await value('const before = 1');
+    await engine.reset();
+    expect(engine.complete('befor')[0]).toEqual([]);
+    await value('const after = { y: 1 }');
+    expect(engine.complete('after.')[0]).toContain('after.y');
+    expect(engine.complete('zli')[0]).toEqual([]);
   });
 
   it('stores a multi-line script as one history entry', async () => {
