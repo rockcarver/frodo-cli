@@ -183,6 +183,20 @@ function journeyFiles(name, nodes = []) {
   return files;
 }
 
+/** The files of a page node of a journey as a pull writes them: the page and, in a folder beside it, the nodes it holds. */
+function pageFiles(journey, page, nodes) {
+  const folder = `${REALM}/journeys/${journey}/nodes/Page - ${page}`;
+  const files = {
+    [`${folder}.json`]: {
+      _id: page,
+      _type: { _id: 'PageNode' },
+      nodes: nodes.map((node) => ({ _id: node._id })),
+    },
+  };
+  for (const node of nodes) files[`${folder}/Node - ${node._id}.json`] = node;
+  return files;
+}
+
 /** The files of a script as a pull writes them, with its content file. */
 function scriptFiles(id) {
   return {
@@ -469,6 +483,34 @@ describe('push journeys', () => {
     expect(printMessage).not.toHaveBeenCalled();
   });
 
+  test('(h) a script in a page node is read: the page node is part of the journey', async () => {
+    write({
+      ...journeyFiles('A'),
+      ...pageFiles('A', 'p1', [scripted('s1', 'S')]),
+      ...scriptFiles('S'),
+    });
+
+    expect(await push('A', true)).toBe(true);
+
+    expect(importedNames()).toEqual(['A']);
+    expect(imported()[0].A.scripts.S.script).toEqual(['// S']);
+    expect(Object.keys(imported()[0].A.innerNodes)).toEqual(['s1']);
+  });
+
+  test('(h) a script in a page node whose file is missing fails the journey that has the page', async () => {
+    write({
+      ...journeyFiles('A'),
+      ...pageFiles('A', 'p1', [scripted('s1', 'Missing')]),
+    });
+
+    expect(await push('A', true)).toBe(false);
+
+    expect(importJourneys).not.toHaveBeenCalled();
+    expect(summary()).toBe(
+      "1 of 1 journey failed:\n  - alpha/A: Journey 'A' requires the script 'Missing', but its file is missing: realms/alpha/scripts/scripts-config/Missing.json"
+    );
+  });
+
   test('a journey that needs itself, or a journey that needs it, ends and is pushed once', async () => {
     write({
       ...journeyFiles('A', [inner('a1', 'B')]),
@@ -579,6 +621,37 @@ describe('pull journeys', () => {
       'S1',
       'S2',
     ]);
+  });
+
+  test('(i) without a name a journey whose script is not on the tenant fails alone, and the others are written', async () => {
+    arrange({ A: [scripted('a1', 'Gone')], B: [scripted('b1', 'S2')] });
+    exportScript.mockImplementation(async (id) => {
+      if (id === 'Gone') throw new Error('script not found on the tenant');
+      return {
+        script: {
+          [id]: { _id: id, name: id, context: CONTEXT, script: [`// ${id}`] },
+        },
+      };
+    });
+
+    expect(await pull(undefined, true)).toBe(false);
+
+    expect(exists(`${REALM}/journeys/B/B.json`)).toBe(true);
+    expect(exists(`${REALM}/journeys/A/A.json`)).toBe(false);
+    expect(summary()).toBe(
+      '1 of 2 journeys failed:\n  - alpha/A: script not found on the tenant'
+    );
+  });
+
+  test('(i) without a name an inner journey that fails is named for itself, and only once', async () => {
+    arrange({ A: [inner('a1', 'B')], B: [scripted('b1', 'Gone')] });
+    exportScript.mockRejectedValue(new Error('script not found on the tenant'));
+
+    expect(await pull(undefined, true)).toBe(false);
+
+    expect(summary()).toBe(
+      '1 of 2 journeys failed:\n  - alpha/B: script not found on the tenant'
+    );
   });
 
   test('(h) a node whose script is [Empty], or that does not use its script, exports no script', async () => {
