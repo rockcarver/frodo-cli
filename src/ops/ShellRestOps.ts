@@ -99,11 +99,13 @@ export function idmCookieFallback(
 }
 
 /**
- * Host of a URL string, lowercase, or the empty string when unparseable.
+ * Origin of a URL string (scheme, host and port, lowercase, a default port
+ * left out), or the empty string when unparseable.
  */
-function hostOf(url: string): string {
+function originOf(url: string): string {
   try {
-    return new URL(url).host.toLowerCase();
+    const { origin } = new URL(url);
+    return origin === 'null' ? '' : origin.toLowerCase();
   } catch {
     return '';
   }
@@ -133,8 +135,9 @@ function guessDomain(url: string): 'idm' | 'am' {
  * - any other relative path -> IDM base URL + path (the console sits on the
  *   IDM origin, matching the native IDM admin console)
  * - absolute URL    -> pass through; credential attached only when the
- *   target host is the connected tenant's host (the same cross-origin
- *   policy a browser applies), judged on the URL as it is sent.
+ *   target origin (scheme, host and port) is the connected tenant's (the same
+ *   cross-origin policy a browser applies), judged on the URL as it is sent;
+ *   an `http://` URL for an `https://` tenant is another origin.
  *
  * @param url the URL as typed in the console
  */
@@ -145,13 +148,18 @@ export function resolveUrl(url: string): {
   const host = state.getHost();
 
   if (/^https?:\/\//i.test(url)) {
-    // Judge the URL as it is sent, not as it was typed: the request is made to
-    // the encoded form (see `request`), and the encoding can move the host
-    // (`https://tenant\@other.example/` has the host `tenant` as typed and
-    // `other.example` once the backslash is encoded).
+    // Judge the origin of the URL as it is sent, not as it was typed: the
+    // request is made to the encoded form (see `request`), and the encoding can
+    // move the host (`https://tenant\@other.example/` has the host `tenant` as
+    // typed and `other.example` once the backslash is encoded). The scheme and
+    // the port count: `http://` for an `https://` tenant is another origin.
     const sent = encodeUrlPathAndQuery(url);
-    const sameHost = hostOf(sent) !== '' && hostOf(sent) === hostOf(host ?? '');
-    return { absoluteUrl: url, domain: sameHost ? guessDomain(sent) : 'none' };
+    const sameOrigin =
+      originOf(sent) !== '' && originOf(sent) === originOf(host ?? '');
+    return {
+      absoluteUrl: url,
+      domain: sameOrigin ? guessDomain(sent) : 'none',
+    };
   }
 
   if (!host) {
