@@ -531,6 +531,19 @@ the files back. Before, a `/` in the name of a script made folders, and `..`
 wrote a file outside the config folder. `pull journeys --clean` clears the node
 files below the folder of `-D`; it cleared them below the current directory.
 
+The folder and the file of a journey that a pull writes, and the folder of its
+realm, are named as the rest of the config folder names what the tenant names. A
+journey id that holds `/`, `\`, `C:` or a control character is written
+percent-encoded (`a/b` is the folder `a%2Fb` with the file `a%2Fb.json`) and a
+push finds it again; an id that is empty, `.` or `..` is not pulled: the summary
+names the journey as failed and the command exits with code 1, or 0 with
+`--allow-failures`. A realm that the tenant lists with `..`, a backslash, `C:`, a
+control character, `%`, `?` or `#` in it is not pulled either, and is named in
+the same way. Before, such an id or realm wrote the files of the journey outside
+the config folder, and `pull journeys --clean` could remove a folder `nodes`
+outside it. `migrate applications` no longer looks for the files of an OAuth2
+client or a SAML provider in a realm of that kind: the tree has none.
+
 **A `--no-` option that is picked in the interactive editor does what it says**:
 the editor wrote `true` for every option that it picked. For an option that is
 negated (`--no-deps`, `--no-validate`, `-N, --no-metadata`, `--no-cache`,
