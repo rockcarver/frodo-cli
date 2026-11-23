@@ -1,6 +1,5 @@
 import util from 'node:util';
 import { frodo, state } from '@rockcarver/frodo-lib';
-import _ from 'lodash';
 import c from '../utils/ColorTheme';
 import { AM_METHOD_DOCS, AmApi, createAmApi } from './ShellAmOps';
 import { buildDocsByMethod, MethodHelpDoc } from './ShellAutoCompleteOps';
@@ -10,7 +9,7 @@ import { createShellRest, ShellRest } from './ShellRestOps';
 
 /**
  * What every front end of the frodo JS console shares: the names a script
- * can use (`frodo`, `frodoLib`, `state`, `$`, `_`, `openidm`, `help`) and the
+ * can use (`frodo`, `frodoLib`, `state`, `$`, `openidm`, `am`, `help`) and the
  * routing of frodo-lib's debug/verbose/curlirize output. The terminal console and
  * the web console each create a REPL context and call installConsoleContext
  * on it, so a script behaves the same in both.
@@ -57,7 +56,6 @@ export function createConsoleBindings(): ConsoleBindings {
       openidm: openIdm as unknown as object,
       am: am as unknown as object,
       state: state as unknown as object,
-      _: _ as unknown as object,
     },
     docsByMethod,
   };
@@ -88,10 +86,6 @@ export function installConsoleContext(
   context.$ = bindings.shellRest;
   context.openidm = bindings.openIdm;
   context.am = bindings.am;
-  // Pre-binding _ to lodash makes the REPL disable its own "last result"
-  // assignment ("Expression assignment to _ now disabled"), so lodash
-  // survives every evaluated expression.
-  context._ = _;
 
   const { write, colors } = output;
   state.setDebugHandler((message) => {
