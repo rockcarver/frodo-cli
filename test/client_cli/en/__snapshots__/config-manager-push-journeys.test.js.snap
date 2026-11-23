@@ -26,7 +26,8 @@ Options:
                          0. Without this option the command runs every
                          operation, prints a summary of what failed and exits
                          with code 1.
-  -i, --journey-id <id>  Journey id, imports the specified Journey. (alias: -n,
+  -i, --journey-id <id>  Journey id, imports the specified journey and, unless
+                         --no-deps is given, its inner journeys. (alias: -n,
                          --name)
   --no-deps              Do not push the scripts that the journeys use, nor the
                          inner journeys of a journey that is named.

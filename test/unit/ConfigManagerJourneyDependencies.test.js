@@ -483,6 +483,38 @@ describe('push journeys', () => {
     expect(printMessage).not.toHaveBeenCalled();
   });
 
+  test('a name with a control character is shown escaped, in the message and in the summary', async () => {
+    write(journeyFiles('A', [inner('a1', 'x\u0001y\u001b[31m')]));
+
+    expect(await push('A', true)).toBe(false);
+
+    // eslint-disable-next-line no-control-regex
+    expect(printed()).not.toMatch(/[\u0000-\u0009\u000b-\u001f]/);
+    expect(summary()).toContain(
+      "Journey 'A' requires the journey 'x\\u0001y\\u001b[31m', but its file is missing: realms/alpha/journeys/x%01y%1B[31m/x%01y%1B[31m.json"
+    );
+  });
+
+  test('a journey that cannot be pushed because of an inner journey with a control character in its name is named escaped', async () => {
+    // the folder of the inner journey has the encoded name that a pull writes
+    write({
+      ...journeyFiles('A', [inner('a1', 'x\u0001y')]),
+      ...journeyFiles('x%01y', [scripted('n1', 'Missing')]),
+    });
+
+    expect(await push('A', true)).toBe(false);
+
+    // eslint-disable-next-line no-control-regex
+    expect(printed()).not.toMatch(/[\u0000-\u0009\u000b-\u001f]/);
+    expect(
+      summary()
+        .split('\n')
+        .slice(1)
+        .sort()
+        .map((line) => line.split(':')[0])
+    ).toEqual(['  - alpha/A', '  - alpha/x\\u0001y']);
+  });
+
   test('(h) a script in a page node is read: the page node is part of the journey', async () => {
     write({
       ...journeyFiles('A'),
@@ -621,6 +653,30 @@ describe('pull journeys', () => {
       'S1',
       'S2',
     ]);
+  });
+
+  test('(i) --clean clears the node files of the config folder, the inner journeys included, and without it they stay', async () => {
+    const stale = [
+      `${REALM}/journeys/A/nodes/Stale - x.json`,
+      `${REALM}/journeys/B/nodes/Stale - y.json`,
+    ];
+    const arrangeStale = () => {
+      write(Object.fromEntries(stale.map((file) => [file, {}])));
+      arrange({ A: [inner('a1', 'B')], B: [scripted('b1', 'S2')] });
+    };
+
+    arrangeStale();
+    expect(await configManagerExportJourneys('A', 'alpha', true, false)).toBe(
+      true
+    );
+    expect(stale.map(exists)).toEqual([true, true]);
+
+    arrangeStale();
+    expect(await configManagerExportJourneys('A', 'alpha', true, true)).toBe(
+      true
+    );
+    expect(stale.map(exists)).toEqual([false, false]);
+    expect(exists(`${REALM}/journeys/B/B.json`)).toBe(true);
   });
 
   test('(i) without a name a journey whose script is not on the tenant fails alone, and the others are written', async () => {

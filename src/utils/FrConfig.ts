@@ -1,6 +1,7 @@
 import fs from 'fs';
 import { frodo } from '@rockcarver/frodo-lib';
 import sanitize from 'sanitize-filename';
+import { objectFilePath } from './ConfigTreePath';
 
 const { readRealms } = frodo.realm;
 
@@ -56,10 +57,12 @@ export function replaceAllInJson(
  * @returns {boolean} true if `realms/<realmDir>/scripts/scripts-config` holds `<fileName>.json`
  */
 export function existScript(fileName: string, realmDir: string): boolean {
+  const folder = getFilePath(`realms/${realmDir}/scripts/scripts-config`);
+  if (!fs.existsSync(folder)) return false;
+  // the name of the file of an id is the one that a pull writes and a push reads
+  const name = objectFilePath(folder, fileName).slice(folder.length + 1);
   // the library searches by joining names to this path, so it ends with a slash
-  const scriptDir = `${getFilePath(`realms/${realmDir}/scripts/scripts-config`)}/`;
-  if (!fs.existsSync(scriptDir)) return false;
-  const result = findFilesByName(`${fileName}.json`, true, scriptDir);
+  const result = findFilesByName(name, true, `${folder}/`);
   return result.length > 0;
 }
 

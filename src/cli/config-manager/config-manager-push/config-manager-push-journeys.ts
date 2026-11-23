@@ -14,7 +14,7 @@ export default function setup() {
     .addOption(
       selectorOption(
         '-i, --journey-id <id>',
-        'Journey id, imports the specified Journey.',
+        'Journey id, imports the specified journey and, unless --no-deps is given, its inner journeys.',
         ['-n', '--name']
       )
     )

@@ -14,6 +14,7 @@ import {
 } from '../ops/JourneyFindingsHint';
 import { extractFrConfigDataToFile } from '../utils/Config';
 import {
+  fileNameOf,
   objectFilePath,
   objectFolderPath,
   referencedFilePath,
@@ -161,14 +162,15 @@ async function processNodeExport(
       })
     ).script[node.script];
     const scriptsDir = `realms/${realmDir}/scripts/`;
+    // the tenant names the script: its name, context and id are file names here, never paths
     script.script = extractFrConfigDataToFile(
       script.script,
-      `scripts-content/${script.context}/${script.name}.js`,
+      `scripts-content/${fileNameOf(String(script.context))}/${fileNameOf(String(script.name))}.js`,
       scriptsDir
     ) as any;
     saveJsonToFile(
       script,
-      getFilePath(`${scriptsDir}scripts-config/${script._id}.json`, true),
+      objectFilePath(getFilePath(`${scriptsDir}scripts-config`), script._id),
       false,
       true,
       true
@@ -213,7 +215,7 @@ async function processJourneysExport(
       const journeyDir = `realms/${realmDir}/journeys/${treeId}`;
       const nodeDir = `${journeyDir}/nodes`;
       if (clean) {
-        fs.rmSync(nodeDir, { recursive: true, force: true });
+        fs.rmSync(getFilePath(nodeDir), { recursive: true, force: true });
       }
       for (const node of Object.values(journey.nodes)) {
         if (
@@ -279,6 +281,20 @@ class MissingDependencyError extends Error {
 }
 
 /**
+ * A name from a file of the config folder as a message shows it: a control character is written as
+ * `\u0001`, so that it cannot change what the terminal shows.
+ * @param {string} name the name
+ * @returns {string} the name without control characters
+ */
+function printable(name: string): string {
+  return String(name).replace(
+    /\p{Cc}/gu,
+    (character) =>
+      `\\u${(character.codePointAt(0) as number).toString(16).padStart(4, '0')}`
+  );
+}
+
+/**
  * A path of the config folder as the user knows it: below `realms`, with forward slashes, without the folder that the
  * directory option names.
  * @param {string} file a path inside the `realms` folder
@@ -310,7 +326,7 @@ function missingDependency(
     : 'Pull the dependency too, or push the journey with -i.';
   return new MissingDependencyError(
     journey,
-    `Journey '${journey}' requires ${needed}, but ${problem}: ${shownPath(file)}\n${hint}`
+    `Journey '${printable(journey)}' requires ${printable(needed)}, but ${problem}: ${shownPath(file)}\n${hint}`
   );
 }
 
@@ -568,13 +584,13 @@ export async function configManagerImportJourneys(
           );
         } catch (error) {
           // the files of this journey, or of a journey that it needs, cannot be read: the others are still imported
-          printError(error, `Error reading journey ${journeyName}`);
+          printError(error, `Error reading journey ${printable(journeyName)}`);
           const failed =
             error instanceof MissingDependencyError
               ? error.journeys
               : [journeyName];
           for (const failedName of failed) {
-            const failure = `${realmDir}/${failedName}`;
+            const failure = `${realmDir}/${printable(failedName)}`;
             if (failedJourneys.has(failure)) continue;
             failedJourneys.add(failure);
             run.recordFailure(failure, causeOf(error));

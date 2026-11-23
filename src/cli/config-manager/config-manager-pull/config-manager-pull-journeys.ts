@@ -14,7 +14,7 @@ export default function setup() {
     .addOption(
       selectorOption(
         '-i, --journey-id <id>',
-        'Journey id. If specified, only exports the journey with the specified id.',
+        'Journey id. If specified, only exports the journey with the specified id and, unless --no-deps is given, its inner journeys.',
         ['-n', '--name']
       )
     )

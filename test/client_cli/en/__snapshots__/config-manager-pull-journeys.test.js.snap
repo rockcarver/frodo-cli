@@ -28,7 +28,8 @@ Options:
                          with code 1.
   --clean                Clear existing configuration before pull.
   -i, --journey-id <id>  Journey id. If specified, only exports the journey with
-                         the specified id. (alias: -n, --name)
+                         the specified id and, unless --no-deps is given, its
+                         inner journeys. (alias: -n, --name)
   --no-deps              Do not pull the scripts that the journeys use, nor the
                          inner journeys of a journey that is named.
   -h, --help             Help
