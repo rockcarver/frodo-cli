@@ -133,7 +133,6 @@
     "@typescript-eslint/parser": "^8.56.0",
     "acorn": "^8.19.0",
     "acorn-walk": "^8.3.5",
-    "axios": "^1.21.1",
     "chokidar": "^6.0.0",
     "cli-progress": "^3.11.2",
     "cli-table3": "^0.6.3",
