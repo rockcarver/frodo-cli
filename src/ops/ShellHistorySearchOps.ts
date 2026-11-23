@@ -1,7 +1,6 @@
 import readline from 'node:readline';
 import { PassThrough, Transform } from 'node:stream';
 import { StringDecoder } from 'node:string_decoder';
-import fuzzysort from 'fuzzysort';
 import { HistoryEntry } from './ShellHistoryOps';
 
 /**
@@ -34,6 +33,52 @@ const ESC = 0x1b;
 const BACKSPACE = 0x7f;
 const CTRL_R = 0x12;
 const CTRL_O = 0x0f;
+
+/**
+ * Score one history line against a query, or return null when it does not
+ * match. The query's characters must appear in the line in order (a
+ * subsequence, any case), each at its earliest place. An exact substring
+ * beats every subsequence (1000 plus the length of the line). Otherwise each
+ * hit right after the one before adds 6, any other hit adds 1, and the
+ * skipped characters before each hit and after the last one subtract. The
+ * indexes are the positions (UTF-16 units) of the hits, for highlighting.
+ *
+ * The web console's page ranks its history search with this very function:
+ * the page carries its source (`Function.prototype.toString` in
+ * ShellWebPage.ts), so it must use nothing outside itself and stay valid
+ * JavaScript once the types are removed.
+ * @param query what the user typed
+ * @param line one history entry
+ * @returns the score (higher is better) and the matched positions, or null
+ */
+export function scoreHistoryMatch(
+  query: string,
+  line: string
+): { score: number; indexes: number[] } | null {
+  const q = query.toLowerCase();
+  const t = line.toLowerCase();
+  const direct = t.indexOf(q);
+  if (direct !== -1) {
+    const indexes: number[] = [];
+    for (let k = 0; k < q.length; k++) indexes.push(direct + k);
+    return { score: 1000 + line.length, indexes };
+  }
+  let pos = 0;
+  let last = -2;
+  let score = 0;
+  const indexes: number[] = [];
+  for (let i = 0; i < q.length; i++) {
+    const at = t.indexOf(q[i], pos);
+    if (at === -1) return null;
+    indexes.push(at);
+    score += at === last + 1 ? 6 : 1;
+    score -= Math.max(0, at - pos);
+    last = at;
+    pos = at + 1;
+  }
+  score -= Math.max(0, line.length - pos);
+  return { score, indexes };
+}
 
 const CYAN = '\x1b[36m';
 const DIM = '\x1b[2m';
@@ -130,19 +175,16 @@ export function createConsoleInput(
     }
     const history = getHistory();
     // Search newest-first (the history entries are newest-first): the
-    // entries the user most likely wants first. Keyed search carries each
-    // entry's position through, so duplicate entries match individually.
-    // fuzzysort can throw on pathological targets; empty results then.
-    try {
-      const results = fuzzysort.go(
-        query,
-        history.map((entry, idx) => ({ line: entry.text, idx })),
-        { key: 'line', limit: 50 }
-      );
-      matches = results.map((r) => r.obj.idx);
-    } catch {
-      matches = [];
-    }
+    // entries the user most likely wants first. Each entry is scored on its
+    // own, so duplicate entries match individually.
+    const scored: { idx: number; score: number }[] = [];
+    history.forEach((entry, idx) => {
+      const match = scoreHistoryMatch(query, entry.text);
+      if (match) scored.push({ idx, score: match.score });
+    });
+    // Best score first; equal scores stay newest first (the sort is stable).
+    scored.sort((a, b) => b.score - a.score);
+    matches = scored.slice(0, 50).map((r) => r.idx);
     matchCursor = Math.min(matchCursor, Math.max(matches.length - 1, 0));
   }
 
