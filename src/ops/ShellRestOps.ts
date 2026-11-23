@@ -111,11 +111,18 @@ function hostOf(url: string): string {
 
 /**
  * Guess the credential domain of an absolute URL on the connected host from
- * its path: /openidm segments mean IDM, anything else (AM's /json, the
- * authenticate tree endpoints, oauth2, ...) means AM.
+ * the path of the URL: /openidm segments mean IDM, anything else (AM's /json,
+ * the authenticate tree endpoints, oauth2, ...) means AM. Only the path counts,
+ * not the query or the host.
  */
 function guessDomain(url: string): 'idm' | 'am' {
-  return /\/openidm(\/|$)/i.test(url) ? 'idm' : 'am';
+  let path = url;
+  try {
+    path = new URL(url).pathname;
+  } catch {
+    // not parseable: judge the text as it is
+  }
+  return /\/openidm(\/|$)/i.test(path) ? 'idm' : 'am';
 }
 
 /**
@@ -127,7 +134,7 @@ function guessDomain(url: string): 'idm' | 'am' {
  *   IDM origin, matching the native IDM admin console)
  * - absolute URL    -> pass through; credential attached only when the
  *   target host is the connected tenant's host (the same cross-origin
- *   policy a browser applies).
+ *   policy a browser applies), judged on the URL as it is sent.
  *
  * @param url the URL as typed in the console
  */
@@ -138,8 +145,13 @@ export function resolveUrl(url: string): {
   const host = state.getHost();
 
   if (/^https?:\/\//i.test(url)) {
-    const sameHost = hostOf(url) !== '' && hostOf(url) === hostOf(host ?? '');
-    return { absoluteUrl: url, domain: sameHost ? guessDomain(url) : 'none' };
+    // Judge the URL as it is sent, not as it was typed: the request is made to
+    // the encoded form (see `request`), and the encoding can move the host
+    // (`https://tenant\@other.example/` has the host `tenant` as typed and
+    // `other.example` once the backslash is encoded).
+    const sent = encodeUrlPathAndQuery(url);
+    const sameHost = hostOf(sent) !== '' && hostOf(sent) === hostOf(host ?? '');
+    return { absoluteUrl: url, domain: sameHost ? guessDomain(sent) : 'none' };
   }
 
   if (!host) {
@@ -209,6 +221,12 @@ function openInstance(domain: 'idm' | 'am' | 'none') {
   };
   const override = {
     timeout: timeoutMs,
+    // A redirect to another origin drops Authorization and Cookie by itself;
+    // the header overrides and the session cookie's header name are the
+    // tenant's secrets as well, so they are dropped too.
+    sensitiveHeaders: [...Object.keys(overrides), state.getCookieName()].filter(
+      (name): name is string => !!name
+    ),
     headers: {
       ...consoleHeaders(overrides),
       ...(domain === 'idm'
