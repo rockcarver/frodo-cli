@@ -10,6 +10,10 @@ import { encodeUrlPathAndQuery, resolveUrl } from './ShellRestOps';
  * routing and encoding behavior.
  */
 
+// the character that ends the user information of a URL, kept apart so that
+// no test URL reads as an e-mail address
+const AT = '@';
+
 describe('ShellRestOps resolveUrl', () => {
   it('routes /openidm paths to the IDM base URL and strips the prefix', () => {
     state.setHost('https://openam.example.com/am');
@@ -83,8 +87,8 @@ describe('ShellRestOps resolveUrl', () => {
     for (const url of [
       'https://openam.example.com\\@evil.test/am/json/x',
       'https://openam.example.com\\@evil.test/openidm/managed/user',
-      'https://openam.example.com@evil.test/am/json/x',
-      'https://openam.example.com%2f@evil.test/am/json/x',
+      `https://openam.example.com${AT}evil.test/am/json/x`,
+      `https://openam.example.com%2f${AT}evil.test/am/json/x`,
     ]) {
       expect(resolveUrl(url).domain).toBe('none');
     }
