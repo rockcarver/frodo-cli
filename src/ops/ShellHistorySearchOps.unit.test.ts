@@ -161,6 +161,27 @@ function longCorpus(): [string, string][] {
     }
     pairs.push([word, line]);
   }
+  // Fibonacci words, which are full of their own starts: a word and a line
+  // that hold the partial matches (and the starts of matches inside partial
+  // matches) that a search for a word must not lose
+  const fibonacci = (length: number) => {
+    let previous = 'a';
+    let word = 'ab';
+    while (word.length < length) [previous, word] = [word, word + previous];
+    return word.slice(0, length);
+  };
+  for (let n = 0; n < 90; n++) {
+    const line = fibonacci(1100).slice(next(100));
+    const length = 260 + next(140);
+    const start = next(line.length - length + 1);
+    let word = line.slice(start, start + length);
+    if (n % 3 === 1) word = fibonacci(length);
+    if (n % 3 === 2) {
+      // the last character changed: it is not in the line, after a long match
+      word = `${word.slice(0, -1)}${word.endsWith('a') ? 'b' : 'a'}`;
+    }
+    pairs.push([word, line]);
+  }
   return pairs;
 }
 
@@ -499,7 +520,7 @@ describe('the scorer that reads the query once', () => {
       // above this the scorer does not trust indexOf (see the scorer)
       if (query.length * line.length > 100000) beyond += 1;
     }
-    expect(beyond).toBeGreaterThanOrEqual(150);
+    expect(beyond).toBeGreaterThanOrEqual(250);
     expect(matches).toBeGreaterThan(30);
     expect(pairs.length - matches).toBeGreaterThan(30);
     // a word that is in the line as it stands, found by the other search
