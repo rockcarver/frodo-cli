@@ -37,34 +37,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - The AM realm JSON APIs are available in `frodo shell` (terminal and web) as the `am` object: `am.users` and `am.groups` (`read`, `query`, `count`, `create`, `update`, `delete`; `addMember`, `removeMember` on groups), `am.devices` (`list`, `read`, `update`, `delete` over the registered MFA device types: binding, oath, push, webauthn, profile, trusted) and `am.sessions` (`info`, `validate`, `refresh`, `logout`). URLs compose from the session's realm (`am/json/realms/root/realms/<realm>/...`) and the right API version headers ride along. Tab completion covers the namespaces, and `am.devices.list`'s second argument completes from the fixed device-type set; `help(am.users.query)` prints the full parameter docs. Bad arguments fail with a synchronous `am.users.read: userId is required` instead of a rejected promise.
 - The IDM scripting functions are available in `frodo shell` (terminal and web) as the `openidm` object: `create`, `read`, `update`, `patch`, `delete`, `query`, `action` over the console's authenticated REST layer, plus `encrypt`, `decrypt`, `hash`, `matches` (evaluated through the IDM script endpoint) and `isEncrypted`, `isHashed` locally. Tab completion shows the documented signature and `help(openidm.read)` prints the full parameter docs; bad arguments fail with a synchronous `openidm.read: resourceName is required` instead of a rejected promise.
-- Resource-path completion now also fills the `# Changelog
-
-All notable changes to this project are documented in this file.
-
-The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
-and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
-
- REST facade's URL strings (terminal and web): `$.get('/openidm/alpha_` finds `managed/alpha_user` from the same live catalog as `openidm.*`, keeping the typed `/openidm/` prefix in every candidate, and query parameters complete after `?` for the URL-carrying verbs (`get`, `post`, `put`, `patch`, `delete`, `head`, `ajax`). AM URLs (`/am/...`) are not suggested, and other string arguments (a `$.post` payload) stay unsuggested.
+- Resource-path completion now also fills the `$` REST facade's URL strings (terminal and web): `$.get('/openidm/alpha_` finds `managed/alpha_user` from the same live catalog as `openidm.*`, keeping the typed `/openidm/` prefix in every candidate, and query parameters complete after `?` for the URL-carrying verbs (`get`, `post`, `put`, `patch`, `delete`, `head`, `ajax`). AM URLs (`/am/...`) are not suggested, and other string arguments (a `$.post` payload) stay unsuggested.
 - Resource-path completion inside `openidm.*` quoted strings: the first argument of `openidm.read/query/create/update/patch/delete` completes from the connected tenant's live shape (managed types via the schema, config instances, connectors and their object types), so `openidm.read('alpha_` finds `managed/alpha_user` on AIC and `managed/user` on self-managed without any static list. Also suggested: the resource families, `repo/` sub-paths (including `repo/managed/<type>` and `repo/synchronisation/pooledSyncStage/<connector>`), relationship sub-paths after an id (`managed/user/<id>/roles`, `authzRoles`, ...), `openidm.action`'s second argument filtered by the resource, and CREST query params after `?`. Works offline with the fixed families; the hint line describes each suggestion.
-- `frodo shell --web` serves the JS console as a local web page: a one-time sign-in link is printed, and the console (the `# Changelog
-
-All notable changes to this project are documented in this file.
-
-The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
-and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
-
- REST facade, object explorer, fuzzy history search, tab completion) runs in the browser with per-tab engines. No username or password is needed for web mode; the worker signs in from the named or picked connection profile.
+- `frodo shell --web` serves the JS console as a local web page: a one-time sign-in link is printed, and the console (the `$` REST facade, object explorer, fuzzy history search, tab completion) runs in the browser with per-tab engines. No username or password is needed for web mode; the worker signs in from the named or picked connection profile.
 - Console history entries now record when a command ran and against which environment. The Ctrl+R popups (terminal and web) show a dim `2h ago · https://tenant...` annotation on the selection, `.history` lists timestamp and host columns, and the web console's per-host history fold keeps each folded entry's environment. Old history files read back unchanged; new entries are additive lines.
 
 ### Changed
-- `frodo shell` is now the full JS console (formerly the separate `frodo console` command, which is removed before its first release): browser-console-style collapsed results, `# Changelog
-
-All notable changes to this project are documented in this file.
-
-The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
-and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
-
- REST calls with authentication attached, `state` and lodash in context, the Ctrl+O object explorer, Ctrl+R fuzzy history search, and top-level await and persistent `let`/`const` by default. The `--allow-await` option is gone (await always works). (commit 66e389e19)
+- `frodo shell` is now the full JS console (formerly the separate `frodo console` command, which is removed before its first release): browser-console-style collapsed results, `$` REST calls with authentication attached, `state` and lodash in context, the Ctrl+O object explorer, Ctrl+R fuzzy history search, and top-level await and persistent `let`/`const` by default. The `--allow-await` option is gone (await always works). (commit 66e389e19)
 - Selectors in `config-manager` commands now use `-i, --<type>-id` for identifiers and `-n, --<type>-name` for names, ensuring mutual exclusivity for types with mutable names. This change applies to `pull`, `push`, and `delete` commands, enhancing consistency and usability. (PR #1382, #1384, #1385)
 - The `dcc session` command is now the sole implementation of direct control, with `dcc session apply` gaining the ability to wait until the session is applied. The previous `push direct-control-*` commands have been removed. (PR #1380)
 
