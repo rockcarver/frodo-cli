@@ -93,10 +93,16 @@ export function staleBuildWarnings({
   }
   if (linked) {
     const libRoot = fs.realpathSync(linkPath);
-    const libDist = path.join(libRoot, 'dist', 'index.js');
+    // The one ES module build of 5.0.0-50 and later is dist/index.mjs; a clone
+    // built before that still has dist/index.js.
+    const libDist =
+      ['index.mjs', 'index.js']
+        .map((name) => path.join(libRoot, 'dist', name))
+        .find((file) => fs.existsSync(file)) ??
+      path.join(libRoot, 'dist', 'index.mjs');
     if (!fs.existsSync(libDist)) {
       warnings.push(
-        `The linked frodo-lib at ${libRoot} has no dist/index.js. ` +
+        `The linked frodo-lib at ${libRoot} has no dist/index.mjs. ` +
           `Run \`npm run build\` there before testing. ${see}`
       );
     } else {

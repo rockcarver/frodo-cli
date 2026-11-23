@@ -38,7 +38,7 @@ npm run test:binary                                    # everything against the 
 Work down this list and stop at the first step that explains it.
 
 1. **Rerun the failing suite alone** (section 2). A pass means load or ordering.
-2. **Check the builds** (section 1): the warning, then `git describe --tags` in a linked library and the age of its `dist/index.js`.
+2. **Check the builds** (section 1): the warning, then `git describe --tags` in a linked library and the age of its `dist/index.mjs`.
 3. **Run the same suite on the base commit** in a throwaway worktree, so nothing of yours is involved:
 
 ```console

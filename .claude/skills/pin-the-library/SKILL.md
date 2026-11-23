@@ -26,13 +26,13 @@ This pull request changes two files and nothing else. **You open it and report; 
 ## Make the pin
 
 1. Branch from `origin/main`: `chore/pin-frodo-lib-<version>`.
-2. Install it exactly. `--ignore-scripts` keeps the install from running the library's postinstall in your checkout:
+2. Install it exactly. `--ignore-scripts` keeps the install from running the install script of any package in your checkout. The library has none from 5.0.0-50 on (its axios type patch runs in `prepare`, which npm never runs for a registry dependency), so the `allowScripts` list in `package.json` has no key for it and a pin never adds one:
 
    ```console
    npm install --save-dev --save-exact --ignore-scripts @rockcarver/frodo-lib@<version>
    ```
 
-3. `git diff --stat` must show `package.json` and `package-lock.json` and about five changed lines: the version in `devDependencies`, the same in the lockfile's root entry, and `version`, `resolved` and `integrity` of the library's own entry. Anything more (another package moved, a different registry URL) means something is wrong: stop and look.
+3. `git diff --stat` must show `package.json` and `package-lock.json` and about five changed lines: the version in `devDependencies`, the same in the lockfile's root entry, and `version`, `resolved` and `integrity` of the library's own entry. The library's own lockfile entry can also change its `engines` or `hasInstallScript` when the new release changes them (the pin to 5.0.0-50 dropped `hasInstallScript` and raised `engines.node` to `>=22.12`). Anything more (another package moved, a different registry URL) means something is wrong: stop and look.
 4. **The lockfile integrity is the registry's.** The `integrity` line in `package-lock.json` must equal `npm view @rockcarver/frodo-lib@<version> dist.integrity`.
 5. Run the checks:
 
@@ -42,6 +42,8 @@ This pull request changes two files and nothing else. **You open it and report; 
    ```
 
    A pin alone must compile. If it does not, the new library changed a type the CLI uses: say which, and do not fix it inside the pin pull request.
+
+6. `npm ci` (npm 12) must not name `@rockcarver/frodo-lib` in its "install scripts blocked" warning. If it does, the library has an install script again: say so and do not add an `allowScripts` key without a maintainer.
 
 ## The pull request
 

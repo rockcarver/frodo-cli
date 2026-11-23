@@ -1184,9 +1184,9 @@ describe('the options of the configuration commands', () => {
   });
 
   it('declares the short forms that the record decided', () => {
-    // 40 different rows, and every one of them is what the tree declares
-    expect(checked.rows).toBe(40);
-    expect(checked.rowsMatched).toBe(40);
+    // 38 different rows, and every one of them is what the tree declares
+    expect(checked.rows).toBe(38);
+    expect(checked.rowsMatched).toBe(38);
     expect(problems.shortForms).toEqual([]);
   });
 
@@ -1236,9 +1236,9 @@ describe('the options of the configuration commands', () => {
   });
 
   it('lists every removed spelling in MIGRATION.md', () => {
-    // 34 removed spellings found on a line with their command, and the 6 dry
+    // 32 removed spellings found on a line with their command, and the 6 dry
     // runs that got -d named in the paragraph that announces them
-    expect(checked.spellings).toBe(34);
+    expect(checked.spellings).toBe(32);
     expect(checked.dryRunAdded).toBe(6);
     expect(problems.migration).toEqual([]);
   });

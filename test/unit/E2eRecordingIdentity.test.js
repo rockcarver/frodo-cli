@@ -63,10 +63,20 @@ const PINNED_FILE =
  * the version named here. When the installed library changes that code, the
  * check below fails: read getFrodoArgsId and getFrodoCommand of the new
  * library, adapt test/utils/RecordingIdentity.js to them, then update this.
+ *
+ * It is the fingerprint of the six functions, not of the file, and it is read
+ * from `dist/index.mjs`, the one build the library ships from 5.0.0-50 on
+ * (until 5.0.0-49 it was read from the CommonJS `dist/index.js`, fingerprint
+ * 25bf4b5d984578af2e982862b03b85ace15f541f49094a3e3aa965d373e1013b). The two
+ * builds differ in one place inside these functions: the CommonJS output writes
+ * `path.default.parse(` in getFrodoCommand, the ES module output `path.parse(`.
+ * Cut out of 5.0.0-49 `dist/index.js` and 5.0.0-50 `dist/index.mjs`, the six
+ * functions are equal once white space is removed and that one spelling is
+ * normalised, so the identity code did not change when the file changed.
  */
 const LIB_IDENTITY = {
-  version: '5.0.0-47',
-  sha256: '25bf4b5d984578af2e982862b03b85ace15f541f49094a3e3aa965d373e1013b',
+  version: '5.0.0-50',
+  sha256: '84c8be3f1cf85e8bd3c1b5799ceee3d05884bf520d9dc5ce348bba8dc5c535ac',
 };
 
 /** Fewer files or commands than this means the collector found too little. */
@@ -1491,11 +1501,11 @@ describe('pins', () => {
     const version = JSON.parse(
       fs.readFileSync(path.join(LIB, 'package.json'), 'utf8')
     ).version;
-    const bundle = fs.readFileSync(path.join(LIB, 'dist/index.js'), 'utf8');
+    const bundle = fs.readFileSync(path.join(LIB, 'dist/index.mjs'), 'utf8');
     const sha256 = libIdentityHash(bundle);
     if (sha256 !== LIB_IDENTITY.sha256) {
       throw new Error(
-        `frodo-lib ${version} changed its identity code (sha256 ${sha256}, checked with ${LIB_IDENTITY.version}: ${LIB_IDENTITY.sha256}): re-read getFrodoArgsId and getFrodoCommand in its dist/index.js, adapt test/utils/RecordingIdentity.js, then update LIB_IDENTITY in test/unit/E2eRecordingIdentity.test.js`
+        `frodo-lib ${version} changed its identity code (sha256 ${sha256}, checked with ${LIB_IDENTITY.version}: ${LIB_IDENTITY.sha256}): re-read getFrodoArgsId and getFrodoCommand in its dist/index.mjs, adapt test/utils/RecordingIdentity.js, then update LIB_IDENTITY in test/unit/E2eRecordingIdentity.test.js`
       );
     }
   });
