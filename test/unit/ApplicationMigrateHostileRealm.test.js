@@ -160,6 +160,21 @@ function realmWithApplication(name) {
   };
 }
 
+/**
+ * The OAuth2 client and the SAML provider of a realm, with nobody who owns them: an ownership entry
+ * without an owner is a shape that the library does not build, and the one that removes the files
+ * of the object at once, because no owner is left that has not been moved.
+ */
+function realmWithUnownedObjects() {
+  return {
+    apps: [],
+    owned: [
+      { kind: 'oauth2Client', id: CLIENT, owners: [] },
+      { kind: 'saml2Provider', id: IDP, owners: [] },
+    ],
+  };
+}
+
 /** The kind-path files that `pull oauth2-agents` and `pull saml` write for the objects of a realm, at the path below `base`. */
 function putKindPathFiles(base, realmFolder) {
   const files = [
@@ -269,6 +284,53 @@ describe('a realm of the tenant that is a hostile name', () => {
       ];
       tenant.alpha = realmWithApplication('Zion Portal');
       tenant[realm] = realmWithApplication('Evil');
+      const before = outside();
+
+      await migrate(true);
+
+      for (const file of sentinels) {
+        expect(fs.existsSync(file)).toBe(true);
+      }
+      expect(outside()).toEqual(before);
+      expect(said()).not.toMatch(/escape\/realm-config/);
+    }
+  );
+
+  test.each(HOSTILE_REALMS)(
+    'that %s: files outside the config folder are not removed for an object that has no owner either',
+    async (_what, realm) => {
+      const sentinels = [
+        ...putKindPathFiles(path.join(root, 'a'), 'escape'),
+        ...putKindPathFiles(path.join(root, 'a', 'b'), 'escape'),
+      ];
+      const legacy = putKindPathFiles(configFolder, 'realms/alpha');
+      tenant.alpha = realmWithApplication('Zion Portal');
+      tenant[realm] = realmWithUnownedObjects();
+      const before = outside();
+
+      expect(await migrate()).toBe(true);
+
+      for (const file of sentinels) {
+        expect(fs.existsSync(file)).toBe(true);
+      }
+      expect(outside()).toEqual(before);
+      expect(said()).not.toMatch(/^(Kept|Removed) .*escape/m);
+      // the files of the realm that is a name are removed, as they always were
+      for (const file of legacy) {
+        expect(fs.existsSync(file)).toBe(false);
+      }
+    }
+  );
+
+  test.each(HOSTILE_REALMS)(
+    'that %s: a dry run does not name files outside the config folder for an object that has no owner either',
+    async (_what, realm) => {
+      const sentinels = [
+        ...putKindPathFiles(path.join(root, 'a'), 'escape'),
+        ...putKindPathFiles(path.join(root, 'a', 'b'), 'escape'),
+      ];
+      tenant.alpha = realmWithApplication('Zion Portal');
+      tenant[realm] = realmWithUnownedObjects();
       const before = outside();
 
       await migrate(true);
