@@ -502,6 +502,11 @@ describe('L6b a URL that names the tenant for one reader and another host for th
       'other',
     ],
     [
+      'an encoded digit in the tenant host',
+      `http://%31%32%37.0.0.1:${T}/openidm/x`,
+      'tenant',
+    ],
+    [
       'a tab in the user information',
       `http://127.0.0.1:${T}\t@127.0.0.1:${O}/x`,
       'other',
@@ -890,6 +895,10 @@ describe('answers', () => {
     // layer would leave it as it is
     await $.get("/openidm/managed/alpha_user/o'brien");
     expect(tenant.last().url).toBe('/openidm/managed/alpha_user/o%27brien');
+    await $.get('/openidm/a/%2f/b?x=%22q%22&q=a%20b&bad=%zz');
+    expect(tenant.last().url).toBe(
+      '/openidm/a/%2f/b?x=%22q%22&q=a%20b&bad=%25zz'
+    );
   });
 
   test('L16 json, text, invalid json, no content, and 12 MiB in each direction', async () => {

@@ -60,7 +60,7 @@ function normalizeResource(
  * what the HTTP request line cannot carry (spaces, quotes, brackets), so a
  * filter typed naturally (`userName eq "bjensen"`) arrives encoded without
  * pre-encoding anything. Values that are already percent-encoded survive
- * (encodeURI leaves existing %XX sequences alone).
+ * (the facade leaves existing %XX sequences alone).
  */
 function appendQuery(
   resource: string,

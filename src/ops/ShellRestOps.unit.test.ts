@@ -187,6 +187,33 @@ describe('ShellRestOps resolveUrl', () => {
 });
 
 describe('ShellRestOps encodeUrlPathAndQuery', () => {
+  it.each([
+    ['https://host.example.com/a/%2f/b', 'https://host.example.com/a/%2f/b'],
+    [
+      'https://host.example.com/x?x=%22q%22',
+      'https://host.example.com/x?x=%22q%22',
+    ],
+    [
+      'https://host.example.com/x?q=a%20b',
+      'https://host.example.com/x?q=a%20b',
+    ],
+    ['https://host.example.com/%', 'https://host.example.com/%25'],
+    ['https://host.example.com/%zz', 'https://host.example.com/%25zz'],
+    ['https://host.example.com/a\\b', 'https://host.example.com/a%5Cb'],
+    ['https://host.example.com/a b', 'https://host.example.com/a+b'],
+    [
+      'https://host.example.com/%2520 %20',
+      'https://host.example.com/%2520+%20',
+    ],
+    [
+      'https://host.example.com/%2 %2g %%2f',
+      'https://host.example.com/%252+%252g+%25%2f',
+    ],
+    ['https://host.example.com/café', 'https://host.example.com/caf%C3%A9'],
+  ])('encodes %s as %s', (input, expected) => {
+    expect(encodeUrlPathAndQuery(input)).toBe(expected);
+  });
+
   it('encodes spaces and quotes in query filters without touching reserved characters', () => {
     const input =
       'https://host/openidm/managed/alpha_user?_queryFilter=userName eq "bjensen"';

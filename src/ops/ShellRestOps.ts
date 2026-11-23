@@ -197,8 +197,10 @@ export function resolveUrl(url: string): {
  * pre-encoding anything.
  */
 export function encodeUrlPathAndQuery(url: string): string {
+  // Convert raw spaces first, before restoring the original percent escapes.
   return encodeURI(url)
     .replace(/%20/g, '+')
+    .replace(/%25(?=[0-9a-f]{2})/gi, '%')
     .replace(/"/g, '%22')
     .replace(/'/g, '%27')
     .replace(/\[/g, '%5B')
