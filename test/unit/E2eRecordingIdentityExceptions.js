@@ -203,6 +203,9 @@ const SELECTORS_RECORD_WHY =
 const DEPENDENCIES_RECORD_WHY =
   'journeys are pulled and pushed with their dependencies by default, and --no-deps turns that off (https://github.com/rockcarver/frodo-cli/blob/main/docs/decisions/0057-options-of-the-configuration-commands.md, options of the configuration commands); the command was recorded when the dependencies were off by default, or with the option that turned them on, and the recording keeps its name';
 
+const YES_RECORD_WHY =
+  'the command asks before it starts and -y, --yes answers the question (https://github.com/rockcarver/frodo-cli/blob/main/docs/decisions/0058-confirmation-and-the-experimental-label.md, confirmation and the experimental label), so the e2e run, which has no terminal, passes -y; the command was recorded before the question existed, and the recording keeps its name';
+
 const SELECTORS_AND_DEPENDENCIES_RECORD_WHY = `${SELECTORS_RECORD_WHY}; also, ${DEPENDENCIES_RECORD_WHY}`;
 
 export const RENAMED = [
@@ -306,24 +309,87 @@ export const RENAMED = [
   },
   {
     file: 'config-manager-promote-run-dryrun-promotion.test.js',
-    cmd: "frodo config-manager promote run-dryrun-promotion -P provisional-report -uI --description 'provisional report' -t ticket",
+    cmd: "frodo config-manager promote run-dryrun-promotion -P provisional-report -uI --description 'provisional report' -t ticket -y",
     was: "frodo config-manager promote run-dryrun-promotion -p provisional-report -uid 'provisional report' -t ticket",
     pin: '0_p_uid_t',
-    why: OPTIONS_RECORD_WHY,
+    why: `${OPTIONS_RECORD_WHY}; also, ${YES_RECORD_WHY}`,
   },
   {
     file: 'config-manager-promote-run-promotion.test.js',
-    cmd: "frodo config-manager promote run-promotion -P provisional-report -uI --description 'provisional report' -t ticket",
+    cmd: "frodo config-manager promote run-promotion -P provisional-report -uI --description 'provisional report' -t ticket -y",
     was: "frodo config-manager promote run-promotion -p provisional-report -uid 'provisional report' -t ticket",
     pin: '0_p_uid_t',
-    why: OPTIONS_RECORD_WHY,
+    why: `${OPTIONS_RECORD_WHY}; also, ${YES_RECORD_WHY}`,
   },
   {
     file: 'config-manager-promote-rollback.test.js',
-    cmd: "frodo config-manager promote rollback -P provisional-report -u --description 'provisional report' -t ticket",
+    cmd: "frodo config-manager promote rollback -P provisional-report -u --description 'provisional report' -t ticket -y",
     was: "frodo config-manager promote rollback -p provisional-report -ud 'provisional report' -t ticket",
     pin: '0_p_ud_t',
-    why: OPTIONS_RECORD_WHY,
+    why: `${OPTIONS_RECORD_WHY}; also, ${YES_RECORD_WHY}`,
+  },
+  {
+    file: 'config-manager-promote-run-promotion.test.js',
+    cmd: 'frodo config-manager promote run-promotion -y',
+    was: 'frodo config-manager promote run-promotion',
+    pin: '0',
+    why: YES_RECORD_WHY,
+  },
+  {
+    file: 'config-manager-promote-run-promotion.test.js',
+    cmd: 'frodo config-manager promote run-promotion --wait -y',
+    was: 'frodo config-manager promote run-promotion --wait',
+    pin: '0_wait',
+    why: YES_RECORD_WHY,
+  },
+  {
+    file: 'config-manager-promote-run-promotion.test.js',
+    cmd: 'frodo config-manager promote run-promotion --wait --timeout 6 -y',
+    was: 'frodo config-manager promote run-promotion --wait --timeout 6',
+    pin: '0_wait_timeout',
+    why: YES_RECORD_WHY,
+  },
+  {
+    file: 'config-manager-promote-run-dryrun-promotion.test.js',
+    cmd: 'frodo config-manager promote run-dryrun-promotion -y',
+    was: 'frodo config-manager promote run-dryrun-promotion',
+    pin: '0',
+    why: YES_RECORD_WHY,
+  },
+  {
+    file: 'config-manager-promote-run-dryrun-promotion.test.js',
+    cmd: 'frodo config-manager promote run-dryrun-promotion --wait -y',
+    was: 'frodo config-manager promote run-dryrun-promotion --wait',
+    pin: '0_wait',
+    why: YES_RECORD_WHY,
+  },
+  {
+    file: 'config-manager-promote-run-dryrun-promotion.test.js',
+    cmd: 'frodo config-manager promote run-dryrun-promotion --wait --timeout 6 -y',
+    was: 'frodo config-manager promote run-dryrun-promotion --wait --timeout 6',
+    pin: '0_wait_timeout',
+    why: YES_RECORD_WHY,
+  },
+  {
+    file: 'config-manager-promote-rollback.test.js',
+    cmd: 'frodo config-manager promote rollback -y',
+    was: 'frodo config-manager promote rollback',
+    pin: '0',
+    why: YES_RECORD_WHY,
+  },
+  {
+    file: 'config-manager-promote-rollback.test.js',
+    cmd: 'frodo config-manager promote rollback --wait -y',
+    was: 'frodo config-manager promote rollback --wait',
+    pin: '0_wait',
+    why: YES_RECORD_WHY,
+  },
+  {
+    file: 'config-manager-promote-rollback.test.js',
+    cmd: 'frodo config-manager promote rollback --wait --timeout 6 -y',
+    was: 'frodo config-manager promote rollback --wait --timeout 6',
+    pin: '0_wait_timeout',
+    why: YES_RECORD_WHY,
   },
   {
     file: 'config-manager-pull-journeys.e2e.test.js',

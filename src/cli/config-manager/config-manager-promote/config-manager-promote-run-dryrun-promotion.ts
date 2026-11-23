@@ -3,6 +3,7 @@ import { Option } from 'commander';
 import * as s from '../../../help/SampleData';
 import { getTokens } from '../../../ops/AuthenticateOps';
 import { runPromotion } from '../../../ops/cloud/EnvPromotionOps';
+import { checkProceed } from '../../../utils/BulkDeleteGuard';
 import c from '../../../utils/ColorTheme';
 import { printMessage, verboseMessage } from '../../../utils/Console';
 import { FrodoCommand } from '../../FrodoCommand';
@@ -56,13 +57,19 @@ export default function setup() {
     .addOption(
       new Option(
         '-T, --timeout <seconds>',
-        'Specify a timeout in seconds how long the tool should wait for the dry-run promotion to complete. Requires --wait.'
+        'Specify a timeout in seconds how long the tool should wait for the dry-run promotion to complete. Requires --wait or --full.'
       ).argParser(parseTimeoutSeconds)
     )
     .addOption(
       new Option(
         '--full',
-        'Run the full dry-run promotion workflow: lock tenants, run the dry-run promotion, and unlock tenants, waiting for each step to complete. --wait and --unlock-after will automatically be set if --full is provided.'
+        'Lock both environments, run the dry-run promotion, wait for it and unlock the environments again, in one command. Implies --wait and --unlock-after. It starts only when both environments are unlocked. --timeout bounds the dry-run promotion only: one that is still running when the wait ends keeps the lock on purpose, and the command says how to release it. Missing ESVs are listed. Encrypted secrets are asked about at a terminal; --ignore-encrypted-secrets answers that in advance, and --yes does not.'
+      )
+    )
+    .addOption(
+      new Option(
+        '-y, --yes',
+        'Do not ask for confirmation before the dry-run promotion starts. A dry-run promotion changes nothing, but it runs for several minutes (and locks both environments with --full), so it asks first. Required when there is no terminal.'
       )
     )
     .addHelpText(
@@ -70,15 +77,19 @@ export default function setup() {
       `Usage Examples:\n` +
         `  Run a dry-run promotion without waiting for completion:\n` +
         c.command(
-          `  $ frodo config-manager promote run-dryrun-promotion ${s.connId}\n`
+          `  $ frodo config-manager promote run-dryrun-promotion --yes ${s.connId}\n`
         ) +
         `  Run a dry-run promotion and wait up to 30 minutes for completion:\n` +
         c.command(
-          `  $ frodo config-manager promote run-dryrun-promotion --wait --timeout 1800 ${s.connId}\n`
+          `  $ frodo config-manager promote run-dryrun-promotion --wait --timeout 1800 --yes ${s.connId}\n`
         ) +
         `  Run a dry-run promotion that ignores encrypted secrets:\n` +
         c.command(
-          `  $ frodo config-manager promote run-dryrun-promotion --ignore-encrypted-secrets ${s.connId}\n`
+          `  $ frodo config-manager promote run-dryrun-promotion --ignore-encrypted-secrets --yes ${s.connId}\n`
+        ) +
+        `  Lock both environments, run a dry-run promotion, wait for it and unlock the environments again, in one command:\n` +
+        c.command(
+          `  $ frodo config-manager promote run-dryrun-promotion --full --yes ${s.connId}\n`
         )
     )
     .action(async (host, realm, user, password, options, command) => {
@@ -90,10 +101,21 @@ export default function setup() {
         options,
         command
       );
-      if (options.timeout && !options.wait) {
-        printMessage('--timeout requires --wait.', 'error');
+      if (options.timeout && !options.wait && !options.full) {
+        printMessage('--timeout requires --wait or --full.', 'error');
         process.exitCode = 1;
         program.help();
+      }
+      // refused before the login, which a refused run does not need
+      if (
+        !checkProceed({
+          what: 'run a dry-run promotion',
+          yes: options.yes,
+          dryRunAvailable: false,
+        })
+      ) {
+        process.exitCode = 1;
+        return;
       }
       const getTokensIsSuccessful = await getTokens(
         false,
@@ -115,6 +137,7 @@ export default function setup() {
         wait: options.wait,
         timeout: options.timeout,
         full: options.full,
+        yes: options.yes,
       });
       if (!outcome) process.exitCode = 1;
     });

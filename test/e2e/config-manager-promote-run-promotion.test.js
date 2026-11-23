@@ -29,19 +29,19 @@ const cloudEnv = getEnv(c);
 
 describe('frodo config-manager promote run-promotion', () => {
     test(`"frodo config-manager promote run-promotion": Will run promotion with promoter name"`, async () => {
-        const CMD = `frodo config-manager promote run-promotion`;
+        const CMD = `frodo config-manager promote run-promotion -y`;
         await testSuccess(CMD, { ...cloudEnv, env: { ...cloudEnv.env, FRODO_TEST_NAME: '0' } });
     });
     test(`"frodo config-manager promote run-promotion -p provisional-report -uid 'provisional report' -t ticket": Will run promotion with promoter, description, ignoring encrpted secrets, unlocking after, and Zendesk ticket"`, async () => {
-        const CMD = `frodo config-manager promote run-promotion -P provisional-report -uI --description 'provisional report' -t ticket`;
+        const CMD = `frodo config-manager promote run-promotion -P provisional-report -uI --description 'provisional report' -t ticket -y`;
         await testSuccess(CMD, { ...cloudEnv, env: { ...cloudEnv.env, FRODO_TEST_NAME: '0_p_uid_t' } });
     });
     test(`"frodo config-manager promote run-promotion --wait": Should wait for promotion to complete`, async () => {
-        const CMD = `frodo config-manager promote run-promotion --wait`;
+        const CMD = `frodo config-manager promote run-promotion --wait -y`;
         await testSuccess(CMD, { ...cloudEnv, env: { ...cloudEnv.env, FRODO_TEST_NAME: '0_wait' } });
     });
     test(`"frodo config-manager promote run-promotion --wait --timeout 6": Should time out waiting for promotion`, async () => {
-        const CMD = `frodo config-manager promote run-promotion --wait --timeout 6`;
+        const CMD = `frodo config-manager promote run-promotion --wait --timeout 6 -y`;
         await testFail(CMD, { ...cloudEnv, env: { ...cloudEnv.env, FRODO_TEST_NAME: '0_wait_timeout' } });
     });
 });

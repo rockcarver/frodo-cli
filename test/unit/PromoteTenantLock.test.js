@@ -1,4 +1,3 @@
-import { FrodoError } from '@rockcarver/frodo-lib';
 import { jest } from '@jest/globals';
 import { Command } from 'commander';
 
@@ -28,7 +27,7 @@ jest.unstable_mockModule('@rockcarver/frodo-lib', () => ({
     utils: { constants: { CLOUD_DEPLOYMENT_TYPE_KEY: 'cloud' } },
     cloud: { env: { promotion: { lockEnvironment, unlockEnvironment } } },
   },
-  FrodoError
+  state: { getHost: () => 'https://openam-matrix.example.com/am' },
 }));
 jest.unstable_mockModule('../../src/cli/FrodoCommand', () => ({
   FrodoCommand: class extends Command {

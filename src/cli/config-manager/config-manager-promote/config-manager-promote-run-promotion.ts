@@ -3,6 +3,7 @@ import { Option } from 'commander';
 import * as s from '../../../help/SampleData';
 import { getTokens } from '../../../ops/AuthenticateOps';
 import { runPromotion } from '../../../ops/cloud/EnvPromotionOps';
+import { checkProceed } from '../../../utils/BulkDeleteGuard';
 import c from '../../../utils/ColorTheme';
 import { printMessage, verboseMessage } from '../../../utils/Console';
 import { FrodoCommand } from '../../FrodoCommand';
@@ -54,13 +55,19 @@ export default function setup() {
     .addOption(
       new Option(
         '-T, --timeout <seconds>',
-        'Specify a timeout in seconds how long the tool should wait for the promotion to complete. Requires --wait.'
+        'Specify a timeout in seconds how long the tool should wait for the promotion to complete. Requires --wait or --full.'
       ).argParser(parseTimeoutSeconds)
     )
     .addOption(
       new Option(
         '--full',
-        'Run the full promotion workflow: lock tenants, run the promotion, and unlock tenants, waiting for each step to complete. --wait and --unlock-after will automatically be set if --full is provided.'
+        'Lock both environments, run the promotion, wait for it and unlock the environments again, in one command. Implies --wait and --unlock-after. It starts only when both environments are unlocked. --timeout bounds the promotion only: a promotion that is still running when the wait ends keeps the lock on purpose, and the command says how to release it. Missing ESVs are listed. Encrypted secrets are asked about at a terminal; --ignore-encrypted-secrets answers that in advance, and --yes does not.'
+      )
+    )
+    .addOption(
+      new Option(
+        '-y, --yes',
+        'Do not ask for confirmation before the promotion starts. Required when there is no terminal.'
       )
     )
     .addHelpText(
@@ -68,15 +75,19 @@ export default function setup() {
       `Usage Examples:\n` +
         `  Promote the configuration of the lower environment to this one without waiting for completion:\n` +
         c.command(
-          `  $ frodo config-manager promote run-promotion ${s.connId}\n`
+          `  $ frodo config-manager promote run-promotion --yes ${s.connId}\n`
         ) +
         `  Promote and wait up to 30 minutes for completion:\n` +
         c.command(
-          `  $ frodo config-manager promote run-promotion --wait --timeout 1800 ${s.connId}\n`
+          `  $ frodo config-manager promote run-promotion --wait --timeout 1800 --yes ${s.connId}\n`
         ) +
         `  Promote, record who did it and why, and unlock the environments afterwards:\n` +
         c.command(
-          `  $ frodo config-manager promote run-promotion --promoter 'Jane Doe' --description 'Release 7' --ticket-reference TKT-1234 --unlock-after ${s.connId}\n`
+          `  $ frodo config-manager promote run-promotion --promoter 'Jane Doe' --description 'Release 7' --ticket-reference TKT-1234 --unlock-after --yes ${s.connId}\n`
+        ) +
+        `  Lock both environments, promote, wait for the promotion and unlock the environments again, in one command:\n` +
+        c.command(
+          `  $ frodo config-manager promote run-promotion --full --yes ${s.connId}\n`
         )
     )
     .action(async (host, realm, user, password, options, command) => {
@@ -88,10 +99,21 @@ export default function setup() {
         options,
         command
       );
-      if (options.timeout && !options.wait) {
-        printMessage('--timeout requires --wait.', 'error');
+      if (options.timeout && !options.wait && !options.full) {
+        printMessage('--timeout requires --wait or --full.', 'error');
         process.exitCode = 1;
         program.help();
+      }
+      // refused before the login, which a refused run does not need
+      if (
+        !checkProceed({
+          what: 'run a promotion',
+          yes: options.yes,
+          dryRunAvailable: false,
+        })
+      ) {
+        process.exitCode = 1;
+        return;
       }
       const getTokensIsSuccessful = await getTokens(
         false,
@@ -113,6 +135,7 @@ export default function setup() {
         wait: options.wait,
         timeout: options.timeout,
         full: options.full,
+        yes: options.yes,
       });
       if (!outcome) process.exitCode = 1;
     });
