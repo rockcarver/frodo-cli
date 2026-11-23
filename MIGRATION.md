@@ -13,6 +13,10 @@ listed here, is decided by
 
 ### From 4.x
 
+**`frodo config-manager promote run-promotion`, `run-dryrun-promotion` and `rollback` ask before they start, and have `--full`**: the three commands now ask for confirmation first, as the other commands of the group that change an environment do ([confirmation and the experimental label](https://github.com/rockcarver/frodo-cli/blob/main/docs/decisions/0058-confirmation-and-the-experimental-label.md)). At a terminal they say what they are about to do and where, and the default answer is no. Without a terminal and without `-y, --yes` they are refused before the login, with an error that names `-y, --yes` and exit code 1, so a pipeline that runs them adds `-y` once (an older build of the CLI fails on `-y` as an unknown option). A dry-run promotion asks too: it changes nothing, but it runs for several minutes.
+
+`--full` (long form only) is new on the same three commands. It runs the whole lifecycle in one command: it refuses to start unless both environments are unlocked, locks them, runs the promotion, dry-run promotion or rollback and waits for it (`--wait` and `--unlock-after` are implied, and the platform is told not to unlock by itself), and unlocks the environments after every outcome that has ended. `--timeout` is accepted with `--full` and bounds the operation only. While the operation may still be running (a `--timeout` that ended the wait) or when its status cannot be read, the lock stays on purpose and the output names the lock id and the command that releases it (`frodo config-manager promote unlock-tenants --id <id>`). Missing ESVs are listed. When the platform stops for encrypted secrets, `run-promotion` and `run-dryrun-promotion` ask at a terminal whether to go on without fixing them; `-y` does not answer that question, and without a terminal the command fails and names `-I, --ignore-encrypted-secrets`, which answers it in advance.
+
 **The text of an MCP tool result is scrubbed of known values**: as its last
 step, the text of a tool result of `frodo mcp server start` has the values that
 the connection holds replaced by `<redacted>`: the access and session values,
