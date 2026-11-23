@@ -886,6 +886,27 @@ describe('the Ctrl+R list of the terminal console', () => {
     }
   });
 
+  it('reads the query once for each keystroke, not once for each entry', async () => {
+    await openSearch(
+      entries(
+        ...Array.from({ length: 300 }, (_, i) => `frodo app list -n ${i}`)
+      )
+    );
+    // the scorer reads the query with split(/\s+/): count those reads
+    const split = jest.spyOn(String.prototype, 'split');
+    await type('frodo');
+    const reads = split.mock.calls.filter(
+      ([separator]) =>
+        Object.prototype.toString.call(separator) === '[object RegExp]' &&
+        (separator as RegExp).source === '\\s+'
+    ).length;
+    split.mockRestore();
+    // 5 bytes, 5 lists of 300 entries: 5 reads (not 1500), and not none
+    expect(reads).toBeGreaterThan(0);
+    expect(reads).toBeLessThanOrEqual(5);
+    expect(total()).toBe(50);
+  });
+
   it('lists a duplicated entry once for each time it was run', async () => {
     await openSearch(entries('foo', 'bar', 'foo'));
     await type('foo');
