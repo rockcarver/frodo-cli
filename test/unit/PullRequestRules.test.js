@@ -492,6 +492,12 @@ describeIfGit('the runner, in a throw-away git repository', () => {
     };
   }
 
+  /** A terminal run that passed because it compared and found nothing, not because it was skipped with a note. */
+  function expectChecked(result) {
+    expect(result.status).toBe(0);
+    expect(result.out).toContain('ok (rules: changelog');
+  }
+
   /** A branch from the current main commit. */
   function branch(repo) {
     const start = repo.head();
@@ -705,7 +711,7 @@ describeIfGit('the runner, in a throw-away git repository', () => {
       const clone = makeRepo('g10', { from: upstream });
       clone.git('checkout', '-q', '-b', 'feature');
       clone.commit('feat: code only', { 'src/a.ts': 'export const a = 2;\n' });
-      expect(guard(clone, { eventName: '' }).status).toBe(0);
+      expectChecked(guard(clone, { eventName: '' }));
       clone.commit('feat: an entry', {
         'CHANGELOG.md': '# Changelog\n\nentry\n',
       });
@@ -809,7 +815,7 @@ describeIfGit('the runner, in a throw-away git repository', () => {
   it('G16: at a terminal a change that is staged or edited but not committed counts', () => {
     const clone = terminalBranch('g16');
     clone.commit('feat: code only', { 'src/a.ts': 'export const a = 2;\n' });
-    expect(guard(clone, { eventName: '' }).status).toBe(0);
+    expectChecked(guard(clone, { eventName: '' }));
 
     // edited, not staged
     clone.write('CHANGELOG.md', '# Changelog\n\nentry\n');
@@ -824,11 +830,11 @@ describeIfGit('the runner, in a throw-away git repository', () => {
 
     // undone with the recipe of the message
     clone.git('checkout', 'origin/main', '--', 'CHANGELOG.md');
-    expect(guard(clone, { eventName: '' }).status).toBe(0);
+    expectChecked(guard(clone, { eventName: '' }));
 
     // an uncommitted edit of another file is no business of this rule
     clone.write('src/a.ts', 'export const a = 9;\n');
-    expect(guard(clone, { eventName: '' }).status).toBe(0);
+    expectChecked(guard(clone, { eventName: '' }));
 
     // deleted in the working tree
     fs.rmSync(path.join(clone.dir, 'CHANGELOG.md'));
@@ -869,7 +875,7 @@ describeIfGit('the runner, in a throw-away git repository', () => {
     // the same at a terminal, which also compares with the working tree
     const local = terminalBranch('g17c');
     local.commit('chore: odd file names', { HEAD: 'x\n' });
-    expect(guard(local, { eventName: '' }).status).toBe(0);
+    expectChecked(guard(local, { eventName: '' }));
   });
 });
 
