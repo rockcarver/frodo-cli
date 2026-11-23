@@ -73,8 +73,9 @@ $.last      // status, headers and body of the last response
 Relative URLs resolve against the connected environment: paths under
 `/openidm` (and bare paths) go to the IDM origin, `/am/...` paths go to AM.
 Absolute URLs pass through, with credentials attached only when the target
-is the connected host. A call to another host carries no credential and none
-of the connection's header overrides.
+has the origin of the connection (scheme, host and port: an `http://` URL for
+an `https://` environment is another origin). A call to another origin carries
+no credential and none of the connection's header overrides.
 
 The calls go out like those of every other command: the proxy variables
 (`HTTP_PROXY`, `HTTPS_PROXY`, `NO_PROXY`), `--insecure`, `--retry` and

@@ -110,8 +110,10 @@ console, when you evaluate `error.cause.config`) can read them by name. The
 header overrides of the connection go to the tenant only: they used to go to
 every host the console called, and the configuration header overrides were never
 sent. A call to another host now carries no credential and no override, also
-when a redirect leads there, and a URL is judged by the host it is sent to (one
-with a backslash before an `@` is sent to the host after it). `HTTP_PROXY`,
+when a redirect leads there, and a URL is judged by the origin it is sent to
+(scheme, host and port: one with a backslash before an `@` is sent to the host
+after it, and an `http://` URL for an `https://` environment is another origin
+and carries no credential). `HTTP_PROXY`,
 `HTTPS_PROXY` and `NO_PROXY` work as for every command (SOCKS and PAC proxies,
 proxy credentials and the messages about a failing proxy too), `--retry`
 applies, and `--curlirize` prints a curl command for each call with the credential values
