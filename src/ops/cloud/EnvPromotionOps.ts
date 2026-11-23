@@ -268,8 +268,11 @@ async function releaseAfterFailedLock(op: Operation): Promise<void> {
     return;
   }
   if (now.result !== 'locked' || !now.promotionId) {
+    // a lock that is still being taken, or that is being released, is not
+    // released from here: this command cannot tell that it is its own
+    const ids = lockIdsOf(now);
     printMessage(
-      `The ${op.noun} did not start. The environments are ${now.result}; nothing was unlocked.`,
+      `The ${op.noun} did not start. The environments are ${now.result}${ids.length ? ` (lock id ${ids.join(', ')})` : ''}; nothing was unlocked. Look at:\n${checkLockCommand()}${ids.length ? `\nIf that lock is left over from the lock request of this command, release it with:\n${unlockCommand(ids[0])}` : ''}`,
       'warn'
     );
     return;

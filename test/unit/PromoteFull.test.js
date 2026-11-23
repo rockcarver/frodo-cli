@@ -325,6 +325,9 @@ describe.each(COMMANDS)('%s', (name, setup, operationName, statusType) => {
           const { exitCode } = await run(setup, ['--full', '-y']);
 
           expect(unlockEnvironment).not.toHaveBeenCalled();
+          // the lock it may have left behind is named, with how to release it
+          expect(printed('warn')).toContain(`lock id ${OTHER_ID}`);
+          expect(printed('warn')).toContain(`unlock-tenants --id ${OTHER_ID}`);
           expect(exitCode).toBe(1);
         }
       );
