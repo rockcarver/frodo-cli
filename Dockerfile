@@ -33,9 +33,9 @@ WORKDIR /app
 # Run as a non-root user (node user ships with the base image).
 USER node
 
-# Only the self-contained bundle: launch.cjs (wrapper: signal forwarding),
-# loader.cjs (module resolution loader), app.cjs (the CLI), the shared chunk
-# and their sourcemaps.
+# Only the self-contained bundle: launch.cjs (the entry, which runs app.cjs in
+# its own process), app.cjs (the CLI), the shared chunks and their sourcemaps
+# (stack traces use them only when FRODO_SOURCE_MAPS=1 is set).
 COPY --from=build --chown=node:node /build/dist ./dist
 
 ENV NODE_ENV=production
@@ -49,10 +49,15 @@ VOLUME ["/home/node/.frodo"]
 # The MCP HTTP transport's documented default port.
 EXPOSE 6277
 
-# launch.cjs is the documented entrypoint: it spawns app.cjs with the
-# resolver loader and forwards lifecycle signals to the child, so
-# `docker stop` (SIGTERM) performs the MCP server's graceful shutdown and
-# releases the port.
+# launch.cjs is the documented entrypoint. It runs the CLI in its own process,
+# which is PID 1 of the container, so `docker stop` (SIGTERM) reaches the MCP
+# server's own handler: the graceful shutdown, and the port is released. PID 1
+# has no default action for a signal that has no handler, so during start-up,
+# and for a command that is not the server, SIGTERM is ignored and `docker
+# stop` waits for its grace period (10 seconds) before it kills the process.
+# Start the container with `docker run --init` (compose: `init: true`, as in
+# docker/docker-compose.yml) to have a small init process as PID 1 that passes
+# the signal on.
 #
 # The connection profile is NOT baked in: the tenant selector is the
 # positional [host] argument (a saved profile's host URL, a unique

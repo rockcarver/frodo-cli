@@ -16,8 +16,11 @@ jest.unstable_mockModule('@rockcarver/frodo-lib', () => ({
         getBuildTimestamp: () => 'library-build',
         getAllVersions,
       },
+      // what the colour theme (ColorTheme.ts) reads when it is loaded
+      terminal: { theme: () => ({}), resolveThemeMode: () => 'dark' },
     },
   },
+  state: {},
 }));
 
 const cacheFile = `${os.homedir()}/.frodo/Versions.json`;

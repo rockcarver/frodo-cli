@@ -15,6 +15,7 @@
 
 import type { Command, Option } from 'commander';
 import c from '../ColorTheme';
+import { valueOfFlag } from './OptionConflicts';
 import { realmUseOf } from './RealmUse';
 import { isSecretOption, SECRET_MASK } from './SecretOptions';
 
@@ -481,9 +482,10 @@ export function liveMultiOptionPreview(
           .split(/[, ]+/)
           .filter((token) => /^[<[].*>?\]?$/.test(token))
           .join(' ') || 'value';
+      // a boolean as the flag that the user would type: false for a negated one (--no-deps)
       command.setOptionValueWithSource(
         attributeName,
-        boolean ? true : placeholder,
+        boolean ? valueOfFlag(command, option) : placeholder,
         'cli'
       );
     }

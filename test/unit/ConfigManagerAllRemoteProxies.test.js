@@ -173,3 +173,23 @@ describe.each(commands)('%s when a step fails', (_name, run) => {
     expect(reported()).toEqual([]);
   });
 });
+
+describe.each(commands)('%s: the journeys step', (_name, run) => {
+  // the scripts have a step of their own, so the journeys step must not pull them again: a request
+  // for every script would also break the order of the recorded requests of the replay tests
+  test.each(['cloud', 'forgeops', 'classic'])(
+    'a %s deployment exports the journeys alone, in the realm that was named',
+    async (type) => {
+      deploymentType = type;
+
+      expect(await run({ realm: 'alpha' })).toBe(true);
+
+      expect(spies.configManagerExportJourneys).toHaveBeenCalledTimes(1);
+      expect(spies.configManagerExportJourneys).toHaveBeenCalledWith(
+        undefined,
+        'alpha',
+        false
+      );
+    }
+  );
+});

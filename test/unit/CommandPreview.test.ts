@@ -434,6 +434,36 @@ describe('liveMultiOptionPreview (invocation editor selection footer)', () => {
     expect(serializeCommand(command)).toBe('list');
   });
 
+  it('shadows a selected negated option with the value that the flag gives, and renders it as the flag', () => {
+    const command = makeEditorCommand();
+    command.parse([], { from: 'user' });
+    const seen: unknown[] = [];
+    // the readiness is derived while the shadows are in place
+    const preview = liveMultiOptionPreview(command, () => {
+      seen.push(
+        command.getOptionValue('cache'),
+        command.getOptionValue('long')
+      );
+      return ALWAYS_READY;
+    });
+    expect(preview(['cache', 'long'])).toContain('list -l --no-cache');
+    // --no-cache is false while it is shown, -l is true, and nothing is left behind
+    expect(seen).toEqual([false, true]);
+    expect(command.getOptionValue('cache')).toBe(true);
+    expect(command.getOptionValueSource('cache')).toBe('default');
+    expect(serializeCommand(command)).toBe('list');
+  });
+
+  it('shows the negated flag that the user committed, and nothing for one that is at its resting value', () => {
+    const command = makeEditorCommand();
+    command.parse(['--no-cache'], { from: 'user' });
+    expect(serializeCommand(command)).toBe('list --no-cache');
+    const rest = makeEditorCommand();
+    rest.parse([], { from: 'user' });
+    expect(rest.getOptionValue('cache')).toBe(true);
+    expect(serializeCommand(rest)).toBe('list');
+  });
+
   it('renders selected valued options as flag + placeholder', () => {
     const command = makeEditorCommand();
     command.parse([], { from: 'user' });

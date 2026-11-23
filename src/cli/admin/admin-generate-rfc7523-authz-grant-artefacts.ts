@@ -1,7 +1,7 @@
+import { randomUUID } from 'node:crypto';
 import fs from 'fs';
 import { state, type JwkRsa } from '@rockcarver/frodo-lib';
 import { Option } from 'commander';
-import { v4 as uuidv4 } from 'uuid';
 import * as s from '../../help/SampleData';
 import { generateRfc7523AuthZGrantArtefacts } from '../../ops/AdminOps.js';
 import { getTokens } from '../../ops/AuthenticateOps';
@@ -91,7 +91,7 @@ export default function setup() {
           printMessage(
             `Generating RFC7523 authorization grant artefacts in realm "${state.getRealm()}"...`
           );
-          let clientId = uuidv4();
+          let clientId = randomUUID();
           if (options.clientId) {
             clientId = options.clientId;
           }

@@ -40,6 +40,7 @@ import {
   RIGHT,
 } from '../utils/interactive/EscapableSelectPrompt.js';
 import { EXIT_ALL, EXIT_ALL_SIGNAL } from '../utils/interactive/ExitAll.js';
+import { isLoneNegated } from '../utils/interactive/OptionConflicts.js';
 import { passStateApplied } from '../utils/interactive/PassLogin.js';
 import { positionalValue } from '../utils/interactive/PositionalArgs.js';
 import { canPrompt, setNeverPrompt } from '../utils/interactive/PromptGate.js';
@@ -57,7 +58,6 @@ import {
   ALLOW_FAILURES_HELP,
   ALLOW_FAILURES_OPTION,
 } from '../utils/OperationRun.js';
-import { activatePersistedTheme } from '../utils/ThemeConfig.js';
 import { assertAliasesFree, copyOptionAliases } from './OptionAlias.js';
 import {
   deferMissingMandatoryOption,
@@ -1396,7 +1396,14 @@ export function replayEditorOptionStates(command: Command): void {
     if (skip.has(name)) continue;
     if (Object.keys(stateMap).includes(name)) {
       const value = command.getOptionValue(name);
-      if (value === undefined || value === false || value === '') continue;
+      // false is the value of a flag that is written for a negated option (--no-cache), and is no value
+      // for any other
+      if (
+        value === undefined ||
+        (value === false && !isLoneNegated(command, option)) ||
+        value === ''
+      )
+        continue;
       if (command.getOptionValueSource(name) !== 'cli') continue;
       const handler: any = stateMap[name];
       handler(value, command.opts());
@@ -1486,7 +1493,7 @@ const environmentVariables: EnvironmentVariableDescriptor[] = [
   {
     name: 'FRODO_BROWSER_LOGIN_NO_OPEN',
     description:
-      "Print the browser-login URL instead of launching a local browser. Overridden by '--no-open' option.",
+      "Print the link instead of launching a local browser: the browser-login URL, or the sign-in link of 'frodo shell --web'. Has the same effect as the '--no-open' option.",
     group: AUTHENTICATION_ENVIRONMENT_VARIABLES_HEADING,
     include: (command) =>
       command.hasDefaultOption(noOpenOption.attributeName()),
@@ -2833,7 +2840,6 @@ export class FrodoStubCommand extends Command {
     state.setCreateProgressHandler(createProgressIndicator);
     state.setUpdateProgressHandler(updateProgressIndicator);
     state.setStopProgressHandler(stopProgressIndicator);
-    activatePersistedTheme();
 
     // shutdown handlers
 
@@ -4125,6 +4131,25 @@ export class FrodoCommand extends FrodoStubCommand {
       if (headings.includes(option.helpGroupHeading)) {
         option.helpGroup(COMMAND_OPTIONS_HEADING);
       }
+    }
+    return this;
+  }
+
+  /**
+   * Words one shared default option (for example `--no-open`) for this command
+   * and lists it in the plain "Options:" section of the short help, where the
+   * command's own options are. The option keeps its parsing and its effect
+   * (the shared `stateMap` entry still applies); only its description and its
+   * heading change, on this instance's own clone (see `addOption()`).
+   * @param flag Long flag of the option, for example `--no-open`.
+   * @param description What the option does on this command.
+   * @returns This command for chaining.
+   */
+  describeDefaultOption(flag: string, description: string) {
+    const option = this.options.find((candidate) => candidate.long === flag);
+    if (option) {
+      option.description = description;
+      option.helpGroup(COMMAND_OPTIONS_HEADING);
     }
     return this;
   }

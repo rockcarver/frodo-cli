@@ -1,0 +1,163 @@
+import * as realCrypto from 'node:crypto';
+import {
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  jest,
+  test,
+} from '@jest/globals';
+
+// A theme that a tenant returns without an `_id` gets one when it is exported,
+// so that it can be keyed in the export file. The id is a random (version 4)
+// UUID made by Node itself (crypto.randomUUID). A theme that has an id keeps it.
+
+const readThemeByName = jest.fn();
+const readThemes = jest.fn();
+const saveToFile = jest.fn();
+
+// `node:crypto` as ThemeOps.ts imports it: the real function behind a spy, so
+// that a test can see the calls and give out known values
+const randomUUID = jest.fn((...args) => realCrypto.randomUUID(...args));
+jest.unstable_mockModule('node:crypto', () => ({ ...realCrypto, randomUUID }));
+
+jest.unstable_mockModule('@rockcarver/frodo-lib', () => ({
+  FrodoError: class FrodoError extends Error {},
+  frodo: {
+    theme: { readThemeByName, readThemes },
+    utils: {
+      getRealmString: () => 'alpha',
+      getTypedFilename: (name, type) => `${name}.${type}.json`,
+      saveJsonToFile: jest.fn(),
+      saveToFile,
+      getFilePath: (file) => file,
+      getWorkingDirectory: () => '.',
+    },
+  },
+}));
+jest.unstable_mockModule('../../src/utils/ColorTheme', () => ({
+  default: new Proxy({}, { get: () => (text) => text }),
+}));
+jest.unstable_mockModule('../../src/utils/Config', () => ({
+  extractDataToFile: jest.fn(),
+  getExtractedData: jest.fn(),
+}));
+jest.unstable_mockModule('../../src/utils/Console', () => ({
+  createProgressIndicator: jest.fn(() => 'indicator'),
+  createTable: jest.fn(),
+  printError: jest.fn(),
+  printMessage: jest.fn(),
+  stopProgressIndicator: jest.fn(),
+  updateProgressIndicator: jest.fn(),
+}));
+
+const { exportThemeByName, exportThemesToFiles } =
+  await import('../../src/ops/ThemeOps.ts');
+
+const UUID_V4 =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/;
+
+/** The themes that saveToFile was asked to write, one flat list. */
+const savedThemes = () => saveToFile.mock.calls.flatMap(([, data]) => data);
+
+beforeEach(() => {
+  jest.clearAllMocks();
+  randomUUID
+    .mockReset()
+    .mockImplementation((...args) => realCrypto.randomUUID(...args));
+});
+
+describe('exportThemeByName', () => {
+  test('gives a theme without an id a version 4 UUID', async () => {
+    readThemeByName.mockResolvedValue({ name: 'Starter Theme' });
+
+    expect(await exportThemeByName('Starter Theme', null, true, false)).toBe(
+      true
+    );
+
+    const [theme] = savedThemes();
+    expect(theme.name).toBe('Starter Theme');
+    expect(theme._id).toMatch(UUID_V4);
+  });
+
+  test('gives two themes without an id two different ids', async () => {
+    readThemeByName.mockResolvedValueOnce({ name: 'One' });
+    readThemeByName.mockResolvedValueOnce({ name: 'Two' });
+
+    await exportThemeByName('One', null, true, false);
+    await exportThemeByName('Two', null, true, false);
+
+    const [first, second] = savedThemes();
+    expect(second._id).not.toBe(first._id);
+  });
+
+  test('keeps the id of a theme that has one', async () => {
+    readThemeByName.mockResolvedValue({
+      _id: '11111111-2222-4333-8444-555555555555',
+      name: 'Starter Theme',
+    });
+
+    await exportThemeByName('Starter Theme', null, true, false);
+
+    expect(savedThemes()[0]._id).toBe('11111111-2222-4333-8444-555555555555');
+  });
+});
+
+describe('exportThemesToFiles', () => {
+  test('gives every theme without an id its own version 4 UUID and keeps the others', async () => {
+    readThemes.mockResolvedValue([
+      { name: 'One' },
+      { _id: 'kept-id', name: 'Two' },
+      { name: 'Three' },
+    ]);
+
+    expect(await exportThemesToFiles(true, false)).toBe(true);
+
+    const [one, two, three] = savedThemes();
+    expect(one._id).toMatch(UUID_V4);
+    expect(two._id).toBe('kept-id');
+    expect(three._id).toMatch(UUID_V4);
+    expect(three._id).not.toBe(one._id);
+  });
+});
+
+describe('where the ids come from', () => {
+  const FIRST = '11111111-1111-4111-8111-111111111111';
+  const SECOND = '22222222-2222-4222-8222-222222222222';
+  let random;
+
+  beforeEach(() => {
+    random = jest.spyOn(Math, 'random');
+  });
+
+  afterEach(() => {
+    random.mockRestore();
+  });
+
+  test('exportThemeByName takes the id from randomUUID of node:crypto', async () => {
+    readThemeByName.mockResolvedValue({ name: 'Starter Theme' });
+    randomUUID.mockReturnValueOnce(FIRST);
+
+    await exportThemeByName('Starter Theme', null, true, false);
+
+    expect(savedThemes()[0]._id).toBe(FIRST);
+    expect(randomUUID).toHaveBeenCalledTimes(1);
+    expect(random).not.toHaveBeenCalled();
+  });
+
+  test('exportThemesToFiles takes one id from randomUUID of node:crypto for each theme that has none', async () => {
+    readThemes.mockResolvedValue([
+      { name: 'One' },
+      { _id: 'kept-id', name: 'Two' },
+      { name: 'Three' },
+    ]);
+    randomUUID.mockReturnValueOnce(FIRST).mockReturnValueOnce(SECOND);
+
+    await exportThemesToFiles(true, false);
+
+    const [one, two, three] = savedThemes();
+    expect([one._id, two._id, three._id]).toEqual([FIRST, 'kept-id', SECOND]);
+    expect(randomUUID).toHaveBeenCalledTimes(2);
+    expect(random).not.toHaveBeenCalled();
+  });
+});

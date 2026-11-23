@@ -20,7 +20,7 @@ TypeScript sources (src/)
   │
   ├─ jest 30 .............. test (8,500 snapshots, Polly-recorded HTTP)
   │
-  ├─ tsdown (rolldown) .... bundle src/{app,launch,loader}.ts -> dist/*.cjs
+  ├─ tsdown (rolldown) .... bundle src/{app,launch}.ts -> dist/*.cjs
   ├─ tsc .................. type check gate (no emit)
   │
   ├─ node --build-sea ..... dist-sea/app.cjs + Node 26 -> single binaries (5 platforms)
@@ -38,13 +38,16 @@ Release automation:
 
 ## 2. Bundler: tsdown (replaced tsup 2026-10)
 
-**What it does**: bundles the three TypeScript entries into CJS outputs:
+**What it does**: bundles the TypeScript entries into CJS outputs:
 
-| Entry           | Output            | Role                                                                                     |
-| --------------- | ----------------- | ---------------------------------------------------------------------------------------- |
-| `src/launch.ts` | `dist/launch.cjs` | npm `bin` entry; spawns `app.cjs` with the module-resolution loader and forwards signals |
-| `src/loader.ts` | `dist/loader.cjs` | module-resolution loader for the app                                                     |
-| `src/app.ts`    | `dist/app.cjs`    | the CLI itself (~10 MB, self-contained)                                                  |
+| Entry           | Output            | Role                                                          |
+| --------------- | ----------------- | ------------------------------------------------------------- |
+| `src/launch.ts` | `dist/launch.cjs` | npm `bin` entry; runs `app.cjs` in the same process (see 2.4) |
+| `src/app.ts`    | `dist/app.cjs`    | the CLI itself (~10 MB, self-contained)                       |
+
+There is no module-resolution loader: the bundle resolves everything at build
+time, so Node's own resolver is all that runs (the `--experimental-loader` hook
+that older releases passed to the app process was removed on 2026-11-21).
 
 **Why tsdown and not tsup**: tsup is unmaintained (last release Nov 2025) and
 had a real defect we hit in production CI (see §2.1). tsdown is the
@@ -67,8 +70,8 @@ loaded, then threw `SyntaxError: Unexpected token ','`. The workaround
   (a Node 24 config-loader quirk).
 - **Code splitting stays on** → `dist/app.cjs` requires the sibling
   `dist/rolldown-runtime-*.cjs` chunk. The chunk hash changes every build;
-  the npm `files` allowlist therefore uses a `dist/rolldown-runtime-*.cjs`
-  glob. The SEA build config turns splitting **off** (single file).
+  the npm `files` allowlist therefore lists globs (`dist/**/*.cjs`), never
+  chunk names. The SEA build config turns splitting **off** (single file).
 - `shims: true` is required — `src/launch.ts` uses `import.meta.url`, which
   does not exist in CJS; tsdown shims it.
 - `deps.neverBundle` lists every devDependency. tsdown (like tsup before it)
@@ -130,6 +133,57 @@ tsup's `index.mjs` threw `Dynamic require of "util" is not supported` the
 moment anyone imported it (unnoticed because consumers use CJS). tsdown's
 output imports cleanly in both modes (verified: CJS require and ESM namespace
 import both expose all 62 exports).
+
+### 2.4 The entry runs the app in one process
+
+`dist/launch.cjs` (the npm `bin` entry, `main`, the Docker entrypoint, and
+what the dev-mode test shims run) is about 400 bytes and starts nothing: in
+this process, in this order, it (1) switches source maps on when
+`FRODO_SOURCE_MAPS` is `1`, `true`, `yes` or `on`, (2) removes the `warning`
+listeners (what `node --no-warnings` does), (3) sets `process.argv[1]` to the
+path of `app.cjs`, and (4) `require`s `app.cjs`. Until 2026-11-21 it spawned a
+second Node process with `--no-warnings --enable-source-maps` and forwarded
+signals to it; the second process cost about a quarter of every start
+(`frodo -v`, `-h`, `conn list`: 25 to 26 percent less wall time on a quiet
+machine) and, for an idle MCP HTTP server, about 170 MB (379 MB for the two
+processes, 208 MB for one; measured on one machine). `FRODO_SOURCE_MAPS=1` takes
+about 120 MB of that back (327 MB), because Node then loads the maps.
+
+- **Source maps are off by default, and the opt-in is
+  `FRODO_SOURCE_MAPS=1`.** The npm package ships the maps (`dist/*.map`), but
+  Node only reads them when asked, and reading the maps of a 10 MB bundle takes
+  about 75 ms, a fifth of every start (and about 120 MB for an idle server).
+  Without the opt-in a stack trace names lines of `dist/app.cjs` and the shared
+  chunks, not the original TypeScript files; the issue template asks for a
+  trace from a run with `FRODO_SOURCE_MAPS=1`. The opt-in works only in the npm
+  package and the Docker image (the SEA binary has no maps and ignores it).
+  Step (1) must come before step (4): Node applies the
+  maps to the code that is loaded after the switch. `NODE_OPTIONS=--enable-source-maps`
+  works too, with no help from the entry.
+- **`process.argv[1]` is `app.cjs`, as it was in the child process.**
+  frodo-lib tells the CLI from a jest run by that name
+  (`getFrodoCommand`: `frodo`, `frodo.exe` or `app.cjs` mean the CLI), and
+  the recordings of the e2e tests are found through it. Without step (3) every
+  dev-mode e2e replay fails with `Recording ... not found` while CI, which runs the
+  SEA binary, stays green. `test/unit/LauncherCommandLine.test.js` guards it.
+- **The exit status is the one of the app.** A command that ends by a signal
+  (Ctrl+C is 130, `kill` is 143) no longer exits 0, as the SEA binary never
+  did. The old wrapper exited 0 whenever its child was killed by a signal, and
+  a `SIGKILL` of the wrapper left the child running and holding its port.
+- **The entry stays standalone**: it imports only Node built-ins and
+  requires `./app.cjs` through a variable, so that the build emits one small
+  file and does not bundle the app into it (`test/unit/LauncherCommandLine.test.js`
+  pins the size and the `require` targets). The opt-in test is written out in
+  it and is the same test as `isTruthyOptInValue` in `src/utils/EnvFlags.ts`.
+- **`require('@rockcarver/frodo-cli')`** (`main`; not a supported use) runs the
+  CLI inside the importing program's process: the entry overwrites the
+  importer's `process.argv[1]` and removes its `warning` listeners, including
+  those that a `NODE_OPTIONS=--require` preload added.
+- Not done here: the compile cache (`module.enableCompileCache`): it saves
+  about 60 ms on a warm start and costs about 110 ms once, and it writes 5.7 MB
+  outside `~/.frodo`. Warnings are removed in code for now because frodo-lib
+  loads its test recorder (Polly) in production; a library change that stops
+  that would make the `removeAllListeners('warning')` line unneeded.
 
 ---
 
@@ -204,8 +258,10 @@ rule made lint slow and turned formatting errors into lint errors),
 `eslint-plugin-jsx-a11y`, `eslint-plugin-import`.
 
 **Scripts**: `npm run fix` = `eslint --fix && prettier --write "src/**/*.ts"`
-(prettier last, so it wins), `npm run check` = `eslint && prettier --check`,
-and `lint` / `lint:fix` alias them. CI runs `npm run check`.
+(prettier last, so it wins), `npm run check` = `eslint && prettier --check`
+and the pull request rules (`npm run check:pull-request`, see
+[PIPELINE.md](PIPELINE.md)), and `lint` / `lint:fix` alias them. CI runs
+`npm run check`.
 
 **ESLint 10 findings fixed in the migration**: dead initializers on `let`
 declarations (`no-useless-assignment`, including two real shadowing bugs
@@ -298,20 +354,40 @@ pipeline job (replacing `mislav/bump-homebrew-formula-action`). The stable/
 next install-time collision guard and the `frodo -v` regex checks are kept.
 
 **Removed with the migration**: `@yao-pkg/pkg`, the `pkg` config block in
-`package.json`, the `dist-pkg` script. The `files` allowlist's
-`dist/rolldown-runtime-*.cjs` glob is unaffected (the runtime chunk only
-exists in the npm `dist/` build, not the single-file SEA bundle).
+`package.json`, the `dist-pkg` script. The `files` allowlist is unaffected
+(the runtime chunk only exists in the npm `dist/` build, not the single-file
+SEA bundle).
+
+**The web shell's tab engine in the binary**: `frodo shell --web` runs one engine
+process per browser tab. With npm and in Docker that is `node` and the worker
+file `dist/cli/shell/engine-worker.cjs`. The binary has no such file, and the
+executable of a single executable application always runs its embedded program,
+so a script path handed to it is read as a command. The binary therefore starts
+itself with no argument and the private variable `FRODO_ENGINE_WORKER=1`, and
+`src/app.ts` runs the engine in place of the command line parser when it sees
+it and its standard input is not a terminal (on a terminal the variable is a
+mistake, and the command line runs). The engine deletes the variable from its own environment first, so a
+command that a script of the console starts is an ordinary command. The
+variable is an internal switch, not an option; the decision record [The web console opens a browser through a private launcher file, and its engine in the binary is the executable itself](decisions/0062-the-web-console-opens-a-browser-through-a-private-launcher-file-and-its-engine-in-the-binary-is-the-executable-itself.md) has the rule and the reasoning.
 
 ---
 
 ## 7. npm package contents
 
-`files` allowlist (2026-10): `dist/*` (with the rolldown-runtime glob),
-LICENSE, README.md, CHANGELOG.md — 11 files instead of 47. Previously the
-tarball shipped `.eslintcache`, `testResults.json`, `tools/reports/*.json`
-(~700 KB of MCP assessment output) and a stray debug log. The allowlist
-matters even though consumers use `dist/`: `npm pack` is the supply-chain
-surface, and junk in the tarball is junk in every install.
+`files` allowlist: `dist/**/*.cjs` and `dist/**/*.cjs.map` (every built
+`.cjs` and its map, at any depth), LICENSE, README.md, CHANGELOG.md; npm adds
+`package.json`. Previously (2026-10) the tarball shipped `.eslintcache`,
+`testResults.json`, `tools/reports/*.json` (~700 KB of MCP assessment output)
+and a stray debug log. The allowlist matters even though consumers use
+`dist/`: `npm pack` is the supply-chain surface, and junk in the tarball is
+junk in every install.
+
+The globs must reach below `dist/` because the web shell's worker is built to
+`dist/cli/shell/engine-worker.cjs` (`frodo shell --web` spawns it). Until the
+fix that introduced `dist/**`, the allowlist matched top-level files only and
+the published tarballs had no worker. `test/e2e/npm-pack.smoke.e2e.test.js`
+lists the tarball and fails when the worker, or any other built `.cjs` or map,
+is missing, or when anything outside the allowlist is in it.
 
 ---
 
@@ -430,8 +506,10 @@ tenant smoke test included, after an update pull request that skipped it.
 `Dockerfile` builds the MCP HTTP server image: stage 1 runs
 `npm run build:only` on `node:24-slim` (needs `tsdown.config.ts` in COPY —
 updated from the stale `tsup.config.ts` reference when the allowlist
-landed); stage 2 copies only `dist/` and runs `node dist/launch.cjs`
-(signal-forwarding wrapper → graceful MCP shutdown on `docker stop`).
+landed); stage 2 copies only `dist/` and runs `node dist/launch.cjs` (one
+process, PID 1: the MCP server handles `docker stop` itself and shuts down
+gracefully; `docker run --init` or `init: true` in compose puts a small init
+process in front so that SIGTERM also ends frodo while it starts up).
 The image does not use the release binaries and is unaffected by the
 pkg→SEA migration (it builds `dist/` from source).
 
@@ -476,4 +554,8 @@ pkg→SEA migration (it builds `dist/` from source).
 | 2026-11-10 | Proof that proxy support works in the shipped bundle (frodo-lib#982): `test/unit/ProxySupport.test.js` runs `dist/launch.cjs` and, when it exists, `dist-sea/frodo` against a fake tenant with a forward proxy in the test process (`HTTP_PROXY`, a `CONNECT` tunnel for `HTTPS_PROXY`, `NO_PROXY`, credentials in the proxy URL, a proxy nobody listens on), and the `Proxy Tests` step of the live job ends with a negative control (`frodo info` with `HTTPS_PROXY=http://127.0.0.1:9` must fail); `test/unit/PipelineClassification.test.js` runs the step's shell for each outcome | — |
 | 2026-11-14 | A pull request that changes only `.github/dependabot.yml` or `.github/workflows/dependabot-auto-merge.yml` runs `Validate guidance` instead of nothing: both are in `GUIDANCE` of the classifier (still non-code), and `tools/run-guidance-tests.mjs` lists `DependabotAutoMerge.test.js` and `DependabotPolicy.test.js` (core 0023). `scripts/dependabot-auto-merge.mjs` stays code, so `Test` runs its tests. Required checks unchanged | #1321 |
 | 2026-11-15 | The Dependabot auto-merge policy of core 0023 is decided by the shared action `gearsnlevers/dependabot-auto-merge-action` (pinned by full SHA in `dependabot-auto-merge.yml`), the same one frodo-lib uses; `scripts/dependabot-auto-merge.mjs` and its test are gone. `test/unit/DependabotPolicy.test.js` stays, with its own matcher and manual-name rule, and now pins the workflow's properties; `tools/run-guidance-tests.mjs` lists it alone. The classifier's `GUIDANCE` is unchanged (`dependabot.yml` and the workflow are still read by that test). The workflow gets a `dry-run` input for `workflow_dispatch`. |
+| 2026-11-21 | The ESM loader is removed (`src/loader.ts`, `dist/loader.cjs`, the `--experimental-loader` argument of `src/launch.ts`, the `resolve` devDependency): it was written in 2023 for unbundled ESM with extensionless imports, and the bundle has no runtime resolution left (the hook was asked about one specifier per run, the entry file, and Node's own resolver answers the same). `frodo -v` from the npm package starts about a third faster; the SEA binary never had a loader. The launcher, its flags and its second process are unchanged. |
+| 2026-11-21 | The entry runs the app in one process (`src/launch.ts`): it no longer spawns `node --no-warnings --enable-source-maps app.cjs` and forwards signals, it removes the `warning` listeners, sets `process.argv[1]` to `app.cjs` and requires `app.cjs`. Starts about a quarter faster (25 to 26 percent less wall time for `frodo -v`, `-h` and `conn list`), and the process tree of an idle `mcp server start --transport http` takes about 170 MB less (379 MB to 208 MB; measured on one machine). Source maps are off by default in the npm package; `FRODO_SOURCE_MAPS=1` switches them on (see 2.4). The exit status after a signal is real (130, 143) instead of 0, `kill -9` of the entry leaves no orphan, and Ctrl+C on `mcp server start` shuts the server down gracefully again. The compose example gets `init: true`. The SEA binary is unchanged. `MIGRATION.md` lists the user-visible effects. |
+| 2026-11-22 | Startup performance (#1416): the constructor of `FrodoStubCommand` no longer applies the saved colour theme. `app.ts` applies it once, before it builds the command tree, and the constructor repeated it for each of the 492 command objects of a start. Measured for `frodo --version`: 14,320 synchronous file-system calls, 14,282 of them on `~/.frodo/themes` and `Theme.json`, among them 492 `readdirSync` of the theme folder; now 81 calls, 43 on theme paths, one `readdirSync` (`test/unit/StartupThemeFiles.test.js`). Paired, interleaved runs of `node dist/launch.cjs --version` at machine load 18: median 300 ms before, 255 ms after. The coloured output is byte-equal for the saved themes and the values of `FRODO_COLOR_THEME` that were compared; the one difference is a theme folder that cannot be created: its error line was printed once per command object (492 times), now once. |
+| 2026-11-22 | The console's REST calls (`$` of `frodo shell`) go through the library's request instances (`frodo.factory.generateIdmApi`, `generateAmApi` and `generateReleaseApi`) and the `axios` devDependency is removed with the 24 packages that only it needed (25 lockfile entries). `ShellRestOps.ts` had its own copy of the library's credential handling, one axios instance per call, and was the only importer of the package. Measured before and after on the same base (6297d16ed, before the lodash removal landed): `cat dist/*.cjs \| wc -c` 13,751,823 to 13,275,212 bytes (minus 476,611), `dist-sea/app.cjs` 13,857,363 to 13,379,123 (minus 478,240); the `// node_modules/axios/` markers of the bundle (62 in the shell chunk, 65 in the SEA bundle) are 0. Loading the shell chunk alone costs 234 ms of CPU instead of 273 ms at the minimum, 258 ms instead of 303 ms at the median (15 paired, interleaved runs, machine load about 100); `node dist/launch.cjs --version` (30 paired runs, same load) is 590 ms instead of 606 ms of CPU at the median and equal at the minimum (555 and 556 ms), too noisy at that load to resolve more. |
 | planned    | Polly→nock (library repo) — DEFERRED 2026-10-04 (deep record-harness coupling; revisit on Node 28 or real breakage)                                                                                                                                                                                                                                                                                                                                                                                                                                                 | —                            |

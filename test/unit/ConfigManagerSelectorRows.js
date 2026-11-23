@@ -483,7 +483,7 @@ export const KEPT_OLD_SPELLING = [
   },
   {
     file: 'config-manager-push-journeys.e2e.test.js',
-    cmd: 'frodo config-manager push journeys -Fn ConfigManagerPushTest --push-dependencies  -D ${allDirectory}',
+    cmd: 'frodo config-manager push journeys -Fn ConfigManagerPushTest -D ${allDirectory}',
     why: 'the -n inside a cluster of short options (-Fn) replays its recording through the alias; the other lines type the new spelling',
   },
 ];

@@ -784,10 +784,10 @@ const ROW_LIST = [
       name: MARKER,
       script: [MARKER],
     }),
-    // the file that is looked for is the one the id names, which is no file: the journey is imported without it
-    outcome: 'message',
+    // the file that is looked for is the one the id names, which is no file: the journey needs a script that is not there
+    outcome: false,
     says: (ref) =>
-      `Script config not found: ${path.join(tree, 'realms/alpha/scripts/scripts-config', `${derived(ref)}.json`)}`,
+      `its file is missing: realms/alpha/scripts/scripts-config/${derived(ref)}.json`,
     control: {
       ref: 's1',
       files: [],
@@ -1045,6 +1045,7 @@ const TAKE_ALLOW_FAILURES = new Set([
   'S14',
   'S15',
   'S16',
+  'S17',
   'S18',
   'S19',
 ]);

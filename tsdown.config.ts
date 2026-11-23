@@ -28,7 +28,6 @@ export default defineConfig({
   entry: [
     'src/app.ts',
     'src/launch.ts',
-    'src/loader.ts',
     'src/cli/shell/engine-worker.ts',
   ],
   format: 'cjs',

@@ -1,6 +1,14 @@
 /** See test/e2e/README.md for how to write and record e2e tests. */
 
 /*
+ * The lock recording was recorded with the CLI on a promotion pair (the host of the command is the upper environment).
+ * The two environments were locked here once, for the whole recording session of the promotion, dry-run and rollback
+ * tests, and were unlocked at the end by the recording of the unlock test. Only repeated identical lock-state polls
+ * of this recording were trimmed: the first poll of every state and the last poll stay, in their recorded order
+ * (https://github.com/rockcarver/frodo-lib/blob/main/decisions/0014-a-recording-of-a-wait-may-be-trimmed-of-its-repeated-polls.md).
+ */
+
+/*
 // Cloud
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_TEST_NAME=0 frodo config-manager promote lock-tenants
 */
