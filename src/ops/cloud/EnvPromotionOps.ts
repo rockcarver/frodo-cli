@@ -299,9 +299,9 @@ type UnlockResult = 'done' | 'failed' | 'kept';
  * Run an operation between a lock and an unlock of the environments (`--full`).
  *
  * The lock contract:
- * - it starts only when both environments are unlocked, so the lock it takes is
- *   its own and the unlock at the end can never release the lock of somebody
- *   else;
+ * - it starts only when both environments are unlocked (read right before the
+ *   lock request, after the question), so the lock it takes is its own and the
+ *   unlock at the end does not release the lock of somebody else;
  * - it unlocks after every outcome that has ended: success, an error of the
  *   platform, a refused request, an answer of no to the encrypted secrets;
  * - it does not unlock while the platform is still working on the operation (a
