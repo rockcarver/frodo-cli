@@ -227,3 +227,39 @@ export async function signInOverHttp(link) {
     return { status: reply.status, json, text };
   };
 }
+
+/**
+ * Polls `watch` until it returns something other than `null`, `undefined` or
+ * `false`, and returns that. An exception from `watch` is never the answer: a
+ * page that is still loading has no element yet, or has no execution context
+ * for a moment, and a query of it throws. The poll goes on, and the time-out
+ * error says what the last attempt threw, so that a failure which does not go
+ * away is still readable.
+ * @param {() => unknown} watch asks the question; may return a promise
+ * @param {number} [timeoutMs] the longest to wait
+ * @param {number} [everyMs] the pause between two attempts
+ * @returns {Promise<unknown>} the first answer that is not empty
+ */
+export async function waitFor(watch, timeoutMs = 20_000, everyMs = 100) {
+  const deadline = Date.now() + timeoutMs;
+  let lastValue;
+  let lastError;
+  while (Date.now() < deadline) {
+    try {
+      lastValue = await watch();
+      if (lastValue !== null && lastValue !== undefined && lastValue !== false)
+        return lastValue;
+    } catch (error) {
+      lastError = error;
+    }
+    await new Promise((resolve) => setTimeout(resolve, everyMs));
+  }
+  const said = [`Timed out waiting after ${timeoutMs} ms`];
+  if (lastValue !== undefined) {
+    said.push(`last value: ${JSON.stringify(lastValue)}`);
+  }
+  if (lastError) {
+    said.push(`last error: ${lastError?.message ?? lastError}`);
+  }
+  throw new Error(said.join('; '), { cause: lastError });
+}
