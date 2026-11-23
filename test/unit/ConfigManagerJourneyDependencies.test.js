@@ -515,6 +515,17 @@ describe('push journeys', () => {
     ).toEqual(['  - alpha/A', '  - alpha/x\\u0001y']);
   });
 
+  test('a named journey with a control character in its name is shown escaped in the title and the summary', async () => {
+    write(journeyFiles('x%01y', [scripted('n1', 'Missing')]));
+
+    expect(await push('x\u0001y', true)).toBe(false);
+
+    // eslint-disable-next-line no-control-regex
+    expect(printed()).not.toMatch(/[\u0000-\u0009\u000b-\u001f]/);
+    expect(printed()).toContain('Error reading journey x\\u0001y');
+    expect(summary()).toContain('alpha/x\\u0001y: Journey');
+  });
+
   test('(h) a script in a page node is read: the page node is part of the journey', async () => {
     write({
       ...journeyFiles('A'),
