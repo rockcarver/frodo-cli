@@ -521,12 +521,15 @@ all-static` are unchanged: the scripts have a step of their own, and the
 journeys step pulls the journeys only.
 
 The files of a script that a pull of journeys writes are named as the rest of
-the config folder names what the tenant names: a name, a context or an id that a
-file name cannot hold (one with `/`, `\`, `:` or a control character, or `..`)
-is written percent-encoded, `/` as `%2F`, and a push reads it back. Before, a `/`
-in the name of a script made folders, and `..` wrote a file outside the config
-folder. `pull journeys --clean` clears the node files below the folder of `-D`;
-it cleared them below the current directory.
+the config folder names what the tenant names. In the name and the context of a
+script a character that a file name cannot hold (`/`, `\`, `:`, `?`, `"`, `<`,
+`>`, `|` or a control character) is written percent-encoded, `/` as `%2F` and `:`
+as `%3A`, and a name of dots only gives an empty file name. The id of a script
+stays as it is, a `:` included, unless it holds `/`, `\`, `C:` or a control
+character or is `.` or `..`, and is then written in the same way. A push reads
+the files back. Before, a `/` in the name of a script made folders, and `..`
+wrote a file outside the config folder. `pull journeys --clean` clears the node
+files below the folder of `-D`; it cleared them below the current directory.
 
 **A `--no-` option that is picked in the interactive editor does what it says**:
 the editor wrote `true` for every option that it picked. For an option that is
@@ -537,9 +540,13 @@ the flag is not written, so a picked option showed in the command preview and
 was then ignored: `push journeys --prompt` with `--no-deps` picked pushed the
 scripts, and the picked `--no-validate` of `push journeys` still validated. The
 editor writes the value that the typed flag gives, `false`, and the run is the
-command that the preview shows. A default that was saved with `--save-defaults`
-for such an option held `true` and had no effect; save it again. The editor no
-longer adds `(default: true)` to the description of these options.
+command that the preview shows. A default that an older version saved with
+`--save-defaults` for such an option holds `true`: when the command runs it still
+does nothing, but the preview now shows it as if the flag was picked. Clear it
+with `frodo settings defaults --clear '<command path>'` (that clears every saved
+default of the command) and save the flag again; `--no-deps` on `pull journeys`
+and `push journeys` is new, so only the older `--no-` options can have one. The
+editor no longer adds `(default: true)` to the description of these options.
 
 **Selectors of the `config-manager` commands are `-i, --<type>-id` and `-n,
 --<type>-name`, and `-n` and `--name` keep working**: inside `frodo
