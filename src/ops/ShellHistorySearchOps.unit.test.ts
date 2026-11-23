@@ -223,10 +223,10 @@ function longCorpus(): [string, string][] {
   return pairs;
 }
 
-/** The seconds of the quickest of three runs. */
-function quickest(run: () => void): number {
+/** The milliseconds of the quickest of some runs (three, or as many as asked). */
+function quickest(run: () => void, runs = 3): number {
   let best = Infinity;
-  for (let i = 0; i < 3; i++) {
+  for (let i = 0; i < runs; i++) {
     const started = performance.now();
     run();
     best = Math.min(best, performance.now() - started);
@@ -636,7 +636,7 @@ describe('the scorer that reads the query once', () => {
     it('leaves a short word to indexOf, however long the lines are', () => {
       // 40 scripts of 200,000 characters, in lower case, as the history of
       // someone who pastes scripts holds: a word of 5, 8 or 200 characters is
-      // searched for as fast as one pass over the line, not 10 to 30 times slower
+      // searched for about as fast as one pass over the line (up to 2.5 times it is allowed), not 5 to 30 times slower
       const lines = Array.from(
         { length: 40 },
         (_, i) =>
@@ -644,16 +644,22 @@ describe('the scorer that reads the query once', () => {
       );
       for (const word of ['zzzzz', 'journeyx', 'z'.repeat(200)]) {
         const scorer = createHistoryScorer(word);
+        // (this first pass also makes the strings flat, which costs time once)
         expect(lines.every((line) => scorer(line) === null)).toBe(true);
-        const pass = quickest(() =>
-          lines.forEach((line) => {
-            const t = line.toLowerCase();
-            t.indexOf(word);
-            t.indexOf(word[0]);
-          })
+        const pass = quickest(
+          () =>
+            lines.forEach((line) => {
+              const t = line.toLowerCase();
+              t.indexOf(word);
+              t.indexOf(word[0]);
+            }),
+          9
         );
-        const scoring = quickest(() => lines.forEach((line) => scorer(line)));
-        expect(scoring).toBeLessThan(4 * pass + 2);
+        const scoring = quickest(
+          () => lines.forEach((line) => scorer(line)),
+          9
+        );
+        expect(scoring).toBeLessThan(2.5 * pass + 1);
       }
     });
 
