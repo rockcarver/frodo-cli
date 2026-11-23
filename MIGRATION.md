@@ -517,6 +517,19 @@ in the name of a script made folders, and `..` wrote a file outside the config
 folder. `pull journeys --clean` clears the node files below the folder of `-D`;
 it cleared them below the current directory.
 
+**A `--no-` option that is picked in the interactive editor does what it says**:
+the editor wrote `true` for every option that it picked. For an option that is
+negated (`--no-deps`, `--no-validate`, `-N, --no-metadata`, `--no-cache`,
+`--no-open`, `--no-decode`, `--no-coords`, `--no-wait`, `--no-prune` and the
+others that have no positive twin) `true` is the value that the option has while
+the flag is not written, so a picked option showed in the command preview and
+was then ignored: `push journeys --prompt` with `--no-deps` picked pushed the
+scripts, and the picked `--no-validate` of `push journeys` still validated. The
+editor writes the value that the typed flag gives, `false`, and the run is the
+command that the preview shows. A default that was saved with `--save-defaults`
+for such an option held `true` and had no effect; save it again. The editor no
+longer adds `(default: true)` to the description of these options.
+
 **Selectors of the `config-manager` commands are `-i, --<type>-id` and `-n,
 --<type>-name`, and `-n` and `--name` keep working**: inside `frodo
 config-manager` an object is selected by its identifier with `-i, --<type>-id`
