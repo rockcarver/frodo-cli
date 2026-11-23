@@ -124,7 +124,7 @@ suite('frodo shell $ (the console REST calls)', () => {
         { type: 'clear_output' },
         {
           type: 'send_line',
-          text: `await $.get('${USERS_URL}', ${JSON.stringify(API_VERSION)}).then(() => 'done')`,
+          text: `await $.get('${USERS_URL}', ${JSON.stringify(API_VERSION)}).then(() => 'do' + 'ne')`,
         },
         { type: 'wait_plain', regex: "'done'", timeoutMs: 20000 },
         { type: 'capture', label: 'curl' },
