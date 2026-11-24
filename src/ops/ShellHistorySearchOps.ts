@@ -356,7 +356,15 @@ export function createConsoleInput(
         drawnRows++;
       }
     }
-    hooks.setLine(selection?.text ?? query);
+    // The selection rides the readline line while the list is open, so
+    // the eye sees what Enter would run. A multi-line entry set whole
+    // wraps the prompt block over several physical rows, and the frame
+    // erase (which counts rows) then lands wrong: every scroll step left
+    // the previous frame's top rows on screen. The buffer shows the
+    // entry's first line only; the whole text goes onto the line where
+    // it is used (Enter and Tab below, after the frame is gone).
+    const shown = selection ? selection.text.split('\n')[0] : query;
+    hooks.setLine(shown);
     hooks.refresh();
   }
 

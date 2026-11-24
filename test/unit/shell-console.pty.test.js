@@ -141,4 +141,54 @@ describe('frodo shell PTY (console mode)', () => {
       removeShellTestHome(homeDir);
     }
   });
+
+  test('the search buffer shows a multi-line entry as its first line only', async () => {
+    const homeDir = createShellTestHome();
+    try {
+      const result = runShellScenario({
+        args: ['shell'],
+        homeDir,
+        actions: [
+          { type: 'wait_prompt' },
+          { type: 'clear_output' },
+          // A multi-line entry (as a paste records it): the readline
+          // buffer must not carry its breaks while the list is open, or
+          // the prompt block wraps over several rows and every scroll
+          // step lands the frame erase wrong, leaving the previous
+          // frame's rows on screen.
+          { type: 'send', text: "const aMulti=1;\rconst bMulti=2;\rconst cMulti=3;\r" },
+          { type: 'sleep', ms: 300 },
+          { type: 'wait_plain', regex: 'cMulti' },
+          { type: 'clear_output' },
+          { type: 'key', name: 'ctrl_r' },
+          // The query narrows the list to the multi-line entry: it is
+          // the selection, so the buffer carries it while the list is
+          // open.
+          { type: 'send', text: 'aMulti' },
+          { type: 'wait_plain', regex: '1/1' },
+          { type: 'sleep', ms: 200 },
+          { type: 'capture', label: 'selected' },
+          { type: 'key', name: 'escape' },
+        ],
+      });
+      const selected = result.captures.selected.raw;
+      // The whole selection is what Enter runs, but the line buffer
+      // holds the first line only while the list is open. Read the
+      // prompt redraws from the raw stream: every segment from 'frodo> '
+      // to the next cursor-home/erase carries only the prompt and the
+      // first line; a wrapped prompt block (the interior lines riding
+      // the buffer) is what broke the frame erase on every scroll. The
+      // list rows keep the whole entry (with the ¶ marks), so bMulti
+      // appears there and only there.
+      const redraws = selected.split(/frodo> /).slice(1);
+      expect(redraws.length).toBeGreaterThan(0);
+      for (const segment of redraws) {
+        const linePart = segment.split('\x1b[1G')[0];
+        expect(linePart).not.toContain('bMulti');
+      }
+      expect(selected).toContain('bMulti');
+    } finally {
+      removeShellTestHome(homeDir);
+    }
+  });
 });
