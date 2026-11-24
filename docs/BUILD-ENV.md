@@ -216,7 +216,11 @@ about 120 MB of that back (327 MB), because Node then loads the maps.
 
 ## 4. Tests: jest 30 + Polly, binary-first runtime
 
-- jest 30.5.2, `--experimental-vm-modules` (ESM-mode TS via ts-jest).
+- jest 30.5.2, `--experimental-vm-modules` (ESM-mode TS via ts-jest). Run by
+  hand (`npx jest`), the replayed e2e tests also need `--no-warnings` in
+  `NODE_OPTIONS`, as the `test:*` scripts set it: without it the `localStorage`
+  warning of a `FRODO_MOCK` replay lands in stderr and the tests that snapshot
+  stderr fail (2.4).
 - `FRODO_TEST=1 NO_COLOR=1` normalize the environment; `testResults.json` is
   written by `test:debug` only.
 - HTTP traffic is mocked with the Polly.js stack (`@pollyjs/*` +
@@ -316,8 +320,9 @@ allow-jit`, `--options runtime`) so the binary runs immediately —
    extensionless file). **Linux**: no finish step needed.
 
 **sea-config.json**: `execArgv: ["--no-warnings"]` silences Node 26's
-spurious `localStorage` ExperimentalWarning; `execArgvExtension: "none"`
-makes user flags (`--inspect`, `--node-options`) reach the app, not Node;
+spurious `localStorage` ExperimentalWarning of `FRODO_MOCK` runs;
+`execArgvExtension: "none"` makes user flags (`--inspect`, `--node-options`)
+reach the app, not Node;
 `useCodeCache: true` (saves ~50 ms of bundle compile at startup for +2.7 MB
 uncompressed / ~1 MB zipped; host-arch-specific, so the macos-intel
 cross-build forces it back to `false` in `sea-config.build.json`) +
