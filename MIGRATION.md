@@ -1971,17 +1971,19 @@ options are new on `pull raw` and nothing that ran before is refused.
   failures (`--allow-failures`). It cannot be used with `-D`.
 - `-V, --push-api-version` (`-V.protocol 2.1 -V.resource 1.0`) records the API
   version that a push of the file sends, in the file as `_pushApiVersion`, for the
-  item of `--path` under `/am`. Both properties are needed and nothing else is
-  taken; the command says so before it logs in. A read always uses the default
-  API version. The items of a config file keep their own `pushApiVersion`.
+  item of `--path` under `/am`. Both properties are needed, each one a version of
+  letters, digits, dots, underscores and hyphens (at most 64 characters), and
+  nothing else is taken; the command refuses anything else before it logs in. A
+  read always uses the default API version. The items of a config file keep their own `pushApiVersion`.
 
 What changes for a command that ran before: **`push raw` now sends the API
 version that a file records.** In 4.x and in earlier 5.0.0 prereleases the
 `_pushApiVersion` of a file under `/am` or `/environment` was removed before the
 library could read it, and the push always sent `protocol=2.0,resource=1.0`. A
 file that records another version now gets it; a `_pushApiVersion` that is not an
-object with a `protocol` and a `resource` text is ignored, as it was. The default
-output of `pull raw --config-file` is the same as before.
+object whose `protocol` and `resource` are versions of letters, digits, dots,
+underscores and hyphens (at most 64 characters) is ignored, as it was. The
+default output of `pull raw --config-file` is the same as before.
 
 ### Node.js version matrix changes in 5.x
 

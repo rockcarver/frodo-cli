@@ -18,7 +18,11 @@ export const VALID_VERSION_TEXTS = [
 
 /** Texts that are not: [what is wrong with it, the text]. */
 export const HOSTILE_VERSION_TEXTS = [
-  ['a comma', '2.1,resource=9.9'],
+  // one character each, so that a pattern that allows only that character is caught
+  ['a comma', '2,1'],
+  ['a carriage return', '2.1\r'],
+  ['a colon', '2:1'],
+  ['a comma and an equals sign', '2.1,resource=9.9'],
   ['a semicolon', '2.1;x'],
   ['an equals sign', 'protocol=2.1'],
   ['a space', '2.1 x'],
