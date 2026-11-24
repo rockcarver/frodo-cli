@@ -1,6 +1,14 @@
-import { isDeepStrictEqual } from 'node:util';
 import { frodo, type JourneyReference } from '@rockcarver/frodo-lib';
-import { causeOf } from '../utils/ErrorCause';
+import {
+  clearingError,
+  describeFields,
+  differences,
+  jsonCopy,
+  reasonOf,
+} from './ReferenceDelete';
+
+// stays exported from here: the tests of this module import it from this file
+export { unreadableSources } from './ReferenceDelete';
 
 /**
  * What `config-manager delete journeys --force` does for each holder that still
@@ -180,16 +188,6 @@ export function referenceLine(reference: JourneyReference): string {
   return `${describeReference(reference)}, ${reference.dependency}`;
 }
 
-/** A copy of data that came from JSON, made of plain objects of this module. */
-function jsonCopy<T>(data: T): T {
-  return JSON.parse(JSON.stringify(data)) as T;
-}
-
-/** Whether two pieces of JSON data are the same, whatever the order of the keys. */
-function sameJson(a: unknown, b: unknown): boolean {
-  return isDeepStrictEqual(jsonCopy(a ?? null), jsonCopy(b ?? null));
-}
-
 /** The field of a holder as a list of keys: `a.b.c` is `['a', 'b', 'c']`. */
 const pathOf = (from: string): string[] => from.split('.');
 
@@ -250,68 +248,6 @@ export type HolderChange = {
   was: string;
 };
 
-/** Where a holder differs from what it should be: the dotted paths of the fields. */
-function differences(
-  expected: unknown,
-  actual: unknown,
-  path = '',
-  found: string[] = []
-): string[] {
-  const isObject = (value: unknown): value is Record<string, unknown> =>
-    value !== null && typeof value === 'object' && !Array.isArray(value);
-  if (isObject(expected) && isObject(actual)) {
-    for (const name of new Set([
-      ...Object.keys(expected),
-      ...Object.keys(actual),
-    ])) {
-      // the revision changes with every write
-      if (path === '' && name === '_rev') continue;
-      differences(
-        expected[name],
-        actual[name],
-        path ? `${path}.${name}` : name,
-        found
-      );
-    }
-  } else if (!sameJson(expected, actual)) {
-    found.push(path);
-  }
-  return found;
-}
-
-/**
- * The fields that differ, for a message: their paths, never their values (a
- * message goes to the logs of a pipeline, and the old values are still in the
- * holder).
- * @param {string[]} paths the dotted paths that differ
- * @returns {string} one text for a message, at most twelve paths
- */
-function describeFields(paths: string[]): string {
-  const shown = paths.slice(0, 12);
-  return (
-    shown.join(', ') +
-    (paths.length > shown.length
-      ? `, and ${paths.length - shown.length} more`
-      : '')
-  );
-}
-
-/** An error that says whether the holder may have been changed by the step that failed. */
-export type ClearingError = Error & {
-  /** True when the holder was written and may not be as it was before. */
-  holderChanged?: boolean;
-};
-
-/** An error with the flag of a holder that was written. */
-function clearingError(message: string, holderChanged: boolean): ClearingError {
-  return Object.assign(new Error(message), { holderChanged });
-}
-
-/** The first line of what was thrown, for a message. */
-function reasonOf(error: unknown): string {
-  return error instanceof Error ? error.message.split('\n')[0] : String(error);
-}
-
 /**
  * Clears the reference of one holder: reads it, checks that the field still
  * names the journey, writes the whole holder back with the placeholder in that
@@ -326,7 +262,7 @@ function reasonOf(error: unknown): string {
  * @param {ClearableReference} reference the reference found by the library
  * @param {string} journeyId the journey that is about to be deleted
  * @returns {Promise<HolderChange>} what was cleared
- * @throws {ClearingError} when the holder does not name the journey any more,
+ * @throws {import('./ReferenceDelete').ClearingError} when the holder does not name the journey any more,
  * when a library function fails, or when the holder does not read back as it
  * should. `holderChanged` on the error says that the holder was written and
  * may differ from what it was (a read after the write failed, or the restore
@@ -504,28 +440,4 @@ export async function unlinkJourneyReference(
     );
   }
   return { was: linked.join(', ') };
-}
-
-/**
- * The sources a failed lookup could not read, by name, from the error that
- * `findJourneyReferences` throws (one nested error per source).
- * @param {unknown} error the error the library threw
- * @returns {string[]} one line per source that could not be read
- */
-export function unreadableSources(error: unknown): string[] {
-  const nested = (error as { originalErrors?: unknown })?.originalErrors;
-  if (Array.isArray(nested) && nested.length > 0) {
-    return nested.map((item) => {
-      const text = (item instanceof Error ? item.message : String(item))
-        .split('\n')[0]
-        .trim();
-      // the message of the library names the source ("Error reading themes"), the
-      // cause at the bottom of the error says why it could not be read
-      const cause = causeOf(item);
-      return cause && cause !== text ? `${text}: ${cause}` : text;
-    });
-  }
-  return [
-    error instanceof Error ? error.message.split('\n')[0] : String(error),
-  ];
 }
