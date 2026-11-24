@@ -190,19 +190,44 @@ export function resolveUrl(url: string): {
 }
 
 /**
- * Percent-encode characters a raw HTTP request line cannot carry. Leaves
- * existing encodings and reserved characters (`?`, `&`, `=`, `/`, `:`)
- * alone, so a query filter typed naturally
- * (`?_queryFilter=userName eq "bjensen"`) arrives encoded without
- * pre-encoding anything.
+ * Percent-encode characters a raw HTTP request line cannot carry, leaving
+ * valid `%XX` escape triplets alone: a value the caller already wrote
+ * percent-encoded (an LDAP paged-results cookie echoed back into
+ * `_pagedResultsCookie`, a filter pasted from a curl command) arrives as
+ * written, once encoded. A bare `%` (not followed by two hex digits) is
+ * itself encoded, so nothing the caller writes can be swallowed by the
+ * server's single decode. An existing `+` travels as `%2B`, so a `+` that
+ * is part of a value (base64) survives the server's form decoding, while a
+ * space becomes a `+` last, keeping filters typed naturally
+ * (`?_queryFilter=userName eq "bjensen"`) readable on the wire. Reserved
+ * structure (`?`, `&`, `=`, `/`, `:`) stays untouched.
+ *
+ * The URL is split around its valid escape triplets and encodeURI runs on
+ * the segments between them: encodeURI on a whole URL encodes the % of an
+ * existing triplet too (encodeURI('%2F') is '%252F'), which is the defect
+ * this function exists to fix. On a segment, encodeURI's treatment of a
+ * bare % (encode it) is exactly right, and every other character rule of
+ * the old implementation is inherited unchanged.
  */
 export function encodeUrlPathAndQuery(url: string): string {
-  return encodeURI(url)
-    .replace(/%20/g, '+')
-    .replace(/"/g, '%22')
-    .replace(/'/g, '%27')
-    .replace(/\[/g, '%5B')
-    .replace(/\]/g, '%5D');
+  return url
+    .split(/(%[0-9a-fA-F]{2})/)
+    .map((part, index) => {
+      // Odd indexes are the captured triplets: they pass through as
+      // written, the one encode the server applies decodes them back.
+      if (index % 2 === 1) return part;
+      return (
+        encodeURI(part)
+          // A value + must survive the server's form decoding; this runs
+          // before the space rewrite, whose + means a space.
+          .replace(/\+/g, '%2B')
+          .replace(/%20/g, '+')
+          .replace(/'/g, '%27')
+          .replace(/\[/g, '%5B')
+          .replace(/\]/g, '%5D')
+      );
+    })
+    .join('');
 }
 
 /**
