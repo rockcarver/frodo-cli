@@ -9,6 +9,10 @@ import {
   jest,
   test,
 } from '@jest/globals';
+import {
+  HOSTILE_VERSION_TEXTS,
+  VALID_VERSION_TEXTS,
+} from '../utils/PushApiVersionTexts.js';
 
 /**
  * What `config-manager pull raw` hands to frodo-lib and what it does with the answer
@@ -235,6 +239,7 @@ describe('pull raw --path', () => {
     ['a path that starts the path of an item', '/openidm/config/ok'],
     ['a path that the path of an item starts', '/openidm/config/ok12'],
     ['a folder of the path of an item', '/openidm/config'],
+    ['a path that ends the path of an item', '/config/ok1'],
   ])(
     'does not take an item for %s: only the whole path is the path',
     async (_, asked) => {
@@ -247,6 +252,18 @@ describe('pull raw --path', () => {
       expect(exportRawConfig.mock.calls).toEqual([[{ path: asked }]]);
     }
   );
+
+  test('finds the item of the file by the path as it is typed, in the case it is typed: a path of a tenant is case sensitive', async () => {
+    const file = put('raw.json', [
+      { path: '/openidm/config/OK1', overrides: { v: 2 } },
+    ]);
+
+    await configManagerExportRaw(file, false, '/openidm/config/ok1');
+
+    expect(exportRawConfig.mock.calls).toEqual([
+      [{ path: '/openidm/config/ok1' }],
+    ]);
+  });
 
   test('puts the push API version of the command line into the item, over the one of the file', async () => {
     const file = put('raw.json', [LISTED]);
@@ -422,6 +439,95 @@ describe('push raw keeps the push API version of the file for the library', () =
       expect('_pushApiVersion' in importRawConfig.mock.calls[0][1]).toBe(false);
     }
   );
+
+  // What the library puts into the header is `protocol=<protocol>,resource=<resource>`: a text
+  // that is not made of letters, digits, dots, underscores and hyphens would add to it.
+  const POSITIONS = [
+    ['protocol', (text) => ({ protocol: text, resource: '1.0' })],
+    ['resource', (text) => ({ protocol: '2.1', resource: text })],
+  ];
+
+  test.each(HOSTILE_VERSION_TEXTS)(
+    'a file: a version text with %s is dropped, silently, in the protocol and in the resource',
+    async (_, text) => {
+      for (const [, make] of POSITIONS) {
+        importRawConfig.mockClear();
+        put('raw/am/json/x.json', {
+          ...OPERATIONAL,
+          value: 1,
+          _pushApiVersion: make(text),
+        });
+
+        expect(await configManagerImportRaw()).toBe(true);
+
+        expect(printError).not.toHaveBeenCalled();
+        expect(importRawConfig.mock.calls).toEqual([
+          [{ path: '/am/json/x' }, { value: 1 }],
+        ]);
+      }
+    }
+  );
+
+  test.each(HOSTILE_VERSION_TEXTS)(
+    'standard input: a version text with %s is dropped, silently, in the protocol and in the resource',
+    async (_, text) => {
+      for (const [, make] of POSITIONS) {
+        importRawConfig.mockClear();
+        readStdinToEndSync.mockReturnValue(
+          JSON.stringify({
+            ...OPERATIONAL,
+            value: 1,
+            _pushApiVersion: make(text),
+          })
+        );
+
+        expect(await configManagerImportRaw('/am/json/x', true)).toBe(true);
+
+        expect(printError).not.toHaveBeenCalled();
+        expect(importRawConfig.mock.calls).toEqual([
+          [{ path: '/am/json/x' }, { value: 1 }],
+        ]);
+      }
+    }
+  );
+
+  test.each(VALID_VERSION_TEXTS.map((text) => [text.slice(0, 12), text]))(
+    'the version text %s is kept for the library, in the protocol and in the resource, on a file and on standard input',
+    async (_, text) => {
+      for (const [, make] of POSITIONS) {
+        const version = make(text);
+        importRawConfig.mockClear();
+        put('raw/am/json/x.json', {
+          ...OPERATIONAL,
+          value: 1,
+          _pushApiVersion: version,
+        });
+        await configManagerImportRaw();
+        readStdinToEndSync.mockReturnValue(
+          JSON.stringify({ ...OPERATIONAL, value: 1, _pushApiVersion: version })
+        );
+        await configManagerImportRaw('/am/json/x', true);
+
+        expect(importRawConfig.mock.calls).toEqual([
+          [{ path: '/am/json/x' }, { value: 1, _pushApiVersion: version }],
+          [{ path: '/am/json/x' }, { value: 1, _pushApiVersion: version }],
+        ]);
+      }
+    }
+  );
+
+  test('a version with a property besides protocol and resource is kept as it is: the library reads the two', async () => {
+    const version = { protocol: '2.1', resource: '1.0', extra: 'x' };
+    readStdinToEndSync.mockReturnValue(
+      JSON.stringify({ ...OPERATIONAL, value: 1, _pushApiVersion: version })
+    );
+
+    expect(await configManagerImportRaw('/am/json/x', true)).toBe(true);
+
+    expect(importRawConfig.mock.calls).toEqual([
+      [{ path: '/am/json/x' }, { value: 1, _pushApiVersion: version }],
+    ]);
+  });
 
   test('standard input without a version sends none', async () => {
     readStdinToEndSync.mockReturnValue(

@@ -1,5 +1,9 @@
 import { jest } from '@jest/globals';
 import { Command, Option } from 'commander';
+import {
+  HOSTILE_VERSION_TEXTS,
+  VALID_VERSION_TEXTS,
+} from '../utils/PushApiVersionTexts.js';
 
 /**
  * The ten config-manager commands `pull` and `push` of `password-policy`,
@@ -304,10 +308,58 @@ describe('config-manager pull raw: the options of the new flags', () => {
     }
   );
 
-  test.each([['/openidm/config/ok1'], ['openidm/config/ok1'], ['a b']])(
-    '--path keeps the value %j as it was typed',
-    (value) => {
-      expect(optionOf('path').parseArg(value, undefined)).toBe(value);
+  test.each([
+    ['/openidm/config/ok1'],
+    ['openidm/config/ok1'],
+    ['a b'],
+    [' /openidm/config/ok1 '],
+    ['\t/openidm/config/ok1'],
+  ])('--path keeps the value %j as it was typed', (value) => {
+    expect(optionOf('path').parseArg(value, undefined)).toBe(value);
+  });
+
+  test.each(HOSTILE_VERSION_TEXTS)(
+    '--push-api-version with a version text with %s fails before the login, with the one message, in the protocol and in the resource',
+    async (_, text) => {
+      for (const name of ['protocol', 'resource']) {
+        printMessage.mockClear();
+        getTokens.mockClear();
+        exportRaw.mockClear();
+        await invoke(setups[file](), {
+          configFile: 'raw.json',
+          pushApiVersion: {
+            protocol: '2.1',
+            resource: '1.0',
+            [name]: text,
+          },
+        });
+
+        expect(printMessage).toHaveBeenCalledTimes(1);
+        expect(printMessage.mock.calls[0][0]).toBe(
+          `The ${name} of --push-api-version must be a version, for example -V.protocol 2.1 -V.resource 1.0.`
+        );
+        expect(printMessage.mock.calls[0][1]).toBe('error');
+        expect(getTokens).not.toHaveBeenCalled();
+        expect(exportRaw).not.toHaveBeenCalled();
+        expect(process.exitCode).toBe(1);
+      }
+    }
+  );
+
+  test.each(VALID_VERSION_TEXTS.map((text) => [text.slice(0, 12), text]))(
+    '--push-api-version takes the version text %s',
+    async (_, text) => {
+      await invoke(setups[file](), {
+        configFile: 'raw.json',
+        pushApiVersion: { protocol: text, resource: text },
+      });
+
+      expect(printMessage).not.toHaveBeenCalled();
+      expect(exportRaw.mock.calls[0][4]).toEqual({
+        protocol: text,
+        resource: text,
+      });
+      expect(process.exitCode).toBe(0);
     }
   );
 

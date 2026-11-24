@@ -4,6 +4,7 @@ import * as s from '../../../help/SampleData';
 import { getTokens } from '../../../ops/AuthenticateOps';
 import c from '../../../utils/ColorTheme';
 import { printMessage } from '../../../utils/Console';
+import { isVersionText } from '../../../utils/PushApiVersion';
 import { FrodoCommand, ObjectOption } from '../../FrodoCommand';
 
 /** The only two properties of a push API version. */
@@ -28,7 +29,8 @@ function refuseBlankPath(value: string): string {
 
 /**
  * What is wrong with the value of --push-api-version, which is checked before the command
- * logs in: it needs a protocol and a resource version, each one text, and nothing else.
+ * logs in: it needs a protocol and a resource version, each one a version text (letters,
+ * digits, dots, underscores and hyphens), and nothing else.
  * @param {unknown} value the value of the option, the object that its dot notation built
  * @returns {string | undefined} what is wrong with it, or undefined when it is fine
  */
@@ -48,8 +50,7 @@ function pushApiVersionProblem(value: unknown): string | undefined {
     if (properties[name] === undefined) {
       return '--push-api-version requires resource and protocol versions.';
     }
-    const version = properties[name];
-    if (typeof version !== 'string' || version.trim() === '') {
+    if (!isVersionText(properties[name])) {
       return `The ${name} of --push-api-version must be a version, ${example}.`;
     }
   }

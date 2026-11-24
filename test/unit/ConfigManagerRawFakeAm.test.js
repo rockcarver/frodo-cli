@@ -4,6 +4,7 @@ import fs from 'fs';
 import { createRequire } from 'module';
 import os from 'os';
 import path from 'path';
+import { HOSTILE_VERSION_TEXTS } from '../utils/PushApiVersionTexts.js';
 import { startRawProxy } from '../utils/RawConfigProxy.js';
 import { startFakeAm } from '../utils/StartFakeAm.js';
 
@@ -736,6 +737,88 @@ suite('config-manager pull raw and push raw against a fake tenant', () => {
       },
       TIMEOUT
     );
+
+    // the text goes into the header of a later push: a comma would add a parameter to it
+    it(
+      'refuses a protocol that holds a comma before it logs in, whichever way the option is typed: no file that a push could send as a longer header',
+      async () => {
+        const proxy = await tenant();
+
+        const { code, stdout, stderr } = await pull(proxy, [
+          '--path',
+          WEBHOOK_PATH,
+          '-D',
+          'out',
+          '-V.protocol=2.1,resource=9.9',
+          '-V.resource=1.0',
+        ]);
+
+        expect(code).toBe(1);
+        expect(stdout).toBe('');
+        expect(stderr).toContain(
+          'The protocol of --push-api-version must be a version'
+        );
+        expect(proxy.requests()).toEqual([]);
+        expect(filesBelow(work)).toEqual([]);
+      },
+      TIMEOUT
+    );
+
+    it.each(
+      HOSTILE_VERSION_TEXTS.filter(
+        ([, text]) => text.trim() !== '' && !text.includes('\u0000')
+      )
+    )(
+      'refuses a version text with %s before it logs in: exit 1, one message, no request',
+      async (_, text) => {
+        const proxy = await tenant();
+
+        const { code, stdout, stderr } = await pull(proxy, [
+          '--path',
+          WEBHOOK_PATH,
+          '--stdout',
+          '-V',
+          `protocol=${text}`,
+          '-V',
+          'resource=1.0',
+        ]);
+
+        expect(code).toBe(1);
+        expect(stdout).toBe('');
+        expect(stderr).toContain(
+          'The protocol of --push-api-version must be a version'
+        );
+        expect(proxy.requests()).toEqual([]);
+      },
+      TIMEOUT
+    );
+
+    it.each([
+      ['2.2', '1.5'],
+      ['v2.0-beta_1', 'A'.repeat(64)],
+    ])(
+      'takes the version texts %s and %s',
+      async (protocol, resource) => {
+        const proxy = await tenant();
+
+        const { code, stdout } = await pull(proxy, [
+          '--path',
+          WEBHOOK_PATH,
+          '--stdout',
+          '-V',
+          `protocol=${protocol}`,
+          '-V',
+          `resource=${resource}`,
+        ]);
+
+        expect(code).toBe(0);
+        expect(JSON.parse(stdout)._pushApiVersion).toEqual({
+          protocol,
+          resource,
+        });
+      },
+      TIMEOUT
+    );
   });
 
   describe('a pull of a config file without the new options', () => {
@@ -897,6 +980,90 @@ suite('config-manager pull raw and push raw against a fake tenant', () => {
         for (const put of puts) {
           expect(JSON.parse(put.body)._pushApiVersion).toBeUndefined();
         }
+      },
+      TIMEOUT
+    );
+
+    // The header is `protocol=<protocol>,resource=<resource>`: a text that is not a version would add to it.
+    it.each(HOSTILE_VERSION_TEXTS.filter(([, text]) => text.trim() !== ''))(
+      'drops a version text with %s without a word and sends the default version, from a file and from standard input',
+      async (_, text) => {
+        const proxy = await tenant();
+        writeFileOf(WEBHOOK_PATH, {
+          ...WEBHOOK,
+          _pushApiVersion: { protocol: text, resource: '1.0' },
+        });
+
+        const fromFile = await push(proxy, []);
+        const fromStdin = await push(
+          proxy,
+          ['--path', WEBHOOK_PATH, '--stdin'],
+          {
+            stdin: JSON.stringify({
+              ...WEBHOOK,
+              _pushApiVersion: { protocol: '2.1', resource: text },
+            }),
+          }
+        );
+
+        expect([fromFile.code, fromStdin.code]).toEqual([0, 0]);
+        expect(fromFile.stderr + fromStdin.stderr).not.toMatch(
+          /pushApiVersion|undefined/i
+        );
+        const puts = putsTo(proxy, WEBHOOK_PATH);
+        expect(puts.map((put) => put.acceptApiVersion)).toEqual([
+          DEFAULT_VERSION,
+          DEFAULT_VERSION,
+        ]);
+        for (const put of puts) {
+          expect(JSON.parse(put.body)._pushApiVersion).toBeUndefined();
+        }
+      },
+      TIMEOUT
+    );
+
+    it.each([
+      ['2.2', '1.5'],
+      ['v2.0-beta_1', '1.0'],
+    ])(
+      'sends the version texts %s and %s as they are',
+      async (protocol, resource) => {
+        const proxy = await tenant();
+        writeFileOf(WEBHOOK_PATH, {
+          ...WEBHOOK,
+          _pushApiVersion: { protocol, resource },
+        });
+
+        const { code } = await push(proxy, []);
+
+        expect(code).toBe(0);
+        expect(putsTo(proxy, WEBHOOK_PATH)[0].acceptApiVersion).toBe(
+          `protocol=${protocol},resource=${resource}`
+        );
+      },
+      TIMEOUT
+    );
+
+    it(
+      'sends a version that has a property besides protocol and resource as the version it names, and does not send the property',
+      async () => {
+        const proxy = await tenant();
+
+        const { code } = await push(
+          proxy,
+          ['--path', WEBHOOK_PATH, '--stdin'],
+          {
+            stdin: JSON.stringify({
+              ...WEBHOOK,
+              _pushApiVersion: { ...VERSIONED, extra: 'x' },
+            }),
+          }
+        );
+
+        expect(code).toBe(0);
+        const [put] = putsTo(proxy, WEBHOOK_PATH);
+        expect(put.acceptApiVersion).toBe('protocol=2.1,resource=1.0');
+        expect(JSON.parse(put.body)._pushApiVersion).toBeUndefined();
       },
       TIMEOUT
     );
