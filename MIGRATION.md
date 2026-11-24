@@ -104,27 +104,27 @@ Otherwise use the JavaScript built-ins.
 **`frodo shell --web` evaluates with Node's own REPL evaluator** (prerelease
 feature): the browser console used its own evaluator, written for it, which
 needed two parser packages (`acorn` and `acorn-walk`), and now runs the same
-evaluator as the terminal console. Declarations, top-level `await`, the value
-of the last expression, the order of inputs and the way an error that a script
-raises on the side (a timer that
-throws, a promise nobody awaits that is rejected) is printed into the log while
-the input goes on are as before. What differs: an input that produces a promise
-shows the promise (it used to wait for the result: write `await` in front of it,
-as in the terminal console), so `new Promise(() => {})` no longer hangs the
-console, and a rejected promise that nobody awaits is printed into the log
-instead of being the error of the input; `_` and `_error` hold the last result
-and the last error, as in the terminal console. `throw null`,
-`throw undefined` and `await Promise.reject(null)` are errors now (they showed
-`undefined`); `await` inside parentheses (`await (async () => 5)()`) and dynamic
-`import()` work. An unfinished block comment, or `await 1 +`, waits for more
-input instead of failing, and a misplaced `await` is reported with Node's
-wording (`await is only valid in async functions and the top level bodies of
-modules`, or a syntax error with an excerpt of the code) instead of `await
-outside of an async function`. The names a script declares with `let`, `const`
-or `class` complete even when the input that declared them then failed. A name
-that the console already has (the built-in module names such as `fs` or `path`,
-or a global) is not offered as a completion again when a script declares it; its
-members still complete.
+evaluator as the terminal console. Declarations, top-level `await`, the value of
+the last expression, the order of inputs and the way an error that a script
+raises on the side (a timer that throws, a promise nobody awaits that is
+rejected) is printed into the log while the input goes on are as before. What
+differs: an input that produces a promise shows the promise (it used to wait for
+the result: write `await` in front of it, as in the terminal console), so
+`new Promise(() => {})` no longer hangs the console, and a rejected promise that
+nobody awaits is printed into the log instead of being the error of the input;
+`_` and `_error` hold the last result and the last error, as in the terminal
+console. `throw null`, `throw undefined` and `await Promise.reject(null)` are
+errors now (they showed `undefined`); `await` inside parentheses
+(`await (async () => 5)()`) and dynamic `import()` work. An unfinished block
+comment, or `await 1 +`, waits for more input instead of failing, and a
+misplaced `await` is reported with Node's wording
+(`await is only valid in async functions and the top level bodies of modules`,
+or a syntax error with an excerpt of the code) instead of
+`await outside of an async function`. The names a script declares with `let`,
+`const` or `class` complete even when the input that declared them then failed.
+A name that the console already has (the built-in module names such as `fs` or
+`path`, or a global) is not offered as a completion again when a script declares
+it; its members still complete.
 
 **The console's REST calls (`$`) are sent by the library's request instances**:
 `$` in `frodo shell` built its own HTTP client and copied the library's
