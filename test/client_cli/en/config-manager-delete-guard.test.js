@@ -27,6 +27,7 @@ async function run(command, env = {}) {
 describe('a delete of more than one object without a terminal and without --yes', () => {
   test.each([
     'frodo config-manager delete applications',
+    'frodo config-manager delete connector-definitions',
     'frodo config-manager delete oauth-cimd-profiles',
     'frodo config-manager delete custom-nodes',
     'frodo config-manager delete endpoints',
@@ -53,7 +54,8 @@ describe('a delete of more than one object without a terminal and without --yes'
     expect(stderr).toContain('Refusing to delete');
     expect(stderr).toContain('-y/--yes');
     expect(stderr).toContain('--dry-run');
-    expect(stderr).not.toMatch(/ECONNREFUSED|connect/i);
+    // the host was never reached; the word "connector" is in the messages of one command, so it is not "connect"
+    expect(stderr).not.toMatch(/ECONNREFUSED|connect(?!or)/i);
   });
 
   test('the refusal says what would have been deleted', async () => {
@@ -170,6 +172,8 @@ describe('what is not refused', () => {
     'frodo config-manager delete terms-and-conditions -d',
     'frodo config-manager delete variables -d',
     'frodo config-manager delete applications -y',
+    'frodo config-manager delete connector-definitions -d',
+    'frodo config-manager delete connector-definitions -y',
     'frodo config-manager delete custom-nodes -y',
     'frodo config-manager delete endpoints -y',
     'frodo config-manager delete scripts -y',
@@ -200,6 +204,61 @@ describe('what is not refused', () => {
     const { stderr } = await run(command);
 
     expect(stderr).not.toContain('Refusing to delete');
+  });
+});
+
+describe('a delete of connector definitions', () => {
+  // the word "connector" is in every message of the command, so the check that the host was never reached
+  // names the error that an unreachable host gives, and not the word "connect"
+  const NOT_REACHED = /ECONNREFUSED/;
+
+  test('a delete of all of them is refused before the login without a terminal and without -y, and says what goes', async () => {
+    const { code, stderr } = await run('frodo config-manager delete connector-definitions');
+
+    expect(code).toBe(1);
+    expect(stderr).toContain('Refusing to delete all connector definitions without confirmation');
+    expect(stderr).toContain('-y/--yes');
+    expect(stderr).toContain('--dry-run');
+    expect(stderr).not.toMatch(NOT_REACHED);
+  });
+
+  test.each([
+    'frodo config-manager delete connector-definitions -i Azure --force',
+    'frodo config-manager delete connector-definitions -n Azure --force',
+  ])('"%s" changes nothing but the connector definition, yet is refused before the login without -y', async (command) => {
+    const { code, stderr } = await run(command);
+
+    expect(code).toBe(1);
+    expect(stderr).toContain("Refusing to delete connector definition 'Azure' although other objects may name it");
+    expect(stderr).toContain('-y/--yes');
+    expect(stderr).toContain('--dry-run');
+    expect(stderr).not.toMatch(NOT_REACHED);
+  });
+
+  test.each([
+    'frodo config-manager delete connector-definitions -i Azure',
+    'frodo config-manager delete connector-definitions -n Azure',
+    'frodo config-manager delete connector-definitions --name Azure',
+    'frodo config-manager delete connector-definitions -i Azure -d',
+    'frodo config-manager delete connector-definitions -i Azure --force -d',
+    'frodo config-manager delete connector-definitions -i Azure --force -y',
+  ])('"%s" goes on to the login', async (command) => {
+    const { stderr } = await run(command);
+
+    expect(stderr).not.toContain('Refusing to delete');
+    expect(stderr).not.toContain('unknown option');
+  });
+
+  test.each([
+    'frodo config-manager delete connector-definitions --force',
+    'frodo config-manager delete connector-definitions --force -y',
+    'frodo config-manager delete connector-definitions --force -d',
+  ])('"%s" is refused before the login: --force applies to a named connector definition only', async (command) => {
+    const { code, stderr } = await run(command);
+
+    expect(code).toBe(1);
+    expect(stderr).toContain('--force applies to a named connector definition only');
+    expect(stderr).not.toMatch(NOT_REACHED);
   });
 });
 
@@ -395,8 +454,8 @@ describe('a delete that names one object, for every command and every spelling o
     ...(row.aliases.includes('--name') ? [['--name', "''"], ['--name=']] : []),
   ];
 
-  test('has the 17 delete rows', () => {
-    expect(rows).toHaveLength(17);
+  test('has the 18 delete rows', () => {
+    expect(rows).toHaveLength(18);
   });
 
   test.each(rows.map((row) => [typeOf(row), row]))(

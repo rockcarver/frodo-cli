@@ -161,6 +161,39 @@ const CASES = [
     fn: 'configManagerDeleteEndpoints',
   },
   {
+    name: 'config-manager delete connector-definitions',
+    file: 'src/configManagerOps/FrConfigConnectorDefinitionsOps.ts',
+    summaryName: nameOf,
+    unit: 'connector',
+    arrange({ failing, attempted }) {
+      frodo.idm.connector.readConnectors
+        .mockReset()
+        .mockResolvedValue(IDS.map((id) => ({ _id: `provisioner.openicf/${id}` })));
+      frodo.idm.connector.deleteConnector
+        .mockReset()
+        .mockImplementation(async (id) => {
+          attempted.push(id);
+          if (failing.has(id)) throw new Error(`could not delete ${id}`);
+        });
+    },
+    empty: () =>
+      frodo.idm.connector.readConnectors.mockReset().mockResolvedValue([]),
+    emptyMessage: /No connector definitions found to delete\./,
+    notFound: (m) =>
+      m.configManagerDeleteConnectorDefinitions('zzz', false, false),
+    failToRead: () =>
+      frodo.idm.connector.readConnectors
+        .mockReset()
+        .mockRejectedValue(new Error('read failed')),
+    run: (m, allowFailures) =>
+      m.configManagerDeleteConnectorDefinitions(
+        undefined,
+        false,
+        allowFailures
+      ),
+    fn: 'configManagerDeleteConnectorDefinitions',
+  },
+  {
     name: 'config-manager delete scripts',
     file: 'src/configManagerOps/FrConfigScriptOps.ts',
     summaryName: (id) => `${id} in realm /alpha`,
