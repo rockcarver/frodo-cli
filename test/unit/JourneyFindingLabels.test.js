@@ -39,6 +39,642 @@ describe('findingLine', () => {
       )
     ).toBe("  [UNREACHABLE_NODE] Tree node 'n1' is not reachable");
   });
+
+  test('writes a finding that the library describes no node of, and a code it has never heard of, as it always did', () => {
+    const entry = finding(
+      'MISSING_ENTRY_NODE',
+      'error',
+      'login',
+      "Entry node 'd26176be-ea6f-4f2a-81cd-3d41dd6cee4d' does not resolve to a graph node"
+    );
+    const unknown = finding(
+      'SOME_FUTURE_CODE',
+      'warning',
+      'login',
+      "Something about node '295a70ba-1111-4222-8333-444455556666'"
+    );
+
+    expect(findingLine(entry)).toBe(`  [MISSING_ENTRY_NODE] ${entry.message}`);
+    expect(findingLine(unknown)).toBe(
+      `  [SOME_FUTURE_CODE] ${unknown.message}`
+    );
+    expect(findingLine(entry, true)).toBe(findingLine(entry));
+    expect(findingLine(unknown, true)).toBe(findingLine(unknown));
+  });
+});
+
+// A finding names a node as the Journey Editor shows it (cli#1378): the library describes each node of a finding
+// (`node`, `targetNode`, `pageNode`) and the line replaces the quoted ids of its message by the words of the node.
+// The words of each pattern of the library's messages, with the node ids of a real journey.
+describe('findingLine names the nodes of a finding', () => {
+  const LOCKOUT = 'a1b2c3d4-0000-4000-8000-000000000001';
+  const AGE = '295a70ba-4b4b-4c4c-8d8d-000000000002';
+  const PAGE = 'ab9f607b-1234-4abc-8def-000000000003';
+  const IDP = 'e165f3c7-2222-4333-8444-000000000004';
+  const USERNAME = '5d0d6a14-3333-4444-8555-000000000005';
+  const PASSWORD = '44444444-aaaa-4bbb-8ccc-000000000006';
+
+  const described = (code, severity, message, fields) => ({
+    ...finding(code, severity, 'Login', message),
+    ...fields,
+  });
+  const lockout = {
+    id: LOCKOUT,
+    displayName: 'Account Lockout',
+    nodeType: 'AccountLockoutNode',
+    nodeTypeName: 'Account Lockout',
+  };
+  const age = {
+    id: AGE,
+    displayName: 'Check Age',
+    nodeType: 'ScriptedDecisionNode',
+    nodeTypeName: 'Scripted Decision',
+  };
+  const page = {
+    id: PAGE,
+    displayName: 'Login Page',
+    nodeType: 'PageNode',
+    nodeTypeName: 'Page Node',
+  };
+  const idp = {
+    id: IDP,
+    displayName: 'Select IDP',
+    nodeType: 'SelectIdPNode',
+    nodeTypeName: 'Select Identity Provider',
+  };
+  const username = {
+    id: USERNAME,
+    displayName: 'Username',
+    nodeType: 'ValidatedUsernameNode',
+  };
+
+  test('a node whose name is its type is written by the name alone', () => {
+    expect(
+      findingLine(
+        described(
+          'UNREACHABLE_NODE',
+          'warning',
+          `Tree node '${LOCKOUT}' is not reachable from the entry node`,
+          { nodeId: LOCKOUT, node: lockout }
+        )
+      )
+    ).toBe(
+      '  [UNREACHABLE_NODE] Tree node "Account Lockout" is not reachable from the entry node'
+    );
+  });
+
+  test('a node whose name is not its type gets the title of the type in brackets', () => {
+    expect(
+      findingLine(
+        described(
+          'UNREACHABLE_NODE',
+          'warning',
+          `Tree node '${AGE}' is not reachable from the entry node`,
+          { nodeId: AGE, node: age }
+        )
+      )
+    ).toBe(
+      '  [UNREACHABLE_NODE] Tree node "Check Age" (Scripted Decision) is not reachable from the entry node'
+    );
+  });
+
+  test('a node that the definition does not describe shows the id of its type, not a title made up from it', () => {
+    expect(
+      findingLine(
+        described(
+          'UNREACHABLE_NODE',
+          'warning',
+          `Tree node '${AGE}' is not reachable from the entry node`,
+          {
+            nodeId: AGE,
+            node: {
+              id: AGE,
+              displayName: 'Check Age',
+              nodeType: 'ScriptedDecisionNode',
+            },
+          }
+        )
+      )
+    ).toBe(
+      '  [UNREACHABLE_NODE] Tree node "Check Age" (ScriptedDecisionNode) is not reachable from the entry node'
+    );
+  });
+
+  test('keeps the outcome that the library quotes, and names the node of an outcome', () => {
+    expect(
+      findingLine(
+        described(
+          'UNCONNECTED_OUTCOME',
+          'warning',
+          `Declared outcome 'false' on node '${AGE}' has no connection`,
+          { nodeId: AGE, outcome: 'false', node: age }
+        )
+      )
+    ).toBe(
+      '  [UNCONNECTED_OUTCOME] Declared outcome \'false\' on node "Check Age" (Scripted Decision) has no connection'
+    );
+    expect(
+      findingLine(
+        described(
+          'UNKNOWN_CONNECTION_OUTCOME',
+          'warning',
+          `Connection outcome 'maybe' is not declared by node '${AGE}'`,
+          { nodeId: AGE, outcome: 'maybe', node: age }
+        )
+      )
+    ).toBe(
+      '  [UNKNOWN_CONNECTION_OUTCOME] Connection outcome \'maybe\' is not declared by node "Check Age" (Scripted Decision)'
+    );
+  });
+
+  test('adds the first 8 characters of the id to a node that another node of the journey has the same name and type as', () => {
+    expect(
+      findingLine(
+        described(
+          'UNCONNECTED_OUTCOME',
+          'warning',
+          `Declared outcome 'outcome' on node '${USERNAME}' has no connection`,
+          {
+            nodeId: USERNAME,
+            outcome: 'outcome',
+            node: {
+              id: USERNAME,
+              displayName: 'Platform Username',
+              nodeType: 'ValidatedUsernameNode',
+              nodeTypeName: 'Platform Username',
+              ambiguous: true,
+            },
+          }
+        )
+      )
+    ).toBe(
+      '  [UNCONNECTED_OUTCOME] Declared outcome \'outcome\' on node "Platform Username" (id 5d0d6a14) has no connection'
+    );
+    expect(
+      findingLine(
+        described(
+          'UNREACHABLE_NODE',
+          'warning',
+          `Tree node '${AGE}' is not reachable from the entry node`,
+          { nodeId: AGE, node: { ...age, ambiguous: true } }
+        )
+      )
+    ).toBe(
+      '  [UNREACHABLE_NODE] Tree node "Check Age" (Scripted Decision, id 295a70ba) is not reachable from the entry node'
+    );
+  });
+
+  test('names the entry node of a journey with no terminal node, and keeps its type when the name is another', () => {
+    expect(
+      findingLine(
+        described(
+          'NO_REACHABLE_TERMINAL',
+          'warning',
+          `No terminal node is reachable from entry node '${USERNAME}'`,
+          {
+            nodeId: USERNAME,
+            node: {
+              id: USERNAME,
+              displayName: 'name1',
+              nodeType: 'ValidatedUsernameNode',
+              nodeTypeName: 'Platform Username',
+            },
+          }
+        )
+      )
+    ).toBe(
+      '  [NO_REACHABLE_TERMINAL] No terminal node is reachable from entry node "name1" (Platform Username)'
+    );
+  });
+
+  test('names a node of a Page Node and the Page Node, which the sentence already calls a Page Node', () => {
+    expect(
+      findingLine(
+        described(
+          'MISSING_SOCIAL_IDENTITY_PROVIDER_DEPENDENCY',
+          'warning',
+          `Node '${IDP}' in Page Node '${PAGE}' references socialIdentityProvider 'google' missing from the export`,
+          {
+            nodeId: IDP,
+            pageNodeId: PAGE,
+            dependencyType: 'socialIdentityProvider',
+            dependencyId: 'google',
+            node: { ...idp, ambiguous: true },
+            pageNode: { ...page, ambiguous: true },
+          }
+        )
+      )
+    ).toBe(
+      '  [MISSING_SOCIAL_IDENTITY_PROVIDER_DEPENDENCY] Node "Select IDP" (Select Identity Provider, id e165f3c7) in Page Node "Login Page" (id ab9f607b) references socialIdentityProvider \'google\' missing from the export'
+    );
+    expect(
+      findingLine(
+        described(
+          'MISSING_SOCIAL_IDENTITY_PROVIDER_DEPENDENCY',
+          'warning',
+          `Node '${IDP}' in Page Node '${PAGE}' references socialIdentityProvider 'google' missing from the export`,
+          { nodeId: IDP, pageNodeId: PAGE, node: idp, pageNode: page }
+        )
+      )
+    ).toBe(
+      '  [MISSING_SOCIAL_IDENTITY_PROVIDER_DEPENDENCY] Node "Select IDP" (Select Identity Provider) in Page Node "Login Page" references socialIdentityProvider \'google\' missing from the export'
+    );
+  });
+
+  test('writes a Page Node that a sentence does not call a Page Node with its type', () => {
+    expect(
+      findingLine(
+        described(
+          'MISSING_THEME_DEPENDENCY',
+          'warning',
+          `Node '${PAGE}' references theme 'gone' missing from the export`,
+          { nodeId: PAGE, node: page }
+        )
+      )
+    ).toBe(
+      '  [MISSING_THEME_DEPENDENCY] Node "Login Page" (Page Node) references theme \'gone\' missing from the export'
+    );
+  });
+
+  test('names the Page Node and the inner node that it holds and that is not there, whose type the sentence says', () => {
+    expect(
+      findingLine(
+        described(
+          'MISSING_INNER_NODE',
+          'error',
+          `Page Node '${PAGE}' references missing inner node '${USERNAME}' (ValidatedUsernameNode)`,
+          {
+            nodeId: PAGE,
+            targetNodeId: USERNAME,
+            node: { ...page, ambiguous: true },
+            targetNode: username,
+          }
+        )
+      )
+    ).toBe(
+      '  [MISSING_INNER_NODE] Page Node "Login Page" (id ab9f607b) references missing inner node "Username" (ValidatedUsernameNode)'
+    );
+  });
+
+  test('names a tree node that has no definition, without saying its type twice', () => {
+    const noDefinition = {
+      id: AGE,
+      displayName: 'Check Username',
+      nodeType: 'ScriptedDecisionNode',
+    };
+    expect(
+      findingLine(
+        described(
+          'MISSING_NODE_DEFINITION',
+          'error',
+          `Tree node '${AGE}' has no node definition (ScriptedDecisionNode)`,
+          { nodeId: AGE, node: noDefinition }
+        )
+      )
+    ).toBe(
+      '  [MISSING_NODE_DEFINITION] Tree node "Check Username" has no node definition (ScriptedDecisionNode)'
+    );
+    expect(
+      findingLine(
+        described(
+          'MISSING_NODE_DEFINITION',
+          'error',
+          `Tree node '${AGE}' has no node definition (ScriptedDecisionNode)`,
+          { nodeId: AGE, node: { ...noDefinition, ambiguous: true } }
+        )
+      )
+    ).toBe(
+      '  [MISSING_NODE_DEFINITION] Tree node "Check Username" (id 295a70ba) has no node definition (ScriptedDecisionNode)'
+    );
+  });
+
+  test('writes a node without a name by its type and the first 8 characters of its id, as it is not on the canvas', () => {
+    expect(
+      findingLine(
+        described(
+          'UNREFERENCED_INNER_NODE',
+          'warning',
+          `Inner node '${PASSWORD}' is not referenced by a Page Node`,
+          {
+            nodeId: PASSWORD,
+            node: {
+              id: PASSWORD,
+              nodeType: 'ValidatedPasswordNode',
+              nodeTypeName: 'Platform Password',
+            },
+          }
+        )
+      )
+    ).toBe(
+      '  [UNREFERENCED_INNER_NODE] Inner node (Platform Password, id 44444444) is not referenced by a Page Node'
+    );
+    expect(
+      findingLine(
+        described(
+          'UNREFERENCED_INNER_NODE',
+          'warning',
+          `Inner node '${PASSWORD}' is not referenced by a Page Node`,
+          { nodeId: PASSWORD, node: { id: PASSWORD } }
+        )
+      )
+    ).toBe(
+      '  [UNREFERENCED_INNER_NODE] Inner node (id 44444444) is not referenced by a Page Node'
+    );
+  });
+
+  test('names the node of a connection that leads nowhere and keeps the id of the target that is not there', () => {
+    expect(
+      findingLine(
+        described(
+          'MISSING_CONNECTION_TARGET',
+          'error',
+          `Connection from node '${AGE}' targets missing graph node 'f00dfeed-0000-4000-8000-000000000009'`,
+          {
+            nodeId: AGE,
+            targetNodeId: 'f00dfeed-0000-4000-8000-000000000009',
+            node: age,
+          }
+        )
+      )
+    ).toBe(
+      '  [MISSING_CONNECTION_TARGET] Connection from node "Check Age" (Scripted Decision) targets missing graph node \'f00dfeed-0000-4000-8000-000000000009\''
+    );
+  });
+
+  test('names the Page Node and the child of a type mismatch without a second type, as the sentence has both', () => {
+    expect(
+      findingLine(
+        described(
+          'NODE_TYPE_MISMATCH',
+          'warning',
+          `Tree node '${AGE}' declares node type 'DecisionNode' but its definition has type 'ScriptedDecisionNode'`,
+          { nodeId: AGE, node: { ...age, nodeType: 'DecisionNode' } }
+        )
+      )
+    ).toBe(
+      "  [NODE_TYPE_MISMATCH] Tree node \"Check Age\" declares node type 'DecisionNode' but its definition has type 'ScriptedDecisionNode'"
+    );
+    expect(
+      findingLine(
+        described(
+          'NODE_TYPE_MISMATCH',
+          'warning',
+          `Page Node '${PAGE}' child '${USERNAME}' declares node type 'ValidatedPasswordNode' but its definition has type 'ValidatedUsernameNode'`,
+          {
+            nodeId: PAGE,
+            targetNodeId: USERNAME,
+            node: page,
+            targetNode: {
+              ...username,
+              nodeType: 'ValidatedPasswordNode',
+              nodeTypeName: 'Platform Username',
+            },
+          }
+        )
+      )
+    ).toBe(
+      '  [NODE_TYPE_MISMATCH] Page Node "Login Page" child "Username" declares node type \'ValidatedPasswordNode\' but its definition has type \'ValidatedUsernameNode\''
+    );
+  });
+
+  test('names the Page Node of an outcome that does not match', () => {
+    expect(
+      findingLine(
+        described(
+          'PAGE_NODE_OUTCOME_MISMATCH',
+          'warning',
+          `Page Node '${PAGE}' is missing exposed outcome 'outcome'`,
+          { nodeId: PAGE, outcome: 'outcome', node: page }
+        )
+      )
+    ).toBe(
+      '  [PAGE_NODE_OUTCOME_MISMATCH] Page Node "Login Page" is missing exposed outcome \'outcome\''
+    );
+  });
+
+  test('names the inner node of two Page Nodes and leaves the list of the Page Nodes as the library has it', () => {
+    expect(
+      findingLine(
+        described(
+          'INNER_NODE_REFERENCED_BY_MULTIPLE_PAGES',
+          'warning',
+          `Inner node '${USERNAME}' is referenced by multiple Page Nodes: ${PAGE}, ${IDP}`,
+          {
+            nodeId: USERNAME,
+            node: { ...username, nodeTypeName: 'Platform Username' },
+          }
+        )
+      )
+    ).toBe(
+      `  [INNER_NODE_REFERENCED_BY_MULTIPLE_PAGES] Inner node "Username" (Platform Username) is referenced by multiple Page Nodes: ${PAGE}, ${IDP}`
+    );
+  });
+
+  test.each([
+    [
+      'NODE_ID_MISMATCH',
+      `Node definition key '${AGE}' does not match _id 'renamed'`,
+    ],
+    [
+      'NODE_ID_COLLISION',
+      `Node ID '${AGE}' exists in both nodes and innerNodes`,
+    ],
+  ])(
+    '%s keeps the id that it is about, whatever the library says of the node',
+    (code, message) => {
+      const line = findingLine(
+        described(code, 'warning', message, { nodeId: AGE, node: age }),
+        true
+      );
+
+      expect(line).toBe(`  [${code}] ${message}`);
+    }
+  );
+
+  test('replaces an id wherever the library quotes it, and never an id that it does not describe', () => {
+    expect(
+      findingLine(
+        described(
+          'SOME_FUTURE_CODE',
+          'warning',
+          `Node '${AGE}' and node '${AGE}' and node '${LOCKOUT}'`,
+          { nodeId: AGE, node: age }
+        )
+      )
+    ).toBe(
+      `  [SOME_FUTURE_CODE] Node "Check Age" (Scripted Decision) and node "Check Age" (Scripted Decision) and node '${LOCKOUT}'`
+    );
+  });
+
+  test('matches an id as text, so that an id with the characters of a pattern does not match another id', () => {
+    const odd = { id: 'a.c', displayName: 'Dotted', nodeType: 'Dotted' };
+
+    expect(
+      findingLine(
+        described(
+          'UNREACHABLE_NODE',
+          'warning',
+          "Tree node 'a.c' is not reachable, and neither is 'abc'",
+          { nodeId: 'a.c', node: odd }
+        )
+      )
+    ).toBe(
+      '  [UNREACHABLE_NODE] Tree node "Dotted" is not reachable, and neither is \'abc\''
+    );
+  });
+
+  test('leaves the quoted id when the message of the library does not quote it', () => {
+    const line = findingLine(
+      described(
+        'UNREACHABLE_NODE',
+        'warning',
+        `Tree node ${AGE} is not reachable`,
+        { nodeId: AGE, node: age }
+      )
+    );
+
+    expect(line).toBe(`  [UNREACHABLE_NODE] Tree node ${AGE} is not reachable`);
+  });
+
+  describe('with the verbose option', () => {
+    test('adds the full id to every named node, a node that is not a tie as well', () => {
+      expect(
+        findingLine(
+          described(
+            'UNREACHABLE_NODE',
+            'warning',
+            `Tree node '${AGE}' is not reachable from the entry node`,
+            { nodeId: AGE, node: age }
+          ),
+          true
+        )
+      ).toBe(
+        `  [UNREACHABLE_NODE] Tree node "Check Age" (Scripted Decision, id ${AGE}) is not reachable from the entry node`
+      );
+      expect(
+        findingLine(
+          described(
+            'UNREACHABLE_NODE',
+            'warning',
+            `Tree node '${LOCKOUT}' is not reachable from the entry node`,
+            { nodeId: LOCKOUT, node: lockout }
+          ),
+          true
+        )
+      ).toBe(
+        `  [UNREACHABLE_NODE] Tree node "Account Lockout" (id ${LOCKOUT}) is not reachable from the entry node`
+      );
+    });
+
+    test('writes the full id of a tie and of a node without a name, never 8 characters', () => {
+      expect(
+        findingLine(
+          described(
+            'UNREACHABLE_NODE',
+            'warning',
+            `Tree node '${AGE}' is not reachable from the entry node`,
+            { nodeId: AGE, node: { ...age, ambiguous: true } }
+          ),
+          true
+        )
+      ).toBe(
+        `  [UNREACHABLE_NODE] Tree node "Check Age" (Scripted Decision, id ${AGE}) is not reachable from the entry node`
+      );
+      expect(
+        findingLine(
+          described(
+            'UNREFERENCED_INNER_NODE',
+            'warning',
+            `Inner node '${PASSWORD}' is not referenced by a Page Node`,
+            { nodeId: PASSWORD, node: { id: PASSWORD } }
+          ),
+          true
+        )
+      ).toBe(
+        `  [UNREFERENCED_INNER_NODE] Inner node (id ${PASSWORD}) is not referenced by a Page Node`
+      );
+    });
+
+    test('names every node of the sentence with its full id, and still says the type once', () => {
+      expect(
+        findingLine(
+          described(
+            'MISSING_INNER_NODE',
+            'error',
+            `Page Node '${PAGE}' references missing inner node '${USERNAME}' (ValidatedUsernameNode)`,
+            {
+              nodeId: PAGE,
+              targetNodeId: USERNAME,
+              node: page,
+              targetNode: username,
+            }
+          ),
+          true
+        )
+      ).toBe(
+        `  [MISSING_INNER_NODE] Page Node "Login Page" (id ${PAGE}) references missing inner node "Username" (id ${USERNAME}) (ValidatedUsernameNode)`
+      );
+    });
+  });
+
+  describe('a name that a tenant gave a node', () => {
+    test('is written so that a control character cannot change what the terminal shows', () => {
+      const line = findingLine(
+        described(
+          'UNREACHABLE_NODE',
+          'warning',
+          `Tree node '${AGE}' is not reachable from the entry node`,
+          {
+            nodeId: AGE,
+            node: {
+              ...age,
+              displayName: 'Check\u001b[2J Age',
+              nodeTypeName: 'Scripted\nDecision',
+            },
+          }
+        )
+      );
+
+      expect(line).toBe(
+        '  [UNREACHABLE_NODE] Tree node "Check\\u001b[2J Age" (Scripted\\u000aDecision) is not reachable from the entry node'
+      );
+      expect(line).not.toContain('\u001b');
+      expect(line).not.toContain('\n');
+    });
+
+    test('is not cut, not changed by quotes and not read as a pattern of the replacement', () => {
+      const name =
+        'A "quoted" name with $& and $1 and a very long tail that goes on and on to be sure that nothing cuts it short';
+
+      expect(
+        findingLine(
+          described(
+            'UNREACHABLE_NODE',
+            'warning',
+            `Tree node '${AGE}' is not reachable from the entry node`,
+            { nodeId: AGE, node: { ...age, displayName: name } }
+          )
+        )
+      ).toBe(
+        `  [UNREACHABLE_NODE] Tree node "${name}" (Scripted Decision) is not reachable from the entry node`
+      );
+    });
+
+    test('is escaped in the id that a tenant chose for a node, too', () => {
+      expect(
+        findingLine(
+          described(
+            'UNREFERENCED_INNER_NODE',
+            'warning',
+            "Inner node 'x\u001by' is not referenced by a Page Node",
+            { nodeId: 'x\u001by', node: { id: 'x\u001by' } }
+          )
+        )
+      ).toBe(
+        '  [UNREFERENCED_INNER_NODE] Inner node (id x\\u001by) is not referenced by a Page Node'
+      );
+    });
+  });
 });
 
 describe('countBySeverity and describeCounts', () => {

@@ -1,4 +1,8 @@
-import type { JourneyValidationFinding } from '@rockcarver/frodo-lib';
+import type {
+  JourneyValidationFinding,
+  JourneyValidationNode,
+} from '@rockcarver/frodo-lib';
+import { printable } from '../../utils/OperationRun';
 
 /**
  * The words of the output of `journey validate`: one line for a finding, one
@@ -112,12 +116,125 @@ export interface SeverityCounts {
 }
 
 /**
- * One finding as one line: the code in brackets, then the message of the library.
+ * The findings whose message is about an id itself (a definition filed under another id, an id that a node and an
+ * inner node share): the id is the finding, so the line keeps it.
+ */
+const ID_IS_THE_FINDING = ['NODE_ID_MISMATCH', 'NODE_ID_COLLISION'];
+
+/** How many characters of an id the line shows when the id is there to tell two nodes apart. */
+const SHORT_ID_LENGTH = 8;
+
+/** The text as a regular expression matches it literally. */
+function escapeRegExp(text: string): string {
+  return text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+/**
+ * True if the sentence of the library already says what type the node is, so the line need not: the library writes
+ * the type id in brackets after a node that is not there (`has no node definition (ScriptedDecisionNode)`), quotes
+ * both type ids of a mismatch, and puts the words `Page Node` before the id of a Page Node.
+ * @param {JourneyValidationNode} node the node
+ * @param {string} type the type the line would show
+ * @param {string} before the message up to the quoted id of the node
+ * @param {string} after the message after the quoted id of the node
+ * @returns {boolean} true if the type would be said twice
+ */
+function sentenceSaysType(
+  node: JourneyValidationNode,
+  type: string,
+  before: string,
+  after: string
+): boolean {
+  return (
+    before.endsWith(`${type} `) ||
+    (node.nodeType !== undefined &&
+      (after.includes(`(${node.nodeType})`) ||
+        after.includes(`'${node.nodeType}'`)))
+  );
+}
+
+/**
+ * A node as the Journey Editor shows it: the name on its card, then in brackets the title of its type (the type id
+ * when the export holds no definition of the node) and its id. The type is left out when it is the name or when the
+ * sentence says it. The id is there when the name does not tell the node apart (another node of the journey has the
+ * same name and type, or the node has no name), and always with the verbose option, then in full. A name that a
+ * tenant gave a node is written so that it cannot change what the terminal shows.
+ * @param {JourneyValidationNode} node the node, as the library describes it
+ * @param {string} before the message up to the quoted id of the node
+ * @param {string} after the message after the quoted id of the node
+ * @param {boolean} verbose true to show the full id of every node
+ * @returns {string} the words that stand for the quoted id
+ */
+function nodeWords(
+  node: JourneyValidationNode,
+  before: string,
+  after: string,
+  verbose: boolean
+): string {
+  const name = node.displayName ? `"${printable(node.displayName)}"` : '';
+  const type = node.nodeTypeName ?? node.nodeType;
+  const typeWords =
+    type &&
+    type !== node.displayName &&
+    !sentenceSaysType(node, type, before, after)
+      ? printable(type)
+      : '';
+  const idWords =
+    verbose || node.ambiguous || !node.displayName
+      ? `id ${printable(verbose ? node.id : node.id.slice(0, SHORT_ID_LENGTH))}`
+      : '';
+  const details = [typeWords, idWords].filter(Boolean);
+  return [name, details.length > 0 ? `(${details.join(', ')})` : '']
+    .filter(Boolean)
+    .join(' ');
+}
+
+/**
+ * The message of a finding with the nodes it quotes by id written as the editor shows them. The library describes
+ * each node of a finding it can find in the journey (`node`, `targetNode`, `pageNode`); every quoted id of such a
+ * node is replaced. An id the library did not describe (the entry node that is not there, the target of a connection
+ * that leads nowhere), and a finding of a library that describes none, keep the message as it is.
  * @param {JourneyValidationFinding} finding the finding
+ * @param {boolean} verbose true to show the full id of every node
+ * @returns {string} the message
+ */
+function nameNodes(
+  finding: JourneyValidationFinding,
+  verbose: boolean
+): string {
+  const { code, message } = finding;
+  const nodes = new Map<string, JourneyValidationNode>();
+  for (const node of [finding.pageNode, finding.targetNode, finding.node]) {
+    if (node && !nodes.has(node.id)) nodes.set(node.id, node);
+  }
+  if (ID_IS_THE_FINDING.includes(code) || nodes.size === 0) return message;
+  const quotedIds = new RegExp(
+    `'(${[...nodes.keys()].map(escapeRegExp).join('|')})'`,
+    'g'
+  );
+  return message.replace(quotedIds, (quoted, id: string, offset: number) =>
+    nodeWords(
+      nodes.get(id) as JourneyValidationNode,
+      message.slice(0, offset),
+      message.slice(offset + quoted.length),
+      verbose
+    )
+  );
+}
+
+/**
+ * One finding as one line: the code in brackets, then the message of the library, in which a node that the library
+ * describes is named as the Journey Editor shows it instead of by its id. A finding without a described node is
+ * written as the library words it.
+ * @param {JourneyValidationFinding} finding the finding
+ * @param {boolean} [verbose=false] true to add the full id to every named node. Default: false
  * @returns {string} the line
  */
-export function findingLine(finding: JourneyValidationFinding): string {
-  return `  [${finding.code}] ${finding.message}`;
+export function findingLine(
+  finding: JourneyValidationFinding,
+  verbose: boolean = false
+): string {
+  return `  [${finding.code}] ${nameNodes(finding, verbose)}`;
 }
 
 /**

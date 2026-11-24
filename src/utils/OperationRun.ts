@@ -50,7 +50,7 @@ function reasonOf(error: unknown): string {
 }
 
 /** A name as a message shows it: a control character is written as `\u0001`, so that it cannot change what the terminal shows. */
-function printable(name: string): string {
+export function printable(name: string): string {
   return String(name).replace(
     /\p{Cc}/gu,
     (character) =>
