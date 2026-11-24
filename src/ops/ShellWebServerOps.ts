@@ -486,6 +486,8 @@ export async function spawnTabEngine(
   // How many answers the process gave: one that gave any is up, and its later
   // end is a crash of a working engine, not a failure to start.
   let answers = 0;
+  // Set when this process was asked to end: that end is nobody's news.
+  let disposed = false;
   const pending = new Map<
     number,
     { resolve: (value: unknown) => void; reject: (error: Error) => void }
@@ -552,8 +554,12 @@ export async function spawnTabEngine(
       ended = new TabEngineStartError(reason);
     } else {
       ended = new TabEngineEndedError(reason);
-      for (const listener of logListeners) {
-        listener(`${ENGINE_ENDED}: ${reason}\n`);
+      // A request that waits gets these words as its answer; the streams are
+      // told when none does, so that an engine that ends while nobody asks shows.
+      if (!disposed && pending.size === 0) {
+        for (const listener of logListeners) {
+          listener(`${ENGINE_ENDED}: ${reason}\n`);
+        }
       }
     }
     for (const p of pending.values()) p.reject(ended);
@@ -612,6 +618,7 @@ export async function spawnTabEngine(
     },
     dispose() {
       if (ended) return;
+      disposed = true;
       try {
         child.stdin!.write(`${JSON.stringify({ op: 'dispose' })}
 `);

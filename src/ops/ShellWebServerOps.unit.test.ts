@@ -1693,7 +1693,7 @@ describe('a tab engine that cannot start or that ends', () => {
      * without a word, `kill` kills itself, `hang` never answers and ends 150 ms
      * later, `idle` answers and ends 150 ms later, `warn` writes an error line
      * and answers, `spam` writes many lines (the last one names an error) and
-     * ends, `leak` writes what TEST_LEAK holds, `who` answers its process id.
+     * ends, `leak` writes what TEST_LEAK holds, `leakidle` answers and then writes it as it ends, `who` answers its process id.
      * Every start is a line of the file `spawnLog`.
      */
     function answeringStub(): string {
@@ -1718,6 +1718,7 @@ describe('a tab engine that cannot start or that ends', () => {
         '    case "warn": process.stderr.write("Error: sign-in failed\\n"); setTimeout(() => say_ok(m, process.pid), 150); return;',
         '    case "spam": for (let i = 1; i <= 25; i++) process.stderr.write("filler " + i + "\\n"); process.stderr.write("TypeError: the last one\\n"); end_in(100); return;',
         '    case "leak": process.stderr.write("Error: leaked " + process.env.TEST_LEAK + "\\n"); process.exit(1);',
+        '    case "leakidle": say_ok(m, 1); end_in(150, "Error: leaked " + process.env.TEST_LEAK); return;',
         '    default: return say_ok(m, m.code);',
         '  }',
         '});',
@@ -1839,6 +1840,33 @@ describe('a tab engine that cannot start or that ends', () => {
         );
       }
       expect(told('The console engine ended')).toHaveLength(1);
+    });
+
+    it('leaves the words to the answer of a request that waits, and does not repeat them on the stream', async () => {
+      process.env.FRODO_TEST_WORKER_SCRIPT = answeringStub();
+      const { session, evaluate, headers } = await startAndSignIn();
+      const engine = engineOf(await session());
+      const stream = await openStream(web.port, {
+        ...headers,
+        'X-Frodo-Engine': engine,
+      });
+      try {
+        const reply = await evaluate(engine, 'hang');
+        expect(reply.status).toBe(503);
+        // the engine's own error line is the only log event; a late one would
+        // have come by now (the end is told in the same moment)
+        await stream.next(
+          (e) => e.type === 'log' && e.text === 'RangeError: while busy'
+        );
+        await new Promise((resolve) => setTimeout(resolve, 300));
+        expect(
+          stream.events.filter((e) =>
+            String(e.text ?? '').startsWith('The console engine ended')
+          )
+        ).toEqual([]);
+      } finally {
+        stream.close();
+      }
     });
 
     it('says so again when another engine ends with the same words', async () => {
@@ -1996,23 +2024,58 @@ describe('a tab engine that cannot start or that ends', () => {
       it('leave out the secrets that the server names, in the error and in the line that the streams get', async () => {
         process.env.FRODO_TEST_WORKER_SCRIPT = answeringStub();
         process.env.TEST_LEAK = 'abcdefghijklmnop';
-        try {
-          const engine = (await spawnTabEngine(undefined, {
+        const spawnWithSecret = async () =>
+          (await spawnTabEngine(undefined, {
             secrets: ['abcdefghijklmnop'],
           })) as TabEngine & {
             onLog: (fn: (text: string) => void) => () => void;
           };
-          await engine.info();
-          const lines: string[] = [];
-          engine.onLog((text) => lines.push(text));
-          const error = await engine.evaluate('leak').catch((e) => e);
+        try {
+          const waiting = await spawnWithSecret();
+          await waiting.info();
+          const error = await waiting.evaluate('leak').catch((e) => e);
           expect(error.message).toBe('Error: leaked <redacted>');
+          // an engine that ends while nothing waits for it: the streams are told
+          const idle = await spawnWithSecret();
+          await idle.info();
+          const lines: string[] = [];
+          idle.onLog((text) => lines.push(text));
+          await idle.evaluate('leakidle');
+          for (let i = 0; i < 100 && lines.length < 2; i++) {
+            await new Promise((resolve) => setTimeout(resolve, 50));
+          }
           expect(
             lines.filter((line) => line.startsWith('The console engine ended'))
           ).toEqual(['The console engine ended: Error: leaked <redacted>\n']);
         } finally {
           delete process.env.TEST_LEAK;
         }
+      });
+
+      it('are told to the streams only when the end was not asked for', async () => {
+        const engine = (await started_engine()) as TabEngine & {
+          onLog: (fn: (text: string) => void) => () => void;
+        };
+        const pid = Number(
+          fs.readFileSync(spawnLog, 'utf8').trim().split('\n').pop()
+        );
+        const lines: string[] = [];
+        engine.onLog((text) => lines.push(text));
+        engine.dispose();
+        // no request waits: the process is gone, and the streams hear nothing
+        for (let i = 0; i < 100; i++) {
+          try {
+            process.kill(pid, 0);
+          } catch {
+            break;
+          }
+          await new Promise((resolve) => setTimeout(resolve, 50));
+        }
+        await new Promise((resolve) => setTimeout(resolve, 400));
+        expect(lines).toEqual([]);
+        await expect(engine.info()).rejects.toThrow(
+          'The engine process ended with exit code 0.'
+        );
       });
 
       it('are, for an engine that never answered, still the first lines that it wrote', async () => {
