@@ -223,11 +223,9 @@ body.compact header { padding: 4px 14px; }
 #connect-bar.open { display: flex; }
 #connect-bar .msg { color: var(--dim); }
 #connect-bar .picker { position: relative; display: flex; gap: 8px; align-items: center; flex: 1; min-width: 0; }
-/* The button lives at the bar's right edge, under the header's own button
-   column, whatever the error text before it says: margin-left: auto holds
-   the spot (the error span, between picker and button, may grow without
-   moving it). */
-#connect-bar #connect-go { margin-left: auto; }
+/* The button belongs to the picker: pick, then act, left to right. It
+   travels with the dropdown (it lives inside .picker), so it is next to
+   it at any width; the error text after the picker may push nothing. */
 #connect-bar .select-box { position: relative; display: inline-flex; align-items: center; }
 #connect-bar input[type="text"] {
   font: inherit; color: inherit; background: var(--bg);
@@ -1539,10 +1537,10 @@ ${styles.join('\n')}
 <span class="select-box">
 <input type="text" id="connect-filter" placeholder="Filter by host or alias" autocomplete="off" spellcheck="false">
 </span>
+<button id="connect-go" type="button">Connect</button>
 <ul id="connect-list" hidden></ul>
 </div>
 <span class="err" id="connect-err"></span>
-<button id="connect-go" type="button">Connect</button>
 </div>
 <main id="out" aria-live="polite">
 <div id="prompt-row"><span class="p">frodo&gt;</span><textarea id="in" rows="1" spellcheck="false" autocomplete="off" autocapitalize="off" placeholder="Type JavaScript. Enter runs, Shift+Enter adds a line, Tab completes, Ctrl+R searches history."></textarea></div>
