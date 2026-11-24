@@ -9,6 +9,12 @@ import { fileURLToPath } from 'node:url';
  * requires `./app.cjs`, so that tsdown emits one small file that has to be read
  * and compiled before anything else starts.
  *
+ * It does not touch process warnings: they are Node's business, and
+ * `NODE_OPTIONS=--no-warnings` silences them as for any program. (It used to
+ * remove the `warning` listeners, because frodo-lib loaded its test recorder at
+ * start-up and that printed a warning on every command; the library no longer
+ * does, see docs/BUILD-ENV.md section 2.4.)
+ *
  * The order of the steps below matters.
  */
 const app = fileURLToPath(new URL('./app.cjs', import.meta.url));
@@ -27,16 +33,12 @@ if (
   process.setSourceMapsEnabled(true);
 }
 
-// 2. No process warnings (the effect of `node --no-warnings`, which the
-// launcher used to pass to its child process).
-process.removeAllListeners('warning');
-
-// 3. The app saw its own file as `process.argv[1]` when this entry started it
+// 2. The app saw its own file as `process.argv[1]` when this entry started it
 // as a child process, and the library tells a test run from a normal run by
 // that name. Keep it that way.
 process.argv[1] = app;
 
-// 4. Run the app. A variable, not a string literal, so that the build leaves
+// 3. Run the app. A variable, not a string literal, so that the build leaves
 // the call alone instead of bundling the app into this file. `require` is the
 // one call here that has to be synchronous and has to load a CommonJS file.
 // eslint-disable-next-line @typescript-eslint/no-require-imports
