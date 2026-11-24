@@ -46,7 +46,6 @@ describe('a delete of more than one object without a terminal and without --yes'
     'frodo config-manager delete telemetry',
     'frodo config-manager delete tenant-config',
     'frodo config-manager delete journeys',
-    'frodo config-manager delete remote-servers',
   ])('"%s" is refused before the login', async (command) => {
     const { code, stderr } = await run(command);
 
@@ -55,6 +54,19 @@ describe('a delete of more than one object without a terminal and without --yes'
     expect(stderr).toContain('-y/--yes');
     expect(stderr).toContain('--dry-run');
     expect(stderr).not.toMatch(/ECONNREFUSED|connect/i);
+  });
+
+  // "connector server" holds the letters "connect", which the case above takes for a login that was tried: this one looks for the failure itself
+  test.each([
+    'frodo config-manager delete remote-servers',
+  ])('"%s" is refused before the login', async (command) => {
+    const { code, stderr } = await run(command);
+
+    expect(code).toBe(1);
+    expect(stderr).toContain('Refusing to delete all connector servers');
+    expect(stderr).toContain('-y/--yes');
+    expect(stderr).toContain('--dry-run');
+    expect(stderr).not.toMatch(/ECONNREFUSED|Error getting tokens/);
   });
 
   test('the refusal says what would have been deleted', async () => {
@@ -182,6 +194,9 @@ describe('what is not refused', () => {
     'frodo config-manager delete locales -d',
     'frodo config-manager delete locales -y',
     'frodo config-manager delete locales -i en',
+    'frodo config-manager delete remote-servers -y',
+    'frodo config-manager delete remote-servers --dry-run',
+    'frodo config-manager delete remote-servers -n rcs',
     'frodo config-manager delete schedules --dry-run',
     'frodo config-manager delete schedules -y',
     'frodo config-manager delete schedules -i Example',
@@ -197,9 +212,6 @@ describe('what is not refused', () => {
     'frodo config-manager delete tenant-config --dry-run',
     'frodo config-manager delete journeys -d',
     'frodo config-manager delete journeys -y',
-    'frodo config-manager delete remote-servers -y',
-    'frodo config-manager delete remote-servers --dry-run',
-    'frodo config-manager delete remote-servers -n rcs',
   ])('"%s" goes on to the login', async (command) => {
     const { stderr } = await run(command);
 
@@ -265,6 +277,53 @@ describe('the refusal of journeys says that the journeys of the login go too', (
     const { stderr } = await run('frodo config-manager delete journeys');
 
     expect(stderr).toContain('all journeys (the journeys that the realm uses for login included) and all orphaned nodes in the selected realms');
+  });
+});
+
+describe('a delete of connector servers', () => {
+  // the words of the product are "connector server", so "connect" alone says nothing about a login: look for the failure
+  const NOT_CONNECTED = /ECONNREFUSED|Error getting tokens/;
+
+  test.each([
+    'frodo config-manager delete remote-servers -i rcs --force',
+    'frodo config-manager delete remote-servers -i rcs --force --keep-links',
+  ])('"%s" changes the server clusters that list the connector server: it is refused before the login without -y', async (command) => {
+    const { code, stderr } = await run(command);
+
+    expect(code).toBe(1);
+    expect(stderr).toContain("Refusing to delete connector server 'rcs'");
+    expect(stderr).toContain('-y/--yes');
+    expect(stderr).toContain('--dry-run');
+    expect(stderr).not.toMatch(NOT_CONNECTED);
+  });
+
+  test.each([
+    'frodo config-manager delete remote-servers -i rcs',
+    'frodo config-manager delete remote-servers -n rcs',
+    'frodo config-manager delete remote-servers --name rcs',
+    'frodo config-manager delete remote-servers --server-id rcs',
+    'frodo config-manager delete remote-servers -i rcs -d',
+    'frodo config-manager delete remote-servers -i rcs --force -d',
+    'frodo config-manager delete remote-servers -i rcs --force -y',
+    'frodo config-manager delete remote-servers -i rcs --force --keep-links -y',
+  ])('"%s" goes on to the login', async (command) => {
+    const { stderr } = await run(command);
+
+    expect(stderr).not.toContain('Refusing to delete');
+    expect(stderr).not.toContain('unknown option');
+  });
+
+  test.each([
+    ['frodo config-manager delete remote-servers --force -y', 'applies to a named connector server only'],
+    ['frodo config-manager delete remote-servers --keep-links -y', 'applies to a named connector server only'],
+    ['frodo config-manager delete remote-servers -i rcs --keep-links', '--keep-links applies together with --force only'],
+    ["frodo config-manager delete remote-servers -i '  '", 'must not be empty'],
+  ])('"%s" is refused before the login', async (command, message) => {
+    const { code, stderr } = await run(command);
+
+    expect(code).toBe(1);
+    expect(stderr).toContain(message);
+    expect(stderr).not.toMatch(NOT_CONNECTED);
   });
 });
 
@@ -399,8 +458,8 @@ describe('a delete that names one object, for every command and every spelling o
     ...(row.aliases.includes('--name') ? [['--name', "''"], ['--name=']] : []),
   ];
 
-  test('has the 17 delete rows', () => {
-    expect(rows).toHaveLength(17);
+  test('has the 18 delete rows', () => {
+    expect(rows).toHaveLength(18);
   });
 
   test.each(rows.map((row) => [typeOf(row), row]))(
