@@ -348,6 +348,12 @@ export const EXPECTED_SELECTORS = [
     aliases: ['--name'],
   },
   {
+    command: 'frodo config-manager delete connector-definitions',
+    id: '--connector-id',
+    name: null,
+    aliases: ['-n', '--name'],
+  },
+  {
     command: 'frodo config-manager delete custom-nodes',
     id: '--node-id',
     name: '--node-name',
