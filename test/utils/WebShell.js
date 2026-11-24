@@ -224,7 +224,7 @@ export async function signInOverHttp(link) {
     } catch {
       // not JSON: the caller reads text
     }
-    return { status: reply.status, json, text };
+    return { status: reply.status, json, text, headers: reply.headers };
   };
 }
 

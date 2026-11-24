@@ -363,4 +363,46 @@ run('frodo shell --web with real engine processes', () => {
     expect(told[0]).toContain(first.json.error);
     expect(shell.exited).toBe(false);
   }, 180_000);
+
+  test('6: an engine that ends after it answered is described, replaced once, and the tab is told which engine it has now', async () => {
+    shell = startFrodo({
+      args: ['shell', '--web', '--no-open'],
+      homeDir: home,
+    });
+    const call = await signInOverHttp(await shell.link());
+    const session = await call('GET', '/api/session');
+    expect(session.status).toBe(200);
+    const first = session.json.engine;
+    expect(session.headers.get('x-frodo-engine')).toBe(first);
+
+    // a script that ends its own process, as a crash or a kill would
+    const ended = await call(
+      'POST',
+      '/api/eval',
+      { code: 'process.exit(3)' },
+      first
+    );
+    expect(ended.status).toBe(503);
+    expect(ended.json.error).toBe(
+      'The console engine ended: The engine process ended with exit code 3.'
+    );
+    const told = shell
+      .output()
+      .split('\n')
+      .filter((line) => line.includes('The console engine ended'));
+    expect(told).toHaveLength(1);
+
+    // the tab still holds the old id: its next request gets a new engine and
+    // is told which, and the request after that carries the new id
+    const again = await call('POST', '/api/eval', { code: '6 * 7' }, first);
+    expect(again.status).toBe(200);
+    expect(again.json.result.preview).toBe('42');
+    const second = again.headers.get('x-frodo-engine');
+    expect(second).toMatch(/^[0-9a-f]{16}$/);
+    expect(second).not.toBe(first);
+    const third = await call('POST', '/api/eval', { code: '6 * 7' }, second);
+    expect(third.status).toBe(200);
+    expect(third.headers.get('x-frodo-engine')).toBe(second);
+    expect(shell.exited).toBe(false);
+  }, 180_000);
 });

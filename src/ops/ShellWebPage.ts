@@ -295,6 +295,11 @@ const SCRIPT = String.raw`
   var sessionRetry = createRetryPause(${SESSION_RETRY_FIRST_MS}, ${SESSION_RETRY_MAX_MS});
   // retry-pause:end
 
+  // engine-id:begin
+  // The stream that carries this tab's engine output, so that it can be dropped
+  // when the tab is given another engine.
+  var streamAbort = null;
+
   function rememberEngine(id) {
     if (id) {
       engineId = id;
@@ -305,6 +310,21 @@ const SCRIPT = String.raw`
       sharedEngine = true;
     }
   }
+
+  // Every answer of the server names the engine that served it. A tab whose
+  // engine ended gets a new one with its next request; if it kept carrying the
+  // old id, every request would start yet another engine. ownStream: the answer
+  // is the one of the event stream, which belongs to the engine it names.
+  function learnEngine(r, ownStream) {
+    var id = r.headers.get('X-Frodo-Engine');
+    if (!id || id === engineId) return;
+    var replaced = !!engineId;
+    rememberEngine(id);
+    // The stream of the old engine reports nothing of the new one: drop it. It
+    // is opened again after a pause, with the new id, like a stream that was lost.
+    if (replaced && !ownStream && streamAbort) streamAbort.abort();
+  }
+  // engine-id:end
   var outEl = document.getElementById('out');
   var inEl = document.getElementById('in');
   var infoEl = document.getElementById('info');
@@ -677,6 +697,7 @@ const SCRIPT = String.raw`
       opts.body = JSON.stringify(body);
     }
     return fetch(path, opts).then(function (r) {
+      learnEngine(r, false);
       return r.json().then(function (j) {
         if (!r.ok) throw new Error(j && j.error ? j.error : 'HTTP ' + r.status);
         return j;
@@ -1112,7 +1133,9 @@ const SCRIPT = String.raw`
     }
     var listenHeaders = { 'X-Frodo-CSRF': csrf };
     if (engineId) listenHeaders['X-Frodo-Engine'] = engineId;
-    fetch('/api/events', { credentials: 'same-origin', headers: listenHeaders }).then(function (r) {
+    streamAbort = new AbortController();
+    fetch('/api/events', { credentials: 'same-origin', headers: listenHeaders, signal: streamAbort.signal }).then(function (r) {
+      learnEngine(r, true);
       if (!r.ok || !r.body) throw new Error('events ' + r.status);
       setStatus(true);
       var reader = r.body.getReader();
