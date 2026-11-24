@@ -203,6 +203,53 @@ const CASES = [
     fn: 'configManagerDeleteScripts',
   },
   {
+    name: 'config-manager delete remote-servers',
+    file: 'src/configManagerOps/FrConfigRemoteServersOps.ts',
+    summaryName: nameOf,
+    unit: 'connector server',
+    arrange({ failing, attempted, spy }) {
+      // the helpers of the module are spies: they answer what the real ones answer for this configuration
+      const helpers = spy('src/configManagerOps/RemoteServerReferenceClearing');
+      helpers.connectorServersOf
+        .mockReset()
+        .mockReturnValue({ names: IDS, nameless: 0 });
+      helpers.clustersLeftEmpty.mockReset().mockReturnValue([]);
+      frodo.idm.config.readConfigEntity
+        .mockReset()
+        .mockResolvedValue({
+          remoteConnectorClients: IDS.map((name) => ({ name })),
+        });
+      // one write for each connector server: the one that is gone from the list is the one that is tried
+      let present = [...IDS];
+      frodo.idm.config.updateConfigEntity
+        .mockReset()
+        .mockImplementation(async (_id, body) => {
+          const names = body.remoteConnectorClients.map((entry) => entry.name);
+          const tried = present.find((name) => !names.includes(name));
+          attempted.push(tried);
+          if (failing.has(tried)) throw new Error(`could not delete ${tried}`);
+          present = names;
+        });
+    },
+    empty: ({ spy }) => {
+      spy('src/configManagerOps/RemoteServerReferenceClearing')
+        .connectorServersOf.mockReset()
+        .mockReturnValue({ names: [], nameless: 0 });
+      frodo.idm.config.readConfigEntity
+        .mockReset()
+        .mockResolvedValue({ remoteConnectorClients: [] });
+    },
+    emptyMessage: /No connector servers found to delete\./,
+    notFound: (m) => m.configManagerDeleteRemoteServers('zzz', false, false),
+    failToRead: () =>
+      frodo.idm.config.readConfigEntity
+        .mockReset()
+        .mockRejectedValue(new Error('read failed')),
+    run: (m, allowFailures) =>
+      m.configManagerDeleteRemoteServers(undefined, false, allowFailures),
+    fn: 'configManagerDeleteRemoteServers',
+  },
+  {
     name: 'config-manager delete journeys',
     file: 'src/configManagerOps/FrConfigJourneysOps.ts',
     summaryName: (id) => `journey '${id}' in realm 'alpha'`,
