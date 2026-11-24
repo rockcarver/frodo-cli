@@ -217,6 +217,33 @@ export async function configManagerImportConnectors(
 /** The prefix of the id of a connector definition in the configuration of IDM. */
 const CONNECTOR_PREFIX = 'provisioner.openicf/';
 
+/** What a name is, in the words of a message about an id that is not one. */
+const PLAIN_NAME_RULE =
+  'a plain name is not blank, and has no /, \\, ?, #, %, .. or control character';
+
+/**
+ * Whether the part of a listed id after the type prefix is a plain name. The
+ * library puts the name into the path of the request as it is given, so a name
+ * with a slash, a `..` segment, a `?` or a `#` in it would name another object
+ * than the one that was listed, whatever the tenant lists. Such an id is never
+ * sent to the tenant.
+ * @param {string} name the listed id without the type prefix
+ * @returns {boolean} true if the name is safe to put into a path
+ */
+function isPlainName(name: string): boolean {
+  return (
+    name.trim() !== '' &&
+    name !== '.' &&
+    !name.includes('..') &&
+    !/[/\\?#%\p{Cc}]/u.test(name)
+  );
+}
+
+/** A listed id as a message shows it: quoted, a control character written out, so that it cannot change what the terminal shows. */
+function shownId(id: string): string {
+  return JSON.stringify(id);
+}
+
 /** What a delete of connector definitions needs to know besides the id, the dry run and `--allow-failures`. */
 export type DeleteConnectorDefinitionsOptions = {
   /** Delete a named connector definition although other objects still name it. Nothing but the connector definition is changed. */
@@ -237,8 +264,8 @@ const SOURCE_LABELS: Record<ConnectorReference['source'], string> = {
 };
 
 /**
- * What one holder is, for a message: the kind, its name or id and the field that
- * holds the name of the connector definition.
+ * What one holder is, for a message: the type of holder, its name or id and the
+ * field that holds the name of the connector definition.
  * @param {ConnectorReference} reference the holder, as the library found it
  * @returns {string} the holder as one phrase
  */
@@ -317,7 +344,7 @@ function namedPlanLines(
     );
   } else if (references.length === 0) {
     lines.push(
-      '  nothing else names the connector definition, and nothing else is changed.'
+      '  Nothing else names the connector definition, and nothing else is changed.'
     );
   }
   return lines;
@@ -503,6 +530,15 @@ async function deleteNamedConnectorDefinition(
   }
   // the listed id is what is deleted, never the text that was typed
   const target = listed._id.slice(CONNECTOR_PREFIX.length);
+  if (!isPlainName(target)) {
+    // the tenant lists an id that cannot be put into a path as it is: it would
+    // name another object than the one that was listed
+    printMessage(
+      `Connector definition ${shownId(listed._id)} is listed with an id that is not a plain name (${PLAIN_NAME_RULE}): it is not deleted, and no request was sent for it.`,
+      'error'
+    );
+    return false;
+  }
 
   if (unreadable) {
     printMessage(
@@ -526,8 +562,12 @@ async function deleteNamedConnectorDefinition(
 
   const found = references ?? [];
   if (found.length > 0 && !force) {
+    // an application owns the connector definition that it names
+    const owner = found.some((reference) => reference.source === 'application')
+      ? '\nAn application owns the connector definition that it names: config-manager delete applications removes both.'
+      : '';
     printMessage(
-      `${dryRun ? 'Dry run: the delete would be refused. ' : ''}Connector definition '${target}' is still named by:\n${namedByLines(found).join('\n')}\nNothing was deleted. --force deletes it anyway: it deletes the connector definition and nothing else, every object above is left as it is and names a connector definition that does not exist afterwards.`,
+      `${dryRun ? 'Dry run: the delete would be refused. ' : ''}Connector definition '${target}' is still named by:\n${namedByLines(found).join('\n')}${owner}\nNothing was deleted. --force deletes it anyway: it deletes the connector definition and nothing else, every object above is left as it is and names a connector definition that does not exist afterwards.`,
       'error'
     );
     return false;
@@ -542,7 +582,8 @@ async function deleteNamedConnectorDefinition(
 
   const run = new OperationRun({ unit: 'connector', allowFailures });
   const deleted = await run.run(target, async () => {
-    await deleteConnector(target);
+    // the library puts the name into the path as it is given
+    await deleteConnector(encodeURIComponent(target));
     printMessage(`Deleted connector definition '${target}'.`);
   });
   if (deleted && found.length > 0) {
@@ -572,32 +613,56 @@ async function deleteAllConnectorDefinitions(
   // only what the library lists as a connector definition: an id that does not
   // start with the prefix is not one, and cutting the prefix off it would name
   // another object
-  const connectorIds = connectors
+  const listedIds = connectors
     .filter(
       (connector) =>
         typeof connector._id === 'string' &&
         connector._id.startsWith(CONNECTOR_PREFIX)
     )
-    .map((connector) => connector._id.slice(CONNECTOR_PREFIX.length));
-  if (connectorIds.length === 0) {
+    .map((connector) => connector._id);
+  if (listedIds.length === 0) {
     printMessage('No connector definitions found to delete.', 'warn');
     return true;
   }
+  // a listed id that is not a plain name is never sent to the tenant
+  const isListedPlain = (id: string) =>
+    isPlainName(id.slice(CONNECTOR_PREFIX.length));
+  const connectorIds = listedIds
+    .filter(isListedPlain)
+    .map((id) => id.slice(CONNECTOR_PREFIX.length));
+  const notPlain = listedIds.filter((id) => !isListedPlain(id));
   if (dryRun) {
     // the only place that looks at what names them: one lookup for all of them
-    printMessage(
-      bulkPlanLines(
-        connectorIds,
-        await lookUpAllReferences(connectorIds),
-        asPlan
-      ).join('\n')
-    );
+    const lines =
+      connectorIds.length > 0
+        ? bulkPlanLines(
+            connectorIds,
+            await lookUpAllReferences(connectorIds),
+            asPlan
+          )
+        : [];
+    if (notPlain.length > 0) {
+      lines.push(
+        `  These listed ids are not plain names (${PLAIN_NAME_RULE}). No request would be sent for them, and each would count as a failed delete: ${notPlain.map(shownId).join(', ')}.`
+      );
+    }
+    printMessage(lines.join('\n'));
     return true;
   }
   const run = new OperationRun({ unit: 'connector', allowFailures });
-  for (const connectorId of connectorIds) {
+  for (const listedId of listedIds) {
+    if (!isListedPlain(listedId)) {
+      printMessage(
+        `Connector definition ${shownId(listedId)} is listed with an id that is not a plain name (${PLAIN_NAME_RULE}): it is not deleted, and no request was sent for it.`,
+        'error'
+      );
+      run.recordFailure(shownId(listedId), 'its id is not a plain name');
+      continue;
+    }
+    const connectorId = listedId.slice(CONNECTOR_PREFIX.length);
     await run.run(connectorId, async () => {
-      await deleteConnector(connectorId);
+      // the library puts the name into the path as it is given
+      await deleteConnector(encodeURIComponent(connectorId));
       printMessage(`Deleted connector definition '${connectorId}'.`);
     });
   }

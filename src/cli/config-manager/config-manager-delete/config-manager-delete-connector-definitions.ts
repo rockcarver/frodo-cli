@@ -43,13 +43,13 @@ export default function setup() {
     .addOption(
       new Option(
         '-d, --dry-run',
-        'Show what would be deleted, and what other objects name it, without deleting anything.'
+        'Show what would be deleted, and what other objects name it (at most 20 for each connector definition when all are deleted), without deleting anything.'
       )
     )
     .addOption(
       new Option(
         '-y, --yes',
-        'Do not ask for confirmation before deleting all connector definitions, or before deleting one with --force. Required without a terminal.'
+        'Do not ask for confirmation before deleting all connector definitions, or before deleting one with --force. Without a terminal those two are refused unless -y or -d is given; deleting one without --force never asks.'
       )
     )
     .addOption(
@@ -61,7 +61,7 @@ export default function setup() {
     .addHelpText(
       'after',
       `Without --force, a connector definition that a mapping, an application, a schedule or an authentication module still names is not deleted, the command says which and exits with code 1. --allow-failures keeps the exit code at 0 for a delete that failed, but never for a refusal or for a connector definition that does not exist. An answer that nothing names it is not proof that it is unused: a connector definition that a script, an endpoint, a reconciliation or a client of the REST API names is not seen.\n` +
-        `Deleting all connector definitions deletes every one of them, and does not refuse for what names them. The plan that -d shows, and the plan before the question on a terminal, list what names each of them, from one lookup for all; a delete with -y looks up nothing.\n` +
+        `Deleting all connector definitions deletes every one of them, and does not refuse for what names them. The plan that -d shows, and the plan before the question on a terminal, list what names each of them (at most 20 for each connector definition), from one lookup for all; a delete with -y looks up nothing.\n` +
         `Usage Examples:\n` +
         `  Delete all connector definitions without asking, which is required without a terminal (without -y a terminal is asked first):\n` +
         c.command(
