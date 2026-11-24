@@ -54,6 +54,20 @@ const ENGINE_HEADER = 'x-frodo-engine';
 /** What the page is told when an engine process never came up, and when it ended after it had. */
 const ENGINE_START_FAILED = 'The console could not start an engine';
 const ENGINE_ENDED = 'The console engine ended';
+/** What a person needs to know after an engine ended: the next input runs on a new one. */
+const ENGINE_ENDED_NEXT =
+  'The next input starts a new engine; its variables are gone.';
+
+/**
+ * What the page, the terminal and the streams are told when an engine ended
+ * after it had answered: that it did, why, and what the next input meets. A
+ * reason is one sentence that may lack its full stop (a line the process wrote)
+ * or have it (how the process ended, a line that was cut ends in an ellipsis).
+ */
+function engineEndedMessage(reason: string): string {
+  const stop = /[.!?…]$/.test(reason) ? '' : '.';
+  return `${ENGINE_ENDED}: ${reason}${stop} ${ENGINE_ENDED_NEXT}`;
+}
 /** How many lines of an engine's error output are kept. */
 const STDERR_LINES = 20;
 const BODY_LIMIT = 1024 * 1024;
@@ -427,8 +441,11 @@ export function safeEngineReason(
 /**
  * Why an engine process did not come up, or ended after it had: one line of
  * what it wrote to its error output. The first line that names an error wins (a
- * Node crash starts with the place of the throw, the error follows), else the
- * first line. A process that wrote nothing is described by how it ended; the
+ * Node crash starts with the place of the throw, the error follows). Without
+ * one, a process that never came up says its first line, the head of what it
+ * wrote; a process that had answered says how it ended, because the lines
+ * before its end are the tail of a trace (the frames of an out-of-memory abort),
+ * not a reason. A process that wrote nothing is described by how it ended; the
  * words say "before it answered" only for a process that never did.
  * @param stderrLines the lines the process wrote to its error output
  * @param how how the process ended, and whether it had answered
@@ -448,8 +465,10 @@ export function engineStartFailureReason(
   const lines = stderrLines
     .map(cleanLine)
     .filter((line) => line !== '' && !/^\((?:node:\d+|Use `node )/.test(line));
-  const named = lines.find((line) => /^(?:[A-Za-z]*Error|error)\b/.test(line));
-  const line = named ?? lines[0];
+  const named = lines.find((line) =>
+    /^(?:[A-Za-z]*Error|error|FATAL ERROR)\b/.test(line)
+  );
+  const line = how.answered ? named : (named ?? lines[0]);
   if (line) return scrubAndCut(line, secrets);
   const before = how.answered ? '' : ' before it answered';
   if (how.signal) {
@@ -558,7 +577,7 @@ export async function spawnTabEngine(
       // told when none does, so that an engine that ends while nobody asks shows.
       if (!disposed && pending.size === 0) {
         for (const listener of logListeners) {
-          listener(`${ENGINE_ENDED}: ${reason}\n`);
+          listener(`${engineEndedMessage(reason)}\n`);
         }
       }
     }
@@ -714,6 +733,9 @@ export async function startWebConsole(
   // requests that waited for it all fail with its reason, and a later engine
   // that ends for the same reason is another end.
   const reportedEnds = new WeakSet<TabEngine>();
+  // Set when the console itself ends its engines (it is closed, or shuts down
+  // because no browser came back): their end is then nobody's news.
+  let closing = false;
 
   // Engines: the shared one when options.engine is given, otherwise one
   // child process per tab, keyed by the tab's engine id.
@@ -898,6 +920,10 @@ export async function startWebConsole(
           secrets: [launchToken, sessionSecret, csrf],
         })
       );
+      // The request belongs to the engine that was just started for it, as far
+      // as the routes are concerned (the event stream looks its engine up by
+      // the id of the request).
+      req.headers[ENGINE_HEADER] = engineId;
     }
     const engine = shared ?? engines.get(engineId)!;
     // Every answer says which engine served it, so that a tab whose engine was
@@ -913,6 +939,9 @@ export async function startWebConsole(
       ) {
         throw error;
       }
+      // The console is ending its engines: the request that waited for one is
+      // not answered with a reason, and the terminal is told nothing.
+      if (closing) throw error;
       // This tab's engine never came up, or ended after it had. Forget it, so
       // the tab's next try starts a fresh one instead of reaching a dead
       // process, say why once in the terminal, and tell the page the reason
@@ -931,7 +960,9 @@ export async function startWebConsole(
         csrf,
       ]);
       const never = error instanceof TabEngineStartError;
-      const said = `${never ? ENGINE_START_FAILED : ENGINE_ENDED}: ${reason}`;
+      const said = never
+        ? `${ENGINE_START_FAILED}: ${reason}`
+        : engineEndedMessage(reason);
       // A page that retries starts an engine each time, and each fails for the
       // same reason: a start failure is told once for its words. An engine that
       // ended is told once for the engine.
@@ -1201,11 +1232,16 @@ export async function startWebConsole(
   const noteBrowserActivity = () => {
     lastBrowserSeen = Date.now();
   };
+  /** Ends every engine of the tabs, on purpose. */
+  const endEngines = () => {
+    closing = true;
+    for (const engine of engines.values()) engine.dispose();
+  };
   const idleTimer = setInterval(() => {
     if (streams.size > 0) return;
     if (Date.now() - lastBrowserSeen < IDLE_MS) return;
     clearInterval(idleTimer);
-    for (const engine of engines.values()) engine.dispose();
+    endEngines();
     server.closeAllConnections();
     void new Promise<void>((resolve) => server.close(() => resolve()));
   }, IDLE_CHECK_MS);
@@ -1217,7 +1253,7 @@ export async function startWebConsole(
     launchUrl: `http://${LOOPBACK}:${port}/?t=${launchToken}`,
     async close() {
       clearInterval(idleTimer);
-      for (const engine of engines.values()) engine.dispose();
+      endEngines();
       for (const stream of streams) stream.end();
       server.closeAllConnections();
       await new Promise<void>((resolve) => server.close(() => resolve()));

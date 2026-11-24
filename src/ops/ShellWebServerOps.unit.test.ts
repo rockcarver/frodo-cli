@@ -45,6 +45,10 @@ import {
  * Origin headers, which are exactly what an attacker controls.
  */
 
+/** The sentence that follows the reason of an engine that ended. */
+const NEXT_INPUT =
+  'The next input starts a new engine; its variables are gone.';
+
 type Reply = {
   status: number;
   headers: http.IncomingHttpHeaders;
@@ -1398,6 +1402,33 @@ describe('why a tab engine did not come up', () => {
     });
   });
 
+  it('does not take a line of a trace for the reason of a process that ended after it answered', () => {
+    const trace = [
+      '48: 0x101bda6e8 Builtins_JSEntryTrampoline [/usr/local/bin/node]',
+      '49: 0x101bda788 Builtins_JSEntryTrampoline [/usr/local/bin/node]',
+    ];
+    expect(engineStartFailureReason(trace, { code: 134, answered: true })).toBe(
+      'The engine process ended with exit code 134.'
+    );
+    expect(
+      engineStartFailureReason(trace, { signal: 'SIGABRT', answered: true })
+    ).toBe('The engine process was stopped by the signal SIGABRT.');
+    // a process that never came up still says its first line
+    expect(engineStartFailureReason(trace, { code: 134 })).toBe(trace[0]);
+  });
+
+  it('counts a fatal error of the runtime as a line that names an error', () => {
+    const lines = [
+      '<--- Last few GCs --->',
+      'FATAL ERROR: Reached heap limit Allocation failed - JavaScript heap out of memory',
+      '1: 0x101bda788 Builtins_JSEntryTrampoline [/usr/local/bin/node]',
+    ];
+    const expected =
+      'FATAL ERROR: Reached heap limit Allocation failed - JavaScript heap out of memory';
+    expect(engineStartFailureReason(lines)).toBe(expected);
+    expect(engineStartFailureReason(lines, { answered: true })).toBe(expected);
+  });
+
   it('describes a process that ended after it answered without saying that it did not answer', () => {
     expect(engineStartFailureReason([], { code: 3, answered: true })).toBe(
       'The engine process ended with exit code 3.'
@@ -1693,7 +1724,7 @@ describe('a tab engine that cannot start or that ends', () => {
      * without a word, `kill` kills itself, `hang` never answers and ends 150 ms
      * later, `idle` answers and ends 150 ms later, `warn` writes an error line
      * and answers, `spam` writes many lines (the last one names an error) and
-     * ends, `leak` writes what TEST_LEAK holds, `leakidle` answers and then writes it as it ends, `who` answers its process id.
+     * ends, `leak` writes what TEST_LEAK holds, `leakidle` answers and then writes it as it ends, `wait` never answers, `longline` writes one line of 300 characters, `window` writes 52 lines (an early error line, one that is the 21st from the end, one that is the 20th and stays), `oomlong` and `oomshort` end like an out-of-memory abort with a long and a short native trace, `say` logs a line and answers, `who` answers its process id.
      * Every start is a line of the file `spawnLog`.
      */
     function answeringStub(): string {
@@ -1719,6 +1750,12 @@ describe('a tab engine that cannot start or that ends', () => {
         '    case "spam": for (let i = 1; i <= 25; i++) process.stderr.write("filler " + i + "\\n"); process.stderr.write("TypeError: the last one\\n"); end_in(100); return;',
         '    case "leak": process.stderr.write("Error: leaked " + process.env.TEST_LEAK + "\\n"); process.exit(1);',
         '    case "leakidle": say_ok(m, 1); end_in(150, "Error: leaked " + process.env.TEST_LEAK); return;',
+        '    case "wait": return;',
+        '    case "longline": process.stderr.write("Error: " + "x".repeat(300) + "\\n"); process.exit(1);',
+        '    case "say": process.stdout.write(JSON.stringify({ log: "hello from the engine" }) + "\\n"); say_ok(m, process.pid); return;',
+        '    case "window": process.stderr.write("Error: early\\n"); for (let i = 1; i <= 30; i++) process.stderr.write("filler " + i + "\\n"); process.stderr.write("Error: edge\\n"); process.stderr.write("TypeError: late\\n"); for (let i = 1; i <= 19; i++) process.stderr.write("after " + i + "\\n"); end_in(100); return;',
+        '    case "oomlong": process.stderr.write("FATAL ERROR: Reached heap limit Allocation failed - JavaScript heap out of memory\\n"); for (let i = 1; i <= 40; i++) process.stderr.write(i + ": 0x101bda788 Builtins_JSEntryTrampoline [/usr/local/bin/node]\\n"); setTimeout(() => process.exit(134), 100); return;',
+        '    case "oomshort": process.stderr.write("<--- Last few GCs --->\\n"); process.stderr.write("FATAL ERROR: Reached heap limit Allocation failed - JavaScript heap out of memory\\n"); for (let i = 1; i <= 8; i++) process.stderr.write(i + ": 0x101bda788 Builtins_JSEntryTrampoline [/usr/local/bin/node]\\n"); setTimeout(() => process.exit(134), 100); return;',
         '    default: return say_ok(m, m.code);',
         '  }',
         '});',
@@ -1788,17 +1825,46 @@ describe('a tab engine that cannot start or that ends', () => {
       const crashed = await evaluate(engine, 'crash');
       expect(crashed.status).toBe(503);
       expect(JSON.parse(crashed.body)).toEqual({
-        error: 'The console engine ended: RangeError: boom after start',
+        error: `The console engine ended: RangeError: boom after start. ${NEXT_INPUT}`,
       });
       expect(told('The console engine ended')).toHaveLength(1);
       expect(String(told('The console engine ended')[0][0])).toContain(
-        'The console engine ended: RangeError: boom after start'
+        `The console engine ended: RangeError: boom after start. ${NEXT_INPUT}`
       );
       expect(told('could not start an engine')).toHaveLength(0);
       // the dead engine is forgotten: the next request does not meet it again
       const next = await evaluate(engine, 'who');
       expect(next.status).toBe(200);
       expect(started()).toBe(2);
+    });
+
+    it('ends the sentence of the reason once: a reason with a full stop gets no second one, one without gets one, a cut one gets none', async () => {
+      process.env.FRODO_TEST_WORKER_SCRIPT = answeringStub();
+      const { session, evaluate } = await startAndSignIn();
+      let engine = engineOf(await session());
+      const how = async (code: string) => {
+        const reply = await evaluate(engine, code);
+        expect(reply.status).toBe(503);
+        engine = (await evaluate(engine, 'who')).headers[
+          'x-frodo-engine'
+        ] as string;
+        return JSON.parse(reply.body).error as string;
+      };
+      // a line that the process wrote: no full stop of its own
+      expect(await how('crash')).toBe(
+        `The console engine ended: RangeError: boom after start. ${NEXT_INPUT}`
+      );
+      // how the process ended: a sentence with its own full stop
+      expect(await how('exit3')).toBe(
+        `The console engine ended: The engine process ended with exit code 3. ${NEXT_INPUT}`
+      );
+      // a line cut to 200 characters ends in an ellipsis
+      const cut = await how('longline');
+      expect(cut).toMatch(
+        /^The console engine ended: Error: x+… The next input/
+      );
+      expect(cut.endsWith(` ${NEXT_INPUT}`)).toBe(true);
+      expect(cut).not.toContain('….');
     });
 
     it('serves the next two requests of a tab whose engine ended with one new engine, and names it in a header', async () => {
@@ -1836,7 +1902,7 @@ describe('a tab engine that cannot start or that ends', () => {
       for (const reply of [one, two]) {
         expect(reply.status).toBe(503);
         expect(JSON.parse(reply.body).error).toBe(
-          'The console engine ended: RangeError: while busy'
+          `The console engine ended: RangeError: while busy. ${NEXT_INPUT}`
         );
       }
       expect(told('The console engine ended')).toHaveLength(1);
@@ -1864,6 +1930,54 @@ describe('a tab engine that cannot start or that ends', () => {
             String(e.text ?? '').startsWith('The console engine ended')
           )
         ).toEqual([]);
+      } finally {
+        stream.close();
+      }
+    });
+
+    it('says nothing of an end that the console asked for, though a request waits for the engine', async () => {
+      process.env.FRODO_TEST_WORKER_SCRIPT = answeringStub();
+      const { session, evaluate } = await startAndSignIn();
+      const engine = engineOf(await session());
+      const waiting = evaluate(engine, 'wait').catch((e) => e);
+      // the request is with the engine now
+      await new Promise((resolve) => setTimeout(resolve, 300));
+      const pid = Number(
+        fs.readFileSync(spawnLog, 'utf8').trim().split('\n').pop()
+      );
+      await web.close();
+      await waiting;
+      // the process is gone and its end has been seen
+      for (let i = 0; i < 100; i++) {
+        try {
+          process.kill(pid, 0);
+        } catch {
+          break;
+        }
+        await new Promise((resolve) => setTimeout(resolve, 50));
+      }
+      await new Promise((resolve) => setTimeout(resolve, 500));
+      expect(told('The console engine ended')).toHaveLength(0);
+    });
+
+    it('binds the event stream of a tab with an id that no engine has to the engine that it starts for it', async () => {
+      process.env.FRODO_TEST_WORKER_SCRIPT = answeringStub();
+      const { evaluate, headers } = await startAndSignIn();
+      const stream = await openStream(web.port, {
+        ...headers,
+        'X-Frodo-Engine': '0123456789abcdef',
+      });
+      try {
+        expect(stream.status).toBe(200);
+        const engine = stream.headers['x-frodo-engine'] as string;
+        expect(engine).toMatch(/^[0-9a-f]{16}$/);
+        expect(engine).not.toBe('0123456789abcdef');
+        // what the new engine logs reaches this stream, not only the global bus
+        expect((await evaluate(engine, 'say')).status).toBe(200);
+        await stream.next(
+          (e) => e.type === 'log' && e.text === 'hello from the engine'
+        );
+        expect(started()).toBe(1);
       } finally {
         stream.close();
       }
@@ -1939,7 +2053,7 @@ describe('a tab engine that cannot start or that ends', () => {
             String(e.text).startsWith('The console engine ended')
         );
         expect(event.text).toBe(
-          'The console engine ended: RangeError: while idle\n'
+          `The console engine ended: RangeError: while idle. ${NEXT_INPUT}\n`
         );
         // nobody asked for anything: the terminal is told with the next request
         expect(told('The console engine ended')).toHaveLength(0);
@@ -2046,10 +2160,37 @@ describe('a tab engine that cannot start or that ends', () => {
           }
           expect(
             lines.filter((line) => line.startsWith('The console engine ended'))
-          ).toEqual(['The console engine ended: Error: leaked <redacted>\n']);
+          ).toEqual([
+            `The console engine ended: Error: leaked <redacted>. ${NEXT_INPUT}\n`,
+          ]);
         } finally {
           delete process.env.TEST_LEAK;
         }
+      });
+
+      it('are how the process ended, not a line of a native trace, when no line names an error', async () => {
+        const engine = await started_engine();
+        const error = await engine.evaluate('oomlong').catch((e) => e);
+        expect(error).not.toBeInstanceOf(TabEngineStartError);
+        expect(error.message).toBe(
+          'The engine process ended with exit code 134.'
+        );
+      });
+
+      it('are the line that names a fatal error, when it is among the last lines', async () => {
+        const engine = await started_engine();
+        const error = await engine.evaluate('oomshort').catch((e) => e);
+        expect(error.message).toBe(
+          'FATAL ERROR: Reached heap limit Allocation failed - JavaScript heap out of memory'
+        );
+      });
+
+      it('are taken from the last twenty lines that the process wrote: an early error line is gone, a late one stays', async () => {
+        const engine = await started_engine();
+        // 'Error: early', thirty lines and 'Error: edge' (the 21st from the
+        // end) scroll out; 'TypeError: late' is the first of the twenty that stay
+        const error = await engine.evaluate('window').catch((e) => e);
+        expect(error.message).toBe('TypeError: late');
       });
 
       it('are told to the streams only when the end was not asked for', async () => {

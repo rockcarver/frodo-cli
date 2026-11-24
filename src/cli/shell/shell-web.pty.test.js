@@ -729,7 +729,7 @@ describe('frodo shell --web in a real browser when the engine of a tab ends', ()
             45_000
           );
           expect(shown).toContain(
-            'The console engine ended: The engine process ended with exit code 3.'
+            'The console engine ended: The engine process ended with exit code 3. The next input starts a new engine; its variables are gone.'
           );
           expect(shown).not.toContain('Internal error');
           expect(
@@ -774,6 +774,33 @@ describe('frodo shell --web in a real browser when the engine of a tab ends', ()
               ),
             45_000
           );
+
+          // A tab that is loaded again with an id that names no engine (a
+          // restored tab, a console that was started again) is given one
+          // engine for its stream and its inputs, and what it logs arrives.
+          const stale = '0123456789abcdef';
+          await evaluate(
+            `sessionStorage.setItem('frodo-engine-id', '${stale}'); setTimeout(function () { location.reload(); }, 50); true`
+          );
+          const reloaded = await waitFor(
+            () =>
+              /*W*/
+              evaluate(
+                `(function () { var id = sessionStorage.getItem('frodo-engine-id'); return id && id !== '${stale}' && document.getElementById('status').className === 'up' ? id : null; })()`
+              ),
+            45_000
+          );
+          expect(reloaded).toMatch(/^[0-9a-f]{16}$/);
+          await typeLine('console.log("after the reload")');
+          await waitFor(
+            () =>
+              /*W*/
+              evaluate(
+                `Array.from(document.querySelectorAll('.entry')).some(e => e.querySelector('.logs') && e.querySelector('.logs').textContent.includes('after the reload')) ? true : null`
+              ),
+            45_000
+          );
+          expect(await storedId()).toBe(reloaded);
         });
       } finally {
         stopChrome(chrome, userData);

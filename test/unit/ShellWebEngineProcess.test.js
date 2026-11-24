@@ -384,7 +384,7 @@ run('frodo shell --web with real engine processes', () => {
     );
     expect(ended.status).toBe(503);
     expect(ended.json.error).toBe(
-      'The console engine ended: The engine process ended with exit code 3.'
+      'The console engine ended: The engine process ended with exit code 3. The next input starts a new engine; its variables are gone.'
     );
     const told = shell
       .output()
