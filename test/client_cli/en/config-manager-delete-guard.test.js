@@ -27,6 +27,7 @@ async function run(command, env = {}) {
 describe('a delete of more than one object without a terminal and without --yes', () => {
   test.each([
     'frodo config-manager delete applications',
+    'frodo config-manager delete connector-definitions',
     'frodo config-manager delete oauth-cimd-profiles',
     'frodo config-manager delete custom-nodes',
     'frodo config-manager delete endpoints',
@@ -53,7 +54,8 @@ describe('a delete of more than one object without a terminal and without --yes'
     expect(stderr).toContain('Refusing to delete');
     expect(stderr).toContain('-y/--yes');
     expect(stderr).toContain('--dry-run');
-    expect(stderr).not.toMatch(/ECONNREFUSED|connect/i);
+    // the host was never reached; the word "connector" is in the messages of one command, so it is not "connect"
+    expect(stderr).not.toMatch(/ECONNREFUSED|connect(?!or)/i);
   });
 
   test('the refusal says what would have been deleted', async () => {
