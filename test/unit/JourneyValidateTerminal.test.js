@@ -209,6 +209,21 @@ ptySuite('journey validate at a terminal', () => {
   );
 
   test(
+    'no bar goes to a file: with stdout at the terminal and stderr in a file, the file holds the findings and no bar',
+    () => {
+      const file = path.join(home, 'findings.log');
+      const result = run(`2>"${file}"`);
+
+      const content = fs.readFileSync(file, 'utf8');
+      expect(result.exitCode).toBe(1);
+      expect(content).toContain('Checked 21 journeys, 1 with findings');
+      expect(content).not.toMatch(/[█░]|Validating|\u001b\[\?25/u);
+      expect(result.plainOutput).not.toMatch(/[█░]|Validating/u);
+    },
+    TIMEOUT
+  );
+
+  test(
     'the bar is on stderr: with stderr sent away, nothing of it is on the screen',
     () => {
       const result = run('2>/dev/null');
@@ -345,12 +360,18 @@ suite('journey validate against a fake tenant', () => {
       expect(code).toBe(1);
       expect(reads('/trees/Login')).toHaveLength(1);
       expect(reads('/trees/ZionLogin')).toHaveLength(1);
-      expect(stderr).toContain(
-        "Error validating alpha realm journey 'Registration'"
-      );
-      expect(stderr).toContain('1 error and 1 warning in journey Login');
-      expect(stderr).toContain('1 error and 1 warning in journey ZionLogin');
-      expect(stderr).toContain('Checked 2 journeys, 2 with findings');
+      // the error of that journey stands where the journey stands in the run, as a block of its own:
+      // the line that the library used to put in front of it is gone and the block is one level less indented
+      const block =
+        "Error validating alpha realm journey 'Registration'\n  Error exporting alpha realm journey Registration\n    Network error:";
+      expect(stderr).toContain(`\n${block}`);
+      expect(stderr).not.toContain('Error validating alpha realm journeys');
+      const login = stderr.indexOf('1 error and 1 warning in journey Login');
+      const zion = stderr.indexOf('1 error and 1 warning in journey ZionLogin');
+      expect(login).toBeGreaterThan(-1);
+      expect(stderr.indexOf(block)).toBeGreaterThan(login);
+      expect(zion).toBeGreaterThan(stderr.indexOf(block));
+      expect(stderr).toContain('Checked 2 of 3 journeys, 2 with findings');
       expect(stderr).toContain(
         '  - Registration: fake tenant operation failed'
       );
