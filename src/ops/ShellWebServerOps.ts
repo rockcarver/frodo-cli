@@ -45,6 +45,31 @@ import { createRemoteRegistry } from './ShellWebSerializeOps';
 const LOOPBACK = '127.0.0.1';
 const COOKIE = 'frodo_console_session';
 const CSRF_HEADER = 'x-frodo-csrf';
+/**
+ * The header a tab carries its engine id in, and that every API answer of an
+ * engine carries back: the page takes the id from it, so a tab whose engine
+ * was replaced goes on with the new one instead of asking for another each time.
+ */
+const ENGINE_HEADER = 'x-frodo-engine';
+/** What the page is told when an engine process never came up, and when it ended after it had. */
+const ENGINE_START_FAILED = 'The console could not start an engine';
+const ENGINE_ENDED = 'The console engine ended';
+/** What a person needs to know after an engine ended: the next input runs on a new one. */
+const ENGINE_ENDED_NEXT =
+  'The next input starts a new engine; its variables are gone.';
+
+/**
+ * What the page, the terminal and the streams are told when an engine ended
+ * after it had answered: that it did, why, and what the next input meets. A
+ * reason is one sentence that may lack its full stop (a line the process wrote)
+ * or have it (how the process ended, a line that was cut ends in an ellipsis).
+ */
+function engineEndedMessage(reason: string): string {
+  const stop = /[.!?…]$/.test(reason) ? '' : '.';
+  return `${ENGINE_ENDED}: ${reason}${stop} ${ENGINE_ENDED_NEXT}`;
+}
+/** How many lines of an engine's error output are kept. */
+const STDERR_LINES = 20;
 const BODY_LIMIT = 1024 * 1024;
 const MAX_ACTIVE_REQUESTS = 64;
 const MAX_STREAMS = 8;
@@ -297,6 +322,21 @@ export class TabEngineStartError extends Error {
   }
 }
 
+/**
+ * An engine process that ended after it had answered: a working engine that
+ * crashed, was killed or ended itself. Like {@link TabEngineStartError} it
+ * carries one line, its reason, which is the only detail of an engine failure
+ * that leaves the server. It is a class of its own because the words differ
+ * ("ended", not "could not start") and the terminal is told once for each
+ * engine that ended, not once for each wording.
+ */
+class TabEngineEndedError extends Error {
+  constructor(reason: string) {
+    super(reason);
+    this.name = 'TabEngineEndedError';
+  }
+}
+
 const REASON_LIMIT = 200;
 /**
  * How much of a line is looked at. What a process writes is hostile input: a
@@ -399,31 +439,42 @@ export function safeEngineReason(
 }
 
 /**
- * Why an engine process did not come up: one line of what it wrote to its
- * error output. The first line that names an error wins (a Node crash starts
- * with the place of the throw, the error follows), else the first line. A
- * process that wrote nothing is described by how it ended.
+ * Why an engine process did not come up, or ended after it had: one line of
+ * what it wrote to its error output. The first line that names an error wins (a
+ * Node crash starts with the place of the throw, the error follows). Without
+ * one, a process that never came up says its first line, the head of what it
+ * wrote; a process that had answered says how it ended, because the lines
+ * before its end are the tail of a trace (the frames of an out-of-memory abort),
+ * not a reason. A process that wrote nothing is described by how it ended; the
+ * words say "before it answered" only for a process that never did.
  * @param stderrLines the lines the process wrote to its error output
- * @param how how the process ended
+ * @param how how the process ended, and whether it had answered
  * @param secrets the values that must not appear in the reason
  * @returns one line of at most 200 characters, safe to show (see {@link safeEngineReason})
  */
 export function engineStartFailureReason(
   stderrLines: string[],
-  how: { code?: number | null; signal?: string | null } = {},
+  how: {
+    code?: number | null;
+    signal?: string | null;
+    answered?: boolean;
+  } = {},
   secrets: readonly unknown[] = []
 ): string {
   // Notices of the runtime are not a reason: "(node:123) ExperimentalWarning..."
   const lines = stderrLines
     .map(cleanLine)
     .filter((line) => line !== '' && !/^\((?:node:\d+|Use `node )/.test(line));
-  const named = lines.find((line) => /^(?:[A-Za-z]*Error|error)\b/.test(line));
-  const line = named ?? lines[0];
+  const named = lines.find((line) =>
+    /^(?:[A-Za-z]*Error|error|FATAL ERROR)\b/.test(line)
+  );
+  const line = how.answered ? named : (named ?? lines[0]);
   if (line) return scrubAndCut(line, secrets);
+  const before = how.answered ? '' : ' before it answered';
   if (how.signal) {
-    return `The engine process was stopped by the signal ${how.signal} before it answered.`;
+    return `The engine process was stopped by the signal ${how.signal}${before}.`;
   }
-  return `The engine process ended with exit code ${how.code ?? 'unknown'} before it answered.`;
+  return `The engine process ended with exit code ${how.code ?? 'unknown'}${before}.`;
 }
 
 /**
@@ -441,14 +492,21 @@ export async function spawnTabEngine(
     stdio: ['pipe', 'pipe', 'pipe'],
     env: launch.env,
   });
-  // What the process wrote to its error output, kept (bounded) until it has
-  // answered once: if it ends before that, the first lines are its reason.
-  const stderrHead: string[] = [];
+  // What the process wrote to its error output, a bounded list for the whole
+  // life of the process. Until it has answered once, the first lines are kept:
+  // if it ends before that, they are its reason. After that the last lines
+  // are, so that a death of a working engine can say why. Each line carries the
+  // number of answers that had come when it was read, because only what was
+  // written since the last answer can be the reason of a later end: an error
+  // line from a request long ago is not.
+  const stderrTail: { text: string; answers: number }[] = [];
   // Set once the process is gone; every later request fails with it.
   let ended: Error | undefined;
-  // Whether the process ever answered a request: one that did is up, and its
-  // later end is a crash of a working engine, not a failure to start.
-  let answered = false;
+  // How many answers the process gave: one that gave any is up, and its later
+  // end is a crash of a working engine, not a failure to start.
+  let answers = 0;
+  // Set when this process was asked to end: that end is nobody's news.
+  let disposed = false;
   const pending = new Map<
     number,
     { resolve: (value: unknown) => void; reject: (error: Error) => void }
@@ -460,8 +518,9 @@ export async function spawnTabEngine(
   // opened a browser. Each stderr line joins the tab's log stream as-is;
   // it is diagnostics, never protocol (protocol is stdout's JSON lines).
   createInterface({ input: child.stderr! }).on('line', (line) => {
-    if (!answered && stderrHead.length < 20) {
-      stderrHead.push(line.slice(0, REASON_INPUT_LIMIT));
+    if (answers > 0 && stderrTail.length >= STDERR_LINES) stderrTail.shift();
+    if (stderrTail.length < STDERR_LINES) {
+      stderrTail.push({ text: line.slice(0, REASON_INPUT_LIMIT), answers });
     }
     for (const listener of logListeners) listener(line);
   });
@@ -479,8 +538,7 @@ export async function spawnTabEngine(
     }
     const id = message.id as number | undefined;
     if (id !== undefined && pending.has(id)) {
-      answered = true;
-      stderrHead.length = 0;
+      answers++;
       const p = pending.get(id)!;
       pending.delete(id);
       if (message.error !== undefined) {
@@ -504,19 +562,36 @@ export async function spawnTabEngine(
   // A process that is already gone refuses the write with an error event on
   // its stdin; the end of the process is reported below, once, with its reason.
   child.stdin!.on('error', () => undefined);
-  // The process is gone: fail what waits for it. One that never answered
-  // gets the reason it wrote (the stderr lines are read by now, or a moment
-  // after the exit event, which the short wait below allows for).
+  // The process is gone: fail what waits for it, with the reason it wrote (the
+  // stderr lines are read by now, or a moment after the exit event, which the
+  // short wait below allows for). An engine that never answered failed to
+  // start; one that did ended, and the streams that listen to it are told.
   const finish = (describe: () => string) => {
     if (ended) return;
-    ended = answered
-      ? new Error('Engine exited')
-      : new TabEngineStartError(describe());
+    const reason = describe();
+    if (answers === 0) {
+      ended = new TabEngineStartError(reason);
+    } else {
+      ended = new TabEngineEndedError(reason);
+      // A request that waits gets these words as its answer; the streams are
+      // told when none does, so that an engine that ends while nobody asks shows.
+      if (!disposed && pending.size === 0) {
+        for (const listener of logListeners) {
+          listener(`${engineEndedMessage(reason)}\n`);
+        }
+      }
+    }
     for (const p of pending.values()) p.reject(ended);
     pending.clear();
   };
   const reasonOf = (code: number | null, signal: string | null) =>
-    engineStartFailureReason(stderrHead, { code, signal }, options.secrets);
+    engineStartFailureReason(
+      stderrTail
+        .filter((line) => line.answers === answers)
+        .map((line) => line.text),
+      { code, signal, answered: answers > 0 },
+      options.secrets
+    );
   child.once('close', (code, signal) => finish(() => reasonOf(code, signal)));
   child.once('exit', (code, signal) => {
     setTimeout(() => finish(() => reasonOf(code, signal)), 100).unref();
@@ -562,6 +637,7 @@ export async function spawnTabEngine(
     },
     dispose() {
       if (ended) return;
+      disposed = true;
       try {
         child.stdin!.write(`${JSON.stringify({ op: 'dispose' })}
 `);
@@ -653,6 +729,13 @@ export async function startWebConsole(
   // The reasons an engine failed to start that the terminal has been told: a
   // page that retries would otherwise repeat the same line forever.
   const reportedStartFailures = new Set<string>();
+  // The engines whose end the terminal has been told, one line for each: the
+  // requests that waited for it all fail with its reason, and a later engine
+  // that ends for the same reason is another end.
+  const reportedEnds = new WeakSet<TabEngine>();
+  // Set when the console itself ends its engines (it is closed, or shuts down
+  // because no browser came back): their end is then nobody's news.
+  let closing = false;
 
   // Engines: the shared one when options.engine is given, otherwise one
   // child process per tab, keyed by the tab's engine id.
@@ -811,7 +894,7 @@ export async function startWebConsole(
   /** The engine a request belongs to, without spawning one. */
   function engineForSync(req: http.IncomingMessage): TabEngine | undefined {
     if (shared) return shared;
-    return engines.get(String(req.headers['x-frodo-engine'] ?? ''));
+    return engines.get(String(req.headers[ENGINE_HEADER] ?? ''));
   }
 
   async function api(
@@ -828,7 +911,7 @@ export async function startWebConsole(
     // that tab carries it, so its engine process stays its own.
     let engineId = shared
       ? undefined
-      : String(req.headers['x-frodo-engine'] ?? '');
+      : String(req.headers[ENGINE_HEADER] ?? '');
     if (!shared && !engines.has(engineId)) {
       engineId = crypto.randomBytes(8).toString('hex');
       engines.set(
@@ -837,20 +920,38 @@ export async function startWebConsole(
           secrets: [launchToken, sessionSecret, csrf],
         })
       );
+      // The request belongs to the engine that was just started for it, as far
+      // as the routes are concerned (the event stream looks its engine up by
+      // the id of the request).
+      req.headers[ENGINE_HEADER] = engineId;
     }
     const engine = shared ?? engines.get(engineId)!;
+    // Every answer says which engine served it, so that a tab whose engine was
+    // replaced takes the new id (the id is also in the session answer, which a
+    // tab asks for only once).
+    if (engineId) res.setHeader(ENGINE_HEADER, engineId);
     try {
       await serveApi(req, res, path, engine, engineId);
     } catch (error) {
-      if (!(error instanceof TabEngineStartError)) throw error;
-      // This tab's engine never came up. Forget it, so the tab's next try
-      // starts a fresh one instead of reaching a dead process, say why once
-      // in the terminal, and tell the page the reason (and nothing else
-      // about the failure, unlike an internal error).
+      if (
+        !(error instanceof TabEngineStartError) &&
+        !(error instanceof TabEngineEndedError)
+      ) {
+        throw error;
+      }
+      // The console is ending its engines: the request that waited for one is
+      // not answered with a reason, and the terminal is told nothing.
+      if (closing) throw error;
+      // This tab's engine never came up, or ended after it had. Forget it, so
+      // the tab's next try starts a fresh one instead of reaching a dead
+      // process, say why once in the terminal, and tell the page the reason
+      // (and nothing else about the failure, unlike an internal error). The
+      // engine that is forgotten is not named to the page.
       engine.dispose();
       for (const [id, candidate] of engines) {
         if (candidate === engine) engines.delete(id);
       }
+      res.removeHeader(ENGINE_HEADER);
       // The reason is already safe when the engine is ours; one that a caller
       // supplied is made safe here, with the same steps.
       const reason = safeEngineReason(error.message, [
@@ -858,16 +959,22 @@ export async function startWebConsole(
         sessionSecret,
         csrf,
       ]);
-      if (!reportedStartFailures.has(reason)) {
-        reportedStartFailures.add(reason);
-        printError(
-          new Error(`The console could not start an engine: ${reason}`)
-        );
+      const never = error instanceof TabEngineStartError;
+      const said = never
+        ? `${ENGINE_START_FAILED}: ${reason}`
+        : engineEndedMessage(reason);
+      // A page that retries starts an engine each time, and each fails for the
+      // same reason: a start failure is told once for its words. An engine that
+      // ended is told once for the engine.
+      const told = never
+        ? reportedStartFailures.has(reason)
+        : reportedEnds.has(engine);
+      if (!told) {
+        if (never) reportedStartFailures.add(reason);
+        else reportedEnds.add(engine);
+        printError(new Error(said));
       }
-      throw new HttpError(
-        503,
-        `The console could not start an engine: ${reason}`
-      );
+      throw new HttpError(503, said);
     }
   }
 
@@ -1125,11 +1232,16 @@ export async function startWebConsole(
   const noteBrowserActivity = () => {
     lastBrowserSeen = Date.now();
   };
+  /** Ends every engine of the tabs, on purpose. */
+  const endEngines = () => {
+    closing = true;
+    for (const engine of engines.values()) engine.dispose();
+  };
   const idleTimer = setInterval(() => {
     if (streams.size > 0) return;
     if (Date.now() - lastBrowserSeen < IDLE_MS) return;
     clearInterval(idleTimer);
-    for (const engine of engines.values()) engine.dispose();
+    endEngines();
     server.closeAllConnections();
     void new Promise<void>((resolve) => server.close(() => resolve()));
   }, IDLE_CHECK_MS);
@@ -1141,7 +1253,7 @@ export async function startWebConsole(
     launchUrl: `http://${LOOPBACK}:${port}/?t=${launchToken}`,
     async close() {
       clearInterval(idleTimer);
-      for (const engine of engines.values()) engine.dispose();
+      endEngines();
       for (const stream of streams) stream.end();
       server.closeAllConnections();
       await new Promise<void>((resolve) => server.close(() => resolve()));

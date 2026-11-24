@@ -387,4 +387,58 @@ run('frodo shell --web with real engine processes', () => {
     expect(told[0]).toContain(first.json.error);
     expect(shell.exited).toBe(false);
   }, 180_000);
+
+  test('6: an engine that ends after it answered is described, replaced once, and the tab is told which engine it has now', async () => {
+    shell = startFrodo({
+      args: ['shell', '--web', '--no-open'],
+      homeDir: home,
+    });
+    const call = await signInOverHttp(await shell.link());
+    const session = await call('GET', '/api/session');
+    expect(session.status).toBe(200);
+    const first = session.json.engine;
+    expect(session.headers.get('x-frodo-engine')).toBe(first);
+    // a second tab, with an engine of its own and something it remembers
+    const other = (await call('GET', '/api/session')).json.engine;
+    expect(other).not.toBe(first);
+    expect(
+      (await call('POST', '/api/eval', { code: 'var keep = 7; keep' }, other))
+        .status
+    ).toBe(200);
+
+    // a script that ends its own process, as a crash or a kill would
+    const ended = await call(
+      'POST',
+      '/api/eval',
+      { code: 'process.exit(3)' },
+      first
+    );
+    expect(ended.status).toBe(503);
+    expect(ended.json.error).toBe(
+      'The console engine ended: The engine process ended with exit code 3. The next input starts a new engine; its variables are gone.'
+    );
+    const told = shell
+      .output()
+      .split('\n')
+      .filter((line) => line.includes('The console engine ended'));
+    expect(told).toHaveLength(1);
+
+    // the tab still holds the old id: its next request gets a new engine and
+    // is told which, and the request after that carries the new id
+    const again = await call('POST', '/api/eval', { code: '6 * 7' }, first);
+    expect(again.status).toBe(200);
+    expect(again.json.result.preview).toBe('42');
+    const second = again.headers.get('x-frodo-engine');
+    expect(second).toMatch(/^[0-9a-f]{16}$/);
+    expect(second).not.toBe(first);
+    const third = await call('POST', '/api/eval', { code: '6 * 7' }, second);
+    expect(third.status).toBe(200);
+    expect(third.headers.get('x-frodo-engine')).toBe(second);
+    // the other tab did not notice: same engine, same id, same variable
+    const kept = await call('POST', '/api/eval', { code: 'keep + 1' }, other);
+    expect(kept.status).toBe(200);
+    expect(kept.json.result.preview).toBe('8');
+    expect(kept.headers.get('x-frodo-engine')).toBe(other);
+    expect(shell.exited).toBe(false);
+  }, 180_000);
 });

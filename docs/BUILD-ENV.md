@@ -390,7 +390,7 @@ itself with no argument and the private variable `FRODO_ENGINE_WORKER=1`, and
 it and its standard input is not a terminal (on a terminal the variable is a
 mistake, and the command line runs). The engine deletes the variable from its own environment first, so a
 command that a script of the console starts is an ordinary command. The
-variable is an internal switch, not an option; the decision record [The web console opens a browser through a private launcher file, and its engine in the binary is the executable itself](decisions/0062-the-web-console-opens-a-browser-through-a-private-launcher-file-and-its-engine-in-the-binary-is-the-executable-itself.md) has the rule and the reasoning.
+variable is an internal switch, not an option; the decision record [A web console engine that ends is described, replaced and made known to its tab](decisions/0064-a-web-console-engine-that-ends-is-described-replaced-and-made-known-to-its-tab.md) has the rule and the reasoning.
 
 ---
 
