@@ -10,6 +10,7 @@ import CustomNodes from './config-manager-delete-custom-nodes';
 import Journeys from './config-manager-delete-journeys';
 import OauthIssuers from './config-manager-delete-oauth-issuers';
 import OauthSoftwarePublishers from './config-manager-delete-oauth-software-publishers';
+import RemoteServers from './config-manager-delete-remote-servers';
 import Schedules from './config-manager-delete-schedules';
 import Scripts from './config-manager-delete-scripts';
 import SecretMappings from './config-manager-delete-secret-mappings';
@@ -39,6 +40,7 @@ export default function setup() {
   program.addCommand(
     OauthSoftwarePublishers().name('oauth-software-publishers')
   );
+  program.addCommand(RemoteServers().name('remote-servers'));
   program.addCommand(Schedules().name('schedules'));
   program.addCommand(SecretMappings().name('secret-mappings'));
   program.addCommand(Telemetry().name('telemetry'));
