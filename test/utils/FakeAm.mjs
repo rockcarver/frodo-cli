@@ -182,7 +182,28 @@
  * and takes `PUT /openidm/config/<id>` for: the body replaces the entity (with `_id` taken
  * from the URL, as IDM does) and is answered with `200`. The request log holds the body of
  * every write. An id that is not in the object answers `404`; `managed` and `repo.ds` stay
- * with FAKE_AM_IDM_CONFIG_FILE above when that one is given.
+ * with FAKE_AM_IDM_CONFIG_FILE above when that one is given. The same objects are listed as IDM
+ * lists configuration: `GET /openidm/config?_queryFilter=true` answers all of them, and
+ * `?_queryFilter=_id sw '<prefix>'` those whose id starts with the prefix (a string prefix, as
+ * in IDM: `mapping` also finds `mappingFoo`), in the order the fake holds them, as
+ * `{ result, resultCount, pagedResultsCookie: null, totalPagedResultsPolicy: 'NONE',
+ * totalPagedResults: -1, remainingPagedResults: -1 }`, with `_fields` ignored; an object that was
+ * written with a `PUT` is listed and one that was deleted is not. Any other filter answers `400`
+ * with a message, because an empty list would read as "nothing is there". `DELETE
+ * /openidm/config/<id>` removes the object and answers it with `200`, as IDM does, and `404` for an
+ * id that is not there. A request for which a test needs a failure is answered by FAKE_AM_FAIL_REQUESTS
+ * above: `{ "method": "DELETE", "path": "/openidm/config/provisioner.openicf/zion" }` fails that one
+ * delete and no other (the path is a fragment, so give the whole id). The list answers only
+ * when this file is given; the request without a `_queryFilter` is answered as it was before.
+ * FAKE_AM_MANAGED_OBJECTS_FILE=<path> names a JSON object `{ "<managed type name>": [objects] }`
+ * (for example `alpha_application`, the application records of realm alpha) the fake serves as
+ * `GET /openidm/managed/<type>?_queryFilter=true`: `_pageSize=<n>` (a positive number; without it
+ * all objects) with `_pagedResultsCookie` (the offset of the next page as a string, `null` in the
+ * answer of the last page), and `_fields=<name,name>`, which reduces each object to its `_id` and the
+ * fields named (a field that the object does not have is not made up). Any other filter, or a page
+ * size that is not a positive number, answers `400`. The objects are read only: one object of the
+ * type (`.../<type>/<id>`) and every write are not served, and a type that the object does not hold
+ * is answered by the routes that follow (the users of FAKE_AM_USERS_FILE, then `404`).
  * FAKE_AM_DIRECT_CONFIGURATION_FILE=<path> names a JSON object `{ apply?, states? }` that makes the
  * fake serve the direct configuration session of a Cloud tenant, and the list of service account
  * scopes that a service account login reads (`GET /environment/scopes/service-accounts`, which
@@ -264,6 +285,7 @@ const aiAgents = readJson(process.env.FAKE_AM_AI_AGENTS_FILE)?.map((agent) => ({
 const features = readJson(process.env.FAKE_AM_FEATURES_FILE);
 const idmConfig = readJson(process.env.FAKE_AM_IDM_CONFIG_FILE);
 const idmEntities = readJson(process.env.FAKE_AM_IDM_ENTITIES_FILE);
+const managedObjects = readJson(process.env.FAKE_AM_MANAGED_OBJECTS_FILE);
 const failRequests = JSON.parse(process.env.FAKE_AM_FAIL_REQUESTS ?? '[]');
 const directConfiguration = readJson(
   process.env.FAKE_AM_DIRECT_CONFIGURATION_FILE
@@ -711,6 +733,108 @@ function servePromotion(req, body, send) {
   } else {
     return false;
   }
+  return true;
+}
+
+/**
+ * Answers the list of the IDM configuration objects (`GET /openidm/config?_queryFilter=...`) from
+ * `idmEntities`, or returns false when the request is not one or there is no such store.
+ * `send(status, payload)` writes the answer.
+ */
+function serveIdmConfigList(req, send) {
+  const { pathname, searchParams } = new URL(req.url, 'http://fake');
+  if (
+    !idmEntities ||
+    req.method !== 'GET' ||
+    pathname !== '/openidm/config' ||
+    !searchParams.has('_queryFilter')
+  ) {
+    return false;
+  }
+  const filter = searchParams.get('_queryFilter');
+  // `true` selects every object, `_id sw '<prefix>'` the ones whose id starts with the prefix
+  const prefix =
+    filter === 'true' ? '' : filter.match(/^_id sw '([^']*)'$/)?.[1];
+  if (prefix === undefined) {
+    send(400, {
+      code: 400,
+      reason: 'Bad Request',
+      message: `the fake tenant lists configuration objects by the filter true or _id sw '<prefix>' only, not: ${filter}`,
+    });
+    return true;
+  }
+  const result = Object.entries(idmEntities)
+    .filter(([id]) => id.startsWith(prefix))
+    .map(([id, entity]) => ({ _id: id, ...entity }));
+  send(200, {
+    result,
+    resultCount: result.length,
+    pagedResultsCookie: null,
+    totalPagedResultsPolicy: 'NONE',
+    totalPagedResults: -1,
+    remainingPagedResults: -1,
+  });
+  return true;
+}
+
+/**
+ * Answers the list of the managed objects of a type (`GET /openidm/managed/<type>?_queryFilter=true`)
+ * from `managedObjects`, or returns false when the request is not one, the type is not held, or
+ * there is no such store. `send(status, payload)` writes the answer.
+ */
+function serveManagedObjects(req, send) {
+  const { pathname, searchParams } = new URL(req.url, 'http://fake');
+  const type = pathname.match(/\/openidm\/managed\/([^/]+)$/)?.[1];
+  if (
+    !managedObjects ||
+    req.method !== 'GET' ||
+    !type ||
+    !Object.hasOwn(managedObjects, type) ||
+    !searchParams.has('_queryFilter')
+  ) {
+    return false;
+  }
+  const refuse = (message) =>
+    send(400, { code: 400, reason: 'Bad Request', message });
+  if (searchParams.get('_queryFilter') !== 'true') {
+    refuse('the fake tenant lists managed objects by the filter true only');
+    return true;
+  }
+  const pageSize = searchParams.get('_pageSize');
+  if (pageSize !== null && !/^[1-9]\d*$/.test(pageSize)) {
+    refuse('the fake tenant takes a _pageSize that is a positive number only');
+    return true;
+  }
+  const cookie = searchParams.get('_pagedResultsCookie');
+  if (cookie !== null && !/^\d+$/.test(cookie)) {
+    refuse(
+      'the fake tenant takes the _pagedResultsCookie it answered with only'
+    );
+    return true;
+  }
+  const objects = managedObjects[type];
+  const offset = cookie === null ? 0 : Number(cookie);
+  const end = pageSize === null ? objects.length : offset + Number(pageSize);
+  const fields = (searchParams.get('_fields') ?? '').split(',').filter(Boolean);
+  const result = objects
+    .slice(offset, end)
+    .map((object) =>
+      fields.length === 0
+        ? object
+        : Object.fromEntries(
+            ['_id', ...fields.filter((name) => name !== '_id')]
+              .filter((name) => Object.hasOwn(object, name))
+              .map((name) => [name, object[name]])
+          )
+    );
+  send(200, {
+    result,
+    resultCount: result.length,
+    pagedResultsCookie: end < objects.length ? String(end) : null,
+    totalPagedResultsPolicy: 'NONE',
+    totalPagedResults: -1,
+    remainingPagedResults: -1,
+  });
   return true;
 }
 let step = 0;
@@ -1492,6 +1616,7 @@ const server = http.createServer((req, res) => {
         message: 'the fake tenant does not take writes to this configuration',
       });
     }
+    if (serveIdmConfigList(req, send)) return;
     if (idmEntities && pathname.includes('/openidm/config/')) {
       const id = decodeURIComponent(pathname.split('/openidm/config/')[1]);
       if (req.method === 'GET' && idmEntities[id] !== undefined) {
@@ -1502,12 +1627,18 @@ const server = http.createServer((req, res) => {
         idmEntities[id] = { _id: id, ...posted };
         return send(200, idmEntities[id]);
       }
+      if (req.method === 'DELETE' && Object.hasOwn(idmEntities, id)) {
+        const removed = idmEntities[id];
+        delete idmEntities[id];
+        return send(200, removed);
+      }
       return send(404, {
         code: 404,
         reason: 'Not Found',
         message: 'Not Found',
       });
     }
+    if (serveManagedObjects(req, send)) return;
     if (users && pathname.includes('/json/') && pathname.endsWith('/users')) {
       const query = new URL(req.url, 'http://fake').searchParams;
       const cap = Number(process.env.FAKE_AM_USERS_CAP ?? Infinity);
