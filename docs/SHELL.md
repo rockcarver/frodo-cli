@@ -47,11 +47,12 @@ persist between inputs, so multi-line exploration flows the way a browser
 devtools console does. A promise is a value like any other: `await` it to get
 its result (an input that only produces a promise shows the promise).
 
-`_` is not a frodo name. In the terminal console it is the Node.js REPL's own
-`_`: the value of the last result (`1 + 1`, then `_ + 1` is 3), until you
-assign to it. The web console does not keep a last result, so there `_` is
-`undefined` until you assign it. For JSON data, `frodo.utils.json` has
-in-house helpers (`get`, `put`, `findInArray`, `getPaths`, `cloneDeep`,
+`_` is not a frodo name. In the terminal console and in the web console alike
+it is the Node.js REPL's own `_`: the value of the last result (`1 + 1`, then
+`_ + 1` is 3), until you assign to it. An input with nothing to show (a
+declaration, a statement, `undefined`) or one that fails leaves `_` as it was;
+`_error` holds the last error in the same way. For JSON data,
+`frodo.utils.json` has in-house helpers (`get`, `put`, `findInArray`, `getPaths`, `cloneDeep`,
 `mergeDeep`; they are not drop-in replacements for lodash functions, and `get`
 takes a path array), and the JavaScript built-ins cover the rest.
 
