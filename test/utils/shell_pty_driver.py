@@ -6,6 +6,7 @@ import re
 import select
 import signal
 import sys
+import termios
 import time
 
 ANSI_ESCAPE_CODES = re.compile(r"\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])")
@@ -113,6 +114,39 @@ class PtyScenarioRunner:
             time.sleep(0.02)
         raise TimeoutError(f"Timed out waiting for {matcher}.\nCaptured output:\n{strip_ansi(self.output)}")
 
+    def _send_on_match(self, action):
+        # Wait for the regex in the plain output, then answer with `text` in
+        # the very pass that read the match: no sleep, no other action
+        # between the read and the write. This is how a fast terminal
+        # emulator or a pasted key answers a prompt. Before the write, the
+        # terminal's line discipline is read (the master reports the
+        # slave's flags), so a test can say what the terminal was doing at
+        # the instant the prompt was read. The capture of `label` holds the
+        # output up to the match and the three flags.
+        deadline = time.time() + action.get("timeoutMs", 10000) / 1000.0
+        compiled = re.compile(action["regex"])
+        while True:
+            self._read_once()
+            if compiled.search(strip_ansi(self.output)):
+                break
+            if time.time() >= deadline:
+                raise TimeoutError(
+                    f"Timed out waiting for {action['regex']}.\nCaptured output:\n{strip_ansi(self.output)}"
+                )
+        lflag = termios.tcgetattr(self.fd)[3]
+        text = action.get("text", "")
+        if text:
+            self._write(text.encode("utf-8"))
+        self.captures[action["label"]] = {
+            "raw": self.output,
+            "plain": strip_ansi(self.output),
+            "tty": {
+                "echo": bool(lflag & termios.ECHO),
+                "icanon": bool(lflag & termios.ICANON),
+                "isig": bool(lflag & termios.ISIG),
+            },
+        }
+
     def _drain_for(self, duration_ms):
         deadline = time.time() + duration_ms / 1000.0
         while time.time() < deadline:
@@ -152,6 +186,8 @@ class PtyScenarioRunner:
                 self._wait_for_exit(action.get("timeoutMs", 10000))
             elif kind == "clear_output":
                 self.output = ""
+            elif kind == "send_on_match":
+                self._send_on_match(action)
             elif kind == "send":
                 self._write(action["text"].encode("utf-8"))
             elif kind == "send_line":
