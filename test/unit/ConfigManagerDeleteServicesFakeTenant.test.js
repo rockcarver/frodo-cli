@@ -503,6 +503,14 @@ suite('config-manager delete services (fake tenant)', () => {
         for (const hostile of ['../realms/root', 'a#b', 'x/y']) {
           expect(output).toContain(`- alpha/${hostile}`);
         }
+        // the tenant can read the service with the slash, so it is the plain-name rule that stops it
+        expect(output).toContain(
+          "Service 'x/y' is listed in realm 'alpha' with an id that is not a plain name"
+        );
+        expect(output).toContain('- alpha/x/y: its id is not a plain name');
+        expect(
+          requests().some(({ url }) => url.endsWith('/services/x/y'))
+        ).toBe(true);
       },
       TIMEOUT
     );

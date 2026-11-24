@@ -121,7 +121,8 @@
  * `DELETE .../services/<id>` the service with the ones it still has; `404` for an id that
  * is not held and for a realm that the file does not name. The ids in `unavailable` answer the
  * read of their next descendents with the Cloud `403` "This operation is not available in
- * PingOne Advanced Identity Cloud.". The store lives as long as the fake; the request log shows
+ * PingOne Advanced Identity Cloud.". A service whose id has a slash in it is read and deleted by
+ * the whole rest of the path. The store lives as long as the fake; the request log shows
  * every call. A failing read or delete is made with FAKE_AM_FAIL_REQUESTS.
  * FAKE_AM_SECRET_STORES_FILE=<path> names a JSON file `{ stores: [{ _id, type }],
  * mappings: { <store id>: [{ secretId, aliases }] } }` the fake serves the secret
@@ -568,8 +569,11 @@ function serveRealmServices(req, send) {
     }
   };
   const nextDescendents = query.includes('_action=nextdescendents');
-  const [rawId, ...tail] = (route[2] ?? '').split('/');
-  const service = list.find(({ _id }) => _id === decode(rawId));
+  // an id with a slash in it (a tenant may list one) is the service that the whole rest of the path names
+  const whole = list.find(({ _id }) => _id === decode(route[2] ?? ''));
+  const [rawId, ...splitTail] = (route[2] ?? '').split('/');
+  const tail = whole ? [] : splitTail;
+  const service = whole ?? list.find(({ _id }) => _id === decode(rawId));
   if (route[2] === undefined) {
     if (req.method !== 'POST' || !nextDescendents) return false;
     send(
