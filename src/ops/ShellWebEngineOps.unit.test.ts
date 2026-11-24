@@ -185,29 +185,107 @@ describe('ShellWebEngineOps', () => {
     expect(await value('typeof help')).toBe('function');
   });
 
-  it('leaves _ to the REPL: it is not bound, and a result does not set it', async () => {
-    // The engine calls the REPL's evaluator, not the REPL's line handler,
-    // and only the line handler stores a result in the last-result slot, so
-    // `_` stays undefined until a script assigns it.
+  it('holds the last result in _, as the terminal console does', async () => {
     expect(await value('typeof _')).toBe('undefined');
-    await value('1 + 1');
-    expect(await value('_')).toBeUndefined();
-    expect(await value('typeof _')).toBe('undefined');
+    expect(await value('1 + 1')).toBe(2);
+    expect(await value('_')).toBe(2);
+    expect(await value('_ + 1')).toBe(3);
+    // The result of `_ + 1` replaced it.
+    expect(await value('_')).toBe(3);
   });
 
-  it('keeps a value a script assigns to _', async () => {
+  it('keeps what a result is in _: the value of an await, the very object, a promise', async () => {
+    expect(await value('await Promise.resolve(5)')).toBe(5);
+    expect(await value('_')).toBe(5);
+    await value('var theObject = { k: 1 }; theObject');
+    expect(await value('_ === theObject')).toBe(true);
+    // A promise is a value like any other: `_` holds the promise itself.
+    await value('Promise.resolve(3)');
+    // (a declaration has no result, so it does not replace `_` itself)
+    expect(await value('var held = _; held instanceof Promise')).toBe(true);
+    expect(await value('await held')).toBe(3);
+  });
+
+  it('leaves _ alone for a statement, a declaration and a result that is undefined', async () => {
+    expect(await value('21 * 2')).toBe(42);
+    // None of these has a result to show, so none replaces `_` (the terminal
+    // console starts its REPL with ignoreUndefined, which is the same rule).
+    await value('var s1 = 1');
+    await value('let s2 = 2');
+    await value('const s3 = await 3');
+    await value('function s4() {}');
+    await value('class S5 {}');
+    await value('undefined');
+    await value('void 0');
+    await value('');
+    expect(await value('_')).toBe(42);
+  });
+
+  it('leaves _ alone for an error and for unfinished input', async () => {
+    expect(await value('21 * 2')).toBe(42);
+    expect((await engine.evaluate('throw new Error("e1")')).status).toBe(
+      'error'
+    );
+    expect((await engine.evaluate('throw 5')).status).toBe('error');
+    expect(
+      (await engine.evaluate('await Promise.reject(new Error("e2"))')).status
+    ).toBe('error');
+    expect((await engine.evaluate('var = ;')).status).toBe('error');
+    expect((await engine.evaluate('function unfinished() {')).status).toBe(
+      'incomplete'
+    );
+    expect(await value('_')).toBe(42);
+  });
+
+  it('keeps a value a script assigns to _, and later results do not replace it', async () => {
+    expect(await value('1 + 1')).toBe(2);
+    expect(await value('_')).toBe(2);
     expect(await value('_ = 5')).toBe(5);
     expect(await value('_ + 1')).toBe(6);
+    expect(await value('2 + 2')).toBe(4);
+    expect(await value('_')).toBe(5);
     // The REPL says "Expression assignment to _ now disabled." when a script
-    // assigns it. That sentence is about the terminal's last-result feature,
-    // which this engine does not have (it is misleading here), so it stays
-    // out of the log stream.
+    // assigns `_`. The log stream holds what a script prints, and this is the
+    // REPL's own sentence about its terminal feature: it stays out of the
+    // log, as it did before `_` held results.
     expect(logs.join('')).not.toContain('Expression assignment to _');
   });
 
   it('keeps other output that contains an underscore in the log stream', async () => {
     await value('console.log("a_b and _c")');
     expect(logs.join('')).toContain('a_b and _c');
+  });
+
+  it('holds the error that ended an input in _error, as the terminal console does', async () => {
+    expect(await value('typeof _error')).toBe('undefined');
+    await engine.evaluate('throw new Error("first")');
+    expect(await value('_error.message')).toBe('first');
+    await engine.evaluate('await Promise.reject(new TypeError("second"))');
+    expect(await value('_error.message')).toBe('second');
+    await engine.evaluate('var = ;');
+    expect(await value('_error.name')).toBe('SyntaxError');
+    // A thrown value that is no Error is kept as it is.
+    await engine.evaluate('throw 5');
+    expect(await value('_error')).toBe(5);
+    // A result and unfinished input do not replace it.
+    await engine.evaluate('throw new Error("kept")');
+    await value('1 + 1');
+    await engine.evaluate('function unfinished() {');
+    expect(await value('_error.message')).toBe('kept');
+  });
+
+  it('keeps a value a script assigns to _error, and later errors do not replace it', async () => {
+    expect(await value('_error = 1')).toBe(1);
+    await engine.evaluate('throw new Error("later")');
+    expect(await value('_error')).toBe(1);
+  });
+
+  it('lets the newest error win in _error, whether it ended an input or was raised on the side', async () => {
+    await engine.evaluate('throw new Error("ended")');
+    expect(await value('_error.message')).toBe('ended');
+    await value('setTimeout(() => { throw new Error("side") }, 5)');
+    await sleep(80);
+    expect(await value('_error.message')).toBe('side');
   });
 
   it('reports unfinished input instead of an error', async () => {
@@ -322,6 +400,8 @@ describe('ShellWebEngineOps', () => {
     ).toBe('awaited-error');
     expect(logs.join('')).toContain('side-error');
     expect(logs.join('')).not.toContain('awaited-error');
+    // The newest error is `_error`: the one that ended the input.
+    expect(await value('_error.message')).toBe('awaited-error');
   });
 
   it('fails only the input whose history entry cannot be written, and runs the next input', async () => {
@@ -373,18 +453,18 @@ describe('ShellWebEngineOps', () => {
     expect(await value('typeof state')).toBe('object');
     expect(await value('typeof $')).toBe('object');
     expect(await value('typeof help')).toBe('function');
-    // `_` is not one of them: a fresh context leaves it to the REPL.
-    expect(await value('typeof _')).toBe('undefined');
     // And the fresh context still evaluates.
     expect(await value('var after = "kept"; after')).toBe('kept');
   });
 
-  it('reset keeps a value a script assigned to _', async () => {
+  it('reset lets a result replace _ again, also after an assignment to it', async () => {
     expect(await value('_ = 5')).toBe(5);
-    await engine.reset();
-    // The console names are installed again and none of them is `_`, so
-    // nothing overwrites what the script assigned (the REPL keeps it).
+    expect(await value('9')).toBe(9);
     expect(await value('_')).toBe(5);
+    await engine.reset();
+    // Like `.clear` in the REPL, a reset allows the next result to take `_`.
+    expect(await value('1 + 1')).toBe(2);
+    expect(await value('_')).toBe(2);
   });
 
   it('reset survives an error before it', async () => {

@@ -64,6 +64,25 @@ export type WebEngine = {
   dispose(): void;
 };
 
+/**
+ * The slots in which a REPL keeps what `_` and `_error` read. They are fields
+ * of the REPL's own line handler and of the `_` accessors it puts on the
+ * context, which @types/node does not declare; the engine reads and writes
+ * them through this shape (a cast, in createWebEngine). A Node that renames
+ * them would leave the console without `_`: the tests that compare the engine
+ * with a real REPL (ShellWebEngineLastResult.unit.test.ts) fail then.
+ */
+type ReplLastSlots = {
+  /** The last result; `_` reads it. */
+  last: unknown;
+  /** True once a script assigned `_`: results stop replacing it. */
+  underscoreAssigned: boolean;
+  /** The last error; `_error` reads it. */
+  lastError: unknown;
+  /** True once a script assigned `_error`: errors stop replacing it. */
+  underscoreErrAssigned: boolean;
+};
+
 // eslint-disable-next-line no-control-regex -- ANSI colour codes are the target
 const ANSI = /\x1b\[[0-9;?]*[ -/]*[@-~]/g;
 
@@ -104,12 +123,10 @@ export function createWebEngine(options: {
   const bindings = createConsoleBindings();
   const log = (text: string): void => {
     const plain = text.replace(ANSI, '');
-    // The REPL prints this when a script assigns `_`. It is about the
-    // terminal's "last result" feature: only the REPL's line handler, which
-    // this engine does not use (it calls the evaluator directly, to get
-    // the value of each input), stores a result in `_`. For this console the
-    // sentence is misleading. The same notice for `_error` is not filtered
-    // (a half measure).
+    // The REPL prints this once when a script assigns `_`. It is the REPL's
+    // own sentence, not something the script printed, and the log stream
+    // holds what a script prints: it stays out of it, as it did before `_`
+    // held results. The same notice for `_error` is not filtered.
     if (plain.trim() === 'Expression assignment to _ now disabled.') return;
     if (plain.length > 0) options.onLog(plain);
   };
@@ -150,6 +167,7 @@ export function createWebEngine(options: {
     },
   });
   watchUncaughtExceptions();
+  const slots = server as unknown as ReplLastSlots;
   installConsoleContext(server.context, bindings, {
     write: log,
     colors: false,
@@ -253,6 +271,24 @@ export function createWebEngine(options: {
   // The first waits for the baseline, so that nothing is declared before it.
   let queue: Promise<unknown> = takeBaseline();
 
+  // What the REPL's line handler does after an input, which the engine does
+  // not use (it calls the evaluator directly, to get each input's value):
+  // a result goes into `_`, and the error that ended an input into `_error`,
+  // each unless a script assigned that name. An input with nothing to show
+  // (a statement, a declaration, undefined) is no result: the terminal
+  // console starts its REPL with ignoreUndefined for this. Unfinished input
+  // is neither. An error the REPL prints itself (raised on the side) is
+  // kept in `_error` by the REPL.
+  function rememberOutcome(outcome: EvalOutcome): void {
+    if (outcome.status === 'ok') {
+      if (outcome.value !== undefined && !slots.underscoreAssigned) {
+        slots.last = outcome.value;
+      }
+    } else if (outcome.status === 'error' && !slots.underscoreErrAssigned) {
+      slots.lastError = outcome.error;
+    }
+  }
+
   function runOnce(code: string): Promise<EvalOutcome> {
     return new Promise<EvalOutcome>((resolve) => {
       // The first outcome counts; the evaluator and the error handler do not
@@ -260,6 +296,7 @@ export function createWebEngine(options: {
       const settle = (outcome: EvalOutcome): void => {
         if (settleRunning !== settle) return;
         settleRunning = undefined;
+        rememberOutcome(outcome);
         resolve(outcome);
       };
       settleRunning = settle;
