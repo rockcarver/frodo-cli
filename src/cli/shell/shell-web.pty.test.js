@@ -650,3 +650,114 @@ describe('frodo shell --web in a real browser when the engine cannot start', () 
     120_000
   );
 });
+
+/** The engine processes below `rootPid`: its descendants that run the engine worker file. */
+function engineProcesses(rootPid) {
+  const table = cp
+    .execFileSync('ps', ['-A', '-o', 'pid=,ppid=,command='], {
+      encoding: 'utf8',
+    })
+    .split('\n')
+    .map((line) => /^\s*(\d+)\s+(\d+)\s+(.*)$/.exec(line))
+    .filter(Boolean)
+    .map((m) => ({ pid: Number(m[1]), ppid: Number(m[2]), command: m[3] }));
+  const below = new Set([rootPid]);
+  for (let grew = true; grew;) {
+    grew = false;
+    for (const row of table) {
+      if (below.has(row.ppid) && !below.has(row.pid)) {
+        below.add(row.pid);
+        grew = true;
+      }
+    }
+  }
+  return table.filter(
+    (row) => below.has(row.pid) && row.command.includes('engine-worker')
+  );
+}
+
+describe('frodo shell --web in a real browser when the engine of a tab ends', () => {
+  let port;
+  let web;
+  let home;
+
+  beforeAll(async () => {
+    port = await freePort();
+    home = makeHome('frodo-web-home-');
+    web = startFrodo({
+      args: ['shell', '--web', '--no-open'],
+      homeDir: home,
+      watchdogMs: 300_000,
+    });
+    web.launchUrl = await web.link(20_000);
+  }, 45_000);
+
+  afterAll(async () => {
+    await web?.stop();
+    if (home) removeHome(home);
+  });
+
+  const driveBrowser = CHROME ? test : test.skip;
+  driveBrowser(
+    'says why in the page, takes the engine that the server names, and starts no engine more than one',
+    async () => {
+      const { chrome, userData } = startChrome(port);
+      try {
+        await waitForChromePage(port);
+        await withPage(port, web.launchUrl, async (evaluate, typeLine) => {
+          const storedId = () =>
+            evaluate(`sessionStorage.getItem('frodo-engine-id')`);
+          const resultShown = (text) =>
+            waitFor(
+              () =>
+                /*W*/
+                evaluate(
+                  `Array.from(document.querySelectorAll('.entry')).some(e => Array.from(e.querySelectorAll('.result .row .val')).some(v => v.textContent === ${JSON.stringify(text)})) ? true : null`
+                ),
+              45_000
+            );
+          const first = await waitFor(() => /*W*/ storedId(), 30_000);
+
+          // a script that ends the engine process, as a crash or a kill would
+          await typeLine('process.exit(3)');
+          const shown = await waitFor(
+            () =>
+              /*W*/
+              evaluate(
+                `(function () { var e = document.querySelector('.error'); return e && e.textContent.indexOf('The console engine ended') >= 0 ? e.textContent : null; })()`
+              ),
+            45_000
+          );
+          expect(shown).toContain(
+            'The console engine ended: The engine process ended with exit code 3.'
+          );
+          expect(shown).not.toContain('Internal error');
+          expect(
+            web
+              .output()
+              .split('\n')
+              .filter((line) => line.includes('The console engine ended'))
+          ).toHaveLength(1);
+
+          // the next input still carries the old id: it is served by a new
+          // engine, and the page takes the id that the server names
+          await typeLine('6 * 7');
+          await resultShown('42');
+          const second = await storedId();
+          expect(second).toMatch(/^[0-9a-f]{16}$/);
+          expect(second).not.toBe(first);
+          // the one after it is served by the same engine, and nothing piles up
+          await typeLine('7 * 7');
+          await resultShown('49');
+          expect(await storedId()).toBe(second);
+          if (process.env.FRODO_TEST_BINARY !== 'sea') {
+            expect(engineProcesses(web.child.pid)).toHaveLength(1);
+          }
+        });
+      } finally {
+        stopChrome(chrome, userData);
+      }
+    },
+    180_000
+  );
+});
