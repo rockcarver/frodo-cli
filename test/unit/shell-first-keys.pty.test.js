@@ -88,3 +88,71 @@ describe('the first key typed at the first prompt of the console', () => {
     expect(result.plainOutput.split('6*7').length - 1).toBe(1);
   });
 });
+
+/**
+ * The first case above asserts that all three flags are OFF, so a driver that
+ * wrongly reported every flag as off would pass it. These are the controls: a
+ * shell that leaves the terminal cooked, once as it is and once with the echo
+ * switched off, must be reported as it is. The driver is the subject here, not
+ * the console.
+ */
+describe('what the driver reports about the terminal', () => {
+  /** The flags at the instant `go> ` is read, with `/bin/sh` running `commands`. */
+  function flagsSeenWhileRunning(commands) {
+    const homeDir = createShellTestHome();
+    try {
+      const result = runShellScenario({
+        binary: '/bin/sh',
+        args: ['-c', commands],
+        homeDir,
+        actions: [
+          { type: 'send_on_match', regex: 'go> ', text: '', label: 'atPrompt' },
+        ],
+      });
+      return result.captures.atPrompt.tty;
+    } finally {
+      removeShellTestHome(homeDir);
+    }
+  }
+
+  test('reports a terminal in cooked mode as cooked', () => {
+    expect(flagsSeenWhileRunning('printf "go> "; read line')).toEqual({
+      echo: true,
+      icanon: true,
+      isig: true,
+    });
+  });
+
+  test('reports each flag as it is: the echo off, the line editing and the signal keys on', () => {
+    expect(flagsSeenWhileRunning('stty -echo; printf "go> "; read line')).toEqual(
+      { echo: false, icanon: true, isig: true }
+    );
+  });
+
+  test('stops at once, and says so, when the program has ended before the pattern', () => {
+    const homeDir = createShellTestHome();
+    try {
+      // an ended program makes every read return at once; the wait used to
+      // spin on the processor until its timeout and then report the timeout.
+      // The driver's traceback shows in this test's output: it is the failure
+      // that is expected here.
+      expect(() =>
+        runShellScenario({
+          binary: '/bin/sh',
+          args: ['-c', 'exit 0'],
+          homeDir,
+          actions: [
+            {
+              type: 'send_on_match',
+              regex: 'never-printed',
+              label: 'never',
+              timeoutMs: 4000,
+            },
+          ],
+        })
+      ).toThrow(/The process ended before never-printed appeared/);
+    } finally {
+      removeShellTestHome(homeDir);
+    }
+  });
+});

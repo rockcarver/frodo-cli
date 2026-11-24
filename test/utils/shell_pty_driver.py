@@ -54,6 +54,9 @@ class PtyScenarioRunner:
         self.actions = scenario["actions"]
         self.output = ""
         self.lflag_at_read = None
+        # Set when a read found nothing more to read, because the child (and
+        # with it every other holder of the terminal) has ended.
+        self.read_ended = False
         self.captures = {}
         self.child_pid = None
         self.fd = None
@@ -88,8 +91,10 @@ class PtyScenarioRunner:
         try:
             data = os.read(self.fd, 4096)
         except OSError:
+            self.read_ended = True
             return False
         if not data:
+            self.read_ended = True
             return False
         if note_mode:
             # The line discipline's flags at the instant of the read, before
@@ -137,6 +142,13 @@ class PtyScenarioRunner:
                 lflag = self.lflag_at_read
             if compiled.search(strip_ansi(self.output)):
                 break
+            if self.read_ended:
+                # An ended child makes every read return at once: without
+                # this the loop would spin on the processor until the
+                # deadline. Say what happened instead.
+                raise RuntimeError(
+                    f"The process ended before {action['regex']} appeared.\nCaptured output:\n{strip_ansi(self.output)}"
+                )
             if time.time() >= deadline:
                 raise TimeoutError(
                     f"Timed out waiting for {action['regex']}.\nCaptured output:\n{strip_ansi(self.output)}"
