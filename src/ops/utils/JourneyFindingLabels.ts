@@ -160,8 +160,8 @@ function sentenceSaysType(
  * sentence says it. The id is there when the name does not tell the node apart (another node of the journey has the
  * same name and type, or the node has no name), and always with the verbose option, then in full. A name that a
  * tenant gave a node is written so that it cannot change what the terminal shows.
- * Where the library follows the id with the type id of the node in brackets (` (ValidatedUsernameNode)`) and the
- * words have an id, the id goes into that bracket, so that the line has one group, not two.
+ * Where the library follows the id with the type id of the node in brackets (` (ValidatedUsernameNode)`), the type
+ * and the id of the words share that bracket, so that the line has one group, not two.
  * @param {JourneyValidationNode} node the node, as the library describes it
  * @param {string} before the message up to the quoted id of the node
  * @param {string} after the message after the quoted id of the node
@@ -189,9 +189,7 @@ function nodeWords(
       ? `id ${printable(verbose ? node.id : node.id.slice(0, SHORT_ID_LENGTH))}`
       : '';
   const foldsBracket =
-    idWords !== '' &&
-    node.nodeType !== undefined &&
-    bracket === ` (${node.nodeType})`;
+    node.nodeType !== undefined && bracket === ` (${node.nodeType})`;
   const details = (
     foldsBracket
       ? [printable(node.nodeType as string), idWords]
