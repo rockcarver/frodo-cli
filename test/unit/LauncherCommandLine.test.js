@@ -48,7 +48,8 @@ const SIGNALS = ['SIGHUP', 'SIGTERM', 'SIGINT', 'SIGQUIT'];
 
 /**
  * The fake app. FAKE_APP_MODE selects what it does:
- * - report: prints what it can see of its own process as JSON
+ * - report: prints what it can see of its own process as JSON (the number of
+ *   `warning` listeners and whether the entry set `NODE_NO_WARNINGS` among them)
  * - warn: emits a process warning
  * - throw: throws (the source map maps every line of this file to the same
  *   line of `Original.ts`)
@@ -66,6 +67,7 @@ if (mode === 'report') {
     execArgv: process.execArgv,
     sourceMapsEnabled: process.sourceMapsEnabled,
     warningListeners: process.listenerCount('warning'),
+    setsNoWarnings: 'NODE_NO_WARNINGS' in process.env,
     argv1: process.argv[1],
     args: process.argv.slice(2),
   }));
@@ -142,10 +144,26 @@ afterAll(() => {
   if (dir) fs.rmSync(dir, { recursive: true, force: true });
 });
 
+/**
+ * The variables of the runner that change what a start prints or does: the
+ * cases set them (or leave them out) themselves. `NODE_NO_WARNINGS` and
+ * `NODE_PENDING_DEPRECATION` are the two that Node reads besides
+ * `NODE_OPTIONS` (a shell or a CI job often sets the first).
+ */
+const DECIDED_BY_THE_CASE = [
+  'NODE_OPTIONS',
+  'NODE_NO_WARNINGS',
+  'NODE_PENDING_DEPRECATION',
+  'FRODO_SOURCE_MAPS',
+];
+
 /** The environment of a run: the runner's own, without the variables the cases decide. */
 function envFor(mode, env = {}) {
-  // eslint-disable-next-line no-unused-vars
-  const { NODE_OPTIONS, FRODO_SOURCE_MAPS, ...rest } = process.env;
+  const rest = Object.fromEntries(
+    Object.entries(process.env).filter(
+      ([name]) => !DECIDED_BY_THE_CASE.includes(name)
+    )
+  );
   return { ...rest, FAKE_APP_MODE: mode, ...env };
 }
 
@@ -318,15 +336,20 @@ describe('the entry leaves process warnings to Node', () => {
     expect(result.stderr).toMatch(/\(node:\d+\) Warning: a process warning/);
   });
 
+  testif(hasDist).each([
+    ['NODE_OPTIONS=--no-warnings', { NODE_OPTIONS: '--no-warnings' }],
+    ['NODE_NO_WARNINGS=1', { NODE_NO_WARNINGS: '1' }],
+  ])('%s still silences them, and the entry does not undo it', (_, env) => {
+    const result = run('warn', { env });
+    expect(result.status).toBe(0);
+    expect(result.stderr).toBe('');
+    expect(report({ env }).warningListeners).toBe(0);
+  });
+
   testif(hasDist)(
-    'NODE_OPTIONS=--no-warnings still silences them, and the entry does not undo it',
+    'the entry sets no warning switch for the processes the app starts',
     () => {
-      const result = run('warn', { env: { NODE_OPTIONS: '--no-warnings' } });
-      expect(result.status).toBe(0);
-      expect(result.stderr).toBe('');
-      expect(
-        report({ env: { NODE_OPTIONS: '--no-warnings' } }).warningListeners
-      ).toBe(0);
+      expect(report().setsNoWarnings).toBe(false);
     }
   );
 });

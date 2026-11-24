@@ -25,10 +25,12 @@ import { startFakeAm } from '../utils/StartFakeAm.js';
  * The native binary is not started through the entry. Its `--no-warnings` is an
  * argument that `sea-config.json` bakes into it, and the last case pins that.
  *
- * Every run: NODE_OPTIONS removed (the test scripts set `--no-warnings`, which
- * would hide exactly what is measured), no `FRODO_MOCK*` variable, a temporary
- * HOME and profile file, the fake tenant of test/utils/FakeAm.mjs for the request.
- * No tenant, no secrets, no terminal.
+ * Every run: `NODE_OPTIONS`, `NODE_NO_WARNINGS` and `NODE_PENDING_DEPRECATION`
+ * removed (the test scripts set `--no-warnings`, and a shell or a CI job often
+ * sets `NODE_NO_WARNINGS`: either would hide exactly what is measured), no
+ * `FRODO_MOCK*` variable unless a case sets it, a temporary HOME and profile
+ * file, the fake tenant of test/utils/FakeAm.mjs for the requests. No tenant, no
+ * secrets, no terminal.
  *
  * Skipped on Windows: the CLI is started through its launcher script.
  */
@@ -41,6 +43,46 @@ const ROOT = path.resolve(
 const launch = path.join(ROOT, 'dist/launch.cjs');
 const TIMEOUT = 120000;
 const HOST = 'https://openam-matrix.example.com/am';
+
+/**
+ * The variables of the runner that change what a start prints. `NODE_OPTIONS`
+ * carries `--no-warnings` in the test scripts, `NODE_NO_WARNINGS` is the other
+ * way to say the same, `NODE_PENDING_DEPRECATION` adds deprecations. (Node has
+ * no `NODE_NO_DEPRECATION`.) `FRODO_SOURCE_MAPS` changes stack traces only; it
+ * goes too, so that a failure prints the same everywhere.
+ */
+const DECIDED_BY_THE_CASE = [
+  'NODE_OPTIONS',
+  'NODE_NO_WARNINGS',
+  'NODE_PENDING_DEPRECATION',
+  'FRODO_SOURCE_MAPS',
+];
+
+/**
+ * A preload (`NODE_OPTIONS=--require`) that raises a plain warning and an
+ * ExperimentalWarning (the kind of the `localStorage` line) at start-up, again
+ * once the event loop runs, and again 100 ms later: a regression that hides
+ * only one kind, or only what comes after start-up, leaves one of them out.
+ */
+const WARNING_PRELOAD = `
+const raise = (when) => {
+  process.emitWarning('plain warning ' + when);
+  process.emitWarning('experimental warning ' + when, 'ExperimentalWarning');
+};
+raise('at start');
+setTimeout(() => {
+  raise('after start');
+  setTimeout(() => raise('later'), 100).unref();
+}, 50).unref();
+`;
+
+/** What Node prints for the two warnings raised by WARNING_PRELOAD at one moment. */
+const warningsRaisedAt = (when) => [
+  new RegExp(`\\(node:\\d+\\) Warning: plain warning ${when}`),
+  new RegExp(
+    `\\(node:\\d+\\) ExperimentalWarning: experimental warning ${when}`
+  ),
+];
 
 suite('the CLI prints no process warning of its own', () => {
   let home;
@@ -64,10 +106,11 @@ suite('the CLI prints no process warning of its own', () => {
 
   /** Runs the built CLI to its end, without a terminal, the way a user's shell does. */
   function frodo(args, env = {}) {
-    // eslint-disable-next-line no-unused-vars
-    const { NODE_OPTIONS, FRODO_SOURCE_MAPS, ...rest } = process.env;
     const clean = Object.fromEntries(
-      Object.entries(rest).filter(([name]) => !name.startsWith('FRODO_MOCK'))
+      Object.entries(process.env).filter(
+        ([name]) =>
+          !DECIDED_BY_THE_CASE.includes(name) && !name.startsWith('FRODO_MOCK')
+      )
     );
     return cp.spawnSync(process.execPath, [launch, ...args], {
       cwd: home,
@@ -92,6 +135,26 @@ suite('the CLI prints no process warning of its own', () => {
         ...env,
       },
     });
+  }
+
+  /** Starts the fake tenant (a plain login, realm alpha, one journey) and returns the arguments of `command` against it. */
+  async function tenantArgs(command, options = {}) {
+    fakeAm = await startFakeAm({
+      recordPath: path.join(home, 'requests.jsonl'),
+      journey: 'password',
+      realms: ['alpha'],
+      trees: ['Login'],
+      ...options,
+    });
+    return [
+      ...command,
+      `http://127.0.0.1:${fakeAm.port}/am`,
+      'alpha',
+      'someone',
+      'secret',
+      '-m',
+      'classic',
+    ];
   }
 
   test.each([['-v'], ['-h']])(
@@ -148,48 +211,81 @@ suite('the CLI prints no process warning of its own', () => {
   test(
     'a command that asks the tenant writes nothing to stderr',
     async () => {
-      const recordPath = path.join(home, 'requests.jsonl');
-      fakeAm = await startFakeAm({
-        recordPath,
-        journey: 'password',
-        realms: ['alpha'],
-        trees: ['Login'],
-      });
-      const result = frodo([
-        'journey',
-        'list',
-        `http://127.0.0.1:${fakeAm.port}/am`,
-        'alpha',
-        'someone',
-        'secret',
-        '-m',
-        'classic',
-      ]);
+      const args = await tenantArgs(['journey', 'list']);
+      const result = frodo(args);
       expect(result.status).toBe(0);
       expect(result.stdout).toContain('Login');
       // it did ask: the request that would print DEP0169 without `noDeprecation`
-      expect(readRequests(recordPath).length).toBeGreaterThan(0);
+      expect(
+        readRequests(path.join(home, 'requests.jsonl')).length
+      ).toBeGreaterThan(0);
       expect(result.stderr).toBe('');
     },
     TIMEOUT
   );
 
   test(
-    'a warning from anything in the process reaches stderr: the entry does not hide it',
-    () => {
-      const preload = path.join(home, 'warn.cjs');
-      fs.writeFileSync(
-        preload,
-        "process.emitWarning('a warning from a preload');"
-      );
-      const result = frodo(['-v'], { NODE_OPTIONS: `--require=${preload}` });
-      expect(result.status).toBe(0);
-      expect(result.stderr).toMatch(
-        /\(node:\d+\) Warning: a warning from a preload/
-      );
+    'a command that fails prints its own error and no process warning',
+    async () => {
+      const args = await tenantArgs([
+        'journey',
+        'describe',
+        '-i',
+        'NoSuchJourney',
+      ]);
+      const result = frodo(args);
+      expect(result.status).toBe(1);
+      expect(result.stderr).toContain('NoSuchJourney');
+      expect(nodeWarnings(result.stderr)).toEqual([]);
     },
     TIMEOUT
   );
+
+  describe('a warning from anything in the process reaches stderr: the entry does not hide it', () => {
+    let preload;
+
+    beforeEach(() => {
+      preload = path.join(home, 'warn.cjs');
+      fs.writeFileSync(preload, WARNING_PRELOAD);
+    });
+
+    test.each([
+      ['with no switch', {}],
+      ['when FRODO_MOCK is set, which loads the recorder', { FRODO_MOCK: '1' }],
+    ])(
+      'both kinds, at start-up, %s',
+      (_, env) => {
+        const result = frodo(['-v'], {
+          NODE_OPTIONS: `--require=${preload}`,
+          ...env,
+        });
+        expect(result.status).toBe(0);
+        for (const line of warningsRaisedAt('at start')) {
+          expect(result.stderr).toMatch(line);
+        }
+      },
+      TIMEOUT
+    );
+
+    test(
+      'both kinds, also after the command has started and while it waits for the tenant',
+      async () => {
+        // the login answers after 600 ms, so the command is still running when
+        // the second and the third round of warnings are raised
+        const args = await tenantArgs(['journey', 'list'], {
+          loginDelayMs: 600,
+        });
+        const result = frodo(args, { NODE_OPTIONS: `--require=${preload}` });
+        expect(result.status).toBe(0);
+        for (const when of ['at start', 'after start', 'later']) {
+          for (const line of warningsRaisedAt(when)) {
+            expect(result.stderr).toMatch(line);
+          }
+        }
+      },
+      TIMEOUT
+    );
+  });
 
   test('the native binary keeps its --no-warnings argument', () => {
     // It starts app.cjs itself, without the entry, so this argument is the
