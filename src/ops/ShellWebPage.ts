@@ -153,16 +153,17 @@ main { flex: 1; overflow: auto; padding: 10px 14px 4px; }
 #search-row .query { min-width: 4ch; white-space: pre-wrap; word-break: break-all; }
 #search-row .match { color: var(--accent); font-weight: 700; }
 #search-row .count { color: var(--dim); margin-left: auto; white-space: nowrap; }
-#search-row .cand { white-space: pre-wrap; word-break: break-all; border-radius: 3px; padding: 0 4px; cursor: pointer; }
+#search-row .cand { white-space: pre-wrap; word-break: break-all; border-radius: 3px; padding: 0 4px; cursor: pointer; position: relative; padding-right: 1.6em; }
 #search-row .cand .match { color: var(--accent); font-weight: 700; }
 #search-row .cand .when { color: var(--dim); white-space: nowrap; }
 #search-row .cand.selected { background: var(--sel); }
-/* Delete one entry: an × at the row's end, visible when the row is
-   hovered or is the selection, so the eye finds it where the cursor is.
-   Colour is not the only carrier: the × has a title and an aria-label. */
+/* Delete one entry: an × in its own column at the row's right edge, so a
+   row that wraps never pushes it around. Visible when the row is hovered
+   or is the selection, so the eye finds it where the cursor is. Colour is
+   not the only carrier: the × has a title and an aria-label. */
 #search-row .cand .del {
   color: var(--dim); cursor: pointer; user-select: none;
-  visibility: hidden; padding: 0 2px; margin-left: 0.4em;
+  visibility: hidden; position: absolute; right: 4px; top: 0; line-height: inherit;
 }
 #search-row .cand:hover .del, #search-row .cand.selected .del { visibility: visible; }
 #search-row .cand .del:hover { color: var(--err); }
@@ -508,7 +509,7 @@ const SCRIPT = String.raw`
     // commands, so Ctrl+R alone opens on the history instead of waiting.
     search = { query: '', matches: runSearch(''), cursor: 0 };
     searchEl.classList.add('open');
-    hintEl.textContent = 'Enter runs the selection · Tab pastes it for editing · Ctrl+D removes it · Esc cancels';
+    hintEl.textContent = 'Enter runs the selection · Tab pastes it for editing · Backspace/Delete removes it · Esc cancels';
     renderSearch();
     // The in-memory snapshot holds the most recent 1000; the file holds up
     // to 10k. Fetch the full list for the search and re-render when it
@@ -559,10 +560,26 @@ const SCRIPT = String.raw`
     if (searchKeydown(e)) return;
     if (e.key === 'Backspace') {
       e.preventDefault();
+      // A Backspace with nothing left to trim deletes the selection: the
+      // key people reach for is also the one that removes the entry.
+      if (!search.query) {
+        if (search.matches.length > 0) {
+          deleteHistory(history[search.matches[search.cursor]].text);
+        }
+        return;
+      }
       search.query = search.query.slice(0, -1);
       search.matches = runSearch(search.query);
       search.cursor = 0;
       renderSearch();
+      return;
+    }
+    if (e.key === 'Delete') {
+      // The forward Delete deletes the selection whatever the query says.
+      e.preventDefault();
+      if (search.matches.length > 0) {
+        deleteHistory(history[search.matches[search.cursor]].text);
+      }
       return;
     }
     if (e.key.length === 1 && !e.ctrlKey && !e.altKey) {
@@ -1182,7 +1199,11 @@ const SCRIPT = String.raw`
     // The stream must carry this tab's engine id or its log events go to
     // the wrong bus and console.log silently vanishes. A tab that opens
     // before it has an id (or lost it) asks for one first; a shared-engine
-    // tab goes straight through (it has no id to learn).
+    // tab goes straight through (it has no id to learn). A tab that has
+    // its id already (a reload keeps it) asks for the session too, once:
+    // the session answer opens the connect bar and paints the connection
+    // state, and a boot that streamed straight away left both out until
+    // the tab next regained focus.
     if (!engineId && !sharedEngine) {
       refreshSession().then(function () {
         sessionRetry.reset();
@@ -1197,6 +1218,7 @@ const SCRIPT = String.raw`
       });
       return;
     }
+    refreshSession().catch(function () {});
     var listenHeaders = { 'X-Frodo-CSRF': csrf };
     if (engineId) listenHeaders['X-Frodo-Engine'] = engineId;
     streamAbort = new AbortController();
