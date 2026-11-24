@@ -331,6 +331,46 @@ const CASES = [
     fn: 'configManagerDeleteJourneys',
   },
   {
+    name: 'config-manager delete services',
+    file: 'src/configManagerOps/FrConfigServiceOps.ts',
+    summaryName: (id) => `alpha/${id}`,
+    unit: 'service',
+    arrange({ failing, attempted, spy }) {
+      spy('src/utils/FrConfig')
+        .realmList.mockReset()
+        .mockResolvedValue(['alpha']);
+      // the library reads the services of the realm, and the delete of each is one operation
+      frodo.service.getFullServices
+        .mockReset()
+        .mockResolvedValue(
+          IDS.map((id) => ({
+            _id: '',
+            _type: { _id: id },
+            nextDescendents: [],
+          }))
+        );
+      frodo.service.deleteFullService
+        .mockReset()
+        .mockImplementation(async (id) => {
+          attempted.push(id);
+          if (failing.has(id)) throw new Error(`could not delete ${id}`);
+          return { _id: id };
+        });
+    },
+    empty: () =>
+      frodo.service.getFullServices.mockReset().mockResolvedValue([]),
+    emptyMessage: /No services found to delete in realm 'alpha'\./,
+    notFound: (m) =>
+      m.configManagerDeleteServices('zzz', 'alpha', false, false),
+    failToRead: ({ spy }) =>
+      spy('src/utils/FrConfig')
+        .realmList.mockReset()
+        .mockRejectedValue(new Error('read failed')),
+    run: (m, allowFailures) =>
+      m.configManagerDeleteServices(undefined, undefined, false, allowFailures),
+    fn: 'configManagerDeleteServices',
+  },
+  {
     name: 'config-manager delete themes',
     file: 'src/configManagerOps/FrConfigThemeOps.ts',
     summaryName: (id) => `/${id}`,
