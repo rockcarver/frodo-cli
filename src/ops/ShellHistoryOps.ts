@@ -265,6 +265,19 @@ export class ShellHistory {
   }
 
   /**
+   * Remove the entry with exactly this text and persist. History dedups by
+   * text (a repeat moves rather than adds), so at most one entry carries a
+   * given text: one call removes it whole. False when no entry matched.
+   */
+  public deleteEntry(text: string): boolean {
+    const at = this.entries.findIndex((e) => e.text === text);
+    if (at === -1) return false;
+    this.entries.splice(at, 1);
+    this.save();
+    return true;
+  }
+
+  /**
    * Get all history lines for use with the REPL.
    * Returns lines in newest-first order to match Node.js REPL's history
    * convention (replServer.history[0] === most recent command). The

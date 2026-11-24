@@ -297,4 +297,20 @@ describe('ShellHistory entry metadata (ts, host)', () => {
       { text: 'yyc command', host: 'yyc.dev' },
     ]);
   });
+
+  it('deleteEntry removes exactly the entry named, persisted', () => {
+    const history = new ShellHistory('https://tenant.example.com/am');
+    history.addLine('first');
+    history.addLine('second');
+    history.addLine('multi\nline');
+    expect(history.deleteEntry('second')).toBe(true);
+    expect(history.getLines()).toEqual(['multi\nline', 'first']);
+    // The deletion survives a reload: it went to the file.
+    const reloaded = new ShellHistory('https://tenant.example.com/am');
+    expect(reloaded.getLines()).toEqual(['multi\nline', 'first']);
+    // Removing what is not there says so, and changes nothing.
+    expect(history.deleteEntry('second')).toBe(false);
+    expect(history.deleteEntry('')).toBe(false);
+    expect(history.getLines()).toEqual(['multi\nline', 'first']);
+  });
 });

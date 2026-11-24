@@ -2367,6 +2367,112 @@ describe('a tab engine that cannot start or that ends', () => {
   });
 });
 
+describe('removing one history entry', () => {
+  let web: WebConsoleHandle;
+  let dir: string;
+  let errors: jest.SpiedFunction<typeof console.error>;
+
+  beforeEach(() => {
+    dir = fs.mkdtempSync(path.join(os.tmpdir(), 'frodo-history-del-'));
+    errors = jest.spyOn(console, 'error').mockImplementation(() => undefined);
+    // for a test that never starts a console
+    web = { close: async () => undefined } as unknown as WebConsoleHandle;
+  });
+
+  afterEach(async () => {
+    await web.close();
+    jest.restoreAllMocks();
+    delete process.env.FRODO_TEST_WORKER_SCRIPT;
+    fs.rmSync(dir, { recursive: true, force: true });
+  });
+
+  /** A worker that is a script of the given lines (`process` and `require` are there). */
+  function stub(lines: string[]): string {
+    const file = path.join(dir, 'stub-worker.cjs');
+    fs.writeFileSync(file, lines.join('\n'));
+    return file;
+  }
+
+  it('the shared engine deletes the named entry and the answer says whether it was there', async () => {
+    process.env.FRODO_TEST_WORKER_SCRIPT = stub([
+      'const rl = require("node:readline").createInterface({ input: process.stdin });',
+      'let entries = [{ text: "keep me" }, { text: "drop me" }];',
+      'const say = (m, reply) => process.stdout.write(JSON.stringify({ id: m.id, op: m.op, ...reply }) + "\\n");',
+      'rl.on("line", (line) => {',
+      '  const m = JSON.parse(line);',
+      '  if (m.op === "dispose") process.exit(0);',
+      '  if (m.op === "history") return say(m, { lines: entries });',
+      '  if (m.op === "history-delete") {',
+      '    const before = entries.length;',
+      '    entries = entries.filter((e) => e.text !== m.text);',
+      '    return say(m, { deleted: entries.length < before });',
+      '  }',
+      '  return say(m, m.op === "info" ? { info: {} } : { lines: [] });',
+      '});',
+    ]);
+    web = await startWebConsole({
+      logs: createLogBus(),
+      sessionInfo: () => ({}),
+    });
+    const host = `127.0.0.1:${web.port}`;
+    const redeem = await request(web.port, {
+      path: new URL(web.launchUrl).pathname + new URL(web.launchUrl).search,
+      headers: { Host: host },
+    });
+    const cookie = redeem.headers['set-cookie']![0].split(';')[0];
+    const page = await request(web.port, {
+      headers: { Host: host, Cookie: cookie },
+    });
+    const csrf = /name="csrf-token" content="([^"]+)"/.exec(page.body)![1];
+    // One engine for every call: a tab carries its engine id on each
+    // request, and a request without one would start a fresh engine.
+    const engine = JSON.parse(
+      (
+        await request(web.port, {
+          path: '/api/session',
+          headers: { Host: host, Cookie: cookie, 'X-Frodo-CSRF': csrf },
+        })
+      ).body
+    ).engine as string;
+    const del = (text: unknown) =>
+      request(web.port, {
+        method: 'POST',
+        path: '/api/history/delete',
+        headers: {
+          Host: host,
+          Cookie: cookie,
+          'X-Frodo-CSRF': csrf,
+          'X-Frodo-Engine': engine,
+          Origin: `http://${host}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ text }),
+      });
+    const gone = await del('drop me');
+    expect(gone.status).toBe(200);
+    expect(JSON.parse(gone.body)).toEqual({ deleted: true });
+    const again = await del('drop me');
+    expect(JSON.parse(again.body)).toEqual({ deleted: false });
+    // The engine's history no longer carries the entry.
+    const list = await request(web.port, {
+      path: '/api/history',
+      headers: {
+        Host: host,
+        Cookie: cookie,
+        'X-Frodo-CSRF': csrf,
+        'X-Frodo-Engine': engine,
+      },
+    });
+    expect(JSON.parse(list.body).history.map((e) => e.text)).toEqual([
+      'keep me',
+    ]);
+    // A body without a string text is refused before it reaches the engine.
+    const bad = await del(42);
+    expect(bad.status).toBe(400);
+    expect(errors.mock.calls.filter((c) => String(c[0]).includes('drop'))).toHaveLength(0);
+  });
+});
+
 describe('the sign-in callback', () => {
   let web: WebConsoleHandle;
   const signedIn = jest.fn();

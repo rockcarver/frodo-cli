@@ -91,12 +91,15 @@ header h1 { margin: 0; font-size: 13px; font-weight: 700; flex: none; }
    pill carries the host; the prompt glyph follows the same state colour
    (this is the one always in view); the tab title names the host too.
    flex: 0 1 auto: hug the text when the header has room, shrink (with the
-   ellipsis) only when the buttons genuinely crowd it. */
+   ellipsis) only when the buttons genuinely crowd it. The margin-right:
+   auto takes the room the pill gave up (flex: 1 to 0 1 auto) and puts it
+   between the pill and the right side, so the dot and the buttons stay
+   where they were before the connect instead of sliding left. */
 body.connected #info {
   color: var(--ok); font-weight: 700;
   background: color-mix(in srgb, var(--ok) 12%, transparent);
   border-radius: 4px; padding: 2px 8px;
-  flex: 0 1 auto; min-width: 0;
+  flex: 0 1 auto; min-width: 0; margin-right: auto;
 }
 #prompt-row .p { color: var(--dim); user-select: none; }
 body.connected #prompt-row .p { color: var(--ok); font-weight: 700; }
@@ -154,6 +157,15 @@ main { flex: 1; overflow: auto; padding: 10px 14px 4px; }
 #search-row .cand .match { color: var(--accent); font-weight: 700; }
 #search-row .cand .when { color: var(--dim); white-space: nowrap; }
 #search-row .cand.selected { background: var(--sel); }
+/* Delete one entry: an × at the row's end, visible when the row is
+   hovered or is the selection, so the eye finds it where the cursor is.
+   Colour is not the only carrier: the × has a title and an aria-label. */
+#search-row .cand .del {
+  color: var(--dim); cursor: pointer; user-select: none;
+  visibility: hidden; padding: 0 2px; margin-left: 0.4em;
+}
+#search-row .cand:hover .del, #search-row .cand.selected .del { visibility: visible; }
+#search-row .cand .del:hover { color: var(--err); }
 #search-row .none { color: var(--dim); }
 /* The completion popup: floats above the prompt, DevTools style. It owns
    the cursor keys while open; the list scrolls inside a small window. */
@@ -210,6 +222,11 @@ body.compact header { padding: 4px 14px; }
 #connect-bar.open { display: flex; }
 #connect-bar .msg { color: var(--dim); }
 #connect-bar .picker { position: relative; display: flex; gap: 8px; align-items: center; flex: 1; min-width: 0; }
+/* The button lives at the bar's right edge, under the header's own button
+   column, whatever the error text before it says: margin-left: auto holds
+   the spot (the error span, between picker and button, may grow without
+   moving it). */
+#connect-bar #connect-go { margin-left: auto; }
 #connect-bar .select-box { position: relative; display: inline-flex; align-items: center; }
 #connect-bar input[type="text"] {
   font: inherit; color: inherit; background: var(--bg);
@@ -423,7 +440,35 @@ const SCRIPT = String.raw`
       );
       renderSearch();
     });
+    var del = el('span', 'del', '×');
+    del.title = 'Remove this entry from history (Ctrl+D on the selection)';
+    del.setAttribute('aria-label', 'Remove this entry from history');
+    // The × must not run the row's own click handler: stop the event.
+    del.addEventListener('click', function (e) {
+      e.stopPropagation();
+      deleteHistory(line);
+    });
+    row.appendChild(del);
     return row;
+  }
+
+  // Remove one entry from history, everywhere: the store persists the
+  // deletion, and the other tabs drop the entry on their next /api/session
+  // or /api/history refresh (they re-fetch; they hold no live subscription).
+  // Locally the entry leaves at once, the match list re-runs on what is
+  // left, and the selection follows the row it was on.
+  function deleteHistory(text) {
+    history = history.filter(function (e) { return e.text !== text; });
+    // The recall stack (up-arrow) indexes into history: a deletion can
+    // leave the index past its end, where recall would read undefined.
+    if (histIndex >= history.length) histIndex = -1;
+    api('/api/history/delete', { text: text }).catch(function () {});
+    if (!search) return;
+    search.matches = runSearch(search.query);
+    if (search.cursor >= search.matches.length) {
+      search.cursor = Math.max(0, search.matches.length - 1);
+    }
+    renderSearch();
   }
 
   function renderSearch() {
@@ -463,7 +508,7 @@ const SCRIPT = String.raw`
     // commands, so Ctrl+R alone opens on the history instead of waiting.
     search = { query: '', matches: runSearch(''), cursor: 0 };
     searchEl.classList.add('open');
-    hintEl.textContent = 'Enter runs the selection · Tab pastes it for editing · Esc cancels';
+    hintEl.textContent = 'Enter runs the selection · Tab pastes it for editing · Ctrl+D removes it · Esc cancels';
     renderSearch();
     // The in-memory snapshot holds the most recent 1000; the file holds up
     // to 10k. Fetch the full list for the search and re-render when it
@@ -503,9 +548,13 @@ const SCRIPT = String.raw`
 
   // While the search overlay is open it owns the keyboard: printable keys
   // append to the query, Backspace trims, and the keys searchKeydown knows
-  // are consumed there.
+  // are consumed there. Ctrl+D (and Cmd+D) reaches searchKeydown before
+  // the any-modifier bail-out, so it deletes the selection in place.
   function captureSearchKeys(e) {
     if (!search) return;
+    if ((e.ctrlKey || e.metaKey) && (e.key === 'd' || e.key === 'D')) {
+      if (searchKeydown(e)) return;
+    }
     if (e.metaKey || (e.ctrlKey && e.key !== 'r' && e.key !== 'R')) { closeSearch(true); return; }
     if (searchKeydown(e)) return;
     if (e.key === 'Backspace') {
@@ -562,6 +611,13 @@ const SCRIPT = String.raw`
           ? (search.cursor + search.matches.length - 1) % search.matches.length
           : (search.cursor + 1) % search.matches.length;
         renderSearch();
+      }
+      return true;
+    }
+    if ((e.ctrlKey || e.metaKey) && (e.key === 'd' || e.key === 'D')) {
+      e.preventDefault();
+      if (search.matches.length > 0) {
+        deleteHistory(history[search.matches[search.cursor]].text);
       }
       return true;
     }
@@ -1463,8 +1519,8 @@ ${styles.join('\n')}
 </span>
 <ul id="connect-list" hidden></ul>
 </div>
-<button id="connect-go" type="button">Connect</button>
 <span class="err" id="connect-err"></span>
+<button id="connect-go" type="button">Connect</button>
 </div>
 <main id="out" aria-live="polite">
 <div id="prompt-row"><span class="p">frodo&gt;</span><textarea id="in" rows="1" spellcheck="false" autocomplete="off" autocapitalize="off" placeholder="Type JavaScript. Enter runs, Shift+Enter adds a line, Tab completes, Ctrl+R searches history."></textarea></div>
