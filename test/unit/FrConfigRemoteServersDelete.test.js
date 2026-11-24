@@ -215,7 +215,7 @@ describe('a named delete of a connector server that nothing names', () => {
 
     expect(updateConfigEntity).not.toHaveBeenCalled();
     expect(output()).toContain("Dry run: would delete connector server 'free'.");
-    expect(output()).toContain('nothing else names the connector server.');
+    expect(output()).toContain('Nothing else names the connector server.');
     expect(output()).not.toContain('Deleted');
   });
 

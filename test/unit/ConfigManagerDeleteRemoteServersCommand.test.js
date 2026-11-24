@@ -176,7 +176,11 @@ describe('the options', () => {
       expect(example).not.toContain(' -n ');
     }
     expect(program.description()).toContain('--force');
-    expect(help).toContain('is not proof that it is unused');
+    expect(help).toContain('An empty answer is not proof that a connector server is unused');
+    // a delete of all is not checked the way a named delete is, and the help says so
+    expect(help).toContain(
+      'built from the list that was read at the start and not checked afterwards: unlike a named delete, a change that someone else makes to the configuration meanwhile can be overwritten.'
+    );
     // what --allow-failures does not turn into exit code 0 is said in the help of the command itself
     expect(help).toContain(
       '--allow-failures keeps the exit code at 0 for a write that failed, but never for a refusal, a connector server that does not exist, or a configuration that changed while it was being deleted or did not read back as it was written.'
@@ -423,8 +427,9 @@ describe('a named delete with --force', () => {
     expect(calls[1][3]).toEqual({ force: true, keepLinks: true });
     expect(confirm).toHaveBeenCalledTimes(1);
     expect(confirm.mock.calls[0][0].default).toBe(false);
-    expect(confirm.mock.calls[0][0].message).toContain(
-      "Delete connector server 'rcs' although server clusters and connectors still name it"
+    // the plan above says what is changed, so the question points to it and promises nothing of its own
+    expect(confirm.mock.calls[0][0].message).toBe(
+      "Delete connector server 'rcs' as planned above? Continue?"
     );
     expect(messages().join('\n')).toContain(
       "Connector server 'rcs' is deleted and every change listed above is made. This cannot be undone."

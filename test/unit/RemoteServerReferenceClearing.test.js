@@ -485,6 +485,47 @@ describe('deleteRemoteServerWithLinks', () => {
       expect(writes()).toEqual([]);
     });
 
+    test('a server cluster that was swapped for another one: the count is the same, the names are not', async () => {
+      // the lookup saw `cluster` and `solo`; now `solo` has dropped the name and a new cluster lists it
+      stored.remoteConnectorClientsGroups[1].serversList = [];
+      stored.remoteConnectorClientsGroups.push({
+        name: 'swapped',
+        serversList: [{ name: 'rcs' }],
+      });
+
+      const error = await deleteRemoteServerWithLinks('rcs', {
+        clusters: ['cluster', 'solo'],
+        seen: ['cluster', 'solo'],
+      }).catch((caught) => caught);
+
+      expect(error.holderChanged).toBe(false);
+      expect(error.message).toContain(
+        'they were: cluster, solo; now: cluster, swapped'
+      );
+      expect(writes()).toEqual([]);
+    });
+
+    test('two server clusters that have one name are one cluster to the check, as they are one name to the write', async () => {
+      stored.remoteConnectorClientsGroups = [
+        { name: 'twin', serversList: [{ name: 'rcs' }] },
+        { name: 'twin', serversList: [{ name: 'rcs' }, { name: 'asdf' }] },
+      ];
+
+      // the library reports one reference for each of them
+      const result = await deleteRemoteServerWithLinks('rcs', {
+        clusters: ['twin', 'twin'],
+        seen: ['twin', 'twin'],
+      });
+
+      expect(writes()).toHaveLength(1);
+      expect(result.removedFrom).toEqual(['twin', 'twin']);
+      expect(
+        stored.remoteConnectorClientsGroups.map(({ serversList }) =>
+          serversList.map(({ name }) => name)
+        )
+      ).toEqual([[], ['asdf']]);
+    });
+
     test('a lookup that saw none and now finds one', async () => {
       const error = await deleteRemoteServerWithLinks('rcs', {
         clusters: [],
@@ -636,6 +677,10 @@ describe('deleteRemoteServerWithLinks', () => {
     expect(error.holderChanged).toBe(true);
     expect(error.message).toContain('was written, but it could not be read again');
     expect(error.message).toContain('(cannot read)');
+    // the write was applied: the message must not read as if nothing happened
+    expect(error.message).toContain(
+      "Connector server 'rcs' is probably deleted and the server clusters may be changed: check them by hand."
+    );
     expect(writes()).toHaveLength(1);
   });
 
@@ -694,7 +739,7 @@ describe('namedPlanLines', () => {
       namedPlanLines('rcs', { clusters: [], keptClusters: [], left: [] })
     ).toEqual([
       "Dry run: would delete connector server 'rcs'.",
-      '  nothing else names the connector server.',
+      '  Nothing else names the connector server.',
     ]);
   });
 
@@ -706,7 +751,7 @@ describe('namedPlanLines', () => {
     );
 
     expect(lines[1]).toContain('What else names the connector server is not known');
-    expect(lines.join('\n')).not.toContain('nothing else names');
+    expect(lines.join('\n')).not.toContain('Nothing else names');
   });
 });
 
