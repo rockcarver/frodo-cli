@@ -409,6 +409,56 @@ lists first, and nothing is deleted if either cannot be read). See
 and
 [a command that runs many operations runs them all, then fails if any failed](https://github.com/rockcarver/frodo-cli/blob/main/docs/decisions/0040-a-command-that-runs-many-operations-runs-them-all-then-fails-if-any-failed.md).
 
+**New command: `frodo config-manager delete connector-definitions`** deletes one
+connector definition, or all of them. `-i, --connector-id <id>` (alias `-n,
+--name`) names the connector definition by its id without the type prefix. It
+is looked up in the list of the connector definitions of the tenant, an exact and
+case-sensitive match, and the id that the list holds is what is deleted, so a
+value that is written as a path (`-i ../x`) is a connector definition that does
+not exist
+([a selector is an id or a name, never a path](https://github.com/rockcarver/frodo-cli/blob/main/docs/decisions/0059-a-selector-is-an-id-or-a-name-never-a-path.md)).
+One that is not there exits with code 1, also with `-d` and with
+`--allow-failures`, because the id names one connector definition. It works on
+Cloud and ForgeOps.
+
+Deleting all connector definitions (no `-i`) is guarded like the other deletes of
+a whole type: on a terminal it shows what would be deleted and what names it, and
+asks, with the answer defaulting to no; without a terminal it refuses before it
+connects and exits with code 1, unless you pass `-y`/`--yes`; `-d`/`--dry-run`
+only shows the plan. The plan, and the question, list what other objects still
+name each connector definition (at most 20 for each connector definition), from
+one lookup for all of them; a bulk delete never refuses for it, and `-y` sends
+no lookup at all. It tries every connector definition, prints a summary of what
+failed and exits with code 1 if any failed; `--allow-failures` keeps the exit
+code at 0 for a delete that failed. See
+[a command that can delete more than the one object it names asks first](https://github.com/rockcarver/frodo-cli/blob/main/docs/decisions/0037-a-command-that-can-delete-more-than-the-one-object-it-names-asks-first.md)
+and
+[a command that runs many operations runs them all, then fails if any failed](https://github.com/rockcarver/frodo-cli/blob/main/docs/decisions/0040-a-command-that-runs-many-operations-runs-them-all-then-fails-if-any-failed.md).
+
+A named delete asks the library what still names the connector definition: the
+mappings (the `sync` configuration and the `mapping` configurations, a mapping
+that is in both counted once), the applications of every realm, the schedules and
+the authentication modules. **Anything that does stops the delete**: the command
+says which holder and which field, deletes nothing and exits with code 1, also
+with `--allow-failures`. An application that names it owns it, and the command
+says so: `config-manager delete applications` removes both. If a source cannot
+be read, the command says which, and deletes nothing. An empty answer is not
+proof that a connector definition is unused: one that a script, an endpoint, a
+reconciliation or a client of the REST API names is not seen.
+
+A connector definition that the tenant lists with an id that is not a plain name
+(a name is not blank, is not just a dot, and has no `/`, `\`, `?`, `#`, `%`,
+`..` or control character in it) is never sent to the tenant: it is skipped with
+a message, and it counts as a failed delete. The name of every other connector
+definition is percent-encoded in the path of the request.
+
+`--force` (long form only, only with `-i`) deletes the connector definition
+anyway, and **changes nothing else**: every mapping, application, schedule or
+authentication module that names it is left exactly as it is, is listed, and
+names a connector definition that does not exist afterwards. It also deletes it
+when not every source could be read, after saying so. It asks on a terminal, and
+needs `-y` (or `-d`) without one.
+
 **New command: `frodo config-manager delete journeys`** deletes one journey, or
 every journey of the selected realms and then the orphaned nodes of those realms.
 `-i, --journey-id <id>` (alias `-n, --name`) names the journey and needs a realm
@@ -849,6 +899,7 @@ entity and drop the others.
 | Command                            | Select by                              | Still works    |
 | ---------------------------------- | -------------------------------------- | -------------- |
 | `delete applications`              | `-i, --app-id`, `-n, --app-name`       | `--name`       |
+| `delete connector-definitions`     | `-i, --connector-id`                   | `-n`, `--name` |
 | `delete custom-nodes`              | `-i, --node-id`, `-n, --node-name`     | `--name`       |
 | `delete endpoints`                 | `-i, --endpoint-id`                    | `-n`, `--name` |
 | `delete journeys`                  | `-i, --journey-id`                     | `-n`, `--name` |
