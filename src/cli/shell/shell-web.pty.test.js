@@ -753,6 +753,27 @@ describe('frodo shell --web in a real browser when the engine of a tab ends', ()
           if (process.env.FRODO_TEST_BINARY !== 'sea') {
             expect(engineProcesses(web.child.pid)).toHaveLength(1);
           }
+
+          // What the new engine logs reaches the page: the event stream of the
+          // old engine was dropped and opened again for the new one (the status
+          // light is off for that moment)
+          await waitFor(
+            () =>
+              /*W*/
+              evaluate(
+                `document.getElementById('status').className === 'up' ? true : null`
+              ),
+            45_000
+          );
+          await typeLine('console.log("from the new engine")');
+          await waitFor(
+            () =>
+              /*W*/
+              evaluate(
+                `Array.from(document.querySelectorAll('.entry')).some(e => e.textContent.includes('from the new engine') && e.querySelector('.logs') && e.querySelector('.logs').textContent.includes('from the new engine')) ? true : null`
+              ),
+            45_000
+          );
         });
       } finally {
         stopChrome(chrome, userData);
