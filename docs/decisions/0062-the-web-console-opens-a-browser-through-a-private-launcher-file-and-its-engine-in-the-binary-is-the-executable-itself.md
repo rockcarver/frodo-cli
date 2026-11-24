@@ -1,6 +1,6 @@
 ---
 status: superseded by 0064
-date: 2026-11-24
+date: 2026-11-22
 decision-makers: maintainers
 applies-to:
   - src/app.ts
