@@ -267,19 +267,26 @@ export function createConsoleInput(
 
   /**
    * One line of the candidate list: the command, trimmed to the terminal
-   * width, with the selected row highlighted. Long commands truncate to
-   * the width available; the status line above the list already carries
-   * the query and the counter.
+   * width, with the selected row highlighted. A multi-line entry shows its
+   * breaks as a dim ¶ (one command, several lines; the marks say where the
+   * lines inside it sit) and truncates after the first of them; the status
+   * line above the list already carries the query and the counter.
    */
   function listRowText(entry: HistoryEntry, selected: boolean): string {
     const width = process.stdout.columns ?? 80;
     const max = Math.max(width - 6, 16);
-    let text = entry.text.split('\n')[0];
+    // One dim ¶ per line break, the text-editor convention: the entry's
+    // own shape stays readable and where it ends is where a line lacks one.
+    const marked = entry.text.replace(/\n/g, `${DIM}¶${RESET}`);
+    let text = marked;
     if (entry.text.includes('\n')) {
-      text = text.length > max - 1 ? `${text.slice(0, max - 2)}…` : `${text} …`;
-      // max for multiline: leave room for the ellipsis marker
+      text = `${marked} ${DIM}…${RESET}`;
     }
-    if (text.length > max) text = `${text.slice(0, max - 1)}…`;
+    // The trim reads the marked text: an escape around ¶ counts toward the
+    // length, and one extra row of room covers the marks of short entries.
+    if (text.length > max + marked.length - entry.text.length) {
+      text = `${marked.slice(0, max + marked.length - entry.text.length - 1)}…`;
+    }
     const body = `  ${text}`;
     return selected ? `${CYAN}${body}${RESET}` : `${DIM}${body}${RESET}`;
   }

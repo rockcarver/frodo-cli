@@ -156,6 +156,7 @@ main { flex: 1; overflow: auto; padding: 10px 14px 4px; }
 #search-row .cand { white-space: pre-wrap; word-break: break-all; border-radius: 3px; padding: 0 4px; cursor: pointer; position: relative; padding-right: 1.6em; }
 #search-row .cand .match { color: var(--accent); font-weight: 700; }
 #search-row .cand .when { color: var(--dim); white-space: nowrap; }
+#search-row .cand .brk { color: var(--dim); opacity: 0.7; }
 #search-row .cand.selected { background: var(--sel); }
 /* Delete one entry: an × in its own column at the row's right edge, so a
    row that wraps never pushes it around. Visible when the row is hovered
@@ -415,6 +416,15 @@ const SCRIPT = String.raw`
     indexes.forEach(function (i) { set[i] = true; });
     var span = null;
     for (var i = 0; i < line.length; i++) {
+      // A line break shows as a dim ¶ (the text-editor convention): one
+      // command, several lines, and where it ends is where a line lacks
+      // the mark. The mark is not part of the text: it is never matched
+      // and never lands in the prompt (the paste uses entry.text).
+      if (line[i] === '\n') {
+        span = null;
+        row.appendChild(el('span', 'brk', '¶'));
+        continue;
+      }
       if (set[i]) {
         if (!span) { span = document.createElement('span'); span.className = 'match'; row.appendChild(span); }
         span.textContent += line[i];
@@ -1196,12 +1206,15 @@ const SCRIPT = String.raw`
   function listen() {
     // The stream must carry this tab's engine id or its log events go to
     // the wrong bus and console.log silently vanishes. A tab that opens
-    // before it has an id (or lost it) asks for one first; a shared-engine
-    // tab goes straight through (it has no id to learn). A tab that has
-    // its id already (a reload keeps it) asks for the session too, once:
-    // the session answer opens the connect bar and paints the connection
-    // state, and a boot that streamed straight away left both out until
-    // the tab next regained focus.
+    // before it has an id (or lost it, a reload of a restored tab) asks
+    // for one first; a shared-engine tab goes straight through (it has no
+    // id to learn). A tab that has its id already asks for the session
+    // first too, and streams only after the answer: the session mints the
+    // engine, and a stream opened beside it would ask for one again (two
+    // engines for one tab, the tab's id split between them, and what the
+    // user runs logged to the engine the stream does not hear). The
+    // session answer opens the connect bar and paints the connection
+    // state, which a boot that streamed straight away also left out.
     if (!engineId && !sharedEngine) {
       refreshSession().then(function () {
         sessionRetry.reset();
@@ -1216,35 +1229,41 @@ const SCRIPT = String.raw`
       });
       return;
     }
-    refreshSession().catch(function () {});
-    var listenHeaders = { 'X-Frodo-CSRF': csrf };
-    if (engineId) listenHeaders['X-Frodo-Engine'] = engineId;
-    streamAbort = new AbortController();
-    fetch('/api/events', { credentials: 'same-origin', headers: listenHeaders, signal: streamAbort.signal }).then(function (r) {
-      learnEngine(r, true);
-      if (!r.ok || !r.body) throw new Error('events ' + r.status);
-      setStatus(true);
-      var reader = r.body.getReader();
-      var decoder = new TextDecoder();
-      var buffer = '';
-      function pump() {
-        return reader.read().then(function (chunk) {
-          if (chunk.done) throw new Error('closed');
-          buffer += decoder.decode(chunk.value, { stream: true });
-          var lines = buffer.split('\n');
-          buffer = lines.pop();
-          lines.forEach(function (line) {
-            if (!line) return;
-            var event = JSON.parse(line);
-            if (event.type === 'log') appendLog(event.text);
+    refreshSession().then(function () {
+      var listenHeaders = { 'X-Frodo-CSRF': csrf };
+      if (engineId) listenHeaders['X-Frodo-Engine'] = engineId;
+      streamAbort = new AbortController();
+      fetch('/api/events', { credentials: 'same-origin', headers: listenHeaders, signal: streamAbort.signal }).then(function (r) {
+        learnEngine(r, true);
+        if (!r.ok || !r.body) throw new Error('events ' + r.status);
+        setStatus(true);
+        var reader = r.body.getReader();
+        var decoder = new TextDecoder();
+        var buffer = '';
+        function pump() {
+          return reader.read().then(function (chunk) {
+            if (chunk.done) throw new Error('closed');
+            buffer += decoder.decode(chunk.value, { stream: true });
+            var lines = buffer.split('\n');
+            buffer = lines.pop();
+            lines.forEach(function (line) {
+              if (!line) return;
+              var event = JSON.parse(line);
+              if (event.type === 'log') appendLog(event.text);
+            });
+            return pump();
           });
-          return pump();
-        });
-      }
-      return pump();
+        }
+        return pump();
+      }).catch(function () {
+        setStatus(false);
+        setTimeout(listen, 1500);
+      });
     }).catch(function () {
+      // The session ask failed (a server that went away mid-boot): pick
+      // up on the retry pause, as a tab without an id does.
       setStatus(false);
-      setTimeout(listen, 1500);
+      setTimeout(listen, sessionRetry.next());
     });
   }
 
