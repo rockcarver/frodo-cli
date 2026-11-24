@@ -558,8 +558,8 @@ and `-f` means nothing in `frodo config-manager` any more (`-f, --file` stays on
 the commands outside the group that read or write a data file). A script that
 still passes `-f` or `--file` to one of the six fails before it connects to
 anything, with `error: unknown option '-f'` and exit code 1. The option is
-mandatory on `pull service-objects` and `pull raw`, which cannot guess what to
-pull, and optional on the other four. The rule is in
+mandatory on `pull service-objects`, which cannot guess what to pull; `pull raw`
+needs it or `--path`, and it is optional on the other four. The rule is in
 [options of the configuration commands](https://github.com/rockcarver/frodo-cli/blob/main/docs/decisions/0057-options-of-the-configuration-commands.md).
 
 **`pull saml`, `pull authz-policies` and `pull oauth2-agents` need no config
@@ -1445,9 +1445,10 @@ name, a script whose content file is missing and a file that is not JSON (or,
 for `push password-policy`, is not a password policy) used to stop the whole
 command; each is one failed item now. What the command line names must exist,
 and when it does not the command says so in plain words and fails whatever
-`--allow-failures` says: the file of `pull raw --config-file` (the option is
-mandatory now; without one the command failed with `The "path" argument must be
-of type string`; `pull saml` needs no file any more, see above), the `raw`
+`--allow-failures` says: the file of `pull raw --config-file` (without one or
+`--path` the command failed with `The "path" argument must be of type string`,
+and now says that one of them is needed; `pull saml` needs no file any more, see
+above), the `raw`
 folder of `push raw` and the `realms` folder of `push password-policy`, `push
 scripts` and `push saml` (the file-system error is gone), a realm given as an
 argument whose password policy, script config, SAML config or secret-mappings
