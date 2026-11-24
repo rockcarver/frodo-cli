@@ -7,8 +7,9 @@ import { printable } from '../../utils/OperationRun';
 /**
  * The words of the output of `journey validate`: one line for a finding, one
  * heading for a journey, one summary for the run and one hint for each finding
- * code that has advice. The functions are pure (no library, no console), so
- * that every finding of every journey is written the same way.
+ * code that has advice. The functions are pure (they take values, return text
+ * and print nothing), so that every finding of every journey is written the
+ * same way.
  */
 
 /** The findings of the library that say a journey names a node that is not there. */
@@ -159,17 +160,21 @@ function sentenceSaysType(
  * sentence says it. The id is there when the name does not tell the node apart (another node of the journey has the
  * same name and type, or the node has no name), and always with the verbose option, then in full. A name that a
  * tenant gave a node is written so that it cannot change what the terminal shows.
+ * Where the library follows the id with the type id of the node in brackets (` (ValidatedUsernameNode)`) and the
+ * words have an id, the id goes into that bracket, so that the line has one group, not two.
  * @param {JourneyValidationNode} node the node, as the library describes it
  * @param {string} before the message up to the quoted id of the node
  * @param {string} after the message after the quoted id of the node
  * @param {boolean} verbose true to show the full id of every node
- * @returns {string} the words that stand for the quoted id
+ * @param {string} [bracket] the brackets that follow the quoted id in the message, with the space before them
+ * @returns {string} the words that stand for the quoted id, and the brackets that follow it
  */
 function nodeWords(
   node: JourneyValidationNode,
   before: string,
   after: string,
-  verbose: boolean
+  verbose: boolean,
+  bracket?: string
 ): string {
   const name = node.displayName ? `"${printable(node.displayName)}"` : '';
   const type = node.nodeTypeName ?? node.nodeType;
@@ -183,10 +188,19 @@ function nodeWords(
     verbose || node.ambiguous || !node.displayName
       ? `id ${printable(verbose ? node.id : node.id.slice(0, SHORT_ID_LENGTH))}`
       : '';
-  const details = [typeWords, idWords].filter(Boolean);
-  return [name, details.length > 0 ? `(${details.join(', ')})` : '']
+  const foldsBracket =
+    idWords !== '' &&
+    node.nodeType !== undefined &&
+    bracket === ` (${node.nodeType})`;
+  const details = (
+    foldsBracket
+      ? [printable(node.nodeType as string), idWords]
+      : [typeWords, idWords]
+  ).filter(Boolean);
+  const words = [name, details.length > 0 ? `(${details.join(', ')})` : '']
     .filter(Boolean)
     .join(' ');
+  return foldsBracket ? words : words + (bracket ?? '');
 }
 
 /**
@@ -208,17 +222,22 @@ function nameNodes(
     if (node && !nodes.has(node.id)) nodes.set(node.id, node);
   }
   if (ID_IS_THE_FINDING.includes(code) || nodes.size === 0) return message;
+  // the brackets after an id are read with it, to put the id into them (see nodeWords); a bracket with a quote in
+  // it is not read, so that an id inside it is still found
   const quotedIds = new RegExp(
-    `'(${[...nodes.keys()].map(escapeRegExp).join('|')})'`,
+    `'(${[...nodes.keys()].map(escapeRegExp).join('|')})'( \\([^()']*\\))?`,
     'g'
   );
-  return message.replace(quotedIds, (quoted, id: string, offset: number) =>
-    nodeWords(
-      nodes.get(id) as JourneyValidationNode,
-      message.slice(0, offset),
-      message.slice(offset + quoted.length),
-      verbose
-    )
+  return message.replace(
+    quotedIds,
+    (_quoted, id: string, bracket: string | undefined, offset: number) =>
+      nodeWords(
+        nodes.get(id) as JourneyValidationNode,
+        message.slice(0, offset),
+        message.slice(offset + id.length + 2),
+        verbose,
+        bracket
+      )
   );
 }
 

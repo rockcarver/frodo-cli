@@ -14,6 +14,7 @@ const PAGE = id(0xab9f607b);
 const AGE = id(0x295a70ba);
 const USER = id(0x5d0d6a14);
 const PASS = id(0x44444444);
+const USER_TWO = id(0x5d0d6a15);
 const LOCKOUT = id(0xa1b2c3d4);
 const STRAY = id(0x57a47001);
 const LOOSE = id(0x100531d0);
@@ -129,6 +130,29 @@ const CASES = [
     break: (journey) => delete journey.innerNodes[USER],
     lines: [
       '  [MISSING_INNER_NODE] Page Node "Login Page" references missing inner node "Username" (ValidatedUsernameNode)',
+    ],
+  },
+  {
+    // an inner node that is not there and has a twin on another Page Node: the id goes into the brackets of its type
+    code: 'MISSING_INNER_NODE',
+    break: (journey) => {
+      delete journey.innerNodes[USER];
+      addTreeNode(journey, PAGE_TWO, 'Login Page', 'PageNode', 'Page Node');
+      journey.nodes[PAGE_TWO].nodes = [
+        {
+          _id: USER_TWO,
+          displayName: 'Username',
+          nodeType: 'ValidatedUsernameNode',
+        },
+      ];
+      journey.innerNodes[USER_TWO] = {
+        _id: USER_TWO,
+        _type: { _id: 'ValidatedUsernameNode', name: 'Platform Username' },
+        _outcomes: [{ id: 'outcome' }],
+      };
+    },
+    lines: [
+      '  [MISSING_INNER_NODE] Page Node "Login Page" (id ab9f607b) references missing inner node "Username" (ValidatedUsernameNode, id 5d0d6a14)',
     ],
   },
   {

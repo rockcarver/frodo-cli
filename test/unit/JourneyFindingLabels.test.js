@@ -12,7 +12,7 @@ import {
 
 // The words of the output of `journey validate`: one line for a finding, one
 // heading for a journey, one summary for the run, one hint for each finding
-// code that has advice. Pure functions: no library, no console.
+// code that has advice. Pure functions: they print nothing.
 
 const finding = (
   code,
@@ -530,6 +530,69 @@ describe('findingLine names the nodes of a finding', () => {
     );
   });
 
+  test.each([
+    'q(r',
+    'x)',
+    'a|b',
+    'a\\',
+    '[y',
+    'z]',
+    '*',
+    '+',
+    '?',
+    '{1}',
+    '^',
+    '$',
+    '(x|y)',
+  ])('names a node whose id holds the characters of a pattern, %s', (odd) => {
+    expect(
+      findingLine(
+        described(
+          'UNREACHABLE_NODE',
+          'warning',
+          `Tree node '${odd}' is not reachable, and neither is 'a'`,
+          {
+            nodeId: odd,
+            node: { id: odd, displayName: 'Odd', nodeType: 'OddNode' },
+          }
+        )
+      )
+    ).toBe(
+      '  [UNREACHABLE_NODE] Tree node "Odd" (OddNode) is not reachable, and neither is \'a\''
+    );
+  });
+
+  test('puts the type before the id of a node only when the text right before the id is the title of its type', () => {
+    // the words Page Node are in the sentence, but not right before the inner node: its type is not said there
+    expect(
+      findingLine(
+        described(
+          'MISSING_INNER_NODE',
+          'error',
+          "Page Node 'p' references missing inner node 'c'",
+          {
+            nodeId: 'p',
+            targetNodeId: 'c',
+            node: {
+              id: 'p',
+              displayName: 'Login Page',
+              nodeType: 'PageNode',
+              nodeTypeName: 'Page Node',
+            },
+            targetNode: {
+              id: 'c',
+              displayName: 'Child',
+              nodeType: 'PageNode',
+              nodeTypeName: 'Page Node',
+            },
+          }
+        )
+      )
+    ).toBe(
+      '  [MISSING_INNER_NODE] Page Node "Login Page" references missing inner node "Child" (Page Node)'
+    );
+  });
+
   test('leaves the quoted id when the message of the library does not quote it', () => {
     const line = findingLine(
       described(
@@ -602,7 +665,7 @@ describe('findingLine names the nodes of a finding', () => {
       );
     });
 
-    test('names every node of the sentence with its full id, and still says the type once', () => {
+    test('names every node of the sentence with its full id, in one group with the type that the library says', () => {
       expect(
         findingLine(
           described(
@@ -619,7 +682,79 @@ describe('findingLine names the nodes of a finding', () => {
           true
         )
       ).toBe(
-        `  [MISSING_INNER_NODE] Page Node "Login Page" (id ${PAGE}) references missing inner node "Username" (id ${USERNAME}) (ValidatedUsernameNode)`
+        `  [MISSING_INNER_NODE] Page Node "Login Page" (id ${PAGE}) references missing inner node "Username" (ValidatedUsernameNode, id ${USERNAME})`
+      );
+    });
+  });
+
+  describe('where the library says the type of a node in brackets after its id', () => {
+    const missingInner = (targetNode) =>
+      described(
+        'MISSING_INNER_NODE',
+        'error',
+        `Page Node '${PAGE}' references missing inner node '${USERNAME}' (ValidatedUsernameNode)`,
+        {
+          nodeId: PAGE,
+          targetNodeId: USERNAME,
+          node: page,
+          targetNode,
+        }
+      );
+
+    test('the id of a tie goes into those brackets, so that the line has one group', () => {
+      expect(findingLine(missingInner({ ...username, ambiguous: true }))).toBe(
+        '  [MISSING_INNER_NODE] Page Node "Login Page" references missing inner node "Username" (ValidatedUsernameNode, id 5d0d6a14)'
+      );
+    });
+
+    test('so does the id of a node without a name', () => {
+      expect(
+        findingLine(
+          missingInner({ id: USERNAME, nodeType: 'ValidatedUsernameNode' })
+        )
+      ).toBe(
+        '  [MISSING_INNER_NODE] Page Node "Login Page" references missing inner node (ValidatedUsernameNode, id 5d0d6a14)'
+      );
+    });
+
+    test('a node that needs no id leaves the brackets as the library has them', () => {
+      expect(findingLine(missingInner(username))).toBe(
+        '  [MISSING_INNER_NODE] Page Node "Login Page" references missing inner node "Username" (ValidatedUsernameNode)'
+      );
+    });
+
+    test('brackets that are not the type of the node stay as they are, after the words of the node', () => {
+      expect(
+        findingLine(
+          described(
+            'SOME_FUTURE_CODE',
+            'warning',
+            `Tree node '${AGE}' (retired) is not reachable`,
+            { nodeId: AGE, node: { ...age, ambiguous: true } }
+          )
+        )
+      ).toBe(
+        '  [SOME_FUTURE_CODE] Tree node "Check Age" (Scripted Decision, id 295a70ba) (retired) is not reachable'
+      );
+    });
+
+    test('brackets with a quoted id in them are not taken with the id before them, so that the id inside is named too', () => {
+      expect(
+        findingLine(
+          described(
+            'SOME_FUTURE_CODE',
+            'warning',
+            `Tree node '${AGE}' (see '${LOCKOUT}') is not reachable`,
+            {
+              nodeId: AGE,
+              targetNodeId: LOCKOUT,
+              node: age,
+              targetNode: lockout,
+            }
+          )
+        )
+      ).toBe(
+        '  [SOME_FUTURE_CODE] Tree node "Check Age" (Scripted Decision) (see "Account Lockout") is not reachable'
       );
     });
   });
