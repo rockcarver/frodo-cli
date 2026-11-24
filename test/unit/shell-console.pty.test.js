@@ -111,7 +111,9 @@ describe('frodo shell PTY (console mode)', () => {
           { type: 'clear_output' },
           { type: 'send_line', text: "'marker-AAA'" },
           // Wait for the result and the next prompt, not the echoed input:
-          // the initial prompt can appear before the input hooks are installed.
+          // the initial prompt can appear before the input hooks are installed
+          // (the terminal is already raw, so what is typed then waits in the
+          // terminal's queue until the console reads it).
           { type: 'wait_plain', regex: "\\n'marker-AAA'\\n[\\s\\S]*frodo>\\s*$" },
           { type: 'clear_output' },
           // ctrl-r, then a fuzzy query, then Enter to re-run
