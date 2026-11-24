@@ -190,6 +190,10 @@ describe('ShellRestOps encodeUrlPathAndQuery', () => {
   it.each([
     ['https://host.example.com/a/%2f/b', 'https://host.example.com/a/%2f/b'],
     [
+      'https://host.example.com/a/%2F/b%C3%A9',
+      'https://host.example.com/a/%2F/b%C3%A9',
+    ],
+    [
       'https://host.example.com/x?x=%22q%22',
       'https://host.example.com/x?x=%22q%22',
     ],
@@ -199,6 +203,10 @@ describe('ShellRestOps encodeUrlPathAndQuery', () => {
     ],
     ['https://host.example.com/%', 'https://host.example.com/%25'],
     ['https://host.example.com/%zz', 'https://host.example.com/%25zz'],
+    [
+      'https://host.example.com/x?q=100% sure',
+      'https://host.example.com/x?q=100%25+sure',
+    ],
     ['https://host.example.com/a\\b', 'https://host.example.com/a%5Cb'],
     ['https://host.example.com/a b', 'https://host.example.com/a+b'],
     [
