@@ -110,6 +110,19 @@
  * and of the global ones (`.../services?_action=nextdescendents`) answer with
  * services of those ids; an empty value is a realm without services. Without it
  * the list answers 404. Deleting one is answered `200`.
+ * FAKE_AM_SERVICES_FILE=<path> names a JSON object `{ realms: { "<realm>": [service, ...] },
+ * global?: [service, ...], unavailable?: [id, ...] }` the fake serves as the AM services of
+ * each realm (`/` is the root realm) and the global ones, as a store that a delete changes
+ * (it answers every request for the services of a realm or the global ones, so FAKE_AM_SERVICES
+ * is not used with it). A service is `{ _id, nextDescendents?: [{ _id, _type: { _id } }] }`. The list
+ * (`POST .../services?_action=nextdescendents`), one service (`GET .../services/<id>`, which
+ * answers `_id: ""` as AM does) and its next descendents (`POST .../services/<id>?_action=nextdescendents`)
+ * are served; `DELETE .../services/<id>/<type>/<descendent id>` removes a next descendent and
+ * `DELETE .../services/<id>` the service with the ones it still has; `404` for an id that
+ * is not held and for a realm that the file does not name. The ids in `unavailable` answer the
+ * read of their next descendents with the Cloud `403` "This operation is not available in
+ * PingOne Advanced Identity Cloud.". The store lives as long as the fake; the request log shows
+ * every call. A failing read or delete is made with FAKE_AM_FAIL_REQUESTS.
  * FAKE_AM_SECRET_STORES_FILE=<path> names a JSON file `{ stores: [{ _id, type }],
  * mappings: { <store id>: [{ secretId, aliases }] } }` the fake serves the secret
  * stores of the realm (`.../secrets/stores?_action=nextdescendents`) and their
@@ -366,6 +379,8 @@ const idList = (value) =>
   value === undefined ? undefined : value.split(',').filter(Boolean);
 const secrets = idList(process.env.FAKE_AM_SECRETS);
 const services = idList(process.env.FAKE_AM_SERVICES);
+// the stateful store of the services of each realm (FAKE_AM_SERVICES_FILE): a delete changes it
+const realmServices = readJson(process.env.FAKE_AM_SERVICES_FILE);
 const serviceAccounts = idList(process.env.FAKE_AM_SERVICE_ACCOUNTS);
 const secretStores = readJson(process.env.FAKE_AM_SECRET_STORES_FILE);
 const agentTypes = idList(process.env.FAKE_AM_AGENT_TYPES);
@@ -510,6 +525,112 @@ function selectUsers(filter) {
       return operator === 'eq' ? have === wanted : have.startsWith(wanted);
     })
   );
+}
+/**
+ * Answers a request for the AM services of a realm or the global ones (`.../services...`) from
+ * the store of FAKE_AM_SERVICES_FILE, or returns false when the request is not one or there is no
+ * such store. `send(status, payload)` writes the answer.
+ */
+function serveRealmServices(req, send) {
+  if (!realmServices) return false;
+  const [path, query = ''] = req.url.split('?');
+  const route = path.match(
+    /\/json\/(global-config|realms\/root(?:\/realms\/[^/]+)*\/realm-config)\/services(?:\/(.*))?$/
+  );
+  if (!route) return false;
+  const notFound = () =>
+    send(404, { code: 404, reason: 'Not Found', message: 'Not Found' });
+  const page = (result) => ({
+    result,
+    resultCount: result.length,
+    pagedResultsCookie: null,
+    totalPagedResultsPolicy: 'NONE',
+    totalPagedResults: -1,
+    remainingPagedResults: -1,
+  });
+  const names = [...route[1].matchAll(/\/realms\/([^/]+)/g)].map(
+    ([, name]) => name
+  );
+  const realm = names.length > 0 ? names.join('/') : '/';
+  const list =
+    route[1] === 'global-config'
+      ? realmServices.global
+      : realmServices.realms?.[realm];
+  if (!list) {
+    notFound();
+    return true;
+  }
+  const decode = (text) => {
+    try {
+      return decodeURIComponent(text);
+    } catch {
+      return text;
+    }
+  };
+  const nextDescendents = query.includes('_action=nextdescendents');
+  const [rawId, ...tail] = (route[2] ?? '').split('/');
+  const service = list.find(({ _id }) => _id === decode(rawId));
+  if (route[2] === undefined) {
+    if (req.method !== 'POST' || !nextDescendents) return false;
+    send(
+      200,
+      page(
+        list.map(({ _id }) => ({
+          _id,
+          name: _id,
+          _type: { _id, name: _id, collection: true },
+        }))
+      )
+    );
+    return true;
+  }
+  if (tail.length === 0 && req.method === 'GET') {
+    if (!service) {
+      notFound();
+    } else {
+      send(200, {
+        _id: '',
+        _rev: '1',
+        _type: { _id: service._id, name: service._id, collection: true },
+      });
+    }
+    return true;
+  }
+  if (tail.length === 0 && req.method === 'POST' && nextDescendents) {
+    if (!service) {
+      notFound();
+    } else if ((realmServices.unavailable ?? []).includes(service._id)) {
+      send(403, CLOUD_NOT_AVAILABLE);
+    } else {
+      send(200, page(service.nextDescendents ?? []));
+    }
+    return true;
+  }
+  if (req.method !== 'DELETE') return false;
+  if (!service) {
+    notFound();
+    return true;
+  }
+  if (tail.length === 0) {
+    // the service goes with the next descendents it still has
+    list.splice(list.indexOf(service), 1);
+    send(200, { _id: service._id });
+    return true;
+  }
+  const descendents = service.nextDescendents ?? [];
+  const type = decode(tail[0]);
+  const descendentId = decode(tail.slice(1).join('/'));
+  const index = descendents.findIndex(
+    (descendent) =>
+      descendent._id === descendentId && descendent._type?._id === type
+  );
+  if (index < 0) {
+    notFound();
+  } else {
+    descendents.splice(index, 1);
+    send(200, {});
+  }
+  return true;
 }
 /**
  * Answers a request for the AI agent collection (`.../realm-config/agents/AIAgent`
@@ -951,6 +1072,7 @@ const server = http.createServer((req, res) => {
       });
     }
     if (serveAiAgents(req, body, send)) return;
+    if (serveRealmServices(req, send)) return;
     if (servePromotion(req, body, send)) return;
     if (directConfiguration) {
       const route = new URL(req.url, 'http://fake').pathname;
