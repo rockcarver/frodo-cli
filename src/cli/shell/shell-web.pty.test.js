@@ -565,7 +565,15 @@ describe('frodo shell --web in a real browser', () => {
           await waitFor(() =>
             /*W*/
             evaluate(
-              `Array.from(document.querySelectorAll('.entry')).some(e => e.textContent.includes('42')) ? true : null`
+              `Array.from(document.querySelectorAll('.entry')).some(e => e.textContent.includes('42') && e.querySelector('.result .row')) ? true : null`
+            )
+          );
+          // The last result is `_`, as in the terminal console.
+          await typeLine('_ + 1');
+          await waitFor(() =>
+            /*W*/
+            evaluate(
+              `Array.from(document.querySelectorAll('.entry')).some(e => e.textContent.includes('43') && e.querySelector('.result .row')) ? true : null`
             )
           );
         });

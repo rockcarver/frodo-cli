@@ -64,6 +64,44 @@ export type WebEngine = {
   dispose(): void;
 };
 
+/**
+ * The fields in which a REPL keeps what `_` and `_error` read: `last` and
+ * `lastError`, and the two flags that say a script assigned the name
+ * (`underscoreAssigned`, `underscoreErrAssigned`). @types/node declares them
+ * `readonly`, because only the REPL's own line handler writes them; the engine
+ * does not use that handler, so it writes `last` and `lastError` itself,
+ * through a writable view of the same server (`WritableSlots`, no cast). The
+ * names are checked against the declared type here, and against the running
+ * Node when an engine starts.
+ */
+const LAST_RESULT_SLOTS = [
+  'last',
+  'underscoreAssigned',
+  'lastError',
+  'underscoreErrAssigned',
+] as const satisfies readonly (keyof repl.REPLServer)[];
+
+/** The two slots the engine writes, as @types/node declares them but writable. */
+type WritableSlots = {
+  -readonly [K in 'last' | 'lastError']: repl.REPLServer[K];
+};
+
+/**
+ * Stop at start-up, with the name, when the running Node's REPL lacks one of
+ * the fields that `_` and `_error` need. Without this, a Node that renames or
+ * drops one leaves the console without `_` and says nothing: the write goes to
+ * a field nobody reads, and a result then overwrites a value the script
+ * assigned.
+ */
+function assertLastResultSlots(server: repl.REPLServer): void {
+  const missing = LAST_RESULT_SLOTS.filter((name) => !(name in server));
+  if (missing.length === 0) return;
+  server.close();
+  throw new Error(
+    `This Node.js has no REPL field ${missing.map((name) => `\`${name}\``).join(', ')}, which the web console needs to keep \`_\` and \`_error\`.`
+  );
+}
+
 // eslint-disable-next-line no-control-regex -- ANSI colour codes are the target
 const ANSI = /\x1b\[[0-9;?]*[ -/]*[@-~]/g;
 
@@ -104,12 +142,10 @@ export function createWebEngine(options: {
   const bindings = createConsoleBindings();
   const log = (text: string): void => {
     const plain = text.replace(ANSI, '');
-    // The REPL prints this when a script assigns `_`. It is about the
-    // terminal's "last result" feature: only the REPL's line handler, which
-    // this engine does not use (it calls the evaluator directly, to get
-    // the value of each input), stores a result in `_`. For this console the
-    // sentence is misleading. The same notice for `_error` is not filtered
-    // (a half measure).
+    // The REPL prints this once when a script assigns `_`. It is the REPL's
+    // own sentence, not something the script printed, and the log stream
+    // holds what a script prints: it stays out of it, as it did before `_`
+    // held results. The same notice for `_error` is not filtered.
     if (plain.trim() === 'Expression assignment to _ now disabled.') return;
     if (plain.length > 0) options.onLog(plain);
   };
@@ -149,7 +185,11 @@ export function createWebEngine(options: {
       return 'print';
     },
   });
+  assertLastResultSlots(server);
   watchUncaughtExceptions();
+  // @types/node declares `last` and `lastError` readonly: the writable view
+  // of the same server is the one way the engine writes them.
+  const writable: WritableSlots = server;
   installConsoleContext(server.context, bindings, {
     write: log,
     colors: false,
@@ -253,6 +293,24 @@ export function createWebEngine(options: {
   // The first waits for the baseline, so that nothing is declared before it.
   let queue: Promise<unknown> = takeBaseline();
 
+  // What the REPL's line handler does after an input, which the engine does
+  // not use (it calls the evaluator directly, to get each input's value):
+  // a result goes into `_`, and the error that ended an input into `_error`,
+  // each unless a script assigned that name. An input with nothing to show
+  // (a statement, a declaration, undefined) is no result: the terminal
+  // console starts its REPL with ignoreUndefined for this. Unfinished input
+  // is neither. An error the REPL prints itself (raised on the side) is
+  // kept in `_error` by the REPL.
+  function rememberOutcome(outcome: EvalOutcome): void {
+    if (outcome.status === 'ok') {
+      if (outcome.value !== undefined && !server.underscoreAssigned) {
+        writable.last = outcome.value;
+      }
+    } else if (outcome.status === 'error' && !server.underscoreErrAssigned) {
+      writable.lastError = outcome.error;
+    }
+  }
+
   function runOnce(code: string): Promise<EvalOutcome> {
     return new Promise<EvalOutcome>((resolve) => {
       // The first outcome counts; the evaluator and the error handler do not
@@ -260,6 +318,7 @@ export function createWebEngine(options: {
       const settle = (outcome: EvalOutcome): void => {
         if (settleRunning !== settle) return;
         settleRunning = undefined;
+        rememberOutcome(outcome);
         resolve(outcome);
       };
       settleRunning = settle;
