@@ -438,8 +438,7 @@ are not seen.
 the one write that deletes it, the name also leaves the list of connector servers
 of every server cluster that has it; the configuration is then read again, and if
 anything else changed, it is written back as it was and the connector server is
-not deleted. A configuration that someone else changed after the lookup is not
-written at all. A connector that names the connector server is never changed: the
+not deleted. A connector that names the connector server is never changed: the
 command lists it, and it names a connector server that does not exist afterwards.
 A server cluster that has no connector server left is said so. `--keep-links`
 leaves the name in the server clusters, for a connector server that is created
@@ -451,16 +450,30 @@ check or restore exits with code 1 also with `--allow-failures`; a write that ID
 refuses follows `--allow-failures` like any other failed operation. See
 [a command that can delete more than the one object it names asks first](https://github.com/rockcarver/frodo-cli/blob/main/docs/decisions/0037-a-command-that-can-delete-more-than-the-one-object-it-names-asks-first.md).
 
+A named delete, with or without `--force`, is one checked write. The
+configuration is one document that has no revision, so before the write it is
+read again: nothing is written if the connector server is gone, or if the server
+clusters that list it are not the ones that the lookup found. The write is built
+from that fresh read, so other changes made in the meantime are kept; only a
+change in the instant between that read and the write is overwritten.
+
 Without `-i` the command deletes every connector server, one write for each. It
 asks first, as every delete of more than one object does, and without a terminal
-it is refused before the login unless you pass `-y`. It does not look anything up
+it is refused before the login unless you pass `-y`. A real run looks nothing up
 and does not refuse, and it changes no server cluster: a server cluster that has a
 deleted connector server in its list lists a name that does not exist afterwards.
 The plan that `-d` prints, and that a terminal sees before the question, lists
 what names the connector servers (from one lookup for all of them) and which
-server clusters would have no connector server left. It deletes every connector
-server it can, prints one summary of what failed and exits with code 1 if any
-failed; `--allow-failures` keeps the exit code at 0 for failed writes
+server clusters would have no connector server left; it is a reading made at that
+moment, and the real run does not look again. **A delete of all connector servers
+is not a checked write**: it reads the configuration once, and every one of its
+writes replaces the whole configuration with that list minus the connector servers
+deleted so far, without reading it again or reading it back. A change that
+someone else makes to the configuration after that first read (a server cluster, a
+connector server, a setting) is overwritten, and the run still ends with exit code
+0. It deletes every connector server it can, prints one summary of what failed and
+exits with code 1 if any failed; `--allow-failures` keeps the exit code at 0 for
+failed writes
 ([a command that runs many operations runs them all, then fails if any failed](https://github.com/rockcarver/frodo-cli/blob/main/docs/decisions/0040-a-command-that-runs-many-operations-runs-them-all-then-fails-if-any-failed.md)).
 
 **New command: `frodo config-manager delete journeys`** deletes one journey, or
