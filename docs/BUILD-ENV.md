@@ -139,11 +139,11 @@ import both expose all 62 exports).
 `dist/launch.cjs` (the npm `bin` entry, `main`, the Docker entrypoint, and
 what the dev-mode test shims run) is about 400 bytes and starts nothing: in
 this process, in this order, it (1) switches source maps on when
-`FRODO_SOURCE_MAPS` is `1`, `true`, `yes` or `on`, (2) removes the `warning`
-listeners (what `node --no-warnings` does), (3) sets `process.argv[1]` to the
-path of `app.cjs`, and (4) `require`s `app.cjs`. Until 2026-11-21 it spawned a
-second Node process with `--no-warnings --enable-source-maps` and forwarded
-signals to it; the second process cost about a quarter of every start
+`FRODO_SOURCE_MAPS` is `1`, `true`, `yes` or `on`, (2) sets `process.argv[1]`
+to the path of `app.cjs`, and (3) `require`s `app.cjs`. It leaves process
+warnings alone (see the bullet on process warnings below). Until 2026-11-21 it
+spawned a second Node process with `--no-warnings --enable-source-maps` and
+forwarded signals to it; the second process cost about a quarter of every start
 (`frodo -v`, `-h`, `conn list`: 25 to 26 percent less wall time on a quiet
 machine) and, for an idle MCP HTTP server, about 170 MB (379 MB for the two
 processes, 208 MB for one; measured on one machine). `FRODO_SOURCE_MAPS=1` takes
@@ -157,13 +157,13 @@ about 120 MB of that back (327 MB), because Node then loads the maps.
   chunks, not the original TypeScript files; the issue template asks for a
   trace from a run with `FRODO_SOURCE_MAPS=1`. The opt-in works only in the npm
   package and the Docker image (the SEA binary has no maps and ignores it).
-  Step (1) must come before step (4): Node applies the
+  Step (1) must come before step (3): Node applies the
   maps to the code that is loaded after the switch. `NODE_OPTIONS=--enable-source-maps`
   works too, with no help from the entry.
 - **`process.argv[1]` is `app.cjs`, as it was in the child process.**
   frodo-lib tells the CLI from a jest run by that name
   (`getFrodoCommand`: `frodo`, `frodo.exe` or `app.cjs` mean the CLI), and
-  the recordings of the e2e tests are found through it. Without step (3) every
+  the recordings of the e2e tests are found through it. Without step (2) every
   dev-mode e2e replay fails with `Recording ... not found` while CI, which runs the
   SEA binary, stays green. `test/unit/LauncherCommandLine.test.js` guards it.
 - **The exit status is the one of the app.** A command that ends by a signal
@@ -177,13 +177,30 @@ about 120 MB of that back (327 MB), because Node then loads the maps.
   it and is the same test as `isTruthyOptInValue` in `src/utils/EnvFlags.ts`.
 - **`require('@rockcarver/frodo-cli')`** (`main`; not a supported use) runs the
   CLI inside the importing program's process: the entry overwrites the
-  importer's `process.argv[1]` and removes its `warning` listeners, including
-  those that a `NODE_OPTIONS=--require` preload added.
+  importer's `process.argv[1]`.
+- **Process warnings are Node's, and a normal start writes none.** Until
+  2026-11-23 the entry removed the `warning` listeners (the effect of
+  `node --no-warnings`, which the two-process launcher had passed), because
+  frodo-lib loaded its test recorder (Polly) in production and Node 26.5 prints
+  an `ExperimentalWarning` (`localStorage is not available ...`) when Polly's
+  `debug` package loads. Since frodo-lib 5.0.0-51 the recorder is imported only
+  when `FRODO_MOCK` is set (see `RECORD_REPLAY.md` of frodo-lib), so the line
+  is gone and `frodo -v`, `-h`, `conn list` and a command that asks the tenant
+  write no process warning to stderr on Node 26.5.0, without any flag
+  (`test/unit/LauncherStderrFakeAm.test.js`). `NODE_OPTIONS=--no-warnings`
+  still works as for any Node program. What keeps the rest quiet:
+  `process.noDeprecation = true` in `src/app.ts` (DEP0169, `url.parse()` in the
+  proxy agent of the library, printed on the first request; the engine of the
+  web console sets it too), `execArgv: ["--no-warnings"]` in `sea-config.json`
+  (the native binary starts `app.cjs` itself and never runs this entry), and
+  `--no-warnings` in the `NODE_OPTIONS` of the `test:*` scripts (the e2e
+  children inherit it). A `FRODO_MOCK` run (the e2e replays) loads the recorder
+  and, without that flag, prints the `localStorage` line again on Node 26.5.
+  The library's two `new Buffer(` sites do not run (one is a comment, one is
+  `Buffer.from || new Buffer(0)` in `iconv-lite`), so there is no DEP0005.
 - Not done here: the compile cache (`module.enableCompileCache`): it saves
   about 60 ms on a warm start and costs about 110 ms once, and it writes 5.7 MB
-  outside `~/.frodo`. Warnings are removed in code for now because frodo-lib
-  loads its test recorder (Polly) in production; a library change that stops
-  that would make the `removeAllListeners('warning')` line unneeded.
+  outside `~/.frodo`.
 
 ---
 
@@ -559,4 +576,5 @@ pkg→SEA migration (it builds `dist/` from source).
 | 2026-11-22 | Startup performance (#1416): the constructor of `FrodoStubCommand` no longer applies the saved colour theme. `app.ts` applies it once, before it builds the command tree, and the constructor repeated it for each of the 492 command objects of a start. Measured for `frodo --version`: 14,320 synchronous file-system calls, 14,282 of them on `~/.frodo/themes` and `Theme.json`, among them 492 `readdirSync` of the theme folder; now 81 calls, 43 on theme paths, one `readdirSync` (`test/unit/StartupThemeFiles.test.js`). Paired, interleaved runs of `node dist/launch.cjs --version` at machine load 18: median 300 ms before, 255 ms after. The coloured output is byte-equal for the saved themes and the values of `FRODO_COLOR_THEME` that were compared; the one difference is a theme folder that cannot be created: its error line was printed once per command object (492 times), now once. |
 | 2026-11-22 | The console's REST calls (`$` of `frodo shell`) go through the library's request instances (`frodo.factory.generateIdmApi`, `generateAmApi` and `generateReleaseApi`) and the `axios` devDependency is removed with the 24 packages that only it needed (25 lockfile entries). `ShellRestOps.ts` had its own copy of the library's credential handling, one axios instance per call, and was the only importer of the package. Measured before and after on the same base (6297d16ed, before the lodash removal landed): `cat dist/*.cjs \| wc -c` 13,751,823 to 13,275,212 bytes (minus 476,611), `dist-sea/app.cjs` 13,857,363 to 13,379,123 (minus 478,240); the `// node_modules/axios/` markers of the bundle (62 in the shell chunk, 65 in the SEA bundle) are 0. Loading the shell chunk alone costs 234 ms of CPU instead of 273 ms at the minimum, 258 ms instead of 303 ms at the median (15 paired, interleaved runs, machine load about 100); `node dist/launch.cjs --version` (30 paired runs, same load) is 590 ms instead of 606 ms of CPU at the median and equal at the minimum (555 and 556 ms), too noisy at that load to resolve more. |
 | 2026-11-23 | The rule files of Claude Code in `.claude/rules/` are generated from `.github/instructions/` by `tools/generate-claude-rules.mjs` (core 0026), and `test/unit/ClaudeRules.test.js` compares them; `tools/run-guidance-tests.mjs` lists it. `.claude/rules/` is on neither list of the classifier, so a pull request that changes it runs the whole matrix. Required checks unchanged | — |
+| 2026-11-23 | The entry (`src/launch.ts`) no longer removes the `warning` listeners of the process. frodo-lib 5.0.0-51 imports its test recorder only when `FRODO_MOCK` is set, so the `localStorage` ExperimentalWarning that the removal hid on Node 26.5 is gone from a normal start. Measured on Node 26.5.0 with no flag: `frodo -v`, `-h`, `conn list` and a command that asks a fake tenant write the same bytes to stderr as before (no process warning; the one DEP0169 deprecation that a request prints stays silenced by `process.noDeprecation` in `src/app.ts`). `NODE_OPTIONS=--no-warnings` still silences warnings, the native binary keeps `--no-warnings` in `sea-config.json`, and a `FRODO_MOCK` run without that flag prints the `localStorage` line again. See 2.4. | — |
 | planned    | Polly→nock (library repo) — DEFERRED 2026-10-04 (deep record-harness coupling; revisit on Node 28 or real breakage)                                                                                                                                                                                                                                                                                                                                                                                                                                                 | —                            |
