@@ -47,13 +47,15 @@ persist between inputs, so multi-line exploration flows the way a browser
 devtools console does. A promise is a value like any other: `await` it to get
 its result (an input that only produces a promise shows the promise).
 
-`_` is not a frodo name. In the terminal console it is the Node.js REPL's own
-`_`: the value of the last result (`1 + 1`, then `_ + 1` is 3), until you
-assign to it. The web console does not keep a last result, so there `_` is
-`undefined` until you assign it. For JSON data, `frodo.utils.json` has
-in-house helpers (`get`, `put`, `findInArray`, `getPaths`, `cloneDeep`,
-`mergeDeep`; they are not drop-in replacements for lodash functions, and `get`
-takes a path array), and the JavaScript built-ins cover the rest.
+`_` is not a frodo name. In the terminal console and in the web console alike it
+is the Node.js REPL's own `_`: the value of the last result (`1 + 1`, then
+`_ + 1` is 3), until you assign to it. An input whose value is `undefined` (a
+declaration, `console.log(...)`, a call that returns nothing) or one that fails
+leaves `_` as it was; `_error` holds the last error in the same way. For JSON
+data, `frodo.utils.json` has in-house helpers (`get`, `put`, `findInArray`,
+`getPaths`, `cloneDeep`, `mergeDeep`; they are not drop-in replacements for
+lodash functions, and `get` takes a path array), and the JavaScript built-ins
+cover the rest.
 
 ## REST: the `$` facade
 
@@ -238,6 +240,11 @@ it is node and a separate worker file. The page offers the same
 prompt, completion, Ctrl+R search, history and object exploration as the
 terminal, plus a connection picker for switching environments, and a
 density toggle (compact by default).
+
+One thing differs from the terminal console: `_error` holds the error as the
+evaluator raised it. The terminal console's REPL shortens the stack of an error
+and rewrites the message of an `import` statement before it keeps it; the web
+console does not.
 
 ## Shell dot-commands
 
