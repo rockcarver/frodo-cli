@@ -189,6 +189,15 @@ describe('the options', () => {
     expect(help).toContain(
       '--allow-failures keeps the exit code at 0 for a delete that failed, but never for a refusal or for a connector definition that does not exist.'
     );
+    // the plan lists at most 20 holders for each connector definition, and the help says so
+    expect(help).toContain('(at most 20 for each connector definition)');
+    expect(
+      program.options.find((option) => option.long === '--dry-run').description
+    ).toContain('at most 20 for each connector definition');
+    // -y is needed for the two guarded deletes, and a plain named delete never asks
+    expect(
+      program.options.find((option) => option.long === '--yes').description
+    ).toContain('deleting one without --force never asks');
     // the help says what --force changes: the connector definition, and nothing else
     expect(
       program.options.find((option) => option.long === '--force').description

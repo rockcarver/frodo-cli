@@ -872,6 +872,184 @@ suite('config-manager delete connector-definitions (fake tenant)', () => {
     );
   });
 
+  describe('a tenant that lists an id that is not a plain name', () => {
+    // put into the path of a request as they are, each of these would name another object than the one that
+    // was listed: `..` the configuration `managed`, `#` and `?` the connector `a`, a slash a deeper path
+    const MALFORMED = [
+      'provisioner.openicf/../managed',
+      'provisioner.openicf/a#b',
+      'provisioner.openicf/a?b',
+      'provisioner.openicf/x/y',
+      'provisioner.openicf/',
+      'provisioner.openicf/a%2Fb',
+      'provisioner.openicf/a\u0001b',
+    ];
+    const store = () => ({
+      'provisioner.openicf/a': connector('a'),
+      managed: { _id: 'managed', objects: [] },
+      ...Object.fromEntries(MALFORMED.map((id) => [id, { _id: id }])),
+    });
+
+    test(
+      'a delete of all sends a DELETE for the plain names only, names each of the others, fails, and the configuration that a path would have reached is still there',
+      async () => {
+        const { code, output } = await deleteConnectors(['-y'], {
+          tenant: { store: store() },
+        });
+
+        expect(code).toBe(1);
+        expect(changes()).toEqual([
+          'DELETE provisioner.openicf/Azure',
+          'DELETE provisioner.openicf/GoogleApps',
+          'DELETE provisioner.openicf/salesforce',
+          'DELETE provisioner.openicf/a',
+        ]);
+        for (const id of MALFORMED) {
+          expect(output).toContain(
+            `Connector definition ${JSON.stringify(id)} is listed with an id that is not a plain name`
+          );
+        }
+        expect(output).toContain('7 of 11 connectors failed');
+        // no request was sent whose path could name the configuration `managed`
+        expect(
+          requests().filter(({ method }) => method === 'DELETE')
+        ).toHaveLength(4);
+        expect(await held('managed')).toEqual({ _id: 'managed', objects: [] });
+      },
+      TIMEOUT
+    );
+
+    test(
+      '--allow-failures keeps the exit code at 0, and sends the same four DELETEs',
+      async () => {
+        const { code, output } = await deleteConnectors(
+          ['-y', '--allow-failures'],
+          { tenant: { store: store() } }
+        );
+
+        expect(code).toBe(0);
+        expect(changes()).toHaveLength(4);
+        expect(output).toContain('7 of 11 connectors failed');
+      },
+      TIMEOUT
+    );
+
+    test(
+      'a plan lists the plain names, names the others, sends no write, and exits 0',
+      async () => {
+        const { code, output } = await deleteConnectors(['-d'], {
+          tenant: { store: store() },
+        });
+
+        expect(code).toBe(0);
+        expect(changes()).toEqual([]);
+        expect(output).toContain(
+          'All 4 connector definitions would be deleted: Azure, GoogleApps, salesforce, a.'
+        );
+        expect(output).toContain('These listed ids are not plain names');
+        expect(output).toContain('"provisioner.openicf/../managed"');
+        expect(await held('managed')).toBeDefined();
+      },
+      TIMEOUT
+    );
+
+    test.each([
+      ['../managed'],
+      ['a#b'],
+      ['a?b'],
+      ['x/y'],
+      ['a%2Fb'],
+      ['a\u0001b'],
+    ])(
+      'a named delete of %j sends no DELETE, exits 1, also with --force -y, and the connector definition and the configuration that a path would have reached are still there',
+      async (typed) => {
+        for (const extra of [[], ['--force', '-y'], ['--allow-failures']]) {
+          const { code, output } = await deleteConnectors(['-i', typed, ...extra], {
+            tenant: { store: store() },
+          });
+
+          expect([extra, code]).toEqual([extra, 1]);
+          expect(output).toContain('is listed with an id that is not a plain name');
+          expect(requests().filter(({ method }) => method === 'DELETE')).toEqual(
+            []
+          );
+          expect(await held('managed')).toBeDefined();
+          expect(await held('provisioner.openicf/a')).toBeDefined();
+        }
+      },
+      TIMEOUT
+    );
+
+    test(
+      'a name that is odd but plain is deleted, and is written for the path: one DELETE each, with the escapes of a path',
+      async () => {
+        const odd = {
+          'provisioner.openicf/my connector': connector('my connector'),
+          'provisioner.openicf/a+b': connector('a+b'),
+          'provisioner.openicf/caf\u00e9': connector('caf\u00e9'),
+        };
+        const { code, output } = await deleteConnectors(['-y'], {
+          tenant: { store: odd },
+        });
+
+        expect(code).toBe(0);
+        const deletes = requests()
+          .filter(({ method }) => method === 'DELETE')
+          .map(({ url }) => url.replace(/^.*\/openidm\/config\//, ''));
+        expect(deletes).toEqual([
+          'provisioner.openicf/Azure',
+          'provisioner.openicf/GoogleApps',
+          'provisioner.openicf/salesforce',
+          'provisioner.openicf/my%20connector',
+          'provisioner.openicf/a%2Bb',
+          'provisioner.openicf/caf%C3%A9',
+        ]);
+        expect(output).toContain("Deleted connector definition 'my connector'.");
+        for (const id of Object.keys(odd)) {
+          expect([id, await held(id)]).toEqual([id, undefined]);
+        }
+      },
+      TIMEOUT
+    );
+
+    test(
+      'a named delete of an odd but plain name deletes exactly that connector definition',
+      async () => {
+        const { code } = await deleteConnectors(['-i', 'my connector'], {
+          tenant: {
+            store: {
+              'provisioner.openicf/my connector': connector('my connector'),
+              'provisioner.openicf/my': connector('my'),
+            },
+          },
+        });
+
+        expect(code).toBe(0);
+        expect(changes()).toEqual(['DELETE provisioner.openicf/my connector']);
+        expect(await held('provisioner.openicf/my')).toBeDefined();
+      },
+      TIMEOUT
+    );
+  });
+
+  describe('an application that names the connector definition owns it', () => {
+    test(
+      'the refusal names the command that removes both',
+      async () => {
+        const { code, output } = await deleteConnectors(['-i', 'Azure'], {
+          tenant: { managedObjects: APPLICATIONS },
+        });
+
+        expect(code).toBe(1);
+        expect(output).toContain(
+          'An application owns the connector definition that it names: config-manager delete applications removes both.'
+        );
+        expect(changes()).toEqual([]);
+      },
+      TIMEOUT
+    );
+  });
+
   describe('deployments', () => {
     test(
       'a classic deployment is refused with the exit code 1 and nothing is deleted: no request for configuration objects is sent',
