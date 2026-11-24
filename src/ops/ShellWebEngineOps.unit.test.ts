@@ -286,19 +286,24 @@ describe('ShellWebEngineOps', () => {
     );
   });
 
-  it('holds the error as the evaluator raised it: nothing shapes its stack, unlike in the terminal console', async () => {
-    // The terminal console's REPL shortens the stack of an error before it
-    // keeps it in `_error`; the engine keeps the error that ended the input
-    // as it is, with the frames of the console's own evaluator. Pinned so
-    // that a change of this is deliberate.
+  it('holds the error as the evaluator raised it: nothing shapes its stack or its message, unlike in the terminal console', async () => {
+    // The terminal console's REPL shortens the stack of an error, and says
+    // "inside the Node.js REPL, alternatively use dynamic import" for an
+    // `import` statement, before it keeps the error in `_error`; the engine
+    // keeps the error that ended the input as it is, with the frames of the
+    // console's own evaluator and the wording of V8. Pinned so that a change
+    // of this is deliberate.
     await engine.evaluate('throw new Error("raw")');
     expect(await value('_error.stack.split("\\n").length > 1')).toBe(true);
+    await engine.evaluate('import fs from "fs"');
+    expect(await value('_error.message')).toBe(
+      'Cannot use import statement outside a module'
+    );
   });
 
-  it('takes the own value of an input whose own timer raised an error as _, unlike the terminal console, which ends that input and keeps the old _', async () => {
-    // The input goes on to its own result (the error of its timer is printed
-    // into the log), so that result is the last one. Pinned so that a change
-    // of the handling of such errors moves `_` deliberately.
+  it('takes the own value of an input whose own timer raised an error as _, as the terminal console does', async () => {
+    // The error of the timer is printed into the log and does not end the
+    // input: the input goes on to its own result, which is the last one.
     await value('5');
     expect(
       await value(
