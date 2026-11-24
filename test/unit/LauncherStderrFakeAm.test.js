@@ -1,5 +1,6 @@
 import cp from 'child_process';
 import fs from 'fs';
+import net from 'net';
 import os from 'os';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -59,10 +60,24 @@ const DECIDED_BY_THE_CASE = [
 ];
 
 /**
+ * The address of a local port that nothing listens on: a proxy that refuses
+ * every connection, so that a request which the CLI makes through it fails at
+ * once and nothing leaves the machine.
+ */
+async function deadProxy() {
+  const server = net.createServer();
+  await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve));
+  const { port } = server.address();
+  await new Promise((resolve) => server.close(resolve));
+  return `http://127.0.0.1:${port}`;
+}
+
+/**
  * A preload (`NODE_OPTIONS=--require`) that raises a plain warning and an
- * ExperimentalWarning (the kind of the `localStorage` line) at start-up, again
+ * ExperimentalWarning (the name of the `localStorage` line) at start-up, again
  * once the event loop runs, and again 100 ms later: a regression that hides
- * only one kind, or only what comes after start-up, leaves one of them out.
+ * only the experimental ones, or only what comes after start-up, leaves one of
+ * them out.
  */
 const WARNING_PRELOAD = `
 const raise = (when) => {
@@ -208,6 +223,36 @@ suite('the CLI prints no process warning of its own', () => {
     TIMEOUT
   );
 
+  // The update check is a request too, and it raises DEP0169 (`url.parse()` in
+  // the proxy agent of the library) on a start that asks for nothing else: `-v`,
+  // `-h` and `conn list`. Every other case here turns the check off. It goes
+  // through a proxy that refuses at once, so it fails quietly and nothing
+  // leaves the machine. (The proxy cannot count the attempts: the test process
+  // is blocked while the CLI runs.)
+  test.each([
+    ['-v', ['-v']],
+    ['-h', ['-h']],
+    ['conn list', ['conn', 'list']],
+  ])(
+    'frodo %s with the update check on prints no process warning: DEP0169 stays hidden',
+    async (_, args) => {
+      const proxy = await deadProxy();
+      const result = frodo(args, {
+        FRODO_NO_UPDATE_CHECK: '',
+        HTTPS_PROXY: proxy,
+        HTTP_PROXY: proxy,
+        https_proxy: proxy,
+        http_proxy: proxy,
+        NO_PROXY: '',
+        no_proxy: '',
+      });
+      expect(result.status).toBe(0);
+      expect(nodeWarnings(result.stderr)).toEqual([]);
+      if (args[0] !== 'conn') expect(result.stderr).toBe('');
+    },
+    TIMEOUT
+  );
+
   test(
     'a command that asks the tenant writes nothing to stderr',
     async () => {
@@ -250,12 +295,17 @@ suite('the CLI prints no process warning of its own', () => {
     });
 
     test.each([
-      ['with no switch', {}],
-      ['when FRODO_MOCK is set, which loads the recorder', { FRODO_MOCK: '1' }],
+      ['frodo -v', ['-v'], {}],
+      [
+        'frodo -v when FRODO_MOCK is set, which loads the recorder',
+        ['-v'],
+        { FRODO_MOCK: '1' },
+      ],
+      ['frodo conn list', ['conn', 'list'], {}],
     ])(
-      'both kinds, at start-up, %s',
-      (_, env) => {
-        const result = frodo(['-v'], {
+      'a plain and an experimental warning at start-up: %s',
+      (_, args, env) => {
+        const result = frodo(args, {
           NODE_OPTIONS: `--require=${preload}`,
           ...env,
         });
@@ -267,15 +317,20 @@ suite('the CLI prints no process warning of its own', () => {
       TIMEOUT
     );
 
-    test(
-      'both kinds, also after the command has started and while it waits for the tenant',
-      async () => {
+    test.each([
+      ['', []],
+      [' with --debug', ['--debug']],
+    ])(
+      'a plain and an experimental warning also after the command has started and while it waits for the tenant%s',
+      async (_, extra) => {
         // the login answers after 600 ms, so the command is still running when
         // the second and the third round of warnings are raised
         const args = await tenantArgs(['journey', 'list'], {
           loginDelayMs: 600,
         });
-        const result = frodo(args, { NODE_OPTIONS: `--require=${preload}` });
+        const result = frodo([...args, ...extra], {
+          NODE_OPTIONS: `--require=${preload}`,
+        });
         expect(result.status).toBe(0);
         for (const when of ['at start', 'after start', 'later']) {
           for (const line of warningsRaisedAt(when)) {

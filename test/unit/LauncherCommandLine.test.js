@@ -49,7 +49,9 @@ const SIGNALS = ['SIGHUP', 'SIGTERM', 'SIGINT', 'SIGQUIT'];
 /**
  * The fake app. FAKE_APP_MODE selects what it does:
  * - report: prints what it can see of its own process as JSON (the number of
- *   `warning` listeners and whether the entry set `NODE_NO_WARNINGS` among them)
+ *   `warning` listeners and whether the entry set `NODE_NO_WARNINGS` or
+ *   `NODE_OPTIONS`, which `envFor` removed from the runner's environment, so a
+ *   value that is there came from the entry)
  * - warn: emits a process warning
  * - throw: throws (the source map maps every line of this file to the same
  *   line of `Original.ts`)
@@ -67,7 +69,8 @@ if (mode === 'report') {
     execArgv: process.execArgv,
     sourceMapsEnabled: process.sourceMapsEnabled,
     warningListeners: process.listenerCount('warning'),
-    setsNoWarnings: 'NODE_NO_WARNINGS' in process.env,
+    setsWarningSwitch:
+      'NODE_NO_WARNINGS' in process.env || 'NODE_OPTIONS' in process.env,
     argv1: process.argv[1],
     args: process.argv.slice(2),
   }));
@@ -347,9 +350,9 @@ describe('the entry leaves process warnings to Node', () => {
   });
 
   testif(hasDist)(
-    'the entry sets no warning switch for the processes the app starts',
+    'the entry sets neither NODE_NO_WARNINGS nor NODE_OPTIONS for the processes the app starts',
     () => {
-      expect(report().setsNoWarnings).toBe(false);
+      expect(report().setsWarningSwitch).toBe(false);
     }
   );
 });
