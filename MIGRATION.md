@@ -1590,7 +1590,38 @@ in the file, or it cannot be exported) no longer hides the findings of the
 others. See
 [a command that runs many operations runs them all, then fails if any failed](https://github.com/rockcarver/frodo-cli/blob/main/docs/decisions/0040-a-command-that-runs-many-operations-runs-them-all-then-fails-if-any-failed.md).
 
-**`journey validate` prints each journey as it is checked, shows its progress and sums up** ([frodo-cli#1378](https://github.com/rockcarver/frodo-cli/issues/1378)): the findings of a journey are printed as soon as that journey has been checked, not all at the end of the run, so a run over a whole realm shows output while it works. At a terminal (stderr is the terminal, whatever stdout is) a progress bar on stderr shows the journeys done out of all and the journey being checked; a pipe or a file never gets the bar. When a run has findings it ends with one summary, `Checked N journeys, M with findings: 1 error and 4 warnings.`, and one line for each finding code (`  UNREACHABLE_NODE: 3 warnings`), then the hints, then the summary of the failed journeys. A journey with unreachable nodes now gets a hint of its own, once per run. A script that parses stderr line by line still finds the lines it read before, unchanged: the heading `<counts> in journey <id>` and `  [CODE] message` for each finding; it also finds the new lines after the last finding, so a script that takes every line after a heading to be a finding must stop at the summary (`Checked ...`). A clean run prints `No journey validation findings.` as before. With `--strict`, the note `(strict mode treats warnings as errors)` is written on every journey that has warnings only, where it used to be written only when no journey of the run had an error. The exit codes do not change: 1 for an error, for a warning with `--strict` and for a journey that cannot be validated, and 0 with `--allow-failures`.
+**`journey validate` prints each journey as it is checked, shows its progress
+and sums up** ([frodo-cli#1378](https://github.com/rockcarver/frodo-cli/issues/1378)):
+a run over a whole realm shows output while it works. What a script that reads
+the output meets:
+
+- The findings of a journey are printed as soon as that journey has been
+  checked, not all at the end of the run. The heading of a journey
+  (`<counts> in journey <id>`) and the line of each finding (`  [CODE] message`)
+  are unchanged, and the journeys come in the same order.
+- At a terminal (stderr is the terminal, whatever stdout is) a progress bar on
+  stderr shows the journeys done out of all and the journey being checked. A
+  pipe or a file never gets the bar.
+- A run that has findings ends with a summary, `Checked 21 journeys, 3 with
+  findings: 1 error and 4 warnings.`, and one line for each finding code
+  (`  UNREACHABLE_NODE: 3 warnings`, the codes that have an error first, then the
+  code with the most findings). When some journeys could not be validated it
+  says `Checked 20 of 21 journeys`. The summary comes after the last finding,
+  then the hints, then the summary of the failed journeys, so a script that
+  takes every line after a heading to be a finding must stop at the line that
+  starts with `Checked`. A clean run prints `No journey validation findings.` as
+  before.
+- Journeys with `UNREACHABLE_NODE` get a hint of their own, once per run.
+- With `--strict`, the note `(strict mode treats warnings as errors)` is written
+  on every journey that has warnings only. It used to be written only when no
+  journey of the run had an error.
+- The error of a journey that cannot be validated is printed where that
+  journey stands in the run, as a block of its own: the line `Error validating
+  <realm> realm journeys` that came before it is gone and the lines under it are
+  indented one level less. These blocks used to come first, before every
+  finding.
+- The exit codes do not change: 1 for an error, for a warning with `--strict`
+  and for a journey that cannot be validated, and 0 with `--allow-failures`.
 
 **`config-manager` can keep an application and everything it owns in one
 folder (experimental)**: `config-manager pull applications` writes one folder per
