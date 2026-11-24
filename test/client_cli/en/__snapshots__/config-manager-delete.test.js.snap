@@ -19,6 +19,10 @@ Runtime Options:
 Commands:
   applications               [Experimental] Delete applications together with
                              the objects they own.
+  connector-definitions      [Experimental] Delete one connector definition by
+                             id, or delete all connector definitions. A
+                             connector definition that other objects still name
+                             is not deleted without --force.
   custom-nodes               [Experimental] Delete custom nodes.
   email-templates            [Experimental] Delete email template objects.
   endpoints                  [Experimental] Delete custom endpoint objects.
