@@ -41,10 +41,9 @@ import {
   planJourneyDelete,
   referenceLine,
   unlinkJourneyReference,
-  unreadableSources,
-  type ClearingError,
   type JourneyDeletePlan,
 } from './JourneyReferenceClearing';
+import { unreadableSources, type ClearingError } from './ReferenceDelete';
 
 const { saveJsonToFile, getFilePath, readJsonFile } = frodo.utils;
 const { exportScript } = frodo.script;
