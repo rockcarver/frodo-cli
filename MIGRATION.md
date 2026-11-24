@@ -92,11 +92,11 @@ pause instead of at once.
 
 **`frodo shell`: `_` is no longer lodash**: the console (terminal and web) bound
 `_` to the lodash library in 5.0.0-30, the only release that did, and no longer
-ships lodash. In the terminal console `_` is now the Node.js REPL's own `_`, the
-value of the last result (`1 + 1`, then `_ + 1` is 3). The web console keeps no
-last result, so there `_` is `undefined` until a script assigns it, and a value
-a script assigned now survives the console's Reset JS (it used to be replaced by
-lodash). `frodo.utils.json` has in-house helpers (`get`, `put`, `findInArray`,
+ships lodash. In both consoles `_` is now the Node.js REPL's own `_`, the value
+of the last result (`1 + 1`, then `_ + 1` is 3), until a script assigns it;
+`_error` holds the last error. A value a script assigned now survives the
+console's Reset JS until the next result (it used to be replaced by lodash).
+`frodo.utils.json` has in-house helpers (`get`, `put`, `findInArray`,
 `getPaths`, `cloneDeep`, `mergeDeep`) for JSON search and merge; they are not
 drop-in replacements for lodash functions, and `get` takes a path array.
 Otherwise use the JavaScript built-ins.
@@ -105,15 +105,15 @@ Otherwise use the JavaScript built-ins.
 feature): the browser console used its own evaluator, written for it, which
 needed two parser packages (`acorn` and `acorn-walk`), and now runs the same
 evaluator as the terminal console. Declarations, top-level `await`, the value
-of the last expression, the order of inputs, `_` (undefined until a script
-assigns it) and the way an error that a script raises on the side (a timer that
+of the last expression, the order of inputs and the way an error that a script
+raises on the side (a timer that
 throws, a promise nobody awaits that is rejected) is printed into the log while
 the input goes on are as before. What differs: an input that produces a promise
 shows the promise (it used to wait for the result: write `await` in front of it,
 as in the terminal console), so `new Promise(() => {})` no longer hangs the
 console, and a rejected promise that nobody awaits is printed into the log
-instead of being the error of the input; `_error` holds the last error that the
-console printed on its own, as in the terminal console. `throw null`,
+instead of being the error of the input; `_` and `_error` hold the last result
+and the last error, as in the terminal console. `throw null`,
 `throw undefined` and `await Promise.reject(null)` are errors now (they showed
 `undefined`); `await` inside parentheses (`await (async () => 5)()`) and dynamic
 `import()` work. An unfinished block comment, or `await 1 +`, waits for more
