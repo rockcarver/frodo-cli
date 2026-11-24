@@ -41,18 +41,25 @@ describe('findingLine', () => {
   });
 
   test('writes a finding that the library describes no node of, and a code it has never heard of, as it always did', () => {
-    const entry = finding(
-      'MISSING_ENTRY_NODE',
-      'error',
-      'login',
-      "Entry node 'd26176be-ea6f-4f2a-81cd-3d41dd6cee4d' does not resolve to a graph node"
-    );
-    const unknown = finding(
-      'SOME_FUTURE_CODE',
-      'warning',
-      'login',
-      "Something about node '295a70ba-1111-4222-8333-444455556666'"
-    );
+    // the finding of a library that has the ids but not the objects: the ids stay quoted as the library has them
+    const entry = {
+      ...finding(
+        'MISSING_ENTRY_NODE',
+        'error',
+        'login',
+        "Entry node 'd26176be-ea6f-4f2a-81cd-3d41dd6cee4d' does not resolve to a graph node"
+      ),
+      nodeId: 'd26176be-ea6f-4f2a-81cd-3d41dd6cee4d',
+    };
+    const unknown = {
+      ...finding(
+        'SOME_FUTURE_CODE',
+        'warning',
+        'login',
+        "Something about node '295a70ba-1111-4222-8333-444455556666'"
+      ),
+      nodeId: '295a70ba-1111-4222-8333-444455556666',
+    };
 
     expect(findingLine(entry)).toBe(`  [MISSING_ENTRY_NODE] ${entry.message}`);
     expect(findingLine(unknown)).toBe(
