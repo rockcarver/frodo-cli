@@ -201,6 +201,60 @@ describe('ShellRestOps encodeUrlPathAndQuery', () => {
     expect(encodeUrlPathAndQuery(input)).toBe(input);
   });
 
+  it('leaves a valid %XX escape triplet as written (a paged-results cookie echoes back unchanged)', () => {
+    // The defect of the old implementation (encodeURI doubled the %):
+    // https://github.com/rockcarver/frodo-cli/issues/1453
+    const input =
+      'https://host/openidm/system/ldap/account?_pagedResultsCookie=AQAAAOACAAD%2F%2Fabc%3D';
+    expect(encodeUrlPathAndQuery(input)).toBe(input);
+  });
+
+  it('sends a value + as %2B so it survives the server form decoding', () => {
+    // The raw (decoded) paged-results cookie form: base64 with a +.
+    expect(
+      encodeUrlPathAndQuery('https://host/x?_pagedResultsCookie=AQIC//abc+dEF=')
+    ).toBe('https://host/x?_pagedResultsCookie=AQIC//abc%2BdEF=');
+  });
+
+  it('encodes a bare % (not an escape triplet) so the caller cannot be swallowed by the server decode', () => {
+    expect(encodeUrlPathAndQuery('https://host/x?a=100% done')).toBe(
+      'https://host/x?a=100%25+done'
+    );
+    expect(encodeUrlPathAndQuery('https://host/x?a=%2')).toBe(
+      'https://host/x?a=%252'
+    );
+    expect(encodeUrlPathAndQuery('https://host/x?a=%%2F')).toBe(
+      'https://host/x?a=%25%2F'
+    );
+  });
+
+  it('encodes the characters of the issue-report table (#1428)', () => {
+    // a backslash in a path is not allowed raw
+    expect(encodeUrlPathAndQuery('https://host.example.com/a\\b')).toBe(
+      'https://host.example.com/a%5Cb'
+    );
+    // lowercase escapes are preserved with their case
+    expect(encodeUrlPathAndQuery('https://host.example.com/a/%2f/b')).toBe(
+      'https://host.example.com/a/%2f/b'
+    );
+    // non-ASCII is encoded, an existing é escape survives
+    expect(
+      encodeUrlPathAndQuery('https://host.example.com/a/%2F/b%C3%A9')
+    ).toBe('https://host.example.com/a/%2F/b%C3%A9');
+    expect(encodeUrlPathAndQuery('https://host.example.com/café')).toBe(
+      'https://host.example.com/caf%C3%A9'
+    );
+    // a malformed-escape cluster: every lone % doubles, every triplet survives
+    expect(encodeUrlPathAndQuery('https://host.example.com/%2 %2g %%2f')).toBe(
+      'https://host.example.com/%252+%252g+%25%2f'
+    );
+    // an existing %25 (a literal %) survives as written; the + in the value
+    // travels as %2B (it would form-decode to a space otherwise)
+    expect(encodeUrlPathAndQuery('https://host.example.com/%2520+%20')).toBe(
+      'https://host.example.com/%2520%2B%20'
+    );
+  });
+
   it('encodes brackets in array syntax', () => {
     expect(encodeUrlPathAndQuery('https://host/x?a[0]=1')).toBe(
       'https://host/x?a%5B0%5D=1'
