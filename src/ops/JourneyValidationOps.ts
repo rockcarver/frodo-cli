@@ -1,35 +1,72 @@
 import {
   frodo,
   state,
+  type FrodoError,
   type JourneyValidationFinding,
   type MultiTreeExportInterface,
 } from '@rockcarver/frodo-lib';
-import { printError, printMessage } from '../utils/Console';
+import {
+  createProgressIndicator,
+  printError,
+  printMessage,
+  stopProgressIndicator,
+  updateProgressIndicator,
+} from '../utils/Console';
 import { causeOf } from '../utils/ErrorCause';
 import { OperationRun } from '../utils/OperationRun';
 import {
   readJourneyExportFromFile,
   readJourneyExportsFromDirectory,
 } from './utils/JourneyExportUtils';
+import {
+  countBySeverity,
+  describeCounts,
+  findingLine,
+  hintsFor,
+  journeyHeading,
+  missingNodesHint,
+  summaryLines,
+} from './utils/JourneyFindingLabels';
 
-/** The findings of the library that say a journey names a node that is not there. */
-const MISSING_NODE_FINDINGS = ['MISSING_NODE_DEFINITION', 'MISSING_INNER_NODE'];
+export { missingNodesHint };
 
 /**
- * What to do about journeys that name nodes which are not there. The library
- * states the fact (the findings name each node); the advice is ours: it names
- * the commands of this command line.
- * @param {boolean} fromTenant true if the journeys were read from the tenant, false if from export files
- * @returns {string} one line of advice
+ * A progress bar over the journeys, on stderr, while they are validated. There is none when stderr is
+ * not a terminal (a pipe or a file gets no bar), and none for no journeys.
+ * @param {string[]} journeyIds the journeys, in the order they are validated
+ * @returns {object} `advance` to call each time a journey is done, `stop` to call at the end
  */
-export function missingNodesHint(fromTenant: boolean): string {
-  return fromTenant
-    ? "These journeys name nodes that do not exist on the tenant, so 'frodo journey export' and 'frodo journey describe' cannot read them either. Import the journey again from an export that has the nodes ('frodo journey import'), or repair its Page Nodes in the journey editor."
-    : 'These journeys name nodes that the export does not contain. Export them again from a tenant that has the nodes.';
+function showProgress(journeyIds: string[]): {
+  advance: () => void;
+  stop: () => void;
+} {
+  if (!process.stderr.isTTY || journeyIds.length === 0) {
+    return { advance: () => undefined, stop: () => undefined };
+  }
+  const indicatorId = createProgressIndicator(
+    'determinate',
+    journeyIds.length,
+    `Validating ${journeyIds[0]}`
+  );
+  let done = 0;
+  return {
+    advance: () => {
+      done++;
+      updateProgressIndicator(
+        indicatorId,
+        done < journeyIds.length ? `Validating ${journeyIds[done]}` : undefined,
+        done
+      );
+    },
+    stop: () => stopProgressIndicator(indicatorId),
+  };
 }
 
 /**
  * Validate the journeys of the tenant, of an export file, or of the files of a directory, and report each finding.
+ * The journeys are validated in one call of the library, which reports each journey as it is done: its findings are
+ * printed then, with a progress bar on stderr when that is a terminal, and the run ends with one summary of the
+ * journeys checked and the findings by code, and one hint for each kind of finding that has advice.
  * Every journey is one operation of an {@link OperationRun}: a journey that cannot be validated (it cannot be exported,
  * or is not in the file) does not stop the others from being validated, and a journey with an error, or with a warning
  * in strict mode, is a failed journey. One summary names the failed journeys. A failure to read the journeys, the file
@@ -84,8 +121,6 @@ export async function validateJourneyExports(
       }
     }
 
-    // The library validates the journeys it is given in one call, and when one of them cannot be read it throws
-    // and drops the findings of all the others. So each journey is validated on its own.
     const ids = journeyIds?.length
       ? [...new Set(journeyIds)]
       : journeysExport
@@ -95,70 +130,76 @@ export async function validateJourneyExports(
               (await frodo.authn.journey.readJourneys()).map((tree) => tree._id)
             ),
           ];
+
     const findings: JourneyValidationFinding[] = [];
-    const validated: string[] = [];
-    for (const journeyId of ids) {
-      try {
-        findings.push(
-          ...(await frodo.authn.journey.validateJourneys(
-            [journeyId],
-            journeysExport
-          ))
-        );
-        validated.push(journeyId);
-      } catch (error) {
+    // why a journey failed: its findings; a validated journey without a reason passed
+    const verdicts = new Map<string, string | undefined>();
+    const progress = showProgress(ids);
+    // The library validates the journeys one after the other, in the order it is given them, and calls this
+    // once for each: with the findings of the journey (none for a journey that is clean) or with the error
+    // that says why it could not be validated. So the n-th call belongs to the n-th journey.
+    let position = 0;
+    let checked = 0;
+    const onResult = (
+      error?: FrodoError,
+      journeyFindings: JourneyValidationFinding[] = []
+    ) => {
+      const journeyId = ids[position++];
+      if (error) {
         printError(error);
         run.recordFailure(journeyId, causeOf(error));
+      } else {
+        checked++;
+        verdicts.set(journeyId, undefined);
+        findings.push(...journeyFindings);
+        const byJourney = new Map<string, JourneyValidationFinding[]>();
+        for (const finding of journeyFindings) {
+          byJourney.set(finding.journeyId, [
+            ...(byJourney.get(finding.journeyId) ?? []),
+            finding,
+          ]);
+        }
+        for (const [findingsJourneyId, ofJourney] of byJourney) {
+          const counts = countBySeverity(ofJourney);
+          if (counts.errors || (strict && counts.warnings)) {
+            verdicts.set(findingsJourneyId, describeCounts(counts));
+          }
+          printMessage(
+            journeyHeading(findingsJourneyId, counts, strict),
+            counts.errors ? 'error' : 'warn'
+          );
+          for (const finding of ofJourney) {
+            printMessage(
+              findingLine(finding),
+              finding.severity === 'error' ? 'error' : 'warn'
+            );
+          }
+        }
       }
+      progress.advance();
+    };
+    try {
+      if (ids.length > 0) {
+        await frodo.authn.journey.validateJourneys(
+          ids,
+          journeysExport,
+          onResult
+        );
+      }
+    } finally {
+      progress.stop();
     }
+
     if (findings.length === 0 && !run.hasFailures) {
       printMessage('No journey validation findings.', 'success');
     }
-
-    const findingsByJourney = new Map<string, JourneyValidationFinding[]>();
-    const hasErrors = findings.some((finding) => finding.severity === 'error');
-    for (const finding of findings) {
-      const journeyFindings = findingsByJourney.get(finding.journeyId) ?? [];
-      journeyFindings.push(finding);
-      findingsByJourney.set(finding.journeyId, journeyFindings);
-    }
-
-    // why a journey failed: its findings; a validated journey without a reason passed
-    const verdicts = new Map<string, string | undefined>(
-      validated.map((journeyId) => [journeyId, undefined])
-    );
-    for (const [journeyId, journeyFindings] of findingsByJourney) {
-      const errors = journeyFindings.filter(
-        (finding) => finding.severity === 'error'
-      ).length;
-      const warnings = journeyFindings.length - errors;
-      const summary = [
-        errors && `${errors} error${errors === 1 ? '' : 's'}`,
-        warnings && `${warnings} warning${warnings === 1 ? '' : 's'}`,
-      ]
-        .filter(Boolean)
-        .join(' and ');
-      if (errors || (strict && warnings)) verdicts.set(journeyId, summary);
-      const strictMessage =
-        strict && !hasErrors && warnings
-          ? ' (strict mode treats warnings as errors)'
-          : '';
-      printMessage(
-        `${summary} in journey ${journeyId}${strictMessage}`,
-        errors ? 'error' : 'warn'
-      );
-      for (const finding of journeyFindings) {
-        printMessage(
-          `  [${finding.code}] ${finding.message}`,
-          finding.severity === 'error' ? 'error' : 'warn'
-        );
-      }
-    }
-
-    if (
-      findings.some((finding) => MISSING_NODE_FINDINGS.includes(finding.code))
-    ) {
-      printMessage(missingNodesHint(!file && !directory), 'info');
+    const summary = summaryLines({ checked, findings });
+    if (summary.length > 0) printMessage(summary.join('\n'));
+    for (const hint of hintsFor(
+      findings.map((finding) => finding.code),
+      !file && !directory
+    )) {
+      printMessage(hint, 'info');
     }
 
     for (const [journeyId, why] of verdicts) {

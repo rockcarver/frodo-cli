@@ -10,6 +10,30 @@ const validateJourneys = jest.fn();
 const readJourneys = jest.fn();
 const printMessage = jest.fn();
 const printError = jest.fn();
+const createProgressIndicator = jest.fn();
+const updateProgressIndicator = jest.fn();
+const stopProgressIndicator = jest.fn();
+
+/**
+ * What the library does with a result callback: it validates the journeys it is given one after the
+ * other and hands the outcome of each to the callback, the findings of the journey (none when it is
+ * clean) or the error that says why it could not be validated. `outcomeOf(journeyId)` is that
+ * outcome: findings, or an Error to fail the journey.
+ */
+const validatesJourneys =
+  (outcomeOf) => async (journeyIds, _journeysExport, resultCallback) => {
+    const all = [];
+    for (const journeyId of journeyIds) {
+      const outcome = await outcomeOf(journeyId);
+      if (outcome instanceof Error) {
+        resultCallback?.(outcome);
+      } else {
+        all.push(...outcome);
+        resultCallback?.(undefined, outcome);
+      }
+    }
+    return all;
+  };
 
 jest.unstable_mockModule('@rockcarver/frodo-lib', () => ({
   FrodoError: class FrodoError extends Error {},
@@ -31,8 +55,11 @@ jest.unstable_mockModule('@rockcarver/frodo-lib', () => ({
 }));
 
 jest.unstable_mockModule('../../src/utils/Console', () => ({
+  createProgressIndicator,
   printError,
   printMessage,
+  stopProgressIndicator,
+  updateProgressIndicator,
 }));
 
 const { missingNodesHint, validateJourneyExports } =
@@ -46,7 +73,7 @@ describe('validateJourneyExports', () => {
       path.join(os.tmpdir(), 'frodo-journey-validation-')
     );
     jest.resetAllMocks();
-    validateJourneys.mockResolvedValue([]);
+    validateJourneys.mockImplementation(validatesJourneys(() => []));
     readJourneys.mockResolvedValue([{ _id: 'login' }]);
   });
 
@@ -55,18 +82,24 @@ describe('validateJourneyExports', () => {
   });
 
   test('validates tenant journeys and lets warnings pass by default', async () => {
-    validateJourneys.mockResolvedValue([
-      {
-        code: 'UNREACHABLE_NODE',
-        severity: 'warning',
-        journeyId: 'login',
-        message: 'Node debug is unreachable',
-      },
-    ]);
+    validateJourneys.mockImplementation(
+      validatesJourneys(() => [
+        {
+          code: 'UNREACHABLE_NODE',
+          severity: 'warning',
+          journeyId: 'login',
+          message: 'Node debug is unreachable',
+        },
+      ])
+    );
 
     await expect(validateJourneyExports(['login'])).resolves.toBe(true);
 
-    expect(validateJourneys).toHaveBeenCalledWith(['login'], undefined);
+    expect(validateJourneys).toHaveBeenCalledWith(
+      ['login'],
+      undefined,
+      expect.any(Function)
+    );
     expect(realm).toBe('__default__realm__');
     expect(printMessage).toHaveBeenCalledWith(
       '1 warning in journey login',
@@ -79,14 +112,16 @@ describe('validateJourneyExports', () => {
   });
 
   test('fails on warnings in strict mode and on errors in every mode', async () => {
-    validateJourneys.mockResolvedValue([
-      {
-        code: 'UNREACHABLE_NODE',
-        severity: 'warning',
-        journeyId: 'login',
-        message: 'Node debug is unreachable',
-      },
-    ]);
+    validateJourneys.mockImplementation(
+      validatesJourneys(() => [
+        {
+          code: 'UNREACHABLE_NODE',
+          severity: 'warning',
+          journeyId: 'login',
+          message: 'Node debug is unreachable',
+        },
+      ])
+    );
     await expect(
       validateJourneyExports(undefined, undefined, true)
     ).resolves.toBe(false);
@@ -96,20 +131,22 @@ describe('validateJourneyExports', () => {
     );
 
     printMessage.mockClear();
-    validateJourneys.mockResolvedValue([
-      {
-        code: 'MISSING_ENTRY_NODE',
-        severity: 'error',
-        journeyId: 'broken',
-        message: 'Entry node is missing',
-      },
-      {
-        code: 'UNREACHABLE_NODE',
-        severity: 'warning',
-        journeyId: 'broken',
-        message: 'Debug node is unreachable',
-      },
-    ]);
+    validateJourneys.mockImplementation(
+      validatesJourneys(() => [
+        {
+          code: 'MISSING_ENTRY_NODE',
+          severity: 'error',
+          journeyId: 'broken',
+          message: 'Entry node is missing',
+        },
+        {
+          code: 'UNREACHABLE_NODE',
+          severity: 'warning',
+          journeyId: 'broken',
+          message: 'Debug node is unreachable',
+        },
+      ])
+    );
     await expect(
       validateJourneyExports(undefined, undefined, true)
     ).resolves.toBe(false);
@@ -156,9 +193,13 @@ describe('validateJourneyExports', () => {
         validateJourneyExports(undefined, `${name}.json`)
       ).resolves.toBe(true);
 
-      expect(validateJourneys).toHaveBeenCalledWith([name], {
-        trees: { [name]: journey },
-      });
+      expect(validateJourneys).toHaveBeenCalledWith(
+        [name],
+        {
+          trees: { [name]: journey },
+        },
+        expect.any(Function)
+      );
     }
   );
 
@@ -176,14 +217,16 @@ describe('validateJourneyExports', () => {
       );
 
     test('the findings come first, then one line of advice for the tenant, in the words of this command line', async () => {
-      validateJourneys.mockResolvedValue([
-        missingInner,
-        {
-          ...missingInner,
-          message:
-            "Page Node 'page' references missing inner node 'other' (MessageNode)",
-        },
-      ]);
+      validateJourneys.mockImplementation(
+        validatesJourneys(() => [
+          missingInner,
+          {
+            ...missingInner,
+            message:
+              "Page Node 'page' references missing inner node 'other' (MessageNode)",
+          },
+        ])
+      );
 
       await expect(validateJourneyExports(['broken'])).resolves.toBe(false);
 
@@ -197,13 +240,15 @@ describe('validateJourneyExports', () => {
     });
 
     test('a node of the tree that is not there gets the same advice', async () => {
-      validateJourneys.mockResolvedValue([
-        {
-          ...missingInner,
-          code: 'MISSING_NODE_DEFINITION',
-          message: "Tree node 'page' has no node definition (PageNode)",
-        },
-      ]);
+      validateJourneys.mockImplementation(
+        validatesJourneys(() => [
+          {
+            ...missingInner,
+            code: 'MISSING_NODE_DEFINITION',
+            message: "Tree node 'page' has no node definition (PageNode)",
+          },
+        ])
+      );
 
       await validateJourneyExports(['broken']);
 
@@ -217,7 +262,9 @@ describe('validateJourneyExports', () => {
           trees: { broken: { tree: { _id: 'broken', nodes: {} } } },
         })
       );
-      validateJourneys.mockResolvedValue([missingInner]);
+      validateJourneys.mockImplementation(
+        validatesJourneys(() => [missingInner])
+      );
 
       await validateJourneyExports(['broken'], 'journeys.json');
 
@@ -226,20 +273,22 @@ describe('validateJourneyExports', () => {
     });
 
     test('other findings get no such advice', async () => {
-      validateJourneys.mockResolvedValue([
-        {
-          code: 'MISSING_ENTRY_NODE',
-          severity: 'error',
-          journeyId: 'broken',
-          message: 'Entry node is missing',
-        },
-        {
-          code: 'UNREACHABLE_NODE',
-          severity: 'warning',
-          journeyId: 'broken',
-          message: 'Node is unreachable',
-        },
-      ]);
+      validateJourneys.mockImplementation(
+        validatesJourneys(() => [
+          {
+            code: 'MISSING_ENTRY_NODE',
+            severity: 'error',
+            journeyId: 'broken',
+            message: 'Entry node is missing',
+          },
+          {
+            code: 'UNREACHABLE_NODE',
+            severity: 'warning',
+            journeyId: 'broken',
+            message: 'Node is unreachable',
+          },
+        ])
+      );
 
       await validateJourneyExports(['broken']);
 
@@ -269,7 +318,11 @@ describe('validateJourneyExports', () => {
       validateJourneyExports(['cloud'], 'journeys.json')
     ).resolves.toBe(true);
 
-    expect(validateJourneys).toHaveBeenCalledWith(['cloud'], journeys);
+    expect(validateJourneys).toHaveBeenCalledWith(
+      ['cloud'],
+      journeys,
+      expect.any(Function)
+    );
   });
 
   test('combines journeys from separate export files', async () => {
@@ -290,13 +343,13 @@ describe('validateJourneyExports', () => {
       validateJourneyExports(undefined, undefined, false, '.')
     ).resolves.toBe(true);
 
-    // one call per journey: the library drops all findings when one journey cannot be read
-    expect(validateJourneys).toHaveBeenCalledWith(['first'], {
-      trees: journeys,
-    });
-    expect(validateJourneys).toHaveBeenCalledWith(['second'], {
-      trees: journeys,
-    });
+    // one call for all journeys: the library reports each journey to the callback, so one that cannot be read drops no finding
+    expect(validateJourneys).toHaveBeenCalledTimes(1);
+    expect(validateJourneys).toHaveBeenCalledWith(
+      ['first', 'second'],
+      { trees: journeys },
+      expect.any(Function)
+    );
   });
 
   describe('when a journey fails (decision record 0040)', () => {
@@ -317,14 +370,17 @@ describe('validateJourneyExports', () => {
     });
 
     test('a journey that cannot be validated does not drop the findings of the others', async () => {
-      validateJourneys.mockImplementation(async ([journeyId]) => {
-        if (journeyId === 'a') throw new Error('cannot export a');
-        return journeyId === 'b' ? [finding('b')] : [];
-      });
+      validateJourneys.mockImplementation(
+        validatesJourneys((journeyId) => {
+          if (journeyId === 'a') return new Error('cannot export a');
+          return journeyId === 'b' ? [finding('b')] : [];
+        })
+      );
 
       await expect(validateJourneyExports()).resolves.toBe(false);
 
-      expect(validateJourneys).toHaveBeenCalledTimes(3);
+      expect(validateJourneys).toHaveBeenCalledTimes(1);
+      expect(validateJourneys.mock.calls[0][0]).toEqual(['a', 'b', 'c']);
       expect(messages()).toContain('  [MISSING_ENTRY_NODE] error of b');
       expect(printError).toHaveBeenCalledTimes(1);
       const summary = messages().find((text) => text.includes('failed'));
@@ -336,10 +392,12 @@ describe('validateJourneyExports', () => {
     });
 
     test('--allow-failures reports the failed journeys but succeeds', async () => {
-      validateJourneys.mockImplementation(async ([journeyId]) => {
-        if (journeyId === 'a') throw new Error('cannot export a');
-        return journeyId === 'b' ? [finding('b')] : [];
-      });
+      validateJourneys.mockImplementation(
+        validatesJourneys((journeyId) => {
+          if (journeyId === 'a') return new Error('cannot export a');
+          return journeyId === 'b' ? [finding('b')] : [];
+        })
+      );
 
       await expect(
         validateJourneyExports(undefined, undefined, false, undefined, true)
@@ -351,8 +409,10 @@ describe('validateJourneyExports', () => {
     });
 
     test('a warning fails a journey only in strict mode', async () => {
-      validateJourneys.mockImplementation(async ([journeyId]) =>
-        journeyId === 'b' ? [finding('b', 'warning')] : []
+      validateJourneys.mockImplementation(
+        validatesJourneys((journeyId) =>
+          journeyId === 'b' ? [finding('b', 'warning')] : []
+        )
       );
 
       await expect(validateJourneyExports()).resolves.toBe(true);
