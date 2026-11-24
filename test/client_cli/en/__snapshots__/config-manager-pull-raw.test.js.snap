@@ -3,7 +3,7 @@
 exports[`CLI help interface for 'config-manager pull raw' should be expected english 1`] = `
 "Usage: frodo config-manager pull raw [options] [host] [realm] [username] [password]
 
-[Experimental] Export raw configurations.
+[Experimental] Export raw configurations from the tenant.
 
 Arguments:
   host                            AM base URL, e.g.:
@@ -29,18 +29,36 @@ Options:
                                   with code 0. Without this option the command
                                   runs every operation, prints a summary of what
                                   failed and exits with code 1.
-  --config-file <file>            The file path of the service object config
-                                  file.  (prompts if missing)
-  --path <path>                   Tenant API path to export. Will override
-                                  --config-file.
-  --stdout                        Write exported configuration to standard
-                                  output.
-  -V, --push-api-version <value>  Push API versions; set properties using dot
-                                  notation, for example: -V.myApi 1.0
-                                  --push-api-version.otherApi 2.0 (default: {})
+  --config-file <file>            A JSON file that lists the raw configurations
+                                  to pull: each item has a "path" and may have
+                                  "overrides" and "pushApiVersion". Required
+                                  unless --path is given. With --path, the item
+                                  of the file that lists that path is pulled,
+                                  with its overrides and push API version.
+  --path <path>                   The API path of the one raw configuration to
+                                  pull, for example
+                                  /openidm/config/authentication. Without
+                                  --config-file it is pulled as it is.
+  --stdout                        Print the configuration as JSON on standard
+                                  output instead of writing files: the object
+                                  itself with --path, otherwise one list in the
+                                  order of the config file. Cannot be used with
+                                  -D.
+  -V, --push-api-version <value>  The API version that a push of the pulled file
+                                  sends, recorded in the file as _pushApiVersion
+                                  for a path under /am. Set both properties with
+                                  dot notation, for example: -V.protocol 2.1
+                                  -V.resource 1.0. It applies to the item of
+                                  --path; the items of a config file have their
+                                  own "pushApiVersion". A read always uses the
+                                  default API version.
   -h, --help                      Help
   -hh, --help-more                Help with all options.
   -hhh, --help-all                Help with all options, environment variables,
                                   and usage examples.
+
+Rule:
+  one of --config-file <file> | --path <path> is required -- choose what to pull
+
 "
 `;
