@@ -409,6 +409,60 @@ lists first, and nothing is deleted if either cannot be read). See
 and
 [a command that runs many operations runs them all, then fails if any failed](https://github.com/rockcarver/frodo-cli/blob/main/docs/decisions/0040-a-command-that-runs-many-operations-runs-them-all-then-fails-if-any-failed.md).
 
+**New command: `frodo config-manager delete remote-servers`** deletes one
+connector server (an entry of the list of connector servers in the IDM
+configuration `provisioner.openicf.connectorinfoprovider`), or all of them. It
+works on Cloud and ForgeOps. `-i, --server-id <id>` (alias `-n, --name`) is the
+name of the connector server, matched exactly and case-sensitively against the
+list of the configuration; the name that the list holds is what is deleted, so a
+value that is written as a path (`-i ../x`) is a connector server that does not
+exist
+([a selector is an id or a name, never a path](https://github.com/rockcarver/frodo-cli/blob/main/docs/decisions/0059-a-selector-is-an-id-or-a-name-never-a-path.md)).
+A connector server that is not in the list exits with code 1, also with
+`--dry-run` and `--allow-failures`, because the name names one connector server.
+A configuration without a list of connector servers has none: a delete of all of
+them then says so and exits with code 0, and an entry without a name is skipped
+with a warning.
+
+A named delete asks the library what still names the connector server: a server
+cluster that lists it (the library calls that a soft dependency) and a connector
+that has it as its host (hard). **Anything that does stops the delete**: the
+command says which server cluster or connector, and in which field, deletes
+nothing and exits with code 1, also with `--allow-failures`. If a source cannot be
+read, the command says which, and deletes nothing. An empty answer is not proof
+that a connector server is unused: the connector server process itself, an OAuth2
+client that the platform keeps for it, and a connector server name inside a script
+are not seen.
+
+`--force` (long form only; it needs `-i`) deletes the connector server anyway. In
+the one write that deletes it, the name also leaves the list of connector servers
+of every server cluster that has it; the configuration is then read again, and if
+anything else changed, it is written back as it was and the connector server is
+not deleted. A configuration that someone else changed after the lookup is not
+written at all. A connector that names the connector server is never changed: the
+command lists it, and it names a connector server that does not exist afterwards.
+A server cluster that has no connector server left is said so. `--keep-links`
+leaves the name in the server clusters, for a connector server that is created
+again under the same name at once; it needs `--force`. Because `--force` changes
+more than the one object, it asks on a terminal after it has shown what it would
+change (the same plan that `-d` prints), and without a terminal it is refused
+before the login unless you pass `-y`/`--yes` (or `-d`/`--dry-run`). A failed
+check or restore exits with code 1 also with `--allow-failures`; a write that IDM
+refuses follows `--allow-failures` like any other failed operation. See
+[a command that can delete more than the one object it names asks first](https://github.com/rockcarver/frodo-cli/blob/main/docs/decisions/0037-a-command-that-can-delete-more-than-the-one-object-it-names-asks-first.md).
+
+Without `-i` the command deletes every connector server, one write for each. It
+asks first, as every delete of more than one object does, and without a terminal
+it is refused before the login unless you pass `-y`. It does not look anything up
+and does not refuse, and it changes no server cluster: a server cluster that has a
+deleted connector server in its list lists a name that does not exist afterwards.
+The plan that `-d` prints, and that a terminal sees before the question, lists
+what names the connector servers (from one lookup for all of them) and which
+server clusters would have no connector server left. It deletes every connector
+server it can, prints one summary of what failed and exits with code 1 if any
+failed; `--allow-failures` keeps the exit code at 0 for failed writes
+([a command that runs many operations runs them all, then fails if any failed](https://github.com/rockcarver/frodo-cli/blob/main/docs/decisions/0040-a-command-that-runs-many-operations-runs-them-all-then-fails-if-any-failed.md)).
+
 **New command: `frodo config-manager delete journeys`** deletes one journey, or
 every journey of the selected realms and then the orphaned nodes of those realms.
 `-i, --journey-id <id>` (alias `-n, --name`) names the journey and needs a realm
@@ -862,10 +916,10 @@ entity and drop the others.
 | `delete oauth-cimd-profiles`       | `-i, --profile-id`                     | `-n`, `--name` |
 | `delete oauth-issuers`             | `-i, --issuer-id`                      | `-n`, `--name` |
 | `delete oauth-software-publishers` | `-i, --software-publisher-id`          | `-n`, `--name` |
+| `delete remote-servers`            | `-i, --server-id`                      | `-n`, `--name` |
 | `delete schedules`                 | `-i, --schedule-id`                    | `-n`, `--name` |
 | `delete secret-mappings`           | `-i, --secret-mapping-id`              | `-n`, `--name` |
 | `delete telemetry`                 | `-i, --exporter-id`                    | `-n`, `--name` |
-| `delete remote-servers`            | `-i, --remote-server-id`               | `-n`, `--name` |
 
 `delete applications`, `delete custom-nodes`, `delete scripts` and
 `delete themes` take `-i` for the first time: it selects by the id of the object
