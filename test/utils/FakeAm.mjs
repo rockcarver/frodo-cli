@@ -185,13 +185,19 @@
  * with FAKE_AM_IDM_CONFIG_FILE above when that one is given. The same objects are listed as IDM
  * lists configuration: `GET /openidm/config?_queryFilter=true` answers all of them, and
  * `?_queryFilter=_id sw '<prefix>'` those whose id starts with the prefix (a string prefix, as
- * in IDM: `mapping` also finds `mappingFoo`), in the order the fake holds them, as
- * `{ result, resultCount, pagedResultsCookie: null, totalPagedResultsPolicy: 'NONE',
- * totalPagedResults: -1, remainingPagedResults: -1 }`, with `_fields` ignored; an object that was
- * written with a `PUT` is listed and one that was deleted is not. Any other filter answers `400`
- * with a message, because an empty list would read as "nothing is there". `DELETE
+ * in IDM: `mapping` also finds `mappingFoo`; the match is case sensitive, which is the fake's
+ * choice and was not checked against IDM), in the order the fake holds them, as IDM answers a
+ * configuration list: `{ result, resultCount, pagedResultsCookie: null,
+ * totalPagedResultsPolicy: 'EXACT', totalPagedResults: <the count>, remainingPagedResults: -1 }`.
+ * `_fields=<name,name>` reduces each object to its `_id` and the top-level fields named (a
+ * field that the object does not have is not made up); `_fields=*` and JSON pointers such as
+ * `a/b` are NOT honoured and select nothing. An object that was written with a `PUT` is listed
+ * and one that was deleted is not. Any other filter answers `400` with a message, because an
+ * empty list would read as "nothing is there"; a paging or sorting parameter that the fake does
+ * not know is ignored silently (what IDM does with it was not checked). `DELETE
  * /openidm/config/<id>` removes the object and answers it with `200`, as IDM does, and `404` for an
- * id that is not there. A request for which a test needs a failure is answered by FAKE_AM_FAIL_REQUESTS
+ * id that is not there. Only `GET` lists and only `DELETE` deletes: any other method is answered
+ * as it was before. A request for which a test needs a failure is answered by FAKE_AM_FAIL_REQUESTS
  * above: `{ "method": "DELETE", "path": "/openidm/config/provisioner.openicf/zion" }` fails that one
  * delete and no other (the path is a fragment, so give the whole id). The list answers only
  * when this file is given; the request without a `_queryFilter` is answered as it was before.
@@ -199,11 +205,15 @@
  * (for example `alpha_application`, the application records of realm alpha) the fake serves as
  * `GET /openidm/managed/<type>?_queryFilter=true`: `_pageSize=<n>` (a positive number; without it
  * all objects) with `_pagedResultsCookie` (the offset of the next page as a string, `null` in the
- * answer of the last page), and `_fields=<name,name>`, which reduces each object to its `_id` and the
- * fields named (a field that the object does not have is not made up). Any other filter, or a page
- * size that is not a positive number, answers `400`. The objects are read only: one object of the
- * type (`.../<type>/<id>`) and every write are not served, and a type that the object does not hold
- * is answered by the routes that follow (the users of FAKE_AM_USERS_FILE, then `404`).
+ * answer of the last page; the cookie of IDM is opaque), and `_fields=<name,name>`, which reduces
+ * each object to its `_id`, its `_rev` and the top-level fields named (a field that the object
+ * does not have is not made up; `_fields=*` and JSON pointers are NOT honoured). Every object is
+ * answered with a `_rev`, as IDM does: the one it holds, else a hash of its content. The totals
+ * are `NONE`, `-1` and `-1`, as recorded for a managed list. Any other filter, or a page size or
+ * cookie that is not a number the fake understands, answers `400`; a paging or sorting parameter
+ * that the fake does not know is ignored silently. The objects are read only: one object of the
+ * type (`.../<type>/<id>`) and every write are not served, and a type that the object does not
+ * hold is answered by the routes that follow (the users of FAKE_AM_USERS_FILE, then `404`).
  * FAKE_AM_DIRECT_CONFIGURATION_FILE=<path> names a JSON object `{ apply?, states? }` that makes the
  * fake serve the direct configuration session of a Cloud tenant, and the list of service account
  * scopes that a service account login reads (`GET /environment/scopes/service-accounts`, which
@@ -254,6 +264,7 @@
  * authorize and access token calls a cloud login with a user name and password
  * makes.
  */
+import { createHash } from 'node:crypto';
 import fs from 'node:fs';
 import http from 'node:http';
 
@@ -737,6 +748,21 @@ function servePromotion(req, body, send) {
 }
 
 /**
+ * The object reduced to what a `_fields` parameter asks for: its `_id`, the members named in `keep`
+ * and the top-level fields named in the parameter (`*` and JSON pointers select nothing); a field
+ * that the object does not have is not made up. Without `_fields` the object as it is.
+ */
+function selectFields(object, fieldsParameter, keep = []) {
+  const fields = (fieldsParameter ?? '').split(',').filter(Boolean);
+  if (fields.length === 0) return object;
+  return Object.fromEntries(
+    [...new Set(['_id', ...keep, ...fields])]
+      .filter((name) => Object.hasOwn(object, name))
+      .map((name) => [name, object[name]])
+  );
+}
+
+/**
  * Answers the list of the IDM configuration objects (`GET /openidm/config?_queryFilter=...`) from
  * `idmEntities`, or returns false when the request is not one or there is no such store.
  * `send(status, payload)` writes the answer.
@@ -765,13 +791,15 @@ function serveIdmConfigList(req, send) {
   }
   const result = Object.entries(idmEntities)
     .filter(([id]) => id.startsWith(prefix))
-    .map(([id, entity]) => ({ _id: id, ...entity }));
+    .map(([id, entity]) =>
+      selectFields({ _id: id, ...entity }, searchParams.get('_fields'))
+    );
   send(200, {
     result,
     resultCount: result.length,
     pagedResultsCookie: null,
-    totalPagedResultsPolicy: 'NONE',
-    totalPagedResults: -1,
+    totalPagedResultsPolicy: 'EXACT',
+    totalPagedResults: result.length,
     remainingPagedResults: -1,
   });
   return true;
@@ -815,18 +843,17 @@ function serveManagedObjects(req, send) {
   const objects = managedObjects[type];
   const offset = cookie === null ? 0 : Number(cookie);
   const end = pageSize === null ? objects.length : offset + Number(pageSize);
-  const fields = (searchParams.get('_fields') ?? '').split(',').filter(Boolean);
-  const result = objects
-    .slice(offset, end)
-    .map((object) =>
-      fields.length === 0
-        ? object
-        : Object.fromEntries(
-            ['_id', ...fields.filter((name) => name !== '_id')]
-              .filter((name) => Object.hasOwn(object, name))
-              .map((name) => [name, object[name]])
-          )
-    );
+  const result = objects.slice(offset, end).map((object) =>
+    selectFields(
+      {
+        _id: object._id,
+        _rev: createHash('sha1').update(JSON.stringify(object)).digest('hex'),
+        ...object,
+      },
+      searchParams.get('_fields'),
+      ['_rev']
+    )
+  );
   send(200, {
     result,
     resultCount: result.length,

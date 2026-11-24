@@ -77,14 +77,20 @@ const STORE = {
   },
 };
 
-/** The application records of realm alpha, as the list of a managed type answers them. */
+/**
+ * The application records of realm alpha, as the list of a managed type answers them. The third has
+ * no revision of its own: the fake gives it one, as IDM gives every object one.
+ */
 const APPLICATIONS = {
   alpha_application: [
     { _id: 'a-1', _rev: '1', name: 'Zion', connectorId: 'zion', icon: 'z.png' },
     { _id: 'a-2', _rev: '1', name: 'Matrix', connectorId: 'matrix' },
-    { _id: 'a-3', _rev: '1', name: 'Plain', icon: 'p.png' },
+    { _id: 'a-3', name: 'Plain', icon: 'p.png' },
   ],
 };
+
+/** The revision that the fake derives for an object that holds none: a hash of its content. */
+const DERIVED_REV = expect.stringMatching(/^[0-9a-f]{40}$/);
 
 const ids = (answer) => answer.result.map(({ _id }) => _id);
 
@@ -161,7 +167,7 @@ describe('the IDM store of the fake tenant', () => {
       expect(body.result[0]).toEqual(STORE['provisioner.openicf/zion']);
     });
 
-    test('answers the shape of an IDM query, not paged', async () => {
+    test('answers the shape of an IDM configuration list: not paged, and the total is exact', async () => {
       const server = await tenant();
 
       const { body } = await call(
@@ -178,8 +184,8 @@ describe('the IDM store of the fake tenant', () => {
         result: body.result,
         resultCount: 2,
         pagedResultsCookie: null,
-        totalPagedResultsPolicy: 'NONE',
-        totalPagedResults: -1,
+        totalPagedResultsPolicy: 'EXACT',
+        totalPagedResults: 2,
         remainingPagedResults: -1,
       });
     });
@@ -207,6 +213,45 @@ describe('the IDM store of the fake tenant', () => {
       expect(status).toBe(200);
       expect(ids(body)).toEqual(Object.keys(STORE));
       expect(body.resultCount).toBe(Object.keys(STORE).length);
+      expect(body.totalPagedResults).toBe(Object.keys(STORE).length);
+    });
+
+    test('reduces each object to its id and the top-level fields that were asked for', async () => {
+      const server = await tenant();
+
+      const { body } = await call(
+        server,
+        'GET',
+        `${prefixQuery('provisioner.openicf')}&_fields=enabled`
+      );
+
+      expect(body.result).toEqual([
+        { _id: 'provisioner.openicf/zion', enabled: true },
+        { _id: 'provisioner.openicf/matrix', enabled: false },
+        // a field that the object does not have is not made up
+        { _id: 'provisioner.openicf.connectorinfoprovider' },
+      ]);
+    });
+
+    test('matches the case of the prefix, which is the choice of the fake and not something checked against IDM', async () => {
+      const server = await tenant();
+
+      const { status, body } = await call(
+        server,
+        'GET',
+        prefixQuery('MAPPING')
+      );
+
+      expect(status).toBe(200);
+      expect(body.result).toEqual([]);
+    });
+
+    test('lists only for a GET: a POST with the same query is answered as before, with a 404', async () => {
+      const server = await tenant();
+
+      const { status } = await call(server, 'POST', prefixQuery('mapping'), {});
+
+      expect(status).toBe(404);
     });
 
     test('answers an empty list for a prefix that no id starts with, which is not a failure', async () => {
@@ -365,6 +410,32 @@ describe('the IDM store of the fake tenant', () => {
       expect(ids(list.body)).toEqual(Object.keys(STORE));
     });
 
+    test('deletes only for a DELETE: a POST or a PATCH of a held id is answered with a 404 and removes nothing', async () => {
+      const server = await tenant();
+
+      const posted = await call(
+        server,
+        'POST',
+        '/openidm/config/mappingOracle',
+        {}
+      );
+      const patched = await call(
+        server,
+        'PATCH',
+        '/openidm/config/mappingOracle',
+        []
+      );
+      const list = await call(
+        server,
+        'GET',
+        '/openidm/config?_queryFilter=true'
+      );
+
+      expect(posted.status).toBe(404);
+      expect(patched.status).toBe(404);
+      expect(ids(list.body)).toEqual(Object.keys(STORE));
+    });
+
     test('answers a second delete of the same id with a 404', async () => {
       const server = await tenant();
 
@@ -509,7 +580,11 @@ describe('the IDM store of the fake tenant', () => {
 
       expect(status).toBe(200);
       expect(body).toEqual({
-        result: APPLICATIONS.alpha_application,
+        result: [
+          APPLICATIONS.alpha_application[0],
+          APPLICATIONS.alpha_application[1],
+          { ...APPLICATIONS.alpha_application[2], _rev: DERIVED_REV },
+        ],
         resultCount: 3,
         pagedResultsCookie: null,
         totalPagedResultsPolicy: 'NONE',
@@ -556,7 +631,7 @@ describe('the IDM store of the fake tenant', () => {
       expect(body.pagedResultsCookie).toBeNull();
     });
 
-    test('reduces the objects to their id and the fields that were asked for', async () => {
+    test('reduces the objects to their id, their revision and the fields that were asked for', async () => {
       const server = await tenant({ managedObjects: APPLICATIONS });
 
       const { body } = await call(
@@ -566,36 +641,116 @@ describe('the IDM store of the fake tenant', () => {
       );
 
       expect(body.result).toEqual([
-        { _id: 'a-1', name: 'Zion', connectorId: 'zion' },
-        { _id: 'a-2', name: 'Matrix', connectorId: 'matrix' },
+        { _id: 'a-1', _rev: '1', name: 'Zion', connectorId: 'zion' },
+        { _id: 'a-2', _rev: '1', name: 'Matrix', connectorId: 'matrix' },
         // a field that the object does not have is not made up
-        { _id: 'a-3', name: 'Plain' },
+        { _id: 'a-3', _rev: DERIVED_REV, name: 'Plain' },
       ]);
     });
 
-    test('refuses a filter other than true, and a page size that is not a positive number, with a 400', async () => {
+    test('answers the revision with the id when only the id is asked for, as IDM does', async () => {
       const server = await tenant({ managedObjects: APPLICATIONS });
 
-      const filtered = await call(
+      const { body } = await call(
         server,
         'GET',
-        `/openidm/managed/alpha_application?_queryFilter=${encodeURIComponent("name eq 'Zion'")}`
-      );
-      const counted = await call(
-        server,
-        'GET',
-        list('alpha_application', '_pageSize=0')
-      );
-      const lost = await call(
-        server,
-        'GET',
-        list('alpha_application', '_pageSize=2&_pagedResultsCookie=nonsense')
+        list('alpha_application', '_fields=_id')
       );
 
-      for (const answer of [filtered, counted, lost]) {
-        expect(answer.status).toBe(400);
-        expect(answer.body.result).toBeUndefined();
+      expect(body.result).toEqual([
+        { _id: 'a-1', _rev: '1' },
+        { _id: 'a-2', _rev: '1' },
+        { _id: 'a-3', _rev: DERIVED_REV },
+      ]);
+    });
+
+    test('derives the revision of an object that holds none from its content: the same on every read, another for another object', async () => {
+      const server = await tenant({
+        managedObjects: {
+          alpha_application: [
+            { _id: 'b-1', name: 'One' },
+            { _id: 'b-2', name: 'Two' },
+          ],
+        },
+      });
+
+      const first = await call(server, 'GET', list('alpha_application'));
+      const again = await call(server, 'GET', list('alpha_application'));
+
+      expect(first.body.result[0]._rev).toEqual(DERIVED_REV);
+      expect(again.body.result.map(({ _rev }) => _rev)).toEqual(
+        first.body.result.map(({ _rev }) => _rev)
+      );
+      expect(first.body.result[0]._rev).not.toBe(first.body.result[1]._rev);
+    });
+
+    test.each([
+      ['a filter other than true', "name eq 'Zion'"],
+      ['the filter false', 'false'],
+    ])('refuses %s with a 400', async (_name, filter) => {
+      const server = await tenant({ managedObjects: APPLICATIONS });
+
+      const { status, body } = await call(
+        server,
+        'GET',
+        `/openidm/managed/alpha_application?_queryFilter=${encodeURIComponent(filter)}`
+      );
+
+      expect(status).toBe(400);
+      expect(body.result).toBeUndefined();
+    });
+
+    test.each([
+      ['a page size of 0, which IDM answers as a count', '_pageSize=0'],
+      ['a page size that ends in text', '_pageSize=2x'],
+      ['an empty page size', '_pageSize='],
+      ['a negative page size', '_pageSize=-1'],
+      ['a page size that is not whole', '_pageSize=1.5'],
+      ['an empty cookie', '_pageSize=2&_pagedResultsCookie='],
+      ['a cookie that ends in text', '_pageSize=2&_pagedResultsCookie=2x'],
+      [
+        'a cookie that the fake did not answer with',
+        '_pageSize=2&_pagedResultsCookie=nonsense',
+      ],
+    ])(
+      'refuses %s with a 400, never a page that reads as the end',
+      async (_name, query) => {
+        const server = await tenant({ managedObjects: APPLICATIONS });
+
+        const { status, body } = await call(
+          server,
+          'GET',
+          list('alpha_application', query)
+        );
+
+        expect(status).toBe(400);
+        expect(body.code).toBe(400);
+        expect(body.result).toBeUndefined();
       }
+    );
+
+    test.each([['constructor'], ['toString'], ['__proto__']])(
+      'does not hold the type %p that every object inherits: a 404',
+      async (type) => {
+        const server = await tenant({ managedObjects: APPLICATIONS });
+
+        const { status } = await call(server, 'GET', list(type));
+
+        expect(status).toBe(404);
+      }
+    );
+
+    test('lists only for a GET: a POST with the same query is answered as before, with a 404', async () => {
+      const server = await tenant({ managedObjects: APPLICATIONS });
+
+      const { status } = await call(
+        server,
+        'POST',
+        list('alpha_application'),
+        {}
+      );
+
+      expect(status).toBe(404);
     });
 
     test('answers a type that it does not hold as a path it does not know, with a 404', async () => {
@@ -624,7 +779,11 @@ describe('the IDM store of the fake tenant', () => {
 
       expect(one.status).toBe(404);
       expect(written.status).toBe(404);
-      expect(body.result).toEqual(APPLICATIONS.alpha_application);
+      expect(body.result.map(({ name }) => name)).toEqual([
+        'Zion',
+        'Matrix',
+        'Plain',
+      ]);
     });
 
     test('goes before the users of the fake, which serve the types that it does not hold', async () => {
