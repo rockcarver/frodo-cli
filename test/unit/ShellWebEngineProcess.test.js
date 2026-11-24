@@ -157,6 +157,30 @@ run('the tab engine, as a process of the executable', () => {
     await engine.reply(3);
   }, 120_000);
 
+  test('11: the result of an input is `_` for the next one, and an error is `_error`, as in the terminal console', async () => {
+    const engine = startWorker();
+
+    engine.send({ op: 'eval', id: 1, code: '1 + 1' });
+    expect(previewOf(await engine.reply(1))).toBe('2');
+    engine.send({ op: 'eval', id: 2, code: '_ + 1' });
+    expect(previewOf(await engine.reply(2))).toBe('3');
+    // an input with nothing to show leaves `_` as it was
+    engine.send({ op: 'eval', id: 3, code: 'var noResult = 1' });
+    engine.send({ op: 'eval', id: 4, code: '_' });
+    expect(previewOf(await engine.reply(4))).toBe('3');
+    engine.send({ op: 'eval', id: 5, code: 'throw new Error("last-error")' });
+    expect((await engine.reply(5)).outcome.status).toBe('error');
+    engine.send({ op: 'eval', id: 6, code: '_error.message' });
+    expect(previewOf(await engine.reply(6))).toBe('"last-error"');
+    engine.send({ op: 'eval', id: 7, code: '_ = 9' });
+    engine.send({ op: 'eval', id: 8, code: '1 + 1' });
+    engine.send({ op: 'eval', id: 9, code: '_' });
+    expect(previewOf(await engine.reply(9))).toBe('9');
+
+    engine.send({ op: 'dispose', id: 10 });
+    await engine.reply(10);
+  }, 120_000);
+
   test('2: the engine removes the variable from its own environment, so a command that a script starts is an ordinary command', async () => {
     const engine = startWorker();
 
