@@ -868,6 +868,39 @@ suite('config-manager pull raw and push raw against a fake tenant', () => {
       TIMEOUT
     );
 
+    it.each([
+      ['a version without a resource', { protocol: '2.1' }],
+      ['a text', 'x'],
+      ['null', null],
+    ])(
+      'drops %s without a word and sends the default version, as every push did before the version was kept',
+      async (_, version) => {
+        const proxy = await tenant();
+        writeFileOf(WEBHOOK_PATH, { ...WEBHOOK, _pushApiVersion: version });
+
+        const fromFile = await push(proxy, []);
+        const fromStdin = await push(
+          proxy,
+          ['--path', WEBHOOK_PATH, '--stdin'],
+          { stdin: JSON.stringify({ ...WEBHOOK, _pushApiVersion: version }) }
+        );
+
+        expect([fromFile.code, fromStdin.code]).toEqual([0, 0]);
+        expect(fromFile.stderr + fromStdin.stderr).not.toMatch(
+          /pushApiVersion|undefined/i
+        );
+        const puts = putsTo(proxy, WEBHOOK_PATH);
+        expect(puts.map((put) => put.acceptApiVersion)).toEqual([
+          DEFAULT_VERSION,
+          DEFAULT_VERSION,
+        ]);
+        for (const put of puts) {
+          expect(JSON.parse(put.body)._pushApiVersion).toBeUndefined();
+        }
+      },
+      TIMEOUT
+    );
+
     it(
       'carries the version from a pull of a path to the push of its file',
       async () => {

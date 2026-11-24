@@ -172,14 +172,31 @@ function readRawConfigFromStdin(): IdObjectSkeletonInterface {
 }
 
 /**
+ * Whether a value is a push API version the library can build a header from: an object with
+ * a protocol and a resource version, each one a non-blank text.
+ * @param {unknown} value the value of `_pushApiVersion` of a file or of standard input
+ * @returns {boolean} true if it is one
+ */
+function isPushApiVersion(value: unknown): value is PushApiVersion {
+  if (typeof value !== 'object' || value === null) return false;
+  const { protocol, resource } = value as Record<string, unknown>;
+  return [protocol, resource].every(
+    (version) => typeof version === 'string' && version.trim() !== ''
+  );
+}
+
+/**
  * Removes the attributes that a push must not send, but keeps `_pushApiVersion`: the library
- * reads it to set the API version of the request and takes it out of what it sends.
+ * reads it to set the API version of the request and takes it out of what it sends. A value
+ * that is not a push API version (a text, `null`, a version without a resource) is dropped
+ * with the other attributes, silently, as every push ignored it before the version was kept:
+ * the library would build `resource=undefined` from it, or fail.
  * @param {IdObjectSkeletonInterface} data the configuration read from a file or from standard input
  */
 function clearForPush(data: IdObjectSkeletonInterface): void {
   const pushApiVersion = data._pushApiVersion;
   clearOperationalAttributes(data);
-  if (pushApiVersion !== undefined) data._pushApiVersion = pushApiVersion;
+  if (isPushApiVersion(pushApiVersion)) data._pushApiVersion = pushApiVersion;
 }
 
 /**

@@ -17,7 +17,7 @@ import {
  * output goes to spies, and the config folder is a real temporary folder. `FrConfig`,
  * `ConfigTreePath` and `OperationRun` are the real modules: a test that mocked
  * `clearOperationalAttributes` to delete only `_id` let a push drop the API version of a file
- * unseen. The real commands against a fake tenant are in ConfigManagerPullRawFakeAm.test.js.
+ * unseen. The real commands against a fake tenant are in ConfigManagerRawFakeAm.test.js.
  */
 
 const exportRawConfig = jest.fn();
@@ -231,6 +231,23 @@ describe('pull raw --path', () => {
     ]);
   });
 
+  test.each([
+    ['a path that starts the path of an item', '/openidm/config/ok'],
+    ['a path that the path of an item starts', '/openidm/config/ok12'],
+    ['a folder of the path of an item', '/openidm/config'],
+  ])(
+    'does not take an item for %s: only the whole path is the path',
+    async (_, asked) => {
+      const file = put('raw.json', [
+        { path: '/openidm/config/ok1', overrides: { v: 2 } },
+      ]);
+
+      await configManagerExportRaw(file, false, asked);
+
+      expect(exportRawConfig.mock.calls).toEqual([[{ path: asked }]]);
+    }
+  );
+
   test('puts the push API version of the command line into the item, over the one of the file', async () => {
     const file = put('raw.json', [LISTED]);
     const version = { protocol: '2.1', resource: '1.5' };
@@ -356,6 +373,55 @@ describe('push raw keeps the push API version of the file for the library', () =
       [{ path: '/am/json/x' }, { value: 1, _pushApiVersion: VERSION }],
     ]);
   });
+
+  // The library builds the header from what it is given (`resource=undefined`, or a failure for
+  // null), and a push ignored the attribute before it was kept: what is not a version is dropped.
+  const NOT_A_VERSION = [
+    ['a version without a resource', { protocol: '2.1' }],
+    ['a version without a protocol', { resource: '1.0' }],
+    ['a blank resource', { protocol: '2.1', resource: '  ' }],
+    ['a version that is not text', { protocol: 2.1, resource: 1 }],
+    ['an empty object', {}],
+    ['a list', ['2.1', '1.0']],
+    ['a text', 'x'],
+    ['null', null],
+  ];
+
+  test.each(NOT_A_VERSION)(
+    'a file: %s is dropped, silently, and the push goes on',
+    async (_, version) => {
+      put('raw/am/json/x.json', {
+        ...OPERATIONAL,
+        value: 1,
+        _pushApiVersion: version,
+      });
+
+      expect(await configManagerImportRaw()).toBe(true);
+
+      expect(printError).not.toHaveBeenCalled();
+      expect(importRawConfig.mock.calls).toEqual([
+        [{ path: '/am/json/x' }, { value: 1 }],
+      ]);
+      expect('_pushApiVersion' in importRawConfig.mock.calls[0][1]).toBe(false);
+    }
+  );
+
+  test.each(NOT_A_VERSION)(
+    'standard input: %s is dropped, silently, and the push goes on',
+    async (_, version) => {
+      readStdinToEndSync.mockReturnValue(
+        JSON.stringify({ ...OPERATIONAL, value: 1, _pushApiVersion: version })
+      );
+
+      expect(await configManagerImportRaw('/am/json/x', true)).toBe(true);
+
+      expect(printError).not.toHaveBeenCalled();
+      expect(importRawConfig.mock.calls).toEqual([
+        [{ path: '/am/json/x' }, { value: 1 }],
+      ]);
+      expect('_pushApiVersion' in importRawConfig.mock.calls[0][1]).toBe(false);
+    }
+  );
 
   test('standard input without a version sends none', async () => {
     readStdinToEndSync.mockReturnValue(
