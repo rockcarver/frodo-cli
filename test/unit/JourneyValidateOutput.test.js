@@ -3,7 +3,7 @@ import { jest } from '@jest/globals';
 // `journey validate` over many journeys (cli#1378): the journeys are validated in ONE call of the
 // library, which reports each journey to a callback as it is done. The findings of a journey are
 // printed then, a progress bar on stderr shows how far the run is (only at a terminal), and the run
-// ends with one summary by code and one hint for each kind of finding that has advice. The library
+// ends with one summary by code and one hint for each finding code that has advice. The library
 // is a stub here; the words are in JourneyFindingLabels.test.js, the exit codes also in
 // JourneyValidationOps.test.js.
 
@@ -111,6 +111,18 @@ describe('journey validate over many journeys', () => {
       );
     });
 
+    test('a journey that the tenant lists twice is validated once, so that each callback has its journey', async () => {
+      readJourneys.mockResolvedValue([
+        { _id: 'a' },
+        { _id: 'a' },
+        { _id: 'b' },
+      ]);
+
+      await validateJourneyExports();
+
+      expect(validateJourneys.mock.calls[0][0]).toEqual(['a', 'b']);
+    });
+
     test('a tenant without journeys is not asked to validate anything', async () => {
       readJourneys.mockResolvedValue([]);
 
@@ -183,6 +195,11 @@ describe('journey validate over many journeys', () => {
       expect(messages()).toContain(
         '1 warning in journey b (strict mode treats warnings as errors)'
       );
+      // the warnings-only journey fails the run in its own right: the other journey's error does not excuse it
+      const failed = messages().find((text) => text.includes('failed'));
+      expect(failed).toContain('2 of 3 journeys failed:');
+      expect(failed).toContain('- a: 1 error');
+      expect(failed).toContain('- b: 1 warning');
     });
   });
 
@@ -200,7 +217,7 @@ describe('journey validate over many journeys', () => {
       expect(updateProgressIndicator.mock.calls).toEqual([
         [id, 'Validating b', 1],
         [id, 'Validating c', 2],
-        [id, undefined, 3],
+        [id, '', 3],
       ]);
       expect(stopProgressIndicator).toHaveBeenCalledTimes(1);
       expect(stopProgressIndicator).toHaveBeenCalledWith(id);
@@ -266,8 +283,8 @@ describe('journey validate over many journeys', () => {
 
       const summary = [
         'Checked 3 journeys, 2 with findings: 1 error and 3 warnings.',
-        '  UNREACHABLE_NODE: 3 warnings',
         '  MISSING_INNER_NODE: 1 error',
+        '  UNREACHABLE_NODE: 3 warnings',
       ].join('\n');
       expect(messages()).toContain(summary);
       expect(messages().indexOf(summary)).toBeGreaterThan(
@@ -275,7 +292,7 @@ describe('journey validate over many journeys', () => {
       );
     });
 
-    test('counts the journeys that could be validated: one that could not is named in the failure summary, not counted as checked', async () => {
+    test('counts the journeys that could be validated out of all: one that could not is named in the failure summary, not counted as checked', async () => {
       validateJourneys.mockImplementation(
         validatesJourneys((journeyId) =>
           journeyId === 'a'
@@ -289,7 +306,7 @@ describe('journey validate over many journeys', () => {
       await validateJourneyExports();
 
       expect(messages()).toContain(
-        'Checked 2 journeys, 1 with findings: 1 warning.\n  UNREACHABLE_NODE: 1 warning'
+        'Checked 2 of 3 journeys, 1 with findings: 1 warning.\n  UNREACHABLE_NODE: 1 warning'
       );
     });
 
@@ -306,6 +323,8 @@ describe('journey validate over many journeys', () => {
       expect(failed).toContain('1 of 3 journeys failed:');
       expect(failed).toContain('- c: cannot export c');
       expect(failed).not.toContain('- a');
+      // a run whose only problem is a journey that could not be validated is not a run without findings
+      expect(messages()).not.toContain('No journey validation findings.');
     });
 
     test('is not printed for a clean run, which prints what it always did', async () => {
@@ -344,10 +363,10 @@ describe('journey validate over many journeys', () => {
       printMessage.mock.calls.filter(
         ([text]) =>
           text.startsWith('These journeys name nodes') ||
-          text.startsWith('These journeys hold nodes')
+          text.startsWith('Journeys with UNREACHABLE_NODE')
       );
 
-    test('one for each kind of finding that has advice, however many journeys have it', async () => {
+    test('one for each finding code that has advice, however many journeys have it', async () => {
       validateJourneys.mockImplementation(
         validatesJourneys((journeyId) => [
           unreachable(journeyId),
@@ -359,6 +378,27 @@ describe('journey validate over many journeys', () => {
 
       expect(hints()).toHaveLength(2);
       expect(hints().every(([, type]) => type === 'info')).toBe(true);
+    });
+
+    test('the one for unreachable nodes names the code, and says to repair the entry node first for a journey that has none', async () => {
+      validateJourneys.mockImplementation(
+        validatesJourneys((journeyId) =>
+          journeyId === 'a'
+            ? [unreachable('a'), finding('MISSING_ENTRY_NODE', 'error', 'a')]
+            : journeyId === 'b'
+              ? [unreachable('b')]
+              : []
+        )
+      );
+
+      await validateJourneyExports();
+
+      expect(hints()).toEqual([
+        [
+          'Journeys with UNREACHABLE_NODE have nodes that cannot be reached from the entry node. Connect them or delete them in the journey editor. In a journey that also has MISSING_ENTRY_NODE, repair the entry node first: until then every node of it is unreachable.',
+          'info',
+        ],
+      ]);
     });
 
     test('none for findings that have no advice', async () => {

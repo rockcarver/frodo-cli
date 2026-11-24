@@ -7,12 +7,12 @@ import {
   missingNodesHint,
   summaryLines,
   tallyByCode,
-  UNREACHABLE_NODES_HINT,
+  unreachableNodesHint,
 } from '../../src/ops/utils/JourneyFindingLabels.ts';
 
 // The words of the output of `journey validate`: one line for a finding, one
-// heading for a journey, one summary for the run, one hint for each kind of
-// finding. Pure functions: no library, no console.
+// heading for a journey, one summary for the run, one hint for each finding
+// code that has advice. Pure functions: no library, no console.
 
 const finding = (
   code,
@@ -101,17 +101,39 @@ describe('tallyByCode', () => {
   test('counts the findings of each code, the most frequent first and then by code', () => {
     const tally = tallyByCode([
       finding('UNREACHABLE_NODE', 'warning', 'a'),
-      finding('MISSING_INNER_NODE', 'error', 'b'),
       finding('UNREACHABLE_NODE', 'warning', 'b'),
       finding('UNCONNECTED_OUTCOME', 'warning', 'a'),
       finding('UNREACHABLE_NODE', 'warning', 'c'),
-      finding('MISSING_INNER_NODE', 'error', 'c'),
+      finding('UNCONNECTED_OUTCOME', 'warning', 'c'),
+      finding('NO_REACHABLE_TERMINAL', 'warning', 'c'),
     ]);
 
     expect(tally.map(({ code, count }) => [code, count])).toEqual([
       ['UNREACHABLE_NODE', 3],
-      ['MISSING_INNER_NODE', 2],
-      ['UNCONNECTED_OUTCOME', 1],
+      ['UNCONNECTED_OUTCOME', 2],
+      ['NO_REACHABLE_TERMINAL', 1],
+    ]);
+  });
+
+  test('puts the codes that have errors first, however few errors there are, then the rest by count', () => {
+    const tally = tallyByCode([
+      finding('UNREACHABLE_NODE', 'warning', 'a'),
+      finding('UNREACHABLE_NODE', 'warning', 'b'),
+      finding('UNREACHABLE_NODE', 'warning', 'c'),
+      finding('UNCONNECTED_OUTCOME', 'warning', 'a'),
+      finding('UNCONNECTED_OUTCOME', 'warning', 'b'),
+      finding('MISSING_ENTRY_NODE', 'error', 'c'),
+      finding('MISSING_INNER_NODE', 'error', 'a'),
+      finding('MISSING_INNER_NODE', 'error', 'b'),
+      finding('NO_REACHABLE_TERMINAL', 'warning', 'c'),
+    ]);
+
+    expect(tally.map(({ code }) => code)).toEqual([
+      'MISSING_INNER_NODE',
+      'MISSING_ENTRY_NODE',
+      'UNREACHABLE_NODE',
+      'UNCONNECTED_OUTCOME',
+      'NO_REACHABLE_TERMINAL',
     ]);
   });
 
@@ -138,17 +160,27 @@ describe('summaryLines', () => {
     finding('MISSING_INNER_NODE', 'error', 'b'),
   ];
 
-  test('says how many journeys were checked, how many have findings and how many findings of each code there are', () => {
-    expect(summaryLines({ checked: 5, findings })).toEqual([
+  test('says how many journeys were checked, how many have findings and how many findings of each code there are, the code with an error first', () => {
+    expect(summaryLines({ checked: 5, total: 5, findings })).toEqual([
       'Checked 5 journeys, 2 with findings: 1 error and 2 warnings.',
-      '  UNREACHABLE_NODE: 2 warnings',
       '  MISSING_INNER_NODE: 1 error',
+      '  UNREACHABLE_NODE: 2 warnings',
     ]);
+  });
+
+  test('says how many of the journeys could be checked when some could not', () => {
+    expect(summaryLines({ checked: 20, total: 21, findings })[0]).toBe(
+      'Checked 20 of 21 journeys, 2 with findings: 1 error and 2 warnings.'
+    );
+    expect(summaryLines({ checked: 1, total: 2, findings })[0]).toBe(
+      'Checked 1 of 2 journeys, 2 with findings: 1 error and 2 warnings.'
+    );
   });
 
   test('counts a journey once however many findings it has', () => {
     const [first] = summaryLines({
       checked: 3,
+      total: 3,
       findings: [
         finding('UNREACHABLE_NODE', 'warning', 'a'),
         finding('UNCONNECTED_OUTCOME', 'warning', 'a'),
@@ -163,67 +195,112 @@ describe('summaryLines', () => {
     expect(
       summaryLines({
         checked: 1,
+        total: 1,
         findings: [finding('UNREACHABLE_NODE', 'warning')],
       })[0]
     ).toBe('Checked 1 journey, 1 with findings: 1 warning.');
   });
 
   test('has one line for each code and the codes the findings have', () => {
-    expect(summaryLines({ checked: 5, findings })).toHaveLength(3);
-    expect(summaryLines({ checked: 5, findings: [] })).toEqual([]);
+    expect(summaryLines({ checked: 5, total: 5, findings })).toHaveLength(3);
+    expect(summaryLines({ checked: 5, total: 5, findings: [] })).toEqual([]);
   });
 });
 
 describe('hintsFor', () => {
+  const missingEntry = (journeyId) =>
+    finding('MISSING_ENTRY_NODE', 'error', journeyId);
+  const unreachable = (journeyId) =>
+    finding('UNREACHABLE_NODE', 'warning', journeyId);
+  const missingInner = (journeyId) =>
+    finding('MISSING_INNER_NODE', 'error', journeyId);
+
   test('gives no hint for findings that need none', () => {
     expect(
-      hintsFor(['MISSING_ENTRY_NODE', 'UNCONNECTED_OUTCOME'], true)
+      hintsFor(
+        [missingEntry('a'), finding('UNCONNECTED_OUTCOME', 'warning', 'a')],
+        true
+      )
     ).toEqual([]);
     expect(hintsFor([], true)).toEqual([]);
   });
 
   test('gives the hint for nodes that are not there once, whichever of the two codes (or both) are found', () => {
-    expect(hintsFor(['MISSING_INNER_NODE'], true)).toEqual([
-      missingNodesHint(true),
-    ]);
-    expect(hintsFor(['MISSING_NODE_DEFINITION'], true)).toEqual([
+    expect(hintsFor([missingInner('a')], true)).toEqual([
       missingNodesHint(true),
     ]);
     expect(
+      hintsFor([finding('MISSING_NODE_DEFINITION', 'error', 'a')], true)
+    ).toEqual([missingNodesHint(true)]);
+    expect(
       hintsFor(
-        ['MISSING_NODE_DEFINITION', 'MISSING_INNER_NODE', 'MISSING_INNER_NODE'],
+        [
+          finding('MISSING_NODE_DEFINITION', 'error', 'a'),
+          missingInner('a'),
+          missingInner('b'),
+        ],
         false
       )
     ).toEqual([missingNodesHint(false)]);
   });
 
-  test('gives the hint for unreachable nodes once', () => {
-    expect(hintsFor(['UNREACHABLE_NODE', 'UNREACHABLE_NODE'], true)).toEqual([
-      UNREACHABLE_NODES_HINT,
+  test('gives the hint for unreachable nodes once, in the words of where the journeys are', () => {
+    expect(hintsFor([unreachable('a'), unreachable('b')], true)).toEqual([
+      'Journeys with UNREACHABLE_NODE have nodes that cannot be reached from the entry node. Connect them or delete them in the journey editor.',
     ]);
-    expect(hintsFor(['UNREACHABLE_NODE'], false)).toEqual([
-      UNREACHABLE_NODES_HINT,
+    expect(hintsFor([unreachable('a'), unreachable('b')], false)).toEqual([
+      'Journeys with UNREACHABLE_NODE have nodes that cannot be reached from the entry node. Connect them or delete them on the tenant and export the journeys again.',
     ]);
+  });
+
+  test('names the code that it is about, so that it still says what it points at after a run over a realm', () => {
+    expect(unreachableNodesHint(true, false)).toContain('UNREACHABLE_NODE');
+    expect(unreachableNodesHint(false, false)).toContain('UNREACHABLE_NODE');
+  });
+
+  test('says to repair the entry node first when a journey that has unreachable nodes has no entry node', () => {
+    const repairFirst =
+      ' In a journey that also has MISSING_ENTRY_NODE, repair the entry node first: until then every node of it is unreachable.';
+
+    expect(hintsFor([unreachable('a'), missingEntry('a')], true)).toEqual([
+      'Journeys with UNREACHABLE_NODE have nodes that cannot be reached from the entry node. Connect them or delete them in the journey editor.' +
+        repairFirst,
+    ]);
+    expect(hintsFor([unreachable('a'), missingEntry('a')], false)).toEqual([
+      'Journeys with UNREACHABLE_NODE have nodes that cannot be reached from the entry node. Connect them or delete them on the tenant and export the journeys again.' +
+        repairFirst,
+    ]);
+  });
+
+  test('says nothing of the entry node when the journey without one is another journey than the one with unreachable nodes', () => {
+    expect(hintsFor([unreachable('a'), missingEntry('b')], true)).toEqual([
+      unreachableNodesHint(true, false),
+    ]);
+    expect(unreachableNodesHint(true, false)).not.toContain(
+      'MISSING_ENTRY_NODE'
+    );
   });
 
   test('gives the hints in a fixed order, whatever the order of the findings', () => {
-    expect(hintsFor(['UNREACHABLE_NODE', 'MISSING_INNER_NODE'], true)).toEqual(
-      hintsFor(['MISSING_INNER_NODE', 'UNREACHABLE_NODE'], true)
+    const findings = [unreachable('a'), missingInner('b')];
+
+    expect(hintsFor(findings, true)).toEqual(
+      hintsFor([...findings].reverse(), true)
     );
-    expect(hintsFor(['UNREACHABLE_NODE', 'MISSING_INNER_NODE'], true)).toEqual([
+    expect(hintsFor(findings, true)).toEqual([
       missingNodesHint(true),
-      UNREACHABLE_NODES_HINT,
+      unreachableNodesHint(true, false),
     ]);
   });
 
-  test('every hint is one line, and says what to do', () => {
+  test('every hint is one line', () => {
     for (const hint of [
       missingNodesHint(true),
       missingNodesHint(false),
-      UNREACHABLE_NODES_HINT,
+      unreachableNodesHint(true, false),
+      unreachableNodesHint(false, true),
     ]) {
       expect(hint).not.toContain('\n');
     }
-    expect(UNREACHABLE_NODES_HINT).toContain('journey editor');
   });
 });

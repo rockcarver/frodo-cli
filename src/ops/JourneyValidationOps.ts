@@ -54,7 +54,7 @@ function showProgress(journeyIds: string[]): {
       done++;
       updateProgressIndicator(
         indicatorId,
-        done < journeyIds.length ? `Validating ${journeyIds[done]}` : undefined,
+        done < journeyIds.length ? `Validating ${journeyIds[done]}` : '',
         done
       );
     },
@@ -66,7 +66,7 @@ function showProgress(journeyIds: string[]): {
  * Validate the journeys of the tenant, of an export file, or of the files of a directory, and report each finding.
  * The journeys are validated in one call of the library, which reports each journey as it is done: its findings are
  * printed then, with a progress bar on stderr when that is a terminal, and the run ends with one summary of the
- * journeys checked and the findings by code, and one hint for each kind of finding that has advice.
+ * journeys checked and the findings by code, and one hint for each finding code that has advice.
  * Every journey is one operation of an {@link OperationRun}: a journey that cannot be validated (it cannot be exported,
  * or is not in the file) does not stop the others from being validated, and a journey with an error, or with a warning
  * in strict mode, is a failed journey. One summary names the failed journeys. A failure to read the journeys, the file
@@ -193,12 +193,9 @@ export async function validateJourneyExports(
     if (findings.length === 0 && !run.hasFailures) {
       printMessage('No journey validation findings.', 'success');
     }
-    const summary = summaryLines({ checked, findings });
+    const summary = summaryLines({ checked, total: ids.length, findings });
     if (summary.length > 0) printMessage(summary.join('\n'));
-    for (const hint of hintsFor(
-      findings.map((finding) => finding.code),
-      !file && !directory
-    )) {
+    for (const hint of hintsFor(findings, !file && !directory)) {
       printMessage(hint, 'info');
     }
 
