@@ -19,9 +19,15 @@ import { isTruthyOptInValue } from '../../src/utils/EnvFlags.ts';
  * itself killed. These tests keep all of that gone, and they pin what the
  * single process has to do in its place: source maps are OFF unless
  * `FRODO_SOURCE_MAPS` asks for them (and must be switched on BEFORE the app
- * loads), no process warnings, and `process.argv[1]` is the path of `app.cjs`
- * (frodo-lib recognises the CLI by that name; without it every e2e replay in
- * dev mode, which runs this entry, finds no recording).
+ * loads), and `process.argv[1]` is the path of `app.cjs` (frodo-lib recognises
+ * the CLI by that name; without it every e2e replay in dev mode, which runs
+ * this entry, finds no recording). It does NOT touch process warnings: until
+ * frodo-lib stopped loading its test recorder at start-up (5.0.0-51), the entry
+ * removed the `warning` listeners, because that load printed Node 26's
+ * `localStorage` ExperimentalWarning on every start. Warnings are Node's own
+ * business again, and `node --no-warnings` or `NODE_OPTIONS=--no-warnings`
+ * still silences them. `test/unit/LauncherStderrFakeAm.test.js` runs the real
+ * CLI and pins that a normal start writes nothing to stderr.
  *
  * The entry is a standalone file (it requires only Node built-ins and
  * `./app.cjs`), so the test copies the BUILT `dist/launch.cjs` next to a fake
@@ -285,16 +291,44 @@ describe('source maps are opt-in (FRODO_SOURCE_MAPS)', () => {
   );
 });
 
-describe('the entry prints no process warning', () => {
-  testif(hasDist)('there is no warning listener to print one', () => {
-    expect(report().warningListeners).toBe(0);
-  });
+describe('the entry leaves process warnings to Node', () => {
+  /** What the app sees when Node starts it directly, with no entry in front of it. */
+  function reportWithoutEntry() {
+    const result = cp.spawnSync(process.execPath, [path.join(dir, 'app.cjs')], {
+      env: envFor('report'),
+      encoding: 'utf8',
+    });
+    return JSON.parse(result.stdout);
+  }
 
-  testif(hasDist)('a warning of the app is not printed', () => {
+  testif(hasDist)(
+    'the app starts with the warning listeners that Node gives every program',
+    () => {
+      const direct = reportWithoutEntry().warningListeners;
+      // Node's own printer is one of them, so a count of 0 would mean that
+      // the reference run is silenced already and proves nothing
+      expect(direct).toBeGreaterThanOrEqual(1);
+      expect(report().warningListeners).toBe(direct);
+    }
+  );
+
+  testif(hasDist)('a warning of the app is printed, as Node prints it', () => {
     const result = run('warn');
     expect(result.status).toBe(0);
-    expect(result.stderr).toBe('');
+    expect(result.stderr).toMatch(/\(node:\d+\) Warning: a process warning/);
   });
+
+  testif(hasDist)(
+    'NODE_OPTIONS=--no-warnings still silences them, and the entry does not undo it',
+    () => {
+      const result = run('warn', { env: { NODE_OPTIONS: '--no-warnings' } });
+      expect(result.status).toBe(0);
+      expect(result.stderr).toBe('');
+      expect(
+        report({ env: { NODE_OPTIONS: '--no-warnings' } }).warningListeners
+      ).toBe(0);
+    }
+  );
 });
 
 describe('how the process ends is how the command ends', () => {
