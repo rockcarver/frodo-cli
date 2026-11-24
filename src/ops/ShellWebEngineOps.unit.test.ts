@@ -316,14 +316,22 @@ describe('ShellWebEngineOps', () => {
       // Node that renames or drops one would leave the console without `_`
       // and without a word: the engine looks at start-up instead.
       const realStart = repl.start;
+      let closed = false;
       jest.spyOn(repl, 'start').mockImplementationOnce((options) => {
         const server = realStart(options);
         delete (server as unknown as Record<string, unknown>)[name];
+        const close = server.close.bind(server);
+        server.close = () => {
+          closed = true;
+          close();
+        };
         return server;
       });
       expect(() => createWebEngine({ onLog: () => undefined })).toThrow(
         `\`${name}\``
       );
+      // The REPL that was started is not left open.
+      expect(closed).toBe(true);
     }
   );
 
