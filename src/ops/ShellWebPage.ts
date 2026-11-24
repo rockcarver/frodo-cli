@@ -882,16 +882,26 @@ const SCRIPT = String.raw`
     var code = codeOverride !== undefined ? codeOverride : input.value();
     if (!code.trim()) return;
     busy = true;
+    // Clear the prompt at submit, not when the response lands: the entry's
+    // echo already carries the command, and a clear that rides the response
+    // makes a recalled command flash on the prompt for the length of the
+    // run (and vanish a beat after a fast one's result). An incomplete
+    // response (a multi-line continuation) restores the code below.
+    input.setValue('');
+    autosize();
     var entry = addEntry(code);
     current = entry;
     api('/api/eval', { code: code }).then(function (res) {
       if (res.status === 'incomplete') {
         entry.root.remove();
-        input.newline();
+        // The continuation continues from what was submitted: put it back,
+        // cursor at the end, and add the newline the input asked for.
+        input.setValue(code + '\n');
+        input.setAt((code + '\n').length);
+        input.focus();
         return;
       }
       remember(code);
-      input.setValue('');
       hideCompletePopup();
       showResult(entry, res);
     }).catch(function (e) {
