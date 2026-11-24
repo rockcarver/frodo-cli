@@ -425,6 +425,8 @@ suite('config-manager delete remote-servers (fake tenant)', () => {
 
         expect(code).toBe(0);
         expect(idm()[0]).toBe(ENTITY);
+        // the configuration is read ONCE: every write is built from that read and none is checked (the help and MIGRATION say so)
+        expect(idm().filter((line) => line === ENTITY)).toHaveLength(1);
         expect(idm().filter((line) => line.startsWith('GET /openidm/config?'))).toEqual([]);
         expect(changes().map(({ method }) => method)).toEqual(['PUT', 'PUT', 'PUT', 'PUT']);
         expect(bodies().map(names)).toEqual([

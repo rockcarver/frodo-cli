@@ -597,6 +597,8 @@ describe('a delete of all connector servers', () => {
       expect(body.connectorsLocation).toBe('connectors');
     }
     expect(findConnectorServerReferences).not.toHaveBeenCalled();
+    // the configuration is read ONCE: every write is built from that read and none is checked
+    expect(readConfigEntity).toHaveBeenCalledTimes(1);
     expect(output()).toContain('Deleted connector server: asdf');
     expect(output()).toContain('Deleted connector server: free');
     expect(printError).not.toHaveBeenCalled();

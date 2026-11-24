@@ -527,6 +527,24 @@ describe('deleteRemoteServerWithLinks', () => {
       ).toEqual([[], ['asdf']]);
     });
 
+    test('the refusal names two clusters of one name once, as the check counts them', async () => {
+      // the lookup saw `twin` twice (two clusters of that name); one of the twins is gone and another cluster lists the name
+      stored.remoteConnectorClientsGroups = [
+        { name: 'twin', serversList: [{ name: 'rcs' }] },
+        { name: 'late', serversList: [{ name: 'rcs' }] },
+      ];
+
+      const error = await deleteRemoteServerWithLinks('rcs', {
+        clusters: ['twin', 'twin'],
+        seen: ['twin', 'twin'],
+      }).catch((caught) => caught);
+
+      expect(error.holderChanged).toBe(false);
+      expect(error.message).toContain('they were: twin; now: twin, late');
+      expect(error.message).not.toContain('twin, twin');
+      expect(writes()).toEqual([]);
+    });
+
     test('a lookup that saw none and now finds one', async () => {
       const error = await deleteRemoteServerWithLinks('rcs', {
         clusters: [],
