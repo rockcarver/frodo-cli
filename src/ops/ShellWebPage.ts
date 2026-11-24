@@ -157,6 +157,7 @@ main { flex: 1; overflow: auto; padding: 10px 14px 4px; }
 #search-row .cand .match { color: var(--accent); font-weight: 700; }
 #search-row .cand .when { color: var(--dim); white-space: nowrap; }
 #search-row .cand .brk { color: var(--dim); opacity: 0.7; }
+#search-row .cand .hid { color: var(--dim); user-select: none; }
 #search-row .cand.selected { background: var(--sel); }
 /* Delete one entry: an × in its own column at the row's right edge, so a
    row that wraps never pushes it around. Visible when the row is hovered
@@ -407,11 +408,18 @@ const SCRIPT = String.raw`
     return new Date(ts).toISOString().slice(0, 10);
   }
 
-  // One candidate row: the history line with matched characters bolded,
-  // plus when and where it ran (dim, when the entry knows).
+  // One candidate row: the entry's id (a stable counter, dim, so the eye
+  // can tell entries apart at a glance), the history line with matched
+  // characters bolded, plus when and where it ran (dim, when the entry
+  // knows). Entries from files written before ids existed show without
+  // one. The id is display only: it never lands in the prompt.
   function renderCandidate(entry, indexes, selected) {
     var line = entry.text;
     var row = el('div', 'cand' + (selected ? ' selected' : ''));
+    if (entry.id !== undefined) {
+      row.appendChild(el('span', 'hid', entry.id));
+      row.appendChild(document.createTextNode('  '));
+    }
     var set = {};
     indexes.forEach(function (i) { set[i] = true; });
     var span = null;

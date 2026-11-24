@@ -559,6 +559,15 @@ async function startConsole(): Promise<void> {
           const width = process.stdout.columns ?? 80;
           const room = Math.max(width - 8 - 2, 20);
           entries.forEach((e, i) => {
+            // The entry's own id, not the position in this listing: the
+            // position shifts as entries are added, trimmed or deduped,
+            // while the id is the entry's for good. Entries from files
+            // written before ids existed fall back to the position, dim,
+            // so old rows still read as rows.
+            const label =
+              e.id !== undefined
+                ? String(e.id).padStart(4)
+                : `${DIM_HINT}${String(i + 1).padStart(4)}?${RESET_HINT}`;
             // Line breaks read as a dim ¶ (the text-editor convention):
             // the entry's shape stays visible and one command's extent is
             // where its lines run out of marks. The list shows the whole
@@ -586,7 +595,7 @@ async function startConsole(): Promise<void> {
                 ? `${marked.slice(0, max + markedExtra - 1)}…`
                 : marked;
             console.log(
-              `  ${String(i + 1).padStart(4)}  ${body}${metaText}`
+              `  ${label}  ${body}${metaText}`
             );
           });
         }

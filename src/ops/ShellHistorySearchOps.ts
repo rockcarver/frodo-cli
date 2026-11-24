@@ -266,11 +266,14 @@ export function createConsoleInput(
   const LIST_ROWS = 8;
 
   /**
-   * One line of the candidate list: the command, trimmed to the terminal
-   * width, with the selected row highlighted. A multi-line entry shows its
-   * breaks as a dim ¶ (one command, several lines; the marks say where the
-   * lines inside it sit) and truncates after the first of them; the status
-   * line above the list already carries the query and the counter.
+   * One line of the candidate list: the entry's id (a stable counter,
+   * dim, so the eye can tell entries apart at a glance), then the
+   * command, trimmed to the terminal width, with the selected row
+   * highlighted. A multi-line entry shows its breaks as a dim ¶ (one
+   * command, several lines; the marks say where the lines inside it
+   * sit) and truncates after the first of them; the status line above
+   * the list already carries the query and the counter. Entries from
+   * files written before ids existed show without one.
    */
   function listRowText(entry: HistoryEntry, selected: boolean): string {
     const width = process.stdout.columns ?? 80;
@@ -287,7 +290,9 @@ export function createConsoleInput(
     if (text.length > max + marked.length - entry.text.length) {
       text = `${marked.slice(0, max + marked.length - entry.text.length - 1)}…`;
     }
-    const body = `  ${text}`;
+    const id =
+      entry.id !== undefined ? `${DIM}${entry.id}${RESET}${' '.repeat(Math.max(1, 5 - String(entry.id).length))}` : '';
+    const body = `  ${id}${text}`;
     return selected ? `${CYAN}${body}${RESET}` : `${DIM}${body}${RESET}`;
   }
 

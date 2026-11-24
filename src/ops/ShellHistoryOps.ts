@@ -34,6 +34,14 @@ export type HistoryMeta = {
   ts?: number;
   /** The environment it ran against (the frodo host). */
   host?: string;
+  /**
+   * A stable id for the entry, unique within the history file and
+   * monotonic in insertion order. Stamped by the store on add (and by
+   * the fold of the old per-host files); display only, so entries from
+   * files written before it exist carry none and everything about them
+   * works unchanged.
+   */
+  id?: number;
 };
 
 export type HistoryEntry = { text: string } & HistoryMeta;
@@ -42,7 +50,14 @@ function encodeEntry(entry: HistoryEntry): string {
   if (/[\r\n]/.test(entry.text)) {
     return MULTILINE_PREFIX + JSON.stringify(entry.text);
   }
-  if (entry.ts !== undefined || entry.host !== undefined) {
+  // Any metadata (the id included) needs the rich form: a bare line
+  // carries nothing but the command, so an id written bare would be
+  // lost on reload.
+  if (
+    entry.ts !== undefined ||
+    entry.host !== undefined ||
+    entry.id !== undefined
+  ) {
     return RICH_PREFIX + JSON.stringify(entry);
   }
   return entry.text;
@@ -65,8 +80,13 @@ function decodeEntry(raw: string): HistoryEntry {
         typeof decoded === 'object' &&
         typeof (decoded as HistoryEntry).text === 'string'
       ) {
-        const { text, ts, host } = decoded as HistoryEntry;
-        return { text, ts, host };
+        const { text, ts, host, id } = decoded as HistoryEntry;
+        return {
+          text,
+          ts,
+          host,
+          id: typeof id === 'number' ? id : undefined,
+        };
       }
     } catch {
       // not a rich entry after all: fall through and keep the raw text
@@ -88,6 +108,8 @@ export class ShellHistory {
   private historyDir: string;
   private historyFile: string;
   private entries: HistoryEntry[] = [];
+  /** The next id an added entry gets; seeded past what the file holds. */
+  private nextId = 1;
 
   constructor(host?: string) {
     // Determine the history directory
@@ -159,6 +181,7 @@ export class ShellHistory {
               merged.push({
                 ...entry,
                 host: entry.host || foldedHost || undefined,
+                id: entry.id ?? this.nextId++,
               });
               changed = true;
             }
@@ -210,6 +233,13 @@ export class ShellHistory {
           (_entry, i) => texts.lastIndexOf(texts[i]) === i
         );
         this.entries = deduped.slice(Math.max(0, deduped.length - MAX_ENTRIES));
+        // The id counter continues past every id the file holds, so a
+        // reloaded entry's id is never reissued to a new one.
+        for (const e of this.entries) {
+          if (typeof e.id === 'number' && e.id >= this.nextId) {
+            this.nextId = e.id + 1;
+          }
+        }
       } else {
         this.entries = [];
       }
@@ -241,21 +271,25 @@ export class ShellHistory {
    */
   public addLine(line: string, meta?: HistoryMeta): void {
     if (line.trim().length === 0) return;
-    const next: HistoryEntry = { text: line, ...meta };
     const at = this.entries.findIndex((e) => e.text === line);
     if (at !== -1) {
       const existing = this.entries[at];
+      const next: HistoryEntry = { text: line, ...meta };
       this.entries.splice(at, 1);
       // A repeat refreshes what the entry says about itself; fields the
-      // caller does not supply keep the older values.
+      // caller does not supply keep the older values. The id is the
+      // entry's, not the run's: it never moves with a repeat (it is
+      // stable, that is the point), and a repeat is not an insertion,
+      // so it spends no id.
+      const { id: _fresh, ...rest } = next;
       this.entries.push({
         ...existing,
         ...Object.fromEntries(
-          Object.entries(next).filter(([, v]) => v !== undefined)
+          Object.entries(rest).filter(([, v]) => v !== undefined)
         ),
       } as HistoryEntry);
     } else {
-      this.entries.push(next);
+      this.entries.push({ text: line, id: this.nextId++, ...meta });
     }
     // Oldest entries fall off past the cap (this.entries is oldest-first).
     if (this.entries.length > MAX_ENTRIES) {
