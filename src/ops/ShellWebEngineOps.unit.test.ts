@@ -1,6 +1,7 @@
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
+import repl from 'node:repl';
 import util from 'node:util';
 import {
   afterEach,
@@ -278,7 +279,53 @@ describe('ShellWebEngineOps', () => {
     expect(await value('_error = 1')).toBe(1);
     await engine.evaluate('throw new Error("later")');
     expect(await value('_error')).toBe(1);
+    // Only the sentence about `_` stays out of the log: the REPL's sentence
+    // about `_error` is logged once, as it always was.
+    expect(logs.join('')).toContain(
+      'Expression assignment to _error now disabled.'
+    );
   });
+
+  it('holds the error as the evaluator raised it: nothing shapes its stack, unlike in the terminal console', async () => {
+    // The terminal console's REPL shortens the stack of an error before it
+    // keeps it in `_error`; the engine keeps the error that ended the input
+    // as it is, with the frames of the console's own evaluator. Pinned so
+    // that a change of this is deliberate.
+    await engine.evaluate('throw new Error("raw")');
+    expect(await value('_error.stack.split("\\n").length > 1')).toBe(true);
+  });
+
+  it('takes the own value of an input whose own timer raised an error as _, unlike the terminal console, which ends that input and keeps the old _', async () => {
+    // The input goes on to its own result (the error of its timer is printed
+    // into the log), so that result is the last one. Pinned so that a change
+    // of the handling of such errors moves `_` deliberately.
+    await value('5');
+    expect(
+      await value(
+        'void setTimeout(() => { throw new Error("side-of-seven") }, 5); await new Promise((r) => setTimeout(r, 80)); 7'
+      )
+    ).toBe(7);
+    expect(await value('_')).toBe(7);
+    expect(logs.join('')).toContain('side-of-seven');
+  });
+
+  it.each(['last', 'underscoreAssigned', 'lastError', 'underscoreErrAssigned'])(
+    'refuses to start, and names %s, when the REPL does not have it',
+    (name) => {
+      // Node's REPL keeps what `_` and `_error` read in these four fields. A
+      // Node that renames or drops one would leave the console without `_`
+      // and without a word: the engine looks at start-up instead.
+      const realStart = repl.start;
+      jest.spyOn(repl, 'start').mockImplementationOnce((options) => {
+        const server = realStart(options);
+        delete (server as unknown as Record<string, unknown>)[name];
+        return server;
+      });
+      expect(() => createWebEngine({ onLog: () => undefined })).toThrow(
+        `\`${name}\``
+      );
+    }
+  );
 
   it('lets the newest error win in _error, whether it ended an input or was raised on the side', async () => {
     await engine.evaluate('throw new Error("ended")');

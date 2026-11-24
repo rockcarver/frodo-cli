@@ -65,23 +65,42 @@ export type WebEngine = {
 };
 
 /**
- * The slots in which a REPL keeps what `_` and `_error` read. They are fields
- * of the REPL's own line handler and of the `_` accessors it puts on the
- * context, which @types/node does not declare; the engine reads and writes
- * them through this shape (a cast, in createWebEngine). A Node that renames
- * them would leave the console without `_`: the tests that compare the engine
- * with a real REPL (ShellWebEngineLastResult.unit.test.ts) fail then.
+ * The fields in which a REPL keeps what `_` and `_error` read: `last` and
+ * `lastError`, and the two flags that say a script assigned the name
+ * (`underscoreAssigned`, `underscoreErrAssigned`). @types/node declares them
+ * `readonly`, because only the REPL's own line handler writes them; the engine
+ * does not use that handler, so it writes `last` and `lastError` itself,
+ * through a writable view of the same server (`WritableSlots`, no cast). The
+ * names are checked against the declared type here, and against the running
+ * Node when an engine starts.
  */
-type ReplLastSlots = {
-  /** The last result; `_` reads it. */
-  last: unknown;
-  /** True once a script assigned `_`: results stop replacing it. */
-  underscoreAssigned: boolean;
-  /** The last error; `_error` reads it. */
-  lastError: unknown;
-  /** True once a script assigned `_error`: errors stop replacing it. */
-  underscoreErrAssigned: boolean;
+const LAST_RESULT_SLOTS = [
+  'last',
+  'underscoreAssigned',
+  'lastError',
+  'underscoreErrAssigned',
+] as const satisfies readonly (keyof repl.REPLServer)[];
+
+/** The two slots the engine writes, as @types/node declares them but writable. */
+type WritableSlots = {
+  -readonly [K in 'last' | 'lastError']: repl.REPLServer[K];
 };
+
+/**
+ * Stop at start-up, with the name, when the running Node's REPL lacks one of
+ * the fields that `_` and `_error` need. Without this, a Node that renames or
+ * drops one leaves the console without `_` and says nothing: the write goes to
+ * a field nobody reads, and a result then overwrites a value the script
+ * assigned.
+ */
+function assertLastResultSlots(server: repl.REPLServer): void {
+  const missing = LAST_RESULT_SLOTS.filter((name) => !(name in server));
+  if (missing.length === 0) return;
+  server.close();
+  throw new Error(
+    `This Node.js has no REPL field ${missing.map((name) => `\`${name}\``).join(', ')}, which the web console needs to keep \`_\` and \`_error\`.`
+  );
+}
 
 // eslint-disable-next-line no-control-regex -- ANSI colour codes are the target
 const ANSI = /\x1b\[[0-9;?]*[ -/]*[@-~]/g;
@@ -166,8 +185,11 @@ export function createWebEngine(options: {
       return 'print';
     },
   });
+  assertLastResultSlots(server);
   watchUncaughtExceptions();
-  const slots = server as unknown as ReplLastSlots;
+  // @types/node declares `last` and `lastError` readonly: the writable view
+  // of the same server is the one way the engine writes them.
+  const writable: WritableSlots = server;
   installConsoleContext(server.context, bindings, {
     write: log,
     colors: false,
@@ -281,11 +303,11 @@ export function createWebEngine(options: {
   // kept in `_error` by the REPL.
   function rememberOutcome(outcome: EvalOutcome): void {
     if (outcome.status === 'ok') {
-      if (outcome.value !== undefined && !slots.underscoreAssigned) {
-        slots.last = outcome.value;
+      if (outcome.value !== undefined && !server.underscoreAssigned) {
+        writable.last = outcome.value;
       }
-    } else if (outcome.status === 'error' && !slots.underscoreErrAssigned) {
-      slots.lastError = outcome.error;
+    } else if (outcome.status === 'error' && !server.underscoreErrAssigned) {
+      writable.lastError = outcome.error;
     }
   }
 
