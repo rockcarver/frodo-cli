@@ -518,7 +518,8 @@ describe('deleteRemoteServerWithLinks', () => {
       });
 
       expect(writes()).toHaveLength(1);
-      expect(result.removedFrom).toEqual(['twin', 'twin']);
+      // the message names the shared name once
+      expect(result.removedFrom).toEqual(['twin']);
       expect(
         stored.remoteConnectorClientsGroups.map(({ serversList }) =>
           serversList.map(({ name }) => name)

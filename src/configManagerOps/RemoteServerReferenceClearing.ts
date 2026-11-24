@@ -355,7 +355,10 @@ export async function deleteRemoteServerWithLinks(
     );
   }
   const wrong = differences(expected, after);
-  if (wrong.length === 0) return { removedFrom: clusters, emptied };
+  // two server clusters that have one name are one name to the message
+  if (wrong.length === 0) {
+    return { removedFrom: [...new Set(clusters)], emptied };
+  }
 
   // the write did not leave the configuration as it was sent: put it back
   const changed = describeFields(wrong);
