@@ -1912,6 +1912,42 @@ each read, and still has no timeout. What differs from the old commands:
   session` prints `Preview feature in use`, not the experimental notice of the
   config-manager group.
 
+**`config-manager pull raw` has `--stdout`, `--path` and `-V,
+--push-api-version`, and `push raw` sends the API version of a file**: three
+options are new on `pull raw` and nothing that ran before is refused.
+
+- `--path <api path>` pulls one raw configuration, for example
+  `--path /openidm/config/authentication`. With it `--config-file` is no longer
+  needed, so `pull raw` needs the file or `--path` (the option was mandatory
+  before). When the file is given and lists the path, the item of the file is
+  pulled with its `overrides` and `pushApiVersion`, and the written file is the
+  one that a pull of the whole file writes for it; a path that the file does not
+  list is pulled as it is. An empty or blank value is refused while the command
+  line is parsed, because it would otherwise read as "no path" and pull the whole
+  file. The path stays inside the config folder as before.
+- `--stdout` prints the configuration as JSON on standard output instead of
+  writing files, and nothing else goes to standard output (messages and the
+  summary of failures go to standard error). With `--path` it prints the object,
+  which is what `push raw --path ... --stdin` reads, so
+  `frodo config-manager pull raw --path /openidm/config/authentication --stdout
+  <source> | frodo config-manager push raw --path
+  /openidm/config/authentication --stdin <target>` copies one configuration
+  between tenants. With a config file it prints one JSON list in the order of the
+  file, of the items that could be pulled; the exit code still follows the
+  failures (`--allow-failures`). It cannot be used with `-D`.
+- `-V, --push-api-version` (`-V.protocol 2.1 -V.resource 1.0`) records the API
+  version that a push of the file sends, in the file as `_pushApiVersion`, for the
+  item of `--path` under `/am`. Both properties are needed and nothing else is
+  taken; the command says so before it logs in. A read always uses the default
+  API version. The items of a config file keep their own `pushApiVersion`.
+
+What changes for a command that ran before: **`push raw` now sends the API
+version that a file records.** In 4.x and in earlier 5.0.0 prereleases the
+`_pushApiVersion` of a file under `/am` or `/environment` was removed before the
+library could read it, and the push always sent `protocol=2.0,resource=1.0`. A
+file that records another version now gets it. The default output of `pull raw
+--config-file` is the same as before.
+
 ### Node.js version matrix changes in 5.x
 
 - 5.x is tested on Node.js 26 only, and building frodo from source (the npm
