@@ -1,5 +1,6 @@
 import { FrodoStubCommand } from '../../FrodoCommand';
 import Applications from '../config-manager-delete/config-manager-delete-applications';
+import ConnectorDefinitions from '../config-manager-delete/config-manager-delete-connector-definitions';
 import EmailTemplates from '../config-manager-delete/config-manager-delete-email-templates';
 import Endpoints from '../config-manager-delete/config-manager-delete-endpoints';
 import Locales from '../config-manager-delete/config-manager-delete-locales';
@@ -17,13 +18,13 @@ import Telemetry from './config-manager-delete-telemetry';
 import TenantConfig from './config-manager-delete-tenant-config';
 import TermsConditions from './config-manager-delete-terms-and-conditions';
 import Variables from './config-manager-delete-variables';
-import ConnectorDefininitions from '../config-manager-delete/config-manager-delete-connector-definitions';
 
 export default function setup() {
   const program = new FrodoStubCommand('delete').description(
     'Delete configuration optimized for CI/CD pipelines (format compatible with fr-config-manager).'
   );
   program.addCommand(Applications().name('applications'));
+  program.addCommand(ConnectorDefinitions().name('connector-definitions'));
   program.addCommand(CustomNodes().name('custom-nodes'));
   program.addCommand(Endpoints().name('endpoints'));
   program.addCommand(Scripts().name('scripts'));
@@ -43,6 +44,5 @@ export default function setup() {
   program.addCommand(Telemetry().name('telemetry'));
   program.addCommand(TenantConfig().name('tenant-config'));
   program.addCommand(Journeys().name('journeys'));
-  program.addCommand(ConnectorDefininitions().name('connector-definitions'));
   return program;
 }
