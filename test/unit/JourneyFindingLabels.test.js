@@ -115,6 +115,28 @@ describe('tallyByCode', () => {
     ]);
   });
 
+  test('puts codes with the same error status and the same count in the order of the code, whatever the order of the findings', () => {
+    const inOrder = [
+      finding('NO_REACHABLE_TERMINAL', 'warning', 'a'),
+      finding('UNCONNECTED_OUTCOME', 'warning', 'a'),
+      finding('UNREACHABLE_NODE', 'warning', 'a'),
+      finding('MISSING_INNER_NODE', 'error', 'a'),
+      finding('MISSING_CONNECTION_TARGET', 'error', 'a'),
+    ];
+    const expected = [
+      'MISSING_CONNECTION_TARGET',
+      'MISSING_INNER_NODE',
+      'NO_REACHABLE_TERMINAL',
+      'UNCONNECTED_OUTCOME',
+      'UNREACHABLE_NODE',
+    ];
+
+    expect(tallyByCode(inOrder).map(({ code }) => code)).toEqual(expected);
+    expect(tallyByCode([...inOrder].reverse()).map(({ code }) => code)).toEqual(
+      expected
+    );
+  });
+
   test('puts the codes that have errors first, however few errors there are, then the rest by count', () => {
     const tally = tallyByCode([
       finding('UNREACHABLE_NODE', 'warning', 'a'),
