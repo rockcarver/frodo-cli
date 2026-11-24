@@ -66,6 +66,7 @@ const USES_REALM = [
   'frodo config-manager push oauth-issuers',
   'frodo config-manager push oauth-software-publishers',
   'frodo config-manager delete journeys',
+  'frodo config-manager delete services',
 ];
 
 /** The commands that also cover configuration of the tenant, which no realm limits. */

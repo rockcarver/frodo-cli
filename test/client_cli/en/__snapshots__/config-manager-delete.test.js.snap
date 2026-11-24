@@ -43,6 +43,7 @@ Commands:
                              are never deleted.
   secret-mappings            [Experimental] [Cloud-only] Delete secret mappings.
   secrets                    [Experimental] [Cloud-only] Delete secrets.
+  services                   [Experimental] Delete realm services.
   telemetry                  [Experimental] [Cloud-only] Delete telemetry
                              exporters.
   tenant-config              [Experimental] [Cloud-only] Delete all ESV secrets
