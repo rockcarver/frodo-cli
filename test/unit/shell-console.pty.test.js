@@ -110,15 +110,18 @@ describe('frodo shell PTY (console mode)', () => {
           { type: 'wait_plain', regex: 'frodo>' },
           { type: 'clear_output' },
           { type: 'send_line', text: "'marker-AAA'" },
-          { type: 'wait_plain', regex: "'marker-AAA'" },
+          // Wait for the result and the next prompt, not the echoed input:
+          // the initial prompt can appear before the input hooks are installed.
+          { type: 'wait_plain', regex: "\\n'marker-AAA'\\n[\\s\\S]*frodo>\\s*$" },
           { type: 'clear_output' },
           // ctrl-r, then a fuzzy query, then Enter to re-run
           { type: 'key', name: 'ctrl_r' },
           { type: 'send', text: 'markerAA' },
-          { type: 'wait_plain', regex: '\\(fuzzy-search\\).*1/1' },
+          { type: 'wait_plain', regex: '\\(fuzzy-search\\) markerAA 1/1' },
           { type: 'capture', label: 'search' },
+          { type: 'clear_output' },
           { type: 'key', name: 'enter' },
-          { type: 'wait_plain', regex: "'marker-AAA'" },
+          { type: 'wait_plain', regex: "\\n'marker-AAA'\\n[\\s\\S]*frodo>\\s*$" },
           { type: 'clear_output' },
           // Esc cancels and restores the empty draft
           { type: 'key', name: 'ctrl_r' },
