@@ -53,6 +53,7 @@ class PtyScenarioRunner:
         self.env["USERPROFILE"] = self.home_dir
         self.actions = scenario["actions"]
         self.output = ""
+        self.lflag_at_read = None
         self.captures = {}
         self.child_pid = None
         self.fd = None
@@ -80,7 +81,7 @@ class PtyScenarioRunner:
         self.child_pid = pid
         self.fd = fd
 
-    def _read_once(self, timeout_seconds=0.05):
+    def _read_once(self, timeout_seconds=0.05, note_mode=False):
         readable, _, _ = select.select([self.fd], [], [], timeout_seconds)
         if self.fd not in readable:
             return False
@@ -90,6 +91,10 @@ class PtyScenarioRunner:
             return False
         if not data:
             return False
+        if note_mode:
+            # The line discipline's flags at the instant of the read, before
+            # anything else is done with the bytes.
+            self.lflag_at_read = termios.tcgetattr(self.fd)[3]
         self.output += data.decode("utf-8", errors="replace")
         return True
 
@@ -118,22 +123,27 @@ class PtyScenarioRunner:
         # Wait for the regex in the plain output, then answer with `text` in
         # the very pass that read the match: no sleep, no other action
         # between the read and the write. This is how a fast terminal
-        # emulator or a pasted key answers a prompt. Before the write, the
-        # terminal's line discipline is read (the master reports the
-        # slave's flags), so a test can say what the terminal was doing at
-        # the instant the prompt was read. The capture of `label` holds the
+        # emulator or a pasted key answers a prompt. The terminal's line
+        # discipline is read (the master reports the slave's flags) right
+        # after the read that brought the match, before the bytes are
+        # decoded, so a test can say what the terminal was doing at the
+        # instant the prompt was read. The capture of `label` holds the
         # output up to the match and the three flags.
         deadline = time.time() + action.get("timeoutMs", 10000) / 1000.0
         compiled = re.compile(action["regex"])
+        lflag = None
         while True:
-            self._read_once()
+            if self._read_once(note_mode=True):
+                lflag = self.lflag_at_read
             if compiled.search(strip_ansi(self.output)):
                 break
             if time.time() >= deadline:
                 raise TimeoutError(
                     f"Timed out waiting for {action['regex']}.\nCaptured output:\n{strip_ansi(self.output)}"
                 )
-        lflag = termios.tcgetattr(self.fd)[3]
+        if lflag is None:
+            # the match was in output read before this action
+            lflag = termios.tcgetattr(self.fd)[3]
         text = action.get("text", "")
         if text:
             self._write(text.encode("utf-8"))
