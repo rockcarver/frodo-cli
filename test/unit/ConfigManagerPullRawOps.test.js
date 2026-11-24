@@ -204,20 +204,21 @@ describe('pull raw --path', () => {
     expect(exportRawConfig.mock.calls).toEqual([[LISTED]]);
   });
 
-  test('takes the same path with or without its leading slash for the same path', async () => {
-    const file = put('raw.json', [LISTED]);
+  test('takes the same path with or without its leading slash for the same path, and pulls only that item', async () => {
+    const withoutSlash = { ...LISTED, path: LISTED.path.slice(1) };
 
-    await configManagerExportRaw(file, false, LISTED.path.slice(1));
     await configManagerExportRaw(
-      put('other.json', [{ ...LISTED, path: LISTED.path.slice(1) }]),
+      put('raw.json', [{ path: '/openidm/config/ok1' }, LISTED]),
+      false,
+      LISTED.path.slice(1)
+    );
+    await configManagerExportRaw(
+      put('other.json', [{ path: '/openidm/config/ok1' }, withoutSlash]),
       false,
       LISTED.path
     );
 
-    expect(exportRawConfig.mock.calls).toEqual([
-      [LISTED],
-      [{ ...LISTED, path: LISTED.path.slice(1) }],
-    ]);
+    expect(exportRawConfig.mock.calls).toEqual([[LISTED], [withoutSlash]]);
   });
 
   test('pulls a path that the file does not list as it is, with nothing of the other items', async () => {

@@ -536,9 +536,19 @@ suite('config-manager pull raw and push raw against a fake tenant', () => {
       async (_, hostile) => {
         const proxy = await tenant();
 
-        const { code } = await pull(proxy, ['--path', hostile, '-D', 'out']);
+        const { code, stderr } = await pull(proxy, [
+          '--path',
+          hostile,
+          '-D',
+          'out',
+        ]);
 
         expect(code).toBe(1);
+        // the path was taken as a path and refused, by the library or by the config folder
+        expect(stderr).not.toContain('unknown option');
+        expect(stderr).toMatch(
+          /must stay inside the config folder|not supported/
+        );
         // not a file below the working directory, none next to it, none above the box
         expect(filesBelow(sandbox)).toEqual(['marker.txt']);
         expect(fs.readFileSync(path.join(sandbox, 'marker.txt'), 'utf8')).toBe(
