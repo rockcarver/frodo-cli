@@ -1724,7 +1724,7 @@ describe('a tab engine that cannot start or that ends', () => {
      * without a word, `kill` kills itself, `hang` never answers and ends 150 ms
      * later, `idle` answers and ends 150 ms later, `warn` writes an error line
      * and answers, `spam` writes many lines (the last one names an error) and
-     * ends, `leak` writes what TEST_LEAK holds, `leakidle` answers and then writes it as it ends, `wait` never answers, `longline` writes one line of 300 characters, `window` writes 52 lines (an early error line, one that is the 21st from the end, one that is the 20th and stays), `oomlong` and `oomshort` end like an out-of-memory abort with a long and a short native trace, `say` logs a line and answers, `who` answers its process id.
+     * ends, `leak` writes what TEST_LEAK holds, `leakidle` answers and then writes it as it ends, `wait` never answers, `die:<line>` writes the line and ends, `keep:<text>` keeps the text and `kept` answers it (what an engine remembers), `longline` writes one line of 300 characters, `window` writes 52 lines (an early error line, one that is the 21st from the end, one that is the 20th and stays), `oomlong` and `oomshort` end like an out-of-memory abort with a long and a short native trace, `say` logs a line and answers, `who` answers its process id.
      * Every start is a line of the file `spawnLog`.
      */
     function answeringStub(): string {
@@ -1735,11 +1735,15 @@ describe('a tab engine that cannot start or that ends', () => {
         'const say = (m, reply) => process.stdout.write(JSON.stringify({ id: m.id, op: m.op, ...reply }) + "\\n");',
         'const say_ok = (m, result) => say(m, { outcome: { status: "ok", result } });',
         'const end_in = (ms, line) => setTimeout(() => { if (line) process.stderr.write(line + "\\n"); process.exit(1); }, ms);',
+        'let kept;',
         'rl.on("line", (line) => {',
         '  const m = JSON.parse(line);',
         '  if (m.op === "dispose") process.exit(0);',
         '  if (m.op !== "eval") return say(m, m.op === "history" ? { lines: [] } : { info: {} });',
+        '  if (m.code.startsWith("die:")) { process.stderr.write(m.code.slice(4) + "\\n"); process.exit(1); }',
+        '  if (m.code.startsWith("keep:")) { kept = m.code.slice(5); return say_ok(m, kept); }',
         '  switch (m.code) {',
+        '    case "kept": return say_ok(m, kept);',
         '    case "who": return say_ok(m, process.pid);',
         '    case "crash": process.stderr.write("RangeError: boom after start\\n"); process.exit(1);',
         '    case "exit3": process.exit(3);',
@@ -1865,6 +1869,17 @@ describe('a tab engine that cannot start or that ends', () => {
       );
       expect(cut.endsWith(` ${NEXT_INPUT}`)).toBe(true);
       expect(cut).not.toContain('….');
+      // a line that ends in another mark of the end of a sentence gets no full stop
+      expect(await how('die:Error: boom!')).toBe(
+        `The console engine ended: Error: boom! ${NEXT_INPUT}`
+      );
+      expect(await how('die:Error: what now?')).toBe(
+        `The console engine ended: Error: what now? ${NEXT_INPUT}`
+      );
+      // a full stop inside the line is not the end of it
+      expect(await how('die:Error: file.js failed')).toBe(
+        `The console engine ended: Error: file.js failed. ${NEXT_INPUT}`
+      );
     });
 
     it('serves the next two requests of a tab whose engine ended with one new engine, and names it in a header', async () => {
@@ -1958,6 +1973,123 @@ describe('a tab engine that cannot start or that ends', () => {
       }
       await new Promise((resolve) => setTimeout(resolve, 500));
       expect(told('The console engine ended')).toHaveLength(0);
+    });
+
+    it('says nothing of an end that the idle shutdown asked for, though a request waits for the engine', async () => {
+      // only the clock of the idle check is a fake one
+      jest.useFakeTimers({
+        doNotFake: [
+          'hrtime',
+          'nextTick',
+          'performance',
+          'queueMicrotask',
+          'requestAnimationFrame',
+          'cancelAnimationFrame',
+          'requestIdleCallback',
+          'cancelIdleCallback',
+          'setImmediate',
+          'clearImmediate',
+          'setTimeout',
+          'clearTimeout',
+        ],
+      });
+      try {
+        process.env.FRODO_TEST_WORKER_SCRIPT = answeringStub();
+        const { session, evaluate } = await startAndSignIn();
+        const engine = engineOf(await session());
+        const waiting = evaluate(engine, 'wait').catch((e) => e);
+        // the request is with the engine now
+        await new Promise((resolve) => setTimeout(resolve, 300));
+        const pid = Number(
+          fs.readFileSync(spawnLog, 'utf8').trim().split('\n').pop()
+        );
+        // no browser has been seen for longer than the idle limit: the console shuts down
+        jest.advanceTimersByTime(40 * 60 * 1000);
+        await waiting;
+        for (let i = 0; i < 100; i++) {
+          try {
+            process.kill(pid, 0);
+          } catch {
+            break;
+          }
+          await new Promise((resolve) => setTimeout(resolve, 50));
+        }
+        await new Promise((resolve) => setTimeout(resolve, 500));
+        // the engine was ended by the shutdown (the process is gone) and nobody was told
+        expect(() => process.kill(pid, 0)).toThrow();
+        expect(told('The console engine ended')).toHaveLength(0);
+      } finally {
+        jest.useRealTimers();
+      }
+    });
+
+    it('says nothing of an engine that was ended before it answered either, when the console asked for it', async () => {
+      // a worker that never answers and ends when it is told to
+      spawnLog = path.join(dir, 'spawns.log');
+      process.env.FRODO_TEST_WORKER_SCRIPT = stub([
+        `require("node:fs").appendFileSync(${JSON.stringify(spawnLog)}, process.pid + "\\n");`,
+        'require("node:readline").createInterface({ input: process.stdin }).on("line", (line) => {',
+        '  if (JSON.parse(line).op === "dispose") process.exit(0);',
+        '});',
+      ]);
+      const { session } = await startAndSignIn();
+      const waiting = session().catch((e) => e);
+      await new Promise((resolve) => setTimeout(resolve, 500));
+      const pid = Number(
+        fs.readFileSync(spawnLog, 'utf8').trim().split('\n').pop()
+      );
+      await web.close();
+      await waiting;
+      for (let i = 0; i < 100; i++) {
+        try {
+          process.kill(pid, 0);
+        } catch {
+          break;
+        }
+        await new Promise((resolve) => setTimeout(resolve, 50));
+      }
+      await new Promise((resolve) => setTimeout(resolve, 500));
+      expect(() => process.kill(pid, 0)).toThrow();
+      // neither as a failure to start nor as an end
+      expect(told('could not start an engine')).toHaveLength(0);
+      expect(told('The console engine ended')).toHaveLength(0);
+    });
+
+    it('forgets only the engine that ended: another tab keeps its engine, what it remembers and its stream', async () => {
+      process.env.FRODO_TEST_WORKER_SCRIPT = answeringStub();
+      const { session, evaluate, headers } = await startAndSignIn();
+      // two tabs, each with an engine of its own
+      const tabA = engineOf(await session());
+      const tabB = engineOf(await session());
+      expect(tabB).not.toBe(tabA);
+      expect(started()).toBe(2);
+      expect((await evaluate(tabB, 'keep:blue')).status).toBe(200);
+      const pidB = JSON.parse((await evaluate(tabB, 'who')).body).result;
+      const stream = await openStream(web.port, {
+        ...headers,
+        'X-Frodo-Engine': tabB,
+      });
+      try {
+        // tab A's engine ends
+        expect((await evaluate(tabA, 'crash')).status).toBe(503);
+        // tab B goes on with the same engine: its id, its process, what it remembers
+        const kept = await evaluate(tabB, 'kept');
+        expect(kept.status).toBe(200);
+        expect(kept.headers['x-frodo-engine']).toBe(tabB);
+        expect(JSON.parse(kept.body).result).toBe('blue');
+        expect(JSON.parse((await evaluate(tabB, 'who')).body).result).toBe(
+          pidB
+        );
+        // and its stream still carries what its engine logs
+        expect((await evaluate(tabB, 'say')).status).toBe(200);
+        await stream.next(
+          (e) => e.type === 'log' && e.text === 'hello from the engine'
+        );
+        // no engine was started for tab B, and none yet for tab A
+        expect(started()).toBe(2);
+      } finally {
+        stream.close();
+      }
     });
 
     it('binds the event stream of a tab with an id that no engine has to the engine that it starts for it', async () => {

@@ -398,6 +398,13 @@ run('frodo shell --web with real engine processes', () => {
     expect(session.status).toBe(200);
     const first = session.json.engine;
     expect(session.headers.get('x-frodo-engine')).toBe(first);
+    // a second tab, with an engine of its own and something it remembers
+    const other = (await call('GET', '/api/session')).json.engine;
+    expect(other).not.toBe(first);
+    expect(
+      (await call('POST', '/api/eval', { code: 'var keep = 7; keep' }, other))
+        .status
+    ).toBe(200);
 
     // a script that ends its own process, as a crash or a kill would
     const ended = await call(
@@ -427,6 +434,11 @@ run('frodo shell --web with real engine processes', () => {
     const third = await call('POST', '/api/eval', { code: '6 * 7' }, second);
     expect(third.status).toBe(200);
     expect(third.headers.get('x-frodo-engine')).toBe(second);
+    // the other tab did not notice: same engine, same id, same variable
+    const kept = await call('POST', '/api/eval', { code: 'keep + 1' }, other);
+    expect(kept.status).toBe(200);
+    expect(kept.json.result.preview).toBe('8');
+    expect(kept.headers.get('x-frodo-engine')).toBe(other);
     expect(shell.exited).toBe(false);
   }, 180_000);
 });
