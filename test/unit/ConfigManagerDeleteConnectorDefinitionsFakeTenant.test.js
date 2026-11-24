@@ -1012,6 +1012,61 @@ suite('config-manager delete connector-definitions (fake tenant)', () => {
       TIMEOUT
     );
 
+    test.each([
+      ['a;b', 'a%3Bb'],
+      ['a+b', 'a%2Bb'],
+      ['a,b', 'a%2Cb'],
+      ['a&b', 'a%26b'],
+      ['a=b', 'a%3Db'],
+    ])(
+      'a named delete of %j sends the name written for a path (%s), as one DELETE, and removes that connector definition only',
+      async (name, written) => {
+        const { code } = await deleteConnectors(['-i', name], {
+          tenant: {
+            store: {
+              [`provisioner.openicf/${name}`]: connector(name),
+              'provisioner.openicf/a': connector('a'),
+            },
+          },
+        });
+
+        expect(code).toBe(0);
+        const deletes = requests()
+          .filter(({ method }) => method === 'DELETE')
+          .map(({ url }) => url.replace(/^.*\/openidm\/config\//, ''));
+        expect(deletes).toEqual([`provisioner.openicf/${written}`]);
+        expect(await held(`provisioner.openicf/${name}`)).toBeUndefined();
+        expect(await held('provisioner.openicf/a')).toBeDefined();
+      },
+      TIMEOUT
+    );
+
+    test(
+      'an id with DEL or a control of U+0080 to U+009F is shown written out, not as the raw character, and nothing is sent for it',
+      async () => {
+        const { code, output } = await deleteConnectors(['-y'], {
+          tenant: {
+            store: {
+              'provisioner.openicf/a\u007fb': {
+                _id: 'provisioner.openicf/a\u007fb',
+              },
+              'provisioner.openicf/a\u0085b': {
+                _id: 'provisioner.openicf/a\u0085b',
+              },
+            },
+          },
+        });
+
+        expect(code).toBe(1);
+        expect(output).toContain('"provisioner.openicf/a\\u007fb"');
+        expect(output).toContain('"provisioner.openicf/a\\u0085b"');
+        expect(output).toContain('2 of 5 connectors failed');
+        expect(/[\u007f-\u009f]/.test(output)).toBe(false);
+        expect(changes()).toHaveLength(3);
+      },
+      TIMEOUT
+    );
+
     test(
       'a named delete of an odd but plain name deletes exactly that connector definition',
       async () => {

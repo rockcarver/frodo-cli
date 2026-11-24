@@ -122,6 +122,14 @@ const { configManagerDeleteConnectorDefinitions } =
 const PREFIX = 'provisioner.openicf/';
 const NAMES = ['Azure', 'GoogleApps', 'salesforce'];
 
+/** A listed id as the messages show it: in quotes, every control character (DEL and the second block too) written as \uXXXX. */
+const shownOf = (id) =>
+  JSON.stringify(id).replace(
+    /\p{Cc}/gu,
+    (character) =>
+      `\\u${character.codePointAt(0).toString(16).padStart(4, '0')}`
+  );
+
 /** The messages that were printed, as one text. */
 const output = () =>
   printMessage.mock.calls.map(([text]) => String(text)).join('\n');
@@ -834,7 +842,7 @@ describe('a listed id that is not a plain name is never sent to the tenant', () 
 
         expect(deleteConnector).not.toHaveBeenCalled();
         expect(output()).toContain(
-          `Connector definition ${JSON.stringify(`${PREFIX}${name}`)} is listed with an id that is not a plain name`
+          `Connector definition ${shownOf(`${PREFIX}${name}`)} is listed with an id that is not a plain name`
         );
         expect(levelOf('is not a plain name')).toBe('error');
       }
@@ -854,7 +862,7 @@ describe('a listed id that is not a plain name is never sent to the tenant', () 
       expect(await configManagerDeleteConnectorDefinitions()).toBe(false);
 
       expect(deleted()).toEqual(['Azure', 'salesforce']);
-      const shown = JSON.stringify(`${PREFIX}${name}`);
+      const shown = shownOf(`${PREFIX}${name}`);
       expect(output()).toContain(
         `Connector definition ${shown} is listed with an id that is not a plain name`
       );
@@ -870,6 +878,50 @@ describe('a listed id that is not a plain name is never sent to the tenant', () 
         await configManagerDeleteConnectorDefinitions(undefined, false, true)
       ).toBe(true);
       expect(deleted()).toEqual(['Azure', 'salesforce']);
+    }
+  );
+
+  test.each([
+    ['DEL', '\u007f', '\\u007f'],
+    ['a control of the second block', '\u0085', '\\u0085'],
+    ['the last control of the second block', '\u009f', '\\u009f'],
+    ['a control of the first block', '\u0001', '\\u0001'],
+  ])(
+    'a listed id with %s is shown written out, never as the raw character, in the error, the summary and the plan',
+    async (_what, character, written) => {
+      /** No message holds a control character other than the line breaks between its lines. */
+      const noRawControl = () =>
+        printMessage.mock.calls.every(
+          ([text]) =>
+            !/[\u0000-\u0009\u000b-\u001f\u007f-\u009f]/.test(String(text))
+        );
+      readConnectors.mockResolvedValue([
+        { _id: `${PREFIX}Azure` },
+        { _id: `${PREFIX}a${character}b` },
+      ]);
+      const shown = `"${PREFIX}a${written}b"`;
+
+      // a delete of all: the error and the line of the summary
+      expect(await configManagerDeleteConnectorDefinitions()).toBe(false);
+      expect(output()).toContain(shown);
+      expect(output()).toContain(`- ${shown}: its id is not a plain name`);
+      expect(noRawControl()).toBe(true);
+
+      // its plan
+      printMessage.mockClear();
+      expect(
+        await configManagerDeleteConnectorDefinitions(undefined, true)
+      ).toBe(true);
+      expect(output()).toContain(shown);
+      expect(noRawControl()).toBe(true);
+
+      // a named delete
+      printMessage.mockClear();
+      expect(
+        await configManagerDeleteConnectorDefinitions(`a${character}b`)
+      ).toBe(false);
+      expect(output()).toContain(shown);
+      expect(noRawControl()).toBe(true);
     }
   );
 
@@ -906,7 +958,7 @@ describe('a listed id that is not a plain name is never sent to the tenant', () 
       'The one connector definition would be deleted: Azure.'
     );
     expect(output()).toContain(
-      `These listed ids are not plain names (a plain name is not blank, and has no /, \\, ?, #, %, .. or control character). No request would be sent for them, and each would count as a failed delete: "${PREFIX}../managed", "${PREFIX}a#b".`
+      `These listed ids are not plain names (a plain name is not blank, is not just a dot, and has no /, \\, ?, #, %, .. or control character). No request would be sent for them, and each would count as a failed delete: "${PREFIX}../managed", "${PREFIX}a#b".`
     );
     expect(deleteConnector).not.toHaveBeenCalled();
   });
@@ -942,6 +994,7 @@ describe('a listed id that is not a plain name is never sent to the tenant', () 
       { _id: `${PREFIX}caf\u00e9` },
       { _id: `${PREFIX}-dash.dot` },
       { _id: `${PREFIX}a'b(c)` },
+      { _id: `${PREFIX}a;b` },
     ]);
 
     expect(await configManagerDeleteConnectorDefinitions()).toBe(true);
@@ -952,23 +1005,38 @@ describe('a listed id that is not a plain name is never sent to the tenant', () 
       ['caf%C3%A9'],
       ['-dash.dot'],
       ["a'b(c)"],
+      ['a%3Bb'],
     ]);
     // the message names the connector definition as it is listed
     expect(output()).toContain("Deleted connector definition 'my connector'.");
   });
 
-  test('a named delete of an odd but plain name sends the name written for a path, and says the plain name', async () => {
-    readConnectors.mockResolvedValue([{ _id: `${PREFIX}my connector` }]);
+  // `;` `,` `&` `$` `=` `+` `:` `@` are left alone by `encodeURI`: a name that has one of them is written for a path by
+  // `encodeURIComponent` only (a `;` starts a path parameter in a servlet, a `+` is a space in a query)
+  test.each([
+    ['my connector', 'my%20connector'],
+    ['a;b', 'a%3Bb'],
+    ['a+b', 'a%2Bb'],
+    ['a,b', 'a%2Cb'],
+    ['a&b', 'a%26b'],
+    ['a$b', 'a%24b'],
+    ['a=b', 'a%3Db'],
+    ['a:b', 'a%3Ab'],
+    ['a@b', 'a%40b'],
+    ['caf\u00e9', 'caf%C3%A9'],
+  ])(
+    'a named delete of the odd but plain name %j sends the name written for a path (%s), and says the plain name',
+    async (name, written) => {
+      readConnectors.mockResolvedValue([{ _id: `${PREFIX}${name}` }]);
 
-    expect(await configManagerDeleteConnectorDefinitions('my connector')).toBe(
-      true
-    );
+      expect(await configManagerDeleteConnectorDefinitions(name)).toBe(true);
 
-    expect(deleteConnector.mock.calls).toEqual([['my%20connector']]);
-    expect(output()).toContain("Deleted connector definition 'my connector'.");
-    // what names it is looked up by the name, not by its path form
-    expect(findConnectorReferences).toHaveBeenCalledWith('my connector');
-  });
+      expect(deleteConnector.mock.calls).toEqual([[written]]);
+      expect(output()).toContain(`Deleted connector definition '${name}'.`);
+      // what names it is looked up by the name, not by its path form
+      expect(findConnectorReferences).toHaveBeenCalledWith(name);
+    }
+  );
 });
 
 describe('an application that names the connector definition owns it', () => {

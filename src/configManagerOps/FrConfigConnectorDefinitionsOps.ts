@@ -219,7 +219,7 @@ const CONNECTOR_PREFIX = 'provisioner.openicf/';
 
 /** What a name is, in the words of a message about an id that is not one. */
 const PLAIN_NAME_RULE =
-  'a plain name is not blank, and has no /, \\, ?, #, %, .. or control character';
+  'a plain name is not blank, is not just a dot, and has no /, \\, ?, #, %, .. or control character';
 
 /**
  * Whether the part of a listed id after the type prefix is a plain name. The
@@ -239,9 +239,20 @@ function isPlainName(name: string): boolean {
   );
 }
 
-/** A listed id as a message shows it: quoted, a control character written out, so that it cannot change what the terminal shows. */
+/**
+ * A listed id as a message shows it: quoted, and every control character written
+ * out as `\uXXXX`, so that it cannot change what the terminal shows. `JSON.stringify`
+ * writes out the characters below U+0020 only; DEL and the controls of U+0080 to
+ * U+009F are written out here.
+ * @param {string} id the listed id
+ * @returns {string} the id as a quoted text without a raw control character
+ */
 function shownId(id: string): string {
-  return JSON.stringify(id);
+  return JSON.stringify(id).replace(
+    /\p{Cc}/gu,
+    (character) =>
+      `\\u${(character.codePointAt(0) as number).toString(16).padStart(4, '0')}`
+  );
 }
 
 /** What a delete of connector definitions needs to know besides the id, the dry run and `--allow-failures`. */

@@ -447,10 +447,10 @@ proof that a connector definition is unused: one that a script, an endpoint, a
 reconciliation or a client of the REST API names is not seen.
 
 A connector definition that the tenant lists with an id that is not a plain name
-(a name is not blank and has no `/`, `\`, `?`, `#`, `%`, `..` or control
-character in it) is never sent to the tenant: it is skipped with a message, and
-it counts as a failed delete. The name of every other connector definition is
-percent-encoded in the path of the request.
+(a name is not blank, is not just a dot, and has no `/`, `\`, `?`, `#`, `%`,
+`..` or control character in it) is never sent to the tenant: it is skipped with
+a message, and it counts as a failed delete. The name of every other connector
+definition is percent-encoded in the path of the request.
 
 `--force` (long form only, only with `-i`) deletes the connector definition
 anyway, and **changes nothing else**: every mapping, application, schedule or
