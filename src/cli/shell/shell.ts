@@ -478,13 +478,33 @@ async function startConsole(): Promise<void> {
   );
 
   // Persist executed lines, stamped with when and (once known) where.
+  // A pasted multi-line buffer arrives as one input chunk and readline
+  // answers it with one 'line' event per pasted line; stored as-is, the
+  // lines enter history newest-first as separate entries and the search
+  // reads them bottom-up (the pasted script appears in reverse). Lines
+  // that arrive in the same tick belong to one submission: they join
+  // into one entry, the way the web console records its multi-line
+  // inputs. A human Enter is one line per input chunk, so typing cannot
+  // merge; a paste too large for one read degrades to separate entries,
+  // which is what it was before, not worse.
+  let pasted: string[] = [];
+  let flushPasted: NodeJS.Timeout | undefined;
   started.on('line', (line: string) => {
-    if (line.trim().length > 0) {
-      shellHistory.addLine(line, {
-        ts: Date.now(),
-        host: state.getHost() || undefined,
-      });
-    }
+    pasted.push(line);
+    if (flushPasted) clearTimeout(flushPasted);
+    flushPasted = setTimeout(() => {
+      const text = pasted
+        .join('\n')
+        .replace(/^\n+|\n+$/g, ''); // blank edges of the paste
+      pasted = [];
+      flushPasted = undefined;
+      if (text.trim().length > 0) {
+        shellHistory.addLine(text, {
+          ts: Date.now(),
+          host: state.getHost() || undefined,
+        });
+      }
+    }, 0);
     // The next prompt names the environment as it is now (a sign-in the
     // last eval triggered shows there, not on a stale prompt).
     started.setPrompt(consolePrompt());
