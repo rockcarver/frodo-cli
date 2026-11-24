@@ -205,13 +205,16 @@ async function startWebMode(host?: string): Promise<void> {
   await new Promise<never>(() => undefined);
 }
 
-async function startConsole(host?: string): Promise<void> {
+async function startConsole(): Promise<void> {
   const bindings = createConsoleBindings();
   const { shellRest, rootBindings, docsByMethod } = bindings;
 
-  // Persistent history per connection profile/host. Declared first: the
-  // input filter below closes over it, and the REPL is started later.
-  const shellHistory = new ShellHistory(host);
+  // Persistent history, shared across connections and surfaces: one
+  // history for the person, wherever the command ran (the web console
+  // shares it; each entry carries the host it ran against). Declared
+  // first: the input filter below closes over it, and the REPL is
+  // started later.
+  const shellHistory = new ShellHistory();
 
   // The interactive object explorer (Ctrl+O / explore()): a full-screen
   // collapsible tree over the last result or any value. Its io routes bytes
@@ -295,8 +298,29 @@ async function startConsole(host?: string): Promise<void> {
     () => getIdmCatalog()
   );
 
+  // The prompt says which environment the next input runs against: a
+  // question the console exists to answer, and one the fixed `frodo> `
+  // left invisible after launch. Readline paints the prompt string it was
+  // last given, so the prompt is recomputed and set before every display
+  // (on each line and after each eval): a sign-in that happens between
+  // lines is on the next prompt with no redraw of its own.
+  const consolePrompt = (): string => {
+    const host = (state.getHost() || '')
+      .replace(/^https?:\/\//, '')
+      .replace(/\/.*$/, '');
+    const realm = state.getRealm() || '';
+    if (!host) return 'frodo> ';
+    // Realms root at '/'; the prompt reads `alpha` or `alpha/child`.
+    const realmPart = realm.replace(/^\/+/, '');
+    // Long hosts crowd the line: the first labels and an elision.
+    const labels = host.split('.');
+    const short =
+      host.length <= 24 ? host : `${labels.slice(0, 2).join('.')}…`;
+    return `frodo[${short}${realmPart ? `/${realmPart}` : ''}]> `;
+  };
+
   const started = repl.start({
-    prompt: 'frodo> ',
+    prompt: consolePrompt(),
     ignoreUndefined: true,
     useColors: true,
     completer,
@@ -431,6 +455,24 @@ async function startConsole(host?: string): Promise<void> {
     printHintAbovePrompt(started, hint);
   });
 
+  // A prompt refreshed with the connection, whatever refreshes it: the
+  // line hook below covers evals; this proxy covers dot-commands and any
+  // other display that readline answers between lines. The proxy must
+  // not setPrompt when the prompt has not changed: readline answers a
+  // setPrompt by redrawing, and a redraw that rides a hint write cuts
+  // the hint short (the completion hint above the prompt lost everything
+  // past its first characters).
+  const displayPrompt = started.displayPrompt.bind(started);
+  let lastPrompt: string | undefined;
+  started.displayPrompt = (...args: Parameters<typeof displayPrompt>) => {
+    const next = consolePrompt();
+    if (next !== lastPrompt) {
+      lastPrompt = next;
+      started.setPrompt(next);
+    }
+    return displayPrompt(...args);
+  };
+
   (started as unknown as { history: string[] }).history = shellHistory.getLines(
     { singleLineOnly: true }
   );
@@ -443,6 +485,9 @@ async function startConsole(host?: string): Promise<void> {
         host: state.getHost() || undefined,
       });
     }
+    // The next prompt names the environment as it is now (a sign-in the
+    // last eval triggered shows there, not on a stale prompt).
+    started.setPrompt(consolePrompt());
   });
 
   started.on('exit', () => {
@@ -494,7 +539,13 @@ async function startConsole(host?: string): Promise<void> {
           const width = process.stdout.columns ?? 80;
           const room = Math.max(width - 8 - 2, 20);
           entries.forEach((e, i) => {
-            const full = e.text.split('\n')[0];
+            // Line breaks read as a dim ¶ (the text-editor convention):
+            // the entry's shape stays visible and one command's extent is
+            // where its lines run out of marks. The list shows the whole
+            // entry only while it fits; past that it truncates, marks
+            // included.
+            const marked = e.text.replace(/\n/g, `${DIM_HINT}¶${RESET_HINT}`);
+            const markedExtra = marked.length - e.text.length;
             const more = e.text.includes('\n');
             const meta: string[] = [];
             const w = when(e.ts);
@@ -509,11 +560,13 @@ async function startConsole(host?: string): Promise<void> {
             // trim the command so the row fits the terminal.
             const budget =
               room - (meta.length > 0 ? meta.join(' · ').length + 4 : 0);
-            const max = Math.max(more ? budget - 3 : budget, 12);
-            const first =
-              full.length > max ? `${full.slice(0, max - 1)}…` : full;
+            const max = Math.max(budget, 12);
+            const body =
+              marked.length > max + markedExtra
+                ? `${marked.slice(0, max + markedExtra - 1)}…`
+                : marked;
             console.log(
-              `  ${String(i + 1).padStart(4)}  ${first}${more ? `${DIM_HINT}  …${RESET_HINT}` : ''}${metaText}`
+              `  ${String(i + 1).padStart(4)}  ${body}${metaText}`
             );
           });
         }
@@ -739,7 +792,7 @@ export default function setup() {
       printMessage(
         'Welcome to the frodo JS console!\nType "$" REST calls or frodo API expressions; ".help" for help, ".exit" to quit.\n'
       );
-      await startConsole(host);
+      await startConsole();
     });
   return program;
 }
