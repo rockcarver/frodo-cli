@@ -7,6 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+## [v5.0.0-32] - 2026-11-24
+
+### Added
+- `config-manager pull raw` command now supports `--stdout`, `--path`, and `--push-api-version` flags. The `--stdout` flag outputs JSON directly to the console, `--path` allows specifying a single item to read, and `--push-api-version` sends the version of the push API. (PR #1451)
+- `journey validate` command now shows progress and provides a summary per code, improving visibility during validation. (PR #1445)
+- Added `--full` flag to promotion commands (`run-promotion`, `run-dryrun-promotion`, and `rollback`), enabling the entire promotion lifecycle in a single command. This feature is experimental and requires confirmation before execution. (PR #1438)
+
+### Changed
+- The web console (`frodo shell --web`) now retains the last result in `_` and the last error in `_error`, aligning with the terminal console behavior. (PR #1449)
+- The launcher now allows process warnings to be displayed, improving transparency during execution. (PR #1452)
+
+### Fixed
+- Resolved an issue where a web console engine that terminated unexpectedly would leave the tab in an error state. The engine is now replaced, and the tab is updated with the new engine details. (PR #1454)
+- Corrected the handling of tenant-provided names to ensure consistent naming within the config folder across all pull commands. (PR #1439)
+
+### Security
+- Updated `frodo-lib` to version 5.0.0-53, which includes a fix for a failed background refresh of the access token, preventing long-running processes from terminating unexpectedly. (PR #1456)
+
 ## [v5.0.0-31] - 2026-11-23
 
 ### Added
@@ -3368,6 +3386,7 @@ Frodo CLI 2.x automatically refreshes session and access tokens before they expi
 - Fixed problem with adding connection profiles
 - Miscellaneous bug fixes
 
+[v5.0.0-32]: https://github.com/rockcarver/frodo-cli/compare/v5.0.0-31...v5.0.0-32
 [v5.0.0-31]: https://github.com/rockcarver/frodo-cli/compare/v5.0.0-30...v5.0.0-31
 [v5.0.0-30]: https://github.com/rockcarver/frodo-cli/compare/v5.0.0-29...v5.0.0-30
 [v5.0.0-29]: https://github.com/rockcarver/frodo-cli/compare/v5.0.0-28...v5.0.0-29
