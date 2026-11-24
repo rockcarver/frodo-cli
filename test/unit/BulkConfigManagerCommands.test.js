@@ -67,6 +67,10 @@ jest.unstable_mockModule('../../src/cli/FrodoCommand', () => ({
       this.multiOpCalled = true;
       return this;
     }
+    requireOneOf(...groups) {
+      this.oneOfGroups = [...(this.oneOfGroups ?? []), ...groups];
+      return this;
+    }
   },
   ListOption: class extends Option {},
   ObjectOption: class extends Option {},
@@ -74,9 +78,15 @@ jest.unstable_mockModule('../../src/cli/FrodoCommand', () => ({
 jest.unstable_mockModule('../../src/ops/AuthenticateOps', () => ({
   getTokens,
 }));
+const printMessage = jest.fn();
 jest.unstable_mockModule('../../src/utils/Console', () => ({
-  printMessage: jest.fn(),
+  printMessage,
   verboseMessage: jest.fn(),
+}));
+// the help of some commands colours its usage examples (src/utils/ColorTheme.ts reads the
+// library's terminal theme when it is imported, which this test's library mock does not have)
+jest.unstable_mockModule('../../src/utils/ColorTheme', () => ({
+  default: { command: (text) => text },
 }));
 
 /**
@@ -102,9 +112,21 @@ const COMMANDS = [
     name: 'config-manager pull raw',
     file: 'config-manager-pull/config-manager-pull-raw',
     fn: 'configManagerExportRaw',
-    options: { configFile: 'raw.json', pushApiVersion: { resource: '1.0', protocol: '2.1' }, path: "/openidm/config", stdout: false },
-    args: (allowFailures) => ['raw.json', { resource: '1.0', protocol: '2.1' }, '/openidm/config', false, allowFailures],
-    mandatory: 'configFile',
+    options: {
+      configFile: 'raw.json',
+      path: '/openidm/config/authentication',
+      stdout: true,
+      pushApiVersion: { protocol: '2.1', resource: '1.0' },
+    },
+    // the file, the failures, the one path, whether to print, and the push API version of the path
+    args: (allowFailures) => [
+      'raw.json',
+      allowFailures,
+      '/openidm/config/authentication',
+      true,
+      { protocol: '2.1', resource: '1.0' },
+    ],
+    oneOf: ['configFile', 'path'],
   },
   {
     name: 'config-manager push raw',
@@ -233,4 +255,126 @@ describe.each(COMMANDS)('$name', (c) => {
       expect(option.mandatory).toBe(true);
     });
   }
+
+  if (c.oneOf) {
+    test(`needs one of ${c.oneOf.join(' and ')}: what to export cannot be guessed, declared as a requirement and not coded in the action`, () => {
+      const program = setups[c.file]();
+      expect(program.oneOfGroups).toEqual([
+        { options: c.oneOf, purpose: expect.any(String) },
+      ]);
+      // each member exists, and none of them is mandatory on its own
+      for (const name of c.oneOf) {
+        const option = program.options.find((o) => o.attributeName() === name);
+        expect(option).toBeDefined();
+        expect(option.mandatory).toBe(false);
+      }
+    });
+  }
+});
+
+describe('config-manager pull raw: the options of the new flags', () => {
+  const file = 'config-manager-pull/config-manager-pull-raw';
+  const exportRaw = ops.configManagerExportRaw;
+  let exitCodeBefore;
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+    exitCodeBefore = process.exitCode;
+    getTokens.mockResolvedValue(true);
+    exportRaw.mockReset().mockResolvedValue(true);
+  });
+
+  afterEach(() => {
+    process.exitCode = exitCodeBefore;
+  });
+
+  const optionOf = (name) =>
+    setups[file]().options.find((o) => o.attributeName() === name);
+
+  test('--stdout cannot be used with -D', () => {
+    expect(optionOf('stdout').conflictsWith).toEqual(['directory']);
+  });
+
+  test.each([[''], ['  '], ['\t\n']])(
+    '--path refuses the value %j while the command line is parsed',
+    (value) => {
+      expect(() => optionOf('path').parseArg(value, undefined)).toThrow(
+        'must not be empty or blank'
+      );
+    }
+  );
+
+  test.each([['/openidm/config/ok1'], ['openidm/config/ok1'], ['a b']])(
+    '--path keeps the value %j as it was typed',
+    (value) => {
+      expect(optionOf('path').parseArg(value, undefined)).toBe(value);
+    }
+  );
+
+  test('--push-api-version takes the values of protocol and resource and nothing else', async () => {
+    await invoke(setups[file](), {
+      configFile: 'raw.json',
+      pushApiVersion: { protocol: '2.1', resource: '1.0' },
+    });
+    expect(exportRaw.mock.calls[0][4]).toEqual({
+      protocol: '2.1',
+      resource: '1.0',
+    });
+    expect(process.exitCode).toBe(0);
+  });
+
+  test.each([
+    [
+      'only the protocol',
+      { protocol: '2.1' },
+      'requires resource and protocol',
+    ],
+    [
+      'only the resource',
+      { resource: '1.0' },
+      'requires resource and protocol',
+    ],
+    [
+      'a third property',
+      { protocol: '2.1', resource: '1.0', extra: '7' },
+      "protocol and resource only, not 'extra'",
+    ],
+    [
+      'a property without a value',
+      { protocol: true, resource: '1.0' },
+      'The protocol of --push-api-version must be a version',
+    ],
+    [
+      'a blank version',
+      { protocol: '2.1', resource: '  ' },
+      'The resource of --push-api-version must be a version',
+    ],
+    [
+      'a version given twice',
+      { protocol: ['2.1', '2.2'], resource: '1.0' },
+      'The protocol of --push-api-version must be a version',
+    ],
+    [
+      'a nested property',
+      { protocol: { x: '2.1' }, resource: '1.0' },
+      'The protocol of --push-api-version must be a version',
+    ],
+    ['no property at all', {}, 'requires resource and protocol'],
+  ])(
+    '--push-api-version with %s fails before the login, with one message',
+    async (_, pushApiVersion, message) => {
+      await invoke(setups[file](), {
+        configFile: 'raw.json',
+        path: '/openidm/config/ok1',
+        pushApiVersion,
+      });
+
+      expect(printMessage).toHaveBeenCalledTimes(1);
+      expect(printMessage.mock.calls[0][0]).toContain(message);
+      expect(printMessage.mock.calls[0][1]).toBe('error');
+      expect(getTokens).not.toHaveBeenCalled();
+      expect(exportRaw).not.toHaveBeenCalled();
+      expect(process.exitCode).toBe(1);
+    }
+  );
 });

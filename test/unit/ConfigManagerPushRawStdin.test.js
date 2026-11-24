@@ -40,7 +40,7 @@ const TIMEOUT = 120000;
 // The producer starts writing only after the CLI has logged in and is
 // waiting on stdin, which takes a couple of seconds; this leaves a margin.
 const SLOW_MS = 4500;
-const IMPORT_REACHED = 'Endpoints that start with x are not supported';
+const IMPORT_REACHED = 'Error in importRawConfig with relative url: x/y';
 
 suite('config-manager push raw --stdin on a pipe', () => {
   let home;

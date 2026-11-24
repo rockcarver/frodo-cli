@@ -6,9 +6,5 @@
     "collection": false,
     "name": "Social Identity Provider Service"
   },
-  "_pushApiVersion": {
-    "protocol": "2.1",
-    "resource": "1.0"
-  },
   "enabled": true
 }

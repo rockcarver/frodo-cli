@@ -1,6 +1,7 @@
 import fs from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { afterAll, beforeAll, describe, expect, test } from '@jest/globals';
+import { getOneOfGroups } from '../../src/cli/ResolveInteractiveInputs.ts';
 import {
   fullName,
   loadLeafCommands,
@@ -13,8 +14,9 @@ import {
  * https://github.com/rockcarver/frodo-cli/blob/main/docs/decisions/0057-options-of-the-configuration-commands.md
  * (options of the configuration commands). Six of them took `-f, --file` (`pull raw`: `-f,
  * --config-file`) and gave it up at once, with no alias; the other three had `--config-file`
- * already. `pull service-objects` and `pull raw` cannot guess what to pull, so the file is
- * mandatory there; on the other seven it is optional, and on `pull saml`, `pull authz-policies`
+ * already. `pull service-objects` cannot guess what to pull, so the file is mandatory there;
+ * `pull raw` cannot either, so it needs the file or `--path`, a requirement that is declared
+ * (`requireOneOf`); on the other seven it is optional, and on `pull saml`, `pull authz-policies`
  * and `pull oauth2-agents` an empty value is refused while the command line is parsed (it would
  * read as "no file" and pull everything).
  *
@@ -25,7 +27,7 @@ const migrationPath = fileURLToPath(
   new URL('../../MIGRATION.md', import.meta.url)
 );
 
-/** The nine pull commands that take a config file, and whether the file is mandatory. */
+/** The nine pull commands that take a config file, and whether the file is mandatory (`pull raw` needs it or --path). */
 const NINE = [
   ['authz-policies', false],
   ['csp', false],
@@ -33,7 +35,7 @@ const NINE = [
   ['oauth-issuers', false],
   ['oauth-software-publishers', false],
   ['oauth2-agents', false],
-  ['raw', true],
+  ['raw', false],
   ['saml', false],
   ['service-objects', true],
 ];
@@ -108,15 +110,22 @@ describe('the config file of the pull commands', () => {
     ).toEqual([]);
   });
 
-  test('the file is mandatory exactly on service-objects and raw', () => {
+  test('the file is mandatory on service-objects only, and pull raw needs it or --path', () => {
     expect(
       NINE.filter(([verb]) => configFileOf(verb).mandatory).map(
         ([verb]) => verb
       )
-    ).toEqual(['raw', 'service-objects']);
+    ).toEqual(['service-objects']);
     expect(
       NINE.filter(([, mandatory]) => mandatory).map(([verb]) => verb)
-    ).toEqual(['raw', 'service-objects']);
+    ).toEqual(['service-objects']);
+    // declared as a requirement, so that --path alone is enough and neither is refused before login
+    expect(getOneOfGroups(leafOf('raw'))).toEqual([
+      { options: ['configFile', 'path'], purpose: 'what to pull', all: false },
+    ]);
+    expect(
+      leafOf('raw').options.find((o) => o.long === '--path').mandatory
+    ).toBe(false);
   });
 
   test.each(PULL_EVERYTHING)(
