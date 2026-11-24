@@ -27,6 +27,7 @@ jest.unstable_mockModule('@rockcarver/frodo-lib', () => ({
     utils: { constants: { CLOUD_DEPLOYMENT_TYPE_KEY: 'cloud' } },
     cloud: { env: { promotion: { lockEnvironment, unlockEnvironment } } },
   },
+  state: { getHost: () => 'https://openam-matrix.example.com/am' },
 }));
 jest.unstable_mockModule('../../src/cli/FrodoCommand', () => ({
   FrodoCommand: class extends Command {

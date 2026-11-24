@@ -14,10 +14,10 @@
 
 /*
 // Cloud
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_TEST_NAME=0 frodo config-manager promote run-dryrun-promotion
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_TEST_NAME=0_p_uid_t frodo config-manager promote run-dryrun-promotion -P provisional-report -uI --description 'provisional report' -t ticket
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_TEST_NAME=0_wait frodo config-manager promote run-dryrun-promotion --wait
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_TEST_NAME=0_wait_timeout frodo config-manager promote run-dryrun-promotion --wait --timeout 6
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-matrix.example.com/am FRODO_TEST_NAME=0 frodo config-manager promote run-dryrun-promotion -y
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-matrix.example.com/am FRODO_TEST_NAME=0_p_uid_t frodo config-manager promote run-dryrun-promotion -P provisional-report -uI --description 'provisional report' -t ticket -y
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-matrix.example.com/am FRODO_TEST_NAME=0_wait frodo config-manager promote run-dryrun-promotion --wait -y
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-matrix.example.com/am FRODO_TEST_NAME=0_wait_timeout frodo config-manager promote run-dryrun-promotion --wait --timeout 6 -y
 */
 
 import { getEnv, testSuccess, testFail } from './utils/TestUtils';
@@ -29,19 +29,19 @@ const cloudEnv = getEnv(c);
 
 describe('frodo config-manager promote run-dryrun-promotion', () => {
     test(`"frodo config-manager promote run-dryrun-promotion": Will run promotion"`, async () => {
-        const CMD = `frodo config-manager promote run-dryrun-promotion`;
+        const CMD = `frodo config-manager promote run-dryrun-promotion -y`;
         await testSuccess(CMD, { ...cloudEnv, env: { ...cloudEnv.env, FRODO_TEST_NAME: '0' } });
     });
     test(`"frodo config-manager promote run-dryrun-promotion -p provisional-report -uid 'provisional report' -t ticket": Will run dry-run promotion with promoter, description, ignoring encrpted secrets, unlocking after, and Zendesk ticket"`, async () => {
-        const CMD = `frodo config-manager promote run-dryrun-promotion -P provisional-report -uI --description 'provisional report' -t ticket`;
+        const CMD = `frodo config-manager promote run-dryrun-promotion -P provisional-report -uI --description 'provisional report' -t ticket -y`;
         await testSuccess(CMD, { ...cloudEnv, env: { ...cloudEnv.env, FRODO_TEST_NAME: '0_p_uid_t' } });
     });
     test(`"frodo config-manager promote run-dryrun-promotion --wait": Should wait for dry-run promotion to complete`, async () => {
-        const CMD = `frodo config-manager promote run-dryrun-promotion --wait`;
+        const CMD = `frodo config-manager promote run-dryrun-promotion --wait -y`;
         await testSuccess(CMD, { ...cloudEnv, env: { ...cloudEnv.env, FRODO_TEST_NAME: '0_wait' } });
     });
     test(`"frodo config-manager promote run-dryrun-promotion --wait --timeout 6": Should time out waiting for dry-run promotion`, async () => {
-        const CMD = `frodo config-manager promote run-dryrun-promotion --wait --timeout 6`;
+        const CMD = `frodo config-manager promote run-dryrun-promotion --wait --timeout 6 -y`;
         await testFail(CMD, { ...cloudEnv, env: { ...cloudEnv.env, FRODO_TEST_NAME: '0_wait_timeout' } });
     });
 });

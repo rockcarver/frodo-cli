@@ -235,6 +235,17 @@ describe('confirmProceed, the same question for an action that is not a delete',
     expect(messages('warn').join('\n')).toContain('Nothing was changed.');
   });
 
+  test('a no says what the caller gave it to say instead of the shared line', async () => {
+    answer = false;
+
+    expect(await confirmProceed({ what, declined: 'It was not run.' })).toBe(
+      false
+    );
+
+    expect(messages('warn').join('\n')).toContain('It was not run.');
+    expect(messages('warn').join('\n')).not.toContain('Nothing was changed.');
+  });
+
   test('without a terminal it refuses, names --yes and --dry-run, and asks nothing', async () => {
     terminal = false;
 

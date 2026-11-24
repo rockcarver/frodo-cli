@@ -28,17 +28,34 @@ Deployment: Cloud-only
 
 Options:
   --description <description>         Description of the rollback.
+  --full                              Lock both environments, roll back the
+                                      previous promotion, wait for the rollback
+                                      and unlock the environments again, in one
+                                      command. Implies --wait and
+                                      --unlock-after. It starts only when both
+                                      environments are unlocked. If the command
+                                      is stopped while it runs (Ctrl-C), the
+                                      lock stays; the command has printed how to
+                                      find it and how to release it. --timeout
+                                      bounds the rollback only: a rollback that
+                                      is still running when the wait ends keeps
+                                      the lock on purpose, and the command says
+                                      how to release it. Missing ESVs are
+                                      listed.
   -P, --promoter <name>               Name of the person performing the
                                       rollback.
   -t, --ticket-reference <reference>  Zendesk ticket reference.
   -T, --timeout <seconds>             Specify a timeout in seconds how long the
                                       tool should wait for the rollback to
-                                      complete. Requires --wait.
+                                      complete. Requires --wait or --full.
   -u, --unlock-after                  Unlock environments after the rollback.
   -w, --wait                          Wait for the rollback to complete. Times
                                       out after 2700 seconds (45 minutes) by
                                       default, but can be overridden using
                                       --timeout.
+  -y, --yes                           Do not ask for confirmation before the
+                                      rollback starts. Required when there is no
+                                      terminal.
   -h, --help                          Help
   -hh, --help-more                    Help with all options.
   -hhh, --help-all                    Help with all options, environment

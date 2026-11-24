@@ -9,12 +9,14 @@ import { Command } from 'commander';
  * - with `--wait` and no `--timeout` the timeout is left to the library, which
  *   has its own default;
  * - `--timeout` is passed on in milliseconds;
- * - `--timeout` without `--wait` is an error and nothing is sent;
+ * - `--timeout` without `--wait` or `--full` is an error and nothing is sent;
  * - a `--timeout` that is not a positive number is an error and nothing is
  *   sent. Passed on as NaN, the library would start the promotion or rollback
  *   and then stop waiting at once.
  *
  * The library is mocked: this pins how the commands and the operations wire it.
+ * Every run passes `-y`: without a terminal a promotion is refused before the
+ * login (test/unit/PromoteFull.test.js), and these tests are about the wait.
  */
 
 const getTokens = jest.fn();
@@ -29,6 +31,7 @@ jest.unstable_mockModule('@rockcarver/frodo-lib', () => ({
     utils: { constants: { CLOUD_DEPLOYMENT_TYPE_KEY: 'cloud' } },
     cloud: { env: { promotion: { promoteConfiguration, rollbackPromotion } } },
   },
+  state: { getHost: () => 'https://openam-matrix.example.com/am' },
 }));
 jest.unstable_mockModule('../../src/cli/FrodoCommand', () => ({
   FrodoCommand: class extends Command {
@@ -72,7 +75,7 @@ async function run(setup, args) {
   process.exitCode = 0;
   let error;
   try {
-    await setup().parseAsync(args, { from: 'user' });
+    await setup().parseAsync(['-y', ...args], { from: 'user' });
   } catch (e) {
     error = e;
   }
@@ -135,7 +138,7 @@ describe.each([
 
     expect(exitCode).toBe(1);
     expect(printMessage).toHaveBeenCalledWith(
-      '--timeout requires --wait.',
+      '--timeout requires --wait or --full.',
       'error'
     );
     expect(getTokens).not.toHaveBeenCalled();

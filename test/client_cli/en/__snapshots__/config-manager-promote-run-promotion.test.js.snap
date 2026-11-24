@@ -28,18 +28,37 @@ Deployment: Cloud-only
 
 Options:
   --description <description>         Description of the promotion.
+  --full                              Lock both environments, run the promotion,
+                                      wait for it and unlock the environments
+                                      again, in one command. Implies --wait and
+                                      --unlock-after. It starts only when both
+                                      environments are unlocked. If the command
+                                      is stopped while it runs (Ctrl-C), the
+                                      lock stays; the command has printed how to
+                                      find it and how to release it. --timeout
+                                      bounds the promotion only: a promotion
+                                      that is still running when the wait ends
+                                      keeps the lock on purpose, and the command
+                                      says how to release it. Missing ESVs are
+                                      listed. Encrypted secrets are asked about
+                                      at a terminal; --ignore-encrypted-secrets
+                                      answers that in advance, and --yes does
+                                      not.
   -I, --ignore-encrypted-secrets      Ignore encrypted secrets during promotion.
   -P, --promoter <name>               Name of the person performing the
                                       promotion.
   -t, --ticket-reference <reference>  Zendesk ticket reference.
   -T, --timeout <seconds>             Specify a timeout in seconds how long the
                                       tool should wait for the promotion to
-                                      complete. Requires --wait.
+                                      complete. Requires --wait or --full.
   -u, --unlock-after                  Unlock environments after promotion.
   -w, --wait                          Wait for the promotion to complete. Times
                                       out after 2700 seconds (45 minutes) by
                                       default, but can be overridden using
                                       --timeout.
+  -y, --yes                           Do not ask for confirmation before the
+                                      promotion starts. Required when there is
+                                      no terminal.
   -h, --help                          Help
   -hh, --help-more                    Help with all options.
   -hhh, --help-all                    Help with all options, environment

@@ -161,6 +161,7 @@ export function checkProceed({
  * @param {boolean} guard.dryRun true if `--dry-run` was given
  * @param {boolean} guard.dryRunAvailable true if the command has a preview option to name in the refusal. Default: true
  * @param {string} guard.warning what the user should know before agreeing, shown above the question
+ * @param {string} guard.declined what is said after a no. Default: `Nothing was changed.`
  * @param {() => Promise<boolean>} guard.showPlan optional: prints what would be done and resolves to false if that failed
  * @returns {Promise<boolean>} a promise that resolves to true if the action may go ahead; the reason has been printed otherwise
  */
@@ -170,6 +171,7 @@ export async function confirmProceed({
   dryRun,
   dryRunAvailable = true,
   warning,
+  declined = 'Nothing was changed.',
   showPlan,
 }: {
   what: string;
@@ -177,6 +179,7 @@ export async function confirmProceed({
   dryRun?: boolean;
   dryRunAvailable?: boolean;
   warning?: string;
+  declined?: string;
   showPlan?: () => Promise<boolean>;
 }): Promise<boolean> {
   if (!checkProceed({ what, yes, dryRun, dryRunAvailable })) return false;
@@ -187,6 +190,6 @@ export async function confirmProceed({
     message: `${what.charAt(0).toUpperCase()}${what.slice(1)}? Continue?`,
     default: false,
   });
-  if (!answered) printMessage('Nothing was changed.', 'warn');
+  if (!answered) printMessage(declined, 'warn');
   return answered;
 }

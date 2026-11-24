@@ -192,6 +192,35 @@
  * entry of `states` (default `[{ editable: false }]`) and then the last one again, so a test scripts
  * the statuses a wait polls through. The request log holds every call. Without the option the whole
  * session API answers 404.
+ * FAKE_AM_PROMOTION_FILE=<path> names a JSON object that makes the fake serve the environment promotion API of
+ * a Cloud tenant (`/environment/promotion/...`, and the service account scopes that a service account login
+ * reads) as a small state machine: the lock (`GET .../lock/state`, `POST .../lock`, `DELETE .../lock/<id>`), the
+ * promotion status (`GET .../promote`) and the requests that start work (`POST .../promote`, `POST .../rollback`).
+ * A lock request takes the lock at once and answers `locking`, so the first read of the state says `locked`
+ * (`lockPolls: n` makes the next n reads say `locking` first); an unlock request frees it at once and answers
+ * `unlocking`, so the first read says `unlocked` (`unlockPolls: n` makes the next n reads say `unlocking` first).
+ * Without those two members there is no waiting in the fake, and a command that waits for either goes round no
+ * sleeping loop: the library sleeps 10 seconds between two polls, so a test that sets them waits for real. What is
+ * taken from the recordings of the platform: the paths, the status codes (202), the answers `locking`, `locked`,
+ * `unlocking` and `unlocked`, and the shapes of the status. What is INVENTED, so that nobody reads it as a fact
+ * about the platform: the `409` for a second lock request (and a lock request that conflicts: `lockRequest:
+ * 'conflict'`, below), the `409` for an unlock with the id of another lock, and that every read answers
+ * the state of the moment (the platform may answer a state read differently while it works). An unlock request
+ * for any other id than the one of the lock is answered `409` and changes nothing. The object has these members,
+ * all optional:
+ * `lock` (the state before the first request: `{ result, promotionId }`, default `{ result: 'unlocked' }`),
+ * `lockId` (the id that a lock request gets), `lockRequest` (`refuse` answers it `500` and takes no lock,
+ * `refuse-but-lock` answers `500` and takes the lock, `conflict` answers `409` and leaves the lock of somebody
+ * else, `foreignLockId`, held), `onLockRead` (`{ "<n>": { result, promotionId } }`: the lock becomes that just
+ * before the n-th state read is answered, which is somebody else locking between two reads of one command),
+ * `unlockRequest` (`refuse` answers `500` and keeps the lock), `status` (the status that the reads answer before
+ * any promote or rollback request, default `READY`; an array answers one entry per read, the last one again) and
+ * `promote` and `rollback`: one entry per request of that kind, in order (a request with no entry left is
+ * answered `409`). An entry is `{ request: 'refuse' }` (answered `500`, no work starts) or `{ statuses: [...] }`:
+ * the statuses that the reads after the request answer one after the other, the last one again after that. A
+ * status is the object of the platform with the members the script leaves out filled in (`globalLock`,
+ * `promotionId` = the id of the lock, `type`, `timeStamp`, `blockingError`). The request log holds every call and
+ * its body. Without the option the whole API answers 404.
  * FAKE_AM_EMPTY_COLLECTIONS=1 makes the fake answer every collection query it has no
  * route for as an empty collection, the way a realm that holds nothing answers it: a
  * `GET` with a `_queryFilter` and a `POST` with `_action=nextdescendents` get `200`
@@ -241,6 +270,20 @@ const directConfiguration = readJson(
 );
 // how many state reads the fake has answered, which picks the next scripted answer
 let directConfigurationStateReads = 0;
+const promotionScript = readJson(process.env.FAKE_AM_PROMOTION_FILE);
+// what the promotion API holds: the lock, the scripted requests still to come and the work that runs
+const promotion = promotionScript && {
+  lock: { result: 'unlocked', ...promotionScript.lock },
+  runs: {
+    promote: [...(promotionScript.promote ?? [])],
+    rollback: [...(promotionScript.rollback ?? [])],
+  },
+  current: undefined,
+  lockReads: 0,
+  statusReads: 0,
+  lockPollsLeft: 0,
+  unlockPollsLeft: 0,
+};
 const emptyCollections = process.env.FAKE_AM_EMPTY_COLLECTIONS === '1';
 const logApiKeys = readJson(process.env.FAKE_AM_LOG_API_KEYS_FILE);
 const oauth2Clients = (process.env.FAKE_AM_OAUTH2_CLIENTS ?? '')
@@ -480,6 +523,196 @@ function serveAiAgents(req, body, send) {
   }
   return true;
 }
+const LOCK_DESCRIPTIONS = {
+  unlocked: 'Environment unlocked',
+  locking: 'Environment lock in progress',
+  locked: 'Environment locked',
+  unlocking: 'Environment unlock in progress',
+  error: 'Environment lock error',
+};
+
+/** The lock the way the lock state read answers it. */
+function promotionLockState() {
+  const { result, promotionId } = promotion.lock;
+  const environment = {
+    ...(promotionId ? { promotionId } : {}),
+    proxyState: result === 'unlocked' ? 'unlocked' : 'locked',
+    state: result,
+  };
+  return {
+    description: LOCK_DESCRIPTIONS[result] ?? result,
+    lowerEnv: environment,
+    ...(promotionId ? { promotionId } : {}),
+    result,
+    upperEnv: environment,
+  };
+}
+
+/** The promotion status the way a read answers it, the script's members over the filled-in ones. */
+function promotionStatus(scripted, type) {
+  const { result, promotionId } = promotion.lock;
+  return {
+    blockingError: false,
+    globalLock: result === 'unlocked' ? 'UNLOCKED' : 'LOCKED',
+    ...(promotionId ? { promotionId } : {}),
+    timeStamp: new Date().toISOString(),
+    type,
+    ...scripted,
+  };
+}
+
+/**
+ * Answers a request for the environment promotion API (`/environment/promotion/...`,
+ * and the service account scopes) from `promotion`, or returns false when the
+ * request is not one. `send(status, payload)` writes the answer.
+ */
+function servePromotion(req, body, send) {
+  if (!promotion) return false;
+  const { pathname } = new URL(req.url, 'http://fake');
+  const failed = {
+    code: 500,
+    reason: 'Internal Server Error',
+    message: 'fake tenant operation failed',
+  };
+  if (
+    req.method === 'GET' &&
+    pathname === '/environment/scopes/service-accounts'
+  ) {
+    send(200, [
+      {
+        scope: 'fr:idc:promotion:*',
+        description: 'All promotion APIs',
+        childScopes: [
+          { scope: 'fr:idc:promotion:read', description: 'Read promotions' },
+        ],
+      },
+    ]);
+    return true;
+  }
+  const base = '/environment/promotion/';
+  if (!pathname.startsWith(base)) return false;
+  const route = pathname.slice(base.length);
+  if (req.method === 'GET' && route === 'lock/state') {
+    promotion.lockReads += 1;
+    const hook = promotionScript.onLockRead?.[String(promotion.lockReads)];
+    if (hook) promotion.lock = { ...hook };
+    const stored = promotion.lock;
+    if (promotion.lockPollsLeft > 0) {
+      promotion.lockPollsLeft -= 1;
+      promotion.lock = { result: 'locking', promotionId: stored.promotionId };
+    } else if (promotion.unlockPollsLeft > 0) {
+      promotion.unlockPollsLeft -= 1;
+      promotion.lock = {
+        result: 'unlocking',
+        promotionId: promotion.unlockingId,
+      };
+    }
+    const answer = promotionLockState();
+    promotion.lock = stored;
+    send(200, answer);
+  } else if (req.method === 'POST' && route === 'lock') {
+    const refuse = promotionScript.lockRequest;
+    if (promotion.lock.result !== 'unlocked') {
+      send(409, {
+        code: 409,
+        reason: 'Conflict',
+        message: 'The environment is already locked.',
+      });
+    } else if (refuse === 'refuse') {
+      send(500, failed);
+    } else if (refuse === 'conflict') {
+      promotion.lock = {
+        result: 'locked',
+        promotionId: promotionScript.foreignLockId ?? 'fake-foreign-lock',
+      };
+      send(409, {
+        code: 409,
+        reason: 'Conflict',
+        message: 'The environment is already locked.',
+      });
+    } else {
+      const promotionId = promotionScript.lockId ?? 'fake-promotion-lock';
+      promotion.lock = { result: 'locked', promotionId };
+      promotion.lockPollsLeft = promotionScript.lockPolls ?? 0;
+      if (refuse === 'refuse-but-lock') send(500, failed);
+      else
+        send(202, {
+          description: LOCK_DESCRIPTIONS.locking,
+          promotionId,
+          result: 'locking',
+        });
+    }
+  } else if (req.method === 'DELETE' && route.startsWith('lock/')) {
+    const promotionId = decodeURIComponent(route.slice('lock/'.length));
+    if (promotionScript.unlockRequest === 'refuse') {
+      send(500, failed);
+    } else if (promotion.lock.promotionId !== promotionId) {
+      send(409, {
+        code: 409,
+        reason: 'Conflict',
+        message: 'The promotion id does not match the lock.',
+      });
+    } else {
+      promotion.lock = { result: 'unlocked' };
+      promotion.unlockPollsLeft = promotionScript.unlockPolls ?? 0;
+      promotion.unlockingId = promotionId;
+      send(202, {
+        description: LOCK_DESCRIPTIONS.unlocking,
+        promotionId,
+        result: 'unlocking',
+      });
+    }
+  } else if (req.method === 'GET' && route === 'promote') {
+    const { current } = promotion;
+    if (!current) {
+      const before = promotionScript.status ?? {
+        status: 'READY',
+        message: 'Environment ready for promotion',
+      };
+      const answer = Array.isArray(before)
+        ? before[Math.min(promotion.statusReads, before.length - 1)]
+        : before;
+      promotion.statusReads += 1;
+      send(200, promotionStatus(answer, 'promotion'));
+    } else {
+      const answer =
+        current.statuses[Math.min(current.reads, current.statuses.length - 1)];
+      current.reads += 1;
+      send(200, promotionStatus(answer, current.type));
+    }
+  } else if (
+    req.method === 'POST' &&
+    (route === 'promote' || route === 'rollback')
+  ) {
+    const run = promotion.runs[route].shift();
+    if (!run) {
+      send(409, {
+        code: 409,
+        reason: 'Conflict',
+        message: 'The fake tenant has no scripted run left for this request.',
+      });
+    } else if (run.request === 'refuse') {
+      send(500, failed);
+    } else {
+      promotion.current = {
+        type: route === 'rollback' ? 'rollback' : 'promotion',
+        statuses: run.statuses ?? [
+          { status: 'READY', message: 'Promotion completed' },
+        ],
+        reads: 0,
+      };
+      send(202, {
+        result:
+          route === 'rollback'
+            ? 'Rollback process initiated successfully'
+            : 'Promotion process initiated successfully',
+      });
+    }
+  } else {
+    return false;
+  }
+  return true;
+}
 let step = 0;
 
 const nameCallback = (prompt) => ({
@@ -567,6 +800,7 @@ const server = http.createServer((req, res) => {
       });
     }
     if (serveAiAgents(req, body, send)) return;
+    if (servePromotion(req, body, send)) return;
     if (directConfiguration) {
       const route = new URL(req.url, 'http://fake').pathname;
       const session = '/environment/direct-configuration/session/';
