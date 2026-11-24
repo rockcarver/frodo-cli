@@ -318,12 +318,16 @@ export async function deleteRemoteServerWithLinks(
     );
   }
   if (seen) {
+    // the lookup reports one reference for each cluster, so two clusters that
+    // have one name are two references: compare the names, each once
+    const looked = [...new Set(seen)];
     const now = clustersListing(before, server);
     const same =
-      now.length === seen.length && now.every((name) => seen.includes(name));
+      now.length === looked.length &&
+      now.every((name) => looked.includes(name));
     if (!same) {
       throw clearingError(
-        `The server clusters that list connector server '${server}' changed after they were looked up (they were: ${seen.join(', ') || 'none'}; now: ${now.join(', ') || 'none'}), someone else changed the configuration: nothing was written. Run the command again.`,
+        `The server clusters that list connector server '${server}' changed after they were looked up (they were: ${looked.join(', ') || 'none'}; now: ${now.join(', ') || 'none'}), someone else changed the configuration: nothing was written. Run the command again.`,
         false
       );
     }
@@ -346,7 +350,7 @@ export async function deleteRemoteServerWithLinks(
   } catch (error) {
     // the configuration was written and cannot be looked at: it stays as it is
     throw clearingError(
-      `The configuration '${CONNECTOR_SERVER_CONFIG_ID}' was written, but it could not be read again to check it (${reasonOf(error)}). It may differ from what it was before.`,
+      `The configuration '${CONNECTOR_SERVER_CONFIG_ID}' was written, but it could not be read again to check it (${reasonOf(error)}). Connector server '${server}' is probably deleted and the server clusters may be changed: check them by hand.`,
       true
     );
   }
@@ -454,7 +458,7 @@ export function namedPlanLines(
     lines.push(
       asPlan
         ? '  Nothing else names the connector server: no other object is changed.'
-        : '  nothing else names the connector server.'
+        : '  Nothing else names the connector server.'
     );
   }
   return lines;

@@ -66,8 +66,8 @@ export default function setup() {
     )
     .addHelpText(
       'after',
-      `Without --force, a connector server that a server cluster lists or that a connector uses as its host is not deleted, the command says which and exits with code 1. --allow-failures keeps the exit code at 0 for a write that failed, but never for a refusal, a connector server that does not exist, or a configuration that changed while it was being deleted or did not read back as it was written. An answer that nothing names it is not proof that it is unused: the connector server process itself, an OAuth2 client that the platform keeps for it, and a connector server name inside a script are not seen.\n` +
-        `Deleting all connector servers does not change any server cluster and does not refuse: a server cluster that lists a deleted connector server lists a name that does not exist afterwards. The plan that -d prints, and that a terminal sees before the question, lists what names them. Each connector server is deleted by its own write.\n` +
+      `Without --force, a connector server that a server cluster lists or that a connector uses as its host is not deleted, the command says which and exits with code 1. --allow-failures keeps the exit code at 0 for a write that failed, but never for a refusal, a connector server that does not exist, or a configuration that changed while it was being deleted or did not read back as it was written. An empty answer is not proof that a connector server is unused: the connector server process itself, an OAuth2 client that the platform keeps for it, and a connector server name inside a script are not seen.\n` +
+        `Deleting all connector servers does not change any server cluster and does not refuse: a server cluster that lists a deleted connector server lists a name that does not exist afterwards. The plan that -d prints, and that a terminal sees before the question, lists what names them. Each connector server is deleted by its own write, built from the list that was read at the start and not checked afterwards: unlike a named delete, a change that someone else makes to the configuration meanwhile can be overwritten.\n` +
         `Usage Examples:\n` +
         `  Preview the deletion of all connector servers and of what names them:\n` +
         c.command(
@@ -168,6 +168,8 @@ export default function setup() {
         options.force &&
         !(await confirmProceed({
           ...guardOptions,
+          // the plan above says what is changed: the question only points to it
+          what: `delete connector server '${options.serverId}' as planned above`,
           warning: `Connector server '${options.serverId}' is deleted and every change listed above is made. This cannot be undone.`,
           showPlan,
         }))
