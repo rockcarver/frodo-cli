@@ -94,7 +94,6 @@ export const LEGACY_COMMANDS_WITHOUT_EXAMPLES = [
   'frodo config-manager pull managed-objects',
   'frodo config-manager pull org-privileges',
   'frodo config-manager pull password-policy',
-  'frodo config-manager pull raw',
   'frodo config-manager pull remote-servers',
   'frodo config-manager pull saml',
   'frodo config-manager pull schedules',

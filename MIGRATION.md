@@ -558,8 +558,8 @@ and `-f` means nothing in `frodo config-manager` any more (`-f, --file` stays on
 the commands outside the group that read or write a data file). A script that
 still passes `-f` or `--file` to one of the six fails before it connects to
 anything, with `error: unknown option '-f'` and exit code 1. The option is
-mandatory on `pull service-objects` and `pull raw`, which cannot guess what to
-pull, and optional on the other four. The rule is in
+mandatory on `pull service-objects`, which cannot guess what to pull; `pull raw`
+needs it or `--path`, and it is optional on the other four. The rule is in
 [options of the configuration commands](https://github.com/rockcarver/frodo-cli/blob/main/docs/decisions/0057-options-of-the-configuration-commands.md).
 
 **`pull saml`, `pull authz-policies` and `pull oauth2-agents` need no config
@@ -1445,9 +1445,10 @@ name, a script whose content file is missing and a file that is not JSON (or,
 for `push password-policy`, is not a password policy) used to stop the whole
 command; each is one failed item now. What the command line names must exist,
 and when it does not the command says so in plain words and fails whatever
-`--allow-failures` says: the file of `pull raw --config-file` (the option is
-mandatory now; without one the command failed with `The "path" argument must be
-of type string`; `pull saml` needs no file any more, see above), the `raw`
+`--allow-failures` says: the file of `pull raw --config-file` (without one or
+`--path` the command failed with `The "path" argument must be of type string`,
+and now says that one of them is needed; `pull saml` needs no file any more, see
+above), the `raw`
 folder of `push raw` and the `realms` folder of `push password-policy`, `push
 scripts` and `push saml` (the file-system error is gone), a realm given as an
 argument whose password policy, script config, SAML config or secret-mappings
@@ -1944,6 +1945,45 @@ each read, and still has no timeout. What differs from the old commands:
 - **The notice on stderr is the one of a preview command.** `frodo dcc
   session` prints `Preview feature in use`, not the experimental notice of the
   config-manager group.
+
+**`config-manager pull raw` has `--stdout`, `--path` and `-V,
+--push-api-version`, and `push raw` sends the API version of a file**: three
+options are new on `pull raw` and nothing that ran before is refused.
+
+- `--path <api path>` pulls one raw configuration, for example
+  `--path /openidm/config/authentication`. With it `--config-file` is no longer
+  needed, so `pull raw` needs the file or `--path` (the option was mandatory
+  before). When the file is given and lists the path, the item of the file is
+  pulled with its `overrides` and `pushApiVersion`, and the written file is the
+  one that a pull of the whole file writes for it; a path that the file does not
+  list is pulled as it is. An empty or blank value is refused while the command
+  line is parsed, because it would otherwise read as "no path" and pull the whole
+  file. The path stays inside the config folder as before.
+- `--stdout` prints the configuration as JSON on standard output instead of
+  writing files, and nothing else goes to standard output (messages and the
+  summary of failures go to standard error). With `--path` it prints the object,
+  which is what `push raw --path ... --stdin` reads, so
+  `frodo config-manager pull raw --path /openidm/config/authentication --stdout
+  <source> | frodo config-manager push raw --path
+  /openidm/config/authentication --stdin <target>` copies one configuration
+  between tenants. With a config file it prints one JSON list in the order of the
+  file, of the items that could be pulled; the exit code still follows the
+  failures (`--allow-failures`). It cannot be used with `-D`.
+- `-V, --push-api-version` (`-V.protocol 2.1 -V.resource 1.0`) records the API
+  version that a push of the file sends, in the file as `_pushApiVersion`, for the
+  item of `--path` under `/am`. Both properties are needed, each one a version of
+  letters, digits, dots, underscores and hyphens (at most 64 characters), and
+  nothing else is taken; the command refuses anything else before it logs in. A
+  read always uses the default API version. The items of a config file keep their own `pushApiVersion`.
+
+What changes for a command that ran before: **`push raw` now sends the API
+version that a file records.** In 4.x and in earlier 5.0.0 prereleases the
+`_pushApiVersion` of a file under `/am` or `/environment` was removed before the
+library could read it, and the push always sent `protocol=2.0,resource=1.0`. A
+file that records another version now gets it; a `_pushApiVersion` that is not an
+object whose `protocol` and `resource` are versions of letters, digits, dots,
+underscores and hyphens (at most 64 characters) is ignored, as it was. The
+default output of `pull raw --config-file` is the same as before.
 
 ### Node.js version matrix changes in 5.x
 

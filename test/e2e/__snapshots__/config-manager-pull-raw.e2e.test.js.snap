@@ -1,10 +1,170 @@
 // Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
-exports[`frodo config-manager pull raw "frodo config-manager pull raw -D configManagerExportRawDir0 -f test/e2e/fr-config-manager-pull-config/raw.json": should export all the configs in the provided json file in fr-config manager style. 1`] = `0`;
+exports[`frodo config-manager pull raw "frodo config-manager pull raw --config-file test/e2e/fr-config-manager-pull-config/raw.json --path /environment/release -D configManagerExportRawDir1": should export the configuration at the specified API path in fr-config-manager format. 1`] = `0`;
 
-exports[`frodo config-manager pull raw "frodo config-manager pull raw -D configManagerExportRawDir0 -f test/e2e/fr-config-manager-pull-config/raw.json": should export all the configs in the provided json file in fr-config manager style. 2`] = `""`;
+exports[`frodo config-manager pull raw "frodo config-manager pull raw --config-file test/e2e/fr-config-manager-pull-config/raw.json --path /environment/release -D configManagerExportRawDir1": should export the configuration at the specified API path in fr-config-manager format. 2`] = `""`;
 
-exports[`frodo config-manager pull raw "frodo config-manager pull raw -D configManagerExportRawDir0 -f test/e2e/fr-config-manager-pull-config/raw.json": should export all the configs in the provided json file in fr-config manager style.: configManagerExportRawDir0/raw/am/json/realms/root/realms/alpha/realm-config/webhooks/test-webhook.json 1`] = `
+exports[`frodo config-manager pull raw "frodo config-manager pull raw --config-file test/e2e/fr-config-manager-pull-config/raw.json --path /environment/release -D configManagerExportRawDir1": should export the configuration at the specified API path in fr-config-manager format.: configManagerExportRawDir1/raw/environment/release.json 1`] = `
+{
+  "channel": "rapid",
+  "currentVersion": "24777.0",
+}
+`;
+
+exports[`frodo config-manager pull raw "frodo config-manager pull raw --config-file test/e2e/fr-config-manager-pull-config/raw.json --stdout --path /environment/release -V.protocol 2.0 -V.resource 1.0": should output the configuration at the specified API path to stdout in fr-config-manager format. 1`] = `
+"{
+  "channel": "rapid",
+  "currentVersion": "24777.0"
+}
+"
+`;
+
+exports[`frodo config-manager pull raw "frodo config-manager pull raw --config-file test/e2e/fr-config-manager-pull-config/raw.json --stdout --path /environment/release -V.protocol 2.0 -V.resource 1.0": should output the configuration at the specified API path to stdout in fr-config-manager format. 2`] = `
+"Experimental feature in use: 'frodo config-manager pull raw'. This feature may change without notice.
+"
+`;
+
+exports[`frodo config-manager pull raw "frodo config-manager pull raw --stdout --config-file test/e2e/fr-config-manager-pull-config/raw.json -V.protocol 2.0 -V.resource 1.0": should output all configurations listed in the JSON file to stdout in fr-config-manager format, preserving any push API versions. 1`] = `
+"[
+  {
+    "_id": "authentication",
+    "rsFilter": {
+      "augmentSecurityContext": {
+        "source": "require('auth/orgPrivileges').assignPrivilegesToUser(resource, security, properties, subjectMapping, privileges, security.authorization.component.includes('/alpha_') ? 'alphaOrgPrivileges' : 'bravoOrgPrivileges', 'privilegeAssignments');",
+        "type": "text/javascript"
+      },
+      "cache": {
+        "maxTimeout": "300 seconds"
+      },
+      "scopes": [
+        "fr:idm:*"
+      ],
+      "staticUserMapping": [
+        {
+          "localUser": "internal/user/idm-provisioning",
+          "roles": [
+            "internal/role/openidm-admin"
+          ],
+          "subject": "autoid-resource-server"
+        }
+      ],
+      "subjectMapping": [
+        {
+          "additionalUserFields": [
+            "adminOfOrg",
+            "ownerOfOrg"
+          ],
+          "defaultRoles": [
+            "internal/role/openidm-authorized"
+          ],
+          "propertyMapping": {
+            "sub": "_id"
+          },
+          "queryOnResource": "managed/{{substring realm 1}}_user",
+          "userRoles": "authzRoles/*"
+        }
+      ]
+    }
+  },
+  {
+    "_id": "test-webhook",
+    "_rev": "1846295412",
+    "url": "\${TEST_WEBHOOK_URL}",
+    "headers": {
+      "accept": "*/*"
+    },
+    "_type": {
+      "_id": "webhooks",
+      "name": "Webhook Service",
+      "collection": true
+    },
+    "_pushApiVersion": {
+      "protocol": "2.0",
+      "resource": "1.0"
+    }
+  },
+  {
+    "channel": "rapid",
+    "currentVersion": "23968.0"
+  }
+]
+"
+`;
+
+exports[`frodo config-manager pull raw "frodo config-manager pull raw --stdout --config-file test/e2e/fr-config-manager-pull-config/raw.json -V.protocol 2.0 -V.resource 1.0": should output all configurations listed in the JSON file to stdout in fr-config-manager format, preserving any push API versions. 2`] = `
+"Experimental feature in use: 'frodo config-manager pull raw'. This feature may change without notice.
+"
+`;
+
+exports[`frodo config-manager pull raw "frodo config-manager pull raw --stdout --config-file test/e2e/fr-config-manager-pull-config/raw.json": should output the configurations listed in the JSON file to stdout in fr-config-manager format. 1`] = `
+"[
+  {
+    "_id": "authentication",
+    "rsFilter": {
+      "augmentSecurityContext": {
+        "source": "require('auth/orgPrivileges').assignPrivilegesToUser(resource, security, properties, subjectMapping, privileges, security.authorization.component.includes('/alpha_') ? 'alphaOrgPrivileges' : 'bravoOrgPrivileges', 'privilegeAssignments');",
+        "type": "text/javascript"
+      },
+      "cache": {
+        "maxTimeout": "200 seconds"
+      },
+      "scopes": [
+        "fr:idm:*"
+      ],
+      "staticUserMapping": [],
+      "subjectMapping": [
+        {
+          "additionalUserFields": [
+            "adminOfOrg",
+            "ownerOfOrg"
+          ],
+          "defaultRoles": [
+            "internal/role/openidm-authorized"
+          ],
+          "propertyMapping": {
+            "sub": "_id"
+          },
+          "queryOnResource": "managed/{{substring realm 1}}_user",
+          "userRoles": "authzRoles/*"
+        }
+      ]
+    }
+  },
+  {
+    "_id": "test-webhook",
+    "_rev": "1846295412",
+    "url": "\${TEST_WEBHOOK_URL}",
+    "headers": {
+      "accept": "*/*"
+    },
+    "_type": {
+      "_id": "webhooks",
+      "name": "Webhook Service",
+      "collection": true
+    },
+    "_pushApiVersion": {
+      "protocol": "2.0",
+      "resource": "1.0"
+    }
+  },
+  {
+    "channel": "rapid",
+    "currentVersion": "23453.0"
+  }
+]
+"
+`;
+
+exports[`frodo config-manager pull raw "frodo config-manager pull raw --stdout --config-file test/e2e/fr-config-manager-pull-config/raw.json": should output the configurations listed in the JSON file to stdout in fr-config-manager format. 2`] = `
+"Experimental feature in use: 'frodo config-manager pull raw'. This feature may change without notice.
+"
+`;
+
+exports[`frodo config-manager pull raw "frodo config-manager pull raw -D configManagerExportRawDir0 --config-file test/e2e/fr-config-manager-pull-config/raw.json": should export all the configs in the provided json file in fr-config manager style. 1`] = `0`;
+
+exports[`frodo config-manager pull raw "frodo config-manager pull raw -D configManagerExportRawDir0 --config-file test/e2e/fr-config-manager-pull-config/raw.json": should export all the configs in the provided json file in fr-config manager style. 2`] = `""`;
+
+exports[`frodo config-manager pull raw "frodo config-manager pull raw -D configManagerExportRawDir0 --config-file test/e2e/fr-config-manager-pull-config/raw.json": should export all the configs in the provided json file in fr-config manager style.: configManagerExportRawDir0/raw/am/json/realms/root/realms/alpha/realm-config/webhooks/test-webhook.json 1`] = `
 {
   "_id": "test-webhook",
   "_pushApiVersion": {
@@ -24,14 +184,88 @@ exports[`frodo config-manager pull raw "frodo config-manager pull raw -D configM
 }
 `;
 
-exports[`frodo config-manager pull raw "frodo config-manager pull raw -D configManagerExportRawDir0 -f test/e2e/fr-config-manager-pull-config/raw.json": should export all the configs in the provided json file in fr-config manager style.: configManagerExportRawDir0/raw/environment/release.json 1`] = `
+exports[`frodo config-manager pull raw "frodo config-manager pull raw -D configManagerExportRawDir0 --config-file test/e2e/fr-config-manager-pull-config/raw.json": should export all the configs in the provided json file in fr-config manager style.: configManagerExportRawDir0/raw/environment/release.json 1`] = `
 {
   "channel": "rapid",
   "currentVersion": "18045.0",
 }
 `;
 
-exports[`frodo config-manager pull raw "frodo config-manager pull raw -D configManagerExportRawDir0 -f test/e2e/fr-config-manager-pull-config/raw.json": should export all the configs in the provided json file in fr-config manager style.: configManagerExportRawDir0/raw/openidm/config/authentication.json 1`] = `
+exports[`frodo config-manager pull raw "frodo config-manager pull raw -D configManagerExportRawDir0 --config-file test/e2e/fr-config-manager-pull-config/raw.json": should export all the configs in the provided json file in fr-config manager style.: configManagerExportRawDir0/raw/openidm/config/authentication.json 1`] = `
+{
+  "_id": "authentication",
+  "rsFilter": {
+    "augmentSecurityContext": {
+      "source": "require('auth/orgPrivileges').assignPrivilegesToUser(resource, security, properties, subjectMapping, privileges, security.authorization.component.includes('/alpha_') ? 'alphaOrgPrivileges' : 'bravoOrgPrivileges', 'privilegeAssignments');",
+      "type": "text/javascript",
+    },
+    "cache": {
+      "maxTimeout": "300 seconds",
+    },
+    "scopes": [
+      "fr:idm:*",
+    ],
+    "staticUserMapping": [
+      {
+        "localUser": "internal/user/idm-provisioning",
+        "roles": [
+          "internal/role/openidm-admin",
+        ],
+        "subject": "autoid-resource-server",
+      },
+    ],
+    "subjectMapping": [
+      {
+        "additionalUserFields": [
+          "adminOfOrg",
+          "ownerOfOrg",
+        ],
+        "defaultRoles": [
+          "internal/role/openidm-authorized",
+        ],
+        "propertyMapping": {
+          "sub": "_id",
+        },
+        "queryOnResource": "managed/{{substring realm 1}}_user",
+        "userRoles": "authzRoles/*",
+      },
+    ],
+  },
+}
+`;
+
+exports[`frodo config-manager pull raw "frodo config-manager pull raw -D configManagerExportRawDir2 --config-file test/e2e/fr-config-manager-pull-config/raw.json -V.protocol 2.0 -V.resource 1.0": should export all configurations listed in the JSON file in fr-config-manager format, preserving any push API versions. 1`] = `0`;
+
+exports[`frodo config-manager pull raw "frodo config-manager pull raw -D configManagerExportRawDir2 --config-file test/e2e/fr-config-manager-pull-config/raw.json -V.protocol 2.0 -V.resource 1.0": should export all configurations listed in the JSON file in fr-config-manager format, preserving any push API versions. 2`] = `""`;
+
+exports[`frodo config-manager pull raw "frodo config-manager pull raw -D configManagerExportRawDir2 --config-file test/e2e/fr-config-manager-pull-config/raw.json -V.protocol 2.0 -V.resource 1.0": should export all configurations listed in the JSON file in fr-config-manager format, preserving any push API versions.: configManagerExportRawDir2/raw/am/json/realms/root/realms/alpha/realm-config/webhooks/test-webhook.json 1`] = `
+{
+  "_id": "test-webhook",
+  "_pushApiVersion": {
+    "protocol": "2.0",
+    "resource": "1.0",
+  },
+  "_rev": "1846295412",
+  "_type": {
+    "_id": "webhooks",
+    "collection": true,
+    "name": "Webhook Service",
+  },
+  "headers": {
+    "accept": "*/*",
+  },
+  "url": "\${TEST_WEBHOOK_URL}",
+}
+`;
+
+exports[`frodo config-manager pull raw "frodo config-manager pull raw -D configManagerExportRawDir2 --config-file test/e2e/fr-config-manager-pull-config/raw.json -V.protocol 2.0 -V.resource 1.0": should export all configurations listed in the JSON file in fr-config-manager format, preserving any push API versions.: configManagerExportRawDir2/raw/environment/release.json 1`] = `
+{
+  "channel": "rapid",
+  "currentVersion": "23968.0",
+}
+`;
+
+exports[`frodo config-manager pull raw "frodo config-manager pull raw -D configManagerExportRawDir2 --config-file test/e2e/fr-config-manager-pull-config/raw.json -V.protocol 2.0 -V.resource 1.0": should export all configurations listed in the JSON file in fr-config-manager format, preserving any push API versions.: configManagerExportRawDir2/raw/openidm/config/authentication.json 1`] = `
 {
   "_id": "authentication",
   "rsFilter": {

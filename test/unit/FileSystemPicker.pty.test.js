@@ -374,10 +374,11 @@ suite('the file system picker, on a real terminal', () => {
 
   describe('an extension filter', () => {
     test('shows the folders and the files of the extension, and says so', () => {
-      // `pull raw` cannot guess what to pull, so its --config-file is mandatory and the picker opens for it
-      // (`pull saml` needs no file any more and pulls everything without a prompt)
+      // `pull service-objects` cannot guess what to pull, so its --config-file is mandatory and the picker opens for it
+      // (`pull saml` needs no file any more and pulls everything without a prompt, and `pull raw` asks first whether
+      // to give the file or a path)
       const result = run(
-        ['config-manager', 'pull', 'raw', host()],
+        ['config-manager', 'pull', 'service-objects', host()],
         [
           {
             type: 'wait_plain',

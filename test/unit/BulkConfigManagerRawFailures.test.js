@@ -223,6 +223,80 @@ describe('config-manager pull raw', () => {
     expect(printError).not.toHaveBeenCalled();
   });
 
+  describe('with --stdout', () => {
+    // what goes to standard output: the one document of the data call, and nothing else
+    const documents = () =>
+      printMessage.mock.calls
+        .filter(([, kind]) => kind === 'data')
+        .map(([text]) => JSON.parse(text));
+    const runStdout = (allowFailures, file = path.join(tmp, 'raw.json')) =>
+      ops.configManagerExportRaw(file, allowFailures, undefined, true);
+
+    test('runs every item after one failed, prints the others as one list, names the failure in one summary and fails', async () => {
+      expect(await runStdout()).toBe(false);
+
+      expect(attempted).toEqual(PATHS);
+      expect(saved).toEqual([]);
+      expect(documents()).toEqual([[{ _id: 'x/a' }, { _id: 'y/c' }]]);
+      expect(printError).toHaveBeenCalledTimes(1);
+      expect(summaries()).toHaveLength(1);
+      expect(level()).toBe('error');
+      expect(summary()).toMatch(
+        /^1 of 3 raw configs failed:\n {2}- x\/b: could not export x\/b/
+      );
+    });
+
+    test('--allow-failures keeps the command successful, still printing the list and the summary as a warning', async () => {
+      expect(await runStdout(true)).toBe(true);
+
+      expect(documents()).toEqual([[{ _id: 'x/a' }, { _id: 'y/c' }]]);
+      expect(level()).toBe('warn');
+      expect(summary()).toContain('x/b');
+    });
+
+    test('prints the whole list in the order of the file when every item is exported', async () => {
+      failing = new Set();
+
+      expect(await runStdout()).toBe(true);
+      expect(documents()).toEqual([
+        [{ _id: 'x/a' }, { _id: 'x/b' }, { _id: 'y/c' }],
+      ]);
+      expect(summaries()).toHaveLength(0);
+    });
+
+    test('prints an empty list for an empty file, and the one object for a path that is pulled', async () => {
+      put('raw.json', []);
+      expect(await runStdout()).toBe(true);
+      expect(documents()).toEqual([[]]);
+
+      printMessage.mockClear();
+      failing = new Set();
+      expect(
+        await ops.configManagerExportRaw(undefined, false, 'x/a', true)
+      ).toBe(true);
+      expect(documents()).toEqual([{ _id: 'x/a' }]);
+    });
+
+    test('prints nothing for a path that fails, and fails whatever the list says', async () => {
+      expect(
+        await ops.configManagerExportRaw(undefined, false, 'x/b', true)
+      ).toBe(false);
+
+      expect(documents()).toEqual([]);
+      expect(summary()).toMatch(/^1 of 1 raw config failed:/);
+    });
+
+    test('prints nothing when the list does not exist, is not a list or is not JSON', async () => {
+      expect(await runStdout(true, path.join(tmp, 'missing.json'))).toBe(false);
+      put('raw.json', { path: 'x/a' });
+      expect(await runStdout(true)).toBe(false);
+      put('raw.json', 'not json');
+      expect(await runStdout(true)).toBe(false);
+
+      expect(documents()).toEqual([]);
+    });
+  });
+
   test('an item without a path fails on its own and is named by its content', async () => {
     failing = new Set();
     put('raw.json', [{ other: 1 }, { path: 'x/a' }]);

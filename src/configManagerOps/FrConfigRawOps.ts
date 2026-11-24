@@ -18,61 +18,124 @@ import {
 import { causeOf } from '../utils/ErrorCause';
 import { clearOperationalAttributes } from '../utils/FrConfig';
 import { OperationRun } from '../utils/OperationRun';
+import { isPushApiVersion, type PushApiVersion } from '../utils/PushApiVersion';
 import { readStdinToEndSync } from '../utils/StdinSync';
 
 const { getFilePath, saveJsonToFile, readJsonFile, getWorkingDirectory } =
   frodo.utils;
 const { exportRawConfig, importRawConfig } = frodo.rawConfig;
 
+/** The same path with or without its leading slash is the same path, as it is for the library. */
+const withoutLeadingSlash = (value: unknown): string =>
+  String(value).replace(/^\//, '');
+
 /**
- * Export every item from the list in the provided json file
- * @param {string} file the json file that lists what to export
+ * What to pull: the list of the file as it is, or the one item that `--path` names.
+ * When the file lists the path, its item is pulled with its overrides and its push API
+ * version; otherwise the path is pulled as it is. A push API version given on the command
+ * line wins over the one of the item.
+ * @param {any[] | undefined} list the items of the config file, if there is one
+ * @param {string} path the API path that was asked for, if any
+ * @param {PushApiVersion} pushApiVersion the push API version given on the command line, if any
+ * @returns {any[]} the items to pull, in order
+ */
+function itemsToPull(
+  list: any[] | undefined,
+  path: string | undefined,
+  pushApiVersion: PushApiVersion | undefined
+): any[] {
+  if (path === undefined) return list ?? [];
+  const listed = list?.find(
+    (item) =>
+      item?.path !== undefined &&
+      withoutLeadingSlash(item.path) === withoutLeadingSlash(path)
+  );
+  return [
+    {
+      ...(listed ?? { path }),
+      ...(pushApiVersion && { pushApiVersion }),
+    },
+  ];
+}
+
+/**
+ * Export every item from the list in the provided json file, or the one item of an API path
+ * @param {string} file the json file that lists what to export; optional when a path is given
  * @param {boolean} allowFailures True to succeed although some items could not be exported (the failures are still summarised)
+ * @param {string} path the API path of the one item to export. When the file lists it, the item of the file is used with its overrides and push API version
+ * @param {boolean} stdout True to print the configuration as JSON on standard output instead of writing files: the object itself for a path, one list in the order of the file otherwise
+ * @param {PushApiVersion} pushApiVersion the push API version to record in the item of a path, which a later push sends
  * @returns {boolean} True if each file was successfully exported. An item that cannot be exported does not stop the others; the result is false if any failed, unless failures are allowed. A list that does not exist, cannot be parsed or is not a list is a failure.
  */
 export async function configManagerExportRaw(
-  file: string,
-  allowFailures: boolean = false
+  file: string | undefined,
+  allowFailures: boolean = false,
+  path?: string,
+  stdout: boolean = false,
+  pushApiVersion?: PushApiVersion
 ): Promise<boolean> {
   try {
-    if (!fs.existsSync(file)) {
-      printMessage(`The raw config file '${file}' does not exist.`, 'error');
-      return false;
-    }
-    const jsonData = JSON.parse(await readFile(file, { encoding: 'utf8' }));
-    if (!Array.isArray(jsonData)) {
+    let list: any[] | undefined;
+    if (file !== undefined) {
+      if (!fs.existsSync(file)) {
+        printMessage(`The raw config file '${file}' does not exist.`, 'error');
+        return false;
+      }
+      const jsonData = JSON.parse(await readFile(file, { encoding: 'utf8' }));
+      if (!Array.isArray(jsonData)) {
+        printMessage(
+          `The raw config file '${file}' must contain a list of items to export, each with a "path".`,
+          'error'
+        );
+        return false;
+      }
+      list = jsonData;
+    } else if (path === undefined) {
       printMessage(
-        `The raw config file '${file}' must contain a list of items to export, each with a "path".`,
+        'Give the API path to export with --path, or a config file with --config-file.',
         'error'
       );
       return false;
     }
 
-    // Create export json file for every item in the provided json file
+    // Create export json file for every item to export
     const run = new OperationRun({ unit: 'raw config', allowFailures });
     const pulledPaths = new PulledPaths();
-    for (const config of jsonData) {
+    const printed: IdObjectSkeletonInterface[] = [];
+    for (const config of itemsToPull(list, path, pushApiVersion)) {
       const name = String(config?.path ?? JSON.stringify(config));
       try {
         pulledPaths.owner = String(config?.path);
         const response: IdObjectSkeletonInterface =
           await exportRawConfig(config);
-        verboseMessage(`Saving ${response._id} at ${config.path}.json.`);
-        saveJsonToFile(
-          response,
-          // the path is a path by design (`/openidm/config/cluster`), and it stays inside the config folder
-          getFilePath(
-            pulledFilePath(`raw/${config.path}.json`, pulledPaths),
+        if (stdout) {
+          printed.push(response);
+        } else {
+          verboseMessage(`Saving ${response._id} at ${config.path}.json.`);
+          saveJsonToFile(
+            response,
+            // the path is a path by design (`/openidm/config/cluster`), and it stays inside the config folder
+            getFilePath(
+              pulledFilePath(`raw/${config.path}.json`, pulledPaths),
+              true
+            ),
+            false,
             true
-          ),
-          false,
-          true
-        );
+          );
+        }
         run.recordSuccess();
       } catch (error) {
         printError(error, `Error exporting raw config '${name}'`);
         run.recordFailure(name, causeOf(error));
       }
+    }
+
+    // standard input of the next command: one JSON document and nothing else
+    if (stdout && (path === undefined || printed.length > 0)) {
+      printMessage(
+        JSON.stringify(path === undefined ? printed : printed[0], null, 2),
+        'data'
+      );
     }
 
     return run.finish();
@@ -107,6 +170,21 @@ function readRawConfigFromStdin(): IdObjectSkeletonInterface {
 }
 
 /**
+ * Removes the attributes that a push must not send, but keeps `_pushApiVersion`: the library
+ * reads it to set the API version of the request and takes it out of what it sends. A value
+ * that is not a push API version (a text, `null`, a version without a resource, a version whose
+ * text holds a comma or a blank) is dropped with the other attributes, silently, as every push
+ * ignored it before the version was kept: the library would build `resource=undefined` or a
+ * longer header from it, or fail.
+ * @param {IdObjectSkeletonInterface} data the configuration read from a file or from standard input
+ */
+function clearForPush(data: IdObjectSkeletonInterface): void {
+  const pushApiVersion = data._pushApiVersion;
+  clearOperationalAttributes(data);
+  if (isPushApiVersion(pushApiVersion)) data._pushApiVersion = pushApiVersion;
+}
+
+/**
  * Import all raw configuration exported in fr-config-manager format
  * @param {string} path optional flag to import only the specific configuration
  * @param {boolean} stdin True to read config from stdin
@@ -126,7 +204,7 @@ export async function configManagerImportRaw(
   try {
     if (stdin) {
       const data = readRawConfigFromStdin();
-      clearOperationalAttributes(data);
+      clearForPush(data);
       await importRawConfig({ path }, data);
       stopProgressIndicator(
         indicatorId,
@@ -161,7 +239,7 @@ export async function configManagerImportRaw(
       try {
         const data = readJsonFile(filePath) as IdObjectSkeletonInterface;
 
-        clearOperationalAttributes(data);
+        clearForPush(data);
         await importRawConfig({ path: rawPath }, data);
         run.recordSuccess();
       } catch (error) {
