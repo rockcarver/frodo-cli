@@ -295,6 +295,12 @@ async function startConsole(host?: string): Promise<void> {
     () => getIdmCatalog()
   );
 
+  // Raw mode comes before the first prompt is drawn, not after: switching
+  // waits until the terminal has read what was written before it, so a key
+  // typed in answer to the prompt would meet a terminal that still handles
+  // Ctrl+R, Ctrl+C and the echo itself. The input is piped in `install()`.
+  consoleInput.enterRawMode();
+
   const started = repl.start({
     prompt: 'frodo> ',
     ignoreUndefined: true,
