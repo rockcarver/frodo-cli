@@ -38,11 +38,11 @@ export default function setup() {
   program.addCommand(
     OauthSoftwarePublishers().name('oauth-software-publishers')
   );
+  program.addCommand(RemoteServers().name('remote-servers'));
   program.addCommand(Schedules().name('schedules'));
   program.addCommand(SecretMappings().name('secret-mappings'));
   program.addCommand(Telemetry().name('telemetry'));
   program.addCommand(TenantConfig().name('tenant-config'));
   program.addCommand(Journeys().name('journeys'));
-  program.addCommand(RemoteServers().name('remote-servers'));
   return program;
 }
