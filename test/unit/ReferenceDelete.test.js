@@ -188,6 +188,14 @@ describe('unreadableSources', () => {
     ]);
   });
 
+  test('trims the blanks around the first line of a nested message', () => {
+    const error = Object.assign(new Error('Error finding references: x'), {
+      originalErrors: [new Error('  Error reading themes  \nsecond line')],
+    });
+
+    expect(unreadableSources(error)).toEqual(['Error reading themes']);
+  });
+
   test('adds the cause at the bottom of a nested error, after its own message', () => {
     const error = Object.assign(new Error('Error finding references: x'), {
       originalErrors: [
@@ -230,7 +238,7 @@ describe('unreadableSources', () => {
 });
 
 describe('the module', () => {
-  test('imports no library: it holds no journey, no type and no tenant call', () => {
+  test('imports only node:util and the error cause helper: no library, no journeys module, nothing that imports one', () => {
     const source = fs.readFileSync(
       fileURLToPath(
         new URL(
@@ -240,10 +248,14 @@ describe('the module', () => {
       ),
       'utf8'
     );
-    const imports = source.match(/^import [^;]*;$/gm) ?? [];
+    const specifiers = [
+      ...source.matchAll(/^import [^;]*? from '([^']+)';$/gm),
+    ].map(([, specifier]) => specifier);
 
-    expect(imports.length).toBeGreaterThan(0);
-    expect(imports.filter((line) => line.includes('frodo-lib'))).toEqual([]);
+    expect(specifiers).toEqual(['node:util', '../utils/ErrorCause']);
+    expect(source).not.toMatch(/^import '/m);
+    expect(source).not.toMatch(/^export [^;]*? from /m);
+    expect(source).not.toMatch(/\brequire\(|\bimport\(/);
   });
 
   test('is what the journeys module still exports as unreadableSources', async () => {

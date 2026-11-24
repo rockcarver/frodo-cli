@@ -7,6 +7,7 @@ import {
   reasonOf,
 } from './ReferenceDelete';
 
+// stays exported from here: the tests of this module import it from this file
 export { unreadableSources } from './ReferenceDelete';
 
 /**
@@ -261,7 +262,7 @@ export type HolderChange = {
  * @param {ClearableReference} reference the reference found by the library
  * @param {string} journeyId the journey that is about to be deleted
  * @returns {Promise<HolderChange>} what was cleared
- * @throws {ClearingError} when the holder does not name the journey any more,
+ * @throws {import('./ReferenceDelete').ClearingError} when the holder does not name the journey any more,
  * when a library function fails, or when the holder does not read back as it
  * should. `holderChanged` on the error says that the holder was written and
  * may differ from what it was (a read after the write failed, or the restore

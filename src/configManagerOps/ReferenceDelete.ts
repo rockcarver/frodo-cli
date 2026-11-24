@@ -5,8 +5,9 @@ import { causeOf } from '../utils/ErrorCause';
  * The helpers that a reference-aware delete shares, whatever the type it
  * deletes: copying and comparing the data of a holder, naming the fields that
  * differ, the error of a clearing that went wrong, and the lines for the
- * sources that a lookup could not read. They know nothing about journeys or any
- * other type, and they call no library function.
+ * sources that a lookup could not read. They depend on no type of object and
+ * call no library function; the doc of `unreadableSources` names the journeys
+ * lookup because that is the lookup it was written for.
  */
 
 /** A copy of data that came from JSON, made of plain objects of this module. */
