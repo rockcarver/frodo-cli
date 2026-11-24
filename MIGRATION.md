@@ -526,6 +526,49 @@ exits with code 1 if any failed; `--allow-failures` keeps the exit code at 0 for
 failed writes
 ([a command that runs many operations runs them all, then fails if any failed](https://github.com/rockcarver/frodo-cli/blob/main/docs/decisions/0040-a-command-that-runs-many-operations-runs-them-all-then-fails-if-any-failed.md)).
 
+**New command: `frodo config-manager delete services`** deletes one realm
+service, or every realm service of the selected realms. It works on every
+deployment type, and it never touches a global service. A realm service is a
+setting of the realm (the session, the base URL, the OAuth 2.0 provider, the
+identity stores, and so on); deleting one removes it with its next descendents.
+`-i, --service-id <id>` (alias `-n, --name`) names the service, for example
+`email`, and needs a realm argument. The services of the realm are read the way
+`pull services` reads them, and the id is matched exactly and case-sensitively
+against what the realm lists. The id that the realm lists is what is deleted, so
+a value that is written as a path (`-i ../x`) is a service that does not exist
+([a selector is an id or a name, never a path](https://github.com/rockcarver/frodo-cli/blob/main/docs/decisions/0059-a-selector-is-an-id-or-a-name-never-a-path.md)),
+and a listed id that is not a plain name (a slash, a `..`, a `?`, a `#`, a `%`
+or a control character in it) is never sent to the tenant: it counts as a failed
+delete. A service that is not in the realm exits with code 1, also with
+`--dry-run` and `--allow-failures`, because the id names one service. A service
+that Cloud does not offer is not read, as in `pull services`, so it is not found
+on Cloud either. A named delete asks nothing and prints what went with the
+service: its next descendents.
+
+Without `-i` the command deletes every service that `pull services` covers, in
+the selected realms: every realm of the tenant without a realm argument, the root
+realm skipped on Cloud as `pull services` and `push services` skip it.
+`DataStoreService`, which `pull services` never exports, is left alone. It asks
+first, as every delete of more than one object does, and without a terminal it is
+refused before the login unless you pass `-y` (or `-d`). The question follows a
+plan that names the realms, the number of services and of next descendents of
+each, and the services that a realm commonly depends on: the identity stores
+(`id-repositories`), the OAuth 2.0 provider (`oauth-oidc`), the social identity
+providers, the email service, the PingOne connection, the self-service journeys,
+the session settings, the base URL and the valid goto URLs. **The command does not
+refuse to delete them**: AM accepts every one of these deletions, nothing in the
+library says what uses a service, and what a realm does without one has not been
+observed. A journey, client or user that needs a deleted service fails when it
+runs. To restore a realm, run `config-manager push services` from a `pull
+services` made before.
+
+Every service is one operation, named `<realm>/<service>`: one that cannot be
+read or deleted does not stop the others, the command prints one summary of what
+failed and exits with code 1 if any failed. `--allow-failures` keeps the exit code
+at 0 for a service that could not be read or deleted, but never for a service
+that is not there or for a realm whose services could not be listed
+([a command that runs many operations runs them all, then fails if any failed](https://github.com/rockcarver/frodo-cli/blob/main/docs/decisions/0040-a-command-that-runs-many-operations-runs-them-all-then-fails-if-any-failed.md)).
+
 **New command: `frodo config-manager delete journeys`** deletes one journey, or
 every journey of the selected realms and then the orphaned nodes of those realms.
 `-i, --journey-id <id>` (alias `-n, --name`) names the journey and needs a realm
@@ -983,6 +1026,7 @@ entity and drop the others.
 | `delete remote-servers`            | `-i, --server-id`                      | `-n`, `--name` |
 | `delete schedules`                 | `-i, --schedule-id`                    | `-n`, `--name` |
 | `delete secret-mappings`           | `-i, --secret-mapping-id`              | `-n`, `--name` |
+| `delete services`                  | `-i, --service-id`                     | `-n`, `--name` |
 | `delete telemetry`                 | `-i, --exporter-id`                    | `-n`, `--name` |
 
 `delete applications`, `delete custom-nodes`, `delete scripts` and
