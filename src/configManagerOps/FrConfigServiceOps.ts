@@ -26,16 +26,11 @@ import { OperationRun } from '../utils/OperationRun';
 const { CLOUD_DEPLOYMENT_TYPE_KEY } = frodo.utils.constants;
 const { getFilePath, saveJsonToFile, getWorkingDirectory, readJsonFile } =
   frodo.utils;
-const {
-  deleteFullService,
-  deleteFullServices,
-  getFullServices,
-  getListOfServices,
-  importServices,
-} = frodo.service;
+const { deleteFullService, getFullServices, importServices } = frodo.service;
 const { DEFAULT_REALM_KEY } = frodo.utils.constants;
 
-const EXCLUDE_SERVICES = ['DataStoreService'];
+/** The services that `pull services` never exports and that a delete of all services leaves alone. */
+export const EXCLUDE_SERVICES = ['DataStoreService'];
 
 /**
  * The service that the library names in the error it throws when it cannot read a service.
@@ -332,73 +327,415 @@ export async function configManagerImportServices(
   }
   return false;
 }
+
 /**
- * Delete services. Skips the root realm on cloud deployments.
- * @param {string} name optional service name to delete, deletes all services if omitted
- * @param {boolean} dryRun preview deletions without deleting services
- * @param {string} realm optional realm to delete services from
- * @param {boolean} allowFailures true to succeed although some realms fail
- * @returns {Promise<boolean>} true if successful, false otherwise
+ * What a realm commonly depends on, for the services that are known for it: what goes with the
+ * service when it is deleted, in a few words. A delete of all services says so for each of them in
+ * its plan and a named delete says so after it ran. AM accepts the deletion of every one of them, and
+ * nothing in the library says what uses a service, so this is a hint and not a refusal. The effects are
+ * those that the documentation of the platform describes; none was observed by this command.
+ */
+const REALM_SERVICE_NOTES: Record<string, string> = {
+  'id-repositories': 'the identity stores of the realm go with it',
+  'oauth-oidc':
+    'the OAuth 2.0 provider of the realm, with its endpoints, goes with it',
+  SocialIdentityProviders:
+    'every social identity provider of the realm goes with it',
+  email: 'the sender address and the mail transports of the realm go with it',
+  pingOneWorkerService: 'the PingOne connection of the realm goes with it',
+  selfServiceTrees:
+    'the choice of the journey that runs each self-service flow goes with it',
+  session: 'the session settings of the realm go with it',
+  baseurl: 'the way the base URL of the realm is generated goes with it',
+  validation: 'the list of the valid goto URLs of the realm goes with it',
+};
+
+/** What a name is, in the words of a message about an id that is not one. */
+const PLAIN_NAME_RULE =
+  'a plain name is not blank, is not just a dot, and has no /, \\, ?, #, %, .. or control character';
+
+/**
+ * Whether a listed service id is a plain name. The library puts the id into the path of the request as
+ * it is given, so an id with a slash, a `..` segment, a `?` or a `#` in it would name another object
+ * than the one that was listed, whatever the tenant lists. Such an id is never sent to the tenant.
+ * @param {string} name the listed service id
+ * @returns {boolean} true if the id is safe to put into a path
+ */
+function isPlainName(name: string): boolean {
+  return (
+    name.trim() !== '' &&
+    name !== '.' &&
+    !name.includes('..') &&
+    !/[/\\?#%\p{Cc}]/u.test(name)
+  );
+}
+
+/**
+ * Text that the tenant gave, as a message shows it: every control character written out as
+ * `\uXXXX`, so that it cannot change what the terminal shows.
+ * @param {string} text the text
+ * @returns {string} the text without a raw control character
+ */
+function printable(text: string): string {
+  return text.replace(
+    /\p{Cc}/gu,
+    (character) =>
+      `\\u${(character.codePointAt(0) as number).toString(16).padStart(4, '0')}`
+  );
+}
+
+/**
+ * A listed id as a message shows it: quoted, and every control character written out.
+ * @param {string} id the listed id
+ * @returns {string} the id as a quoted text without a raw control character
+ */
+function shownId(id: string): string {
+  return `'${printable(id)}'`;
+}
+
+/** The note of a service that a realm commonly depends on, or undefined. */
+function noteOf(id: string): string | undefined {
+  return Object.hasOwn(REALM_SERVICE_NOTES, id)
+    ? REALM_SERVICE_NOTES[id]
+    : undefined;
+}
+
+/** The sentence about a service that a realm commonly depends on, for a delete that names it, or undefined. */
+function dependsLine(id: string): string | undefined {
+  const note = noteOf(id);
+  return note
+    ? `Service '${id}' is one that a realm commonly depends on: ${note}.`
+    : undefined;
+}
+
+/** One service of a realm that the delete would try, as the realm listed it. */
+type ServiceToDelete = {
+  realm: string;
+  /** The id the realm lists: `service._type._id`, the key that `pull services` uses. */
+  id: string;
+  /** The next descendents that go with it, as `<type>/<id>`. */
+  descendents: string[];
+};
+
+/** What the library gave back for the services of one realm. */
+type RealmRead = {
+  realm: string;
+  services: FullService[];
+  /** The services that could not be read: they are not deleted. */
+  unreadable: { id: string; reason: string }[];
+  /** Why the services of the realm could not be listed, when they could not. */
+  failure?: string;
+};
+
+/**
+ * Reads the services of a realm the way `pull services` does (every service with its next
+ * descendents, the services that Cloud does not offer left out). A service that cannot be read does
+ * not stop the others: it is reported and not deleted.
+ * @param {string} realm the realm
+ * @returns {Promise<RealmRead>} the services, the ones that could not be read, or why none could be listed
+ */
+async function readServicesOfRealm(realm: string): Promise<RealmRead> {
+  state.setRealm(realm);
+  const unreadable: RealmRead['unreadable'] = [];
+  try {
+    const services = await getFullServices(false, (error?: FrodoError) => {
+      if (!error) return;
+      printError(error);
+      unreadable.push({
+        id: readServiceNameOf(error) ?? 'a service',
+        reason: causeOf(error),
+      });
+    });
+    return { realm, services, unreadable };
+  } catch (error) {
+    printError(error, `Error reading the services of realm '${realm}'`);
+    return { realm, services: [], unreadable, failure: causeOf(error) };
+  }
+}
+
+/** The id that a realm lists for a service: a text, so that an id of another shape is refused as a name and not as a crash. */
+const listedIdOf = (service: FullService): string =>
+  String(service?._type?._id ?? '');
+
+/** The next descendents of a service as `<type>/<id>`, in the words a message can show. */
+function descendentsOf(service: FullService): string[] {
+  return (service.nextDescendents ?? []).map((descendent) =>
+    printable(`${descendent?._type?._id ?? '?'}/${descendent?._id ?? '?'}`)
+  );
+}
+
+/** What a service is called in the summary of a run: `alpha/email`, `/session` for the root realm. */
+const nameInRun = (realm: string, id: string): string =>
+  `${realm === '/' ? '' : realm}/${printable(id)}`;
+
+/** `1 service` or `3 services`. */
+const countOf = (count: number, noun: string): string =>
+  `${count} ${noun}${count === 1 ? '' : 's'}`;
+
+/**
+ * What a delete of all services would do, as the text of a plan or of a dry run: how many services
+ * in which realms, each service with the number of its next descendents and, for the ones that a
+ * realm commonly depends on, what goes with them.
+ * @param {ServiceToDelete[][]} byRealm what would be deleted, one list for each realm that has any
+ * @param {boolean} asPlan true for the plan shown before a question, false for a dry run
+ * @returns {string[]} the lines
+ */
+function bulkPlanLines(
+  byRealm: ServiceToDelete[][],
+  asPlan: boolean
+): string[] {
+  const total = byRealm.reduce((sum, services) => sum + services.length, 0);
+  const realms = byRealm.map((services) => services[0].realm);
+  const what = `${countOf(total, 'service')} in ${countOf(realms.length, 'realm')} (${realms.join(', ')}) would be deleted, each with its next descendents.`;
+  const lines = [
+    asPlan ? `Plan: ${what}` : `Dry run: nothing is deleted. ${what}`,
+  ];
+  for (const services of byRealm) {
+    lines.push(
+      `  Realm '${services[0].realm}' (${countOf(services.length, 'service')}):`
+    );
+    for (const service of services) {
+      const note = noteOf(service.id);
+      lines.push(
+        `    - ${service.id}${service.descendents.length > 0 ? ` (${countOf(service.descendents.length, 'next descendent')})` : ''}${note ? `: ${note}` : ''}`
+      );
+    }
+  }
+  return lines;
+}
+
+/**
+ * Delete one service of a realm by id, or all services of the selected realms: what
+ * `pull services` covers (every realm service that the realm lists and reads, except
+ * `DataStoreService`, which it never exports). Global services are not touched. Skips the root
+ * realm on Cloud deployments.
+ *
+ * The services of a realm are read the way `pull services` reads them. A named service is looked up
+ * in that list (an exact, case-sensitive match on the id the realm lists) and the LISTED id is what is
+ * deleted: the text of the command line never reaches a request, so it cannot be anything but an id. A
+ * listed id that is not a plain name is never sent to the tenant either. A service that other objects
+ * use is not refused: nothing in the library says what uses a service, so the plan and the messages say
+ * which services a realm commonly depends on and what goes with them.
+ *
+ * Every service is one operation, named `<realm>/<service>`: one that cannot be read or deleted does
+ * not stop the others, and the command ends with one summary and the answer to "did it succeed".
+ * A dry run reads and deletes nothing, and says what would be deleted.
+ * @param {string} id Exact id of the service, for example `email`. A named delete needs a realm. An empty id is an error, never "all".
+ * @param {string} realm Realm to process. Omit to process every realm of the tenant.
+ * @param {boolean} dryRun Show what would be deleted without deleting anything.
+ * @param {boolean} allowFailures Keep the result true when a service could not be read or deleted. Neither a named service that is not there, nor a realm whose services could not be listed, is a failure that it can turn into success.
+ * @param {object} options `plan`: the dry run of a delete of all services is the plan that is shown before a question, so its text says plan and not dry run
+ * @param {boolean} options.plan true for the plan shown before a question
+ * @returns {Promise<boolean>} False if the arguments are refused, the realms cannot be listed, the services of a realm cannot be listed, a named service is not there or its id is not a plain name, or, unless failures are allowed, a service could not be read or deleted. Nothing to delete is a success.
  */
 export async function configManagerDeleteServices(
-  name?: string,
-  dryRun = false,
+  id?: string,
   realm?: string,
-  allowFailures = false
+  dryRun = false,
+  allowFailures = false,
+  { plan = false }: { plan?: boolean } = {}
 ): Promise<boolean> {
-  const run = new OperationRun({ unit: 'service', allowFailures });
-
+  // "not given" and "given but empty" are different: an empty id must never select every service
+  if (id !== undefined && id.trim() === '') {
+    printMessage(
+      'The service id must not be empty. To delete all services, leave out the id.',
+      'error'
+    );
+    return false;
+  }
+  const concreteRealm =
+    realm && realm !== DEFAULT_REALM_KEY ? realm : undefined;
+  if (id !== undefined && !concreteRealm) {
+    printMessage(
+      'The -i, --service-id option requires a realm argument to be specified.',
+      'error'
+    );
+    return false;
+  }
+  // the realm is set for each realm below; the caller (the question of the bulk-delete guard names
+  // the realm) must find it as it was
+  const realmBefore = state.getRealm();
   try {
-    const realmsToProcess =
-      realm && realm !== DEFAULT_REALM_KEY ? [realm] : await realmList();
-
-    for (const currentRealm of realmsToProcess) {
+    let realms: string[];
+    try {
+      realms = concreteRealm ? [concreteRealm] : await realmList();
+    } catch (error) {
+      printError(error, 'Error reading realms');
+      return false;
+    }
+    if (realms.length === 0) {
+      printMessage('No realms found to delete services from.', 'warn');
+      return true;
+    }
+    const reads: RealmRead[] = [];
+    for (const currentRealm of realms) {
       if (
         currentRealm === '/' &&
         state.getDeploymentType() === CLOUD_DEPLOYMENT_TYPE_KEY
       ) {
+        printMessage('The root realm (/) is skipped on a Cloud tenant.');
         continue;
       }
+      reads.push(await readServicesOfRealm(currentRealm));
+    }
 
-      state.setRealm(currentRealm);
+    // a realm whose services could not be listed is a failure that `--allow-failures` does not forgive:
+    // nothing is known about what is in it
+    const unlisted = reads.filter((read) => read.failure !== undefined);
+    const run = new OperationRun({
+      unit: 'service',
+      allowFailures: allowFailures && unlisted.length === 0,
+    });
+    for (const read of unlisted) {
+      run.recordFailure(`realm ${read.realm}`, read.failure);
+    }
+    for (const read of reads) {
+      for (const unread of read.unreadable) {
+        run.recordFailure(nameInRun(read.realm, unread.id), unread.reason);
+      }
+    }
+    const finish = (): boolean => {
+      if (allowFailures && unlisted.length > 0) {
+        printMessage(
+          '--allow-failures does not apply to a realm whose services could not be listed.',
+          'error'
+        );
+      }
+      return run.finish();
+    };
 
-      try {
-        const deletedServices = dryRun
-          ? (await getListOfServices(false)).filter(
-              (service) => !name || service._id === name
-            )
-          : name
-            ? [await deleteFullService(name)]
-            : await deleteFullServices();
+    // what the realm lists, by realm: a named delete takes the one service, a delete of all what
+    // `pull services` covers
+    const selected = reads.map((read) => {
+      const listed = read.services.filter(
+        (service) =>
+          (id === undefined &&
+            !EXCLUDE_SERVICES.includes(listedIdOf(service))) ||
+          (id !== undefined && listedIdOf(service) === id)
+      );
+      return {
+        read,
+        toDelete: listed.map((service): ServiceToDelete => ({
+          realm: read.realm,
+          id: listedIdOf(service),
+          descendents: descendentsOf(service),
+        })),
+      };
+    });
+    const found = selected.flatMap((entry) => entry.toDelete);
 
-        run.recordSuccess();
-
-        if (!deletedServices.length) {
+    if (id !== undefined) {
+      const target = found[0];
+      if (!target) {
+        const reported = reads.some(
+          (read) =>
+            read.failure !== undefined ||
+            read.unreadable.some((unread) => unread.id === id)
+        );
+        // a named service that is not there fails the command whatever `--allow-failures` says
+        if (!reported) {
           printMessage(
-            `Warning: No service(s) found to delete in realm ${currentRealm}.`,
+            `Service '${id}' not found in realm '${concreteRealm}'.`,
+            'error'
+          );
+          return false;
+        }
+        return finish();
+      }
+      if (!isPlainName(target.id)) {
+        printMessage(
+          `Service ${shownId(target.id)} is listed with an id that is not a plain name (${PLAIN_NAME_RULE}): it is not deleted, and no request was sent for it.`,
+          'error'
+        );
+        return false;
+      }
+      const depends = dependsLine(target.id);
+      if (dryRun) {
+        printMessage(
+          [
+            `Dry run: Deleting service '${target.id}' in realm '${target.realm}'.`,
+            ...(target.descendents.length > 0
+              ? [
+                  `  Next descendents that go with it: ${target.descendents.join(', ')}`,
+                ]
+              : []),
+            ...(depends ? [`  ${depends}`] : []),
+          ].join('\n')
+        );
+        return finish();
+      }
+    } else {
+      for (const { read, toDelete } of selected) {
+        if (
+          toDelete.length === 0 &&
+          read.failure === undefined &&
+          read.unreadable.length === 0
+        ) {
+          printMessage(
+            `No services found to delete in realm '${read.realm}'.`,
             'warn'
           );
-          continue;
         }
-
-        if (dryRun) {
-          for (const service of deletedServices) {
-            printMessage(
-              `Dry run: Would delete service '${service._id}' in realm '${currentRealm}'.`
-            );
-          }
+      }
+      if (dryRun) {
+        const plain = selected
+          .map(({ toDelete }) =>
+            toDelete.filter((service) => isPlainName(service.id))
+          )
+          .filter((services) => services.length > 0);
+        const lines = plain.length > 0 ? bulkPlanLines(plain, plan) : [];
+        const notPlain = found.filter((service) => !isPlainName(service.id));
+        if (notPlain.length > 0) {
+          lines.push(
+            `  These listed ids are not plain names (${PLAIN_NAME_RULE}). No request would be sent for them, and each would count as a failed delete: ${notPlain.map((service) => nameInRun(service.realm, service.id)).join(', ')}.`
+          );
         }
-      } catch (error) {
-        printError(error, `Failed to delete services in realm ${currentRealm}`);
-        run.recordFailure(currentRealm, causeOf(error));
-        continue;
+        const dataStore = reads.filter((read) =>
+          read.services.some((service) =>
+            EXCLUDE_SERVICES.includes(listedIdOf(service))
+          )
+        );
+        if (dataStore.length > 0) {
+          lines.push(
+            `  ${EXCLUDE_SERVICES.join(', ')} is never deleted by a delete of all services.`
+          );
+        }
+        if (lines.length > 0) printMessage(lines.join('\n'));
+        return finish();
       }
     }
 
-    return run.finish();
-  } catch (error) {
-    printError(error, 'Error deleting services');
-    // what failed before the read that failed is still summarised
-    return run.finish();
+    for (const target of found) {
+      if (!isPlainName(target.id)) {
+        printMessage(
+          `Service ${shownId(target.id)} is listed in realm '${target.realm}' with an id that is not a plain name (${PLAIN_NAME_RULE}): it is not deleted, and no request was sent for it.`,
+          'error'
+        );
+        run.recordFailure(
+          nameInRun(target.realm, target.id),
+          'its id is not a plain name'
+        );
+        continue;
+      }
+      state.setRealm(target.realm);
+      try {
+        await deleteFullService(target.id);
+        run.recordSuccess();
+        printMessage(
+          `Deleted service '${target.id}' in realm '${target.realm}'${target.descendents.length > 0 ? ` (with next descendents: ${target.descendents.join(', ')})` : ''}.`
+        );
+        const depends = dependsLine(target.id);
+        if (id !== undefined && depends) printMessage(depends, 'warn');
+      } catch (error) {
+        printError(
+          error,
+          `Error deleting service '${target.id}' in realm '${target.realm}'`
+        );
+        run.recordFailure(nameInRun(target.realm, target.id), causeOf(error));
+      }
+    }
+    return finish();
+  } finally {
+    state.setRealm(realmBefore);
   }
 }
