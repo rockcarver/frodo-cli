@@ -15,6 +15,7 @@ const createProgressIndicator = jest.fn();
 const updateProgressIndicator = jest.fn();
 const stopProgressIndicator = jest.fn();
 let realm;
+let verbose;
 
 jest.unstable_mockModule('@rockcarver/frodo-lib', () => ({
   FrodoError: class FrodoError extends Error {},
@@ -24,6 +25,7 @@ jest.unstable_mockModule('@rockcarver/frodo-lib', () => ({
   },
   state: {
     getRealm: () => realm,
+    getVerbose: () => verbose,
     setRealm: (value) => {
       realm = value;
     },
@@ -92,6 +94,7 @@ function withStderrTerminal(isTerminal, test) {
 describe('journey validate over many journeys', () => {
   beforeEach(() => {
     realm = undefined;
+    verbose = false;
     jest.resetAllMocks();
     createProgressIndicator.mockReturnValue('bar');
     readJourneys.mockResolvedValue([{ _id: 'a' }, { _id: 'b' }, { _id: 'c' }]);
@@ -174,6 +177,56 @@ describe('journey validate over many journeys', () => {
         ['  [MISSING_INNER_NODE] MISSING_INNER_NODE in c', 'error'],
         ['  [UNREACHABLE_NODE] UNREACHABLE_NODE in c', 'warn'],
       ]);
+    });
+
+    describe('the lines name the nodes of a finding as the editor shows them (cli#1378)', () => {
+      const AGE = '295a70ba-4b4b-4c4c-8d8d-000000000002';
+      const named = {
+        code: 'UNREACHABLE_NODE',
+        severity: 'warning',
+        journeyId: 'a',
+        message: `Tree node '${AGE}' is not reachable from the entry node`,
+        nodeId: AGE,
+        node: {
+          id: AGE,
+          displayName: 'Check Age',
+          nodeType: 'ScriptedDecisionNode',
+          nodeTypeName: 'Scripted Decision',
+        },
+      };
+
+      test('by name and type, not by id, and a finding the library does not describe as the library words it', async () => {
+        const plain = unreachable('a');
+        validateJourneys.mockImplementation(
+          validatesJourneys((journeyId) =>
+            journeyId === 'a' ? [named, plain] : []
+          )
+        );
+
+        await validateJourneyExports();
+
+        expect(printMessage.mock.calls.slice(0, 3)).toEqual([
+          ['2 warnings in journey a', 'warn'],
+          [
+            '  [UNREACHABLE_NODE] Tree node "Check Age" (Scripted Decision) is not reachable from the entry node',
+            'warn',
+          ],
+          ['  [UNREACHABLE_NODE] UNREACHABLE_NODE in a', 'warn'],
+        ]);
+      });
+
+      test('with the verbose option every named node gets its full id', async () => {
+        verbose = true;
+        validateJourneys.mockImplementation(
+          validatesJourneys((journeyId) => (journeyId === 'a' ? [named] : []))
+        );
+
+        await validateJourneyExports();
+
+        expect(messages()).toContain(
+          `  [UNREACHABLE_NODE] Tree node "Check Age" (Scripted Decision, id ${AGE}) is not reachable from the entry node`
+        );
+      });
     });
 
     test('in strict mode a journey that has warnings only says that they fail it, whatever the other journeys have', async () => {

@@ -1717,8 +1717,19 @@ the output meets:
 
 - The findings of a journey are printed as soon as that journey has been
   checked, not all at the end of the run. The heading of a journey
-  (`<counts> in journey <id>`) and the line of each finding (`  [CODE] message`)
-  are unchanged, and the journeys come in the same order.
+  (`<counts> in journey <id>`) and the shape of the line of each finding
+  (`  [CODE] message`) are unchanged, and the journeys come in the same order.
+- The line of a finding names a node as the Journey Editor shows it,
+  `"Check Age" (Scripted Decision)`, instead of its UUID. Where two nodes of a
+  journey have the same name and type, or a node has no name, the line adds the
+  first 8 characters of its id in parentheses (`(Scripted Decision, id 295a70ba)`);
+  with `--verbose` every node the line names gets its whole id, written
+  `id <uuid>` and no longer in quotes. The code in brackets, the heading and the exit codes are
+  unchanged; a script that matched a UUID in a finding line must use
+  `--verbose`. An entry node or the target of a connection that does not exist,
+  the Page Nodes listed by `INNER_NODE_REFERENCED_BY_MULTIPLE_PAGES` and the two
+  codes about an id (`NODE_ID_MISMATCH`, `NODE_ID_COLLISION`) keep their UUIDs as
+  before.
 - At a terminal (stderr is the terminal, whatever stdout is) a progress bar on
   stderr shows the journeys done out of all and the journey being checked. A
   pipe or a file never gets the bar.
