@@ -229,6 +229,17 @@
  * that the fake does not know is ignored silently. The objects are read only: one object of the
  * type (`.../<type>/<id>`) and every write are not served, and a type that the object does not
  * hold is answered by the routes that follow (the users of FAKE_AM_USERS_FILE, then `404`).
+ * FAKE_AM_IDM_SCHEMA_PROPERTIES_FILE=<path> names a JSON object `{ "<managed type>": { "<property>": { ...the definition } } }`
+ * (the relationship properties that the IDM v2 schema API holds; `{}` is a tenant that holds none) the fake serves as
+ * `GET /openidm/schema/managed/<type>/properties/<property>` (the definition, `404` for a property it does not hold) and
+ * takes `PUT` for: the body replaces the definition of that property, whatever it holds (a type and a property that are
+ * not in the object are created), and is answered with `200` and the body. The query is ignored (`waitForCompletion`).
+ * The route is the v2 API of IDM 7.5 or later: a request without the header `accept-api-version: resource=2.0` is
+ * answered `400`, so a test that sees a write succeed has seen the header. The request log holds the body of every write.
+ * Without the option every request for this route answers `404`, as an IDM below 7.5 does, which is how a test sees a
+ * tenant without the endpoint. A write that must fail is made to fail by FAKE_AM_FAIL_REQUESTS: `{ "method": "PUT",
+ * "path": "/properties/<property>" }` fails that one property and no other. The managed configuration itself is served,
+ * stored and changed by FAKE_AM_IDM_ENTITIES_FILE above (`managed`, and `repo.ds` for a pull).
  * FAKE_AM_DIRECT_CONFIGURATION_FILE=<path> names a JSON object `{ apply?, states? }` that makes the
  * fake serve the direct configuration session of a Cloud tenant, and the list of service account
  * scopes that a service account login reads (`GET /environment/scopes/service-accounts`, which
@@ -311,6 +322,9 @@ const aiAgents = readJson(process.env.FAKE_AM_AI_AGENTS_FILE)?.map((agent) => ({
 const features = readJson(process.env.FAKE_AM_FEATURES_FILE);
 const idmConfig = readJson(process.env.FAKE_AM_IDM_CONFIG_FILE);
 const idmEntities = readJson(process.env.FAKE_AM_IDM_ENTITIES_FILE);
+const idmSchemaProperties = readJson(
+  process.env.FAKE_AM_IDM_SCHEMA_PROPERTIES_FILE
+);
 const managedObjects = readJson(process.env.FAKE_AM_MANAGED_OBJECTS_FILE);
 const failRequests = JSON.parse(process.env.FAKE_AM_FAIL_REQUESTS ?? '[]');
 const directConfiguration = readJson(
@@ -937,6 +951,42 @@ function serveIdmConfigList(req, send) {
     totalPagedResults: result.length,
     remainingPagedResults: -1,
   });
+  return true;
+}
+
+/**
+ * Answers the relationship schema property of a managed type (`GET` and `PUT
+ * /openidm/schema/managed/<type>/properties/<property>`) from `idmSchemaProperties`, or returns false
+ * when the request is not one, the method is neither, or there is no such store. `send(status,
+ * payload)` writes the answer.
+ */
+function serveIdmSchemaProperty(req, body, send) {
+  const { pathname } = new URL(req.url, 'http://fake');
+  const route = pathname.match(
+    /\/openidm\/schema\/managed\/([^/]+)\/properties\/([^/]+)$/
+  );
+  if (!idmSchemaProperties || !route || !['GET', 'PUT'].includes(req.method)) {
+    return false;
+  }
+  const type = decodeURIComponent(route[1]);
+  const property = decodeURIComponent(route[2]);
+  if (req.headers['accept-api-version'] !== 'resource=2.0') {
+    send(400, {
+      code: 400,
+      reason: 'Bad Request',
+      message: 'the fake tenant serves the schema API of version 2.0 only',
+    });
+    return true;
+  }
+  if (req.method === 'PUT') {
+    (idmSchemaProperties[type] ??= {})[property] = body ? JSON.parse(body) : {};
+  }
+  const held = idmSchemaProperties[type]?.[property];
+  if (held === undefined) {
+    send(404, { code: 404, reason: 'Not Found', message: 'Not Found' });
+  } else {
+    send(200, held);
+  }
   return true;
 }
 
@@ -1779,6 +1829,7 @@ const server = http.createServer((req, res) => {
         message: 'the fake tenant does not take writes to this configuration',
       });
     }
+    if (serveIdmSchemaProperty(req, body, send)) return;
     if (serveIdmConfigList(req, send)) return;
     if (idmEntities && pathname.includes('/openidm/config/')) {
       const id = decodeURIComponent(pathname.split('/openidm/config/')[1]);
