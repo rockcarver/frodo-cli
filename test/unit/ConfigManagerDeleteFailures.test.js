@@ -331,6 +331,46 @@ const CASES = [
     fn: 'configManagerDeleteJourneys',
   },
   {
+    name: 'config-manager delete services',
+    file: 'src/configManagerOps/FrConfigServiceOps.ts',
+    summaryName: (id) => `alpha/${id}`,
+    unit: 'service',
+    arrange({ failing, attempted, spy }) {
+      spy('src/utils/FrConfig')
+        .realmList.mockReset()
+        .mockResolvedValue(['alpha']);
+      // the library reads the services of the realm, and the delete of each is one operation
+      frodo.service.getFullServices
+        .mockReset()
+        .mockResolvedValue(
+          IDS.map((id) => ({
+            _id: '',
+            _type: { _id: id },
+            nextDescendents: [],
+          }))
+        );
+      frodo.service.deleteFullService
+        .mockReset()
+        .mockImplementation(async (id) => {
+          attempted.push(id);
+          if (failing.has(id)) throw new Error(`could not delete ${id}`);
+          return { _id: id };
+        });
+    },
+    empty: () =>
+      frodo.service.getFullServices.mockReset().mockResolvedValue([]),
+    emptyMessage: /No services found to delete in realm 'alpha'\./,
+    notFound: (m) =>
+      m.configManagerDeleteServices('zzz', 'alpha', false, false),
+    failToRead: ({ spy }) =>
+      spy('src/utils/FrConfig')
+        .realmList.mockReset()
+        .mockRejectedValue(new Error('read failed')),
+    run: (m, allowFailures) =>
+      m.configManagerDeleteServices(undefined, undefined, false, allowFailures),
+    fn: 'configManagerDeleteServices',
+  },
+  {
     name: 'config-manager delete themes',
     file: 'src/configManagerOps/FrConfigThemeOps.ts',
     summaryName: (id) => `/${id}`,
@@ -464,7 +504,8 @@ const CASES = [
 ];
 
 // every relative import of the modules under test becomes spies, except the
-// run tracker, the cause helper and the modules under test themselves
+// run tracker, the cause helper, the plain-name rule and the modules under test
+// themselves
 const modulesUnderTest = new Set(
   CASES.map((c) => path.resolve(root, c.file).replace(/\.ts$/, ''))
 );
@@ -479,7 +520,8 @@ for (const file of new Set(CASES.map((c) => c.file))) {
     if (
       modulesUnderTest.has(target) ||
       target.endsWith('/utils/OperationRun') ||
-      target.endsWith('/utils/ErrorCause')
+      target.endsWith('/utils/ErrorCause') ||
+      target.endsWith('/utils/PlainName')
     ) {
       continue;
     }

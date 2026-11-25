@@ -30,6 +30,7 @@ const fakeAmPath = fileURLToPath(new URL('./FakeAm.mjs', import.meta.url));
  * @param {string[]} [options.secrets] ids the list of environment secrets answers with (a cloud tenant; default: it answers 404)
  * @param {string[]} [options.serviceAccounts] ids of the service accounts a cloud tenant answers a read of `/openidm/managed/svcacct/<id>` for, which saving a connection profile with a service account asks for (default: every such read answers 404)
  * @param {string[]} [options.services] ids the list of AM services (realm and global) answers with (default: it answers 404)
+ * @param {{ realms: Record<string, { _id: string, nextDescendents?: { _id: string, _type: { _id: string } }[] }[]>, global?: { _id: string, nextDescendents?: object[] }[], unavailable?: string[] }} [options.realmServices] the AM services of each realm (`/` is the root realm) and the global ones, as a store that a delete changes: the list, one service, its next descendents, and the delete of a next descendent and of a service; the ids in `unavailable` answer the read of their next descendents with the Cloud `403`; a realm that is not named answers `404` (default: the routes answer as they do with `services`)
  * @param {{ stores: { _id: string, type: string }[], mappings?: Record<string, { secretId: string, aliases?: string[] }[]> }} [options.secretStores] the secret stores of the realm and their mappings (default: they answer 404)
  * @param {string[]} [options.trees] journey names the journey list of the realm answers with; an empty array is a realm without journeys (default: it answers 404)
  * @param {object[]} [options.users] managed users the fake serves under /openidm/managed/ (`_id`, `userName`, `givenName`, `sn`, `mail`)
@@ -72,6 +73,7 @@ export async function startFakeAm({
   secrets,
   serviceAccounts,
   services,
+  realmServices,
   secretStores,
   trees,
   usersCap,
@@ -141,6 +143,14 @@ export async function startFakeAm({
       ...(scripts ? { FAKE_AM_SCRIPTS: scripts.join(',') } : {}),
       ...(secrets ? { FAKE_AM_SECRETS: secrets.join(',') } : {}),
       ...(services ? { FAKE_AM_SERVICES: services.join(',') } : {}),
+      ...(realmServices
+        ? {
+            FAKE_AM_SERVICES_FILE: written(
+              'realm-services.json',
+              realmServices
+            ),
+          }
+        : {}),
       ...(serviceAccounts
         ? { FAKE_AM_SERVICE_ACCOUNTS: serviceAccounts.join(',') }
         : {}),

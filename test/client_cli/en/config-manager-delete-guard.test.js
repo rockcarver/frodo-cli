@@ -47,6 +47,7 @@ describe('a delete of more than one object without a terminal and without --yes'
     'frodo config-manager delete telemetry',
     'frodo config-manager delete tenant-config',
     'frodo config-manager delete journeys',
+    'frodo config-manager delete services',
   ])('"%s" is refused before the login', async (command) => {
     const { code, stderr } = await run(command);
 
@@ -216,6 +217,8 @@ describe('what is not refused', () => {
     'frodo config-manager delete tenant-config --dry-run',
     'frodo config-manager delete journeys -d',
     'frodo config-manager delete journeys -y',
+    'frodo config-manager delete services -d',
+    'frodo config-manager delete services -y',
   ])('"%s" goes on to the login', async (command) => {
     const { stderr } = await run(command);
 
@@ -328,6 +331,46 @@ describe('a delete of a named journey', () => {
     expect(code).toBe(1);
     expect(stderr).toContain('The -i, --journey-id option requires a realm argument');
     expect(stderr).not.toMatch(/ECONNREFUSED|connect/i);
+  });
+});
+
+describe('a delete of services', () => {
+  // the realm comes from the environment: a named service needs one
+  const env = { FRODO_REALM: 'alpha' };
+
+  test('a delete of all is refused before the login without a terminal and without -y, and names the realms it would touch', async () => {
+    const { code, stderr } = await run('frodo config-manager delete services');
+
+    expect(code).toBe(1);
+    expect(stderr).toContain('Refusing to delete all services in the selected realms without confirmation');
+    expect(stderr).toContain('-y/--yes');
+    expect(stderr).toContain('--dry-run');
+    expect(stderr).not.toContain('Error getting tokens');
+  });
+
+  test.each([
+    'frodo config-manager delete services -i email',
+    'frodo config-manager delete services -n email',
+    'frodo config-manager delete services --name email',
+    'frodo config-manager delete services --service-id email',
+    'frodo config-manager delete services -i email -d',
+  ])('"%s" with a realm names one service: it is not asked about, not refused, and goes on to the login', async (command) => {
+    const { stderr } = await run(command, env);
+
+    expect(stderr).not.toContain('Refusing to delete');
+    expect(stderr).not.toContain('unknown option');
+    expect(stderr).toContain('Error getting tokens');
+  });
+
+  test('without a realm a named delete is an error before the login, and prints the error only', async () => {
+    const { code, stdout, stderr } = await run('frodo config-manager delete services -i email -y');
+
+    expect(code).toBe(1);
+    expect(stderr).toContain('The -i, --service-id option requires a realm argument');
+    expect(stderr).not.toContain('Error getting tokens');
+    // not the help of the command
+    expect(stdout).not.toContain('Usage:');
+    expect(stderr).not.toContain('Usage:');
   });
 });
 
@@ -491,9 +534,9 @@ describe('a delete that names one object, for every command and every spelling o
   // to the login, and the login fails on the host that cannot be reached.
   const rows = EXPECTED_SELECTORS.filter((row) => row.command.includes(' delete '));
   const typeOf = (row) => row.command.split(' ').pop();
-  // a named telemetry exporter needs its category, a named secret mapping or journey needs a realm
+  // a named telemetry exporter needs its category, a named secret mapping, journey or service needs a realm
   const extraOf = (row) => (typeOf(row) === 'telemetry' ? ' -c otlp' : '');
-  const envOf = (row) => (['secret-mappings', 'journeys'].includes(typeOf(row)) ? { FRODO_REALM: 'alpha' } : {});
+  const envOf = (row) => (['secret-mappings', 'journeys', 'services'].includes(typeOf(row)) ? { FRODO_REALM: 'alpha' } : {});
   const selectorsOf = (row) => [
     ['-i', 'x'],
     [row.id, 'x'],
@@ -517,8 +560,8 @@ describe('a delete that names one object, for every command and every spelling o
     ...(row.aliases.includes('--name') ? [['--name', "''"], ['--name=']] : []),
   ];
 
-  test('has the 19 delete rows', () => {
-    expect(rows).toHaveLength(19);
+  test('has the 20 delete rows', () => {
+    expect(rows).toHaveLength(20);
   });
 
   test.each(rows.map((row) => [typeOf(row), row]))(
@@ -588,6 +631,7 @@ describe('a blank id of the commands that check it is an error before the login'
     ["frodo config-manager delete locales -i '  '", 'The locale id (-i) must not be empty'],
     ["frodo config-manager delete schedules --name '  '", 'The schedule id (-i) must not be empty'],
     ["frodo config-manager delete secret-mappings -n ' '", 'The secret mapping id (-i) must not be empty'],
+    ["frodo config-manager delete services -i '  '", 'The service id (-i) must not be empty'],
   ])('"%s" says that the id must not be empty, and is not a delete of all objects', async (command, message) => {
     const { code, stderr } = await run(command);
 

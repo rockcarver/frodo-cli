@@ -140,6 +140,12 @@ const WIRING = {
     id: 0,
     name: null,
   },
+  services: {
+    module: 'configManagerOps/FrConfigServiceOps',
+    fn: 'configManagerDeleteServices',
+    id: 0,
+    name: null,
+  },
   schedules: {
     module: 'configManagerOps/FrConfigSchedulesOps',
     fn: 'configManagerDeleteSchedules',
@@ -278,7 +284,7 @@ afterEach(() => {
 describe('the delete commands: a named delete never asks, and the selectors reach the ops function', () => {
   it('has an entry for every delete row of the selectors, and no pull or push row', () => {
     expect(deleteRows.map(typeOf).sort()).toEqual(Object.keys(WIRING).sort());
-    expect(deleteRows).toHaveLength(19);
+    expect(deleteRows).toHaveLength(20);
   });
 
   it.each(deleteRows.map((row) => [typeOf(row), row]))(
@@ -435,6 +441,7 @@ describe('the delete commands: an empty selector is refused before anything, a b
     'remote-servers',
     'schedules',
     'secret-mappings',
+    'services',
     'telemetry',
   ]);
 
