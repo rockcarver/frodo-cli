@@ -485,16 +485,36 @@ async function startConsole(): Promise<void> {
   // that arrive in the same tick belong to one submission: they join
   // into one entry, the way the web console records its multi-line
   // inputs. A human Enter is one line per input chunk, so typing cannot
-  // merge; a paste too large for one read degrades to separate entries,
-  // which is what it was before, not worse.
+  // merge.
+  //
+  // Within that window the REPL's multiline handling also speaks: an
+  // input the eval reports as incomplete (an unclosed `do {` mid-paste)
+  // keeps its buffer, and the following 'line' events carry the
+  // ACCUMULATED text, \r-joined, each a strict extension of the one
+  // before. Joined naively, one paste becomes a stack of ever-growing
+  // copies of its own prefix. So within the window an event that only
+  // extends its predecessor replaces it: what survives is the final,
+  // complete input. A CR inside a value (readline's paste path keeps
+  // them) normalizes to a newline before storing.
   let pasted: string[] = [];
   let flushPasted: NodeJS.Timeout | undefined;
   started.on('line', (line: string) => {
-    pasted.push(line);
+    const previous = pasted[pasted.length - 1];
+    if (previous !== undefined && line.startsWith(`${previous}\r`)) {
+      pasted[pasted.length - 1] = line;
+    } else if (previous !== undefined && previous.startsWith(`${line}\r`)) {
+      // The mirror case (the completion of a block whose earlier
+      // fragments already arrived): the shorter is a prefix of what is
+      // kept; drop the fragment.
+    } else {
+      pasted.push(line);
+    }
     if (flushPasted) clearTimeout(flushPasted);
     flushPasted = setTimeout(() => {
       const text = pasted
         .join('\n')
+        .replace(/\r\n/g, '\n')
+        .replace(/\r/g, '\n')
         .replace(/^\n+|\n+$/g, ''); // blank edges of the paste
       pasted = [];
       flushPasted = undefined;
