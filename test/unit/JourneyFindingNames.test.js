@@ -126,6 +126,14 @@ const CASES = [
     ],
   },
   {
+    // a tree without an entry node: the library quotes an empty id and describes no node, so the line is its own
+    code: 'MISSING_ENTRY_NODE',
+    break: (journey) => delete journey.tree.entryNodeId,
+    lines: [
+      "  [MISSING_ENTRY_NODE] Entry node '' does not resolve to a graph node",
+    ],
+  },
+  {
     code: 'MISSING_INNER_NODE',
     break: (journey) => delete journey.innerNodes[USER],
     lines: [

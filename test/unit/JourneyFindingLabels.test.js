@@ -70,6 +70,20 @@ describe('findingLine', () => {
   });
 });
 
+test('a finding that describes no node and quotes an empty id, an export whose tree has no entry node, is the message of the library', () => {
+  const noEntryNode = finding(
+    'MISSING_ENTRY_NODE',
+    'error',
+    'login',
+    "Entry node '' does not resolve to a graph node"
+  );
+
+  expect(findingLine(noEntryNode)).toBe(
+    "  [MISSING_ENTRY_NODE] Entry node '' does not resolve to a graph node"
+  );
+  expect(findingLine(noEntryNode, true)).toBe(findingLine(noEntryNode));
+});
+
 // A finding names a node as the Journey Editor shows it (cli#1378): the library describes each node of a finding
 // (`node`, `targetNode`, `pageNode`) and the line replaces the quoted ids of its message by the words of the node.
 // The words of each pattern of the library's messages, with the node ids of a real journey.
@@ -705,6 +719,29 @@ describe('findingLine names the nodes of a finding', () => {
       expect(findingLine(missingInner({ ...username, ambiguous: true }))).toBe(
         '  [MISSING_INNER_NODE] Page Node "Login Page" references missing inner node "Username" (ValidatedUsernameNode, id 5d0d6a14)'
       );
+    });
+
+    test('a control character in the type id is written out in that group too', () => {
+      const type = 'Esc\u001b[0mType';
+
+      const line = findingLine(
+        described(
+          'MISSING_INNER_NODE',
+          'error',
+          `Page Node '${PAGE}' references missing inner node '${USERNAME}' (${type})`,
+          {
+            nodeId: PAGE,
+            targetNodeId: USERNAME,
+            node: page,
+            targetNode: { ...username, nodeType: type, ambiguous: true },
+          }
+        )
+      );
+
+      expect(line).toBe(
+        '  [MISSING_INNER_NODE] Page Node "Login Page" references missing inner node "Username" (Esc\\u001b[0mType, id 5d0d6a14)'
+      );
+      expect(line).not.toContain('\u001b');
     });
 
     test('so does the id of a node without a name', () => {
