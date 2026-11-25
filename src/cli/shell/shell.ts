@@ -406,11 +406,18 @@ async function startConsole(): Promise<void> {
     sendEscape: () => {
       consoleInput.input.write('\x1b');
     },
-    write: (text: string) => {
-      consoleInput.input.write(text);
-    },
     echo: (text: string) => {
       started.output.write(text);
+    },
+    hint: (text: string) => {
+      // Deferred (setImmediate): the paste path calls this from inside
+      // the input filter's write callback, and touching the readline
+      // frame there wedges it. Deferred, the hint lands on a clean
+      // stack and its line refresh paints the placeholder line too.
+      // An empty text only asks for that refresh (the hint line above
+      // the prompt scrolls away with the output; there is nothing to
+      // erase on the readline frame).
+      printHintAbovePrompt(started, text);
     },
     onKeypress: (listener) => {
       const wrapped = (
@@ -635,7 +642,6 @@ async function startConsole(): Promise<void> {
             // included.
             const marked = e.text.replace(/\n/g, `${DIM_HINT}¶${RESET_HINT}`);
             const markedExtra = marked.length - e.text.length;
-            const more = e.text.includes('\n');
             const meta: string[] = [];
             const w = when(e.ts);
             if (w) meta.push(w);

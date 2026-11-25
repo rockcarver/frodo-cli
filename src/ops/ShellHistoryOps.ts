@@ -3,20 +3,24 @@ import path from 'node:path';
 import { frodo } from '@rockcarver/frodo-lib';
 
 /**
- * A history entry that spans several lines (a script pasted into the web
- * console) cannot be stored as-is in a file with one entry per line. It is
- * stored as this prefix plus the JSON-encoded text. The prefix cannot begin
- * a JavaScript statement (a bare `#` is only valid before a private field
- * name), so no ordinary entry is mistaken for an encoded one, and history
- * files written before this existed read back unchanged.
+ * A history entry that spans several lines cannot be stored as-is in a
+ * file with one entry per line. It is stored as this prefix plus the
+ * JSON-encoded text (the metadata-less form; with metadata it takes the
+ * rich form below). The prefix cannot begin a JavaScript statement (a
+ * bare `#` is only valid before a private field name), so no ordinary
+ * entry is mistaken for an encoded one, and history files written before
+ * this existed read back unchanged.
  */
 const MULTILINE_PREFIX = '#ml:';
 
 /**
- * A rich entry: the prefix plus a JSON object `{t: text, ts, h, s}`. The
+ * A rich entry: the prefix plus a JSON object `{text, ts, host, id}`. The
  * same cannot-begin-a-statement argument holds, and the two prefixes are
  * told apart by the character after `#`. Files written before this existed
  * read back unchanged (bare lines, and #ml: lines, keep their meaning).
+ * A multi-line entry with metadata (every one since the rich form) uses
+ * this prefix too: the JSON object holds the line breaks as readily as a
+ * JSON string would.
  */
 const RICH_PREFIX = '#h:';
 
@@ -47,17 +51,21 @@ export type HistoryMeta = {
 export type HistoryEntry = { text: string } & HistoryMeta;
 
 function encodeEntry(entry: HistoryEntry): string {
+  const hasMeta =
+    entry.ts !== undefined ||
+    entry.host !== undefined ||
+    entry.id !== undefined;
+  // A multi-line text is a JSON string either way; with metadata it is
+  // a JSON object (the #h: form holds the line breaks just as well).
   if (/[\r\n]/.test(entry.text)) {
-    return MULTILINE_PREFIX + JSON.stringify(entry.text);
+    return hasMeta
+      ? RICH_PREFIX + JSON.stringify(entry)
+      : MULTILINE_PREFIX + JSON.stringify(entry.text);
   }
   // Any metadata (the id included) needs the rich form: a bare line
   // carries nothing but the command, so an id written bare would be
   // lost on reload.
-  if (
-    entry.ts !== undefined ||
-    entry.host !== undefined ||
-    entry.id !== undefined
-  ) {
+  if (hasMeta) {
     return RICH_PREFIX + JSON.stringify(entry);
   }
   return entry.text;
@@ -101,8 +109,9 @@ function decodeEntry(raw: string): HistoryEntry {
  * History files are stored under the Frodo home directory in shell-history/
  * with files keyed by a normalized host identifier. Entries are one per
  * line: plain lines carry just the command; `#h:` lines carry the command
- * plus when it ran and against which environment; `#ml:` lines carry a
- * multi-line script.
+ * plus its metadata (when it ran, against which environment, its id) as a
+ * JSON object, and a multi-line script with metadata uses that form too;
+ * `#ml:` lines carry a multi-line script as a JSON string (no metadata).
  */
 export class ShellHistory {
   private historyDir: string;
@@ -281,7 +290,8 @@ export class ShellHistory {
       // entry's, not the run's: it never moves with a repeat (it is
       // stable, that is the point), and a repeat is not an insertion,
       // so it spends no id.
-      const { id: _fresh, ...rest } = next;
+      const { id: _ignored, ...rest } = next;
+      void _ignored;
       this.entries.push({
         ...existing,
         ...Object.fromEntries(

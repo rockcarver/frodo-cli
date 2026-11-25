@@ -194,7 +194,7 @@ describe('frodo shell PTY (console mode)', () => {
     }
   });
 
-  test('a bracketed paste runs as one unit and records one in-order entry', async () => {
+  test('a bracketed paste fills the buffer and runs as one unit on Enter', async () => {
     const homeDir = createShellTestHome();
     try {
       const script = [
@@ -214,12 +214,20 @@ describe('frodo shell PTY (console mode)', () => {
           // The terminal wraps a paste in ESC[200~ ... ESC[201~; the
           // driver sends the same bytes.
           { type: 'send', text: '\x1b[200~' + script + '\r\x1b[201~' },
+          // A paste fills, not runs: the echo and the waiting hint
+          // appear, and nothing evaluates until the user's Enter.
+          { type: 'wait_plain', regex: 'script pasted \\(6 lines\\)' },
+          { type: 'sleep', ms: 200 },
+          { type: 'capture', label: 'filled' },
+          { type: 'key', name: 'enter' },
           { type: 'wait_plain', regex: 'pasted: 6' },
           { type: 'sleep', ms: 200 },
           { type: 'capture', label: 'screen' },
           { type: 'send_line', text: '.exit' },
         ],
       });
+      // While the stash waits, nothing has run: the result is absent.
+      expect(result.captures.filled.plain).not.toContain('pasted: 6');
       // One run, one result: the fragments must not have been eval'd
       // separately (their errors would litter the screen and there
       // would be no 'pasted: 6' at all).
@@ -233,7 +241,9 @@ describe('frodo shell PTY (console mode)', () => {
       expect(screen).not.toMatch(/SyntaxError|Unexpected token/);
       // One history entry, the script whole and in order. LF was the
       // wrong join: readline reverses a line buffer holding LF and the
-      // entry arrived inside-out (the bug this test pins).
+      // entry arrived inside-out (the bug this test pins). With
+      // metadata the entry stores in the rich #h: form (issue: the
+      // old #ml: form dropped ts/host/id).
       const file = path.join(
         homeDir,
         '.frodo',
@@ -243,12 +253,54 @@ describe('frodo shell PTY (console mode)', () => {
       const stored = fs.readFileSync(file, 'utf-8');
       const entries = stored
         .split('\n')
-        .filter((l) => l.startsWith('#ml:'))
-        .map((l) => JSON.parse(l.slice(4)));
-      expect(entries).toHaveLength(1);
-      expect(entries[0]).toBe(
+        .filter((l) => l.startsWith('#h:') || l.startsWith('#ml:'))
+        .map((l) => JSON.parse(l.slice(l.startsWith('#h:') ? 3 : 4)))
+        .map((e) => (typeof e === 'string' ? { text: e } : e));
+      // The paste is one entry (the fragments did not store
+      // separately), whole and in order, with metadata.
+      const paste = entries.find((e) => e.text.startsWith('let psum = 0;'));
+      expect(paste).toBeDefined();
+      expect(paste.text).toBe(
         'let psum = 0;\nconst pnums = [1, 2, 3];\nfor (const n of pnums) {\n  psum += n;\n}\n`pasted: ${psum}`'
       );
+      expect(typeof paste.id).toBe('number');
+      expect(typeof paste.ts).toBe('number');
+    } finally {
+      removeShellTestHome(homeDir);
+    }
+  });
+
+  test('typing after a paste drops the stash and does not glue the placeholder', async () => {
+    const homeDir = createShellTestHome();
+    try {
+      const result = runShellScenario({
+        args: ['shell'],
+        homeDir,
+        actions: [
+          { type: 'wait_prompt' },
+          { type: 'clear_output' },
+          { type: 'send', text: '\x1b[200~const a1 = 1;\rconst a2 = 2;\r\x1b[201~' },
+          { type: 'wait_plain', regex: 'script pasted \\(2 lines\\)' },
+          { type: 'sleep', ms: 200 },
+          // The user ignores the paste and types a command: the stash
+          // and its placeholder drop, the command runs alone.
+          { type: 'send_line', text: 'lonely = 9' },
+          { type: 'wait_plain', regex: '9' },
+          { type: 'sleep', ms: 200 },
+          { type: 'capture', label: 'screen' },
+          { type: 'send_line', text: '.exit' },
+        ],
+      });
+      const screen = result.captures.screen.plain;
+      // The typed command ran by itself.
+      expect(screen).toContain('9');
+      // The placeholder's first line did not ride along on the input.
+      expect(screen).toContain('lonely = 9');
+      expect(screen).not.toMatch(/const a1 = 1;lonely|lonely.*const a1 = 1;/);
+      // Nothing of the paste entered history: it was never submitted.
+      const file = path.join(homeDir, '.frodo', 'shell-history', 'default.txt');
+      const stored = fs.readFileSync(file, 'utf-8');
+      expect(stored).not.toContain('const a1');
     } finally {
       removeShellTestHome(homeDir);
     }

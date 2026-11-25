@@ -165,17 +165,16 @@ export type SearchHooks = {
   setLine(line: string): void;
   refresh(): void;
   /**
-   * Submit a byte string to readline as if typed: the paste-end path
-   * lands the whole script on the line buffer (setLine) and sends one
-   * Enter through here.
-   */
-  write(text: string): void;
-  /**
    * Draw the pasted script on the output as the terminal would have:
    * the filter swallows the paste bytes (they must not reach readline),
    * so without this the screen shows nothing until the result appears.
    */
   echo(text: string): void;
+  /**
+   * A transient status line above the prompt (the paste's "Enter to
+   * run" notice). Empty string clears it.
+   */
+  hint(text: string): void;
   /**
    * Recovery path: forward an escape byte to readline. Used when a Ctrl+R
    * raced past the filter and readline's built-in reverse search activated
@@ -238,16 +237,28 @@ export function createConsoleInput(
   // --- paste capture -------------------------------------------------------
   // The console enables bracketed paste mode (the terminal's standard):
   // the terminal then wraps every paste in ESC[200~ ... ESC[201~. Only
-  // marker-wrapped input is held as a paste and submitted as one script;
-  // unmarked multi-Enter input (fast typing, a driver's send_line) is
-  // typed input as far as anything can tell, and flows through line by
-  // line. Held lines land on readline's line buffer whole (setLine) and
-  // one Enter submits: one 'line' event, one eval, the result printed by
-  // the REPL's own machinery, one history entry.
+  // marker-wrapped input is held as a paste. A paste FILLS, not runs:
+  // at the end marker the script is stashed, the line buffer shows its
+  // first line, and a hint names the rest. The user's next Enter
+  // submits the stash as one input (one 'line' event, one eval, one
+  // history entry); Esc discards it. Unmarked multi-Enter input (fast
+  // typing, a driver's send_line) is typed input as far as anything can
+  // tell, and flows through line by line.
   const PASTE_START = '\x1b[200~';
   const PASTE_END = '\x1b[201~';
   let pasteBuffer: string[] = [];
   let pasteSeen = false;
+  // The script a completed paste left behind, waiting for the Enter
+  // that submits it ('\r'-joined: readline reverses a line buffer
+  // holding LF, but carries CR through verbatim; JavaScript reads CR
+  // as a line terminator, so the eval parses it, and the shell's line
+  // handler normalizes CR back to LF for history). Null when nothing
+  // waits.
+  let pasteStash: string | null = null;
+  // The line the buffer held before the paste loaded its placeholder;
+  // what a discard puts back (an empty prompt, or the draft the user
+  // was editing when they pasted).
+  let pasteDraft = '';
 
   const pasteState: ConsoleInputState = {
     pasteInFlight: () => pasteSeen,
@@ -258,25 +269,44 @@ export function createConsoleInput(
     pasteSeen = false;
     const lines = pasteBuffer;
     pasteBuffer = [];
-    // Joined with CR, not LF: readline reverses a line buffer that
-    // contains LF (its Enter path splits the buffer at line feeds and
-    // reassembles the parts backwards, so the submitted line event
-    // arrives inside-out), but carries CR through verbatim. JavaScript
-    // reads a CR as a line terminator, so the script still parses, and
-    // the shell's line handler normalizes CR back to LF for history.
     const text = lines
-      .join('\r')
-      .replace(/^\r+|\r+$/g, '')
+      .join('\n')
+      .replace(/^\n+|\n+$/g, '')
       .trim();
     if (text.length === 0) return;
+    pasteStash = text.replace(/\n/g, '\r');
+    pasteDraft = hooks?.getLine() ?? '';
     if (hooks) {
-      hooks.echo(`${text.replace(/\r/g, '\n')}\n`);
-      hooks.setLine(text);
-      // No refresh here: the Enter below redraws the buffer as part of
-      // submission, and a refresh before it paints the whole script on
-      // the prompt row twice (once with CRs overprinted).
-      hooks.write('\r');
+      // The paste bytes never reached readline, so nothing was echoed:
+      // draw the script once, as pasted, then load its first line as a
+      // placeholder for what waits. No readline redraw here (called
+      // from inside the input filter's callback, where a refresh
+      // double-paints the prompt row); the setLine shows with the
+      // next repaint.
+      hooks.echo(`${text}\n`);
+      hooks.setLine(text.split('\n')[0]);
+      hooks.hint(
+        `script pasted (${text.split('\n').length} lines): Enter to run, Esc to discard`
+      );
     }
+  }
+
+  /** Drop the waiting stash and restore the line the buffer held
+   * before the paste (an empty prompt, or the draft the user was
+   * editing). No readline redraw: called from inside the input
+   * filter's callback, where a refresh double-paints the prompt row;
+   * the bytes this chunk carries land on the restored buffer and
+   * readline repaints on its own. */
+  function discardStash(): void {
+    const had = pasteStash !== null;
+    pasteStash = null;
+    if (had && hooks) {
+      // The placeholder line goes with the stash, or incoming typing
+      // would land glued to the script's first line.
+      hooks.setLine(pasteDraft);
+      hooks.hint('');
+    }
+    pasteDraft = '';
   }
 
   // --- search state -------------------------------------------------------
@@ -501,9 +531,13 @@ export function createConsoleInput(
         const selection = currentSelection();
         if (selection !== null) {
           // Accept: put the selection on the line and let the Enter
-          // (already accounted for below) submit it.
+          // (already accounted for below) submit it. CR-joined, not
+          // LF: readline reverses a line buffer holding LF, so the
+          // submitted line event would run the entry inside-out (a
+          // stored multi-line entry then re-runs backwards and errors
+          // on its own redeclarations).
           closeSearch(false);
-          hooks?.setLine(selection.text);
+          hooks?.setLine(selection.text.replace(/\n/g, '\r'));
           hooks?.refresh();
           passthrough.push(CR);
         } else {
@@ -517,7 +551,7 @@ export function createConsoleInput(
         const selection = currentSelection();
         if (selection !== null) {
           closeSearch(false);
-          hooks?.setLine(selection.text);
+          hooks?.setLine(selection.text.replace(/\n/g, '\r'));
           hooks?.refresh();
         } else {
           closeSearch(true);
@@ -587,9 +621,32 @@ export function createConsoleInput(
           push(rest.length > 0 ? rest : undefined);
           return;
         }
+        // A paste waits on the stash (see the capture note): the next
+        // Enter submits the whole script. A chunk that opens with Enter
+        // is that submit. Anything else first (an edit, a recall, Esc)
+        // leaves the buffer disagreeing with the first line the stash
+        // was keyed to: the stash is dropped and the chunk flows
+        // through as plain typing. One shot: paste, then Enter runs it.
+        if (pasteStash !== null && !pasteSeen) {
+          if (chunk[0] === CR) {
+            // The Enter byte flows through the pipe unchanged; the
+            // script is already on the line buffer, so readline's
+            // normal Enter path submits it as one line event. (An
+            // injected Enter written straight into readline's input
+            // from inside this transform wedges readline: bytes stop
+            // being read. The real byte through the pipe never does.)
+            hooks.setLine(pasteStash);
+            pasteStash = null;
+            pasteDraft = '';
+            push(chunk);
+            return;
+          }
+          discardStash();
+          // Fall through: plain typed input from here on.
+        }
         // A bracketed paste: the terminal wrapped it (see the capture
         // note). Everything from the start marker to the end marker is
-        // one script: hold the lines, drop the markers, and submit the
+        // one script: hold the lines, drop the markers, and stash the
         // whole at the end marker. Bytes around the markers flow as
         // typed input.
         const text = chunk.toString('utf8');
@@ -724,6 +781,7 @@ export function createConsoleInput(
     close() {
       closeSearch(false);
       endPaste();
+      discardStash();
       if (installed) {
         if (process.stdin.isTTY) {
           process.stdout.write('\x1b[?2004l');

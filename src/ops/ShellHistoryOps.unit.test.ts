@@ -97,6 +97,32 @@ describe('ShellHistory multi-line entries', () => {
     expect(raw.split('\n')).toHaveLength(2);
   });
 
+  it('writes a multi-line entry with its metadata as one #h: line', () => {
+    const history = new ShellHistory('https://tenant.example.com/am');
+    history.addLine('a\nb', { ts: 1_700_000_000_000, host: 'h' });
+    const raw = fs.readFileSync(history.getHistoryPath(), 'utf-8');
+    expect(raw.split('\n')).toHaveLength(1);
+    expect(raw).toBe(
+      `#h:${JSON.stringify({ text: 'a\nb', id: 1, ts: 1_700_000_000_000, host: 'h' })}`
+    );
+    // And it reloads with the metadata whole.
+    const reloaded = new ShellHistory('https://tenant.example.com/am');
+    expect(reloaded.getEntries()).toEqual([
+      { text: 'a\nb', id: 1, ts: 1_700_000_000_000, host: 'h' },
+    ]);
+  });
+
+  it('reads a metadata-less #ml: entry written by an older version', () => {
+    const history = new ShellHistory('https://tenant.example.com/am');
+    fs.writeFileSync(
+      history.getHistoryPath(),
+      `#ml:${JSON.stringify('a\nb')}\n`,
+      'utf-8'
+    );
+    const reloaded = new ShellHistory('https://tenant.example.com/am');
+    expect(reloaded.getLines()).toEqual(['a\nb']);
+  });
+
   it('offers single-line entries only to the terminal', () => {
     const history = new ShellHistory('https://tenant.example.com/am');
     history.addLine('one');
