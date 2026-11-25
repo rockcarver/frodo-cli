@@ -1,0 +1,36 @@
+{
+  "_id": "64157fca-bd5b-4405-a4c8-64ffd98a5461",
+  "_outcomes": [
+    {
+      "displayName": "Account exists",
+      "id": "ACCOUNT_EXISTS"
+    },
+    {
+      "displayName": "No account exists",
+      "id": "NO_ACCOUNT"
+    },
+    {
+      "displayName": "Error",
+      "id": "ERROR"
+    }
+  ],
+  "_rev": "-1299087016",
+  "_type": {
+    "_id": "product-Saml2Node",
+    "collection": true,
+    "name": "SAML2 Authentication",
+    "version": "1.0"
+  },
+  "allowCreate": true,
+  "authComparison": "MINIMUM",
+  "authnContextClassRef": [],
+  "authnContextDeclRef": [],
+  "binding": "HTTP_ARTIFACT",
+  "forceAuthn": false,
+  "idpEntityId": "urn:federation:MicrosoftOnline",
+  "isPassive": false,
+  "metaAlias": "/alpha/iSPAzure",
+  "nameIdFormat": "urn:oasis:names:tc:SAML:2.0:nameid-format:persistent",
+  "requestBinding": "HTTP_REDIRECT",
+  "validateIdpEntityId": true
+}

@@ -1,0 +1,475 @@
+{
+  "_id": "c96b68f3-8976-452d-83ef-d3b4e38e46a5",
+  "accountCardBackgroundColor": "#ffffff",
+  "accountCardHeaderColor": "#23282e",
+  "accountCardInnerBorderColor": "#e7eef4",
+  "accountCardInputBackgroundColor": "#ffffff",
+  "accountCardInputBorderColor": "#c0c9d5",
+  "accountCardInputFocusBorderColor": "#324054",
+  "accountCardInputLabelColor": "#5e6d82",
+  "accountCardInputSelectColor": "#edf7fd",
+  "accountCardInputSelectHoverColor": "#f6f8fa",
+  "accountCardInputTextColor": "#23282e",
+  "accountCardOuterBorderColor": "#e7eef4",
+  "accountCardShadow": 3,
+  "accountCardTabActiveBorderColor": "#109cf1",
+  "accountCardTabActiveColor": "#e4f4fd",
+  "accountCardTextColor": "#5e6d82",
+  "accountFooter": {
+    "file": "accountFooter.html"
+  },
+  "accountFooterEnabled": false,
+  "accountFooterScriptTag": "",
+  "accountFooterScriptTagEnabled": false,
+  "accountNavigationBackgroundColor": "#ffffff",
+  "accountNavigationTextColor": "#455469",
+  "accountNavigationToggleBorderColor": "#e7eef4",
+  "accountPageSections": {
+    "accountControls": {
+      "enabled": false
+    },
+    "accountSecurity": {
+      "enabled": true,
+      "subsections": {
+        "password": {
+          "enabled": true
+        },
+        "securityQuestions": {
+          "enabled": false
+        },
+        "twoStepVerification": {
+          "enabled": true
+        },
+        "username": {
+          "enabled": true
+        }
+      }
+    },
+    "consent": {
+      "enabled": false
+    },
+    "oauthApplications": {
+      "enabled": false
+    },
+    "personalInformation": {
+      "enabled": true
+    },
+    "preferences": {
+      "enabled": false
+    },
+    "social": {
+      "enabled": false
+    },
+    "trustedDevices": {
+      "enabled": true
+    }
+  },
+  "accountTableRowHoverColor": "#f6f8fa",
+  "backgroundColor": "#ffffff",
+  "backgroundImage": "",
+  "bodyText": "#23282e",
+  "boldLinks": false,
+  "buttonFocusBorderColor": "#0672cb",
+  "buttonRounded": 5,
+  "dangerColor": "#dc3545",
+  "darkColor": "#23282e",
+  "endUserMenuItems": [
+    {
+      "icon": "dashboard",
+      "id": "dashboard",
+      "label": {
+        "en": "Dashboard"
+      },
+      "labelKey": "sideMenu.endUser.dashboard"
+    },
+    {
+      "icon": "summarize",
+      "id": "reports",
+      "label": {
+        "en": "Reports"
+      },
+      "labelKey": "sideMenu.endUser.reports"
+    },
+    {
+      "icon": "inbox",
+      "id": "inbox",
+      "label": {
+        "en": "My Inbox"
+      },
+      "labelKey": "sideMenu.endUser.inbox",
+      "selectedSubItems": [
+        "approvals",
+        "tasks",
+        "accessReviews",
+        "violations"
+      ],
+      "subItems": [
+        {
+          "icon": "approvals",
+          "id": "approvals",
+          "label": {
+            "en": "Approvals"
+          },
+          "labelKey": "sideMenu.endUser.approvals"
+        },
+        {
+          "icon": "tasks",
+          "id": "tasks",
+          "label": {
+            "en": "Tasks"
+          },
+          "labelKey": "sideMenu.endUser.tasks"
+        },
+        {
+          "icon": "accessReviews",
+          "id": "accessReviews",
+          "label": {
+            "en": "Access Reviews"
+          },
+          "labelKey": "sideMenu.endUser.accessReviews"
+        },
+        {
+          "icon": "violations",
+          "id": "violations",
+          "label": {
+            "en": "Violations"
+          },
+          "labelKey": "sideMenu.endUser.violations"
+        }
+      ]
+    },
+    {
+      "icon": "horizontal_rule",
+      "id": "divider",
+      "isDivider": true,
+      "label": {
+        "en": "Divider"
+      },
+      "labelKey": "sideMenu.endUser.divider"
+    },
+    {
+      "icon": "apps",
+      "id": "applications",
+      "label": {
+        "en": "Applications"
+      },
+      "labelKey": "sideMenu.endUser.applications"
+    },
+    {
+      "icon": "lock",
+      "id": "myAccess",
+      "label": {
+        "en": "My Access"
+      },
+      "labelKey": "sideMenu.endUser.myAccess",
+      "selectedSubItems": [
+        "myAccounts",
+        "myRoles",
+        "myEntitlements",
+        "machineAccounts",
+        "agents"
+      ],
+      "subItems": [
+        {
+          "icon": "myAccounts",
+          "id": "myAccounts",
+          "label": {
+            "en": "My Accounts"
+          },
+          "labelKey": "sideMenu.endUser.myAccounts"
+        },
+        {
+          "icon": "myRoles",
+          "id": "myRoles",
+          "label": {
+            "en": "My Roles"
+          },
+          "labelKey": "sideMenu.endUser.myRoles"
+        },
+        {
+          "icon": "myEntitlements",
+          "id": "myEntitlements",
+          "label": {
+            "en": "My Entitlements"
+          },
+          "labelKey": "sideMenu.endUser.myEntitlements"
+        },
+        {
+          "icon": "machineAccounts",
+          "id": "machineAccounts",
+          "label": {
+            "en": "Machine Accounts"
+          },
+          "labelKey": "sideMenu.endUser.machineAccounts"
+        },
+        {
+          "icon": "agents",
+          "id": "agents",
+          "label": {
+            "en": "Agents"
+          },
+          "labelKey": "sideMenu.endUser.agents"
+        }
+      ]
+    },
+    {
+      "icon": "folder",
+      "id": "directory",
+      "label": {
+        "en": "My Directory"
+      },
+      "labelKey": "sideMenu.endUser.directory",
+      "selectedSubItems": [
+        "delegates",
+        "directReports"
+      ],
+      "subItems": [
+        {
+          "icon": "delegates",
+          "id": "delegates",
+          "label": {
+            "en": "My Delegates"
+          },
+          "labelKey": "sideMenu.endUser.delegates"
+        },
+        {
+          "icon": "directReports",
+          "id": "directReports",
+          "label": {
+            "en": "Direct Reports"
+          },
+          "labelKey": "sideMenu.endUser.directReports"
+        }
+      ]
+    },
+    {
+      "icon": "send",
+      "id": "requests",
+      "label": {
+        "en": "My Requests"
+      },
+      "labelKey": "sideMenu.endUser.requests"
+    },
+    {
+      "icon": "person",
+      "id": "profile",
+      "label": {
+        "en": "Profile"
+      },
+      "labelKey": "sideMenu.endUser.profile"
+    },
+    {
+      "icon": "manage_accounts",
+      "id": "lcm",
+      "label": {
+        "en": "Administer"
+      },
+      "labelKey": "sideMenu.endUser.lcm",
+      "selectedSubItems": [
+        "lcmUsers",
+        "lcmEntitlements",
+        "adminRequests",
+        "adminCertifications",
+        "lcmRoles"
+      ],
+      "subItems": [
+        {
+          "icon": "lcmUsers",
+          "id": "lcmUsers",
+          "label": {
+            "en": "Users"
+          },
+          "labelKey": "sideMenu.endUser.lcmUsers"
+        },
+        {
+          "icon": "lcmEntitlements",
+          "id": "lcmEntitlements",
+          "label": {
+            "en": "Entitlements"
+          },
+          "labelKey": "sideMenu.endUser.lcmEntitlements"
+        },
+        {
+          "icon": "adminRequests",
+          "id": "adminRequests",
+          "label": {
+            "en": "Requests"
+          },
+          "labelKey": "sideMenu.endUser.adminRequests"
+        },
+        {
+          "icon": "adminCertifications",
+          "id": "adminCertifications",
+          "label": {
+            "en": "Certifications"
+          },
+          "labelKey": "sideMenu.endUser.adminCertifications"
+        },
+        {
+          "icon": "lcmRoles",
+          "id": "lcmRoles",
+          "label": {
+            "en": "Roles"
+          },
+          "labelKey": "sideMenu.endUser.lcmRoles"
+        }
+      ]
+    },
+    {
+      "icon": "check_box_outline_blank",
+      "id": "alpha_aiagent",
+      "isManagedObject": true,
+      "label": {
+        "en": "Alpha realm - AI Agent"
+      },
+      "labelKey": "Alpha realm - AI Agent"
+    },
+    {
+      "icon": "check_box_outline_blank",
+      "id": "alpha_aiagentprivilege",
+      "isManagedObject": true,
+      "label": {
+        "en": "Alpha realm - AI Agent Privilege"
+      },
+      "labelKey": "Alpha realm - AI Agent Privilege"
+    },
+    {
+      "icon": "group",
+      "id": "alpha_group",
+      "isManagedObject": true,
+      "label": {
+        "en": "Alpha realm - Group"
+      },
+      "labelKey": "Alpha realm - Group"
+    },
+    {
+      "icon": "domain",
+      "id": "alpha_organization",
+      "isManagedObject": true,
+      "label": {
+        "en": "Alpha realm - Organization"
+      },
+      "labelKey": "Alpha realm - Organization"
+    },
+    {
+      "icon": "assignment_ind",
+      "id": "alpha_role",
+      "isManagedObject": true,
+      "label": {
+        "en": "Alpha realm - Role"
+      },
+      "labelKey": "Alpha realm - Role"
+    },
+    {
+      "icon": "people",
+      "id": "alpha_user",
+      "isManagedObject": true,
+      "label": {
+        "en": "Alpha realm - User"
+      },
+      "labelKey": "Alpha realm - User"
+    },
+    {
+      "icon": "people",
+      "id": "internal/role",
+      "isManagedObject": true,
+      "label": {
+        "en": "Internal Role"
+      },
+      "labelKey": "Internal Role"
+    },
+    {
+      "icon": "check_box_outline_blank",
+      "id": "javascript",
+      "isManagedObject": true,
+      "label": {
+        "en": "Javascript"
+      },
+      "labelKey": "Javascript"
+    },
+    {
+      "icon": "directions_boat",
+      "id": "moSample",
+      "isManagedObject": true,
+      "label": {
+        "en": "Managed Object Example"
+      },
+      "labelKey": "Managed Object Example"
+    }
+  ],
+  "favicon": "https://cdn.forgerock.com/platform/themes/starter/logo-starter.svg",
+  "fontFamily": "Open Sans",
+  "infoColor": "#109cf1",
+  "isDefault": false,
+  "journeyA11yAddFallbackErrorHeading": true,
+  "journeyCardBackgroundColor": "#ffffff",
+  "journeyCardBorderRadius": 4,
+  "journeyCardHeaderBackgroundColor": "#ffffff",
+  "journeyCardShadow": 3,
+  "journeyCardTextColor": "#5e6d82",
+  "journeyCardTitleColor": "#23282e",
+  "journeyFloatingLabels": true,
+  "journeyFocusElement": "header",
+  "journeyFocusFirstFocusableItemEnabled": false,
+  "journeyFooter": {
+    "file": "journeyFooter.html"
+  },
+  "journeyFooterEnabled": false,
+  "journeyFooterScriptTag": {
+    "file": "journeyFooterScriptTag.html"
+  },
+  "journeyFooterScriptTagEnabled": true,
+  "journeyHeader": {
+    "file": "journeyHeader.html"
+  },
+  "journeyHeaderEnabled": false,
+  "journeyHeaderSkipLinkEnabled": false,
+  "journeyInputBackgroundColor": "#ffffff",
+  "journeyInputBorderColor": "#c0c9d5",
+  "journeyInputFocusBorderColor": "#324054",
+  "journeyInputLabelColor": "#5e6d82",
+  "journeyInputSelectColor": "#e4f4fd",
+  "journeyInputSelectHoverColor": "#f6f8fa",
+  "journeyInputTextColor": "#23282e",
+  "journeyJustifiedContent": "",
+  "journeyJustifiedContentEnabled": false,
+  "journeyJustifiedContentMobileViewEnabled": false,
+  "journeyLayout": "card",
+  "journeyRememberMeEnabled": false,
+  "journeyRememberMeLabel": "",
+  "journeySignInButtonPosition": "flex-column",
+  "journeyTheaterMode": false,
+  "lightColor": "#f6f8fa",
+  "linkActiveColor": "#0a6eab",
+  "linkActiveColorOnDark": "#0a6eab",
+  "linkColor": "#109cf1",
+  "linkColorOnDark": "#109cf1",
+  "linkedTrees": [],
+  "logo": "img/placeholder.95d0bb8e.svg",
+  "logoAltText": "Logo",
+  "logoEnabled": true,
+  "logoHeight": "43",
+  "logoProfile": "https://cdn.forgerock.com/platform/themes/starter/logo-starter-full.svg",
+  "logoProfileAltText": "Logo",
+  "logoProfileCollapsed": "https://cdn.forgerock.com/platform/themes/starter/logo-starter.svg",
+  "logoProfileCollapsedAltText": "Logo",
+  "logoProfileHeight": "24",
+  "name": "preston",
+  "pageTitle": "#23282e",
+  "primaryColor": "#324054",
+  "primaryOffColor": "#242E3C",
+  "profileBackgroundColor": "#ffffff",
+  "profileMenuHighlightColor": "#f3f5f8",
+  "profileMenuHoverColor": "#f3f5f8",
+  "profileMenuHoverTextColor": "#455469",
+  "profileMenuTextHighlightColor": "#455469",
+  "secondaryColor": "#69788b",
+  "successColor": "#2ed47a",
+  "switchBackgroundColor": "#939393",
+  "textColor": "#ffffff",
+  "topBarBackgroundColor": "#ffffff",
+  "topBarBorderColor": "#e7eef4",
+  "topBarHeaderColor": "#23282e",
+  "topBarTextColor": "#69788b",
+  "warningColor": "#ffb946"
+}

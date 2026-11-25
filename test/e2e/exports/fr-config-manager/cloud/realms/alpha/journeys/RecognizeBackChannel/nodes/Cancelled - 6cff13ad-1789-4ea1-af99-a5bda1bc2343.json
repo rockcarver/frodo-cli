@@ -1,0 +1,29 @@
+{
+  "_id": "6cff13ad-1789-4ea1-af99-a5bda1bc2343",
+  "_outcomes": [
+    {
+      "displayName": "True",
+      "id": "true"
+    },
+    {
+      "displayName": "False",
+      "id": "false"
+    }
+  ],
+  "_rev": "-1768537076",
+  "_type": {
+    "_id": "MessageNode",
+    "collection": true,
+    "name": "Message Node",
+    "version": "1.0"
+  },
+  "message": {
+    "en": "Action Cancelled"
+  },
+  "messageNo": {
+    "en": "Exit"
+  },
+  "messageYes": {
+    "en": "Retry?"
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "_id": "db4b696c-f83c-487c-a335-71e6b2cfa252",
+  "_outcomes": [
+    {
+      "displayName": "Outcome",
+      "id": "outcome"
+    }
+  ],
+  "_rev": "2071419779",
+  "_type": {
+    "_id": "SetSuccessUrlNode",
+    "collection": true,
+    "name": "Success URL",
+    "version": "1.0"
+  },
+  "successUrl": "https://idc.scheuber.io/am/XUI/?realm=alpha&authIndexType=service&authIndexValue=RecognizeBackChannelSuccess"
+}

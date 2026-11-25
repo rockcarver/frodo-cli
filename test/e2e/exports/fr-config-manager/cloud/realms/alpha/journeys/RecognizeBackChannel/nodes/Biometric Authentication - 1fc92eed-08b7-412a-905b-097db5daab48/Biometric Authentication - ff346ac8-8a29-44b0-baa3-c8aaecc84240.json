@@ -1,0 +1,45 @@
+{
+  "_id": "ff346ac8-8a29-44b0-baa3-c8aaecc84240",
+  "_outcomes": [
+    {
+      "displayName": "success",
+      "id": "success"
+    },
+    {
+      "displayName": "retry",
+      "id": "retry"
+    },
+    {
+      "displayName": "lockout",
+      "id": "lockout"
+    },
+    {
+      "displayName": "error",
+      "id": "error"
+    },
+    {
+      "displayName": "notEnrolled",
+      "id": "notEnrolled"
+    }
+  ],
+  "_rev": "1418118844",
+  "_type": {
+    "_id": "designer-5e75b06c44e344b4b39b9b8a7377bfd3",
+    "collection": true,
+    "name": "PingOne Recognize Biometric Web Authentication",
+    "version": "1.0"
+  },
+  "apiKey": "&{esv.p1recognize.apikey}",
+  "enableCameraInstructions": false,
+  "errorSubmitDelay": 3000,
+  "finishedSubmitDelay": 3000,
+  "hidePoweredBy": true,
+  "publicKey": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA2C6rUQLZhn2ttBxbLE6OjQvaqmyFltUUMw+3vBFDjcpnzYiRt854/EanFlTDupPIydjvlEW71ELHpp8mJc2243P0j10H+LeaYyzuuIPldKBpeuOTdz6c2W5cQGCJWZjEy6uctZXYs2DFhCNygL8YxYi/QPQqjiXK4Dqw8pbc3/xBMhzjqYhv6WKtHFnkyXW0ReuudMSitPat6K2oPDLHEZhfJZhwQPcUZmBYUGqy/MGZ/i39AFRJA70aJpLVfEBWpTCd6WNaMdaosj1LUDQjZDeJGbylPH8HCqYwMNc6co4ik8tMZ0thEoTyGr3ayt+CwjHo+BXKVjLtvC3oYEtybwIDAQAB",
+  "publicKeyId": "alias/kl-saas-us-east-1-authentication-service-image-key",
+  "sdkLocalization": "[{\"language\":\"en\",\"steps\":{\"camera-instructions\":{\"headline\":\"Verify your identity\",\"text\":\"Look at the camera to proceed.\"},\"done\":{\"headline\":\"Verified!\",\"text\":\"You're all set.\"}}}]",
+  "sdkTheme": "LIGHT",
+  "sdkThemeOptions": "{\"colors\":{\"light\":{\"primary\":\"#1D3F59\",\"onPrimary\":\"#ffffff\",\"surface\":\"#ffffff\",\"onSurface\":\"#000000\"}}}",
+  "tenantEnvironment": "US",
+  "tenantName": "ping_vscheuber",
+  "webSdkVersion": "2.3.1"
+}

@@ -1,0 +1,42 @@
+{
+  "_id": "RecognizeBackChannelSuccess",
+  "_rev": "-1721752677",
+  "description": "Candidate authentication success\n",
+  "enabled": true,
+  "entryNodeId": "5e3400c4-4f1e-4694-bc6f-26f21acad322",
+  "identityResource": "managed/alpha_user",
+  "innerTreeOnly": false,
+  "mustRun": true,
+  "noSession": false,
+  "nodes": {
+    "5e3400c4-4f1e-4694-bc6f-26f21acad322": {
+      "connections": {
+        "true": "e301438c-0bd0-429c-ab0c-66126501069a"
+      },
+      "displayName": "Success Message",
+      "nodeType": "PageNode",
+      "version": "1.0",
+      "x": 194,
+      "y": 206.015625
+    }
+  },
+  "staticNodes": {
+    "70e691a5-1e33-4ac3-a356-e7b6d60d92e0": {
+      "x": 46,
+      "y": 107
+    },
+    "e301438c-0bd0-429c-ab0c-66126501069a": {
+      "x": 509,
+      "y": 258
+    },
+    "startNode": {
+      "x": 50,
+      "y": 250
+    }
+  },
+  "transactionalOnly": false,
+  "uiConfig": {
+    "annotations": "{\"forNodes\":{},\"structural\":[]}",
+    "categories": "[\"Helper\"]"
+  }
+}

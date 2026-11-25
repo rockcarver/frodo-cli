@@ -1,0 +1,94 @@
+{
+  "_id": "j05",
+  "_rev": "-1683838231",
+  "enabled": true,
+  "entryNodeId": "622179cb-98f1-484a-820d-9a0df6e45e95",
+  "identityResource": "managed/alpha_user",
+  "innerTreeOnly": false,
+  "mustRun": false,
+  "noSession": false,
+  "nodes": {
+    "11f1c31c-50a9-4717-8213-420f6932481f": {
+      "connections": {
+        "true": "e90ae257-c279-46e0-9b43-5ecd89784d77"
+      },
+      "displayName": "shared",
+      "nodeType": "ScriptedDecisionNode",
+      "version": "1.0",
+      "x": 392,
+      "y": 173.015625
+    },
+    "3c106772-ace7-4808-8f3a-9840de8f67f0": {
+      "connections": {
+        "true": "f17ecb7c-abc3-4523-9943-4cbdd90305cb"
+      },
+      "displayName": "level",
+      "nodeType": "ScriptedDecisionNode",
+      "version": "1.0",
+      "x": 395,
+      "y": 345.015625
+    },
+    "622179cb-98f1-484a-820d-9a0df6e45e95": {
+      "connections": {
+        "level only": "3c106772-ace7-4808-8f3a-9840de8f67f0",
+        "none": "f17ecb7c-abc3-4523-9943-4cbdd90305cb",
+        "shared and level": "11f1c31c-50a9-4717-8213-420f6932481f",
+        "shared only": "a0782616-84b7-4bf5-87ed-a01fb3018563"
+      },
+      "displayName": "mode",
+      "nodeType": "ScriptedDecisionNode",
+      "version": "1.0",
+      "x": 167,
+      "y": 210.015625
+    },
+    "a0782616-84b7-4bf5-87ed-a01fb3018563": {
+      "connections": {
+        "true": "f17ecb7c-abc3-4523-9943-4cbdd90305cb"
+      },
+      "displayName": "shared",
+      "nodeType": "ScriptedDecisionNode",
+      "version": "1.0",
+      "x": 393,
+      "y": 259.015625
+    },
+    "e90ae257-c279-46e0-9b43-5ecd89784d77": {
+      "connections": {
+        "true": "f17ecb7c-abc3-4523-9943-4cbdd90305cb"
+      },
+      "displayName": "level",
+      "nodeType": "ScriptedDecisionNode",
+      "version": "1.0",
+      "x": 598,
+      "y": 173.015625
+    },
+    "f17ecb7c-abc3-4523-9943-4cbdd90305cb": {
+      "connections": {
+        "false": "e301438c-0bd0-429c-ab0c-66126501069a",
+        "true": "e301438c-0bd0-429c-ab0c-66126501069a"
+      },
+      "displayName": "nest",
+      "nodeType": "InnerTreeEvaluatorNode",
+      "version": "1.0",
+      "x": 816,
+      "y": 232.015625
+    }
+  },
+  "staticNodes": {
+    "70e691a5-1e33-4ac3-a356-e7b6d60d92e0": {
+      "x": 1236,
+      "y": 145
+    },
+    "e301438c-0bd0-429c-ab0c-66126501069a": {
+      "x": 1236,
+      "y": 253
+    },
+    "startNode": {
+      "x": 50,
+      "y": 250
+    }
+  },
+  "transactionalOnly": false,
+  "uiConfig": {
+    "categories": "[]"
+  }
+}

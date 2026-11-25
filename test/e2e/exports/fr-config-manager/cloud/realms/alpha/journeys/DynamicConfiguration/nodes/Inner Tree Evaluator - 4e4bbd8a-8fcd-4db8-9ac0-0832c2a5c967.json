@@ -1,0 +1,28 @@
+{
+  "_id": "4e4bbd8a-8fcd-4db8-9ac0-0832c2a5c967",
+  "_outcomes": [
+    {
+      "displayName": "true",
+      "id": "true"
+    }
+  ],
+  "_rev": "-915143266",
+  "_type": {
+    "_id": "PageNode",
+    "collection": true,
+    "name": "Page Node",
+    "version": "1.0"
+  },
+  "nodes": [
+    {
+      "_id": "149a4797-8f0f-4dc0-876f-8e1780c97f1c",
+      "displayName": "Node Config",
+      "nodeType": "ScriptedDecisionNode",
+      "nodeVersion": "1.0"
+    }
+  ],
+  "pageDescription": {},
+  "pageHeader": {
+    "en": "Configure Inner Tree Evaluator"
+  }
+}

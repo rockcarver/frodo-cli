@@ -1,0 +1,150 @@
+{
+  "_id": "be99b4f6-b7ed-4970-ba57-41b970c745a2",
+  "accountCardBackgroundColor": "#ffffff",
+  "accountCardHeaderColor": "#23282e",
+  "accountCardInnerBorderColor": "#e7eef4",
+  "accountCardInputBackgroundColor": "#ffffff",
+  "accountCardInputBorderColor": "#c0c9d5",
+  "accountCardInputFocusBorderColor": "#000000",
+  "accountCardInputLabelColor": "#5e6d82",
+  "accountCardInputSelectColor": "#edf7fd",
+  "accountCardInputSelectHoverColor": "#f6f8fa",
+  "accountCardInputTextColor": "#23282e",
+  "accountCardOuterBorderColor": "#e7eef4",
+  "accountCardShadow": 3,
+  "accountCardTabActiveBorderColor": "#109cf1",
+  "accountCardTabActiveColor": "#e4f4fd",
+  "accountCardTextColor": "#5e6d82",
+  "accountFooter": {
+    "file": "accountFooter.html"
+  },
+  "accountFooterEnabled": false,
+  "accountFooterScriptTag": "",
+  "accountFooterScriptTagEnabled": false,
+  "accountNavigationBackgroundColor": "#ffffff",
+  "accountNavigationTextColor": "#455469",
+  "accountNavigationToggleBorderColor": "#e7eef4",
+  "accountPageSections": {
+    "accountControls": {
+      "enabled": false
+    },
+    "accountSecurity": {
+      "enabled": true,
+      "subsections": {
+        "password": {
+          "enabled": true
+        },
+        "securityQuestions": {
+          "enabled": false
+        },
+        "twoStepVerification": {
+          "enabled": true
+        },
+        "username": {
+          "enabled": true
+        }
+      }
+    },
+    "consent": {
+      "enabled": false
+    },
+    "oauthApplications": {
+      "enabled": false
+    },
+    "personalInformation": {
+      "enabled": true
+    },
+    "preferences": {
+      "enabled": false
+    },
+    "social": {
+      "enabled": false
+    },
+    "trustedDevices": {
+      "enabled": true
+    }
+  },
+  "accountTableRowHoverColor": "#f6f8fa",
+  "backgroundColor": "#FFFFFF",
+  "backgroundImage": "",
+  "bodyText": "#000000",
+  "boldLinks": false,
+  "buttonFocusBorderColor": "#0672cb",
+  "buttonRounded": "0",
+  "dangerColor": "#f7685b",
+  "darkColor": "#23282e",
+  "favicon": "https://cdn.forgerock.com/platform/themes/contrast/logo-contrast.svg",
+  "fontFamily": "Open Sans",
+  "infoColor": "#109cf1",
+  "isDefault": false,
+  "journeyA11yAddFallbackErrorHeading": true,
+  "journeyCardBackgroundColor": "#ffffff",
+  "journeyCardBorderRadius": 4,
+  "journeyCardHeaderBackgroundColor": "#ffffff",
+  "journeyCardShadow": 3,
+  "journeyCardTextColor": "#5e6d82",
+  "journeyCardTitleColor": "#23282e",
+  "journeyFloatingLabels": true,
+  "journeyFocusElement": "header",
+  "journeyFocusFirstFocusableItemEnabled": false,
+  "journeyFooter": {
+    "file": "journeyFooter.html"
+  },
+  "journeyFooterEnabled": false,
+  "journeyFooterScriptTag": "",
+  "journeyFooterScriptTagEnabled": false,
+  "journeyHeader": {
+    "file": "journeyHeader.html"
+  },
+  "journeyHeaderEnabled": false,
+  "journeyHeaderSkipLinkEnabled": false,
+  "journeyInputBackgroundColor": "#ffffff",
+  "journeyInputBorderColor": "#c0c9d5",
+  "journeyInputFocusBorderColor": "#000000",
+  "journeyInputLabelColor": "#5e6d82",
+  "journeyInputSelectColor": "#e4f4fd",
+  "journeyInputSelectHoverColor": "#f6f8fa",
+  "journeyInputTextColor": "#23282e",
+  "journeyJustifiedContent": "",
+  "journeyJustifiedContentEnabled": false,
+  "journeyJustifiedContentMobileViewEnabled": false,
+  "journeyLayout": "card",
+  "journeyRememberMeEnabled": false,
+  "journeyRememberMeLabel": "",
+  "journeySignInButtonPosition": "flex-column",
+  "journeyTheaterMode": false,
+  "lightColor": "#f6f8fa",
+  "linkActiveColor": "#000000",
+  "linkActiveColorOnDark": "#0a6eab",
+  "linkColor": "#000000",
+  "linkColorOnDark": "#109cf1",
+  "linkedTrees": [],
+  "logo": "https://cdn.forgerock.com/platform/themes/contrast/logo-contrast.svg",
+  "logoAltText": "Contrast",
+  "logoEnabled": true,
+  "logoHeight": "72",
+  "logoProfile": "https://cdn.forgerock.com/platform/themes/contrast/logo-contrast.svg",
+  "logoProfileAltText": "Contrast",
+  "logoProfileCollapsed": "https://cdn.forgerock.com/platform/themes/contrast/logo-contrast.svg",
+  "logoProfileCollapsedAltText": "Contrast",
+  "logoProfileCollapsedHeight": "22",
+  "logoProfileHeight": "22",
+  "name": "Contrast",
+  "pageTitle": "#23282e",
+  "primaryColor": "#000000",
+  "primaryOffColor": "#000000",
+  "profileBackgroundColor": "#FFFFFF",
+  "profileMenuHighlightColor": "#FFFFFF",
+  "profileMenuHoverColor": "#FFFFFF",
+  "profileMenuHoverTextColor": "#000000",
+  "profileMenuTextHighlightColor": "#455469",
+  "secondaryColor": "#69788b",
+  "successColor": "#2ed47a",
+  "switchBackgroundColor": "#939393",
+  "textColor": "#ffffff",
+  "topBarBackgroundColor": "#ffffff",
+  "topBarBorderColor": "#e7eef4",
+  "topBarHeaderColor": "#23282e",
+  "topBarTextColor": "#69788b",
+  "warningColor": "#ffb946"
+}

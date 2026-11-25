@@ -1,0 +1,23 @@
+{
+  "_id": "954588db-2d3d-4ee9-b447-e184382af1db",
+  "_outcomes": [
+    {
+      "displayName": "Created",
+      "id": "created"
+    },
+    {
+      "displayName": "Error",
+      "id": "error"
+    }
+  ],
+  "_rev": "1034230393",
+  "_type": {
+    "_id": "BackChannelInitNode",
+    "collection": true,
+    "name": "Backchannel Initialize",
+    "version": "1.0"
+  },
+  "allowRetry": true,
+  "idType": "NONE",
+  "redirectUrlType": "GET"
+}

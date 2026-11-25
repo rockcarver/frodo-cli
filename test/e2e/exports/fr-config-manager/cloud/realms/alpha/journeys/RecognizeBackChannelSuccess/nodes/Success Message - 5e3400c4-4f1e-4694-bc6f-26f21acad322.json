@@ -1,0 +1,30 @@
+{
+  "_id": "5e3400c4-4f1e-4694-bc6f-26f21acad322",
+  "_outcomes": [
+    {
+      "displayName": "true",
+      "id": "true"
+    }
+  ],
+  "_rev": "-540647521",
+  "_type": {
+    "_id": "PageNode",
+    "collection": true,
+    "name": "Page Node",
+    "version": "1.0"
+  },
+  "nodes": [
+    {
+      "_id": "0486dffc-a0b1-444a-9ee7-1f114a17ebc0",
+      "displayName": "Remove Button",
+      "nodeType": "ScriptedDecisionNode",
+      "nodeVersion": "1.0"
+    }
+  ],
+  "pageDescription": {
+    "en": "Congratulations, you have been successfully authenticated."
+  },
+  "pageHeader": {
+    "en": "Biometric Authentication Successful!"
+  }
+}

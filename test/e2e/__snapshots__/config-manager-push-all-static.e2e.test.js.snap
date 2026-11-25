@@ -1,0 +1,561 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`frodo config-manager push all-static "frodo config-manager push all-static -D test/e2e/exports/fr-config-manager/cloud": should import all static configurations alpha to cloud in fr-config-manager style" 1`] = `
+"Experimental feature in use: 'frodo config-manager push all-static'. This feature may change without notice.
+Importing from /home/trivir/Work/frodo-pr/config-push/frodo-cli/test/e2e/exports/fr-config-manager/cloud
+✔ Metadata config import completed.
+Updating locales
+Error importing IDM managed objects
+ENOENT: no such file or directory, scandir 'test/e2e/exports/fr-config-manager/cloud/managed-objects'
+Updating password policy
+These remote proxies address their receiving tenant with a fixed URL, which a promotion carries to the next environment unchanged: zz-e2e-proxy (instanceUrl, tokenEndpoint). Make the host an ESV placeholder such as https://&{esv.zion.proxy.host}/openidm/ to let each environment supply its own receiver.
+No change in script Authentication Tree Decision Node Script - skipping update
+No change in script SAML2 SP Account Mapper Script - skipping update
+No change in script SAML IDP Attribute Mapper Script (Next Gen) - skipping update
+No change in script Next Generation Scripted Decision Node Script - skipping update
+No change in script Next Generation Device Match Node Script - skipping update
+No change in script Device Profile Match Template - Decision Node Script - skipping update
+No change in script Device Id (Match) - Client Side - skipping update
+Error importing script 'ForgeRock Internal: OIDC Claims Script' of realm 'alpha'
+Error updating alpha realm script
+  Network error:
+    URL: https://openam-frodo-dev.forgeblocks.com/am/json/realms/root/realms/alpha/scripts/1f389a3d-21cf-417c-a6d3-42ea620071f0
+    Status: 502
+    Code: ERR_BAD_RESPONSE
+No change in script SAML2 IDP Adapter Script - skipping update
+No change in script OAuth2 Client Credentials Default - skipping update
+No change in script OAuth2 Validate Scope Script - skipping update
+No change in script OIDC Claims Script - skipping update
+No change in script Alpha OAuth2 Access Token Modification Script - skipping update
+No change in script Inactive Device Match Script - skipping update
+No change in script OAuth2 Authorize Endpoint Data Provider Script - skipping update
+No change in script OAuth2 JWT Issuer Script - skipping update
+No change in script SAML2 NameID Mapper Script - skipping update
+No change in script OAuth2 Dynamic Client Registration Script - skipping update
+No change in script Config Provider - skipping update
+No change in script SAML2 SP Adapter Script - skipping update
+No change in script Library Script - skipping update
+No change in script Device Id (Match) - Server Side - skipping update
+No change in script SAML2 IDP Adapter Script (Next Gen) - skipping update
+No change in script Scripted Module - Server Side - skipping update
+No change in script SAML2 SP Adapter Script (Next Gen) - skipping update
+No change in script TestNull - skipping update
+No change in script Scripted Policy Condition - skipping update
+No change in script Cache Loader Script - skipping update
+No change in script My Example Script Using Libraries - skipping update
+Error importing script 'ForgeRock Internal: OAuth2 Access Token Modification Script' of realm 'alpha'
+Error updating alpha realm script
+  Network error:
+    URL: https://openam-frodo-dev.forgeblocks.com/am/json/realms/root/realms/alpha/scripts/c234ba0b-58a1-4cfd-9567-09edde980745
+    Status: 403
+    Code: ERR_BAD_REQUEST
+    Reason: Forbidden
+    Message: This operation is not available in PingOne Advanced Identity Cloud.
+No change in script SAML2 IDP Attribute Mapper Script - skipping update
+No change in script OAuth2 May Act Script - skipping update
+No change in script Scripted Module - Client Side - skipping update
+No change in script Alpha OIDC Claims Script - skipping update
+No change in script OAuth2 Access Token Modification Script - skipping update
+No change in script OAuth2 Evaluate Scope Script - skipping update
+No change in script Alpha endUserUIClient OIDC Claims Script - skipping update
+No change in script Alpha endUserUIClient OAuth2 Access Token Modification Script - skipping update
+✖ Finished importing scripts with errors.
+2 of 38 scripts failed:
+  - ForgeRock Internal: OIDC Claims Script in realm alpha: Request failed with status code 502
+  - ForgeRock Internal: OAuth2 Access Token Modification Script in realm alpha: This operation is not available in PingOne Advanced Identity Cloud.
+✔ Service import completed.
+2 warnings in journey DynamicConfiguration
+1 warning in journey FrodoTest
+2 warnings in journey PrestonTest
+2 warnings in journey RecognizeFrontChannel
+✔ Resolved all alpha realm dependencies.
+Error importing the alpha realm journey ConfigManagerPushInnerTest
+  Error importing alpha realm journey 'ConfigManagerPushInnerTest'
+    Missing alpha realm script 9b75654f-2553-4627-9938-b14a5f62ce81 referenced by node 5d969de4-98c8-44ab-9df1-4de9170205eb (ScriptedDecisionNode) in journey ConfigManagerPushInnerTest
+      Error updating ScriptedDecisionNode node 5d969de4-98c8-44ab-9df1-4de9170205eb
+        Network error:
+          URL: https://openam-frodo-dev.forgeblocks.com/am/json/realms/root/realms/alpha/realm-config/authentication/authenticationtrees/nodes/ScriptedDecisionNode/1.0/5d969de4-98c8-44ab-9df1-4de9170205eb
+          Status: 400
+          Code: ERR_BAD_REQUEST
+          Reason: Bad Request
+          Message: Data validation failed for the attribute, Script
+Error importing the alpha realm journey DynamicConfiguration
+  Error importing alpha realm journey 'DynamicConfiguration'
+    Missing alpha realm script e49225eb-e7ad-4699-bf2a-d57689f9cd6e referenced by inner node 4cd8636a-2ebe-4190-a6a2-7fdf43274ae2 (ScriptedDecisionNode) in journey DynamicConfiguration
+      Error updating ScriptedDecisionNode node 4cd8636a-2ebe-4190-a6a2-7fdf43274ae2
+        Network error:
+          URL: https://openam-frodo-dev.forgeblocks.com/am/json/realms/root/realms/alpha/realm-config/authentication/authenticationtrees/nodes/ScriptedDecisionNode/1.0/4cd8636a-2ebe-4190-a6a2-7fdf43274ae2
+          Status: 400
+          Code: ERR_BAD_REQUEST
+          Reason: Bad Request
+          Message: Data validation failed for the attribute, Script
+Error importing the alpha realm journey FrodoTest
+  Error importing alpha realm journey 'FrodoTest'
+    Missing alpha realm script 739bdc48-fd24-4c52-b353-88706d75558a referenced by node e2c39477-847a-4df2-9c5d-b449a752638b (ScriptedDecisionNode) in journey FrodoTest
+      Error updating ScriptedDecisionNode node e2c39477-847a-4df2-9c5d-b449a752638b
+        Network error:
+          URL: https://openam-frodo-dev.forgeblocks.com/am/json/realms/root/realms/alpha/realm-config/authentication/authenticationtrees/nodes/ScriptedDecisionNode/1.0/e2c39477-847a-4df2-9c5d-b449a752638b
+          Status: 400
+          Code: ERR_BAD_REQUEST
+          Reason: Bad Request
+          Message: Data validation failed for the attribute, Script
+Error importing the alpha realm journey InnerTest
+  Error importing alpha realm journey 'InnerTest'
+    Missing alpha realm script 9b75654f-2553-4627-9938-b14a5f62ce81 referenced by node 5d969de4-98c8-44ab-9df1-4de9170205eb (ScriptedDecisionNode) in journey InnerTest
+      Error updating ScriptedDecisionNode node 5d969de4-98c8-44ab-9df1-4de9170205eb
+        Network error:
+          URL: https://openam-frodo-dev.forgeblocks.com/am/json/realms/root/realms/alpha/realm-config/authentication/authenticationtrees/nodes/ScriptedDecisionNode/1.0/5d969de4-98c8-44ab-9df1-4de9170205eb
+          Status: 400
+          Code: ERR_BAD_REQUEST
+          Reason: Bad Request
+          Message: Data validation failed for the attribute, Script
+Error importing the alpha realm journey JoshTest
+  Error importing alpha realm journey 'JoshTest'
+    Missing alpha realm script 65c46937-d6be-4765-8225-df658f74a497 referenced by node bddb425b-4513-4f65-8099-2eb32f5fc4df (ScriptedDecisionNode) in journey JoshTest
+      Error updating ScriptedDecisionNode node bddb425b-4513-4f65-8099-2eb32f5fc4df
+        Network error:
+          URL: https://openam-frodo-dev.forgeblocks.com/am/json/realms/root/realms/alpha/realm-config/authentication/authenticationtrees/nodes/ScriptedDecisionNode/1.0/bddb425b-4513-4f65-8099-2eb32f5fc4df
+          Status: 400
+          Code: ERR_BAD_REQUEST
+          Reason: Bad Request
+          Message: Data validation failed for the attribute, Script
+Error importing the alpha realm journey P1P-Test
+  Error importing alpha realm journey 'P1P-Test'
+    Error importing alpha realm node 6632fe0f-6395-4cc1-88d8-c9ca4a9061b6 in journey P1P-Test
+      Error updating product-PingOneProtectInitializeNode node 6632fe0f-6395-4cc1-88d8-c9ca4a9061b6
+        Network error:
+          URL: https://openam-frodo-dev.forgeblocks.com/am/json/realms/root/realms/alpha/realm-config/authentication/authenticationtrees/nodes/product-PingOneProtectInitializeNode/1.0/6632fe0f-6395-4cc1-88d8-c9ca4a9061b6
+          Status: 400
+          Code: ERR_BAD_REQUEST
+          Reason: Bad Request
+          Message: Data validation failed for the attribute, PingOne Worker Service ID
+Error importing the alpha realm journey RecognizeBackChannel
+  Error importing alpha realm journey 'RecognizeBackChannel'
+    Missing alpha realm script 3043cd81-2f2f-4972-9b0c-aaa694dcdba3 referenced by node d515d9ff-8559-4126-8977-19bf1513d5b0 (ScriptedDecisionNode) in journey RecognizeBackChannel
+      Error updating ScriptedDecisionNode node d515d9ff-8559-4126-8977-19bf1513d5b0
+        Network error:
+          URL: https://openam-frodo-dev.forgeblocks.com/am/json/realms/root/realms/alpha/realm-config/authentication/authenticationtrees/nodes/ScriptedDecisionNode/1.0/d515d9ff-8559-4126-8977-19bf1513d5b0
+          Status: 400
+          Code: ERR_BAD_REQUEST
+          Reason: Bad Request
+          Message: Data validation failed for the attribute, Script
+Error importing the alpha realm journey RecognizeBackChannelSuccess
+  Error importing alpha realm journey 'RecognizeBackChannelSuccess'
+    Missing alpha realm script 9535446c-0ff6-4a76-8576-616599119d64 referenced by inner node 0486dffc-a0b1-444a-9ee7-1f114a17ebc0 (ScriptedDecisionNode) in journey RecognizeBackChannelSuccess
+      Error updating ScriptedDecisionNode node 0486dffc-a0b1-444a-9ee7-1f114a17ebc0
+        Network error:
+          URL: https://openam-frodo-dev.forgeblocks.com/am/json/realms/root/realms/alpha/realm-config/authentication/authenticationtrees/nodes/ScriptedDecisionNode/1.0/0486dffc-a0b1-444a-9ee7-1f114a17ebc0
+          Status: 400
+          Code: ERR_BAD_REQUEST
+          Reason: Bad Request
+          Message: Data validation failed for the attribute, Script
+Error importing the alpha realm journey iExistingSession
+  Error importing alpha realm journey 'iExistingSession'
+    Missing alpha realm script 616d3541-14d6-4a54-94dd-46a146ef2423 referenced by node 8cf3cc43-df04-42ac-ad10-67fd2fb96ca2 (ScriptedDecisionNode) in journey iExistingSession
+      Error updating ScriptedDecisionNode node 8cf3cc43-df04-42ac-ad10-67fd2fb96ca2
+        Network error:
+          URL: https://openam-frodo-dev.forgeblocks.com/am/json/realms/root/realms/alpha/realm-config/authentication/authenticationtrees/nodes/ScriptedDecisionNode/1.0/8cf3cc43-df04-42ac-ad10-67fd2fb96ca2
+          Status: 400
+          Code: ERR_BAD_REQUEST
+          Reason: Bad Request
+          Message: Data validation failed for the attribute, Script
+Error importing the alpha realm journey j00
+  Error importing alpha realm journey 'j00'
+    Missing alpha realm script 3cb43516-ae69-433a-8787-501d45db14e9 referenced by node ba503a1e-633e-4d0d-ba18-c9a9b1105b5b (ScriptedDecisionNode) in journey j00
+      Error updating ScriptedDecisionNode node ba503a1e-633e-4d0d-ba18-c9a9b1105b5b
+        Network error:
+          URL: https://openam-frodo-dev.forgeblocks.com/am/json/realms/root/realms/alpha/realm-config/authentication/authenticationtrees/nodes/ScriptedDecisionNode/1.0/ba503a1e-633e-4d0d-ba18-c9a9b1105b5b
+          Status: 400
+          Code: ERR_BAD_REQUEST
+          Reason: Bad Request
+          Message: Data validation failed for the attribute, Script
+Error importing the alpha realm journey j01
+  Journey j01 requires j00, which could not be imported
+Error importing the alpha realm journey j02
+  Journey j02 requires j01, which could not be imported
+Error importing the alpha realm journey j03
+  Journey j03 requires j02, which could not be imported
+Error importing the alpha realm journey j04
+  Journey j04 requires j03, which could not be imported
+Error importing the alpha realm journey j05
+  Journey j05 requires j04, which could not be imported
+Error importing the alpha realm journey j06
+  Journey j06 requires j05, which could not be imported
+Error importing the alpha realm journey j07
+  Journey j07 requires j06, which could not be imported
+Error importing the alpha realm journey j08
+  Journey j08 requires j07, which could not be imported
+Error importing the alpha realm journey j09
+  Journey j09 requires j08, which could not be imported
+Error importing the alpha realm journey j10
+  Journey j10 requires j09, which could not be imported
+Error importing the alpha realm journey A
+  Error importing alpha realm journey 'A'
+    Error importing alpha realm journey flow A
+      Network error:
+        URL: https://openam-frodo-dev.forgeblocks.com/am/json/realms/root/realms/alpha/realm-config/authentication/authenticationtrees/trees/A
+        Status: 500
+        Code: ERR_BAD_RESPONSE
+        Reason: Internal Server Error
+        Message: Unable to save SMS config: Could not evaluate tree: Could not evaluate tree
+Error importing the alpha realm journey RecognizeFrontChannel
+  Journey RecognizeFrontChannel requires iExistingSession, which could not be imported
+• Finished importing alpha realm journeys
+22 of 36 journeys failed:
+  - Error importing the alpha realm journey ConfigManagerPushInnerTest: Data validation failed for the attribute, Script
+  - Error importing the alpha realm journey DynamicConfiguration: Data validation failed for the attribute, Script
+  - Error importing the alpha realm journey FrodoTest: Data validation failed for the attribute, Script
+  - Error importing the alpha realm journey InnerTest: Data validation failed for the attribute, Script
+  - Error importing the alpha realm journey JoshTest: Data validation failed for the attribute, Script
+  - Error importing the alpha realm journey P1P-Test: Data validation failed for the attribute, PingOne Worker Service ID
+  - Error importing the alpha realm journey RecognizeBackChannel: Data validation failed for the attribute, Script
+  - Error importing the alpha realm journey RecognizeBackChannelSuccess: Data validation failed for the attribute, Script
+  - Error importing the alpha realm journey iExistingSession: Data validation failed for the attribute, Script
+  - Error importing the alpha realm journey j00: Data validation failed for the attribute, Script
+  - Error importing the alpha realm journey j01: Journey j01 requires j00, which could not be imported
+  - Error importing the alpha realm journey j02: Journey j02 requires j01, which could not be imported
+  - Error importing the alpha realm journey j03: Journey j03 requires j02, which could not be imported
+  - Error importing the alpha realm journey j04: Journey j04 requires j03, which could not be imported
+  - Error importing the alpha realm journey j05: Journey j05 requires j04, which could not be imported
+  - Error importing the alpha realm journey j06: Journey j06 requires j05, which could not be imported
+  - Error importing the alpha realm journey j07: Journey j07 requires j06, which could not be imported
+  - Error importing the alpha realm journey j08: Journey j08 requires j07, which could not be imported
+  - Error importing the alpha realm journey j09: Journey j09 requires j08, which could not be imported
+  - Error importing the alpha realm journey j10: Journey j10 requires j09, which could not be imported
+  - Error importing the alpha realm journey A: Unable to save SMS config: Could not evaluate tree: Could not evaluate tree
+  - Error importing the alpha realm journey RecognizeFrontChannel: Journey RecognizeFrontChannel requires iExistingSession, which could not be imported
+Imported from /home/trivir/Work/frodo-pr/config-push/frodo-cli/test/e2e/exports/fr-config-manager/cloud
+3 of 25 steps failed:
+  - managed-objects
+  - scripts
+  - journeys
+"
+`;
+
+exports[`frodo config-manager push all-static "frodo config-manager push all-static -D test/e2e/exports/fr-config-manager/cloud": should import all static configurations alpha to cloud in fr-config-manager style" 2`] = `1`;
+
+exports[`frodo config-manager push all-static "frodo config-manager push all-static -D test/e2e/exports/fr-config-manager/forgeops -m forgeops": should import all static configurations of all realms to forgeops in fr-config-manager style" 1`] = `""`;
+
+exports[`frodo config-manager push all-static "frodo config-manager push all-static -D test/e2e/exports/fr-config-manager/forgeops -m forgeops": should import all static configurations of all realms to forgeops in fr-config-manager style" 2`] = `
+"Experimental feature in use: 'frodo config-manager push all-static'. This feature may change without notice.
+Importing from /home/trivir/Work/frodo-pr/config-push/frodo-cli/test/e2e/exports/fr-config-manager/forgeops
+✔ Metadata config import completed.
+Updating locales
+Updating password policy
+No change in script Test Next Gen - skipping update
+No change in script testing - skipping update
+No change in script Debug - skipping update
+No change in script Test Groovy Script - skipping update
+No change in script OAuth2 Evaluate Scope Script - skipping update
+Warning: no script config defined in realm bravo. Expecting directory test/e2e/exports/fr-config-manager/forgeops/realms/bravo/scripts/scripts-config
+No change in script Test Next Gen - skipping update
+No change in script Debug - skipping update
+No change in script Test Groovy Script - skipping update
+✔ Finished importing scripts.
+✔ Service import completed.
+✔ Resolved all alpha realm dependencies.
+• Finished importing alpha realm journeys
+✔ Resolved all / realm dependencies.
+• Finished importing / realm journeys
+Imported from /home/trivir/Work/frodo-pr/config-push/frodo-cli/test/e2e/exports/fr-config-manager/forgeops
+"
+`;
+
+exports[`frodo config-manager push all-static "frodo config-manager push all-static -M.two 2 -M.true true -M.true2 -M.true3 -M.true3 three -M.obj.one 1 -M.obj.two -M.obj2.obj3.msg hello -D test/e2e/exports/fr-config-manager/cloud": should import all static configurations of all realms to cloud in fr-config-manager style" 1`] = `
+"Experimental feature in use: 'frodo config-manager push all-static'. This feature may change without notice.
+Importing from /home/trivir/Work/frodo-pr/config-push/frodo-cli/test/e2e/exports/fr-config-manager/cloud
+✔ Metadata config import completed.
+Updating locales
+Error importing IDM managed objects
+ENOENT: no such file or directory, scandir 'test/e2e/exports/fr-config-manager/cloud/managed-objects'
+Updating password policy
+These remote proxies address their receiving tenant with a fixed URL, which a promotion carries to the next environment unchanged: zz-e2e-proxy (instanceUrl, tokenEndpoint). Make the host an ESV placeholder such as https://&{esv.zion.proxy.host}/openidm/ to let each environment supply its own receiver.
+No change in script Authentication Tree Decision Node Script - skipping update
+No change in script SAML2 SP Account Mapper Script - skipping update
+No change in script SAML IDP Attribute Mapper Script (Next Gen) - skipping update
+No change in script Next Generation Scripted Decision Node Script - skipping update
+No change in script Next Generation Device Match Node Script - skipping update
+No change in script Device Profile Match Template - Decision Node Script - skipping update
+No change in script Device Id (Match) - Client Side - skipping update
+Error importing script 'ForgeRock Internal: OIDC Claims Script' of realm 'alpha'
+Error updating alpha realm script
+  Network error:
+    URL: https://openam-frodo-dev.forgeblocks.com/am/json/realms/root/realms/alpha/scripts/1f389a3d-21cf-417c-a6d3-42ea620071f0
+    Status: 502
+    Code: ERR_BAD_RESPONSE
+No change in script SAML2 IDP Adapter Script - skipping update
+No change in script OAuth2 Client Credentials Default - skipping update
+No change in script OAuth2 Validate Scope Script - skipping update
+No change in script OIDC Claims Script - skipping update
+No change in script Alpha OAuth2 Access Token Modification Script - skipping update
+No change in script Inactive Device Match Script - skipping update
+No change in script OAuth2 Authorize Endpoint Data Provider Script - skipping update
+No change in script OAuth2 JWT Issuer Script - skipping update
+No change in script SAML2 NameID Mapper Script - skipping update
+No change in script OAuth2 Dynamic Client Registration Script - skipping update
+No change in script Config Provider - skipping update
+No change in script SAML2 SP Adapter Script - skipping update
+No change in script Library Script - skipping update
+No change in script Device Id (Match) - Server Side - skipping update
+No change in script SAML2 IDP Adapter Script (Next Gen) - skipping update
+No change in script Scripted Module - Server Side - skipping update
+No change in script SAML2 SP Adapter Script (Next Gen) - skipping update
+No change in script TestNull - skipping update
+No change in script Scripted Policy Condition - skipping update
+No change in script Cache Loader Script - skipping update
+No change in script My Example Script Using Libraries - skipping update
+Error importing script 'ForgeRock Internal: OAuth2 Access Token Modification Script' of realm 'alpha'
+Error updating alpha realm script
+  Network error:
+    URL: https://openam-frodo-dev.forgeblocks.com/am/json/realms/root/realms/alpha/scripts/c234ba0b-58a1-4cfd-9567-09edde980745
+    Status: 403
+    Code: ERR_BAD_REQUEST
+    Reason: Forbidden
+    Message: This operation is not available in PingOne Advanced Identity Cloud.
+No change in script SAML2 IDP Attribute Mapper Script - skipping update
+No change in script OAuth2 May Act Script - skipping update
+No change in script Scripted Module - Client Side - skipping update
+No change in script Alpha OIDC Claims Script - skipping update
+No change in script OAuth2 Access Token Modification Script - skipping update
+No change in script OAuth2 Evaluate Scope Script - skipping update
+No change in script Alpha endUserUIClient OIDC Claims Script - skipping update
+No change in script Alpha endUserUIClient OAuth2 Access Token Modification Script - skipping update
+No change in script Authentication Tree Decision Node Script - skipping update
+No change in script SAML2 SP Account Mapper Script - skipping update
+No change in script Load Reference Selfie - skipping update
+No change in script SAML IDP Attribute Mapper Script (Next Gen) - skipping update
+No change in script Next Generation Scripted Decision Node Script - skipping update
+No change in script Next Generation Device Match Node Script - skipping update
+No change in script Device Profile Match Template - Decision Node Script - skipping update
+No change in script Device Id (Match) - Client Side - skipping update
+Error importing script 'ForgeRock Internal: OIDC Claims Script' of realm 'bravo'
+Error updating bravo realm script
+  Network error:
+    URL: https://openam-frodo-dev.forgeblocks.com/am/json/realms/root/realms/bravo/scripts/1f389a3d-21cf-417c-a6d3-42ea620071f0
+    Status: 403
+    Code: ERR_BAD_REQUEST
+    Reason: Forbidden
+    Message: This operation is not available in PingOne Advanced Identity Cloud.
+No change in script Bravo OAuth2 Access Token Modification Script - skipping update
+No change in script SAML2 IDP Adapter Script - skipping update
+No change in script OAuth2 Client Credentials Default - skipping update
+No change in script OAuth2 Validate Scope Script - skipping update
+No change in script OIDC Claims Script - skipping update
+No change in script debug - imported (1) - skipping update
+No change in script Bravo OIDC Claims Script - skipping update
+No change in script OAuth2 Authorize Endpoint Data Provider Script - skipping update
+No change in script OAuth2 JWT Issuer Script - skipping update
+No change in script Prepare Account Update - skipping update
+No change in script Bravo endUserUIClient OAuth2 Access Token Modification Script - skipping update
+No change in script SAML2 NameID Mapper Script - skipping update
+No change in script OAuth2 Dynamic Client Registration Script - skipping update
+No change in script Config Provider - skipping update
+No change in script SAML2 SP Adapter Script - skipping update
+No change in script Library Script - skipping update
+No change in script Device Id (Match) - Server Side - skipping update
+No change in script Check Username - skipping update
+No change in script SAML2 IDP Adapter Script (Next Gen) - skipping update
+No change in script Scripted Module - Server Side - skipping update
+No change in script Prepare Account Creation - skipping update
+No change in script Check Resolved Username - imported (1) - skipping update
+No change in script SAML2 SP Adapter Script (Next Gen) - skipping update
+No change in script Remove Button - skipping update
+No change in script Scripted Policy Condition - skipping update
+No change in script Cache Loader Script - skipping update
+No change in script Dummy - skipping update
+Error importing script 'ForgeRock Internal: OAuth2 Access Token Modification Script' of realm 'bravo'
+Error updating bravo realm script
+  Network error:
+    URL: https://openam-frodo-dev.forgeblocks.com/am/json/realms/root/realms/bravo/scripts/c234ba0b-58a1-4cfd-9567-09edde980745
+    Status: 403
+    Code: ERR_BAD_REQUEST
+    Reason: Forbidden
+    Message: This operation is not available in PingOne Advanced Identity Cloud.
+No change in script SAML2 IDP Attribute Mapper Script - skipping update
+No change in script OAuth2 May Act Script - skipping update
+No change in script Scripted Module - Client Side - skipping update
+No change in script Full Verification Results - skipping update
+No change in script Bravo OIDC Claims Script - imported (1) - skipping update
+No change in script OAuth2 Access Token Modification Script - skipping update
+No change in script Bravo endUserUIClient OIDC Claims Script - skipping update
+No change in script OAuth2 Evaluate Scope Script - skipping update
+No change in script Selfie Authentication Results - skipping update
+No change in script Check Resolved Username - skipping update
+✖ Finished importing scripts with errors.
+4 of 85 scripts failed:
+  - ForgeRock Internal: OIDC Claims Script in realm alpha: Request failed with status code 502
+  - ForgeRock Internal: OAuth2 Access Token Modification Script in realm alpha: This operation is not available in PingOne Advanced Identity Cloud.
+  - ForgeRock Internal: OIDC Claims Script in realm bravo: This operation is not available in PingOne Advanced Identity Cloud.
+  - ForgeRock Internal: OAuth2 Access Token Modification Script in realm bravo: This operation is not available in PingOne Advanced Identity Cloud.
+✔ Service import completed.
+2 warnings in journey DynamicConfiguration
+1 warning in journey FrodoTest
+2 warnings in journey PrestonTest
+2 warnings in journey RecognizeFrontChannel
+✔ Resolved all alpha realm dependencies.
+Error importing the alpha realm journey ConfigManagerPushInnerTest
+  Error importing alpha realm journey 'ConfigManagerPushInnerTest'
+    Missing alpha realm script 9b75654f-2553-4627-9938-b14a5f62ce81 referenced by node 5d969de4-98c8-44ab-9df1-4de9170205eb (ScriptedDecisionNode) in journey ConfigManagerPushInnerTest
+      Error updating ScriptedDecisionNode node 5d969de4-98c8-44ab-9df1-4de9170205eb
+        Network error:
+          URL: https://openam-frodo-dev.forgeblocks.com/am/json/realms/root/realms/alpha/realm-config/authentication/authenticationtrees/nodes/ScriptedDecisionNode/1.0/5d969de4-98c8-44ab-9df1-4de9170205eb
+          Status: 400
+          Code: ERR_BAD_REQUEST
+          Reason: Bad Request
+          Message: Data validation failed for the attribute, Script
+Error importing the alpha realm journey DynamicConfiguration
+  Error importing alpha realm journey 'DynamicConfiguration'
+    Missing alpha realm script e49225eb-e7ad-4699-bf2a-d57689f9cd6e referenced by inner node 4cd8636a-2ebe-4190-a6a2-7fdf43274ae2 (ScriptedDecisionNode) in journey DynamicConfiguration
+      Error updating ScriptedDecisionNode node 4cd8636a-2ebe-4190-a6a2-7fdf43274ae2
+        Network error:
+          URL: https://openam-frodo-dev.forgeblocks.com/am/json/realms/root/realms/alpha/realm-config/authentication/authenticationtrees/nodes/ScriptedDecisionNode/1.0/4cd8636a-2ebe-4190-a6a2-7fdf43274ae2
+          Status: 400
+          Code: ERR_BAD_REQUEST
+          Reason: Bad Request
+          Message: Data validation failed for the attribute, Script
+Error importing the alpha realm journey FrodoTest
+  Error importing alpha realm journey 'FrodoTest'
+    Missing alpha realm script 739bdc48-fd24-4c52-b353-88706d75558a referenced by node e2c39477-847a-4df2-9c5d-b449a752638b (ScriptedDecisionNode) in journey FrodoTest
+      Error updating ScriptedDecisionNode node e2c39477-847a-4df2-9c5d-b449a752638b
+        Network error:
+          URL: https://openam-frodo-dev.forgeblocks.com/am/json/realms/root/realms/alpha/realm-config/authentication/authenticationtrees/nodes/ScriptedDecisionNode/1.0/e2c39477-847a-4df2-9c5d-b449a752638b
+          Status: 400
+          Code: ERR_BAD_REQUEST
+          Reason: Bad Request
+          Message: Data validation failed for the attribute, Script
+Error importing the alpha realm journey InnerTest
+  Error importing alpha realm journey 'InnerTest'
+    Missing alpha realm script 9b75654f-2553-4627-9938-b14a5f62ce81 referenced by node 5d969de4-98c8-44ab-9df1-4de9170205eb (ScriptedDecisionNode) in journey InnerTest
+      Error updating ScriptedDecisionNode node 5d969de4-98c8-44ab-9df1-4de9170205eb
+        Network error:
+          URL: https://openam-frodo-dev.forgeblocks.com/am/json/realms/root/realms/alpha/realm-config/authentication/authenticationtrees/nodes/ScriptedDecisionNode/1.0/5d969de4-98c8-44ab-9df1-4de9170205eb
+          Status: 400
+          Code: ERR_BAD_REQUEST
+          Reason: Bad Request
+          Message: Data validation failed for the attribute, Script
+Error importing the alpha realm journey JoshTest
+  Error importing alpha realm journey 'JoshTest'
+    Missing alpha realm script 65c46937-d6be-4765-8225-df658f74a497 referenced by node bddb425b-4513-4f65-8099-2eb32f5fc4df (ScriptedDecisionNode) in journey JoshTest
+      Error updating ScriptedDecisionNode node bddb425b-4513-4f65-8099-2eb32f5fc4df
+        Network error:
+          URL: https://openam-frodo-dev.forgeblocks.com/am/json/realms/root/realms/alpha/realm-config/authentication/authenticationtrees/nodes/ScriptedDecisionNode/1.0/bddb425b-4513-4f65-8099-2eb32f5fc4df
+          Status: 400
+          Code: ERR_BAD_REQUEST
+          Reason: Bad Request
+          Message: Data validation failed for the attribute, Script
+Error importing the alpha realm journey P1P-Test
+  Error importing alpha realm journey 'P1P-Test'
+    Error importing alpha realm node 6632fe0f-6395-4cc1-88d8-c9ca4a9061b6 in journey P1P-Test
+      Error updating product-PingOneProtectInitializeNode node 6632fe0f-6395-4cc1-88d8-c9ca4a9061b6
+        Network error:
+          URL: https://openam-frodo-dev.forgeblocks.com/am/json/realms/root/realms/alpha/realm-config/authentication/authenticationtrees/nodes/product-PingOneProtectInitializeNode/1.0/6632fe0f-6395-4cc1-88d8-c9ca4a9061b6
+          Status: 400
+          Code: ERR_BAD_REQUEST
+          Reason: Bad Request
+          Message: Data validation failed for the attribute, PingOne Worker Service ID
+Error importing the alpha realm journey RecognizeBackChannel
+  Error importing alpha realm journey 'RecognizeBackChannel'
+    Missing alpha realm script 3043cd81-2f2f-4972-9b0c-aaa694dcdba3 referenced by node d515d9ff-8559-4126-8977-19bf1513d5b0 (ScriptedDecisionNode) in journey RecognizeBackChannel
+      Error updating ScriptedDecisionNode node d515d9ff-8559-4126-8977-19bf1513d5b0
+        Network error:
+          URL: https://openam-frodo-dev.forgeblocks.com/am/json/realms/root/realms/alpha/realm-config/authentication/authenticationtrees/nodes/ScriptedDecisionNode/1.0/d515d9ff-8559-4126-8977-19bf1513d5b0
+          Status: 400
+          Code: ERR_BAD_REQUEST
+          Reason: Bad Request
+          Message: Data validation failed for the attribute, Script
+Error importing the alpha realm journey RecognizeBackChannelSuccess
+  Error importing alpha realm journey 'RecognizeBackChannelSuccess'
+    Missing alpha realm script 9535446c-0ff6-4a76-8576-616599119d64 referenced by inner node 0486dffc-a0b1-444a-9ee7-1f114a17ebc0 (ScriptedDecisionNode) in journey RecognizeBackChannelSuccess
+      Error updating ScriptedDecisionNode node 0486dffc-a0b1-444a-9ee7-1f114a17ebc0
+        Network error:
+          URL: https://openam-frodo-dev.forgeblocks.com/am/json/realms/root/realms/alpha/realm-config/authentication/authenticationtrees/nodes/ScriptedDecisionNode/1.0/0486dffc-a0b1-444a-9ee7-1f114a17ebc0
+          Status: 400
+          Code: ERR_BAD_REQUEST
+          Reason: Bad Request
+          Message: Data validation failed for the attribute, Script
+Error importing the alpha realm journey iExistingSession
+  Error importing alpha realm journey 'iExistingSession'
+    Missing alpha realm script 616d3541-14d6-4a54-94dd-46a146ef2423 referenced by node 8cf3cc43-df04-42ac-ad10-67fd2fb96ca2 (ScriptedDecisionNode) in journey iExistingSession
+      Error updating ScriptedDecisionNode node 8cf3cc43-df04-42ac-ad10-67fd2fb96ca2
+        Network error:
+          URL: https://openam-frodo-dev.forgeblocks.com/am/json/realms/root/realms/alpha/realm-config/authentication/authenticationtrees/nodes/ScriptedDecisionNode/1.0/8cf3cc43-df04-42ac-ad10-67fd2fb96ca2
+          Status: 400
+          Code: ERR_BAD_REQUEST
+          Reason: Bad Request
+          Message: Data validation failed for the attribute, Script
+Error importing the alpha realm journey j00
+  Error importing alpha realm journey 'j00'
+    Missing alpha realm script 3cb43516-ae69-433a-8787-501d45db14e9 referenced by node ba503a1e-633e-4d0d-ba18-c9a9b1105b5b (ScriptedDecisionNode) in journey j00
+      Error updating ScriptedDecisionNode node ba503a1e-633e-4d0d-ba18-c9a9b1105b5b
+        Network error:
+          URL: https://openam-frodo-dev.forgeblocks.com/am/json/realms/root/realms/alpha/realm-config/authentication/authenticationtrees/nodes/ScriptedDecisionNode/1.0/ba503a1e-633e-4d0d-ba18-c9a9b1105b5b
+          Status: 400
+          Code: ERR_BAD_REQUEST
+          Reason: Bad Request
+          Message: Data validation failed for the attribute, Script
+Error importing the alpha realm journey j01
+  Journey j01 requires j00, which could not be imported
+Error importing the alpha realm journey j02
+  Journey j02 requires j01, which could not be imported
+Error importing the alpha realm journey j03
+  Journey j03 requires j02, which could not be imported
+Error importing the alpha realm journey j04
+  Journey j04 requires j03, which could not be imported
+Error importing the alpha realm journey j05
+  Journey j05 requires j04, which could not be imported
+Error importing the alpha realm journey j06
+  Journey j06 requires j05, which could not be imported
+Error importing the alpha realm journey j07
+  Journey j07 requires j06, which could not be imported
+Error importing the alpha realm journey j08
+  Journey j08 requires j07, which could not be imported
+Error importing the alpha realm journey j09
+  Journey j09 requires j08, which could not be imported
+Error importing the alpha realm journey j10
+  Journey j10 requires j09, which could not be imported
+Error importing the alpha realm journey A
+  Error importing alpha realm journey 'A'
+    Error importing alpha realm journey flow A
+      Network error:
+        URL: https://openam-frodo-dev.forgeblocks.com/am/json/realms/root/realms/alpha/realm-config/authentication/authenticationtrees/trees/A
+        Status: 500
+        Code: ERR_BAD_RESPONSE
+        Reason: Internal Server Error
+        Message: Unable to save SMS config: Could not evaluate tree: Could not evaluate tree
+Error importing the alpha realm journey RecognizeFrontChannel
+  Journey RecognizeFrontChannel requires iExistingSession, which could not be imported
+• Finished importing alpha realm journeys
+✔ Resolved all bravo realm dependencies.
+• Finished importing bravo realm journeys
+22 of 44 journeys failed:
+  - Error importing the alpha realm journey ConfigManagerPushInnerTest: Data validation failed for the attribute, Script
+  - Error importing the alpha realm journey DynamicConfiguration: Data validation failed for the attribute, Script
+  - Error importing the alpha realm journey FrodoTest: Data validation failed for the attribute, Script
+  - Error importing the alpha realm journey InnerTest: Data validation failed for the attribute, Script
+  - Error importing the alpha realm journey JoshTest: Data validation failed for the attribute, Script
+  - Error importing the alpha realm journey P1P-Test: Data validation failed for the attribute, PingOne Worker Service ID
+  - Error importing the alpha realm journey RecognizeBackChannel: Data validation failed for the attribute, Script
+  - Error importing the alpha realm journey RecognizeBackChannelSuccess: Data validation failed for the attribute, Script
+  - Error importing the alpha realm journey iExistingSession: Data validation failed for the attribute, Script
+  - Error importing the alpha realm journey j00: Data validation failed for the attribute, Script
+  - Error importing the alpha realm journey j01: Journey j01 requires j00, which could not be imported
+  - Error importing the alpha realm journey j02: Journey j02 requires j01, which could not be imported
+  - Error importing the alpha realm journey j03: Journey j03 requires j02, which could not be imported
+  - Error importing the alpha realm journey j04: Journey j04 requires j03, which could not be imported
+  - Error importing the alpha realm journey j05: Journey j05 requires j04, which could not be imported
+  - Error importing the alpha realm journey j06: Journey j06 requires j05, which could not be imported
+  - Error importing the alpha realm journey j07: Journey j07 requires j06, which could not be imported
+  - Error importing the alpha realm journey j08: Journey j08 requires j07, which could not be imported
+  - Error importing the alpha realm journey j09: Journey j09 requires j08, which could not be imported
+  - Error importing the alpha realm journey j10: Journey j10 requires j09, which could not be imported
+  - Error importing the alpha realm journey A: Unable to save SMS config: Could not evaluate tree: Could not evaluate tree
+  - Error importing the alpha realm journey RecognizeFrontChannel: Journey RecognizeFrontChannel requires iExistingSession, which could not be imported
+Imported from /home/trivir/Work/frodo-pr/config-push/frodo-cli/test/e2e/exports/fr-config-manager/cloud
+3 of 25 steps failed:
+  - managed-objects
+  - scripts
+  - journeys
+"
+`;
+
+exports[`frodo config-manager push all-static "frodo config-manager push all-static -M.two 2 -M.true true -M.true2 -M.true3 -M.true3 three -M.obj.one 1 -M.obj.two -M.obj2.obj3.msg hello -D test/e2e/exports/fr-config-manager/cloud": should import all static configurations of all realms to cloud in fr-config-manager style" 2`] = `1`;

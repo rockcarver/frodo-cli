@@ -1,0 +1,36 @@
+{
+  "_id": "731c5810-020b-45c8-a7fc-3c21903ae2b3",
+  "_outcomes": [
+    {
+      "displayName": "Social Authentication",
+      "id": "socialAuthentication"
+    },
+    {
+      "displayName": "Local Authentication",
+      "id": "localAuthentication"
+    }
+  ],
+  "_rev": "-117216928",
+  "_type": {
+    "_id": "PageNode",
+    "collection": true,
+    "name": "Page Node",
+    "version": "1.0"
+  },
+  "nodes": [
+    {
+      "_id": "dd16c8d4-baca-4ae0-bcd8-fb98b9040524",
+      "displayName": "Password",
+      "nodeType": "ValidatedPasswordNode",
+      "nodeVersion": "1.0"
+    },
+    {
+      "_id": "038f9b2a-36b2-489b-9e03-386c9a62ea21",
+      "displayName": "Select IDP",
+      "nodeType": "SelectIdPNode",
+      "nodeVersion": "1.0"
+    }
+  ],
+  "pageDescription": {},
+  "pageHeader": {}
+}

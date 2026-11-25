@@ -108,6 +108,7 @@ export const LEGACY_COMMANDS_WITHOUT_EXAMPLES = [
   'frodo config-manager pull ui-config',
   'frodo config-manager pull variables',
   'frodo config-manager push access-config',
+  'frodo config-manager push all-static',
   'frodo config-manager push audit',
   'frodo config-manager push authentication',
   'frodo config-manager push authz-policies',

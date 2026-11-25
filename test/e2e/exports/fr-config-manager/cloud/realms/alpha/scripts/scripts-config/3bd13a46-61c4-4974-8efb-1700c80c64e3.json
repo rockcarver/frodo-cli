@@ -1,0 +1,16 @@
+{
+  "_id": "3bd13a46-61c4-4974-8efb-1700c80c64e3",
+  "context": "AUTHENTICATION_TREE_DECISION_NODE",
+  "createdBy": "id=9f7b6b8b-6ab5-45b3-aad5-5bda19eb3064,ou=user,ou=am-config",
+  "creationDate": 1790975766701,
+  "default": false,
+  "description": "Inactive Device Match Script",
+  "evaluatorVersion": "1.0",
+  "language": "JAVASCRIPT",
+  "lastModifiedBy": "id=9f7b6b8b-6ab5-45b3-aad5-5bda19eb3064,ou=user,ou=am-config",
+  "lastModifiedDate": 1790975766701,
+  "name": "Inactive Device Match Script",
+  "script": {
+    "file": "scripts-content/AUTHENTICATION_TREE_DECISION_NODE/Inactive Device Match Script.js"
+  }
+}

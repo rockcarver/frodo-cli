@@ -1,0 +1,16 @@
+{
+  "_id": "05ab4a85-11ec-4a32-94cf-05bbb763c8f3",
+  "context": "SAML2_SP_ACCOUNT_MAPPER",
+  "createdBy": "id=dsameuser,ou=user,dc=openam,dc=forgerock,dc=org",
+  "creationDate": 1433147666269,
+  "default": true,
+  "description": "Default global script for SAML2 SP Account Mapper",
+  "evaluatorVersion": "2.0",
+  "language": "JAVASCRIPT",
+  "lastModifiedBy": "id=9f7b6b8b-6ab5-45b3-aad5-5bda19eb3064,ou=user,ou=am-config",
+  "lastModifiedDate": 1790974619908,
+  "name": "SAML2 SP Account Mapper Script",
+  "script": {
+    "file": "scripts-content/SAML2_SP_ACCOUNT_MAPPER/SAML2 SP Account Mapper Script.js"
+  }
+}

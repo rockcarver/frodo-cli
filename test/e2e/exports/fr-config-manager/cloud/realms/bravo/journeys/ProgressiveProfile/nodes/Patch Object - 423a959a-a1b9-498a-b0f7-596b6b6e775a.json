@@ -1,0 +1,24 @@
+{
+  "_id": "423a959a-a1b9-498a-b0f7-596b6b6e775a",
+  "_outcomes": [
+    {
+      "displayName": "Patched",
+      "id": "PATCHED"
+    },
+    {
+      "displayName": "Failed",
+      "id": "FAILURE"
+    }
+  ],
+  "_rev": "201116398",
+  "_type": {
+    "_id": "PatchObjectNode",
+    "collection": true,
+    "name": "Patch Object",
+    "version": "1.0"
+  },
+  "identityAttribute": "userName",
+  "identityResource": "managed/bravo_user",
+  "ignoredFields": [],
+  "patchAsObject": false
+}

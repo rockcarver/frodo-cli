@@ -1,0 +1,47 @@
+{
+  "_id": "1fc92eed-08b7-412a-905b-097db5daab48",
+  "_outcomes": [
+    {
+      "displayName": "success",
+      "id": "success"
+    },
+    {
+      "displayName": "retry",
+      "id": "retry"
+    },
+    {
+      "displayName": "lockout",
+      "id": "lockout"
+    },
+    {
+      "displayName": "error",
+      "id": "error"
+    },
+    {
+      "displayName": "notEnrolled",
+      "id": "notEnrolled"
+    }
+  ],
+  "_rev": "451509927",
+  "_type": {
+    "_id": "PageNode",
+    "collection": true,
+    "name": "Page Node",
+    "version": "1.0"
+  },
+  "nodes": [
+    {
+      "_id": "ff346ac8-8a29-44b0-baa3-c8aaecc84240",
+      "displayName": "Biometric Authentication",
+      "nodeType": "designer-5e75b06c44e344b4b39b9b8a7377bfd3",
+      "nodeVersion": "1.0"
+    }
+  ],
+  "pageDescription": {
+    "en": "Follow the instructions to proceed."
+  },
+  "pageHeader": {
+    "en": "Biometric Authentication"
+  },
+  "stage": "{\"themeId\":\"fba77261-530a-4f9d-aaca-43f1ce800e7a\"}"
+}

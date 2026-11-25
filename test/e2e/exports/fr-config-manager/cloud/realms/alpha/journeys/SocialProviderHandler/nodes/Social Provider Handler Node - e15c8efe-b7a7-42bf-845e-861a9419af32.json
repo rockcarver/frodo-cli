@@ -1,0 +1,30 @@
+{
+  "_id": "e15c8efe-b7a7-42bf-845e-861a9419af32",
+  "_outcomes": [
+    {
+      "displayName": "Account exists",
+      "id": "ACCOUNT_EXISTS"
+    },
+    {
+      "displayName": "No account exists",
+      "id": "NO_ACCOUNT"
+    },
+    {
+      "displayName": "Social auth interrupted",
+      "id": "SOCIAL_AUTH_INTERRUPTED"
+    }
+  ],
+  "_rev": "812752120",
+  "_type": {
+    "_id": "SocialProviderHandlerNodeV2",
+    "collection": true,
+    "name": "Social Provider Handler Node",
+    "version": "1.0"
+  },
+  "clientType": "BROWSER",
+  "detectConnectionTimeOut": false,
+  "script": "ed685f9f-5909-4726-86e8-22bd38b47663",
+  "storeTokens": false,
+  "subjectAttribute": "iplanet-am-user-alias-list",
+  "usernameAttribute": "userName"
+}

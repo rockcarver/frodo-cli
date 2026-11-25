@@ -1,0 +1,72 @@
+{
+  "_id": "Registration",
+  "_rev": "2125060565",
+  "description": "Platform Registration Tree",
+  "enabled": true,
+  "entryNodeId": "0c091c49-f3af-48fb-ac6f-07fba0499dd6",
+  "identityResource": "managed/bravo_user",
+  "innerTreeOnly": false,
+  "mustRun": false,
+  "noSession": false,
+  "nodes": {
+    "0c091c49-f3af-48fb-ac6f-07fba0499dd6": {
+      "connections": {
+        "outcome": "6b70de2f-a625-4957-93d9-37005e33e6e1"
+      },
+      "displayName": "Page Node",
+      "nodeType": "PageNode",
+      "version": "1.0",
+      "x": 261,
+      "y": 168
+    },
+    "6b70de2f-a625-4957-93d9-37005e33e6e1": {
+      "connections": {
+        "outcome": "ad5dcbb3-7335-49b7-b3e7-7d850bb88237"
+      },
+      "displayName": "Email Suspend Node",
+      "nodeType": "EmailSuspendNode",
+      "version": "1.0",
+      "x": 509,
+      "y": 305.015625
+    },
+    "97a15eb2-a015-4b6d-81a0-be78c3aa1a3b": {
+      "connections": {
+        "outcome": "70e691a5-1e33-4ac3-a356-e7b6d60d92e0"
+      },
+      "displayName": "Increment Login Count",
+      "nodeType": "IncrementLoginCountNode",
+      "version": "1.0",
+      "x": 895,
+      "y": 220
+    },
+    "ad5dcbb3-7335-49b7-b3e7-7d850bb88237": {
+      "connections": {
+        "CREATED": "97a15eb2-a015-4b6d-81a0-be78c3aa1a3b",
+        "FAILURE": "e301438c-0bd0-429c-ab0c-66126501069a"
+      },
+      "displayName": "Create Object",
+      "nodeType": "CreateObjectNode",
+      "version": "1.0",
+      "x": 751,
+      "y": 282
+    }
+  },
+  "staticNodes": {
+    "70e691a5-1e33-4ac3-a356-e7b6d60d92e0": {
+      "x": 1119,
+      "y": 247
+    },
+    "e301438c-0bd0-429c-ab0c-66126501069a": {
+      "x": 955,
+      "y": 369
+    },
+    "startNode": {
+      "x": 50,
+      "y": 25
+    }
+  },
+  "transactionalOnly": false,
+  "uiConfig": {
+    "categories": "[\"Registration\"]"
+  }
+}

@@ -1,0 +1,31 @@
+{
+  "_id": "a566e474-99f3-46e4-9e70-682402bfaa84",
+  "_outcomes": [
+    {
+      "displayName": "one",
+      "id": "one"
+    },
+    {
+      "displayName": "two",
+      "id": "two"
+    },
+    {
+      "displayName": "three",
+      "id": "three"
+    }
+  ],
+  "_rev": "-330203614",
+  "_type": {
+    "_id": "ChoiceCollectorNode",
+    "collection": true,
+    "name": "Choice Collector",
+    "version": "1.0"
+  },
+  "choices": [
+    "one",
+    "two",
+    "three"
+  ],
+  "defaultChoice": "one",
+  "prompt": "Choice?"
+}

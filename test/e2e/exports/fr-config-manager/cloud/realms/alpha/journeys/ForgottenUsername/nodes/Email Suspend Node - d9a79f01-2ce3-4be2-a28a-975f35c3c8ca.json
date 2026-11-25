@@ -1,0 +1,23 @@
+{
+  "_id": "d9a79f01-2ce3-4be2-a28a-975f35c3c8ca",
+  "_outcomes": [
+    {
+      "displayName": "Outcome",
+      "id": "outcome"
+    }
+  ],
+  "_rev": "-2008123875",
+  "_type": {
+    "_id": "EmailSuspendNode",
+    "collection": true,
+    "name": "Email Suspend Node",
+    "version": "1.0"
+  },
+  "emailAttribute": "mail",
+  "emailSuspendMessage": {
+    "en": "An email has been sent to the address you entered. Click the link in that email to proceed."
+  },
+  "emailTemplateName": "forgottenUsername",
+  "identityAttribute": "mail",
+  "objectLookup": true
+}

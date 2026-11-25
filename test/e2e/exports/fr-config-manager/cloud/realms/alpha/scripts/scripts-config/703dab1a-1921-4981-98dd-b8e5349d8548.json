@@ -1,0 +1,16 @@
+{
+  "_id": "703dab1a-1921-4981-98dd-b8e5349d8548",
+  "context": "AUTHENTICATION_SERVER_SIDE",
+  "createdBy": "null",
+  "creationDate": 0,
+  "default": true,
+  "description": "Default global script for server side Device Id (Match) Authentication Module",
+  "evaluatorVersion": "1.0",
+  "language": "JAVASCRIPT",
+  "lastModifiedBy": "id=8a4fce63-e7f1-452c-a984-086150f83be0,ou=user,ou=am-config",
+  "lastModifiedDate": 1790614180295,
+  "name": "Device Id (Match) - Server Side",
+  "script": {
+    "file": "scripts-content/AUTHENTICATION_SERVER_SIDE/Device Id (Match) - Server Side.js"
+  }
+}

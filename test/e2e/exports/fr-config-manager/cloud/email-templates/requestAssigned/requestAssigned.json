@@ -1,0 +1,23 @@
+{
+  "_id": "emailTemplate/requestAssigned",
+  "defaultLocale": "en",
+  "enabled": true,
+  "from": "",
+  "html": {
+    "en": {
+      "file": "requestAssigned.en.html"
+    }
+  },
+  "message": {
+    "en": {
+      "file": "requestAssigned.en.md"
+    }
+  },
+  "mimeType": "text/html",
+  "styles": {
+    "file": "requestAssigned.css"
+  },
+  "subject": {
+    "en": "ATTENTION: Request Assigned"
+  }
+}

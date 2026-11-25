@@ -1,0 +1,16 @@
+{
+  "_id": "01e1a3c0-038b-4c16-956a-6c9d89328cff",
+  "context": "AUTHENTICATION_TREE_DECISION_NODE",
+  "createdBy": "null",
+  "creationDate": 0,
+  "default": true,
+  "description": "Default global script for a scripted decision node",
+  "evaluatorVersion": "1.0",
+  "language": "JAVASCRIPT",
+  "lastModifiedBy": "id=8a4fce63-e7f1-452c-a984-086150f83be0,ou=user,ou=am-config",
+  "lastModifiedDate": 1790614177572,
+  "name": "Authentication Tree Decision Node Script",
+  "script": {
+    "file": "scripts-content/AUTHENTICATION_TREE_DECISION_NODE/Authentication Tree Decision Node Script.js"
+  }
+}

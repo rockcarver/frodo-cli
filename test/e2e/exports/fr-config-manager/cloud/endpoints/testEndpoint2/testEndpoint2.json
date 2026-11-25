@@ -1,0 +1,7 @@
+{
+  "_id": "endpoint/testEndpoint2",
+  "description": "",
+  "file": "testEndpoint2.js",
+  "globalsObject": "\"  {\\n    \\\"request\\\": {\\n      \\\"method\\\": \\\"create\\\"\\n    }\\n  }\"",
+  "type": "text/javascript"
+}

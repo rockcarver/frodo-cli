@@ -1,0 +1,36 @@
+{
+  "_id": "6958fb2d-aad3-4eef-abb7-04525de55e80",
+  "_outcomes": [
+    {
+      "displayName": "Message Node",
+      "id": "Message Node"
+    },
+    {
+      "displayName": "SAML2 Node",
+      "id": "SAML2 Node"
+    },
+    {
+      "displayName": "Inner Tree Evaluator",
+      "id": "Inner Tree Evaluator"
+    },
+    {
+      "displayName": "Set Custom Cookie",
+      "id": "Set Custom Cookie"
+    }
+  ],
+  "_rev": "264032652",
+  "_type": {
+    "_id": "ChoiceCollectorNode",
+    "collection": true,
+    "name": "Choice Collector",
+    "version": "1.0"
+  },
+  "choices": [
+    "Message Node",
+    "SAML2 Node",
+    "Inner Tree Evaluator",
+    "Set Custom Cookie"
+  ],
+  "defaultChoice": "Set Custom Cookie",
+  "prompt": "Pick your node!"
+}

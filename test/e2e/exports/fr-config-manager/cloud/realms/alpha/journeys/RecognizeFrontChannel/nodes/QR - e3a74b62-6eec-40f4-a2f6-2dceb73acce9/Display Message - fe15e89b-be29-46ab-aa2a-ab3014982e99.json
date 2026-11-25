@@ -1,0 +1,18 @@
+{
+  "_id": "fe15e89b-be29-46ab-aa2a-ab3014982e99",
+  "_outcomes": [
+    {
+      "displayName": "outcome",
+      "id": "outcome"
+    }
+  ],
+  "_rev": "-1471620686",
+  "_type": {
+    "_id": "designer-9baced97d9314337bcd202d28f3fd17b",
+    "collection": true,
+    "name": "Display Message",
+    "version": "1.0"
+  },
+  "message": "{{selectedUserDisplayName}} please scan the QR code with your mobile device to complete the biometric authentication process.",
+  "messageType": "INFORMATION"
+}

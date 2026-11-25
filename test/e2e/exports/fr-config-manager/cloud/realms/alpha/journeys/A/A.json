@@ -1,0 +1,41 @@
+{
+  "_id": "A",
+  "_rev": "278167022",
+  "enabled": false,
+  "entryNodeId": "4eb7b1ff-34d4-43da-9bf4-4a07a0677fbb",
+  "identityResource": "managed/alpha_user",
+  "innerTreeOnly": false,
+  "mustRun": false,
+  "noSession": false,
+  "nodes": {
+    "4eb7b1ff-34d4-43da-9bf4-4a07a0677fbb": {
+      "connections": {
+        "false": "e301438c-0bd0-429c-ab0c-66126501069a",
+        "true": "70e691a5-1e33-4ac3-a356-e7b6d60d92e0"
+      },
+      "displayName": "B",
+      "nodeType": "InnerTreeEvaluatorNode",
+      "version": "1.0",
+      "x": 210,
+      "y": 128
+    }
+  },
+  "staticNodes": {
+    "70e691a5-1e33-4ac3-a356-e7b6d60d92e0": {
+      "x": 491,
+      "y": 80
+    },
+    "e301438c-0bd0-429c-ab0c-66126501069a": {
+      "x": 491,
+      "y": 230
+    },
+    "startNode": {
+      "x": 70,
+      "y": 155
+    }
+  },
+  "transactionalOnly": false,
+  "uiConfig": {
+    "categories": "[]"
+  }
+}

@@ -1,0 +1,32 @@
+{
+  "_id": "e22606c4-a25f-4bee-89cd-1a90d5f264ac",
+  "_outcomes": [
+    {
+      "displayName": "Done",
+      "id": "DONE"
+    },
+    {
+      "displayName": "Exited",
+      "id": "EXITED"
+    },
+    {
+      "displayName": "Spam",
+      "id": "SPAM"
+    }
+  ],
+  "_rev": "-1021216329",
+  "_type": {
+    "_id": "PollingWaitNode",
+    "collection": true,
+    "name": "Polling Wait Node",
+    "version": "1.0"
+  },
+  "exitMessage": {},
+  "exitable": true,
+  "secondsToWait": 5,
+  "spamDetectionEnabled": true,
+  "spamDetectionTolerance": 24,
+  "waitingMessage": {
+    "en": "Waiting for candidate authentication to complete"
+  }
+}

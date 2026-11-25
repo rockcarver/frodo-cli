@@ -1,0 +1,42 @@
+{
+  "_id": "9baced97d9314337bcd202d28f3fd17b-1",
+  "description": "Displays message",
+  "displayName": "Display Message",
+  "errorOutcome": false,
+  "inputs": [],
+  "libraries": [],
+  "outcomes": [
+    "outcome"
+  ],
+  "outputs": [],
+  "properties": {
+    "message": {
+      "description": "The message to display",
+      "multivalued": false,
+      "required": true,
+      "title": "Message",
+      "type": "STRING"
+    },
+    "messageType": {
+      "defaultValue": "INFO",
+      "description": "The type of message to display",
+      "multivalued": false,
+      "options": {
+        "ERROR": "Error",
+        "INFO": "Information",
+        "WARN": "Warning"
+      },
+      "required": true,
+      "title": "Message Type",
+      "type": "STRING"
+    }
+  },
+  "script": {
+    "file": "Display Message.js"
+  },
+  "serviceName": "9baced97d9314337bcd202d28f3fd17b",
+  "tags": [
+    "utilities"
+  ],
+  "version": 1
+}

@@ -1,0 +1,25 @@
+{
+  "_id": "schedule/CheckDecisionRemediationDates",
+  "concurrentExecution": false,
+  "enabled": false,
+  "endTime": null,
+  "invokeContext": {
+    "script": {
+      "file": "CheckDecisionRemediationDates.js",
+      "type": "text/javascript"
+    }
+  },
+  "invokeLogLevel": "info",
+  "invokeService": "script",
+  "misfirePolicy": "fireAndProceed",
+  "nextRunDate": null,
+  "persisted": true,
+  "previousRunDate": null,
+  "recoverable": false,
+  "repeatCount": 0,
+  "repeatInterval": 0,
+  "schedule": "1/30 * * * * ?",
+  "startTime": null,
+  "triggers": [],
+  "type": "cron"
+}

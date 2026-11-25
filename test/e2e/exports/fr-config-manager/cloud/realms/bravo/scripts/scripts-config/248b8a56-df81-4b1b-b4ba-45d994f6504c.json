@@ -1,0 +1,16 @@
+{
+  "_id": "248b8a56-df81-4b1b-b4ba-45d994f6504c",
+  "context": "SAML2_IDP_ADAPTER",
+  "createdBy": "id=dsameuser,ou=user,dc=openam,dc=forgerock,dc=org",
+  "creationDate": 1433147666269,
+  "default": true,
+  "description": "Default global script for SAML2 IDP Adapter",
+  "evaluatorVersion": "1.0",
+  "language": "JAVASCRIPT",
+  "lastModifiedBy": "id=8a4fce63-e7f1-452c-a984-086150f83be0,ou=user,ou=am-config",
+  "lastModifiedDate": 1790614178255,
+  "name": "SAML2 IDP Adapter Script",
+  "script": {
+    "file": "scripts-content/SAML2_IDP_ADAPTER/SAML2 IDP Adapter Script.js"
+  }
+}

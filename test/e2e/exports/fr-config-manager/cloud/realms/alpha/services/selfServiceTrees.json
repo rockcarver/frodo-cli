@@ -1,0 +1,16 @@
+{
+  "_id": "",
+  "_rev": "-948959244",
+  "_type": {
+    "_id": "selfServiceTrees",
+    "collection": false,
+    "name": "Self Service Trees"
+  },
+  "enabled": true,
+  "treeMapping": {
+    "forgottenUsername": "ForgottenUsername",
+    "registration": "Registration",
+    "resetPassword": "ResetPassword",
+    "updatePassword": "UpdatePassword"
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "_id": "de8b09b8-ce4b-4d34-8ce9-6cfd81e63e8a",
+  "_outcomes": [
+    {
+      "displayName": "true",
+      "id": "true"
+    }
+  ],
+  "_rev": "-236678617",
+  "_type": {
+    "_id": "PageNode",
+    "collection": true,
+    "name": "Page Node",
+    "version": "1.0"
+  },
+  "nodes": [
+    {
+      "_id": "3cf4bbb6-0427-492f-8795-b619ee3a6067",
+      "displayName": "Remove Button",
+      "nodeType": "ScriptedDecisionNode",
+      "nodeVersion": "1.0"
+    }
+  ],
+  "pageDescription": {},
+  "pageHeader": {
+    "en": "Timeout"
+  }
+}

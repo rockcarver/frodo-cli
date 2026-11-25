@@ -1,0 +1,39 @@
+{
+  "_id": "b5de01d5-1e2d-4427-bedb-5d27206701c3",
+  "_outcomes": [
+    {
+      "displayName": "QR",
+      "id": "QR"
+    },
+    {
+      "displayName": "SMS",
+      "id": "SMS"
+    },
+    {
+      "displayName": "EMAIL",
+      "id": "EMAIL"
+    }
+  ],
+  "_rev": "-251608729",
+  "_type": {
+    "_id": "PageNode",
+    "collection": true,
+    "name": "Page Node",
+    "version": "1.0"
+  },
+  "nodes": [
+    {
+      "_id": "d7f7924b-8d08-43eb-8636-164db1f302e8",
+      "displayName": "Choice Collector",
+      "nodeType": "ChoiceCollectorNode",
+      "nodeVersion": "1.0"
+    }
+  ],
+  "pageDescription": {
+    "en": "Select method of delivery. This will determine how the verification flow is transferred to the user. Select QR code only if you are on video conference with the user, otherwise select Text or Email."
+  },
+  "pageHeader": {
+    "en": "User Authentication"
+  },
+  "stage": "{\"ChoiceCallback\":[{\"id\":\"411b925f-b1bd-497a-9267-1dab27e58cf1\",\"displayType\":\"radio\"}]}"
+}

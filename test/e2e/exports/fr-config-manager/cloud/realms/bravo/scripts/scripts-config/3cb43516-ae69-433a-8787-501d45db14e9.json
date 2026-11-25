@@ -1,0 +1,16 @@
+{
+  "_id": "3cb43516-ae69-433a-8787-501d45db14e9",
+  "context": "AUTHENTICATION_TREE_DECISION_NODE",
+  "createdBy": "id=8a4fce63-e7f1-452c-a984-086150f83be0,ou=user,ou=am-config",
+  "creationDate": 1790648143998,
+  "default": false,
+  "description": "Display sharedState, transientState, and headers.",
+  "evaluatorVersion": "1.0",
+  "language": "JAVASCRIPT",
+  "lastModifiedBy": "id=8a4fce63-e7f1-452c-a984-086150f83be0,ou=user,ou=am-config",
+  "lastModifiedDate": 1790648143998,
+  "name": "debug - imported (1)",
+  "script": {
+    "file": "scripts-content/AUTHENTICATION_TREE_DECISION_NODE/debug - imported (1).js"
+  }
+}

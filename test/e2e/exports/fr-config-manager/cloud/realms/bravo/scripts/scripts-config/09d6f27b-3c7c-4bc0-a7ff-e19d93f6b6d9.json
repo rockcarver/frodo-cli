@@ -1,0 +1,16 @@
+{
+  "_id": "09d6f27b-3c7c-4bc0-a7ff-e19d93f6b6d9",
+  "context": "AUTHENTICATION_TREE_DECISION_NODE",
+  "createdBy": "id=9f7b6b8b-6ab5-45b3-aad5-5bda19eb3064,ou=user,ou=am-config",
+  "creationDate": 1790975774833,
+  "default": false,
+  "description": "Load reference selfie into shared state",
+  "evaluatorVersion": "2.0",
+  "language": "JAVASCRIPT",
+  "lastModifiedBy": "id=9f7b6b8b-6ab5-45b3-aad5-5bda19eb3064,ou=user,ou=am-config",
+  "lastModifiedDate": 1790975774833,
+  "name": "Load Reference Selfie",
+  "script": {
+    "file": "scripts-content/AUTHENTICATION_TREE_DECISION_NODE/Load Reference Selfie.js"
+  }
+}

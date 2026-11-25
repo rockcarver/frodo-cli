@@ -1,0 +1,162 @@
+{
+  "_id": "P1P-Test",
+  "_rev": "946402521",
+  "description": "PingOne Protect Login Risk",
+  "enabled": true,
+  "entryNodeId": "6632fe0f-6395-4cc1-88d8-c9ca4a9061b6",
+  "identityResource": "managed/alpha_user",
+  "innerTreeOnly": false,
+  "mustRun": false,
+  "noSession": false,
+  "nodes": {
+    "00a4835b-6e99-4938-9bb8-50d5569a68d4": {
+      "connections": {
+        "843dd22b-a890-461b-9a16-33d8bd871396-outcome": "167b87dd-a97c-4e3b-82ba-581090fd7863"
+      },
+      "displayName": "Low",
+      "nodeType": "PageNode",
+      "version": "2.0",
+      "x": 1431,
+      "y": 362.015625
+    },
+    "084c3d2d-7d47-4f2e-81d1-57961d496939": {
+      "connections": {
+        "2c8f0d12-c373-4a25-9a30-b3184888d163-outcome": "167b87dd-a97c-4e3b-82ba-581090fd7863"
+      },
+      "displayName": "High",
+      "nodeType": "PageNode",
+      "version": "2.0",
+      "x": 1429,
+      "y": 19.015625
+    },
+    "167b87dd-a97c-4e3b-82ba-581090fd7863": {
+      "connections": {
+        "outcome": "70e691a5-1e33-4ac3-a356-e7b6d60d92e0"
+      },
+      "displayName": "SUCCESS",
+      "nodeType": "product-PingOneProtectResultNode",
+      "version": "1.0",
+      "x": 1755,
+      "y": 314.015625
+    },
+    "37f190ea-fa18-4d44-941b-4e5ac325f394": {
+      "connections": {
+        "8835fe59-3988-4121-8b15-ad16a7049d7a-outcome": "167b87dd-a97c-4e3b-82ba-581090fd7863"
+      },
+      "displayName": "Medium",
+      "nodeType": "PageNode",
+      "version": "2.0",
+      "x": 1428,
+      "y": 187.015625
+    },
+    "4fdf4255-0236-4527-ae6d-d10d2c0ee8d5": {
+      "connections": {
+        "6a428d9f-a221-44f6-a5c6-c6981f90f9fc-outcome": "ef1929b1-255e-446e-a597-7d7a3c4bf63f"
+      },
+      "displayName": "Login Page",
+      "nodeType": "PageNode",
+      "version": "2.0",
+      "x": 441,
+      "y": 334.015625
+    },
+    "6632fe0f-6395-4cc1-88d8-c9ca4a9061b6": {
+      "connections": {
+        "false": "e301438c-0bd0-429c-ab0c-66126501069a",
+        "true": "4fdf4255-0236-4527-ae6d-d10d2c0ee8d5"
+      },
+      "displayName": "Initialize Signals SDK",
+      "nodeType": "product-PingOneProtectInitializeNode",
+      "version": "1.0",
+      "x": 143,
+      "y": 378.015625
+    },
+    "8120e613-dee8-42b4-9668-71b8a25c1c92": {
+      "connections": {
+        "52ab689c-491b-4117-b729-ff590b5d1f61-outcome": "e301438c-0bd0-429c-ab0c-66126501069a"
+      },
+      "displayName": "P1P Failure",
+      "nodeType": "PageNode",
+      "version": "2.0",
+      "x": 1432,
+      "y": 708.015625
+    },
+    "a0059e3b-de04-4f0f-a5ed-49525d1da576": {
+      "connections": {
+        "c1804982-10dc-4668-bd53-909107cc4039-outcome": "e301438c-0bd0-429c-ab0c-66126501069a"
+      },
+      "displayName": "P1P Client Error",
+      "nodeType": "PageNode",
+      "version": "2.0",
+      "x": 1434,
+      "y": 877.015625
+    },
+    "df827cfc-6e2d-4b9f-a8b1-d92c2910eb07": {
+      "connections": {
+        "clientError": "a0059e3b-de04-4f0f-a5ed-49525d1da576",
+        "exceed": "f1cb199e-9e9a-4761-bacf-bc717ca6c540",
+        "failure": "8120e613-dee8-42b4-9668-71b8a25c1c92",
+        "high": "084c3d2d-7d47-4f2e-81d1-57961d496939",
+        "low": "00a4835b-6e99-4938-9bb8-50d5569a68d4",
+        "medium": "37f190ea-fa18-4d44-941b-4e5ac325f394"
+      },
+      "displayName": "P1P Risk Decision",
+      "nodeType": "product-PingOneProtectEvaluationNode",
+      "version": "1.0",
+      "x": 1083.875,
+      "y": 330.015625
+    },
+    "e5f7bd1f-8dbb-4fb2-ae54-1e09047e8ece": {
+      "connections": {
+        "outcome": "e301438c-0bd0-429c-ab0c-66126501069a"
+      },
+      "displayName": "FAILED",
+      "nodeType": "product-PingOneProtectResultNode",
+      "version": "1.0",
+      "x": 1757,
+      "y": 462.015625
+    },
+    "ef1929b1-255e-446e-a597-7d7a3c4bf63f": {
+      "connections": {
+        "CANCELLED": "df827cfc-6e2d-4b9f-a8b1-d92c2910eb07",
+        "EXPIRED": "e301438c-0bd0-429c-ab0c-66126501069a",
+        "FALSE": "e301438c-0bd0-429c-ab0c-66126501069a",
+        "LOCKED": "e301438c-0bd0-429c-ab0c-66126501069a",
+        "TRUE": "df827cfc-6e2d-4b9f-a8b1-d92c2910eb07"
+      },
+      "displayName": "Identity Store Decision",
+      "nodeType": "IdentityStoreDecisionNode",
+      "version": "1.0",
+      "x": 740,
+      "y": 341.015625
+    },
+    "f1cb199e-9e9a-4761-bacf-bc717ca6c540": {
+      "connections": {
+        "de8fa10c-f4cc-44b7-b675-cdc75dcc600f-outcome": "e5f7bd1f-8dbb-4fb2-ae54-1e09047e8ece"
+      },
+      "displayName": "Exceeds Score Threshold",
+      "nodeType": "PageNode",
+      "version": "2.0",
+      "x": 1432,
+      "y": 536.015625
+    }
+  },
+  "staticNodes": {
+    "70e691a5-1e33-4ac3-a356-e7b6d60d92e0": {
+      "x": 2112,
+      "y": 319
+    },
+    "e301438c-0bd0-429c-ab0c-66126501069a": {
+      "x": 2108,
+      "y": 800
+    },
+    "startNode": {
+      "x": 39,
+      "y": 399
+    }
+  },
+  "transactionalOnly": false,
+  "uiConfig": {
+    "annotations": "{\"forNodes\":{},\"structural\":[]}",
+    "categories": "[\"Helper\",\"P1 Protect\"]"
+  }
+}

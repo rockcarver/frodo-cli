@@ -1,0 +1,28 @@
+{
+  "_id": "1911c911-0bf3-407e-b1cc-2ce57cdefcad",
+  "_outcomes": [
+    {
+      "displayName": "true",
+      "id": "true"
+    }
+  ],
+  "_rev": "-1795089059",
+  "_type": {
+    "_id": "PageNode",
+    "collection": true,
+    "name": "Page Node",
+    "version": "1.0"
+  },
+  "nodes": [
+    {
+      "_id": "2f4f5438-a343-49fb-8cd4-cafccc2d3ee9",
+      "displayName": "Node Config",
+      "nodeType": "ScriptedDecisionNode",
+      "nodeVersion": "1.0"
+    }
+  ],
+  "pageDescription": {},
+  "pageHeader": {
+    "en": "Configure SAML2 Node"
+  }
+}

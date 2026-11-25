@@ -1,0 +1,16 @@
+{
+  "_id": "9535446c-0ff6-4a76-8576-616599119d64",
+  "context": "AUTHENTICATION_TREE_DECISION_NODE",
+  "createdBy": "id=8a4fce63-e7f1-452c-a984-086150f83be0,ou=user,ou=am-config",
+  "creationDate": 1790648143642,
+  "default": false,
+  "description": "Remove button from page.",
+  "evaluatorVersion": "1.0",
+  "language": "JAVASCRIPT",
+  "lastModifiedBy": "id=8a4fce63-e7f1-452c-a984-086150f83be0,ou=user,ou=am-config",
+  "lastModifiedDate": 1790648143642,
+  "name": "Remove Button",
+  "script": {
+    "file": "scripts-content/AUTHENTICATION_TREE_DECISION_NODE/Remove Button.js"
+  }
+}

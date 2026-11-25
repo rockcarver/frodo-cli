@@ -1,0 +1,29 @@
+{
+  "_id": "B",
+  "_rev": "35173284",
+  "enabled": false,
+  "entryNodeId": "70e691a5-1e33-4ac3-a356-e7b6d60d92e0",
+  "identityResource": "managed/alpha_user",
+  "innerTreeOnly": true,
+  "mustRun": false,
+  "noSession": false,
+  "nodes": {},
+  "staticNodes": {
+    "70e691a5-1e33-4ac3-a356-e7b6d60d92e0": {
+      "x": 210,
+      "y": 80
+    },
+    "e301438c-0bd0-429c-ab0c-66126501069a": {
+      "x": 70,
+      "y": 230
+    },
+    "startNode": {
+      "x": 70,
+      "y": 80
+    }
+  },
+  "transactionalOnly": false,
+  "uiConfig": {
+    "categories": "[]"
+  }
+}

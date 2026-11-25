@@ -1,0 +1,25 @@
+{
+  "_id": "038f9b2a-36b2-489b-9e03-386c9a62ea21",
+  "_outcomes": [
+    {
+      "displayName": "Social Authentication",
+      "id": "socialAuthentication"
+    },
+    {
+      "displayName": "Local Authentication",
+      "id": "localAuthentication"
+    }
+  ],
+  "_rev": "44585078",
+  "_type": {
+    "_id": "SelectIdPNode",
+    "collection": true,
+    "name": "Select Identity Provider",
+    "version": "1.0"
+  },
+  "filteredProviders": [],
+  "identityAttribute": "mail",
+  "includeLocalAuthentication": true,
+  "offerOnlyExisting": false,
+  "passwordAttribute": "password"
+}

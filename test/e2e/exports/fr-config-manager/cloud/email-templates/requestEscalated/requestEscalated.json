@@ -1,0 +1,23 @@
+{
+  "_id": "emailTemplate/requestEscalated",
+  "defaultLocale": "en",
+  "enabled": true,
+  "from": "",
+  "html": {
+    "en": {
+      "file": "requestEscalated.en.html"
+    }
+  },
+  "message": {
+    "en": {
+      "file": "requestEscalated.en.md"
+    }
+  },
+  "mimeType": "text/html",
+  "styles": {
+    "file": "requestEscalated.css"
+  },
+  "subject": {
+    "en": "ATTENTION: Request Escalation"
+  }
+}

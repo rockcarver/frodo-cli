@@ -1,0 +1,34 @@
+{
+  "_id": "642d3d2c-49d1-4167-916b-c26d12f84647",
+  "_outcomes": [
+    {
+      "displayName": "true",
+      "id": "true"
+    }
+  ],
+  "_rev": "545410068",
+  "_type": {
+    "_id": "PageNode",
+    "collection": true,
+    "name": "Page Node",
+    "version": "1.0"
+  },
+  "nodes": [
+    {
+      "_id": "d80b362c-2e66-4607-94b7-13fd8745ac4e",
+      "displayName": "Display Message",
+      "nodeType": "designer-9baced97d9314337bcd202d28f3fd17b",
+      "nodeVersion": "1.0"
+    },
+    {
+      "_id": "810d7409-2df0-4a8e-8ba8-3a810ae072e2",
+      "displayName": "Remove Button",
+      "nodeType": "ScriptedDecisionNode",
+      "nodeVersion": "1.0"
+    }
+  ],
+  "pageDescription": {},
+  "pageHeader": {
+    "en": "User Successfully Verified"
+  }
+}

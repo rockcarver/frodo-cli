@@ -1,0 +1,26 @@
+{
+  "_id": "180b3e21-c32e-4611-85ff-94f59bd80755",
+  "_outcomes": [
+    {
+      "displayName": "true",
+      "id": "true"
+    }
+  ],
+  "_rev": "1329382516",
+  "_type": {
+    "_id": "ScriptedDecisionNode",
+    "collection": true,
+    "name": "Scripted Decision",
+    "version": "1.0"
+  },
+  "inputs": [
+    "*"
+  ],
+  "outcomes": [
+    "true"
+  ],
+  "outputs": [
+    "*"
+  ],
+  "script": "3814d347-a2f2-4be9-a810-ab41a1e374bd"
+}

@@ -1,0 +1,35 @@
+{
+  "_id": "5d6cd20e-5074-43de-8832-fddd95fb078e",
+  "_outcomes": [
+    {
+      "displayName": "one",
+      "id": "one"
+    },
+    {
+      "displayName": "two",
+      "id": "two"
+    },
+    {
+      "displayName": "three",
+      "id": "three"
+    }
+  ],
+  "_rev": "1022412611",
+  "_type": {
+    "_id": "PageNode",
+    "collection": true,
+    "name": "Page Node",
+    "version": "1.0"
+  },
+  "nodes": [
+    {
+      "_id": "a566e474-99f3-46e4-9e70-682402bfaa84",
+      "displayName": "Choice Collector",
+      "nodeType": "ChoiceCollectorNode",
+      "nodeVersion": "1.0"
+    }
+  ],
+  "pageDescription": {},
+  "pageHeader": {},
+  "stage": "{\"ChoiceCallback\":[{\"id\":\"a566e474-99f3-46e4-9e70-682402bfaa84\",\"displayType\":\"radio\"}]}"
+}

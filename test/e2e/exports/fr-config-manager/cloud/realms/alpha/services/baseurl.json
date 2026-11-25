@@ -1,0 +1,12 @@
+{
+  "_id": "",
+  "_rev": "-1889820858",
+  "_type": {
+    "_id": "baseurl",
+    "collection": false,
+    "name": "Base URL Source"
+  },
+  "contextPath": "/am",
+  "fixedValue": "https://&{fqdn}",
+  "source": "REQUEST_VALUES"
+}

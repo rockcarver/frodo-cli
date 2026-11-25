@@ -1,0 +1,16 @@
+{
+  "_id": "24cb761e-0123-4078-a87c-3f1e2b25451b",
+  "context": "CACHE_LOADER",
+  "createdBy": "id=amadmin,ou=user,ou=am-config",
+  "creationDate": 1756459006279,
+  "default": false,
+  "description": "Example cache loader script for performing an OAuth2 client credential flow to retrieve an access token. This script is called when a cache entry is requested that has not yet been loaded.",
+  "evaluatorVersion": "2.0",
+  "language": "JAVASCRIPT",
+  "lastModifiedBy": "id=amadmin,ou=user,ou=am-config",
+  "lastModifiedDate": 1756462776385,
+  "name": "OAuth2 Client Credentials Default",
+  "script": {
+    "file": "scripts-content/CACHE_LOADER/OAuth2 Client Credentials Default.js"
+  }
+}

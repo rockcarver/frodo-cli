@@ -1,0 +1,112 @@
+{
+  "_id": "RecognizeBackChannel",
+  "_rev": "672382650",
+  "description": "Securely authenticate candidates throughout the interview process.",
+  "enabled": true,
+  "entryNodeId": "1fc92eed-08b7-412a-905b-097db5daab48",
+  "identityResource": "managed/alpha_user",
+  "innerTreeOnly": false,
+  "mustRun": false,
+  "noSession": false,
+  "nodes": {
+    "1fc92eed-08b7-412a-905b-097db5daab48": {
+      "connections": {
+        "error": "d515d9ff-8559-4126-8977-19bf1513d5b0",
+        "lockout": "f7ac0aaa-0f38-45b6-96d4-3ff9a7dae99b",
+        "notEnrolled": "f6f1ee45-a332-48dd-9b4b-31989963d6b5",
+        "retry": "f7ac0aaa-0f38-45b6-96d4-3ff9a7dae99b",
+        "success": "db4b696c-f83c-487c-a335-71e6b2cfa252"
+      },
+      "displayName": "Biometric Authentication",
+      "nodeType": "PageNode",
+      "version": "1.0",
+      "x": 200,
+      "y": 119.3125
+    },
+    "502d5c39-aa9d-4212-b757-a20af3895d73": {
+      "connections": {
+        "false": "e301438c-0bd0-429c-ab0c-66126501069a",
+        "true": "1fc92eed-08b7-412a-905b-097db5daab48"
+      },
+      "displayName": "Enrollment Complete",
+      "nodeType": "PageNode",
+      "version": "1.0",
+      "x": 880,
+      "y": 394.015625
+    },
+    "6cff13ad-1789-4ea1-af99-a5bda1bc2343": {
+      "connections": {
+        "false": "e301438c-0bd0-429c-ab0c-66126501069a",
+        "true": "f6f1ee45-a332-48dd-9b4b-31989963d6b5"
+      },
+      "displayName": "Cancelled",
+      "nodeType": "MessageNode",
+      "version": "1.0",
+      "x": 881,
+      "y": 618
+    },
+    "d515d9ff-8559-4126-8977-19bf1513d5b0": {
+      "connections": {
+        "true": "e301438c-0bd0-429c-ab0c-66126501069a"
+      },
+      "displayName": "Debug",
+      "nodeType": "ScriptedDecisionNode",
+      "version": "1.0",
+      "x": 553,
+      "y": 403.66666666666663
+    },
+    "db4b696c-f83c-487c-a335-71e6b2cfa252": {
+      "connections": {
+        "outcome": "70e691a5-1e33-4ac3-a356-e7b6d60d92e0"
+      },
+      "displayName": "Success URL",
+      "nodeType": "SetSuccessUrlNode",
+      "version": "1.0",
+      "x": 556.5,
+      "y": 156.01953125
+    },
+    "f6f1ee45-a332-48dd-9b4b-31989963d6b5": {
+      "connections": {
+        "alreadyEnrolled": "e301438c-0bd0-429c-ab0c-66126501069a",
+        "error": "e301438c-0bd0-429c-ab0c-66126501069a",
+        "retry": "6cff13ad-1789-4ea1-af99-a5bda1bc2343",
+        "success": "502d5c39-aa9d-4212-b757-a20af3895d73"
+      },
+      "displayName": "Biometric Enrollment",
+      "nodeType": "PageNode",
+      "version": "1.0",
+      "x": 557,
+      "y": 506.3125
+    },
+    "f7ac0aaa-0f38-45b6-96d4-3ff9a7dae99b": {
+      "connections": {
+        "false": "e301438c-0bd0-429c-ab0c-66126501069a",
+        "true": "1fc92eed-08b7-412a-905b-097db5daab48"
+      },
+      "displayName": "Retry or Cancelled",
+      "nodeType": "MessageNode",
+      "version": "1.0",
+      "x": 553,
+      "y": 253.83333333333337
+    }
+  },
+  "staticNodes": {
+    "70e691a5-1e33-4ac3-a356-e7b6d60d92e0": {
+      "x": 1231,
+      "y": 159
+    },
+    "e301438c-0bd0-429c-ab0c-66126501069a": {
+      "x": 1236,
+      "y": 749
+    },
+    "startNode": {
+      "x": 53,
+      "y": 219
+    }
+  },
+  "transactionalOnly": false,
+  "uiConfig": {
+    "annotations": "{\"forNodes\":{},\"structural\":[]}",
+    "categories": "[\"PingOne Recognize\"]"
+  }
+}

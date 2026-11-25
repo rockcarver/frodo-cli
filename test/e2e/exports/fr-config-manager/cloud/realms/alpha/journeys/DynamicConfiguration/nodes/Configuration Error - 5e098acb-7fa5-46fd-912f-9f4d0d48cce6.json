@@ -1,0 +1,34 @@
+{
+  "_id": "5e098acb-7fa5-46fd-912f-9f4d0d48cce6",
+  "_outcomes": [
+    {
+      "displayName": "true",
+      "id": "true"
+    }
+  ],
+  "_rev": "703693265",
+  "_type": {
+    "_id": "PageNode",
+    "collection": true,
+    "name": "Page Node",
+    "version": "1.0"
+  },
+  "nodes": [
+    {
+      "_id": "4cd8636a-2ebe-4190-a6a2-7fdf43274ae2",
+      "displayName": "Display States",
+      "nodeType": "ScriptedDecisionNode",
+      "nodeVersion": "1.0"
+    },
+    {
+      "_id": "a0d49552-eccf-40be-b67a-cdf911afdfcd",
+      "displayName": "Remove Button",
+      "nodeType": "ScriptedDecisionNode",
+      "nodeVersion": "1.0"
+    }
+  ],
+  "pageDescription": {},
+  "pageHeader": {
+    "en": "Configuration Error!"
+  }
+}

@@ -1,0 +1,32 @@
+{
+  "_id": "4fdf4255-0236-4527-ae6d-d10d2c0ee8d5",
+  "_outcomes": [
+    {
+      "displayName": "Outcome",
+      "id": "6a428d9f-a221-44f6-a5c6-c6981f90f9fc-outcome"
+    }
+  ],
+  "_rev": "-506663009",
+  "_type": {
+    "_id": "PageNode",
+    "collection": true,
+    "name": "Page Node",
+    "version": "2.0"
+  },
+  "nodes": [
+    {
+      "_id": "f74e82e2-72ab-4a1a-9188-655622794a37",
+      "displayName": "Username",
+      "nodeType": "ValidatedUsernameNode",
+      "nodeVersion": "2.0"
+    },
+    {
+      "_id": "6a428d9f-a221-44f6-a5c6-c6981f90f9fc",
+      "displayName": "Password",
+      "nodeType": "ValidatedPasswordNode",
+      "nodeVersion": "1.0"
+    }
+  ],
+  "pageDescription": {},
+  "pageHeader": {}
+}

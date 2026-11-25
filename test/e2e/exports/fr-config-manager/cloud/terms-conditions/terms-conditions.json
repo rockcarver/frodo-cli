@@ -1,0 +1,20 @@
+{
+  "_id": "selfservice.terms",
+  "active": "0.0",
+  "uiConfig": {
+    "buttonText": "Accept",
+    "displayName": "We've updated our terms",
+    "purpose": "You must accept the updated terms in order to proceed."
+  },
+  "versions": [
+    {
+      "createDate": "2019-10-28T04:20:11.320Z",
+      "termsTranslations": {
+        "en": {
+          "file": "0.0/en.html"
+        }
+      },
+      "version": "0.0"
+    }
+  ]
+}

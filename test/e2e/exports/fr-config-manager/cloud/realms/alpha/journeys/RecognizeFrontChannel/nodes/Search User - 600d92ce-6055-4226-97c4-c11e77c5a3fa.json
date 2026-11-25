@@ -1,0 +1,31 @@
+{
+  "_id": "600d92ce-6055-4226-97c4-c11e77c5a3fa",
+  "_outcomes": [
+    {
+      "displayName": "true",
+      "id": "true"
+    }
+  ],
+  "_rev": "-1310039090",
+  "_type": {
+    "_id": "PageNode",
+    "collection": true,
+    "name": "Page Node",
+    "version": "1.0"
+  },
+  "nodes": [
+    {
+      "_id": "7846f0da-172f-4114-a7b1-87f108a213e1",
+      "displayName": "Search Field",
+      "nodeType": "ScriptedDecisionNode",
+      "nodeVersion": "1.0"
+    }
+  ],
+  "pageDescription": {
+    "en": "Verify you are talking to the right person."
+  },
+  "pageHeader": {
+    "en": "User Facial Biometric Authentication"
+  },
+  "stage": "{\"submitButtonText\":{\"en\":\"Find Person\"}}"
+}

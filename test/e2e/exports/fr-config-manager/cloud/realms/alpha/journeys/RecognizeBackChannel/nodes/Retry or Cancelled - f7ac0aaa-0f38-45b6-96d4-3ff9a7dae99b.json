@@ -1,0 +1,29 @@
+{
+  "_id": "f7ac0aaa-0f38-45b6-96d4-3ff9a7dae99b",
+  "_outcomes": [
+    {
+      "displayName": "True",
+      "id": "true"
+    },
+    {
+      "displayName": "False",
+      "id": "false"
+    }
+  ],
+  "_rev": "1116940112",
+  "_type": {
+    "_id": "MessageNode",
+    "collection": true,
+    "name": "Message Node",
+    "version": "1.0"
+  },
+  "message": {
+    "en": "Retry Authentication?"
+  },
+  "messageNo": {
+    "en": "Exit"
+  },
+  "messageYes": {
+    "en": "Retry"
+  }
+}

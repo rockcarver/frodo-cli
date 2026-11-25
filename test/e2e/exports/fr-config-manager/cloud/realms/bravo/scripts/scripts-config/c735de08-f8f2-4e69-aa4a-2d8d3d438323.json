@@ -1,0 +1,16 @@
+{
+  "_id": "c735de08-f8f2-4e69-aa4a-2d8d3d438323",
+  "context": "OAUTH2_MAY_ACT",
+  "createdBy": "id=dsameuser,ou=user,dc=openam,dc=forgerock,dc=org",
+  "creationDate": 1433147666269,
+  "default": true,
+  "description": "Default global script for OAuth2 May Act",
+  "evaluatorVersion": "1.0",
+  "language": "JAVASCRIPT",
+  "lastModifiedBy": "id=8a4fce63-e7f1-452c-a984-086150f83be0,ou=user,ou=am-config",
+  "lastModifiedDate": 1790614181739,
+  "name": "OAuth2 May Act Script",
+  "script": {
+    "file": "scripts-content/OAUTH2_MAY_ACT/OAuth2 May Act Script.js"
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "_id": "0c1d7319-5a82-4359-8839-094121404832",
+  "context": "SAML2_IDP_ATTRIBUTE_MAPPER_NEXT_GEN",
+  "createdBy": "id=dsameuser,ou=user,dc=openam,dc=forgerock,dc=org",
+  "creationDate": 1433147666269,
+  "default": true,
+  "description": "Default global script for SAML2 IDP Attribute Mapper (Next Gen)",
+  "evaluatorVersion": "2.0",
+  "language": "JAVASCRIPT",
+  "lastModifiedBy": "id=9f7b6b8b-6ab5-45b3-aad5-5bda19eb3064,ou=user,ou=am-config",
+  "lastModifiedDate": 1790974620308,
+  "name": "SAML IDP Attribute Mapper Script (Next Gen)",
+  "script": {
+    "file": "scripts-content/SAML2_IDP_ATTRIBUTE_MAPPER_NEXT_GEN/SAML IDP Attribute Mapper Script (Next Gen).js"
+  }
+}

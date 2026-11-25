@@ -1,0 +1,43 @@
+{
+  "_id": "f6f1ee45-a332-48dd-9b4b-31989963d6b5",
+  "_outcomes": [
+    {
+      "displayName": "success",
+      "id": "success"
+    },
+    {
+      "displayName": "retry",
+      "id": "retry"
+    },
+    {
+      "displayName": "error",
+      "id": "error"
+    },
+    {
+      "displayName": "alreadyEnrolled",
+      "id": "alreadyEnrolled"
+    }
+  ],
+  "_rev": "1853929791",
+  "_type": {
+    "_id": "PageNode",
+    "collection": true,
+    "name": "Page Node",
+    "version": "1.0"
+  },
+  "nodes": [
+    {
+      "_id": "27827c52-30b2-4443-8256-c3431ab1e0ab",
+      "displayName": "Biometric Enrollment",
+      "nodeType": "designer-c5a8d1b2e4f06a9b3c5d7e8f1a2b3c4d",
+      "nodeVersion": "1.0"
+    }
+  ],
+  "pageDescription": {
+    "en": "Follow the instructions to proceed."
+  },
+  "pageHeader": {
+    "en": "Biometric Enrollment"
+  },
+  "stage": "{\"themeId\":\"c7dd2e03-3bfd-42d9-8bf5-14a5517ff984\"}"
+}

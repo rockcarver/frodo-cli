@@ -1,0 +1,34 @@
+{
+  "_id": "a668ff0a-12cc-4b0f-8e34-1ef75a70cc7d",
+  "_outcomes": [
+    {
+      "displayName": "true",
+      "id": "true"
+    }
+  ],
+  "_rev": "-347153221",
+  "_type": {
+    "_id": "PageNode",
+    "collection": true,
+    "name": "Page Node",
+    "version": "1.0"
+  },
+  "nodes": [
+    {
+      "_id": "5d32ece5-bf1d-4b3a-a0e5-e47867334112",
+      "displayName": "Results",
+      "nodeType": "ScriptedDecisionNode",
+      "nodeVersion": "1.0"
+    },
+    {
+      "_id": "c1f34309-1be3-4fd8-8c7d-8f027a91bb46",
+      "displayName": "Remove Button",
+      "nodeType": "ScriptedDecisionNode",
+      "nodeVersion": "1.0"
+    }
+  ],
+  "pageDescription": {},
+  "pageHeader": {
+    "en": "Identity Verification Result"
+  }
+}

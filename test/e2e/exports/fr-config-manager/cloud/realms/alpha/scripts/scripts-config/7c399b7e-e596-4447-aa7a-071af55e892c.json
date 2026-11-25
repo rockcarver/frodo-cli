@@ -1,0 +1,16 @@
+{
+  "_id": "7c399b7e-e596-4447-aa7a-071af55e892c",
+  "context": "SAML2_IDP_ADAPTER_NEXTGEN",
+  "createdBy": "id=dsameuser,ou=user,dc=openam,dc=forgerock,dc=org",
+  "creationDate": 1433147666269,
+  "default": true,
+  "description": "Default global script for SAML2 IDP Adapter (Next Gen)",
+  "evaluatorVersion": "2.0",
+  "language": "JAVASCRIPT",
+  "lastModifiedBy": "id=9f7b6b8b-6ab5-45b3-aad5-5bda19eb3064,ou=user,ou=am-config",
+  "lastModifiedDate": 1790975769138,
+  "name": "SAML2 IDP Adapter Script (Next Gen)",
+  "script": {
+    "file": "scripts-content/SAML2_IDP_ADAPTER_NEXTGEN/SAML2 IDP Adapter Script (Next Gen).js"
+  }
+}

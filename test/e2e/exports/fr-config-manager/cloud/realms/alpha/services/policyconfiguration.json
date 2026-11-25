@@ -1,0 +1,36 @@
+{
+  "_id": "",
+  "_rev": "-247595145",
+  "_type": {
+    "_id": "policyconfiguration",
+    "collection": false,
+    "name": "Policy Configuration"
+  },
+  "bindDn": "&{am.stores.user.username}",
+  "bindPassword": {
+    "$string": "&{am.stores.user.password}"
+  },
+  "checkIfResourceTypeExists": true,
+  "connectionPoolMaximumSize": 10,
+  "connectionPoolMinimumSize": 1,
+  "ldapServer": [
+    "userstore-1.userstore.fr-platform.svc.cluster.local:1389",
+    "userstore-2.userstore.fr-platform.svc.cluster.local:1389",
+    "userstore-0.userstore.fr-platform.svc.cluster.local:1389"
+  ],
+  "maximumSearchResults": 100,
+  "mtlsEnabled": false,
+  "policyHeartbeatInterval": 10,
+  "policyHeartbeatTimeUnit": "SECONDS",
+  "realmSearchFilter": "(objectclass=sunismanagedorganization)",
+  "searchTimeout": 5,
+  "sslEnabled": {
+    "$bool": "&{am.stores.ssl.enabled}"
+  },
+  "subjectsResultTTL": 10,
+  "userAliasEnabled": false,
+  "usersBaseDn": "ou=identities",
+  "usersSearchAttribute": "uid",
+  "usersSearchFilter": "(objectclass=inetorgperson)",
+  "usersSearchScope": "SCOPE_SUB"
+}

@@ -1,0 +1,97 @@
+{
+  "_id": "Login",
+  "_rev": "1447343562",
+  "description": "Platform Login Tree",
+  "enabled": true,
+  "entryNodeId": "a12bc72f-ad97-4f1e-a789-a1fa3dd566c8",
+  "identityResource": "managed/bravo_user",
+  "innerTreeOnly": false,
+  "mustRun": false,
+  "noSession": false,
+  "nodes": {
+    "33b24514-3e50-4180-8f08-ab6f4e51b07e": {
+      "connections": {
+        "false": "e301438c-0bd0-429c-ab0c-66126501069a",
+        "true": "70e691a5-1e33-4ac3-a356-e7b6d60d92e0"
+      },
+      "displayName": "Inner Tree Evaluator",
+      "nodeType": "InnerTreeEvaluatorNode",
+      "version": "1.0",
+      "x": 987,
+      "y": 117
+    },
+    "76b5e15c-493c-47dc-b813-01cbc74c5a85": {
+      "connections": {
+        "outcome": "e301438c-0bd0-429c-ab0c-66126501069a"
+      },
+      "displayName": "Account Lockout",
+      "nodeType": "AccountLockoutNode",
+      "version": "1.0",
+      "x": 1035,
+      "y": 278.015625
+    },
+    "a12bc72f-ad97-4f1e-a789-a1fa3dd566c8": {
+      "connections": {
+        "outcome": "a30b1258-4c35-4ebe-90f3-c11fced9b1e4"
+      },
+      "displayName": "Page Node",
+      "nodeType": "PageNode",
+      "version": "1.0",
+      "x": 136,
+      "y": 59
+    },
+    "a30b1258-4c35-4ebe-90f3-c11fced9b1e4": {
+      "connections": {
+        "CANCELLED": "e301438c-0bd0-429c-ab0c-66126501069a",
+        "EXPIRED": "e301438c-0bd0-429c-ab0c-66126501069a",
+        "FALSE": "feecdfb1-386c-423f-b4a0-05cf6b05f783",
+        "LOCKED": "e301438c-0bd0-429c-ab0c-66126501069a",
+        "TRUE": "bba3e0d8-8525-4e82-bf48-ac17f7988917"
+      },
+      "displayName": "Identity Store Decision",
+      "nodeType": "IdentityStoreDecisionNode",
+      "version": "1.0",
+      "x": 409,
+      "y": 120.015625
+    },
+    "bba3e0d8-8525-4e82-bf48-ac17f7988917": {
+      "connections": {
+        "outcome": "33b24514-3e50-4180-8f08-ab6f4e51b07e"
+      },
+      "displayName": "Increment Login Count",
+      "nodeType": "IncrementLoginCountNode",
+      "version": "1.0",
+      "x": 690,
+      "y": 99
+    },
+    "feecdfb1-386c-423f-b4a0-05cf6b05f783": {
+      "connections": {
+        "Reject": "76b5e15c-493c-47dc-b813-01cbc74c5a85",
+        "Retry": "a12bc72f-ad97-4f1e-a789-a1fa3dd566c8"
+      },
+      "displayName": "Retry Limit Decision",
+      "nodeType": "RetryLimitDecisionNode",
+      "version": "1.0",
+      "x": 739,
+      "y": 219.015625
+    }
+  },
+  "staticNodes": {
+    "70e691a5-1e33-4ac3-a356-e7b6d60d92e0": {
+      "x": 1239,
+      "y": 178
+    },
+    "e301438c-0bd0-429c-ab0c-66126501069a": {
+      "x": 1198,
+      "y": 351
+    },
+    "startNode": {
+      "x": 50,
+      "y": 25
+    }
+  },
+  "transactionalOnly": false,
+  "uiConfig": {
+    "categories": "[\"Authentication\"]"
+  }
+}

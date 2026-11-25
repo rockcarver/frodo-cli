@@ -1,0 +1,25 @@
+{
+  "_id": "d5cc2d52-6ce4-452d-85ea-3a5b50218b67",
+  "_outcomes": [
+    {
+      "displayName": "Account exists",
+      "id": "ACCOUNT_EXISTS"
+    },
+    {
+      "displayName": "No account exists",
+      "id": "NO_ACCOUNT"
+    }
+  ],
+  "_rev": "-153739549",
+  "_type": {
+    "_id": "SocialProviderHandlerNode",
+    "collection": true,
+    "name": "Legacy Social Provider Handler Node",
+    "version": "1.0"
+  },
+  "clientType": "BROWSER",
+  "script": "58c824ae-84ed-4724-82cd-db128fc3f6c",
+  "storeTokens": false,
+  "subjectAttribute": "iplanet-am-user-alias-list",
+  "usernameAttribute": "userName"
+}

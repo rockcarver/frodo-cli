@@ -1,0 +1,40 @@
+{
+  "_id": "PrestonTestInner",
+  "_rev": "-1091060676",
+  "enabled": true,
+  "entryNodeId": "324515aa-206e-43e1-a28c-82e3eaaf69ec",
+  "identityResource": "managed/alpha_user",
+  "innerTreeOnly": false,
+  "mustRun": false,
+  "noSession": false,
+  "nodes": {
+    "324515aa-206e-43e1-a28c-82e3eaaf69ec": {
+      "connections": {
+        "88133f44-7b32-4681-ad12-0d5a0fadfdce-outcome": "e301438c-0bd0-429c-ab0c-66126501069a"
+      },
+      "displayName": "Page Node",
+      "nodeType": "PageNode",
+      "version": "3.0",
+      "x": 203,
+      "y": 163.8125
+    }
+  },
+  "staticNodes": {
+    "70e691a5-1e33-4ac3-a356-e7b6d60d92e0": {
+      "x": 500,
+      "y": 50
+    },
+    "e301438c-0bd0-429c-ab0c-66126501069a": {
+      "x": 500,
+      "y": 350
+    },
+    "startNode": {
+      "x": 50,
+      "y": 250
+    }
+  },
+  "transactionalOnly": false,
+  "uiConfig": {
+    "categories": "[]"
+  }
+}

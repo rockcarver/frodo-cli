@@ -1,0 +1,21 @@
+{
+  "_id": "de8fa10c-f4cc-44b7-b675-cdc75dcc600f",
+  "_outcomes": [
+    {
+      "displayName": "outcome",
+      "id": "outcome"
+    }
+  ],
+  "_rev": "499416916",
+  "_type": {
+    "_id": "designer-4b76e2122a0541498f380072cd115683",
+    "collection": true,
+    "name": "Debug",
+    "version": "1.0"
+  },
+  "showNodeState": true,
+  "showObjectAttributes": false,
+  "showRequestHeaders": false,
+  "showRequestParams": false,
+  "showUserProfile": false
+}

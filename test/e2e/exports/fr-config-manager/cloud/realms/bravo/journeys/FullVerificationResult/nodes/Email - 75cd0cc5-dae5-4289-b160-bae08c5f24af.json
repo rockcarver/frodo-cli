@@ -1,0 +1,26 @@
+{
+  "_id": "75cd0cc5-dae5-4289-b160-bae08c5f24af",
+  "_outcomes": [
+    {
+      "displayName": "Outcome",
+      "id": "outcome"
+    }
+  ],
+  "_rev": "1015189358",
+  "_type": {
+    "_id": "PageNode",
+    "collection": true,
+    "name": "Page Node",
+    "version": "1.0"
+  },
+  "nodes": [
+    {
+      "_id": "da8218d8-0226-432c-abe5-d4518e06fce8",
+      "displayName": "Email",
+      "nodeType": "AttributeCollectorNode",
+      "nodeVersion": "1.0"
+    }
+  ],
+  "pageDescription": {},
+  "pageHeader": {}
+}

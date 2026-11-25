@@ -1,0 +1,16 @@
+{
+  "_id": "c827d2b4-3608-4693-868e-bbcf86bd87c7",
+  "context": "AUTHENTICATION_CLIENT_SIDE",
+  "createdBy": "null",
+  "creationDate": 0,
+  "default": true,
+  "description": "Default global script for client side Scripted Authentication Module",
+  "evaluatorVersion": "1.0",
+  "language": "JAVASCRIPT",
+  "lastModifiedBy": "id=8a4fce63-e7f1-452c-a984-086150f83be0,ou=user,ou=am-config",
+  "lastModifiedDate": 1790614181831,
+  "name": "Scripted Module - Client Side",
+  "script": {
+    "file": "scripts-content/AUTHENTICATION_CLIENT_SIDE/Scripted Module - Client Side.js"
+  }
+}

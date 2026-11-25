@@ -1,0 +1,16 @@
+{
+  "_id": "739bdc48-fd24-4c52-b353-88706d75558a",
+  "context": "AUTHENTICATION_TREE_DECISION_NODE",
+  "createdBy": "id=8a4fce63-e7f1-452c-a984-086150f83be0,ou=user,ou=am-config",
+  "creationDate": 1790648142161,
+  "default": false,
+  "description": "Check if username has already been collected.",
+  "evaluatorVersion": "1.0",
+  "language": "JAVASCRIPT",
+  "lastModifiedBy": "id=8a4fce63-e7f1-452c-a984-086150f83be0,ou=user,ou=am-config",
+  "lastModifiedDate": 1790648142161,
+  "name": "Check Username",
+  "script": {
+    "file": "scripts-content/AUTHENTICATION_TREE_DECISION_NODE/Check Username.js"
+  }
+}

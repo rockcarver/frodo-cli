@@ -1,0 +1,16 @@
+{
+  "_id": "ca0c39c5-9c50-417f-a36e-815cfd1ecffe",
+  "context": "AUTHENTICATION_TREE_DECISION_NODE",
+  "createdBy": "id=8a4fce63-e7f1-452c-a984-086150f83be0,ou=user,ou=am-config",
+  "creationDate": 1790648142774,
+  "default": false,
+  "description": "Show full identity verification results",
+  "evaluatorVersion": "2.0",
+  "language": "JAVASCRIPT",
+  "lastModifiedBy": "id=8a4fce63-e7f1-452c-a984-086150f83be0,ou=user,ou=am-config",
+  "lastModifiedDate": 1790648142774,
+  "name": "Full Verification Results",
+  "script": {
+    "file": "scripts-content/AUTHENTICATION_TREE_DECISION_NODE/Full Verification Results.js"
+  }
+}

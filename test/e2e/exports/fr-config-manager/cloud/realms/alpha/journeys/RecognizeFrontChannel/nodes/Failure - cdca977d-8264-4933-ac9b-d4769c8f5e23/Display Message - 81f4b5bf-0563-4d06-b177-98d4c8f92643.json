@@ -1,0 +1,18 @@
+{
+  "_id": "81f4b5bf-0563-4d06-b177-98d4c8f92643",
+  "_outcomes": [
+    {
+      "displayName": "outcome",
+      "id": "outcome"
+    }
+  ],
+  "_rev": "1873078792",
+  "_type": {
+    "_id": "designer-9baced97d9314337bcd202d28f3fd17b",
+    "collection": true,
+    "name": "Display Message",
+    "version": "1.0"
+  },
+  "message": "{{selectedUserDisplayName}} has failed the biometric challenge. Proceed with caution.",
+  "messageType": "INFORMATION"
+}

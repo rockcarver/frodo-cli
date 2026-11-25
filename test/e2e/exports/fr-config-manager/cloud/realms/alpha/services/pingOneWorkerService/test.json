@@ -1,0 +1,12 @@
+{
+  "_id": "test",
+  "_type": {
+    "_id": "workers",
+    "collection": true,
+    "name": "PingOne Worker"
+  },
+  "apiUrl": "https://api.pingone.com/v1",
+  "authUrl": "https://auth.pingone.com",
+  "clientSecretPurpose": "bogus",
+  "useCredential": false
+}

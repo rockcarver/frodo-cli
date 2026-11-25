@@ -1,0 +1,16 @@
+{
+  "_id": "941127d2-22a2-4dcd-9fd7-e87c0ede838d",
+  "context": "AUTHENTICATION_TREE_DECISION_NODE",
+  "createdBy": "id=9b319ae7-9c9e-4fd8-888e-2b802f40463a,ou=user,ou=am-config",
+  "creationDate": 1795214593302,
+  "default": false,
+  "description": null,
+  "evaluatorVersion": "2.0",
+  "language": "JAVASCRIPT",
+  "lastModifiedBy": "id=9b319ae7-9c9e-4fd8-888e-2b802f40463a,ou=user,ou=am-config",
+  "lastModifiedDate": 1795214593302,
+  "name": "TestNull",
+  "script": {
+    "file": "scripts-content/AUTHENTICATION_TREE_DECISION_NODE/TestNull.js"
+  }
+}

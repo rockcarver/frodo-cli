@@ -1,0 +1,30 @@
+{
+  "_id": "eda4c1c7-938b-4c96-8819-467af09c7200",
+  "_outcomes": [
+    {
+      "displayName": "True",
+      "id": "true"
+    },
+    {
+      "displayName": "False",
+      "id": "false"
+    },
+    {
+      "displayName": "Configuration failure",
+      "id": "CONFIGURATION_FAILED"
+    }
+  ],
+  "_rev": "-1323460850",
+  "_type": {
+    "_id": "ConfigProviderNode",
+    "collection": true,
+    "name": "Configuration Provider",
+    "version": "1.0"
+  },
+  "nodeType": "MessageNode",
+  "nodeVersion": 1,
+  "script": "5e854779-6ec1-4c39-aeba-0477e0986646",
+  "scriptInputs": [
+    "*"
+  ]
+}

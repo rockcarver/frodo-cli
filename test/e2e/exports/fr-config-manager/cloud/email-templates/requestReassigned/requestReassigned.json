@@ -1,0 +1,23 @@
+{
+  "_id": "emailTemplate/requestReassigned",
+  "defaultLocale": "en",
+  "enabled": true,
+  "from": "",
+  "html": {
+    "en": {
+      "file": "requestReassigned.en.html"
+    }
+  },
+  "message": {
+    "en": {
+      "file": "requestReassigned.en.md"
+    }
+  },
+  "mimeType": "text/html",
+  "styles": {
+    "file": "requestReassigned.css"
+  },
+  "subject": {
+    "en": "ATTENTION: Request Reassigned"
+  }
+}

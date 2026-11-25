@@ -440,7 +440,7 @@ describe('pull all-static', () => {
     expect(await configManagerExportAllStatic({})).toBe(false);
 
     expect(errors()).toEqual([
-      `1 of ${deploymentMapAllStatic.cloud.length} steps failed:\n  - scripts`,
+      `1 of ${deploymentMapAllStatic.cloud.filter(s => s.export).length} steps failed:\n  - scripts`,
     ]);
     expect(warnings()).toEqual([]);
   });

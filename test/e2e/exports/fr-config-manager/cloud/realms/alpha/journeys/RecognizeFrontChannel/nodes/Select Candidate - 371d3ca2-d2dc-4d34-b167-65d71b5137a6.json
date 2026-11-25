@@ -1,0 +1,35 @@
+{
+  "_id": "371d3ca2-d2dc-4d34-b167-65d71b5137a6",
+  "_outcomes": [
+    {
+      "displayName": "true",
+      "id": "true"
+    },
+    {
+      "displayName": "error",
+      "id": "error"
+    }
+  ],
+  "_rev": "-1900893350",
+  "_type": {
+    "_id": "PageNode",
+    "collection": true,
+    "name": "Page Node",
+    "version": "1.0"
+  },
+  "nodes": [
+    {
+      "_id": "f462428b-6b03-4db9-9589-0608c0b80909",
+      "displayName": "Select User",
+      "nodeType": "ScriptedDecisionNode",
+      "nodeVersion": "1.0"
+    }
+  ],
+  "pageDescription": {
+    "en": "Select your user from the list. Validate the user you select is the person you are talking to."
+  },
+  "pageHeader": {
+    "en": "User Authentication"
+  },
+  "stage": "{\"submitButtonText\":{\"en\":\"Select User\"}}"
+}

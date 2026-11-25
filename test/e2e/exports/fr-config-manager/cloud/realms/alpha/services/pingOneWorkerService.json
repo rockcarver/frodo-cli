@@ -1,0 +1,10 @@
+{
+  "_id": "",
+  "_rev": "-945038405",
+  "_type": {
+    "_id": "pingOneWorkerService",
+    "collection": false,
+    "name": "PingOne Worker Service"
+  },
+  "enabled": true
+}

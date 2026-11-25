@@ -1,0 +1,33 @@
+{
+  "_id": "jiojio",
+  "_type": {
+    "_id": "oauth2Config",
+    "collection": true,
+    "name": "Client configuration for providers that implement the OAuth2 specification."
+  },
+  "authenticationIdKey": "sub",
+  "authorizationEndpoint": "https://test.com",
+  "clientAuthenticationMethod": "CLIENT_SECRET_POST",
+  "clientId": "jiojoi",
+  "enabled": true,
+  "introspectEndpoint": "https://test.com",
+  "issuerComparisonCheckType": "EXACT",
+  "jwtEncryptionAlgorithm": "NONE",
+  "jwtEncryptionMethod": "NONE",
+  "jwtSigningAlgorithm": "NONE",
+  "pkceMethod": "S256",
+  "privateKeyJwtExpTime": 600,
+  "redirectAfterFormPostURI": "https://test.com",
+  "redirectURI": "https://test.com",
+  "responseMode": "DEFAULT",
+  "revocationCheckOptions": [],
+  "scopeDelimiter": ",",
+  "scopes": [
+    "ko"
+  ],
+  "tokenEndpoint": "https://test.com",
+  "transform": "6b3cfd48-62d3-48ff-a96f-fe8f3a22ab30",
+  "uiConfig": {},
+  "useCustomTrustStore": false,
+  "userInfoEndpoint": "https://test.com"
+}

@@ -1,0 +1,25 @@
+{
+  "_id": "schedule/CheckCampaignCreateJob",
+  "concurrentExecution": false,
+  "enabled": true,
+  "endTime": null,
+  "invokeContext": {
+    "script": {
+      "file": "CheckCampaignCreateJob.js",
+      "type": "text/javascript"
+    }
+  },
+  "invokeLogLevel": "info",
+  "invokeService": "script",
+  "misfirePolicy": "fireAndProceed",
+  "nextRunDate": null,
+  "persisted": true,
+  "previousRunDate": null,
+  "recoverable": false,
+  "repeatCount": 0,
+  "repeatInterval": 0,
+  "schedule": "0/5 * * * * ?",
+  "startTime": null,
+  "triggers": [],
+  "type": "cron"
+}

@@ -1,0 +1,23 @@
+{
+  "_id": "emailTemplate/requestExpired",
+  "defaultLocale": "en",
+  "enabled": true,
+  "from": "",
+  "html": {
+    "en": {
+      "file": "requestExpired.en.html"
+    }
+  },
+  "message": {
+    "en": {
+      "file": "requestExpired.en.md"
+    }
+  },
+  "mimeType": "text/html",
+  "styles": {
+    "file": "requestExpired.css"
+  },
+  "subject": {
+    "en": "ATTENTION: Expiration of Request"
+  }
+}

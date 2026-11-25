@@ -1,0 +1,18 @@
+{
+  "_id": "",
+  "_rev": "-439720564",
+  "_type": {
+    "_id": "email",
+    "collection": false,
+    "name": "Email Service"
+  },
+  "emailAddressAttribute": "mail",
+  "emailImplClassName": "org.forgerock.openam.services.email.MailServerImpl",
+  "emailRateLimitSeconds": 1,
+  "from": "vscheuber@gmail.com",
+  "message": "Test Message",
+  "port": 465,
+  "sslState": "SSL",
+  "subject": "Test Subject",
+  "transportType": "default-smtp"
+}

@@ -1,0 +1,25 @@
+{
+  "_id": "schedule/CheckDecisionExpirationDates",
+  "concurrentExecution": false,
+  "enabled": false,
+  "endTime": null,
+  "invokeContext": {
+    "script": {
+      "file": "CheckDecisionExpirationDates.js",
+      "type": "text/javascript"
+    }
+  },
+  "invokeLogLevel": "info",
+  "invokeService": "script",
+  "misfirePolicy": "fireAndProceed",
+  "nextRunDate": null,
+  "persisted": true,
+  "previousRunDate": null,
+  "recoverable": false,
+  "repeatCount": 0,
+  "repeatInterval": 0,
+  "schedule": "50 0/1 * * * ?",
+  "startTime": null,
+  "triggers": [],
+  "type": "cron"
+}

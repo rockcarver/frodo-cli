@@ -1,0 +1,28 @@
+{
+  "_id": "5467e10f-1d5d-4fe0-bf99-a6fc21b5893a",
+  "_outcomes": [
+    {
+      "displayName": "true",
+      "id": "true"
+    }
+  ],
+  "_rev": "689087288",
+  "_type": {
+    "_id": "PageNode",
+    "collection": true,
+    "name": "Page Node",
+    "version": "1.0"
+  },
+  "nodes": [
+    {
+      "_id": "965976a3-5a8f-4820-b7fc-b5635f456f4c",
+      "displayName": "Debug",
+      "nodeType": "ScriptedDecisionNode",
+      "nodeVersion": "1.0"
+    }
+  ],
+  "pageDescription": {},
+  "pageHeader": {
+    "en": "Error"
+  }
+}

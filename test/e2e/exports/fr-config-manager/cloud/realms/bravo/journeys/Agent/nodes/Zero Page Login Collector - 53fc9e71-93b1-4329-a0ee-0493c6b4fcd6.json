@@ -1,0 +1,24 @@
+{
+  "_id": "53fc9e71-93b1-4329-a0ee-0493c6b4fcd6",
+  "_outcomes": [
+    {
+      "displayName": "Has Credentials",
+      "id": "true"
+    },
+    {
+      "displayName": "No Credentials",
+      "id": "false"
+    }
+  ],
+  "_rev": "2070213311",
+  "_type": {
+    "_id": "ZeroPageLoginNode",
+    "collection": true,
+    "name": "Zero Page Login Collector",
+    "version": "1.0"
+  },
+  "allowWithoutReferer": true,
+  "passwordHeader": "X-OpenAM-Password",
+  "referrerWhiteList": [],
+  "usernameHeader": "X-OpenAM-Username"
+}

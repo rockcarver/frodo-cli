@@ -1,0 +1,42 @@
+{
+  "_id": "JoshTest",
+  "_rev": "-1152559011",
+  "description": "This is a test journey",
+  "enabled": true,
+  "entryNodeId": "bddb425b-4513-4f65-8099-2eb32f5fc4df",
+  "identityResource": "managed/alpha_user",
+  "innerTreeOnly": false,
+  "mustRun": false,
+  "noSession": false,
+  "nodes": {
+    "bddb425b-4513-4f65-8099-2eb32f5fc4df": {
+      "connections": {
+        "fail": "e301438c-0bd0-429c-ab0c-66126501069a",
+        "outcome": "70e691a5-1e33-4ac3-a356-e7b6d60d92e0"
+      },
+      "displayName": "Scripted Decision",
+      "nodeType": "ScriptedDecisionNode",
+      "version": "1.0",
+      "x": 367,
+      "y": 226.8125
+    }
+  },
+  "staticNodes": {
+    "70e691a5-1e33-4ac3-a356-e7b6d60d92e0": {
+      "x": 1376,
+      "y": 85
+    },
+    "e301438c-0bd0-429c-ab0c-66126501069a": {
+      "x": 1369,
+      "y": 579
+    },
+    "startNode": {
+      "x": 50,
+      "y": 250
+    }
+  },
+  "transactionalOnly": false,
+  "uiConfig": {
+    "categories": "[]"
+  }
+}

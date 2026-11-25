@@ -1,0 +1,93 @@
+{
+  "_id": "j00",
+  "_rev": "2108856917",
+  "enabled": true,
+  "entryNodeId": "513a2ab4-f0b8-4f94-b840-6fe14796cc84",
+  "identityResource": "managed/alpha_user",
+  "innerTreeOnly": false,
+  "mustRun": false,
+  "noSession": false,
+  "nodes": {
+    "01d3785f-7fb4-44a7-9458-72c380a9818f": {
+      "connections": {
+        "true": "3c1e8d61-0c48-44ba-86dc-52e9555b6aeb"
+      },
+      "displayName": "shared",
+      "nodeType": "ScriptedDecisionNode",
+      "version": "1.0",
+      "x": 348,
+      "y": 61
+    },
+    "39b48197-f4be-42b9-800a-866587b4b9b5": {
+      "connections": {
+        "true": "ba503a1e-633e-4d0d-ba18-c9a9b1105b5b"
+      },
+      "displayName": "level",
+      "nodeType": "ScriptedDecisionNode",
+      "version": "1.0",
+      "x": 365,
+      "y": 252
+    },
+    "3c1e8d61-0c48-44ba-86dc-52e9555b6aeb": {
+      "connections": {
+        "true": "ba503a1e-633e-4d0d-ba18-c9a9b1105b5b"
+      },
+      "displayName": "level",
+      "nodeType": "ScriptedDecisionNode",
+      "version": "1.0",
+      "x": 567,
+      "y": 64
+    },
+    "513a2ab4-f0b8-4f94-b840-6fe14796cc84": {
+      "connections": {
+        "level only": "39b48197-f4be-42b9-800a-866587b4b9b5",
+        "none": "ba503a1e-633e-4d0d-ba18-c9a9b1105b5b",
+        "shared and level": "01d3785f-7fb4-44a7-9458-72c380a9818f",
+        "shared only": "d17ffaa1-2c61-4abd-9bb1-2559160d0a5c"
+      },
+      "displayName": "mode",
+      "nodeType": "ScriptedDecisionNode",
+      "version": "1.0",
+      "x": 117,
+      "y": 117
+    },
+    "ba503a1e-633e-4d0d-ba18-c9a9b1105b5b": {
+      "connections": {
+        "true": "e301438c-0bd0-429c-ab0c-66126501069a"
+      },
+      "displayName": "debug",
+      "nodeType": "ScriptedDecisionNode",
+      "version": "1.0",
+      "x": 760,
+      "y": 137
+    },
+    "d17ffaa1-2c61-4abd-9bb1-2559160d0a5c": {
+      "connections": {
+        "true": "ba503a1e-633e-4d0d-ba18-c9a9b1105b5b"
+      },
+      "displayName": "shared",
+      "nodeType": "ScriptedDecisionNode",
+      "version": "1.0",
+      "x": 338,
+      "y": 156
+    }
+  },
+  "staticNodes": {
+    "70e691a5-1e33-4ac3-a356-e7b6d60d92e0": {
+      "x": 132,
+      "y": 364
+    },
+    "e301438c-0bd0-429c-ab0c-66126501069a": {
+      "x": 1000,
+      "y": 137
+    },
+    "startNode": {
+      "x": 0,
+      "y": 0
+    }
+  },
+  "transactionalOnly": false,
+  "uiConfig": {
+    "categories": "[]"
+  }
+}

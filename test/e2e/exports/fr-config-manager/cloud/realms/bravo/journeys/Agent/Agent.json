@@ -1,0 +1,63 @@
+{
+  "_id": "Agent",
+  "_rev": "-995271915",
+  "description": "CAUTION: PingAM Agent and PingGateway profiles require an Agent journey. Don't change this configuration.",
+  "enabled": true,
+  "entryNodeId": "53fc9e71-93b1-4329-a0ee-0493c6b4fcd6",
+  "identityResource": "managed/bravo_user",
+  "innerTreeOnly": false,
+  "mustRun": false,
+  "noSession": false,
+  "nodes": {
+    "0fde84fa-bf2f-4322-a040-fc700bd9b8f2": {
+      "connections": {
+        "outcome": "a02fa1ec-2752-42bc-a98f-e41e08f225e7"
+      },
+      "displayName": "Page Node",
+      "nodeType": "PageNode",
+      "version": "1.0",
+      "x": 469,
+      "y": 320
+    },
+    "53fc9e71-93b1-4329-a0ee-0493c6b4fcd6": {
+      "connections": {
+        "false": "0fde84fa-bf2f-4322-a040-fc700bd9b8f2",
+        "true": "a02fa1ec-2752-42bc-a98f-e41e08f225e7"
+      },
+      "displayName": "Zero Page Login Collector",
+      "nodeType": "ZeroPageLoginNode",
+      "version": "1.0",
+      "x": 167,
+      "y": 222
+    },
+    "a02fa1ec-2752-42bc-a98f-e41e08f225e7": {
+      "connections": {
+        "false": "e301438c-0bd0-429c-ab0c-66126501069a",
+        "true": "70e691a5-1e33-4ac3-a356-e7b6d60d92e0"
+      },
+      "displayName": "Agent Data Store Decision",
+      "nodeType": "AgentDataStoreDecisionNode",
+      "version": "1.0",
+      "x": 749,
+      "y": 238
+    }
+  },
+  "staticNodes": {
+    "70e691a5-1e33-4ac3-a356-e7b6d60d92e0": {
+      "x": 1066,
+      "y": 226
+    },
+    "e301438c-0bd0-429c-ab0c-66126501069a": {
+      "x": 1070,
+      "y": 374
+    },
+    "startNode": {
+      "x": 50,
+      "y": 250
+    }
+  },
+  "transactionalOnly": false,
+  "uiConfig": {
+    "categories": "[\"Authentication\"]"
+  }
+}

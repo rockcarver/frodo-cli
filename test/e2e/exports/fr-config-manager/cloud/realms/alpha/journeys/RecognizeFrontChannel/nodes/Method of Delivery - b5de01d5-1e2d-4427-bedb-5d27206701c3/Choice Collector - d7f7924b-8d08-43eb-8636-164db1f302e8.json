@@ -1,0 +1,31 @@
+{
+  "_id": "d7f7924b-8d08-43eb-8636-164db1f302e8",
+  "_outcomes": [
+    {
+      "displayName": "QR",
+      "id": "QR"
+    },
+    {
+      "displayName": "SMS",
+      "id": "SMS"
+    },
+    {
+      "displayName": "EMAIL",
+      "id": "EMAIL"
+    }
+  ],
+  "_rev": "-941441104",
+  "_type": {
+    "_id": "ChoiceCollectorNode",
+    "collection": true,
+    "name": "Choice Collector",
+    "version": "1.0"
+  },
+  "choices": [
+    "QR",
+    "SMS",
+    "EMAIL"
+  ],
+  "defaultChoice": "QR",
+  "prompt": "Method of delivery"
+}

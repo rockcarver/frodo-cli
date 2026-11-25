@@ -1,0 +1,42 @@
+{
+  "_id": "27063442-891e-404c-ad6d-bc062786a748",
+  "_outcomes": [
+    {
+      "displayName": "sent",
+      "id": "sent"
+    },
+    {
+      "displayName": "failed",
+      "id": "failed"
+    },
+    {
+      "displayName": "error",
+      "id": "error"
+    }
+  ],
+  "_rev": "1161327670",
+  "_type": {
+    "_id": "ScriptedDecisionNode",
+    "collection": true,
+    "name": "Scripted Decision",
+    "version": "1.0"
+  },
+  "inputs": [
+    "*",
+    "selectedUserDisplayName",
+    "selectedUserId",
+    "BCAURI"
+  ],
+  "outcomes": [
+    "sent",
+    "failed",
+    "error"
+  ],
+  "outputs": [
+    "*",
+    "selectedUserDisplayName",
+    "selectedUserId",
+    "BCAURI"
+  ],
+  "script": "2a196ca6-6da2-46e5-8224-764fdbdd2007"
+}

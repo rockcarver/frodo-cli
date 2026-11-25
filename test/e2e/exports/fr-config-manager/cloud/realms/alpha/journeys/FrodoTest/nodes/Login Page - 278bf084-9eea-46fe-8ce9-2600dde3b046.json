@@ -1,0 +1,42 @@
+{
+  "_id": "278bf084-9eea-46fe-8ce9-2600dde3b046",
+  "_outcomes": [
+    {
+      "displayName": "Social Authentication",
+      "id": "socialAuthentication"
+    },
+    {
+      "displayName": "Local Authentication",
+      "id": "localAuthentication"
+    }
+  ],
+  "_rev": "-897353993",
+  "_type": {
+    "_id": "PageNode",
+    "collection": true,
+    "name": "Page Node",
+    "version": "1.0"
+  },
+  "nodes": [
+    {
+      "_id": "7a351800-fb7e-4145-903c-388554747556",
+      "displayName": "Username",
+      "nodeType": "ValidatedUsernameNode",
+      "nodeVersion": "1.0"
+    },
+    {
+      "_id": "804e6a68-1720-442b-926a-007e90f02782",
+      "displayName": "Password",
+      "nodeType": "ValidatedPasswordNode",
+      "nodeVersion": "1.0"
+    },
+    {
+      "_id": "228a44d5-fd78-4278-8999-fdd470ea7ebf",
+      "displayName": "Select IDP",
+      "nodeType": "SelectIdPNode",
+      "nodeVersion": "1.0"
+    }
+  ],
+  "pageDescription": {},
+  "pageHeader": {}
+}

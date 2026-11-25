@@ -1,0 +1,38 @@
+{
+  "_id": "fe68e233-373e-49db-b264-b1e79d3ee759",
+  "_outcomes": [
+    {
+      "displayName": "Pending",
+      "id": "pending"
+    },
+    {
+      "displayName": "In Progress",
+      "id": "inprogress"
+    },
+    {
+      "displayName": "Success",
+      "id": "success"
+    },
+    {
+      "displayName": "Failure",
+      "id": "failure"
+    },
+    {
+      "displayName": "Unknown",
+      "id": "unknown"
+    },
+    {
+      "displayName": "Error",
+      "id": "error"
+    }
+  ],
+  "_rev": "-1695842083",
+  "_type": {
+    "_id": "BackChannelStatusNode",
+    "collection": true,
+    "name": "Backchannel Status",
+    "version": "1.0"
+  },
+  "recordData": true,
+  "recordTransactionData": false
+}

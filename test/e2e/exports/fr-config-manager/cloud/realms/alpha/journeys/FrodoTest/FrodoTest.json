@@ -1,0 +1,111 @@
+{
+  "_id": "FrodoTest",
+  "_rev": "-1175854005",
+  "description": "Frodo test journey utilizing a variety of nodes and dependencies to test support for complex journeys.",
+  "enabled": true,
+  "entryNodeId": "e2c39477-847a-4df2-9c5d-b449a752638b",
+  "identityResource": "managed/alpha_user",
+  "innerTreeOnly": false,
+  "mustRun": false,
+  "noSession": false,
+  "nodes": {
+    "278bf084-9eea-46fe-8ce9-2600dde3b046": {
+      "connections": {
+        "localAuthentication": "fc7e47cd-c679-4211-8e05-a36654f23c67",
+        "socialAuthentication": "d5cc2d52-6ce4-452d-85ea-3a5b50218b67"
+      },
+      "displayName": "Login Page",
+      "nodeType": "PageNode",
+      "version": "1.0",
+      "x": 444,
+      "y": 273.015625
+    },
+    "64157fca-bd5b-4405-a4c8-64ffd98a5461": {
+      "connections": {
+        "ACCOUNT_EXISTS": "70e691a5-1e33-4ac3-a356-e7b6d60d92e0",
+        "NO_ACCOUNT": "e301438c-0bd0-429c-ab0c-66126501069a"
+      },
+      "displayName": "SAML2 Authentication",
+      "nodeType": "product-Saml2Node",
+      "version": "1.0",
+      "x": 1196,
+      "y": 188.015625
+    },
+    "731c5810-020b-45c8-a7fc-3c21903ae2b3": {
+      "connections": {
+        "localAuthentication": "fc7e47cd-c679-4211-8e05-a36654f23c67",
+        "socialAuthentication": "d5cc2d52-6ce4-452d-85ea-3a5b50218b67"
+      },
+      "displayName": "Login Page",
+      "nodeType": "PageNode",
+      "version": "1.0",
+      "x": 443,
+      "y": 26.015625
+    },
+    "bf153f37-83dd-4f39-aa0c-74135430242e": {
+      "connections": {
+        "EMAIL_NOT_SENT": "e301438c-0bd0-429c-ab0c-66126501069a",
+        "EMAIL_SENT": "64157fca-bd5b-4405-a4c8-64ffd98a5461"
+      },
+      "displayName": "Email Template Node",
+      "nodeType": "EmailTemplateNode",
+      "version": "1.0",
+      "x": 967,
+      "y": 222.015625
+    },
+    "d5cc2d52-6ce4-452d-85ea-3a5b50218b67": {
+      "connections": {
+        "ACCOUNT_EXISTS": "70e691a5-1e33-4ac3-a356-e7b6d60d92e0",
+        "NO_ACCOUNT": "bf153f37-83dd-4f39-aa0c-74135430242e"
+      },
+      "displayName": "Social Login",
+      "nodeType": "SocialProviderHandlerNode",
+      "version": "1.0",
+      "x": 702,
+      "y": 116.015625
+    },
+    "e2c39477-847a-4df2-9c5d-b449a752638b": {
+      "connections": {
+        "known": "731c5810-020b-45c8-a7fc-3c21903ae2b3",
+        "unknown": "278bf084-9eea-46fe-8ce9-2600dde3b046"
+      },
+      "displayName": "Check Username",
+      "nodeType": "ScriptedDecisionNode",
+      "version": "1.0",
+      "x": 200,
+      "y": 235.015625
+    },
+    "fc7e47cd-c679-4211-8e05-a36654f23c67": {
+      "connections": {
+        "CANCELLED": "70e691a5-1e33-4ac3-a356-e7b6d60d92e0",
+        "EXPIRED": "70e691a5-1e33-4ac3-a356-e7b6d60d92e0",
+        "FALSE": "e301438c-0bd0-429c-ab0c-66126501069a",
+        "LOCKED": "e301438c-0bd0-429c-ab0c-66126501069a",
+        "TRUE": "70e691a5-1e33-4ac3-a356-e7b6d60d92e0"
+      },
+      "displayName": "Validate Creds",
+      "nodeType": "IdentityStoreDecisionNode",
+      "version": "1.0",
+      "x": 702,
+      "y": 292.015625
+    }
+  },
+  "staticNodes": {
+    "70e691a5-1e33-4ac3-a356-e7b6d60d92e0": {
+      "x": 1434,
+      "y": 60
+    },
+    "e301438c-0bd0-429c-ab0c-66126501069a": {
+      "x": 1433,
+      "y": 459
+    },
+    "startNode": {
+      "x": 63,
+      "y": 252
+    }
+  },
+  "transactionalOnly": false,
+  "uiConfig": {
+    "categories": "[\"Frodo\",\"Prototype\"]"
+  }
+}

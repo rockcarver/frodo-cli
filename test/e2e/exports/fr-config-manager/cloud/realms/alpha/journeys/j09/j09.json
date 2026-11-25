@@ -1,0 +1,94 @@
+{
+  "_id": "j09",
+  "_rev": "-1396884723",
+  "enabled": true,
+  "entryNodeId": "251f35c3-1a32-4520-be10-1f4af9600935",
+  "identityResource": "managed/alpha_user",
+  "innerTreeOnly": false,
+  "mustRun": false,
+  "noSession": false,
+  "nodes": {
+    "251f35c3-1a32-4520-be10-1f4af9600935": {
+      "connections": {
+        "level only": "56b82371-0c61-4dc3-8d06-c1158415b8f9",
+        "none": "6df24fdd-0b6c-4def-bf42-77af998f28b8",
+        "shared and level": "8c5e9cb5-471b-4dd6-b150-ecaaeda98195",
+        "shared only": "f57cf53c-b4c6-48f7-84e8-91f535a2e8f8"
+      },
+      "displayName": "mode",
+      "nodeType": "ScriptedDecisionNode",
+      "version": "1.0",
+      "x": 167,
+      "y": 210.015625
+    },
+    "56b82371-0c61-4dc3-8d06-c1158415b8f9": {
+      "connections": {
+        "true": "6df24fdd-0b6c-4def-bf42-77af998f28b8"
+      },
+      "displayName": "level",
+      "nodeType": "ScriptedDecisionNode",
+      "version": "1.0",
+      "x": 395,
+      "y": 345.015625
+    },
+    "6df24fdd-0b6c-4def-bf42-77af998f28b8": {
+      "connections": {
+        "false": "e301438c-0bd0-429c-ab0c-66126501069a",
+        "true": "e301438c-0bd0-429c-ab0c-66126501069a"
+      },
+      "displayName": "nest",
+      "nodeType": "InnerTreeEvaluatorNode",
+      "version": "1.0",
+      "x": 816,
+      "y": 233.015625
+    },
+    "8c5e9cb5-471b-4dd6-b150-ecaaeda98195": {
+      "connections": {
+        "true": "bb294e05-6b6b-4478-b46f-b8d9e7711c66"
+      },
+      "displayName": "shared",
+      "nodeType": "ScriptedDecisionNode",
+      "version": "1.0",
+      "x": 392,
+      "y": 173.015625
+    },
+    "bb294e05-6b6b-4478-b46f-b8d9e7711c66": {
+      "connections": {
+        "true": "6df24fdd-0b6c-4def-bf42-77af998f28b8"
+      },
+      "displayName": "level",
+      "nodeType": "ScriptedDecisionNode",
+      "version": "1.0",
+      "x": 598,
+      "y": 173.015625
+    },
+    "f57cf53c-b4c6-48f7-84e8-91f535a2e8f8": {
+      "connections": {
+        "true": "6df24fdd-0b6c-4def-bf42-77af998f28b8"
+      },
+      "displayName": "shared",
+      "nodeType": "ScriptedDecisionNode",
+      "version": "1.0",
+      "x": 393,
+      "y": 259.015625
+    }
+  },
+  "staticNodes": {
+    "70e691a5-1e33-4ac3-a356-e7b6d60d92e0": {
+      "x": 1236,
+      "y": 145
+    },
+    "e301438c-0bd0-429c-ab0c-66126501069a": {
+      "x": 1236,
+      "y": 253
+    },
+    "startNode": {
+      "x": 50,
+      "y": 250
+    }
+  },
+  "transactionalOnly": false,
+  "uiConfig": {
+    "categories": "[]"
+  }
+}

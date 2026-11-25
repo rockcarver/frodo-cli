@@ -1,0 +1,34 @@
+{
+  "_id": "d4ab5309-9508-4bef-a95b-7bf8024a7ddf",
+  "_outcomes": [
+    {
+      "displayName": "Account exists",
+      "id": "ACCOUNT_EXISTS"
+    },
+    {
+      "displayName": "No account exists",
+      "id": "NO_ACCOUNT"
+    },
+    {
+      "displayName": "Error",
+      "id": "ERROR"
+    },
+    {
+      "displayName": "Configuration failure",
+      "id": "CONFIGURATION_FAILED"
+    }
+  ],
+  "_rev": "1431899124",
+  "_type": {
+    "_id": "ConfigProviderNode",
+    "collection": true,
+    "name": "Configuration Provider",
+    "version": "1.0"
+  },
+  "nodeType": "product-Saml2Node",
+  "nodeVersion": 1,
+  "script": "5e854779-6ec1-4c39-aeba-0477e0986646",
+  "scriptInputs": [
+    "*"
+  ]
+}

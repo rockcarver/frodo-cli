@@ -1,0 +1,35 @@
+{
+  "_id": "e3a74b62-6eec-40f4-a2f6-2dceb73acce9",
+  "_outcomes": [
+    {
+      "displayName": "true",
+      "id": "true"
+    }
+  ],
+  "_rev": "-423569495",
+  "_type": {
+    "_id": "PageNode",
+    "collection": true,
+    "name": "Page Node",
+    "version": "1.0"
+  },
+  "nodes": [
+    {
+      "_id": "fe15e89b-be29-46ab-aa2a-ab3014982e99",
+      "displayName": "Display Message",
+      "nodeType": "designer-9baced97d9314337bcd202d28f3fd17b",
+      "nodeVersion": "1.0"
+    },
+    {
+      "_id": "76307759-e5cd-476a-af54-0a665c20eed6",
+      "displayName": "QR Code",
+      "nodeType": "ScriptedDecisionNode",
+      "nodeVersion": "1.0"
+    }
+  ],
+  "pageDescription": {},
+  "pageHeader": {
+    "en": "User Authentication"
+  },
+  "stage": "{\"submitButtonText\":{\"en\":\"Share your screen now. After candidate scans QR code, stop screen sharing and continue to results\"}}"
+}

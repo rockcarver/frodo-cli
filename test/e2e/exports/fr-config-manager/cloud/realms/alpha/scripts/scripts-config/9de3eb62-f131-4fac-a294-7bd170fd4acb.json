@@ -1,0 +1,16 @@
+{
+  "_id": "9de3eb62-f131-4fac-a294-7bd170fd4acb",
+  "context": "POLICY_CONDITION",
+  "createdBy": "null",
+  "creationDate": 0,
+  "default": true,
+  "description": "Default global script for Scripted Policy Conditions",
+  "evaluatorVersion": "1.0",
+  "language": "JAVASCRIPT",
+  "lastModifiedBy": "id=8a4fce63-e7f1-452c-a984-086150f83be0,ou=user,ou=am-config",
+  "lastModifiedDate": 1790614181085,
+  "name": "Scripted Policy Condition",
+  "script": {
+    "file": "scripts-content/POLICY_CONDITION/Scripted Policy Condition.js"
+  }
+}

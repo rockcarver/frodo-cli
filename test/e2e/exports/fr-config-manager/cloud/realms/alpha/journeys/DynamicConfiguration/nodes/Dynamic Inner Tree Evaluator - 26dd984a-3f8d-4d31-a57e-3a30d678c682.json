@@ -1,0 +1,34 @@
+{
+  "_id": "26dd984a-3f8d-4d31-a57e-3a30d678c682",
+  "_outcomes": [
+    {
+      "displayName": "True",
+      "id": "true"
+    },
+    {
+      "displayName": "False",
+      "id": "false"
+    },
+    {
+      "displayName": "Error",
+      "id": "error"
+    },
+    {
+      "displayName": "Configuration failure",
+      "id": "CONFIGURATION_FAILED"
+    }
+  ],
+  "_rev": "287265917",
+  "_type": {
+    "_id": "ConfigProviderNode",
+    "collection": true,
+    "name": "Configuration Provider",
+    "version": "1.0"
+  },
+  "nodeType": "InnerTreeEvaluatorNode",
+  "nodeVersion": 1,
+  "script": "5e854779-6ec1-4c39-aeba-0477e0986646",
+  "scriptInputs": [
+    "*"
+  ]
+}

@@ -1,0 +1,33 @@
+{
+  "_id": "502d5c39-aa9d-4212-b757-a20af3895d73",
+  "_outcomes": [
+    {
+      "displayName": "True",
+      "id": "true"
+    },
+    {
+      "displayName": "False",
+      "id": "false"
+    }
+  ],
+  "_rev": "-1858712910",
+  "_type": {
+    "_id": "PageNode",
+    "collection": true,
+    "name": "Page Node",
+    "version": "1.0"
+  },
+  "nodes": [
+    {
+      "_id": "a8ecc82a-6aaf-4d00-a72c-f516b2b9dfbe",
+      "displayName": "Enrollment Succeeded",
+      "nodeType": "MessageNode",
+      "nodeVersion": "1.0"
+    }
+  ],
+  "pageDescription": {},
+  "pageHeader": {
+    "en": "Biometric Enrollment"
+  },
+  "stage": "{\"ConfirmationCallback\":[{\"id\":\"706f8501-ede2-4bb5-af98-a1f1efbc57ec\",\"showOnlyPositiveAnswer\":true},{\"id\":\"a8ecc82a-6aaf-4d00-a72c-f516b2b9dfbe\",\"showOnlyPositiveAnswer\":true}]}"
+}

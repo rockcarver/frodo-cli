@@ -1,0 +1,28 @@
+{
+  "_id": "5142a4e5-68f6-452a-af56-bb534fa26400",
+  "_outcomes": [
+    {
+      "displayName": "true",
+      "id": "true"
+    }
+  ],
+  "_rev": "1825350315",
+  "_type": {
+    "_id": "PageNode",
+    "collection": true,
+    "name": "Page Node",
+    "version": "1.0"
+  },
+  "nodes": [
+    {
+      "_id": "431cf085-c449-465b-bd84-6e391e0df804",
+      "displayName": "Node Config",
+      "nodeType": "ScriptedDecisionNode",
+      "nodeVersion": "1.0"
+    }
+  ],
+  "pageDescription": {},
+  "pageHeader": {
+    "en": "Configure Message Node"
+  }
+}

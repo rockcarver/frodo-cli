@@ -1,0 +1,150 @@
+{
+  "_id": "19b1792b-9d2d-4e29-bd91-7be476e27ada",
+  "accountCardBackgroundColor": "#ffffff",
+  "accountCardHeaderColor": "#23282e",
+  "accountCardInnerBorderColor": "#e7eef4",
+  "accountCardInputBackgroundColor": "#ffffff",
+  "accountCardInputBorderColor": "#c0c9d5",
+  "accountCardInputFocusBorderColor": "#EB0A1E",
+  "accountCardInputLabelColor": "#5e6d82",
+  "accountCardInputSelectColor": "#edf7fd",
+  "accountCardInputSelectHoverColor": "#f6f8fa",
+  "accountCardInputTextColor": "#23282e",
+  "accountCardOuterBorderColor": "#e7eef4",
+  "accountCardShadow": 3,
+  "accountCardTabActiveBorderColor": "#109cf1",
+  "accountCardTabActiveColor": "#e4f4fd",
+  "accountCardTextColor": "#5e6d82",
+  "accountFooter": {
+    "file": "accountFooter.html"
+  },
+  "accountFooterEnabled": true,
+  "accountFooterScriptTag": "",
+  "accountFooterScriptTagEnabled": false,
+  "accountNavigationBackgroundColor": "#ffffff",
+  "accountNavigationTextColor": "#455469",
+  "accountNavigationToggleBorderColor": "#e7eef4",
+  "accountPageSections": {
+    "accountControls": {
+      "enabled": false
+    },
+    "accountSecurity": {
+      "enabled": true,
+      "subsections": {
+        "password": {
+          "enabled": true
+        },
+        "securityQuestions": {
+          "enabled": false
+        },
+        "twoStepVerification": {
+          "enabled": true
+        },
+        "username": {
+          "enabled": true
+        }
+      }
+    },
+    "consent": {
+      "enabled": false
+    },
+    "oauthApplications": {
+      "enabled": false
+    },
+    "personalInformation": {
+      "enabled": true
+    },
+    "preferences": {
+      "enabled": false
+    },
+    "social": {
+      "enabled": false
+    },
+    "trustedDevices": {
+      "enabled": true
+    }
+  },
+  "accountTableRowHoverColor": "#f6f8fa",
+  "backgroundColor": "#FFFFFF",
+  "backgroundImage": "",
+  "bodyText": "#5E6D82",
+  "boldLinks": false,
+  "buttonFocusBorderColor": "#0672cb",
+  "buttonRounded": "50",
+  "dangerColor": "#f7685b",
+  "darkColor": "#23282e",
+  "favicon": "https://cdn.forgerock.com/platform/themes/highlander/logo-highlander-icon.svg",
+  "fontFamily": "Open Sans",
+  "infoColor": "#109cf1",
+  "isDefault": false,
+  "journeyA11yAddFallbackErrorHeading": true,
+  "journeyCardBackgroundColor": "#ffffff",
+  "journeyCardBorderRadius": 4,
+  "journeyCardHeaderBackgroundColor": "#ffffff",
+  "journeyCardShadow": 3,
+  "journeyCardTextColor": "#5e6d82",
+  "journeyCardTitleColor": "#23282e",
+  "journeyFloatingLabels": true,
+  "journeyFocusElement": "header",
+  "journeyFocusFirstFocusableItemEnabled": false,
+  "journeyFooter": {
+    "file": "journeyFooter.html"
+  },
+  "journeyFooterEnabled": true,
+  "journeyFooterScriptTag": "",
+  "journeyFooterScriptTagEnabled": false,
+  "journeyHeader": {
+    "file": "journeyHeader.html"
+  },
+  "journeyHeaderEnabled": true,
+  "journeyHeaderSkipLinkEnabled": false,
+  "journeyInputBackgroundColor": "#ffffff",
+  "journeyInputBorderColor": "#c0c9d5",
+  "journeyInputFocusBorderColor": "#EB0A1E",
+  "journeyInputLabelColor": "#5e6d82",
+  "journeyInputSelectColor": "#e4f4fd",
+  "journeyInputSelectHoverColor": "#f6f8fa",
+  "journeyInputTextColor": "#23282e",
+  "journeyJustifiedContent": "",
+  "journeyJustifiedContentEnabled": false,
+  "journeyJustifiedContentMobileViewEnabled": false,
+  "journeyLayout": "card",
+  "journeyRememberMeEnabled": false,
+  "journeyRememberMeLabel": "",
+  "journeySignInButtonPosition": "flex-column",
+  "journeyTheaterMode": false,
+  "lightColor": "#f6f8fa",
+  "linkActiveColor": "#C60819",
+  "linkActiveColorOnDark": "#0a6eab",
+  "linkColor": "#EB0A1E",
+  "linkColorOnDark": "#109cf1",
+  "linkedTrees": [],
+  "logo": "https://cdn.forgerock.com/platform/themes/highlander/logo-highlander-icon.svg",
+  "logoAltText": "Highlander",
+  "logoEnabled": true,
+  "logoHeight": "40",
+  "logoProfile": "https://cdn.forgerock.com/platform/themes/highlander/logo-highlander-full.svg",
+  "logoProfileAltText": "Highlander",
+  "logoProfileCollapsed": "https://cdn.forgerock.com/platform/themes/highlander/logo-highlander-icon.svg",
+  "logoProfileCollapsedAltText": "Highlander",
+  "logoProfileCollapsedHeight": "28",
+  "logoProfileHeight": "28",
+  "name": "Highlander",
+  "pageTitle": "#23282e",
+  "primaryColor": "#EB0A1E",
+  "primaryOffColor": "#C60819",
+  "profileBackgroundColor": "#FFFFFF",
+  "profileMenuHighlightColor": "#FFFFFF",
+  "profileMenuHoverColor": "#FFFFFF",
+  "profileMenuHoverTextColor": "#455469",
+  "profileMenuTextHighlightColor": "#EB0A1E",
+  "secondaryColor": "#69788b",
+  "successColor": "#2ed47a",
+  "switchBackgroundColor": "#939393",
+  "textColor": "#ffffff",
+  "topBarBackgroundColor": "#ffffff",
+  "topBarBorderColor": "#e7eef4",
+  "topBarHeaderColor": "#23282e",
+  "topBarTextColor": "#69788b",
+  "warningColor": "#ffb946"
+}

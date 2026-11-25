@@ -1,0 +1,10 @@
+{
+  "_id": "",
+  "_rev": "6506753",
+  "_type": {
+    "_id": "dashboard",
+    "collection": false,
+    "name": "Dashboard"
+  },
+  "assignedDashboard": []
+}

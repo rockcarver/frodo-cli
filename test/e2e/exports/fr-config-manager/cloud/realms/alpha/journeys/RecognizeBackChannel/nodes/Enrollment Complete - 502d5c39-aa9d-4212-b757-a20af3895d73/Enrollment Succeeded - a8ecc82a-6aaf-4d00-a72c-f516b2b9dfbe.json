@@ -1,0 +1,27 @@
+{
+  "_id": "a8ecc82a-6aaf-4d00-a72c-f516b2b9dfbe",
+  "_outcomes": [
+    {
+      "displayName": "True",
+      "id": "true"
+    },
+    {
+      "displayName": "False",
+      "id": "false"
+    }
+  ],
+  "_rev": "-2137062472",
+  "_type": {
+    "_id": "MessageNode",
+    "collection": true,
+    "name": "Message Node",
+    "version": "1.0"
+  },
+  "message": {
+    "en": "Biometric Successfully Enrolled"
+  },
+  "messageNo": {},
+  "messageYes": {
+    "en": "Verify To Complete"
+  }
+}

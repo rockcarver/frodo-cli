@@ -1,0 +1,16 @@
+{
+  "_id": "ac40a394-b3cd-400f-b2aa-b6b2e4a8be8e",
+  "context": "CACHE_LOADER",
+  "createdBy": "id=dsameuser,ou=user,dc=openam,dc=forgerock,dc=org",
+  "creationDate": 1433147666269,
+  "default": true,
+  "description": "Default global script for Cache Loader",
+  "evaluatorVersion": "2.0",
+  "language": "JAVASCRIPT",
+  "lastModifiedBy": "id=9f7b6b8b-6ab5-45b3-aad5-5bda19eb3064,ou=user,ou=am-config",
+  "lastModifiedDate": 1790975771351,
+  "name": "Cache Loader Script",
+  "script": {
+    "file": "scripts-content/CACHE_LOADER/Cache Loader Script.js"
+  }
+}

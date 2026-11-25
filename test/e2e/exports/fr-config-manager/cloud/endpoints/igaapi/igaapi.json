@@ -1,0 +1,7 @@
+{
+  "_id": "endpoint/igaapi",
+  "comment": "/*\nScript to be placed in IDM script directory to allow the IGA API to be called an authenticated in a simple and readable fashion\nwithin IDM workflows and scripts.\n\nExample:  var result = openidm.action('iga/governance/certification/:id', 'GET')\nExample:  var result = openidm.action('iga/governance/applications/<id>/activate', 'POST', {})\n */\n",
+  "context": "iga/*",
+  "file": "igaapi.js",
+  "type": "text/javascript"
+}

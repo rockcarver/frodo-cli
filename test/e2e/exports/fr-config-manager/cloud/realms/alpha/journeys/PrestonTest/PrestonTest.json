@@ -1,0 +1,63 @@
+{
+  "_id": "PrestonTest",
+  "_rev": "-1706114254",
+  "description": "Test journey with a script that no longer exists, to fix a journey export issue.",
+  "enabled": true,
+  "entryNodeId": "c8bdb934-c92b-42dd-aa2e-9597513daa1b",
+  "identityResource": "managed/alpha_user",
+  "innerTreeOnly": false,
+  "mustRun": false,
+  "noSession": false,
+  "nodes": {
+    "c8bdb934-c92b-42dd-aa2e-9597513daa1b": {
+      "connections": {
+        "false": "e301438c-0bd0-429c-ab0c-66126501069a",
+        "true": "70e691a5-1e33-4ac3-a356-e7b6d60d92e0"
+      },
+      "displayName": "Inner Tree Evaluator",
+      "nodeType": "InnerTreeEvaluatorNode",
+      "version": "1.0",
+      "x": 190,
+      "y": 75.8125
+    },
+    "ebce4ad5-8a1a-4d56-beca-193a8a5e7337": {
+      "connections": {
+        "outcome": "e301438c-0bd0-429c-ab0c-66126501069a"
+      },
+      "displayName": "Failure URL",
+      "nodeType": "SetFailureUrlNode",
+      "version": "1.0",
+      "x": 477,
+      "y": 315.8125
+    },
+    "f280317b-d7e7-4098-9f36-1ba429ec24df": {
+      "connections": {
+        "false": "ebce4ad5-8a1a-4d56-beca-193a8a5e7337",
+        "true": "70e691a5-1e33-4ac3-a356-e7b6d60d92e0"
+      },
+      "displayName": "True or false",
+      "nodeType": "MessageNode",
+      "version": "1.0",
+      "x": 218,
+      "y": 249.8125
+    }
+  },
+  "staticNodes": {
+    "70e691a5-1e33-4ac3-a356-e7b6d60d92e0": {
+      "x": 500,
+      "y": 50
+    },
+    "e301438c-0bd0-429c-ab0c-66126501069a": {
+      "x": 713,
+      "y": 343
+    },
+    "startNode": {
+      "x": 50,
+      "y": 250
+    }
+  },
+  "transactionalOnly": false,
+  "uiConfig": {
+    "categories": "[]"
+  }
+}

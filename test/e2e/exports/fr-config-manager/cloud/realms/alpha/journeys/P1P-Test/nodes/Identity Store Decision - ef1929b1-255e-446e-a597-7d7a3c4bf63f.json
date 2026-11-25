@@ -1,0 +1,35 @@
+{
+  "_id": "ef1929b1-255e-446e-a597-7d7a3c4bf63f",
+  "_outcomes": [
+    {
+      "displayName": "True",
+      "id": "TRUE"
+    },
+    {
+      "displayName": "False",
+      "id": "FALSE"
+    },
+    {
+      "displayName": "Locked",
+      "id": "LOCKED"
+    },
+    {
+      "displayName": "Cancelled",
+      "id": "CANCELLED"
+    },
+    {
+      "displayName": "Expired",
+      "id": "EXPIRED"
+    }
+  ],
+  "_rev": "1093367427",
+  "_type": {
+    "_id": "IdentityStoreDecisionNode",
+    "collection": true,
+    "name": "Identity Store Decision",
+    "version": "1.0"
+  },
+  "minimumPasswordLength": 8,
+  "mixedCaseForPasswordChangeMessages": false,
+  "useUniversalIdForUsername": false
+}

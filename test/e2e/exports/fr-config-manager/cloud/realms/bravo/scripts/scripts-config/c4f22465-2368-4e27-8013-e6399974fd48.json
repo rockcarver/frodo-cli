@@ -1,0 +1,16 @@
+{
+  "_id": "c4f22465-2368-4e27-8013-e6399974fd48",
+  "context": "SAML2_IDP_ATTRIBUTE_MAPPER",
+  "createdBy": "id=dsameuser,ou=user,dc=openam,dc=forgerock,dc=org",
+  "creationDate": 1433147666269,
+  "default": true,
+  "description": "Default global script for SAML2 IDP Attribute Mapper Script",
+  "evaluatorVersion": "1.0",
+  "language": "JAVASCRIPT",
+  "lastModifiedBy": "id=8a4fce63-e7f1-452c-a984-086150f83be0,ou=user,ou=am-config",
+  "lastModifiedDate": 1790614181534,
+  "name": "SAML2 IDP Attribute Mapper Script",
+  "script": {
+    "file": "scripts-content/SAML2_IDP_ATTRIBUTE_MAPPER/SAML2 IDP Attribute Mapper Script.js"
+  }
+}

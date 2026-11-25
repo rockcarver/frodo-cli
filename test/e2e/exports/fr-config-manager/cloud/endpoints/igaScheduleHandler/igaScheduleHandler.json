@@ -1,0 +1,6 @@
+{
+  "_id": "endpoint/igaScheduleHandler",
+  "comment": "Custom endpoint to handle the generation of an authorization header for the scheduler and running of IDM calls to the IGA API.\nIDM Scheduler allows for the passage in of variables inside of the globals object of the script definition.\nThese variables are not declared within this script, but can be referenced anyway.  They are as follows:\n\nscanType (required) - The type of IGA scan being run\nreconApplication -    For type 'recon' only, the application information to run a recon for\nadditionalMappings -  For type 'recon' only, the application recon accepts additional mappings to the /reconcileAll endpoint\nincremental -         For type 'recon' only, the application recon can be run full (default) or incremental\ntemplateId -          For type 'scheduledCertification' only, the ID of the template that will be used to generate the certification\npolicyId -            For type 'scheduledPolicyScan' only, the ID of the policy that will be scanned",
+  "file": "igaScheduleHandler.js",
+  "type": "text/javascript"
+}

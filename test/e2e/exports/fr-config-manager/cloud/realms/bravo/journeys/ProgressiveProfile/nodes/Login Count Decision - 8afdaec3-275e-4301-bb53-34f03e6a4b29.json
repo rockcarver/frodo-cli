@@ -1,0 +1,23 @@
+{
+  "_id": "8afdaec3-275e-4301-bb53-34f03e6a4b29",
+  "_outcomes": [
+    {
+      "displayName": "True",
+      "id": "true"
+    },
+    {
+      "displayName": "False",
+      "id": "false"
+    }
+  ],
+  "_rev": "-1493211554",
+  "_type": {
+    "_id": "LoginCountDecisionNode",
+    "collection": true,
+    "name": "Login Count Decision",
+    "version": "1.0"
+  },
+  "amount": 3,
+  "identityAttribute": "userName",
+  "interval": "AT"
+}

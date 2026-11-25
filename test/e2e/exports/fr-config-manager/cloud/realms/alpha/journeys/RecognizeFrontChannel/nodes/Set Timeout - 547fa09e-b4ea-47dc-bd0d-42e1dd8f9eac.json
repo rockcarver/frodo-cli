@@ -1,0 +1,18 @@
+{
+  "_id": "547fa09e-b4ea-47dc-bd0d-42e1dd8f9eac",
+  "_outcomes": [
+    {
+      "displayName": "Outcome",
+      "id": "outcome"
+    }
+  ],
+  "_rev": "-2071355051",
+  "_type": {
+    "_id": "UpdateJourneyTimeoutNode",
+    "collection": true,
+    "name": "Update Journey Timeout",
+    "version": "1.0"
+  },
+  "operation": "SET",
+  "value": 10
+}

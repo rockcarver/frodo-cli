@@ -1,0 +1,218 @@
+{
+  "_id": "RecognizeFrontChannel",
+  "_rev": "1122341778",
+  "description": "Helpdesk agents or candidate interviewers can launch this journey to biometrically verify caller or candidate.",
+  "enabled": true,
+  "entryNodeId": "15722040-21fd-4c10-8321-99ea34cecc1a",
+  "identityResource": "managed/alpha_user",
+  "innerTreeOnly": false,
+  "mustRun": false,
+  "noSession": false,
+  "nodes": {
+    "00e7ebb9-7303-4f81-bd92-c97b9c3d1fb0": {
+      "connections": {
+        "true": "e301438c-0bd0-429c-ab0c-66126501069a"
+      },
+      "displayName": "Unknown",
+      "nodeType": "PageNode",
+      "version": "1.0",
+      "x": 3013,
+      "y": 554.015625
+    },
+    "15722040-21fd-4c10-8321-99ea34cecc1a": {
+      "connections": {
+        "false": "547fa09e-b4ea-47dc-bd0d-42e1dd8f9eac",
+        "true": "547fa09e-b4ea-47dc-bd0d-42e1dd8f9eac"
+      },
+      "displayName": "Existing Session?",
+      "nodeType": "InnerTreeEvaluatorNode",
+      "version": "1.0",
+      "x": 187,
+      "y": 393.015625
+    },
+    "27063442-891e-404c-ad6d-bc062786a748": {
+      "connections": {
+        "error": "5467e10f-1d5d-4fe0-bf99-a6fc21b5893a",
+        "failed": "5467e10f-1d5d-4fe0-bf99-a6fc21b5893a",
+        "sent": "e22606c4-a25f-4bee-89cd-1a90d5f264ac"
+      },
+      "displayName": "SMS",
+      "nodeType": "ScriptedDecisionNode",
+      "version": "1.0",
+      "x": 1921,
+      "y": 457.015625
+    },
+    "371d3ca2-d2dc-4d34-b167-65d71b5137a6": {
+      "connections": {
+        "error": "5467e10f-1d5d-4fe0-bf99-a6fc21b5893a",
+        "true": "954588db-2d3d-4ee9-b447-e184382af1db"
+      },
+      "displayName": "Select Candidate",
+      "nodeType": "PageNode",
+      "version": "1.0",
+      "x": 1021,
+      "y": 354.015625
+    },
+    "39a46d9f-f879-4606-b4c7-268f5e31d4a0": {
+      "connections": {
+        "error": "5467e10f-1d5d-4fe0-bf99-a6fc21b5893a",
+        "failed": "5467e10f-1d5d-4fe0-bf99-a6fc21b5893a",
+        "sent": "e22606c4-a25f-4bee-89cd-1a90d5f264ac"
+      },
+      "displayName": "EMAIL",
+      "nodeType": "ScriptedDecisionNode",
+      "version": "1.0",
+      "x": 1925,
+      "y": 627.015625
+    },
+    "5467e10f-1d5d-4fe0-bf99-a6fc21b5893a": {
+      "connections": {
+        "true": "e301438c-0bd0-429c-ab0c-66126501069a"
+      },
+      "displayName": "Page Node",
+      "nodeType": "PageNode",
+      "version": "1.0",
+      "x": 3014,
+      "y": 1070.015625
+    },
+    "547fa09e-b4ea-47dc-bd0d-42e1dd8f9eac": {
+      "connections": {
+        "outcome": "600d92ce-6055-4226-97c4-c11e77c5a3fa"
+      },
+      "displayName": "Set Timeout",
+      "nodeType": "UpdateJourneyTimeoutNode",
+      "version": "1.0",
+      "x": 466,
+      "y": 420.015625
+    },
+    "600d92ce-6055-4226-97c4-c11e77c5a3fa": {
+      "connections": {
+        "true": "371d3ca2-d2dc-4d34-b167-65d71b5137a6"
+      },
+      "displayName": "Search User",
+      "nodeType": "PageNode",
+      "version": "1.0",
+      "x": 750,
+      "y": 376.015625
+    },
+    "642d3d2c-49d1-4167-916b-c26d12f84647": {
+      "connections": {
+        "true": "e301438c-0bd0-429c-ab0c-66126501069a"
+      },
+      "displayName": "Success",
+      "nodeType": "PageNode",
+      "version": "1.0",
+      "x": 3012,
+      "y": 34.015625
+    },
+    "7661153f-a42c-4183-a7e8-0bbae910e161": {
+      "connections": {
+        "true": "e301438c-0bd0-429c-ab0c-66126501069a"
+      },
+      "displayName": "Aborted",
+      "nodeType": "PageNode",
+      "version": "1.0",
+      "x": 3012,
+      "y": 728.015625
+    },
+    "954588db-2d3d-4ee9-b447-e184382af1db": {
+      "connections": {
+        "created": "b5de01d5-1e2d-4427-bedb-5d27206701c3",
+        "error": "5467e10f-1d5d-4fe0-bf99-a6fc21b5893a",
+        "unknown": "5467e10f-1d5d-4fe0-bf99-a6fc21b5893a"
+      },
+      "displayName": "Backchannel Initialize",
+      "nodeType": "BackChannelInitNode",
+      "version": "1.0",
+      "x": 1310,
+      "y": 376.015625
+    },
+    "b5de01d5-1e2d-4427-bedb-5d27206701c3": {
+      "connections": {
+        "EMAIL": "39a46d9f-f879-4606-b4c7-268f5e31d4a0",
+        "QR": "e3a74b62-6eec-40f4-a2f6-2dceb73acce9",
+        "SMS": "27063442-891e-404c-ad6d-bc062786a748"
+      },
+      "displayName": "Method of Delivery",
+      "nodeType": "PageNode",
+      "version": "1.0",
+      "x": 1609,
+      "y": 350.015625
+    },
+    "cdca977d-8264-4933-ac9b-d4769c8f5e23": {
+      "connections": {
+        "false": "e301438c-0bd0-429c-ab0c-66126501069a",
+        "true": "b5de01d5-1e2d-4427-bedb-5d27206701c3"
+      },
+      "displayName": "Failure",
+      "nodeType": "PageNode",
+      "version": "1.0",
+      "x": 3013,
+      "y": 267.015625
+    },
+    "de8b09b8-ce4b-4d34-8ce9-6cfd81e63e8a": {
+      "connections": {},
+      "displayName": "Timeout",
+      "nodeType": "PageNode",
+      "version": "1.0",
+      "x": 3013.8888888888887,
+      "y": 899.4618055555555
+    },
+    "e22606c4-a25f-4bee-89cd-1a90d5f264ac": {
+      "connections": {
+        "DONE": "fe68e233-373e-49db-b264-b1e79d3ee759",
+        "EXITED": "7661153f-a42c-4183-a7e8-0bbae910e161",
+        "SPAM": "de8b09b8-ce4b-4d34-8ce9-6cfd81e63e8a"
+      },
+      "displayName": "Polling Wait Node",
+      "nodeType": "PollingWaitNode",
+      "version": "1.0",
+      "x": 2219,
+      "y": 298.015625
+    },
+    "e3a74b62-6eec-40f4-a2f6-2dceb73acce9": {
+      "connections": {
+        "true": "e22606c4-a25f-4bee-89cd-1a90d5f264ac"
+      },
+      "displayName": "QR",
+      "nodeType": "PageNode",
+      "version": "1.0",
+      "x": 1911,
+      "y": 199.015625
+    },
+    "fe68e233-373e-49db-b264-b1e79d3ee759": {
+      "connections": {
+        "error": "5467e10f-1d5d-4fe0-bf99-a6fc21b5893a",
+        "failure": "cdca977d-8264-4933-ac9b-d4769c8f5e23",
+        "inprogress": "e22606c4-a25f-4bee-89cd-1a90d5f264ac",
+        "pending": "e22606c4-a25f-4bee-89cd-1a90d5f264ac",
+        "success": "642d3d2c-49d1-4167-916b-c26d12f84647",
+        "unknown": "00e7ebb9-7303-4f81-bd92-c97b9c3d1fb0"
+      },
+      "displayName": "Backchannel Status",
+      "nodeType": "BackChannelStatusNode",
+      "version": "1.0",
+      "x": 2599.714285714286,
+      "y": 157.59375
+    }
+  },
+  "staticNodes": {
+    "70e691a5-1e33-4ac3-a356-e7b6d60d92e0": {
+      "x": 74,
+      "y": 260
+    },
+    "e301438c-0bd0-429c-ab0c-66126501069a": {
+      "x": 3335,
+      "y": 718
+    },
+    "startNode": {
+      "x": 70,
+      "y": 420
+    }
+  },
+  "transactionalOnly": false,
+  "uiConfig": {
+    "annotations": "{\"forNodes\":{},\"structural\":[]}",
+    "categories": "[\"Prototype\"]"
+  }
+}

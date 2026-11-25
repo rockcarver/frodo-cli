@@ -1,0 +1,94 @@
+{
+  "_id": "j01",
+  "_rev": "-1240740730",
+  "enabled": true,
+  "entryNodeId": "f129f0df-b49e-453b-97fb-db508e3893ce",
+  "identityResource": "managed/alpha_user",
+  "innerTreeOnly": false,
+  "mustRun": false,
+  "noSession": false,
+  "nodes": {
+    "6674b4ac-dd89-4e13-9440-6f81194e3a22": {
+      "connections": {
+        "true": "bb1e96af-f316-4eb0-b1c6-36b3f1af9e35"
+      },
+      "displayName": "shared",
+      "nodeType": "ScriptedDecisionNode",
+      "version": "1.0",
+      "x": 0,
+      "y": 0
+    },
+    "89ce5d57-82fa-4d58-8d15-0329f7dbd7e7": {
+      "connections": {
+        "true": "bdfbe97c-1ff4-4162-85bc-47f6f14b2c66"
+      },
+      "displayName": "shared",
+      "nodeType": "ScriptedDecisionNode",
+      "version": "1.0",
+      "x": 0,
+      "y": 0
+    },
+    "bb1e96af-f316-4eb0-b1c6-36b3f1af9e35": {
+      "connections": {
+        "false": "e301438c-0bd0-429c-ab0c-66126501069a",
+        "true": "e301438c-0bd0-429c-ab0c-66126501069a"
+      },
+      "displayName": "nest",
+      "nodeType": "InnerTreeEvaluatorNode",
+      "version": "1.0",
+      "x": 0,
+      "y": 0
+    },
+    "bdfbe97c-1ff4-4162-85bc-47f6f14b2c66": {
+      "connections": {
+        "true": "bb1e96af-f316-4eb0-b1c6-36b3f1af9e35"
+      },
+      "displayName": "level",
+      "nodeType": "ScriptedDecisionNode",
+      "version": "1.0",
+      "x": 0,
+      "y": 0
+    },
+    "e92d5139-b8a6-43dc-9b13-95ba1d0dc53c": {
+      "connections": {
+        "true": "bb1e96af-f316-4eb0-b1c6-36b3f1af9e35"
+      },
+      "displayName": "level",
+      "nodeType": "ScriptedDecisionNode",
+      "version": "1.0",
+      "x": 0,
+      "y": 0
+    },
+    "f129f0df-b49e-453b-97fb-db508e3893ce": {
+      "connections": {
+        "level only": "e92d5139-b8a6-43dc-9b13-95ba1d0dc53c",
+        "none": "bb1e96af-f316-4eb0-b1c6-36b3f1af9e35",
+        "shared and level": "89ce5d57-82fa-4d58-8d15-0329f7dbd7e7",
+        "shared only": "6674b4ac-dd89-4e13-9440-6f81194e3a22"
+      },
+      "displayName": "mode",
+      "nodeType": "ScriptedDecisionNode",
+      "version": "1.0",
+      "x": 0,
+      "y": 0
+    }
+  },
+  "staticNodes": {
+    "70e691a5-1e33-4ac3-a356-e7b6d60d92e0": {
+      "x": 1236,
+      "y": 145
+    },
+    "e301438c-0bd0-429c-ab0c-66126501069a": {
+      "x": 1236,
+      "y": 253
+    },
+    "startNode": {
+      "x": 50,
+      "y": 250
+    }
+  },
+  "transactionalOnly": false,
+  "uiConfig": {
+    "categories": "[]"
+  }
+}

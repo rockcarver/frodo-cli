@@ -1,0 +1,16 @@
+{
+  "_id": "5e854779-6ec1-4c39-aeba-0477e0986646",
+  "context": "CONFIG_PROVIDER_NODE",
+  "createdBy": "id=dsameuser,ou=user,dc=openam,dc=forgerock,dc=org",
+  "creationDate": 1433147666269,
+  "default": true,
+  "description": "Default global script for Config Provider",
+  "evaluatorVersion": "1.0",
+  "language": "JAVASCRIPT",
+  "lastModifiedBy": "id=8a4fce63-e7f1-452c-a984-086150f83be0,ou=user,ou=am-config",
+  "lastModifiedDate": 1790614179845,
+  "name": "Config Provider",
+  "script": {
+    "file": "scripts-content/CONFIG_PROVIDER_NODE/Config Provider.js"
+  }
+}

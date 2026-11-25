@@ -1,0 +1,41 @@
+{
+  "_id": "cdca977d-8264-4933-ac9b-d4769c8f5e23",
+  "_outcomes": [
+    {
+      "displayName": "True",
+      "id": "true"
+    },
+    {
+      "displayName": "False",
+      "id": "false"
+    }
+  ],
+  "_rev": "209225313",
+  "_type": {
+    "_id": "PageNode",
+    "collection": true,
+    "name": "Page Node",
+    "version": "1.0"
+  },
+  "nodes": [
+    {
+      "_id": "81f4b5bf-0563-4d06-b177-98d4c8f92643",
+      "displayName": "Display Message",
+      "nodeType": "designer-9baced97d9314337bcd202d28f3fd17b",
+      "nodeVersion": "1.0"
+    },
+    {
+      "_id": "e59a28c3-cae6-4317-b48a-dd4379c78a82",
+      "displayName": "Try again?",
+      "nodeType": "MessageNode",
+      "nodeVersion": "1.0"
+    }
+  ],
+  "pageDescription": {
+    "en": "Proceed with caution!"
+  },
+  "pageHeader": {
+    "en": "User Failed Authentication"
+  },
+  "stage": "{\"ConfirmationCallback\":[{\"id\":\"b2f5e9aa-151f-4d4f-bd41-f8b5e3cb5968\",\"showOnlyPositiveAnswer\":true}]}"
+}

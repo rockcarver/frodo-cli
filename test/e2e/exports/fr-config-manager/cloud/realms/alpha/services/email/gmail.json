@@ -1,0 +1,13 @@
+{
+  "_id": "gmail",
+  "_type": {
+    "_id": "smtpTransports",
+    "collection": true,
+    "name": "SMTP"
+  },
+  "emailImplClassName": "org.forgerock.openam.services.email.MailServerImpl",
+  "hostname": "smtp.gmail.com",
+  "port": 465,
+  "sslState": "SSL",
+  "username": "vscheuber@gmail.com"
+}

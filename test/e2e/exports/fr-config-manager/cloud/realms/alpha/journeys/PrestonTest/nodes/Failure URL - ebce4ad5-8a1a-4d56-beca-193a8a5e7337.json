@@ -1,0 +1,17 @@
+{
+  "_id": "ebce4ad5-8a1a-4d56-beca-193a8a5e7337",
+  "_outcomes": [
+    {
+      "displayName": "Outcome",
+      "id": "outcome"
+    }
+  ],
+  "_rev": "-979173363",
+  "_type": {
+    "_id": "SetFailureUrlNode",
+    "collection": true,
+    "name": "Failure URL",
+    "version": "1.0"
+  },
+  "failureUrl": "#/service/PrestonTest"
+}

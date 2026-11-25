@@ -1,0 +1,32 @@
+{
+  "_id": "0fde84fa-bf2f-4322-a040-fc700bd9b8f2",
+  "_outcomes": [
+    {
+      "displayName": "Outcome",
+      "id": "outcome"
+    }
+  ],
+  "_rev": "-1628537089",
+  "_type": {
+    "_id": "PageNode",
+    "collection": true,
+    "name": "Page Node",
+    "version": "1.0"
+  },
+  "nodes": [
+    {
+      "_id": "16ac997e-4d48-4c19-b6b9-98086845131a",
+      "displayName": "Platform Username",
+      "nodeType": "ValidatedUsernameNode",
+      "nodeVersion": "1.0"
+    },
+    {
+      "_id": "52db314b-2eda-41a9-8dda-8d0b8b8e5876",
+      "displayName": "Platform Password",
+      "nodeType": "ValidatedPasswordNode",
+      "nodeVersion": "1.0"
+    }
+  ],
+  "pageDescription": {},
+  "pageHeader": {}
+}

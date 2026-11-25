@@ -1,0 +1,20 @@
+{
+  "_id": "a02fa1ec-2752-42bc-a98f-e41e08f225e7",
+  "_outcomes": [
+    {
+      "displayName": "True",
+      "id": "true"
+    },
+    {
+      "displayName": "False",
+      "id": "false"
+    }
+  ],
+  "_rev": "1241899620",
+  "_type": {
+    "_id": "AgentDataStoreDecisionNode",
+    "collection": true,
+    "name": "Agent Data Store Decision",
+    "version": "1.0"
+  }
+}

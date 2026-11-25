@@ -1,0 +1,23 @@
+{
+  "_id": "emailTemplate/requestReminder",
+  "defaultLocale": "en",
+  "enabled": true,
+  "from": "",
+  "html": {
+    "en": {
+      "file": "requestReminder.en.html"
+    }
+  },
+  "message": {
+    "en": {
+      "file": "requestReminder.en.md"
+    }
+  },
+  "mimeType": "text/html",
+  "styles": {
+    "file": "requestReminder.css"
+  },
+  "subject": {
+    "en": "ATTENTION: Reminder to complete Request"
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "_id": "d80b362c-2e66-4607-94b7-13fd8745ac4e",
+  "_outcomes": [
+    {
+      "displayName": "outcome",
+      "id": "outcome"
+    }
+  ],
+  "_rev": "-1034080982",
+  "_type": {
+    "_id": "designer-9baced97d9314337bcd202d28f3fd17b",
+    "collection": true,
+    "name": "Display Message",
+    "version": "1.0"
+  },
+  "message": "{{selectedUserDisplayName}} has successfully completed the biometric challenge.",
+  "messageType": "INFORMATION"
+}

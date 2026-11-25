@@ -1,0 +1,97 @@
+{
+  "_id": "Login",
+  "_rev": "384176338",
+  "description": "Platform Login Tree",
+  "enabled": true,
+  "entryNodeId": "a12bc72f-ad97-4f1e-a789-a1fa3dd566c8",
+  "identityResource": "managed/alpha_user",
+  "innerTreeOnly": false,
+  "mustRun": false,
+  "noSession": false,
+  "nodes": {
+    "2119f332-0f69-4088-a7a1-6582bf0f2001": {
+      "connections": {
+        "Reject": "51e8c4c1-3509-4635-90e6-d2cc31c4a6a5",
+        "Retry": "a12bc72f-ad97-4f1e-a789-a1fa3dd566c8"
+      },
+      "displayName": "Retry Limit Decision",
+      "nodeType": "RetryLimitDecisionNode",
+      "version": "1.0",
+      "x": 612,
+      "y": 105.015625
+    },
+    "33b24514-3e50-4180-8f08-ab6f4e51b07e": {
+      "connections": {
+        "false": "e301438c-0bd0-429c-ab0c-66126501069a",
+        "true": "70e691a5-1e33-4ac3-a356-e7b6d60d92e0"
+      },
+      "displayName": "Inner Tree Evaluator",
+      "nodeType": "InnerTreeEvaluatorNode",
+      "version": "1.0",
+      "x": 827,
+      "y": 13
+    },
+    "51e8c4c1-3509-4635-90e6-d2cc31c4a6a5": {
+      "connections": {
+        "outcome": "e301438c-0bd0-429c-ab0c-66126501069a"
+      },
+      "displayName": "Account Lockout",
+      "nodeType": "AccountLockoutNode",
+      "version": "1.0",
+      "x": 836,
+      "y": 184.015625
+    },
+    "7f0c2aee-8c74-4d02-82a6-9d4ed9d11708": {
+      "connections": {
+        "CANCELLED": "e301438c-0bd0-429c-ab0c-66126501069a",
+        "EXPIRED": "e301438c-0bd0-429c-ab0c-66126501069a",
+        "FALSE": "2119f332-0f69-4088-a7a1-6582bf0f2001",
+        "LOCKED": "e301438c-0bd0-429c-ab0c-66126501069a",
+        "TRUE": "bba3e0d8-8525-4e82-bf48-ac17f7988917"
+      },
+      "displayName": "Identity Store Decision",
+      "nodeType": "IdentityStoreDecisionNode",
+      "version": "1.0",
+      "x": 352,
+      "y": 40.015625
+    },
+    "a12bc72f-ad97-4f1e-a789-a1fa3dd566c8": {
+      "connections": {
+        "outcome": "7f0c2aee-8c74-4d02-82a6-9d4ed9d11708"
+      },
+      "displayName": "Page Node",
+      "nodeType": "PageNode",
+      "version": "1.0",
+      "x": 136,
+      "y": 59
+    },
+    "bba3e0d8-8525-4e82-bf48-ac17f7988917": {
+      "connections": {
+        "outcome": "33b24514-3e50-4180-8f08-ab6f4e51b07e"
+      },
+      "displayName": "Increment Login Count",
+      "nodeType": "IncrementLoginCountNode",
+      "version": "1.0",
+      "x": 579,
+      "y": 34
+    }
+  },
+  "staticNodes": {
+    "70e691a5-1e33-4ac3-a356-e7b6d60d92e0": {
+      "x": 1073,
+      "y": 30
+    },
+    "e301438c-0bd0-429c-ab0c-66126501069a": {
+      "x": 761,
+      "y": 401
+    },
+    "startNode": {
+      "x": 50,
+      "y": 25
+    }
+  },
+  "transactionalOnly": false,
+  "uiConfig": {
+    "categories": "[\"Authentication\"]"
+  }
+}
