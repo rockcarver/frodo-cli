@@ -818,6 +818,29 @@ describe('--deep: the IDM CORS filter', () => {
         '1 of 3 CORS operations failed:'
       );
     });
+
+    test.each([
+      ['a dry run', {}],
+      ['the plan before the question', { plan: true }],
+    ])(
+      '%s that would reset the filter counts it as one operation, so that it says how a real run would end',
+      async (_name, extra) => {
+        idmFilter = filter({ urlPatterns: ['/x'] });
+        store = [configuration('cors'), configuration('a#b')];
+
+        expect(
+          await configManagerDeleteCors(undefined, true, false, {
+            deep: true,
+            ...extra,
+          })
+        ).toBe(false);
+
+        expect(updateConfigEntity).not.toHaveBeenCalled();
+        expect(summary()[0].split('\n')[0]).toBe(
+          '1 of 3 CORS operations failed:'
+        );
+      }
+    );
   });
 
   test('a real run says in its closing lines what was done, and that the CORS service entry was not changed', async () => {
