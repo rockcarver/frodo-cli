@@ -201,9 +201,9 @@ describe('the options', () => {
     expect(help).toContain('Nothing is deleted by this option.');
     expect(help).toContain('Cannot be used with -i.');
     expect(help).toContain('(nothing is deleted by --deep)');
-    // what is not reset, and why, in one sentence
+    // what the command leaves alone, in one sentence that promises nothing
     expect(help).toContain(
-      'The CORS service entry itself (the switch that turns the CORS filter of AM on and off) is never touched and is not reset yet: the library cannot write its enabled switch.'
+      'The CORS service entry itself (the switch that turns the CORS filter of AM on and off) is not changed by this command.'
     );
     expect(help).toContain('the one that a new tenant starts with included');
     expect(help).toContain(
@@ -213,9 +213,9 @@ describe('the options', () => {
     expect(help).toContain(
       'A configuration that is not in the list exits with code 1, also with --dry-run and --allow-failures.'
     );
-    // no word that belongs to the library, apart from the one sentence above
+    // no word that belongs to the library, and no promise of a later change
     expect(help).not.toMatch(
-      /deleteServiceNextDescendent|exportService|frodo-lib|updateConfigEntity/
+      /library|deleteServiceNextDescendent|exportService|frodo-lib|updateConfigEntity|\byet\b/
     );
   });
 });
@@ -260,7 +260,7 @@ describe('a delete of all CORS configurations', () => {
       'Delete all CORS configurations? This cannot be undone. Continue?'
     );
     expect(messages()).toContain(
-      'This permanently deletes all CORS configurations from https://openam-matrix.example.com/am (realm alpha).'
+      'This permanently deletes all CORS configurations from https://openam-matrix.example.com/am.'
     );
     expect(process.exitCode).toBe(0);
   });
@@ -357,7 +357,7 @@ describe('--deep', () => {
       `Delete ${WHAT_DEEP}? This cannot be undone. Continue?`
     );
     expect(messages()).toContain(
-      `This permanently deletes ${WHAT_DEEP} from https://openam-matrix.example.com/am (realm alpha).`
+      'This permanently deletes all CORS configurations from https://openam-matrix.example.com/am and resets the IDM CORS filter to its default values.'
     );
     expect(process.exitCode).toBe(0);
   });

@@ -107,8 +107,9 @@ export async function configManagerImportCors(): Promise<boolean> {
  * Cloud tenant (2024-08-09 to 2026-09-23) and 11 more from 2026-10-19, and from the Cloud and
  * ForgeOps fixtures of this repository: the parameters were the same in all of them, only the
  * header list grew once between 2023 and 2024. The filter class (`filterClass`) is NOT part of the
- * default, because it differs between platform versions (it was added to the entity by the platform
- * in late 2026): the reset keeps whatever class the tenant has, and every other key too. A test
+ * default, because the fixtures differ in it, and it first appears in the reads of 2026-10-19 (the
+ * reads before that have none, and nothing shows why it appeared): the reset keeps whatever class
+ * the tenant has, and every other key too. A test
  * compares this constant with the fixtures (IdmCorsFilterDefaults.test.js), so that a fixture that
  * is re-recorded with other values fails it. Written 2026-11-24; it moves into the library with
  * the CORS code.
@@ -294,7 +295,7 @@ const IDM_CLOSING: Record<IdmFilterOutcome, string> = {
 
 /**
  * Delete the named configurations of the global CORS service: one, or all of them. The service
- * entry itself stays (the library cannot reset its switch yet), and so does the IDM CORS filter,
+ * entry itself is never changed, and neither is the IDM CORS filter,
  * unless `deep` is true, which also resets the filter to its defaults and deletes nothing more.
  * The configurations are read first, and what is deleted is the id that the tenant LISTS for the
  * one that matches the typed id exactly: a typed id that is a path, or another case, is a
@@ -395,7 +396,7 @@ export async function configManagerDeleteCors(
     printMessage(
       [
         IDM_CLOSING[idmOutcome as IdmFilterOutcome],
-        'CORS service entry: not reset (the library cannot write its enabled switch yet).',
+        'CORS service entry: not changed.',
       ].join('\n')
     );
   }

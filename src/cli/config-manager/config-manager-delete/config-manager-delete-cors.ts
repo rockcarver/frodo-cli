@@ -1,3 +1,4 @@
+import { state } from '@rockcarver/frodo-lib';
 import { Option } from 'commander';
 import { configManagerDeleteCors } from '../../../configManagerOps/FrConfigCorsOps';
 import * as s from '../../../help/SampleData';
@@ -43,7 +44,7 @@ export default function setup() {
     )
     .addHelpText(
       'after',
-      `Without -i every named CORS configuration is deleted, the one that a new tenant starts with included; browsers that were allowed by a deleted configuration are refused until one allows them again. The IDM CORS filter is not touched unless --deep is given. The CORS service entry itself (the switch that turns the CORS filter of AM on and off) is never touched and is not reset yet: the library cannot write its enabled switch.\n` +
+      `Without -i every named CORS configuration is deleted, the one that a new tenant starts with included; browsers that were allowed by a deleted configuration are refused until one allows them again. The IDM CORS filter is not touched unless --deep is given. The CORS service entry itself (the switch that turns the CORS filter of AM on and off) is not changed by this command.\n` +
         `--deep sets initParams and urlPatterns of the IDM CORS filter to the default values and keeps every other key, the filter class among them; it writes only if something differs, and it never deletes the filter. No document states the default values: they are the ones that Cloud and ForgeOps tenants answer with. A classic deployment has no IDM, so the filter is skipped there.\n` +
         `A configuration that is not in the list exits with code 1, also with --dry-run and --allow-failures. The id that the tenant lists is what is deleted, so a value that is written as a path is a configuration that does not exist, and a listed id that is not a plain name (no slash, backslash, question mark, hash, percent sign, double dot or control character) is never sent: it counts as failed. Every configuration, and the reset of the filter, is one operation of the summary: one that fails does not stop the others, the command prints one summary and exits with code 1 if any failed; --allow-failures keeps the exit code at 0 for them.\n` +
         `Usage Examples:\n` +
@@ -120,7 +121,13 @@ export default function setup() {
           deep: options.deep,
           plan: true,
         });
-      if (!named && !(await confirmBulkDelete({ ...guardOptions, showPlan }))) {
+      // the question is about the tenant and not about a realm, which CORS
+      // ignores, and it says what --deep resets in a sentence of its own
+      const warning = `This permanently deletes all CORS configurations from ${state.getHost()}${options.deep ? ' and resets the IDM CORS filter to its default values' : ''}.`;
+      if (
+        !named &&
+        !(await confirmBulkDelete({ ...guardOptions, showPlan, warning }))
+      ) {
         process.exitCode = 1;
         return;
       }

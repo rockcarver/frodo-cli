@@ -487,9 +487,10 @@ delete --deep` it deletes nothing more.** It cannot be combined with `-i`, and o
 a classic deployment, which has no IDM, the IDM part is skipped. The values are
 those that Cloud and ForgeOps tenants answer with, because no document states
 them, and the reset has not been observed on a tenant. **The CORS service entry
-itself, the switch that turns the CORS filter of AM on and off, is not reset
-yet**, because the library cannot write its `enabled` switch; no command of this
-group deletes it, because AM refuses to delete it.
+itself, the switch that turns the CORS filter of AM on and off, is not changed by
+this command**: AM refuses to delete it, and the library cannot write its
+`enabled` switch today
+([frodo-lib#1152](https://github.com/rockcarver/frodo-lib/issues/1152)).
 
 **New command: `frodo config-manager delete remote-servers`** deletes one
 connector server (an entry of the list of connector servers in the IDM

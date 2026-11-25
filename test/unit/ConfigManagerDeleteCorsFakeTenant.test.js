@@ -640,9 +640,7 @@ suite('config-manager delete cors (fake tenant)', () => {
           'Reset IDM CORS filter: initParams and urlPatterns are at the default values.'
         );
         expect(output).toContain('IDM CORS filter: reset.');
-        expect(output).toContain(
-          'CORS service entry: not reset (the library cannot write its enabled switch yet).'
-        );
+        expect(output).toContain('CORS service entry: not changed.');
       },
       TIMEOUT
     );
@@ -954,6 +952,10 @@ ptySuite('config-manager delete cors, on a real terminal', () => {
       ).toBeLessThan(
         plain.indexOf('This permanently deletes all CORS configurations from')
       );
+      expect(plain).toContain(
+        `This permanently deletes all CORS configurations from http://127.0.0.1:${fakeAm.port}/am.`
+      );
+      expect(plain).not.toContain('(realm');
       expect(plain).toContain('Delete aborted.');
       expect(changesSent()).toEqual([]);
       expect(result.exitCode).toBe(1);
@@ -1012,9 +1014,11 @@ ptySuite('config-manager delete cors, on a real terminal', () => {
       expect(plain).toContain(
         'Plan: Resetting IDM CORS filter: initParams (allowCredentials, allowedOrigins) and urlPatterns would be set to the default values, the filter class is kept'
       );
+      // the question is about the tenant, never about the realm of the login, and says what --deep resets
       expect(plain).toContain(
-        'This permanently deletes all CORS configurations and reset the IDM CORS filter to its default values from'
+        `This permanently deletes all CORS configurations from http://127.0.0.1:${fakeAm.port}/am and resets the IDM CORS filter to its default values.`
       );
+      expect(plain).not.toContain('(realm');
       expect(plain).toContain('Delete aborted.');
       expect(changesSent()).toEqual([]);
       expect(result.exitCode).toBe(1);

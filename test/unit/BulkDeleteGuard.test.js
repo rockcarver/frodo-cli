@@ -73,6 +73,45 @@ describe('confirmBulkDelete', () => {
     );
   });
 
+  test('a command can give the whole warning line itself: it replaces the default line and nothing else', async () => {
+    expect(
+      await confirmBulkDelete({
+        what: 'all scripts and the settings',
+        warning:
+          'This permanently deletes all scripts from https://openam-alpha.example.com/am and resets the settings.',
+      })
+    ).toBe(true);
+
+    expect(messages('warn')).toEqual([
+      'This permanently deletes all scripts from https://openam-alpha.example.com/am and resets the settings.',
+    ]);
+    expect(asked).toHaveLength(1);
+    expect(asked[0].default).toBe(false);
+    expect(asked[0].message).toBe(
+      'Delete all scripts and the settings? This cannot be undone. Continue?'
+    );
+  });
+
+  test('without a warning of its own the line is the same for every command: the target says the host and the realm', async () => {
+    await confirmBulkDelete({ what: 'all variables' });
+
+    expect(messages('warn')).toEqual([
+      'This permanently deletes all variables from https://openam-alpha.example.com/am (realm /alpha).',
+    ]);
+  });
+
+  test('a warning of its own is not shown when nothing is asked: --yes, a dry run and a refusal print none', async () => {
+    const warning = 'This is the warning.';
+
+    await confirmBulkDelete({ what: 'all scripts', yes: true, warning });
+    await confirmBulkDelete({ what: 'all scripts', dryRun: true, warning });
+    terminal = false;
+    await confirmBulkDelete({ what: 'all scripts', warning });
+
+    expect(messages('warn')).toEqual([]);
+    expect(messages('error').join('\n')).not.toContain(warning);
+  });
+
   test('a no deletes nothing and says so', async () => {
     answer = false;
 

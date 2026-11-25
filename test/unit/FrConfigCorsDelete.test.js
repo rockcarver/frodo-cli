@@ -749,17 +749,14 @@ describe('--deep: the IDM CORS filter', () => {
     expect(output()).not.toContain('not reset (failed');
   });
 
-  test('a real run says in its closing lines what was done, and that the CORS service entry was not reset', async () => {
+  test('a real run says in its closing lines what was done, and that the CORS service entry was not changed', async () => {
     idmFilter = filter({ urlPatterns: ['/x'] });
 
     await configManagerDeleteCors(undefined, false, false, { deep: true });
 
     const closing = printMessage.mock.calls.at(-1)[0];
     expect(closing).toBe(
-      [
-        'IDM CORS filter: reset.',
-        'CORS service entry: not reset (the library cannot write its enabled switch yet).',
-      ].join('\n')
+      ['IDM CORS filter: reset.', 'CORS service entry: not changed.'].join('\n')
     );
   });
 
