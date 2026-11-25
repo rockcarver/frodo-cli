@@ -32,8 +32,6 @@ const { getFilePath, saveJsonToFile, readJsonFile, getWorkingDirectory } =
   frodo.utils;
 const { readConfigEntity, importConfigEntities, importSubConfigEntity } =
   frodo.idm.config;
-const { readSyncMappings, deleteMapping, findMappingReferences } =
-  frodo.idm.mapping;
 
 /**
  * Write one mapping in fr-config-manager format: the script sources of the mapping
@@ -378,7 +376,7 @@ async function lookUpReferences(
   name: string
 ): Promise<{ references?: MappingReference[]; unreadable?: string[] }> {
   try {
-    return { references: await findMappingReferences(name) };
+    return { references: await frodo.idm.mapping.findMappingReferences(name) };
   } catch (error) {
     return { unreadable: unreadableSources(error) };
   }
@@ -437,7 +435,7 @@ type BulkLookup = {
  */
 async function lookUpAllReferences(names: string[]): Promise<BulkLookup> {
   try {
-    const found = await findMappingReferences(names);
+    const found = await frodo.idm.mapping.findMappingReferences(names);
     return {
       references: found.references,
       unreadable: found.unreadable.map((source) => SOURCE_LABELS[source]),
@@ -530,7 +528,7 @@ async function deleteListedMapping(
     // the id that the library listed, never the text that was typed; the library
     // reads the sync configuration again, writes it without the mapping and checks
     // that the mapping is gone, so a refused write leaves it where it was
-    await deleteMapping(mapping._id);
+    await frodo.idm.mapping.deleteMapping(mapping._id);
     printMessage(`Deleted mapping: ${name}`);
     run.recordSuccess();
     return true;
@@ -582,7 +580,7 @@ export async function configManagerDeleteMappings(
   }
   let mappings: MappingSkeleton[];
   try {
-    mappings = await readSyncMappings();
+    mappings = await frodo.idm.mapping.readSyncMappings();
   } catch (error) {
     printError(error, 'Error reading the mappings');
     return false;
