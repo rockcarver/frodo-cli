@@ -314,8 +314,7 @@ async function startConsole(): Promise<void> {
     const realmPart = realm.replace(/^\/+/, '');
     // Long hosts crowd the line: the first labels and an elision.
     const labels = host.split('.');
-    const short =
-      host.length <= 24 ? host : `${labels.slice(0, 2).join('.')}…`;
+    const short = host.length <= 24 ? host : `${labels.slice(0, 2).join('.')}…`;
     return `frodo[${short}${realmPart ? `/${realmPart}` : ''}]> `;
   };
 
@@ -369,14 +368,16 @@ async function startConsole(): Promise<void> {
       ) => void;
     }
   ).eval;
-  (started as unknown as {
-    eval: (
-      code: string,
-      context: repl.REPLServer['context'],
-      file: string,
-      cb: (err: Error | null, result?: unknown) => void
-    ) => void;
-  }).eval = (code, context, file, cb) => {
+  (
+    started as unknown as {
+      eval: (
+        code: string,
+        context: repl.REPLServer['context'],
+        file: string,
+        cb: (err: Error | null, result?: unknown) => void
+      ) => void;
+    }
+  ).eval = (code, context, file, cb) => {
     if (consoleInput.pasteState.pasteInFlight()) {
       cb(null, undefined);
       return;
@@ -423,6 +424,46 @@ async function startConsole(): Promise<void> {
       // the prompt scrolls away with the output; there is nothing to
       // erase on the readline frame).
       printHintAbovePrompt(started, text);
+    },
+    setPromptText: (text: string) => {
+      // The paste's waiting hint becomes the prompt line: the screen
+      // ends with the hint instead of a prompt and a placeholder that
+      // read like new input. Prompt string only here (called from
+      // inside the input filter's callback, where touching the frame
+      // wedges readline); the deferred refresh below paints the swap.
+      // The displayPrompt proxy sees the swap and keeps lastPrompt in
+      // step.
+      lastPrompt = text;
+      started.setPrompt(text);
+      setImmediate(() => {
+        const refreshLine = (
+          started as repl.REPLServer & { _refreshLine?: () => void }
+        )._refreshLine;
+        if (typeof refreshLine === 'function') {
+          refreshLine.call(started);
+        } else {
+          started.displayPrompt(true);
+        }
+      });
+    },
+    restorePrompt: () => {
+      // The console's own prompt returns (the real displayPrompt,
+      // not the proxy: this can run inside the filter's callback too).
+      // The repaint is deferred: the swap itself must not touch the
+      // readline frame inside the filter's callback, and the discard
+      // path has no later repaint of its own to lean on.
+      lastPrompt = consolePrompt();
+      started.setPrompt(lastPrompt);
+      setImmediate(() => {
+        const refreshLine = (
+          started as repl.REPLServer & { _refreshLine?: () => void }
+        )._refreshLine;
+        if (typeof refreshLine === 'function') {
+          refreshLine.call(started);
+        } else {
+          started.displayPrompt(true);
+        }
+      });
     },
     onKeypress: (listener) => {
       const wrapped = (
@@ -676,9 +717,7 @@ async function startConsole(): Promise<void> {
               marked.length > max + markedExtra
                 ? `${marked.slice(0, max + markedExtra - 1)}…`
                 : marked;
-            console.log(
-              `  ${label}  ${body}${metaText}`
-            );
+            console.log(`  ${label}  ${body}${metaText}`);
           });
         }
       } else if (sub === 'clear') {

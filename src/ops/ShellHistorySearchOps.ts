@@ -176,6 +176,18 @@ export type SearchHooks = {
    */
   hint(text: string): void;
   /**
+   * Replace the text readline paints as the prompt, without a repaint
+   * (the next refresh shows it). The paste's waiting hint becomes the
+   * prompt line while the stash waits, so the screen ends with the hint
+   * instead of a prompt and a placeholder that read like new input.
+   */
+  setPromptText?(text: string): void;
+  /**
+   * Put the console's own prompt back (after a paste made the hint the
+   * prompt line).
+   */
+  restorePrompt?(): void;
+  /**
    * Recovery path: forward an escape byte to readline. Used when a Ctrl+R
    * raced past the filter and readline's built-in reverse search activated
    * anyway (rare, load-dependent): the guard cancels readline's search and
@@ -284,14 +296,15 @@ export function createConsoleInput(
     pasteDraft = hooks?.getLine() ?? '';
     if (hooks) {
       // The paste bytes never reached readline, so nothing was echoed:
-      // draw the script once, as pasted, then load its first line as a
-      // placeholder for what waits. No readline redraw here (called
+      // draw the script once, as pasted. The waiting hint becomes the
+      // prompt line (the screen ends with the hint, no prompt and no
+      // placeholder that read like new input); the buffer holds the
+      // pre-paste draft, untouched. No readline redraw here (called
       // from inside the input filter's callback, where a refresh
-      // double-paints the prompt row); the setLine shows with the
-      // next repaint.
+      // double-paints the prompt row); the swapped prompt shows with
+      // the next repaint.
       hooks.echo(`${text}\n`);
-      hooks.setLine(text.split('\n')[0]);
-      hooks.hint(
+      hooks.setPromptText?.(
         `script pasted (${text.split('\n').length} lines): Enter to run, Esc to discard`
       );
     }
@@ -307,10 +320,10 @@ export function createConsoleInput(
     const had = pasteStash !== null;
     pasteStash = null;
     if (had && hooks) {
-      // The placeholder line goes with the stash, or incoming typing
-      // would land glued to the script's first line.
+      // The hint-as-prompt goes with the stash; the console's own prompt
+      // and the pre-paste draft come back.
+      hooks.restorePrompt?.();
       hooks.setLine(pasteDraft);
-      hooks.hint('');
     }
     pasteDraft = '';
   }
@@ -703,6 +716,7 @@ export function createConsoleInput(
             // from inside this transform wedges readline: bytes stop
             // being read. The real byte through the pipe never does.)
             hooks.setLine(pasteStash);
+            hooks.restorePrompt?.();
             pasteStash = null;
             pasteDraft = '';
             push(chunk);
@@ -740,10 +754,7 @@ export function createConsoleInput(
           pasteSeen = true;
           const afterStart = text.slice(startIndex + PASTE_START.length);
           if (endIndex > startIndex) {
-            const body = text.slice(
-              startIndex + PASTE_START.length,
-              endIndex
-            );
+            const body = text.slice(startIndex + PASTE_START.length, endIndex);
             for (const line of body.split(/[\r\n]+/)) {
               if (line.length > 0) pasteBuffer.push(line);
             }
