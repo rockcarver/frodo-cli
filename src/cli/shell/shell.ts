@@ -407,6 +407,11 @@ async function startConsole(): Promise<void> {
       consoleInput.input.write('\x1b');
     },
     echo: (text: string) => {
+      // The paste arrives while the live prompt row sits under the cursor
+      // (with any draft the user had). Erase that row first, or the
+      // script's first line glues onto it and the refresh's placeholder
+      // then repeats the line twice on screen.
+      started.output.write('\x1b[2K\r');
       started.output.write(text);
     },
     hint: (text: string) => {
