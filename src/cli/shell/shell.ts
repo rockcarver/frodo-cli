@@ -258,6 +258,12 @@ async function startConsole(): Promise<void> {
   // The console's input stream: sits between process.stdin and the REPL so
   // Ctrl+R opens the fuzzy history search instead of readline's built-in
   // reverse search (which cannot be unbound), and Ctrl+O opens the explorer.
+  // Forward reference: replServer is assigned below, but the completer's
+  // hint callback fires via setImmediate so it is always defined by the time
+  // it runs.
+  // eslint-disable-next-line prefer-const
+  let replServer: repl.REPLServer | undefined;
+
   const consoleInput = createConsoleInput(() => shellHistory.getEntries(), {
     wantsInput: () => viewerActive,
     handle: (chunk: Buffer) => viewerChunkSink?.(chunk),
@@ -275,12 +281,6 @@ async function startConsole(): Promise<void> {
       void viewer.explore(candidate, { atPrompt: true });
     },
   });
-
-  // Forward reference: replServer is assigned below, but the completer's
-  // hint callback fires via setImmediate so it is always defined by the time
-  // it runs.
-  // eslint-disable-next-line prefer-const
-  let replServer: repl.REPLServer | undefined;
   const completer = createFrodoCompleter(
     rootBindings,
     docsByMethod,
@@ -349,6 +349,40 @@ async function startConsole(): Promise<void> {
     // a vm-based eval for the first of these and got neither for the second).
   });
   replServer = started;
+
+  // While a paste is in flight, the eval answers with nothing instead
+  // of running: readline still hands it one line at a time (an Enter
+  // per pasted line is unavoidable in its line model), but the pasted
+  // script must run as ONE input, the way the web console runs it. The
+  // filter holds the lines; when the paste ends it calls runPastedScript,
+  // which goes through the REPL's own (wrapped) eval with the paste no
+  // longer in flight. No output, no history entry, no error per
+  // fragment. The wrapper replaces the instance property after start:
+  // the original (Node's default eval) is captured first.
+  const replEval = (
+    started as unknown as {
+      eval: (
+        code: string,
+        context: repl.REPLServer['context'],
+        file: string,
+        cb: (err: Error | null, result?: unknown) => void
+      ) => void;
+    }
+  ).eval;
+  (started as unknown as {
+    eval: (
+      code: string,
+      context: repl.REPLServer['context'],
+      file: string,
+      cb: (err: Error | null, result?: unknown) => void
+    ) => void;
+  }).eval = (code, context, file, cb) => {
+    if (consoleInput.pasteState.pasteInFlight()) {
+      cb(null, undefined);
+      return;
+    }
+    replEval(code, context, file, cb);
+  };
   consoleInput.attachHooks({
     getLine: () => started.line,
     setLine: (line: string) => {
@@ -371,6 +405,12 @@ async function startConsole(): Promise<void> {
     },
     sendEscape: () => {
       consoleInput.input.write('\x1b');
+    },
+    write: (text: string) => {
+      consoleInput.input.write(text);
+    },
+    echo: (text: string) => {
+      started.output.write(text);
     },
     onKeypress: (listener) => {
       const wrapped = (

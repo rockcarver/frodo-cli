@@ -165,6 +165,18 @@ export type SearchHooks = {
   setLine(line: string): void;
   refresh(): void;
   /**
+   * Submit a byte string to readline as if typed: the paste-end path
+   * lands the whole script on the line buffer (setLine) and sends one
+   * Enter through here.
+   */
+  write(text: string): void;
+  /**
+   * Draw the pasted script on the output as the terminal would have:
+   * the filter swallows the paste bytes (they must not reach readline),
+   * so without this the screen shows nothing until the result appears.
+   */
+  echo(text: string): void;
+  /**
    * Recovery path: forward an escape byte to readline. Used when a Ctrl+R
    * raced past the filter and readline's built-in reverse search activated
    * anyway (rare, load-dependent): the guard cancels readline's search and
@@ -195,6 +207,16 @@ export type InputOverlay = {
  * @param getHistory newest-first history entries to search; read live on
  *   every keystroke, so entries added during the session are found too
  */
+export type ConsoleInputState = {
+  /**
+   * A paste is in flight: the filter is holding the pasted lines and
+   * the REPL's eval must collect rather than run, so the paste runs as
+   * one script when it completes (the web console's behavior), not
+   * line by line with an error per fragment.
+   */
+  pasteInFlight(): boolean;
+};
+
 export function createConsoleInput(
   getHistory: () => HistoryEntry[],
   overlay?: InputOverlay
@@ -207,9 +229,55 @@ export function createConsoleInput(
   install(): void;
   /** Detach everything (called on console exit). */
   close(): void;
+  /** The paste state, for the eval to cooperate with. */
+  pasteState: ConsoleInputState;
 } {
   let hooks: SearchHooks | undefined;
   let installed = false;
+
+  // --- paste capture -------------------------------------------------------
+  // The console enables bracketed paste mode (the terminal's standard):
+  // the terminal then wraps every paste in ESC[200~ ... ESC[201~. Only
+  // marker-wrapped input is held as a paste and submitted as one script;
+  // unmarked multi-Enter input (fast typing, a driver's send_line) is
+  // typed input as far as anything can tell, and flows through line by
+  // line. Held lines land on readline's line buffer whole (setLine) and
+  // one Enter submits: one 'line' event, one eval, the result printed by
+  // the REPL's own machinery, one history entry.
+  const PASTE_START = '\x1b[200~';
+  const PASTE_END = '\x1b[201~';
+  let pasteBuffer: string[] = [];
+  let pasteSeen = false;
+
+  const pasteState: ConsoleInputState = {
+    pasteInFlight: () => pasteSeen,
+  };
+
+  function endPaste(): void {
+    if (!pasteSeen) return;
+    pasteSeen = false;
+    const lines = pasteBuffer;
+    pasteBuffer = [];
+    // Joined with CR, not LF: readline reverses a line buffer that
+    // contains LF (its Enter path splits the buffer at line feeds and
+    // reassembles the parts backwards, so the submitted line event
+    // arrives inside-out), but carries CR through verbatim. JavaScript
+    // reads a CR as a line terminator, so the script still parses, and
+    // the shell's line handler normalizes CR back to LF for history.
+    const text = lines
+      .join('\r')
+      .replace(/^\r+|\r+$/g, '')
+      .trim();
+    if (text.length === 0) return;
+    if (hooks) {
+      hooks.echo(`${text.replace(/\r/g, '\n')}\n`);
+      hooks.setLine(text);
+      // No refresh here: the Enter below redraws the buffer as part of
+      // submission, and a refresh before it paints the whole script on
+      // the prompt row twice (once with CRs overprinted).
+      hooks.write('\r');
+    }
+  }
 
   // --- search state -------------------------------------------------------
   let active = false;
@@ -505,23 +573,71 @@ export function createConsoleInput(
       _encoding: BufferEncoding,
       callback: (err?: Error | null, data?: Buffer) => void
     ) {
+      const push = (data?: Buffer) => callback(null, data);
       try {
         // The overlay (object explorer) has first claim on the input while
         // it is open.
         if (overlay?.wantsInput()) {
           overlay.handle(chunk);
-          callback(null, undefined);
+          push(undefined);
           return;
         }
         if (active) {
           const rest = interpretActive(chunk);
-          callback(null, rest.length > 0 ? rest : undefined);
+          push(rest.length > 0 ? rest : undefined);
+          return;
+        }
+        // A bracketed paste: the terminal wrapped it (see the capture
+        // note). Everything from the start marker to the end marker is
+        // one script: hold the lines, drop the markers, and submit the
+        // whole at the end marker. Bytes around the markers flow as
+        // typed input.
+        const text = chunk.toString('utf8');
+        const startIndex = text.indexOf(PASTE_START);
+        const endIndex = text.indexOf(PASTE_END);
+        if (pasteSeen) {
+          if (endIndex !== -1) {
+            const body = text.slice(0, endIndex);
+            for (const line of body.split(/[\r\n]+/)) {
+              if (line.length > 0) pasteBuffer.push(line);
+            }
+            endPaste();
+            const rest = text.slice(endIndex + PASTE_END.length);
+            push(rest.length > 0 ? Buffer.from(rest, 'utf8') : undefined);
+            return;
+          }
+          for (const line of text.split(/[\r\n]+/)) {
+            if (line.length > 0) pasteBuffer.push(line);
+          }
+          push(undefined);
+          return;
+        }
+        if (startIndex !== -1) {
+          pasteSeen = true;
+          const afterStart = text.slice(startIndex + PASTE_START.length);
+          if (endIndex > startIndex) {
+            const body = text.slice(
+              startIndex + PASTE_START.length,
+              endIndex
+            );
+            for (const line of body.split(/[\r\n]+/)) {
+              if (line.length > 0) pasteBuffer.push(line);
+            }
+            endPaste();
+            const rest = text.slice(endIndex + PASTE_END.length);
+            push(rest.length > 0 ? Buffer.from(rest, 'utf8') : undefined);
+            return;
+          }
+          for (const line of afterStart.split(/[\r\n]+/)) {
+            if (line.length > 0) pasteBuffer.push(line);
+          }
+          push(undefined);
           return;
         }
         const open = chunk.indexOf(CTRL_R);
         const openExplore = chunk.indexOf(CTRL_O);
         if (open === -1 && openExplore === -1) {
-          callback(null, chunk);
+          push(chunk);
           return;
         }
         // The earliest trigger byte in the chunk wins; bytes before it pass
@@ -537,8 +653,7 @@ export function createConsoleInput(
         if (trigger === open) {
           openSearch();
           const rest = interpretActive(after);
-          callback(
-            null,
+          push(
             before.length > 0
               ? Buffer.concat([before, rest])
               : rest.length > 0
@@ -550,24 +665,29 @@ export function createConsoleInput(
           // The viewer claims the stream from here; interpret the remainder
           // as viewer input.
           if (after.length > 0) overlay.handle(after);
-          callback(null, before.length > 0 ? before : undefined);
+          push(before.length > 0 ? before : undefined);
         } else {
           // No overlay registered: let the byte through untouched.
-          callback(null, chunk);
+          push(chunk);
         }
       } catch (error) {
         callback(error as Error);
       }
     },
     flush(callback) {
-      // In case the stream ends mid-search (process teardown).
+      // In case the stream ends mid-search (process teardown) or
+      // mid-paste (the paste end timer never fired): run what was held.
       if (active) closeSearch(false);
+      if (pasteBuffer.length > 0) {
+        endPaste();
+      }
       callback();
     },
   });
 
   return {
     input: new PassThrough(),
+    pasteState,
     attachHooks(attached: SearchHooks) {
       hooks = attached;
       // Defense-in-depth: if a Ctrl+R ever races past the filter (seen once
@@ -590,6 +710,12 @@ export function createConsoleInput(
       const stdin = process.stdin;
       if (stdin.isTTY && typeof stdin.setRawMode === 'function') {
         stdin.setRawMode(true);
+        // Bracketed paste: the terminal wraps every paste in
+        // ESC[200~ ... ESC[201~, which is how the filter tells a paste
+        // from typed input (see the capture note). Terminals that do
+        // not support it simply never send the markers, and everything
+        // flows as before.
+        process.stdout.write('\x1b[?2004h');
       }
       stdin.resume();
       stdin.pipe(filter);
@@ -597,7 +723,11 @@ export function createConsoleInput(
     },
     close() {
       closeSearch(false);
+      endPaste();
       if (installed) {
+        if (process.stdin.isTTY) {
+          process.stdout.write('\x1b[?2004l');
+        }
         process.stdin.unpipe(filter);
         filter.unpipe(this.input);
         installed = false;

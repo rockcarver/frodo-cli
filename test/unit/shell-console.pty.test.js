@@ -1,3 +1,5 @@
+import fs from 'node:fs';
+import path from 'node:path';
 import {
   createShellTestHome,
   removeShellTestHome,
@@ -187,6 +189,66 @@ describe('frodo shell PTY (console mode)', () => {
         expect(linePart).not.toContain('bMulti');
       }
       expect(selected).toContain('bMulti');
+    } finally {
+      removeShellTestHome(homeDir);
+    }
+  });
+
+  test('a bracketed paste runs as one unit and records one in-order entry', async () => {
+    const homeDir = createShellTestHome();
+    try {
+      const script = [
+        'let psum = 0;',
+        'const pnums = [1, 2, 3];',
+        'for (const n of pnums) {',
+        '  psum += n;',
+        '}',
+        '`pasted: ${psum}`',
+      ].join('\r');
+      const result = runShellScenario({
+        args: ['shell'],
+        homeDir,
+        actions: [
+          { type: 'wait_prompt' },
+          { type: 'clear_output' },
+          // The terminal wraps a paste in ESC[200~ ... ESC[201~; the
+          // driver sends the same bytes.
+          { type: 'send', text: '\x1b[200~' + script + '\r\x1b[201~' },
+          { type: 'wait_plain', regex: 'pasted: 6' },
+          { type: 'sleep', ms: 200 },
+          { type: 'capture', label: 'screen' },
+          { type: 'send_line', text: '.exit' },
+        ],
+      });
+      // One run, one result: the fragments must not have been eval'd
+      // separately (their errors would litter the screen and there
+      // would be no 'pasted: 6' at all).
+      const screen = result.captures.screen.plain;
+      expect(screen).toContain('pasted: 6');
+      // The pasted script is echoed to the screen (the filter swallows
+      // the paste bytes, so the echo is the console's own), each line
+      // once, with no per-fragment errors.
+      expect(screen).toContain('let psum = 0;');
+      expect(screen).toContain('for (const n of pnums) {');
+      expect(screen).not.toMatch(/SyntaxError|Unexpected token/);
+      // One history entry, the script whole and in order. LF was the
+      // wrong join: readline reverses a line buffer holding LF and the
+      // entry arrived inside-out (the bug this test pins).
+      const file = path.join(
+        homeDir,
+        '.frodo',
+        'shell-history',
+        'default.txt'
+      );
+      const stored = fs.readFileSync(file, 'utf-8');
+      const entries = stored
+        .split('\n')
+        .filter((l) => l.startsWith('#ml:'))
+        .map((l) => JSON.parse(l.slice(4)));
+      expect(entries).toHaveLength(1);
+      expect(entries[0]).toBe(
+        'let psum = 0;\nconst pnums = [1, 2, 3];\nfor (const n of pnums) {\n  psum += n;\n}\n`pasted: ${psum}`'
+      );
     } finally {
       removeShellTestHome(homeDir);
     }
