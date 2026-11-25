@@ -135,6 +135,17 @@ describe('the options', () => {
     ).toBe(undefined);
   });
 
+  test('--deep and the selector each declare that they cannot be used with the other, as the instructions of a command with options that exclude each other say', async () => {
+    const program = await run(['-d']);
+    const deep = program.options.find((option) => option.long === '--deep');
+    const selector = program.options.find(
+      (option) => option.long === '--cors-id'
+    );
+
+    expect(deep.conflictsWith).toEqual(['corsId']);
+    expect(selector.conflictsWith).toEqual(['deep']);
+  });
+
   test.each([['-i'], ['--cors-id'], ['-n'], ['--name']])(
     '%s hands the id to the operation, as a named delete without --deep',
     async (flag) => {
