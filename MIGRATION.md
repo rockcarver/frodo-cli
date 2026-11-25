@@ -638,6 +638,8 @@ can, prints one summary of what failed with the reason of Access Management, and
 exits with code 1 if any failed; `--allow-failures` keeps the exit code at 0 for
 failed deletes ([a command that runs many operations runs them all, then fails if any failed](https://github.com/rockcarver/frodo-cli/blob/main/docs/decisions/0040-a-command-that-runs-many-operations-runs-them-all-then-fails-if-any-failed.md)).
 
+**`frodo config-manager push managed-objects` also pushes custom relationship schemas (experimental)**: `frodo config-manager push managed-objects` also pushes the custom relationship schema files in the `schema` folder of a managed object (the files that `pull managed-objects --custom-relationships` writes), one write for each file, after the managed configuration. It needs IDM 7.5 or later. The command tries every file, prints one summary and exits 1 if any failed; `--allow-failures` keeps the exit code at 0. A configuration that cannot be written, or an object that does not exist, ends the command with exit code 1 before any file is pushed, also with `--allow-failures`. A relationship whose reverse side is not in the tree is created on the tenant together with it, so a later pull can show a property that the tree did not hold. A tree without `schema` folders is pushed as before.
+
 **`config-manager push secrets --prune` asks before it deletes, and `-p` is
 gone**: `--prune` deletes the old versions of every secret it pushes, and in 4.x
 it did so without asking. In 5.x, on a terminal, it reads the tenant, shows the

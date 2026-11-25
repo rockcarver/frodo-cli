@@ -4,6 +4,7 @@ import { frodo } from '@rockcarver/frodo-lib';
 import type { IdObjectSkeletonInterface } from '@rockcarver/frodo-lib';
 import { extractFrConfigDataToFile } from '../utils/Config';
 import {
+  isOneSafeSegment,
   nameInFolder,
   nameInStem,
   objectFilePath,
@@ -13,14 +14,14 @@ import {
   referencedFilePath,
 } from '../utils/ConfigTreePath';
 import { printError, printMessage } from '../utils/Console';
-import { OperationRun } from '../utils/OperationRun';
+import { causeOf } from '../utils/ErrorCause';
+import { OperationRun, printable } from '../utils/OperationRun';
 
 const { readConfigEntity, importConfigEntities, importSubConfigEntity } =
   frodo.idm.config;
 const { readManagedObjectSchemaProperty, updateManagedObjectSchemaProperty } =
   frodo.idm.managed.schema;
-const { getFilePath, saveTextToFile, saveJsonToFile } = frodo.utils;
-const { stringify } = frodo.utils.json;
+const { getFilePath, saveJsonToFile, readJsonFile } = frodo.utils;
 
 const SCRIPT_HOOKS = ['onStore', 'onRetrieve', 'onValidate'];
 
@@ -209,103 +210,149 @@ function getExtractedFiles(obj: any, managedObjectDirectory: string): void {
  * @returns {object} The managed object data from the file, including data from any extracted files
  */
 function getManagedObjectImportData(file: string): IdObjectSkeletonInterface {
-  const readManagedObject = fs.readFileSync(file, 'utf-8');
-  const importData = JSON.parse(readManagedObject);
-  const managedObjectDirectory = path.dirname(file);
-  getExtractedFiles(importData, managedObjectDirectory);
+  const importData = readJsonFile(file) as IdObjectSkeletonInterface;
+  getExtractedFiles(importData, path.dirname(file));
   return importData;
 }
 
+/** A custom relationship schema file of a managed object, read: the object, the file, the property it names and what it holds. */
+interface RelationshipSchemaFile {
+  object: string;
+  fileName: string;
+  property: string;
+  body: object;
+}
+
 /**
- * Import an IDM managed object from fr-config-manager format.
+ * Whether a name can be one segment of the path of a request. The library writes the name of an
+ * object and of a property into the URL as it is given, so a name that holds a `/`, `?`, `#` or `%`
+ * would reach another resource.
+ * @param {string} name The name of the managed object or of the property
+ * @returns {boolean} true if the name is one segment that a URL can carry as it is
+ */
+function isRequestSegment(name: string): boolean {
+  return isOneSafeSegment(name) && !/[?#%]/.test(name);
+}
+
+/**
+ * The files of the `schema` folder of a managed object that hold the custom relationship schema of
+ * a property, as a pull writes them: `<name of the folder>.schema.<property>.json`, the property
+ * with its path characters written as `%XX`. Any other file or folder in it is not one.
+ * @param {string} objectFolder The folder of the managed object
+ * @returns {{ fileName: string, property: string }[]} The files in name order, with the property each names (decoded; not checked)
+ */
+function schemaFilesOf(
+  objectFolder: string
+): { fileName: string; property: string }[] {
+  const schemaFolder = path.join(objectFolder, 'schema');
+  if (!fs.existsSync(schemaFolder)) return [];
+  const prefix = `${path.basename(objectFolder)}.schema.`;
+  const suffix = '.json';
+  return fs
+    .readdirSync(schemaFolder, { withFileTypes: true })
+    .filter((entry) => entry.isFile())
+    .map((entry) => entry.name)
+    .filter(
+      (name) =>
+        name.startsWith(prefix) &&
+        name.endsWith(suffix) &&
+        name.length >= prefix.length + suffix.length
+    )
+    .sort()
+    .map((fileName) => {
+      const encoded = fileName.slice(
+        prefix.length,
+        fileName.length - suffix.length
+      );
+      try {
+        return { fileName, property: decodeURIComponent(encoded) };
+      } catch {
+        // not a percent encoding (`100%`): the name as the file has it
+        return { fileName, property: encoded };
+      }
+    });
+}
+
+/**
+ * Writes the custom relationship schemas that were read, one write for each file, after the managed
+ * configuration. Every file is one operation of the run: a write that fails, or a file whose name
+ * is not one name that a request can carry, is recorded and the others are still written.
+ * @param {OperationRun} run The run that records the outcome of every file
+ * @param {RelationshipSchemaFile[]} schemas The files, in the order they are written
+ */
+async function pushRelationshipSchemas(
+  run: OperationRun,
+  schemas: RelationshipSchemaFile[]
+): Promise<void> {
+  for (const { object, fileName, property, body } of schemas) {
+    if (!isRequestSegment(object) || !isRequestSegment(property)) {
+      printMessage(
+        `The file ${printable(fileName)} of the managed object ${printable(object)} is not pushed: the name of the object or of the property is empty, '.' or '..', or holds one of / \\ ? # % or a control character.`,
+        'error'
+      );
+      run.recordFailure(
+        printable(`${object}/schema/${fileName}`),
+        'the name is not one that a request can carry'
+      );
+      continue;
+    }
+    try {
+      await updateManagedObjectSchemaProperty(object, property, body as any);
+      run.recordSuccess();
+    } catch (error) {
+      printError(
+        error,
+        `Error pushing relationship schema ${object}.${property}`
+      );
+      run.recordFailure(`${object}.${property}`, causeOf(error));
+    }
+  }
+}
+
+/**
+ * Import IDM managed objects from fr-config-manager format, and the custom relationship schemas in
+ * the `schema` folder of each of them (the files that a pull with custom relationships writes).
+ * Everything is read before anything is written. Then the managed configuration is written (one
+ * object, or all of them in one write), and then every relationship schema file is one write of its
+ * own and one operation of an {@link OperationRun}: a file that cannot be written is printed and
+ * named in one summary, and the others are still written. A failure to read the files, to write the
+ * managed configuration, or a named object that does not exist ends the command before any schema is
+ * written, whatever `--allow-failures` says.
  * @param {string} objectName Optional managed object name. If not specified, imports all the managed objects.
+ * @param {boolean} allowFailures True to report relationship schemas that could not be written but still succeed. Default: false
  * @return {Promise<boolean>} a promise that resolves to true if successful, false otherwise
  */
-
 export async function configManagerImportManagedObjects(
-  objectName?: string
+  objectName?: string,
+  allowFailures: boolean = false
 ): Promise<boolean> {
+  const run = new OperationRun({ unit: 'relationship schema', allowFailures });
   try {
     const managedObjectsPath = getFilePath('managed-objects');
-    const managedObjectsFiles = fs.readdirSync(managedObjectsPath, 'utf-8');
-    const customRelationshipSchema: {
-      object: string;
-      schema_id: string;
-      schema: any;
-    }[] = [];
-
-    const importManagedObjectData = {
-      idm: {
-        managed: {
-          _id: 'managed',
-          objects: [] as IdObjectSkeletonInterface[],
-        },
-      },
-    };
-
-    for (const managedObjectName of managedObjectsFiles) {
-      if (objectName && objectName !== managedObjectName) {
-        continue;
+    const names = objectName
+      ? [objectName]
+      : fs.readdirSync(managedObjectsPath, 'utf-8');
+    const objects: IdObjectSkeletonInterface[] = [];
+    const schemas: RelationshipSchemaFile[] = [];
+    for (const name of names) {
+      const folder = objectFolderPath(managedObjectsPath, name);
+      objects.push(getManagedObjectImportData(objectFilePath(folder, name)));
+      for (const { fileName, property } of schemaFilesOf(folder)) {
+        const body = readJsonFile(path.join(folder, 'schema', fileName));
+        schemas.push({ object: name, fileName, property, body });
       }
+    }
 
-      const filePath = getFilePath(
-        `managed-objects/${managedObjectName}/${managedObjectName}.json`
-      );
-      const importData = getManagedObjectImportData(filePath);
-
-      if (objectName) {
-        await importSubConfigEntity('managed', importData);
-      } else {
-        importManagedObjectData.idm.managed.objects.push(importData);
-      }
-
-      const schemaPath = path.join(
-        managedObjectsPath,
-        managedObjectName,
-        'schema'
-      );
-
-      if (!fs.existsSync(schemaPath)) {
-        continue;
-      }
-
-      const schemaFiles = fs.readdirSync(schemaPath).filter((schemaFile) => {
-        const parts = schemaFile.split('.schema.');
-
-        return (
-          parts.length === 2 &&
-          parts[0] === managedObjectName &&
-          parts[1].endsWith('.json')
-        );
+    if (objectName) {
+      await importSubConfigEntity('managed', objects[0] as any);
+    } else {
+      await importConfigEntities({
+        idm: { managed: { _id: 'managed', objects } },
       });
-
-      for (const schemaFile of schemaFiles) {
-        const propertyName = schemaFile.split('.schema.')[1].slice(0, -5);
-        const schemaData = JSON.parse(
-          fs.readFileSync(path.join(schemaPath, schemaFile), 'utf-8')
-        );
-
-        customRelationshipSchema.push({
-          object: managedObjectName,
-          schema_id: propertyName,
-          schema: schemaData,
-        });
-      }
     }
-
-    if (!objectName) {
-      await importConfigEntities(importManagedObjectData);
-    }
-
-    for (const relationshipSchema of customRelationshipSchema) {
-      await updateManagedObjectSchemaProperty(
-        relationshipSchema.object,
-        relationshipSchema.schema_id,
-        relationshipSchema.schema
-      );
-    }
-
-    return true;
+    // the properties belong to objects that exist now: the configuration is written first
+    await pushRelationshipSchemas(run, schemas);
+    return run.finish();
   } catch (error) {
     printError(error, `Error importing IDM managed objects`);
   }

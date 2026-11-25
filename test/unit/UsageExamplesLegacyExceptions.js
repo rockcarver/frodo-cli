@@ -127,7 +127,6 @@ export const LEGACY_COMMANDS_WITHOUT_EXAMPLES = [
   'frodo config-manager push journeys',
   'frodo config-manager push kba',
   'frodo config-manager push locales',
-  'frodo config-manager push managed-objects',
   'frodo config-manager push org-privileges',
   'frodo config-manager push password-policy',
   'frodo config-manager push raw',

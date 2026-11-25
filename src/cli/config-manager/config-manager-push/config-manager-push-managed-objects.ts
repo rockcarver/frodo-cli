@@ -1,6 +1,8 @@
 import { frodo } from '@rockcarver/frodo-lib';
 import { configManagerImportManagedObjects } from '../../../configManagerOps/FrConfigManagedObjectsOps';
+import * as s from '../../../help/SampleData';
 import { getTokens } from '../../../ops/AuthenticateOps';
+import c from '../../../utils/ColorTheme';
 import { verboseMessage } from '../../../utils/Console';
 import { FrodoCommand } from '../../FrodoCommand';
 import { selectorOption } from '../../SelectorOption';
@@ -21,7 +23,9 @@ export default function setup() {
   );
 
   program
-    .description('Import managed objects.')
+    .description(
+      'Import managed objects and their custom relationship schemas.'
+    )
     .addOption(
       selectorOption(
         '-i, --managed-object-id <id>',
@@ -29,6 +33,23 @@ export default function setup() {
         ['-n', '--name']
       )
     )
+    .addHelpText(
+      'after',
+      `Usage Examples:\n` +
+        `  Import all managed objects and the custom relationship schemas in their schema folders:\n` +
+        c.command(
+          `  $ frodo config-manager push managed-objects ${s.connId}\n`
+        ) +
+        `  Import one managed object and its custom relationship schemas:\n` +
+        c.command(
+          `  $ frodo config-manager push managed-objects -i ${s.managedObjectType} ${s.connId}\n`
+        ) +
+        `  Import all managed objects, and exit with code 0 although some relationship schemas could not be written:\n` +
+        c.command(
+          `  $ frodo config-manager push managed-objects --allow-failures ${s.connId}\n`
+        )
+    )
+    .multiOp()
     .action(async (host, realm, user, password, options, command) => {
       command.handleDefaultArgsAndOpts(
         host,
@@ -42,7 +63,8 @@ export default function setup() {
       if (await getTokens(false, true, deploymentTypes)) {
         verboseMessage('Importing managed objects');
         const outcome = await configManagerImportManagedObjects(
-          options.managedObjectId
+          options.managedObjectId,
+          options.allowFailures
         );
         if (!outcome) process.exitCode = 1;
       } else {
