@@ -57,6 +57,23 @@ export const TRIGGER_LABELS = [
   ...new Set([...GATE.issue, ...GATE.pr, ...TRIAGE_OUTCOMES, 'plan-approval-required', LABEL_AGENT_FAILED]),
 ];
 
+/**
+ * A classification label: plan triage applies one `complexity/*` and one `risk/*` label to a plan, and nothing takes them
+ * away, so they stay on an issue that has been planned.
+ */
+export const isClassificationLabel = (label) => /^(complexity|risk)\//.test(String(label));
+
+/**
+ * The outcome of the plan gate on an issue, as the label that shows it, or null: plan triage's hand-off to the PR gate
+ * (`plan-triage-handoff`, which the janitor takes away again once the coding agent is assigned) or its classification
+ * (`isClassificationLabel`, which stays). The hold `plan-approval-required` is not an outcome: a routed issue starts held,
+ * before any gate has run on it. `labels`: names.
+ */
+export function planGateOutcome(labels) {
+  const have = [...labels];
+  return have.find((l) => l === 'plan-triage-handoff') ?? have.find(isClassificationLabel) ?? null;
+}
+
 const CODING_AGENT = /^copilot(-swe-agent)?(\[bot\])?$/i;
 
 /** True for the account the PR worker assigns (the Copilot coding agent). */
@@ -168,7 +185,7 @@ export function staleLabels({ labels, state = 'open', isPullRequest = false, ass
   }
 
   const agent = assignees.some(isCodingAgent);
-  const planned = [...have].some((l) => l.startsWith('complexity/') || l.startsWith('risk/'));
+  const planned = [...have].some(isClassificationLabel);
   const planDecided = any('plan-triage-handoff', 'plan-approval-required');
   drop('issue-worker-ready', TRIAGE_OUTCOMES.some(has) || any('plan-worker-ready') || planDecided || planned || agent);
   drop('issue-triage-handoff', any('plan-worker-ready') || planDecided || planned || agent);
