@@ -40,7 +40,8 @@ Commands:
   journeys                   [Experimental] Import journeys.
   kba                        [Experimental] Import kba configuration.
   locales                    [Experimental] Import custom locales objects.
-  managed-objects            [Experimental] Import managed objects.
+  managed-objects            [Experimental] Import managed objects and their
+                             custom relationship schemas.
   oauth-cimd-profiles        [Experimental] Import CIMD profiles from the files
                              written by pull.
   oauth-issuers              [Experimental] Import trusted JWT issuers from the
