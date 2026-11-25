@@ -1,4 +1,4 @@
-# Janitor. Plain GitHub Actions, no LLM. See docs/multi-phase-design.md, "Label lifecycle" and "Held runs".
+# Janitor. Plain GitHub Actions, no LLM. See docs/multi-phase-design.md, "Label lifecycle", "Held runs" and "Opting an item out".
 #
 # Two tasks. The first keeps an issue or pull request showing where it is, not where it
 # has been: when the next gate label exists, the earlier one is removed, and when an issue
@@ -12,10 +12,17 @@
 # the coding agent. Both run on the label events that can change the answer, on assignment, unassignment and
 # close, hourly as a sweep for anything missed, and on demand.
 #
+# A third job, `assigned`, runs only when an issue is assigned: an open issue that a person (an account of type User)
+# is assigned to, with no bot assigned and no outcome of the plan gate, is handled by that person, and the job gives it
+# `no-auto-processing` with the workflow token, so that no event follows (decision 0043). It is a job of this workflow
+# because the workflow already starts on assignment; it adds no workflow to the Actions list.
+#
 # Install: copy this file to .github/workflows/janitor.yml and
-# scripts/janitor.mjs to .github/scripts/janitor.mjs (it imports opt-out.mjs, so install that too). No secret is needed: removing a label
-# starts nothing, and deleting a run needs only `actions: write` on the default token (the sweep
-# also reads pull requests, hence `pull-requests: read` on its job only).
+# scripts/janitor.mjs to .github/scripts/janitor.mjs (it imports opt-out.mjs, so install that too), and
+# scripts/assigned.mjs to .github/scripts/assigned.mjs for the `assigned` job (it imports janitor.mjs and opt-out.mjs).
+# No secret is needed: removing a label starts nothing, adding one with the workflow token starts nothing, and deleting
+# a run needs only `actions: write` on the default token (the sweep also reads pull requests, hence `pull-requests: read`
+# on its job only).
 name: "Issue Concierge 4a ▸ Janitor"
 
 on:
@@ -102,3 +109,32 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           DRY_RUN: ${{ inputs.dry_run }}
         run: node .github/scripts/janitor.mjs --held-runs
+
+  # An issue assigned to a person is handled by that person (decision 0043): the label keeps the Concierge out of it, and only
+  # a person takes it away again. The decision is read from the issue as it is when the job runs (scripts/assigned.mjs); the
+  # `if:` only saves a runner. The coding agent is a bot, and when the PR worker assigns it GitHub assigns the owner of the
+  # agent's token too, in the same second: the payload then lists a bot and the job is skipped, and the script checks again,
+  # because an event can be older than the issue. An assignee is never enough alone, and an unassignment does nothing here
+  # (the label is sticky). It keeps `contents: read` and `issues: write` and no secret: the label is written with the workflow
+  # token, which starts no workflow.
+  assigned:
+    if: >-
+      github.event.action == 'assigned'
+      && (vars.ISSUE_CONCIERGE_PAUSED != 'true' && vars.CONCIERGE_PAUSED != 'true' || github.event_name == 'workflow_dispatch')
+      && github.event.issue.pull_request == null
+      && github.event.issue.state == 'open'
+      && !contains(github.event.issue.labels.*.name, 'no-auto-processing')
+      && contains(github.event.issue.assignees.*.type, 'User')
+      && !contains(github.event.issue.assignees.*.type, 'Bot')
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      issues: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Give an issue assigned to a person the opt-out label
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+        run: node .github/scripts/assigned.mjs

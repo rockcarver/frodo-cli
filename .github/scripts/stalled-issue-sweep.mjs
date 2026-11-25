@@ -11,7 +11,7 @@
 // Install: copy to .github/scripts/stalled-issue-sweep.mjs (it imports janitor.mjs and opt-out.mjs, so
 // install those too).
 import { execFileSync } from 'node:child_process';
-import { isCodingAgent, TRIAGE_OUTCOMES } from './janitor.mjs';
+import { isClassificationLabel, isCodingAgent, TRIAGE_OUTCOMES } from './janitor.mjs';
 import { isOptedOut, labelNames, optedOutReason } from './opt-out.mjs';
 
 export const LABEL_GATE = 'issue-worker-ready';
@@ -39,7 +39,7 @@ export function progressEvidence(labels, assignees = []) {
   if (outcome) return `\`${outcome}\``;
   const later = ['plan-worker-ready', 'plan-triage-handoff'].find((l) => have.has(l));
   if (later) return `\`${later}\``;
-  const classified = [...have].find((l) => l.startsWith('complexity/') || l.startsWith('risk/'));
+  const classified = [...have].find(isClassificationLabel);
   if (classified) return `\`${classified}\``;
   if (assignees.some((a) => isCodingAgent(a.login || a))) return 'the coding agent is assigned';
   return null;
