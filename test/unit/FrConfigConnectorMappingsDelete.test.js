@@ -644,20 +644,21 @@ describe('a delete of all mappings', () => {
     expect(deleteMapping).not.toHaveBeenCalled();
   });
 
-  test('an entry that has no name cannot be addressed: it is not deleted, it counts as failed, and the others are deleted', async () => {
+  test('an entry that has no name, or a name of blanks only, cannot be addressed: it is not deleted, it counts as failed, and the others are deleted', async () => {
     store = [
       { name: 'mapA' },
       { source: 'managed/alpha_user' },
+      { name: '  ' },
       { name: 'mapC' },
     ];
 
     expect(await configManagerDeleteMappings()).toBe(false);
 
-    // the nameless entry is listed as `sync/undefined`, which is never handed to the library
+    // the nameless entry is listed as `sync/undefined`, and the one of blanks as `sync/  `: neither is ever handed to the library
     expect(deleted()).toEqual(['sync/mapA', 'sync/mapC']);
-    expect(held()).toEqual([undefined]);
+    expect(held()).toEqual([undefined, '  ']);
     expect(output()).toContain('has no name');
-    expect(output()).toContain('1 of 3 mappings failed');
+    expect(output()).toContain('2 of 4 mappings failed');
   });
 
   test('a name with a control character is printed as text', async () => {
@@ -770,6 +771,52 @@ describe('the plan of a delete of all mappings', () => {
     expect(output()).not.toContain('mapB: ');
   });
 
+  test('a holder that is a mapping of the other store is kept although a mapping of the sync configuration has its name', async () => {
+    // `mapping/mapA` is not deleted by this run, which deletes the `sync/mapA` that has the same name
+    store = [{ name: 'mapA' }, { name: 'mapB' }];
+    answerLookups({
+      mapB: [
+        {
+          source: 'mapping',
+          dependency: 'soft',
+          id: 'mapping/mapA',
+          name: 'mapA',
+          from: 'syncAfter',
+        },
+      ],
+    });
+
+    await configManagerDeleteMappings(undefined, true);
+
+    expect(output()).toContain('1 of them is named by other objects.');
+    expect(output()).toContain(
+      "mapB: mapping 'mapping/mapA' (syncAfter), soft"
+    );
+  });
+
+  test('a holder of the other store is kept even when the part of its id after the length of the sync prefix is the name of a deleted mapping', async () => {
+    // the id `mapping/mapA` without its first five characters is `ng/mapA`: only a test of the store of the holder, and not of the
+    // name alone, keeps it listed when a mapping of the sync configuration is called `ng/mapA`
+    store = [{ name: 'ng/mapA' }, { name: 'mapB' }];
+    answerLookups({
+      mapB: [
+        {
+          source: 'mapping',
+          dependency: 'soft',
+          id: 'mapping/mapA',
+          name: 'mapA',
+          from: 'syncAfter',
+        },
+      ],
+    });
+
+    await configManagerDeleteMappings(undefined, true);
+
+    expect(output()).toContain(
+      "mapB: mapping 'mapping/mapA' (syncAfter), soft"
+    );
+  });
+
   test('a holder in the sync configuration that this run does not delete is kept', async () => {
     store = [{ name: 'mapA' }];
     answerLookups({ mapA: [LINKS] });
@@ -813,14 +860,14 @@ describe('the plan of a delete of all mappings', () => {
     }
   });
 
-  test('says how many entries have no name, and asks for them in no lookup', async () => {
-    store = [{ name: 'mapA' }, {}, { name: 'mapC' }];
+  test('says how many entries have no name or a name of blanks only, and asks for them in no lookup', async () => {
+    store = [{ name: 'mapA' }, {}, { name: '  ' }, { name: 'mapC' }];
 
     await configManagerDeleteMappings(undefined, true);
 
     expect(findMappingReferences.mock.calls[0]).toEqual([['mapA', 'mapC']]);
     expect(output()).toContain(
-      '1 entry has no name and cannot be deleted: each would count as a failed delete.'
+      '2 entries have no name and cannot be deleted: each would count as a failed delete.'
     );
   });
 });
