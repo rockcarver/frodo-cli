@@ -28,6 +28,8 @@ describe('a delete of more than one object without a terminal and without --yes'
   test.each([
     'frodo config-manager delete applications',
     'frodo config-manager delete connector-definitions',
+    'frodo config-manager delete cors',
+    'frodo config-manager delete cors --deep',
     'frodo config-manager delete oauth-cimd-profiles',
     'frodo config-manager delete custom-nodes',
     'frodo config-manager delete endpoints',
@@ -188,6 +190,10 @@ describe('what is not refused', () => {
     'frodo config-manager delete applications -y',
     'frodo config-manager delete connector-definitions -d',
     'frodo config-manager delete connector-definitions -y',
+    'frodo config-manager delete cors -d',
+    'frodo config-manager delete cors -y',
+    'frodo config-manager delete cors --deep -d',
+    'frodo config-manager delete cors --deep -y',
     'frodo config-manager delete custom-nodes -y',
     'frodo config-manager delete endpoints -y',
     'frodo config-manager delete scripts -y',
@@ -371,6 +377,60 @@ describe('a delete of services', () => {
     // not the help of the command
     expect(stdout).not.toContain('Usage:');
     expect(stderr).not.toContain('Usage:');
+  });
+});
+
+describe('a delete of CORS configurations', () => {
+  test('a delete of all is refused before the login without a terminal and without -y, and names -y and --dry-run', async () => {
+    const { code, stderr } = await run('frodo config-manager delete cors');
+
+    expect(code).toBe(1);
+    expect(stderr).toContain(
+      'Refusing to delete all CORS configurations without confirmation: there is no interactive terminal to ask.'
+    );
+    expect(stderr).toContain('-y/--yes');
+    expect(stderr).toContain('--dry-run');
+    expect(stderr).not.toContain('Error getting tokens');
+  });
+
+  test('with --deep the refusal says that the IDM CORS filter is reset too', async () => {
+    const { code, stderr } = await run('frodo config-manager delete cors --deep');
+
+    expect(code).toBe(1);
+    expect(stderr).toContain(
+      'Refusing to delete all CORS configurations and reset the IDM CORS filter to its default values without confirmation'
+    );
+    expect(stderr).not.toContain('Error getting tokens');
+  });
+
+  test.each([
+    'frodo config-manager delete cors -i cors',
+    'frodo config-manager delete cors -n cors',
+    'frodo config-manager delete cors --name cors',
+    'frodo config-manager delete cors --cors-id cors',
+    'frodo config-manager delete cors -i cors -d',
+  ])('"%s" names one configuration: it is not asked about, not refused, and goes on to the login', async (command) => {
+    const { stderr } = await run(command);
+
+    expect(stderr).not.toContain('Refusing to delete');
+    expect(stderr).not.toContain('unknown option');
+    expect(stderr).toContain('Error getting tokens');
+  });
+
+  test.each([
+    'frodo config-manager delete cors -i cors --deep',
+    'frodo config-manager delete cors -n cors --deep -y',
+    'frodo config-manager delete cors --name cors --deep -d',
+    'frodo config-manager delete cors --cors-id cors --deep',
+  ])('"%s" is refused while the command line is parsed, before the guard and the login', async (command) => {
+    const { code, stderr } = await run(command);
+
+    expect(code).toBe(1);
+    expect(stderr).toContain(
+      "error: option '--deep' cannot be used with option '-i, --cors-id <id>'"
+    );
+    expect(stderr).not.toContain('Refusing to delete');
+    expect(stderr).not.toContain('Error getting tokens');
   });
 });
 
@@ -560,8 +620,8 @@ describe('a delete that names one object, for every command and every spelling o
     ...(row.aliases.includes('--name') ? [['--name', "''"], ['--name=']] : []),
   ];
 
-  test('has the 20 delete rows', () => {
-    expect(rows).toHaveLength(20);
+  test('has the 21 delete rows', () => {
+    expect(rows).toHaveLength(21);
   });
 
   test.each(rows.map((row) => [typeOf(row), row]))(
@@ -632,6 +692,8 @@ describe('a blank id of the commands that check it is an error before the login'
     ["frodo config-manager delete schedules --name '  '", 'The schedule id (-i) must not be empty'],
     ["frodo config-manager delete secret-mappings -n ' '", 'The secret mapping id (-i) must not be empty'],
     ["frodo config-manager delete services -i '  '", 'The service id (-i) must not be empty'],
+    ["frodo config-manager delete cors -i '  '", 'The CORS configuration id (-i) must not be empty'],
+    ["frodo config-manager delete cors -n ' ' -y", 'The CORS configuration id (-i) must not be empty'],
   ])('"%s" says that the id must not be empty, and is not a delete of all objects', async (command, message) => {
     const { code, stderr } = await run(command);
 

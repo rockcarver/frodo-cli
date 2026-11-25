@@ -459,6 +459,39 @@ names a connector definition that does not exist afterwards. It also deletes it
 when not every source could be read, after saying so. It asks on a terminal, and
 needs `-y` (or `-d`) without one.
 
+**New command: `frodo config-manager delete cors`** deletes one named CORS
+configuration of the global CORS service, or all of them. It works on Cloud,
+ForgeOps and classic deployments. `-i, --cors-id <id>` (alias `-n, --name`) is
+the id (the name) of the configuration, for example `cors`; it is looked up in
+the list that the service gives, an exact and case-sensitive match, and the id
+that the list holds is what is deleted, so a value that is written as a path
+(`-i ../x`) is a configuration that does not exist
+([a selector is an id or a name, never a path](https://github.com/rockcarver/frodo-cli/blob/main/docs/decisions/0059-a-selector-is-an-id-or-a-name-never-a-path.md)).
+One that is not there exits with code 1, also with `-d` and `--allow-failures`.
+Without `-i` every named CORS configuration is deleted, the one that a new
+tenant starts with included; browsers that were allowed by a deleted
+configuration are refused until one allows them again. Deleting all asks first
+(on a terminal, after a plan, with the answer defaulting to no), and without a
+terminal it refuses before it connects and exits with code 1, unless you pass
+`-y`; `-d` previews with reads only. A configuration that the tenant lists with
+an id (or a type) that is not a plain name is never sent to the tenant: it counts
+as a failed delete. The command runs every delete, prints one summary and exits
+with code 1 if any failed; `--allow-failures` keeps the exit code at 0 for them
+([a command that runs many operations runs them all, then fails if any failed](https://github.com/rockcarver/frodo-cli/blob/main/docs/decisions/0040-a-command-that-runs-many-operations-runs-them-all-then-fails-if-any-failed.md)).
+
+`--deep` also resets the IDM CORS filter (the IDM configuration
+`servletfilter/cors`) to its default values: its `initParams` and `urlPatterns`
+are replaced and every other key, the filter class among them, is kept; it is
+written only if something differs, and never deleted. **Unlike `frodo connector
+delete --deep` it deletes nothing more.** It cannot be combined with `-i`, and on
+a classic deployment, which has no IDM, the IDM part is skipped. The values are
+those that Cloud and ForgeOps tenants answer with, because no document states
+them, and the reset has not been observed on a tenant. **The CORS service entry
+itself, the switch that turns the CORS filter of AM on and off, is not changed by
+this command**: AM refuses to delete it, and the library cannot write its
+`enabled` switch today
+([frodo-lib#1152](https://github.com/rockcarver/frodo-lib/issues/1152)).
+
 **New command: `frodo config-manager delete remote-servers`** deletes one
 connector server (an entry of the list of connector servers in the IDM
 configuration `provisioner.openicf.connectorinfoprovider`), or all of them. It
@@ -1019,6 +1052,7 @@ entity and drop the others.
 | ---------------------------------- | -------------------------------------- | -------------- |
 | `delete applications`              | `-i, --app-id`, `-n, --app-name`       | `--name`       |
 | `delete connector-definitions`     | `-i, --connector-id`                   | `-n`, `--name` |
+| `delete cors`                      | `-i, --cors-id`                        | `-n`, `--name` |
 | `delete custom-nodes`              | `-i, --node-id`, `-n, --node-name`     | `--name`       |
 | `delete endpoints`                 | `-i, --endpoint-id`                    | `-n`, `--name` |
 | `delete journeys`                  | `-i, --journey-id`                     | `-n`, `--name` |
