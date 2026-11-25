@@ -428,6 +428,17 @@ async function startConsole(): Promise<void> {
       };
       started.input.on('keypress', wrapped);
     },
+    promptRows: () => {
+      const width = Math.max(process.stdout.columns ?? 80, 1);
+      // The prompt the REPL was last given (the displayPrompt proxy
+      // keeps it current) plus the line: the visible span that wraps.
+      const prompt = lastPrompt ?? consolePrompt();
+      const visible =
+        // eslint-disable-next-line no-control-regex
+        prompt.replace(/\x1b\[[0-?]*[ -/]*[@-~]/g, '').length +
+        started.line.length;
+      return Math.max(1, Math.ceil(visible / width));
+    },
   });
   consoleInput.install();
 

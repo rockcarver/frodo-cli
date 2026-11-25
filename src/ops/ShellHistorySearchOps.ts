@@ -184,6 +184,12 @@ export type SearchHooks = {
   sendEscape(): void;
   /** Subscribe to decoded keypresses on the REPL's input. */
   onKeypress(listener: (key: { ctrl?: boolean; name?: string }) => void): void;
+  /**
+   * How many physical rows the prompt block (prompt plus current line)
+   * occupies at this width: the frame erase has to clear them, and a
+   * long prompt with a long line wraps into several.
+   */
+  promptRows(): number;
 };
 
 /**
@@ -316,9 +322,15 @@ export function createConsoleInput(
   let matchCursor = 0;
   // The REPL line when the search opened; restored on cancel.
   let savedDraft = '';
-  // Rows of the candidate list currently on screen (status line excluded).
-  // Tracked so each redraw can erase the previous frame exactly.
+  // Physical rows of the frame currently on screen (the list, the
+  // status line, and the annotation; a row wider than the terminal
+  // wraps into several). Tracked so each redraw can erase the previous
+  // frame exactly.
   let drawnRows = 0;
+  // Physical rows the prompt block (prompt + current line) occupied at
+  // the last paint: the erase has to clear them as well, and a long
+  // prompt with a long line wraps into several.
+  let promptRowsPrev = 1;
   // Persists across chunks while active so a multi-byte UTF-8 character
   // split over two reads still decodes as one character.
   const decoder = new StringDecoder('utf8');
@@ -364,6 +376,34 @@ export function createConsoleInput(
   const LIST_ROWS = 8;
 
   /**
+   * The screen width the frame draws against.
+   */
+  function termWidth(): number {
+    return process.stdout.columns ?? 80;
+  }
+
+  /** The string with its ANSI escapes removed: the length the terminal
+   * actually paints (what wrapping and row math must count). */
+  function visibleLen(s: string): number {
+    // eslint-disable-next-line no-control-regex
+    return s.replace(/\x1b\[[0-?]*[ -/]*[@-~]/g, '').length;
+  }
+
+  /** How many physical rows a painted line occupies at this width: the
+   * frame erase moves the cursor in physical rows, and a row wider
+   * than the terminal wraps into several. */
+  function physicalRows(s: string): number {
+    return Math.max(1, Math.ceil(visibleLen(s) / termWidth()));
+  }
+
+  /** Cut plain text to fit a visible budget, marking the cut with an
+   * ellipsis. */
+  function fitText(text: string, budget: number): string {
+    if (text.length <= budget) return text;
+    return `${text.slice(0, Math.max(budget - 1, 1))}…`;
+  }
+
+  /**
    * One line of the candidate list: the entry's id (a stable counter,
    * dim, so the eye can tell entries apart at a glance), then the
    * command, trimmed to the terminal width, with the selected row
@@ -371,26 +411,32 @@ export function createConsoleInput(
    * command, several lines; the marks say where the lines inside it
    * sit) and truncates after the first of them; the status line above
    * the list already carries the query and the counter. Entries from
-   * files written before ids existed show without one.
+   * files written before ids existed show without one. The trim
+   * budgets the VISIBLE width (the marks around ¶ and the colors add
+   * escape bytes the terminal does not paint, and a row painted wider
+   * than the terminal wraps and breaks the frame's row accounting).
    */
   function listRowText(entry: HistoryEntry, selected: boolean): string {
-    const width = process.stdout.columns ?? 80;
-    const max = Math.max(width - 6, 16);
-    // One dim ¶ per line break, the text-editor convention: the entry's
-    // own shape stays readable and where it ends is where a line lacks one.
-    const marked = entry.text.replace(/\n/g, `${DIM}¶${RESET}`);
-    let text = marked;
-    if (entry.text.includes('\n')) {
-      text = `${marked} ${DIM}…${RESET}`;
+    const width = termWidth();
+    const idLabel = entry.id !== undefined ? String(entry.id) : '';
+    // '  ' + id + spaces before the command; the id column is 6
+    // visible columns wide when there is an id.
+    const prefix = idLabel
+      ? `  ${idLabel}${' '.repeat(Math.max(1, 6 - idLabel.length))}`
+      : '  ';
+    const budget = Math.max(width - visibleLen(prefix) - 2, 16);
+    const more = entry.text.includes('\n');
+    // The line breaks become ¶ in a PLAIN pass first, the cut applies
+    // to the plain text (so the visible length is exact), and only
+    // then each surviving ¶ gains its color.
+    const plain = entry.text.replace(/\n/g, '¶');
+    const suffixLen = more ? 2 : 0; // ' …' after the first line
+    const fitted = fitText(plain, budget - suffixLen);
+    let text = fitted.replace(/¶/g, `${DIM}¶${RESET}`);
+    if (fitted.length >= plain.length && more) {
+      text += ` ${DIM}…${RESET}`;
     }
-    // The trim reads the marked text: an escape around ¶ counts toward the
-    // length, and one extra row of room covers the marks of short entries.
-    if (text.length > max + marked.length - entry.text.length) {
-      text = `${marked.slice(0, max + marked.length - entry.text.length - 1)}…`;
-    }
-    const id =
-      entry.id !== undefined ? `${DIM}${entry.id}${RESET}${' '.repeat(Math.max(1, 5 - String(entry.id).length))}` : '';
-    const body = `  ${id}${text}`;
+    const body = `${prefix}${text}`;
     return selected ? `${CYAN}${body}${RESET}` : `${DIM}${body}${RESET}`;
   }
 
@@ -406,12 +452,14 @@ export function createConsoleInput(
       statusLine = `${DIM}(fuzzy-search)${RESET} ${CYAN}${query}${RESET}${DIM}${counter}${RESET}`;
     }
     // Erase the previous frame (list + status line + annotation). The
-    // cursor is on the prompt row, below the annotation: move up over
-    // every drawn row plus the status line, then clear down through all
-    // of it, then draw the new frame top-down.
+    // cursor is at the end of the prompt block, below the frame: move
+    // up over every PHYSICAL row the frame painted (a long row wraps)
+    // plus the prompt block's own rows, then clear down through all of
+    // it, then draw the new frame top-down.
     readline.cursorTo(process.stdout, 0);
-    if (drawnRows > 0) {
-      readline.moveCursor(process.stdout, 0, -(drawnRows + 1));
+    const up = drawnRows + promptRowsPrev;
+    if (up > 1) {
+      readline.moveCursor(process.stdout, 0, -(up - 1));
       readline.clearScreenDown(process.stdout);
     } else {
       readline.clearLine(process.stdout, 0);
@@ -432,11 +480,13 @@ export function createConsoleInput(
       const history = getHistory();
       for (let i = start; i < end; i++) {
         const entry = history[matches[i]];
-        process.stdout.write(`${listRowText(entry, i === matchCursor)}\n`);
-        drawnRows++;
+        const row = listRowText(entry, i === matchCursor);
+        process.stdout.write(`${row}\n`);
+        drawnRows += physicalRows(row);
       }
     }
     process.stdout.write(`${statusLine}\n`);
+    drawnRows += physicalRows(statusLine);
     // The selection's age and environment, under the list (or under the
     // status line when it is hidden). One row, dim.
     if (selection && (selection.ts !== undefined || selection.host)) {
@@ -455,8 +505,9 @@ export function createConsoleInput(
       }
       if (selection.host) parts.push(selection.host);
       if (parts.length > 0) {
-        process.stdout.write(`${DIM}${parts.join(' · ')}${RESET}\n`);
-        drawnRows++;
+        const note = `${DIM}${parts.join(' · ')}${RESET}`;
+        process.stdout.write(`${note}\n`);
+        drawnRows += physicalRows(note);
       }
     }
     // The selection rides the readline line while the list is open, so
@@ -468,7 +519,21 @@ export function createConsoleInput(
     // it is used (Enter and Tab below, after the frame is gone).
     const shown = selection ? selection.text.split('\n')[0] : query;
     hooks.setLine(shown);
+    // Seat the cursor on the prompt block's last row before the
+    // refresh: readline's repaint moves up by the rows of the block it
+    // believes the cursor is in, and with a wrapped block those rows
+    // would otherwise reach into the frame just painted and clip it.
+    // The erase above clears from the frame top down, so the rows the
+    // newlines cross are already blank.
+    const blockRows = hooks.promptRows();
+    for (let i = 1; i < blockRows; i++) {
+      process.stdout.write('\n');
+    }
     hooks.refresh();
+    // How many physical rows the prompt block occupied at this paint:
+    // the next erase has to clear them too (a long prompt + a long
+    // first line wraps into several).
+    promptRowsPrev = blockRows;
   }
 
   function openSearch(): void {
@@ -487,19 +552,21 @@ export function createConsoleInput(
     active = false;
     decoder.end();
     // Erase the whole frame: the list, the annotation, and the status
-    // line. The cursor is on the prompt row below the annotation.
-    if (drawnRows > 0) {
-      readline.cursorTo(process.stdout, 0);
-      readline.moveCursor(process.stdout, 0, -(drawnRows + 1));
+    // line, in physical rows, plus the prompt block's own rows. The
+    // cursor sits at the end of the prompt block.
+    const up = drawnRows + promptRowsPrev;
+    readline.cursorTo(process.stdout, 0);
+    if (up > 1) {
+      readline.moveCursor(process.stdout, 0, -(up - 1));
       readline.clearScreenDown(process.stdout);
     } else {
-      readline.cursorTo(process.stdout, 0);
       readline.clearLine(process.stdout, 0);
     }
     drawnRows = 0;
     if (restoreDraft && hooks) {
       hooks.setLine(savedDraft);
       hooks.refresh();
+      promptRowsPrev = hooks.promptRows();
     }
   }
 

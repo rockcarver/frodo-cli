@@ -5,6 +5,7 @@ import {
   removeShellTestHome,
   runShellScenario,
 } from '../utils/ShellPty.js';
+import { replayScreen } from '../utils/ScreenReplay.js';
 
 describe('frodo shell PTY (console mode)', () => {
   test('evaluates expressions with top-level await, the last result in _, and the $ facade', async () => {
@@ -305,4 +306,102 @@ describe('frodo shell PTY (console mode)', () => {
       removeShellTestHome(homeDir);
     }
   });
+  test('navigation leaves no residue with long single-line entries', async () => {
+    const homeDir = createShellTestHome();
+    try {
+      // A long single-line command (~100 chars): with the wide prompt
+      // it wraps the prompt row, which used to break the erase math
+      // and leave the previous frame's rows on screen.
+      const longCmd =
+        "await $.get('/openidm/repo/link?_queryFilter=true&_pageSize=10&_fields=_NAME,_LINK,_FIRSTLINKTYPE')";
+      const result = runShellScenario({
+        args: ['shell'],
+        homeDir,
+        actions: [
+          { type: 'wait_prompt' },
+          { type: 'clear_output' },
+          { type: 'send_line', text: longCmd },
+          { type: 'wait_plain', regex: 'Not connected' },
+          { type: 'sleep', ms: 300 },
+          { type: 'send_line', text: 'shortOne' },
+          { type: 'wait_plain', regex: 'shortOne' },
+          { type: 'sleep', ms: 300 },
+          { type: 'clear_output' },
+          { type: 'key', name: 'ctrl_r' },
+          { type: 'sleep', ms: 200 },
+          { type: 'key', name: 'down' },
+          { type: 'sleep', ms: 150 },
+          { type: 'key', name: 'down' },
+          { type: 'sleep', ms: 150 },
+          { type: 'key', name: 'up' },
+          { type: 'sleep', ms: 150 },
+          { type: 'capture', label: 'mid' },
+          { type: 'key', name: 'escape' },
+          { type: 'sleep', ms: 200 },
+          { type: 'capture', label: 'closed' },
+          { type: 'send_line', text: '.exit' },
+        ],
+      });
+      // While the frame is open: exactly one status line and one copy
+      // of each entry row (no accumulation from the navigation steps).
+      const midScreen = replayScreen(result.captures.mid.raw);
+      const statusCount = midScreen.filter((l) => l.includes('(fuzzy-search)')).length;
+      expect(statusCount).toBe(1);
+      // List rows lead with the id column; the prompt row (which
+      // previews the selection) is not a duplicate.
+      const shortRows = midScreen.filter((l) => /^  \d\s+.*shortOne/.test(l)).length;
+      expect(shortRows).toBe(1);
+      // After Esc: no frame rows left at all.
+      const closedScreen = replayScreen(result.captures.closed.raw);
+      expect(closedScreen.some((l) => l.includes('fuzzy-search'))).toBe(false);
+    } finally {
+      removeShellTestHome(homeDir);
+    }
+  }, 60000);
+
+  test('a multi-line entry renders as one row with marks, no wrapping', async () => {
+    const homeDir = createShellTestHome();
+    try {
+      const script = [
+        'const ml1 = 1;',
+        'const ml2 = 2;',
+        'ml1 + ml2',
+      ].join('\r');
+      const result = runShellScenario({
+        args: ['shell'],
+        homeDir,
+        actions: [
+          { type: 'wait_prompt' },
+          { type: 'clear_output' },
+          { type: 'send', text: '\x1b[200~' + script + '\r\x1b[201~' },
+          { type: 'wait_plain', regex: 'script pasted' },
+          { type: 'key', name: 'enter' },
+          { type: 'wait_plain', regex: '3' },
+          { type: 'sleep', ms: 300 },
+          { type: 'send_line', text: 'plainTwo' },
+          { type: 'wait_plain', regex: 'plainTwo' },
+          { type: 'sleep', ms: 300 },
+          { type: 'clear_output' },
+          { type: 'key', name: 'ctrl_r' },
+          { type: 'sleep', ms: 200 },
+          { type: 'key', name: 'down' },
+          { type: 'sleep', ms: 150 },
+          { type: 'capture', label: 'mid' },
+          { type: 'key', name: 'escape' },
+          { type: 'send_line', text: '.exit' },
+        ],
+      });
+      const screen = replayScreen(result.captures.mid.raw);
+      // One status line; the multi-line entry occupies ONE screen row
+      // (its lines separated by the ¶ marks, never painted across).
+      expect(screen.filter((l) => l.includes('(fuzzy-search)'))).toHaveLength(1);
+      const mlRows = screen.filter((l) => /^  \d\s+/.test(l) && l.includes('ml1'));
+      expect(mlRows).toHaveLength(1);
+      expect(mlRows[0]).toContain('¶');
+      // The single entry is on its own row.
+      expect(screen.filter((l) => l.includes('plainTwo'))).toHaveLength(1);
+    } finally {
+      removeShellTestHome(homeDir);
+    }
+  }, 60000);
 });

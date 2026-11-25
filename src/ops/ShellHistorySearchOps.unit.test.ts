@@ -758,6 +758,7 @@ describe('the Ctrl+R list of the terminal console', () => {
       refresh: () => undefined,
       sendEscape: () => undefined,
       onKeypress: () => undefined,
+      promptRows: () => 1,
     };
     search.attachHooks(hooks);
     search.install();

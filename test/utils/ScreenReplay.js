@@ -125,8 +125,20 @@ export function replayScreen(rawInput, { cols = 120, rows = 200 } = {}) {
         // silently. The captures DO carry SGR now that the scenario
         // blanks NO_COLOR (the binary's theme colors its output).
         break;
+      case 'J': {
+        // erase in display: mode 0 = cursor->end of screen (readline's
+        // clearScreenDown), mode 2 = whole screen. Blank the rows the
+        // terminal would.
+        const mode = n(0) || 0;
+        ensure(cursorRow);
+        if (mode === 2) {
+          for (let r = 0; r < lines.length; r++) lines[r] = '';
+        } else {
+          for (let r = cursorRow; r < lines.length; r++) lines[r] = '';
+        }
+        break;
+      }
       case 'H': // absolute position (row;col) -- not emitted by inquirer
-      case 'J': // erase in display -- not emitted by inquirer
       default:
         // Anything else inquirer COULD emit but doesn't (verified
         // against its source): fail loudly rather than silently
