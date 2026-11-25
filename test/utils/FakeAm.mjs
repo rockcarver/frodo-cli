@@ -180,6 +180,9 @@
  * answers with a `detail.echo` of that text, `@PADDING@` replaced by that many `x`
  * (the answer of a tenant that echoes what it was sent; it is too long for the
  * environment, so the fake writes it).
+ * An entry that has `"nth": 2` fails only the second request that matches it (the first and the third
+ * and every later one are answered as if the entry were not there): a test that needs the second
+ * write of a run to be refused and the others to go through. Without `nth` every matching request fails.
  * FAKE_AM_FEATURES_FILE=<path> names a JSON array of IDM tenant-configuration features
  * (`_id`, `installedVersion`, `availableVersions`, and `validate`, the body the validate
  * action answers with: default `{ status: 200, success: true, message: 'Validate
@@ -1023,9 +1026,15 @@ const server = http.createServer((req, res) => {
         answer();
       }
     };
-    const failing = failRequests.find(
-      ({ method, path }) => req.method === method && req.url.includes(path)
-    );
+    const failing = failRequests.find((entry) => {
+      if (req.method !== entry.method || !req.url.includes(entry.path)) {
+        return false;
+      }
+      if (entry.nth === undefined) return true;
+      // the entry counts the requests that match it, and fails the n-th only
+      entry.seen = (entry.seen ?? 0) + 1;
+      return entry.seen === entry.nth;
+    });
     if (failing) {
       return send(500, {
         code: 500,
