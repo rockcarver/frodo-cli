@@ -26,6 +26,7 @@ import {
 import { ShellHistory } from '../../ops/ShellHistoryOps';
 import { createConsoleInput } from '../../ops/ShellHistorySearchOps';
 import { getIdmCatalog, refreshIdmCatalog } from '../../ops/ShellIdmCatalogOps';
+import { clearLastShellRestResult } from '../../ops/ShellRestOps';
 import {
   BrowserLauncher,
   openBrowserThroughLauncherFile,
@@ -550,6 +551,43 @@ async function startConsole(): Promise<void> {
           );
         }
       }
+      started.displayPrompt();
+    },
+  });
+
+  // Clear the JS state, the web console's reset: everything the session
+  // defined (variables, functions, imports, consts) goes away and the
+  // console names come back on a fresh context. History, the connection,
+  // and the screen are untouched. A dot-command runs between evals by
+  // construction (readline feeds it through the eval path as a command),
+  // so the swap cannot tear the context out from under a running script.
+  started.defineCommand('clear', {
+    help: 'Discard all variables and functions defined this session (like the web console reset)',
+    action() {
+      const serverWithReset = started as unknown as {
+        resetContext?: () => void;
+      };
+      if (typeof serverWithReset.resetContext !== 'function') {
+        started.output.write(
+          '.clear is not supported on this Node.js version.\n'
+        );
+        started.displayPrompt();
+        return;
+      }
+      serverWithReset.resetContext();
+      // The fresh context holds none of the console names: they live in
+      // installConsoleContext, so they go back on by hand.
+      installConsoleContext(started.context, bindings, {
+        write: (text) => started.output.write(text),
+        colors: true,
+      });
+      // Ctrl+O's last result came from the old context's work; with the
+      // state gone, exploring it is misleading. The $ facade's last
+      // response rides module state of its own and is cleared with it
+      // (below).
+      lastResult = undefined;
+      clearLastShellRestResult();
+      started.output.write('JS state cleared.\n');
       started.displayPrompt();
     },
   });
