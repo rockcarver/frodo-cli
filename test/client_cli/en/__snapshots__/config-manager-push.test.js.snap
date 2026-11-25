@@ -18,6 +18,7 @@ Runtime Options:
 
 Commands:
   access-config              [Experimental] Import access configuration.
+  all-static                 [Experimental] Export all static config.
   applications               [Experimental] Import applications, one folder per
                              application with the objects it owns.
   audit                      [Experimental] Import audit configuration.

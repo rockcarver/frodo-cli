@@ -1,5 +1,6 @@
 import { FrodoCommand, FrodoStubCommand } from '../../FrodoCommand';
 import AccessConfig from './config-manager-push-access-config';
+import AllStatic from './config-manager-push-all-static';
 import Applications from './config-manager-push-applications';
 import Audit from './config-manager-push-audit';
 import Authentication from './config-manager-push-authentication';
@@ -94,6 +95,7 @@ export default function setup() {
   program.addCommand(AuthzPolicies().name('authz-policies'));
   program.addCommand(Saml().name('saml'));
   program.addCommand(Scripts().name('scripts'));
+  program.addCommand(AllStatic().name('all-static'));
 
   // A pipeline hands its values to a push as environment variables (the
   // convention of fr-config-manager): every push command lets a ${NAME}

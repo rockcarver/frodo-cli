@@ -99,11 +99,11 @@ jest.unstable_mockModule(src('configManagerOps/FrConfigSamlOps'), () => ({
 }));
 jest.unstable_mockModule(
   src('configManagerOps/FrConfigConnectorDefinitionsOps'),
-  () => ({ configManagerExportConnectorDefinitions: calls.connectors })
+  () => ({ configManagerExportConnectorDefinitions: calls.connectors, configManagerImportConnectors: calls.connectors })
 );
 jest.unstable_mockModule(
   src('configManagerOps/FrConfigConnectorMappingOps'),
-  () => ({ configManagerExportMappings: calls.mappings })
+  () => ({ configManagerExportMappings: calls.mappings, configManagerImportMappings: calls.mappings })
 );
 jest.unstable_mockModule(src('ops/ApplicationConfigOps'), () => ({
   configManagerExportApplications: calls.applications,
@@ -136,10 +136,10 @@ describe.each(['cloud', 'forgeops'])('the steps of `pull all` (%s)', (type) => {
   const options = (extra = {}) => ({ configFolder: tmp, ...extra });
 
   test('oauth2-agents and saml get the file and the layout decision', async () => {
-    await stepNamed(deploymentMapAll, 'oauth2-agents').run(
+    await stepNamed(deploymentMapAll, 'oauth2-agents').export(
       options({ applicationLayout: FOLDERS_NEW })
     );
-    await stepNamed(deploymentMapAll, 'saml').run(
+    await stepNamed(deploymentMapAll, 'saml').export(
       options({ applicationLayout: FOLDERS_NEW })
     );
 
@@ -159,10 +159,10 @@ describe.each(['cloud', 'forgeops'])('the steps of `pull all` (%s)', (type) => {
   });
 
   test('connector-definitions and connector-mappings get the layout decision', async () => {
-    await stepNamed(deploymentMapAll, 'connector-definitions').run(
+    await stepNamed(deploymentMapAll, 'connector-definitions').export(
       options({ applicationLayout: FOLDERS_NEW })
     );
-    await stepNamed(deploymentMapAll, 'connector-mappings').run(
+    await stepNamed(deploymentMapAll, 'connector-mappings').export(
       options({ applicationLayout: FOLDERS_NEW })
     );
 
@@ -175,8 +175,8 @@ describe.each(['cloud', 'forgeops'])('the steps of `pull all` (%s)', (type) => {
   });
 
   test('without a decision the exporters get none, and read the marker themselves', async () => {
-    await stepNamed(deploymentMapAll, 'oauth2-agents').run(options());
-    await stepNamed(deploymentMapAll, 'connector-mappings').run(options());
+    await stepNamed(deploymentMapAll, 'oauth2-agents').export(options());
+    await stepNamed(deploymentMapAll, 'connector-mappings').export(options());
 
     expect(calls.oauth2).toHaveBeenCalledWith(
       `${tmp}/oauth2-agents.json`,
@@ -190,7 +190,7 @@ describe.each(['cloud', 'forgeops'])('the steps of `pull all` (%s)', (type) => {
   test('a config folder without the file pulls everything: the exporter gets no file, and the layout decision and the realm', async () => {
     fs.rmSync(path.join(tmp, 'saml.json'));
 
-    const outcome = await stepNamed(deploymentMapAll, 'saml').run(
+    const outcome = await stepNamed(deploymentMapAll, 'saml').export(
       options({ applicationLayout: FOLDERS_NEW, realm: 'alpha' })
     );
 
@@ -199,10 +199,10 @@ describe.each(['cloud', 'forgeops'])('the steps of `pull all` (%s)', (type) => {
   });
 
   test('the steps of `pull all-static` are unchanged: they read the marker themselves', async () => {
-    await stepNamed(deploymentMapAllStatic, 'connector-definitions').run(
+    await stepNamed(deploymentMapAllStatic, 'connector-definitions').export(
       options({ applicationLayout: FOLDERS_NEW })
     );
-    await stepNamed(deploymentMapAllStatic, 'connector-mappings').run(
+    await stepNamed(deploymentMapAllStatic, 'connector-mappings').export(
       options({ applicationLayout: FOLDERS_NEW })
     );
 

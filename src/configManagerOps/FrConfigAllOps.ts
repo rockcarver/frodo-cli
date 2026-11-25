@@ -3,7 +3,10 @@ import { frodo, state } from '@rockcarver/frodo-lib';
 import { configManagerExportApplications } from '../ops/ApplicationConfigOps';
 import { configManagerExportCIMDProfiles } from '../ops/CIMDProfileConfigOps';
 import { configManagerExportTrustedJwtIssuers } from '../ops/OAuth2TrustedJwtIssuerConfigOps';
-import { configManagerExportRemoteProxies } from '../ops/RemoteProxyOps';
+import {
+  configManagerExportRemoteProxies,
+  configManagerImportRemoteProxies,
+} from '../ops/RemoteProxyOps';
 import { configManagerExportSoftwarePublishers } from '../ops/SoftwarePublisherConfigOps';
 import { printError, printMessage } from '../utils/Console';
 import { OperationRun } from '../utils/OperationRun';
@@ -17,39 +20,112 @@ import {
   configFolderProblem,
   existingConfigFile,
 } from './ConfigFileStep';
-import { configManagerExportAccessConfig } from './FrConfigAccessConfigOps';
-import { configManagerExportAudit } from './FrConfigAuditOps';
-import { configManagerExportAuthentication } from './FrConfigAuthenticationOps';
+import {
+  configManagerExportAccessConfig,
+  configManagerImportAccessConfig,
+} from './FrConfigAccessConfigOps';
+import {
+  configManagerExportAudit,
+  configManagerImportAudit,
+} from './FrConfigAuditOps';
+import {
+  configManagerExportAuthentication,
+  configManagerImportAuthentication,
+} from './FrConfigAuthenticationOps';
 import { configManagerExportAuthzPolicySets } from './FrConfigAuthzPoliciesOps';
-import { configManagerExportConnectorDefinitions } from './FrConfigConnectorDefinitionsOps';
-import { configManagerExportMappings } from './FrConfigConnectorMappingOps';
+import {
+  configManagerExportConnectorDefinitions,
+  configManagerImportConnectors,
+} from './FrConfigConnectorDefinitionsOps';
+import {
+  configManagerExportMappings,
+  configManagerImportMappings,
+} from './FrConfigConnectorMappingOps';
 import { configManagerExportCookieDomains } from './FrConfigCookieDomainsOps';
-import { configManagerExportCors } from './FrConfigCorsOps';
+import {
+  configManagerExportCors,
+  configManagerImportCors,
+} from './FrConfigCorsOps';
 import { configManagerExportCsp } from './FrConfigCspOps';
-import { configManagerExportCustomNodes } from './FrConfigCustomNodesOps';
-import { configManagerExportEmailProviderConfiguration } from './FrConfigEmailProviderOps';
-import { configManagerExportEmailTemplates } from './FrConfigEmailTemplatesOps';
-import { configManagerExportEndpoints } from './FrConfigEndpointsOps';
-import { configManagerExportIdmAuthentication } from './FrConfigIdmAuthenticationOpts';
+import {
+  configManagerExportCustomNodes,
+  configManagerImportCustomNodes,
+} from './FrConfigCustomNodesOps';
+import {
+  configManagerExportEmailProviderConfiguration,
+  configManagerImportEmailProvider,
+} from './FrConfigEmailProviderOps';
+import {
+  configManagerExportEmailTemplates,
+  configManagerImportEmailTemplates,
+} from './FrConfigEmailTemplatesOps';
+import {
+  configManagerExportEndpoints,
+  configManagerImportEndpoints,
+} from './FrConfigEndpointsOps';
+import {
+  configManagerExportIdmAuthentication,
+  configManagerImportIdmAuthentication,
+} from './FrConfigIdmAuthenticationOpts';
 import { configManagerExportInternalRoles } from './FrConfigInternalRolesOps';
-import { configManagerExportJourneys } from './FrConfigJourneysOps';
-import { configManagerExportKbaConfig } from './FrConfigKbaOps';
-import { configManagerExportLocales } from './FrConfigLocalesOps';
-import { configManagerExportManagedObjects } from './FrConfigManagedObjectsOps';
+import {
+  configManagerExportJourneys,
+  configManagerImportJourneys,
+} from './FrConfigJourneysOps';
+import {
+  configManagerExportKbaConfig,
+  configManagerImportKbaConfig,
+} from './FrConfigKbaOps';
+import {
+  configManagerExportLocales,
+  configManagerImportLocales,
+} from './FrConfigLocalesOps';
+import {
+  configManagerExportManagedObjects,
+  configManagerImportManagedObjects,
+} from './FrConfigManagedObjectsOps';
+import { configManagerImportMetadata } from './FrConfigMetadataOps';
 import { configManagerExportOAuth2Agents } from './FrConfigOauth2AgentOps';
-import { configManagerExportOrgPrivileges } from './FrConfigOrgPrivilegesOps';
-import { configManagerExportPasswordPolicy } from './FrConfigPasswordPolicyOps';
+import {
+  configManagerExportOrgPrivileges,
+  configManagerImportOrgPrivileges,
+} from './FrConfigOrgPrivilegesOps';
+import {
+  configManagerExportPasswordPolicy,
+  configManagerImportPasswordPolicy,
+} from './FrConfigPasswordPolicyOps';
 import { configManagerExportRaw } from './FrConfigRawOps';
-import { configManagerExportRemoteServers } from './FrConfigRemoteServersOps';
+import {
+  configManagerExportRemoteServers,
+  configManagerImportRemoteServers,
+} from './FrConfigRemoteServersOps';
 import { configManagerExportSaml } from './FrConfigSamlOps';
-import { configManagerExportSchedules } from './FrConfigSchedulesOps';
-import { configManagerExportScripts } from './FrConfigScriptOps';
-import { configManagerExportSecretMappings } from './FrConfigSecretMappingsOps';
+import {
+  configManagerExportSchedules,
+  configManagerImportSchedules,
+} from './FrConfigSchedulesOps';
+import {
+  configManagerExportScripts,
+  configManagerImportScripts,
+} from './FrConfigScriptOps';
+import {
+  configManagerExportSecretMappings,
+  configManagerImportSecretMappings,
+} from './FrConfigSecretMappingsOps';
 import { configManagerExportSecrets } from './FrConfigSecretOps';
 import { configManagerExportServiceObjectsFromFile } from './FrConfigServiceObjectsOps';
-import { configManagerExportServices } from './FrConfigServiceOps';
-import { configManagerExportTermsAndConditions } from './FrConfigTermsAndConditionsOps';
-import { configManagerExportThemes } from './FrConfigThemeOps';
+import {
+  configManagerExportServices,
+  configManagerImportServices,
+} from './FrConfigServiceOps';
+import {
+  configManagerExportTermsAndConditions,
+  configManagerImportTermsAndConditions,
+} from './FrConfigTermsAndConditionsOps';
+import {
+  configManagerExportThemes,
+  configManagerImportThemes,
+} from './FrConfigThemeOps';
 import { configManagerExportUiConfig } from './FrConfigUiConfigOps';
 import { configManagerExportVariables } from './FrConfigVariableOps';
 
@@ -61,18 +137,37 @@ const {
 
 const { getWorkingDirectory } = frodo.utils;
 
-/** One step of `config-manager pull all` or `pull all-static`. */
-export interface ExportStep {
-  /** The name of the `config-manager pull` command that does the same, as shown in the summary of failed steps. */
+/** Which operation to run for a step. */
+export type StepOperation = 'export' | 'import';
+
+/** What one step does for an operation. */
+export type StepRun = (
+  options: ConfigManagerAllOptions
+) => Promise<boolean | void>;
+
+/**
+ * One step of `config-manager pull all`, `pull all-static` or `push all-static`.
+ */
+export interface AllStep {
+  /**
+   * The name of the `config-manager` command that does the same, as shown in the summary of failed
+   * steps.
+   */
   name: string;
   /** Answers false when the step failed (it has printed its own error). */
-  run: (options: ConfigManagerAllOptions) => Promise<boolean | void>;
+  export?: StepRun;
+  import?: StepRun;
 }
 
-const step = (name: string, run: ExportStep['run']): ExportStep => ({
-  name,
-  run,
-});
+/**
+ * Makes a step. If a single function provided, it's assumed to be an export step,
+ * otherwise the object specifies what functions to run per operation
+ */
+const step = (
+  name: string,
+  run: StepRun | { export?: StepRun; import?: StepRun }
+): AllStep =>
+  typeof run === 'function' ? { name, export: run } : { name, ...run };
 
 /**
  * A step that reads a file from the config folder, like {@link configFileStep}, and pulls everything
@@ -89,7 +184,7 @@ const everythingFileStep = (
     filePath: string | null,
     options: ConfigManagerAllOptions
   ) => Promise<boolean>
-): ExportStep['run'] =>
+): StepRun =>
   Object.assign(
     (options: ConfigManagerAllOptions) =>
       configFileStep(
@@ -104,7 +199,7 @@ const everythingFileStep = (
     { configFile: { fileName, optional: false, absentMeansAll: true } }
   );
 
-export const deploymentMapAll: Record<string, ExportStep[]> = {
+export const deploymentMapAll: Record<string, AllStep[]> = {
   [FORGEOPS_DEPLOYMENT_TYPE_KEY]: [
     step('access-config', () => configManagerExportAccessConfig()),
     step('audit', () => configManagerExportAudit()),
@@ -510,112 +605,271 @@ export const deploymentMapAll: Record<string, ExportStep[]> = {
   ],
 };
 
-// `oauth-cimd-profiles`, `oauth-issuers` and `oauth-software-publishers` are absent from the lists below on purpose: all
-// three are dynamic configuration (CIMD profiles until Ping says a promotion carries them, trusted JWT issuers and software
-// publishers because Ping's promotion FAQ lists them as not promoted); see the steps in `deploymentMapAll`.
-export const deploymentMapAllStatic: Record<string, ExportStep[]> = {
+/**
+ * `oauth-cimd-profiles`, `oauth-issuers` and `oauth-software-publishers` are absent from the lists below on purpose: all
+ * three are dynamic configuration (CIMD profiles until Ping says a promotion carries them, trusted JWT issuers and software
+ * publishers because Ping's promotion FAQ lists them as not promoted); see the steps in `deploymentMapAll`.
+ *
+ * Most steps here have both operation: `export` is what `pull all-static` runs and `import` is what `push all-static` runs.
+ *
+ * The order of the configurations below is important because imports have dependencies, so the order below ensures that
+ * configurations that depend on other configurations are imported after its dependencies.
+ */
+export const deploymentMapAllStatic: Record<string, AllStep[]> = {
   [FORGEOPS_DEPLOYMENT_TYPE_KEY]: [
-    step('access-config', () => configManagerExportAccessConfig()),
-    step('audit', () => configManagerExportAudit()),
-    step('authentication', (options) =>
-      configManagerExportAuthentication(options.realm)
-    ),
-    step('connector-definitions', () =>
-      configManagerExportConnectorDefinitions()
-    ),
-    step('cors', () => configManagerExportCors()),
-    step('custom-nodes', () => configManagerExportCustomNodes()),
-    step('email-provider', () =>
-      configManagerExportEmailProviderConfiguration()
-    ),
-    step('email-templates', () => configManagerExportEmailTemplates()),
-    step('endpoints', () => configManagerExportEndpoints()),
-    step('idm-authentication', () => configManagerExportIdmAuthentication()),
-    step('journeys', (options) =>
-      configManagerExportJourneys(undefined, options.realm, false)
-    ),
-    step('kba', () => configManagerExportKbaConfig()),
-    step('locales', () => configManagerExportLocales()),
-    step('managed-objects', () => configManagerExportManagedObjects()),
-    step('connector-mappings', () => configManagerExportMappings()),
-    step('org-privileges', (options) =>
-      configManagerExportOrgPrivileges(undefined, false, options.realm)
-    ),
-    step('password-policy', (options) =>
-      configManagerExportPasswordPolicy(options.realm)
-    ),
-    step('remote-servers', () => configManagerExportRemoteServers()),
-    step('schedules', () => configManagerExportSchedules()),
-    step('scripts', (options) =>
-      configManagerExportScripts(undefined, options.realm)
-    ),
-    step('services', (options) => configManagerExportServices(options.realm)),
-    step('terms-and-conditions', () => configManagerExportTermsAndConditions()),
-    step('themes', (options) => configManagerExportThemes(options.realm)),
-    step('ui-config', () => configManagerExportUiConfig()),
+    // Global configurations first
+    step('access-config', {
+      export: () => configManagerExportAccessConfig(),
+      import: () => configManagerImportAccessConfig(),
+    }),
+    step('audit', {
+      export: () => configManagerExportAudit(),
+      import: () => configManagerImportAudit(),
+    }),
+    step('config-metadata', {
+      import: (options) => configManagerImportMetadata(options.metadata),
+    }),
+    step('connector-definitions', {
+      export: () => configManagerExportConnectorDefinitions(),
+      import: () => configManagerImportConnectors(),
+    }),
+    step('connector-mappings', {
+      export: () => configManagerExportMappings(),
+      import: () => configManagerImportMappings(),
+    }),
+    step('cors', {
+      export: () => configManagerExportCors(),
+      import: () => configManagerImportCors(),
+    }),
+    step('custom-nodes', {
+      export: () => configManagerExportCustomNodes(),
+      import: () => configManagerImportCustomNodes(),
+    }),
+    step('email-provider', {
+      export: () => configManagerExportEmailProviderConfiguration(),
+      import: () => configManagerImportEmailProvider(),
+    }),
+    step('email-templates', {
+      export: () => configManagerExportEmailTemplates(),
+      import: () => configManagerImportEmailTemplates(),
+    }),
+    step('endpoints', {
+      export: () => configManagerExportEndpoints(),
+      import: () => configManagerImportEndpoints(),
+    }),
+    step('idm-authentication', {
+      export: () => configManagerExportIdmAuthentication(),
+      import: () => configManagerImportIdmAuthentication(),
+    }),
+    step('kba', {
+      export: () => configManagerExportKbaConfig(),
+      import: () => configManagerImportKbaConfig(),
+    }),
+    step('locales', {
+      export: () => configManagerExportLocales(),
+      import: () => configManagerImportLocales(),
+    }),
+    step('managed-objects', {
+      export: () => configManagerExportManagedObjects(),
+      import: () => configManagerImportManagedObjects(),
+    }),
+    step('org-privileges', {
+      export: (options) =>
+        configManagerExportOrgPrivileges(undefined, false, options.realm),
+      import: () => configManagerImportOrgPrivileges(),
+    }),
+    step('password-policy', {
+      export: (options) => configManagerExportPasswordPolicy(options.realm),
+      import: (options) => configManagerImportPasswordPolicy(options.realm),
+    }),
+    step('remote-servers', {
+      export: () => configManagerExportRemoteServers(),
+      import: () => configManagerImportRemoteServers(),
+    }),
+    step('schedules', {
+      export: () => configManagerExportSchedules(),
+      import: () => configManagerImportSchedules(),
+    }),
+    step('terms-and-conditions', {
+      export: () => configManagerExportTermsAndConditions(),
+      import: () => configManagerImportTermsAndConditions(),
+    }),
+    step('themes', {
+      export: (options) => configManagerExportThemes(options.realm),
+      import: (options) => configManagerImportThemes(options.realm),
+    }),
+    step('ui-config', {
+      export: () => configManagerExportUiConfig(),
+    }),
+    // Realm configurations after global configurations, starting with scripts since they are used as dependencies for other configurations
+    step('scripts', {
+      export: (options) => configManagerExportScripts(undefined, options.realm),
+      import: (options) => configManagerImportScripts(options.realm),
+    }),
+    step('authentication', {
+      export: (options) => configManagerExportAuthentication(options.realm),
+      import: (options) => configManagerImportAuthentication(options.realm),
+    }),
+    step('services', {
+      export: (options) => configManagerExportServices(options.realm),
+      import: (options) =>
+        configManagerImportServices(undefined, options.realm),
+    }),
+    step('journeys', {
+      export: (options) =>
+        configManagerExportJourneys(undefined, options.realm, false),
+      import: (options) =>
+        configManagerImportJourneys(undefined, options.realm, false),
+    }),
   ],
   [CLOUD_DEPLOYMENT_TYPE_KEY]: [
-    step('access-config', () => configManagerExportAccessConfig()),
-    step('audit', () => configManagerExportAudit()),
-    step('authentication', (options) =>
-      configManagerExportAuthentication(options.realm)
-    ),
-    step('connector-definitions', () =>
-      configManagerExportConnectorDefinitions()
-    ),
-    step('cookie-domains', () => configManagerExportCookieDomains()),
-    step('cors', () => configManagerExportCors()),
-    step('csp', () => configManagerExportCsp()),
-    step('custom-nodes', () => configManagerExportCustomNodes()),
-    step('email-provider', () =>
-      configManagerExportEmailProviderConfiguration()
-    ),
-    step('email-templates', () => configManagerExportEmailTemplates()),
-    step('endpoints', () => configManagerExportEndpoints()),
-    step('journeys', (options) =>
-      configManagerExportJourneys(undefined, options.realm, false)
-    ),
-    step('kba', () => configManagerExportKbaConfig()),
-    step('locales', () => configManagerExportLocales()),
-    step('managed-objects', () =>
-      configManagerExportManagedObjects(undefined, true)
-    ),
-    step('connector-mappings', () => configManagerExportMappings()),
-    step('org-privileges', (options) =>
-      configManagerExportOrgPrivileges(undefined, false, options.realm)
-    ),
-    step('password-policy', (options) =>
-      configManagerExportPasswordPolicy(options.realm)
-    ),
-    step('remote-proxies', () =>
-      configManagerExportRemoteProxies(undefined, true)
-    ),
-    step('remote-servers', () => configManagerExportRemoteServers()),
-    step('schedules', () => configManagerExportSchedules()),
-    step('scripts', (options) =>
-      configManagerExportScripts(undefined, options.realm)
-    ),
-    step('secret-mappings', (options) =>
-      configManagerExportSecretMappings(undefined, options.realm)
-    ),
-    step('services', (options) => configManagerExportServices(options.realm)),
-    step('terms-and-conditions', () => configManagerExportTermsAndConditions()),
-    step('themes', (options) => configManagerExportThemes(options.realm)),
-    step('ui-config', () => configManagerExportUiConfig()),
+    // Global configurations first
+    step('access-config', {
+      export: () => configManagerExportAccessConfig(),
+      import: () => configManagerImportAccessConfig(),
+    }),
+    step('audit', {
+      export: () => configManagerExportAudit(),
+      import: () => configManagerImportAudit(),
+    }),
+    step('config-metadata', {
+      import: (options) => configManagerImportMetadata(options.metadata),
+    }),
+    step('connector-definitions', {
+      export: () => configManagerExportConnectorDefinitions(),
+      import: () => configManagerImportConnectors(),
+    }),
+    step('connector-mappings', {
+      export: () => configManagerExportMappings(),
+      import: () => configManagerImportMappings(),
+    }),
+    step('cookie-domains', {
+      export: () => configManagerExportCookieDomains(),
+    }),
+    step('cors', {
+      export: () => configManagerExportCors(),
+      import: () => configManagerImportCors(),
+    }),
+    step('csp', {
+      export: () => configManagerExportCsp(),
+    }),
+    step('custom-nodes', {
+      export: () => configManagerExportCustomNodes(),
+      import: () => configManagerImportCustomNodes(),
+    }),
+    step('email-provider', {
+      export: () => configManagerExportEmailProviderConfiguration(),
+      import: () => configManagerImportEmailProvider(),
+    }),
+    step('email-templates', {
+      export: () => configManagerExportEmailTemplates(),
+      import: () => configManagerImportEmailTemplates(),
+    }),
+    step('endpoints', {
+      export: () => configManagerExportEndpoints(),
+      import: () => configManagerImportEndpoints(),
+    }),
+    step('kba', {
+      export: () => configManagerExportKbaConfig(),
+      import: () => configManagerImportKbaConfig(),
+    }),
+    step('locales', {
+      export: () => configManagerExportLocales(),
+      import: () => configManagerImportLocales(),
+    }),
+    step('managed-objects', {
+      export: () => configManagerExportManagedObjects(undefined, true),
+      import: () => configManagerImportManagedObjects(),
+    }),
+    step('org-privileges', {
+      export: (options) =>
+        configManagerExportOrgPrivileges(undefined, false, options.realm),
+      import: () => configManagerImportOrgPrivileges(),
+    }),
+    step('password-policy', {
+      export: (options) => configManagerExportPasswordPolicy(options.realm),
+      import: (options) => configManagerImportPasswordPolicy(options.realm),
+    }),
+    step('remote-proxies', {
+      export: () => configManagerExportRemoteProxies(undefined, true),
+      import: () => configManagerImportRemoteProxies(),
+    }),
+    step('remote-servers', {
+      export: () => configManagerExportRemoteServers(),
+      import: () => configManagerImportRemoteServers(),
+    }),
+    step('schedules', {
+      export: () => configManagerExportSchedules(),
+      import: () => configManagerImportSchedules(),
+    }),
+    step('terms-and-conditions', {
+      export: () => configManagerExportTermsAndConditions(),
+      import: () => configManagerImportTermsAndConditions(),
+    }),
+    step('themes', {
+      export: (options) => configManagerExportThemes(options.realm),
+      import: (options) => configManagerImportThemes(options.realm),
+    }),
+    step('ui-config', {
+      export: () => configManagerExportUiConfig(),
+    }),
+    // Realm configurations after global configurations, starting with scripts since they are used as dependencies for other configurations
+    step('secret-mappings', {
+      export: (options) =>
+        configManagerExportSecretMappings(undefined, options.realm),
+      import: (options) =>
+        configManagerImportSecretMappings(undefined, options.realm),
+    }),
+    step('scripts', {
+      export: (options) => configManagerExportScripts(undefined, options.realm),
+      import: (options) => configManagerImportScripts(options.realm),
+    }),
+    step('authentication', {
+      export: (options) => configManagerExportAuthentication(options.realm),
+      import: (options) => configManagerImportAuthentication(options.realm),
+    }),
+    step('services', {
+      export: (options) => configManagerExportServices(options.realm),
+      import: (options) =>
+        configManagerImportServices(undefined, options.realm),
+    }),
+    step('journeys', {
+      export: (options) =>
+        configManagerExportJourneys(undefined, options.realm, false),
+      import: (options) =>
+        configManagerImportJourneys(undefined, options.realm, false),
+    }),
   ],
   [CLASSIC_DEPLOYMENT_TYPE_KEY]: [
-    step('authentication', (options) =>
-      configManagerExportAuthentication(options.realm)
-    ),
-    step('cors', () => configManagerExportCors()),
-    step('custom-nodes', () => configManagerExportCustomNodes()),
-    step('journeys', (options) =>
-      configManagerExportJourneys(undefined, options.realm, false)
-    ),
-    step('scripts', (options) =>
-      configManagerExportScripts(undefined, options.realm)
-    ),
-    step('services', (options) => configManagerExportServices(options.realm)),
+    // Global configurations first
+    step('cors', {
+      export: () => configManagerExportCors(),
+      import: () => configManagerImportCors(),
+    }),
+    step('custom-nodes', {
+      export: () => configManagerExportCustomNodes(),
+      import: () => configManagerImportCustomNodes(),
+    }),
+    // Realm configurations after global configurations, starting with scripts since they are used as dependencies for other configurations
+    step('scripts', {
+      export: (options) => configManagerExportScripts(undefined, options.realm),
+      import: (options) => configManagerImportScripts(options.realm),
+    }),
+    step('authentication', {
+      export: (options) => configManagerExportAuthentication(options.realm),
+      import: (options) => configManagerImportAuthentication(options.realm),
+    }),
+    step('services', {
+      export: (options) => configManagerExportServices(options.realm),
+      import: (options) =>
+        configManagerImportServices(undefined, options.realm),
+    }),
+    step('journeys', {
+      export: (options) =>
+        configManagerExportJourneys(undefined, options.realm, false),
+      import: (options) =>
+        configManagerImportJourneys(undefined, options.realm, false),
+    }),
   ],
 };
 
@@ -627,6 +881,7 @@ export interface ConfigManagerAllOptions {
    */
   configFolderUnusable?: boolean;
   realm?: string;
+  metadata?: object;
   /** Report failed steps but succeed anyway (`--allow-failures`, decision record 0040). */
   allowFailures?: boolean;
   /**
@@ -640,33 +895,48 @@ export interface ConfigManagerAllOptions {
 /**
  * Runs every step even after one failed, prints one summary of the failed
  * steps and answers whether the command succeeded (decision record 0040).
- * @param {ExportStep[]} steps the steps of the deployment
+ * @param {AllStep[]} steps the steps of the deployment
  * @param {ConfigManagerAllOptions} options what the command was given
- * @param {{ announceOutput?: boolean }} settings `announceOutput`: say where the files are written, before the
- * first step and again before the summary of failures (the config folder only says where config files are read from)
+ * @param {StepOperation} operation the operation to run for the steps
+ * @param {boolean} announceOutput say where the files are written (or read from, on import), before the first step
+ * and again before the summary of failures (the config folder only says where config files are read from)
  * @returns {Promise<boolean>} true if the command succeeded
  */
 async function runSteps(
-  steps: ExportStep[],
+  steps: AllStep[],
   options: ConfigManagerAllOptions,
-  { announceOutput = false }: { announceOutput?: boolean } = {}
+  operation: StepOperation = 'export',
+  announceOutput: boolean = false
 ): Promise<boolean> {
   const run = new OperationRun({
     unit: 'step',
     allowFailures: options.allowFailures,
   });
+  const exporting = operation === 'export';
   const outputDirectory = announceOutput
     ? path.resolve(getWorkingDirectory())
     : undefined;
-  if (outputDirectory) printMessage(`Exporting to ${outputDirectory}`, 'info');
-  const stepOptions = withConfigFolderCheck(
-    steps,
-    withApplicationLayout(steps, options)
-  );
-  for (const { name, run: stepRun } of steps) {
-    await run.run(name, () => stepRun(stepOptions));
+  if (outputDirectory) {
+    printMessage(
+      `${exporting ? 'Exporting to' : 'Importing from'} ${outputDirectory}`,
+      'info'
+    );
   }
-  if (outputDirectory) printMessage(`Exported to ${outputDirectory}`, 'info');
+  // The config folder and the layout of the tree only matter to what a pull writes and reads.
+  const stepOptions = exporting
+    ? withConfigFolderCheck(steps, withApplicationLayout(steps, options))
+    : options;
+  // Filter out any steps where the operation is not defined
+  const planned = steps.filter((s) => s[operation]);
+  for (const s of planned) {
+    await run.run(s.name, () => s[operation](stepOptions));
+  }
+  if (outputDirectory) {
+    printMessage(
+      `${exporting ? 'Exported to' : 'Imported from'} ${outputDirectory}`,
+      'info'
+    );
+  }
   return run.finish();
 }
 
@@ -677,18 +947,21 @@ async function runSteps(
  * run them all, then fail if any failed), and the steps that pull everything when their file is not
  * there do so: the one warning names both. They just do not repeat the warning.
  * A folder that exists but lacks a file keeps one warning per missing file for the steps that skip.
- * @param {ExportStep[]} steps the steps of the deployment
+ * Only an export reads files from the config folder, so only an export calls this.
+ * @param {AllStep[]} steps the steps of the deployment
  * @param {ConfigManagerAllOptions} options what the command was given
  * @returns {ConfigManagerAllOptions} the options for the steps
  */
 function withConfigFolderCheck(
-  steps: ExportStep[],
+  steps: AllStep[],
   options: ConfigManagerAllOptions
 ): ConfigManagerAllOptions {
   const problem = configFolderProblem(options.configFolder);
   if (!problem) return options;
   const reading = steps
-    .map(({ name, run }) => ({ name, file: configFileOf(run) }))
+    .flatMap(({ name, export: stepRun }) =>
+      stepRun ? [{ name, file: configFileOf(stepRun) }] : []
+    )
     .filter(({ file }) => file && !file.optional);
   const namesOf = (everything: boolean): string[] =>
     reading
@@ -726,7 +999,7 @@ function withConfigFolderCheck(
  * for the step to report.
  */
 function withApplicationLayout(
-  steps: ExportStep[],
+  steps: AllStep[],
   options: ConfigManagerAllOptions
 ): ConfigManagerAllOptions {
   if (!steps.some((s) => s.name === 'applications')) return options;
@@ -747,9 +1020,8 @@ export async function configManagerExportAllWithConfigFolder(
     return await runSteps(
       deploymentMapAll[state.getDeploymentType()],
       options,
-      {
-        announceOutput: true,
-      }
+      'export',
+      true
     );
   } catch (error) {
     printError(error, 'Error exporting all in fr-config-manager format');
@@ -767,6 +1039,22 @@ export async function configManagerExportAllStatic(
     );
   } catch (error) {
     printError(error, 'Error exporting all-static in fr-config-manager format');
+    return false;
+  }
+}
+
+export async function configManagerImportAllStatic(
+  options: ConfigManagerAllOptions = {}
+): Promise<boolean> {
+  try {
+    return await runSteps(
+      deploymentMapAllStatic[state.getDeploymentType()],
+      options,
+      'import',
+      true
+    );
+  } catch (error) {
+    printError(error, 'Error importing all-static in fr-config-manager format');
     return false;
   }
 }

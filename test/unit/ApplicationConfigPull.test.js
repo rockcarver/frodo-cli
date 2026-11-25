@@ -1242,7 +1242,7 @@ describe('the step of pull all', () => {
   test('the runner decides the layout of the tree once, before it runs the first step', () => {
     const runner = source.slice(source.indexOf('async function runSteps'));
     const decided = runner.indexOf('withApplicationLayout(steps, options)');
-    const firstStep = runner.indexOf('for (const { name, run: stepRun }');
+    const firstStep = runner.indexOf('for (const s');
     expect(decided).toBeGreaterThan(0);
     expect(decided).toBeLessThan(firstStep);
     expect(runner).toMatch(
