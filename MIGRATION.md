@@ -545,11 +545,12 @@ mapping. The command says which and in which field, deletes nothing and exits wi
 code 1, also with `--allow-failures`; an application owns the mappings that it
 names, and `config-manager delete applications` removes both. If a source cannot
 be read, the command says which and deletes nothing. `--force` (long form only; it
-needs `-i`) deletes the mapping anyway and **changes nothing else**: every schedule,
-mapping or application that names it is left exactly as it is, is listed, and
-names a mapping that does not exist afterwards. It asks on a terminal, and needs
-`-y` (or `-d`) without one. An empty answer is not proof that a mapping is unused:
-a script or an endpoint that calls it, its links in a link table and a
+needs `-i`) deletes the mapping anyway. It clears no reference: every schedule,
+mapping or application that names it is left as it is, is listed, and names a
+mapping that does not exist afterwards (the other entries of the `sync`
+configuration are written again by the library, see below). It asks on a terminal,
+and needs `-y` (or `-d`) without one. An empty answer is not proof that a mapping
+is unused: a script or an endpoint that calls it, its links in a link table and a
 reconciliation that is running or ran are not seen.
 
 Deleting all mappings (no `-i`) asks first, as every delete of more than one object
@@ -567,6 +568,22 @@ does not exist, a refusal, or a `sync` configuration that cannot be read. See
 [a command that can delete more than the one object it names asks first](https://github.com/rockcarver/frodo-cli/blob/main/docs/decisions/0037-a-command-that-can-delete-more-than-the-one-object-it-names-asks-first.md)
 and
 [a command that runs many operations runs them all, then fails if any failed](https://github.com/rockcarver/frodo-cli/blob/main/docs/decisions/0040-a-command-that-runs-many-operations-runs-them-all-then-fails-if-any-failed.md).
+
+**What a delete writes.** The delete of one mapping is made by the library's
+`deleteMapping`, which reads the whole `sync` document and writes the whole
+document again without that mapping. Every remaining entry is written with an
+`_id` and a derived `syncAfter` (the names of all the entries before it, in the
+order of the document, replacing a `syncAfter` that the entry had), and that
+includes the mapping that was just deleted: the written document names the
+deleted mapping in every later entry. A later named delete of an earlier mapping
+is then refused, with those entries as soft `syncAfter` holders, until you pass
+`--force`. `frodo mapping delete` writes the same way today. No schedule,
+application or `mapping/<name>` configuration is written. This is the behaviour
+of the library; the command ships as it is, and the fix is tracked at
+https://github.com/rockcarver/frodo-lib/issues/1153. Until then the command says
+that it deletes the mapping and clears no reference, and it does not say that
+nothing else is changed; the stronger wording can come back once the library
+writes only what it deletes.
 
 Only the `sync` configuration is covered, as in `pull connector-mappings` and
 `push connector-mappings`: a mapping that is stored as `mapping/<name>` is neither
