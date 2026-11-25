@@ -180,7 +180,7 @@ describe('ShellHistory.shared (the web console)', () => {
       'against tenant one',
     ]);
     const files = fs.readdirSync(path.join(home, '.frodo', 'shell-history'));
-    expect(files).toEqual(['default.txt']);
+    expect(files).toEqual(['shared-v2.txt']);
   });
 
   it('folds existing per-host files into the shared one', () => {

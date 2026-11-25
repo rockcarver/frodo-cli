@@ -1,11 +1,11 @@
 import fs from 'node:fs';
 import path from 'node:path';
+import { replayScreen } from '../utils/ScreenReplay.js';
 import {
   createShellTestHome,
   removeShellTestHome,
   runShellScenario,
 } from '../utils/ShellPty.js';
-import { replayScreen } from '../utils/ScreenReplay.js';
 
 describe('frodo shell PTY (console mode)', () => {
   test('evaluates expressions with top-level await, the last result in _, and the $ facade', async () => {
@@ -115,7 +115,10 @@ describe('frodo shell PTY (console mode)', () => {
           { type: 'send_line', text: "'marker-AAA'" },
           // Wait for the result and the next prompt, not the echoed input:
           // the initial prompt can appear before the input hooks are installed.
-          { type: 'wait_plain', regex: "\\n'marker-AAA'\\n[\\s\\S]*frodo>\\s*$" },
+          {
+            type: 'wait_plain',
+            regex: "\\n'marker-AAA'\\n[\\s\\S]*frodo>\\s*$",
+          },
           { type: 'clear_output' },
           // ctrl-r, then a fuzzy query, then Enter to re-run
           { type: 'key', name: 'ctrl_r' },
@@ -124,7 +127,10 @@ describe('frodo shell PTY (console mode)', () => {
           { type: 'capture', label: 'search' },
           { type: 'clear_output' },
           { type: 'key', name: 'enter' },
-          { type: 'wait_plain', regex: "\\n'marker-AAA'\\n[\\s\\S]*frodo>\\s*$" },
+          {
+            type: 'wait_plain',
+            regex: "\\n'marker-AAA'\\n[\\s\\S]*frodo>\\s*$",
+          },
           { type: 'clear_output' },
           // Esc cancels and restores the empty draft
           { type: 'key', name: 'ctrl_r' },
@@ -159,7 +165,10 @@ describe('frodo shell PTY (console mode)', () => {
           // the prompt block wraps over several rows and every scroll
           // step lands the frame erase wrong, leaving the previous
           // frame's rows on screen.
-          { type: 'send', text: "const aMulti=1;\rconst bMulti=2;\rconst cMulti=3;\r" },
+          {
+            type: 'send',
+            text: 'const aMulti=1;\rconst bMulti=2;\rconst cMulti=3;\r',
+          },
           { type: 'sleep', ms: 300 },
           { type: 'wait_plain', regex: 'cMulti' },
           { type: 'clear_output' },
@@ -249,7 +258,7 @@ describe('frodo shell PTY (console mode)', () => {
         homeDir,
         '.frodo',
         'shell-history',
-        'default.txt'
+        'shared-v2.txt'
       );
       const stored = fs.readFileSync(file, 'utf-8');
       const entries = stored
@@ -280,7 +289,10 @@ describe('frodo shell PTY (console mode)', () => {
         actions: [
           { type: 'wait_prompt' },
           { type: 'clear_output' },
-          { type: 'send', text: '\x1b[200~const a1 = 1;\rconst a2 = 2;\r\x1b[201~' },
+          {
+            type: 'send',
+            text: '\x1b[200~const a1 = 1;\rconst a2 = 2;\r\x1b[201~',
+          },
           { type: 'wait_plain', regex: 'script pasted \\(2 lines\\)' },
           { type: 'sleep', ms: 200 },
           // The user ignores the paste and types a command: the stash
@@ -299,7 +311,12 @@ describe('frodo shell PTY (console mode)', () => {
       expect(screen).toContain('lonely = 9');
       expect(screen).not.toMatch(/const a1 = 1;lonely|lonely.*const a1 = 1;/);
       // Nothing of the paste entered history: it was never submitted.
-      const file = path.join(homeDir, '.frodo', 'shell-history', 'default.txt');
+      const file = path.join(
+        homeDir,
+        '.frodo',
+        'shell-history',
+        'shared-v2.txt'
+      );
       const stored = fs.readFileSync(file, 'utf-8');
       expect(stored).not.toContain('const a1');
     } finally {
@@ -345,11 +362,15 @@ describe('frodo shell PTY (console mode)', () => {
       // While the frame is open: exactly one status line and one copy
       // of each entry row (no accumulation from the navigation steps).
       const midScreen = replayScreen(result.captures.mid.raw);
-      const statusCount = midScreen.filter((l) => l.includes('(fuzzy-search)')).length;
+      const statusCount = midScreen.filter((l) =>
+        l.includes('(fuzzy-search)')
+      ).length;
       expect(statusCount).toBe(1);
       // List rows lead with the id column; the prompt row (which
       // previews the selection) is not a duplicate.
-      const shortRows = midScreen.filter((l) => /^  \d\s+.*shortOne/.test(l)).length;
+      const shortRows = midScreen.filter((l) =>
+        /^  \d\s+.*shortOne/.test(l)
+      ).length;
       expect(shortRows).toBe(1);
       // After Esc: no frame rows left at all.
       const closedScreen = replayScreen(result.captures.closed.raw);
@@ -362,11 +383,9 @@ describe('frodo shell PTY (console mode)', () => {
   test('a multi-line entry renders as one row with marks, no wrapping', async () => {
     const homeDir = createShellTestHome();
     try {
-      const script = [
-        'const ml1 = 1;',
-        'const ml2 = 2;',
-        'ml1 + ml2',
-      ].join('\r');
+      const script = ['const ml1 = 1;', 'const ml2 = 2;', 'ml1 + ml2'].join(
+        '\r'
+      );
       const result = runShellScenario({
         args: ['shell'],
         homeDir,
@@ -394,8 +413,12 @@ describe('frodo shell PTY (console mode)', () => {
       const screen = replayScreen(result.captures.mid.raw);
       // One status line; the multi-line entry occupies ONE screen row
       // (its lines separated by the ¶ marks, never painted across).
-      expect(screen.filter((l) => l.includes('(fuzzy-search)'))).toHaveLength(1);
-      const mlRows = screen.filter((l) => /^  \d\s+/.test(l) && l.includes('ml1'));
+      expect(screen.filter((l) => l.includes('(fuzzy-search)'))).toHaveLength(
+        1
+      );
+      const mlRows = screen.filter(
+        (l) => /^  \d\s+/.test(l) && l.includes('ml1')
+      );
       expect(mlRows).toHaveLength(1);
       expect(mlRows[0]).toContain('¶');
       // The single entry is on its own row.

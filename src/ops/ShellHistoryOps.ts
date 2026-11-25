@@ -25,6 +25,18 @@ const MULTILINE_PREFIX = '#ml:';
 const RICH_PREFIX = '#h:';
 
 /**
+ * The base name of the file the shared history (the web console, and the
+ * terminal run without a host) writes, without the .txt suffix. The v2
+ * marks the entry format that stores a multi-line script whole with its
+ * metadata: the files this replaced (default.txt and the per-host ones)
+ * predate it and hold the corrupted per-line fragments of the old paste
+ * handling. They are still read (see absorbPerHostFiles), so a downgrade
+ * does not crash; they just stop being the record. A future format change
+ * bumps the version: v3, v4, ...
+ */
+const SHARED_HISTORY_BASE = 'shared-v2';
+
+/**
  * The most entries a history file holds. Beyond it, the oldest entries are
  * dropped on the next add: the file stays bounded, the newest (the ones
  * recall and search actually use) survive. High enough that a heavy
@@ -134,7 +146,14 @@ export class ShellHistory {
     // across connections (one console, many environments; the commands are
     // the person's, not the tenant's). A host still names the file where
     // the terminal asks for one, so per-host history keeps working there.
-    const hostKey = this.normalizeHostKey(host || 'default');
+    // No host means the shared file. Its name carries a format version:
+    // the first shared format corrupted multi-line entries (each pasted
+    // line stored as a separate, reversed fragment), and rather than try
+    // to tell those fragments from real single-line commands, the file is
+    // cut over and the old one abandoned (read-only by absorbPerHostFiles,
+    // so nothing crashes but the fragments are left behind). A future
+    // format change bumps the version the same way.
+    const hostKey = host ? this.normalizeHostKey(host) : SHARED_HISTORY_BASE;
     this.historyFile = path.join(this.historyDir, `${hostKey}.txt`);
 
     // Load existing history
@@ -155,12 +174,18 @@ export class ShellHistory {
   }
 
   /**
-   * Read the per-host files this shared history used to write (default.txt
-   * plus one per environment) into the shared one, without re-writing
-   * them: their entries join the shared file on the next addLine, and the
-   * files stop being the record. Each folded entry is stamped with the
-   * host its file names, so the provenance the per-host layout held is
-   * not lost to the fold.
+   * Read the per-host files earlier versions wrote (default.txt plus one
+   * per environment) into the shared one, without re-writing them: their
+   * entries join the shared file on the next addLine, and the files stop
+   * being the record. Each folded entry is stamped with the host its file
+   * names, so the provenance the per-host layout held is not lost to the
+   * fold. The pre-shared default.txt is folded like the rest; it predates
+   * the whole-entry format and may hold the corrupted per-line fragments
+   * of the old paste handling (they fold in as the single-line commands
+   * they were stored as; the cutover to shared-v2 keeps them out of the
+   * way but cannot tell them from real commands). Versioned shared files
+   * (shared-v3 if one ever exists) are left alone: only the current
+   * shared file is this instance's.
    */
   private absorbPerHostFiles(): void {
     try {
@@ -171,6 +196,10 @@ export class ShellHistory {
       let changed = false;
       for (const name of files) {
         if (path.join(this.historyDir, name) === this.historyFile) continue;
+        // Another version's shared file is not folded in either: its
+        // entries belong to whichever format wrote them, and a future
+        // reader cuts over deliberately, not by absorption.
+        if (/^shared-v\d+\.txt$/.test(name)) continue;
         // yyc_dev.txt -> yyc dev; the reverse of normalizeHostKey is lossy,
         // but the name is still the only host hint the file carries.
         const foldedHost = name
