@@ -400,7 +400,7 @@ suite('config-manager delete services (fake tenant)', () => {
         expect(deletes()).toEqual(ALL_DELETES);
         expect(failed.output).toContain('4 of 8 services failed:');
         expect(failed.output).toContain(
-          '- /session: fake tenant operation failed'
+          '- root/session: fake tenant operation failed'
         );
         expect(failed.output).toContain(
           '- alpha/session: fake tenant operation failed'
@@ -432,21 +432,27 @@ suite('config-manager delete services (fake tenant)', () => {
     );
 
     test(
-      'a realm whose services cannot be listed is a failure that --allow-failures does not turn into success, and the other realms are deleted',
+      'a realm whose services cannot be listed is one failed operation, and the other realms are deleted; --allow-failures keeps the exit at 0 for it, like for any failed operation',
       async () => {
         // the tenant lists the realm bravo, and the store does not hold it: the list answers 404
         const store = STORE();
         delete store.realms.bravo;
         await startTenant({ store });
 
-        const { code, output } = await runCli(['-y', '--allow-failures']);
-
-        expect(code).toBe(1);
+        const failed = await runCli(['-y']);
+        expect(failed.code).toBe(1);
         expect(deletes()).toEqual(ALL_DELETES.slice(0, 8));
-        expect(output).toContain('- realm bravo:');
-        expect(output).toContain(
-          '--allow-failures does not apply to a realm whose services could not be listed.'
+        expect(failed.output).toContain('1 of 7 services failed:');
+        expect(failed.output).toContain('- realm bravo:');
+
+        await startTenant({ store });
+        const allowed = await runCli(['-y', '--allow-failures']);
+        expect(allowed.code).toBe(0);
+        expect(allowed.output).toContain('- realm bravo:');
+        expect(allowed.output).toContain(
+          'The exit code stays 0 because --allow-failures was given.'
         );
+        expect(allowed.output).not.toContain('does not apply');
       },
       TIMEOUT
     );
@@ -511,6 +517,88 @@ suite('config-manager delete services (fake tenant)', () => {
         expect(
           requests().some(({ url }) => url.endsWith('/services/x/y'))
         ).toBe(true);
+      },
+      TIMEOUT
+    );
+  });
+
+  describe('a next descendent that is not a plain name', () => {
+    // the library builds the delete of a next descendent from its type and its id as the realm lists them
+    const HOSTILE = [
+      [
+        ['smtpTransports', '../../session'],
+        'an id that climbs out of the service',
+      ],
+      [['../session', 'x'], 'a type that climbs out of the service'],
+      [['smtpTransports', 'a#b'], 'an id with a fragment'],
+      [['smtpTransports', 'q?x'], 'an id with a query'],
+    ];
+    const storeWith = (descendent) => ({
+      realms: {
+        alpha: [
+          service('custom'),
+          service('email', [descendent, ['smtpTransports', 'SMTP']]),
+          service('session'),
+        ],
+      },
+    });
+
+    test.each(HOSTILE)(
+      'a delete of all services with the next descendent %j (%s) sends not one delete for that service, nor for another one that the descendent names',
+      async (descendent) => {
+        await startTenant({ store: storeWith(descendent), realms: ['alpha'] });
+
+        const { code, output } = await runCli(['-y'], { realm: 'alpha' });
+
+        expect(code).toBe(1);
+        // exactly the deletes of the two other services: a delete built from the descendent would
+        // be one more request, and would name the service session or a path below it
+        expect(deletes()).toEqual([
+          'DELETE /json/realms/root/realms/alpha/realm-config/services/custom',
+          'DELETE /json/realms/root/realms/alpha/realm-config/services/session',
+        ]);
+        expect(output).toContain('1 of 3 services failed:');
+        expect(output).toContain(
+          `- alpha/email/${descendent[0]}/${descendent[1]}`
+        );
+        expect(output).toContain('is listed in realm');
+      },
+      TIMEOUT
+    );
+
+    test.each(HOSTILE)(
+      'a named delete of a service with the next descendent %j (%s) sends no delete, with a dry run and with --allow-failures too, and exits 1',
+      async (descendent) => {
+        await startTenant({ store: storeWith(descendent), realms: ['alpha'] });
+
+        for (const extra of [[], ['-d'], ['--allow-failures']]) {
+          const { code, output } = await runCli(['-i', 'email', ...extra], {
+            realm: 'alpha',
+          });
+          expect([extra.join(' '), code]).toEqual([extra.join(' '), 1]);
+          expect(output).toContain(
+            `Next descendent '${descendent[0]}/${descendent[1]}' of service 'email'`
+          );
+        }
+        expect(deletes()).toEqual([]);
+      },
+      TIMEOUT
+    );
+
+    test(
+      'a dry run of all services fails like the real run for it, and sends nothing but reads',
+      async () => {
+        await startTenant({
+          store: storeWith(['smtpTransports', '../../session']),
+          realms: ['alpha'],
+        });
+
+        const { code, output } = await runCli(['-d'], { realm: 'alpha' });
+
+        expect(code).toBe(1);
+        expect(changes()).toEqual([]);
+        expect(output).toContain('1 of 3 services failed:');
+        expect(output).toContain('- alpha/email/smtpTransports/../../session');
       },
       TIMEOUT
     );
@@ -646,6 +734,78 @@ suite('config-manager delete services (fake tenant)', () => {
         expect(output).toContain(
           'Next descendents that go with it: smtpTransports/SMTP'
         );
+      },
+      TIMEOUT
+    );
+
+    test.each([
+      ['a real run', []],
+      ['a dry run', ['-d']],
+      ['--allow-failures', ['--allow-failures']],
+    ])(
+      'a service that is not there exits 1 in %s even when another service of the realm cannot be read',
+      async (_name, extra) => {
+        await startTenant({
+          failRequests: [
+            { method: 'GET', path: '/alpha/realm-config/services/custom' },
+          ],
+        });
+
+        const { code, output } = await runCli(['-i', 'nope', ...extra], {
+          realm: 'alpha',
+        });
+
+        expect(code).toBe(1);
+        expect(output).toContain("Service 'nope' not found in realm 'alpha'.");
+        expect(deletes()).toEqual([]);
+      },
+      TIMEOUT
+    );
+
+    test(
+      'another service of the realm that cannot be read is a warning: the named service is deleted and the exit is 0',
+      async () => {
+        await startTenant({
+          failRequests: [
+            { method: 'GET', path: '/alpha/realm-config/services/custom' },
+          ],
+        });
+
+        const { code, output } = await runCli(['-i', 'email'], {
+          realm: 'alpha',
+        });
+
+        expect(code).toBe(0);
+        expect(deletes()).toEqual([
+          'DELETE /json/realms/root/realms/alpha/realm-config/services/email/smtpTransports/SMTP',
+          'DELETE /json/realms/root/realms/alpha/realm-config/services/email',
+        ]);
+        expect(output).toContain(
+          "Service 'custom' of realm 'alpha' could not be read, and was not named"
+        );
+        expect(output).not.toContain('services failed');
+      },
+      TIMEOUT
+    );
+
+    test(
+      'a named service that cannot be read is a failure, which --allow-failures keeps at exit 0',
+      async () => {
+        await startTenant({
+          failRequests: [
+            { method: 'GET', path: '/alpha/realm-config/services/custom' },
+          ],
+        });
+
+        const failed = await runCli(['-i', 'custom'], { realm: 'alpha' });
+        expect(failed.code).toBe(1);
+        expect(failed.output).toContain('1 of 1 service failed:');
+        expect(failed.output).toContain('- alpha/custom');
+        const allowed = await runCli(['-i', 'custom', '--allow-failures'], {
+          realm: 'alpha',
+        });
+        expect(allowed.code).toBe(0);
+        expect(deletes()).toEqual([]);
       },
       TIMEOUT
     );

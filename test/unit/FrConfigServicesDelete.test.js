@@ -290,7 +290,7 @@ describe('a named delete: the id is looked up in what the realm lists', () => {
 
     expect(deleteFullService).not.toHaveBeenCalled();
     expect(output()).toContain(
-      "Service 'a/b' is listed with an id that is not a plain name"
+      "Service 'a/b' is listed in realm 'alpha' with an id that is not a plain name"
     );
     expect(output()).toContain('no request was sent for it');
   });
@@ -523,14 +523,14 @@ describe('every service is one operation of one summary', () => {
     expect(levelOf('1 of 3 services failed')).toBe('error');
   });
 
-  test('the summary counts services and not realms, and names the root realm as /id', async () => {
+  test('the summary counts services and not realms, and names the root realm as root/id', async () => {
     refuse.set('session', new Error('session refused'));
 
     expect(await configManagerDeleteServices(undefined, undefined)).toBe(false);
 
     // the three realms hold five more services; three of the eight operations fail
     expect(output()).toContain('3 of 7 services failed:');
-    expect(output()).toContain('- /session: session refused');
+    expect(output()).toContain('- root/session: session refused');
     expect(output()).toContain('- alpha/session: session refused');
     expect(output()).toContain('- bravo/session: session refused');
     expect(deleted).toEqual([
@@ -605,7 +605,7 @@ describe('every service is one operation of one summary', () => {
     expect(output()).toContain('- realm alpha: listing failed');
   });
 
-  test('--allow-failures does not turn a realm whose services cannot be listed into a success', async () => {
+  test('--allow-failures keeps the exit at 0 for a realm whose services cannot be listed, like for any failed operation, and names it', async () => {
     getFullServices.mockReset().mockImplementation(async () => {
       if (realmNow === 'alpha') throw new Error('listing failed');
       return structuredClone(store[realmNow] ?? []);
@@ -614,14 +614,25 @@ describe('every service is one operation of one summary', () => {
 
     expect(
       await configManagerDeleteServices(undefined, undefined, false, true)
-    ).toBe(false);
+    ).toBe(true);
 
     expect(output()).toContain(
-      '--allow-failures does not apply to a realm whose services could not be listed.'
+      'The exit code stays 0 because --allow-failures was given.'
     );
-    expect(output()).not.toContain('The exit code stays 0');
     expect(output()).toContain('- realm alpha: listing failed');
-    expect(output()).toContain('- /baseurl: baseurl refused');
+    expect(output()).toContain('- root/baseurl: baseurl refused');
+    expect(output()).not.toContain('does not apply');
+  });
+
+  test('the root realm that cannot be listed is named realm root in the summary', async () => {
+    getFullServices.mockReset().mockImplementation(async () => {
+      if (realmNow === '/') throw new Error('listing failed');
+      return structuredClone(store[realmNow] ?? []);
+    });
+
+    expect(await configManagerDeleteServices(undefined, undefined)).toBe(false);
+
+    expect(output()).toContain('- realm root: listing failed');
   });
 
   test('a dry run with a realm that cannot be listed fails too', async () => {
@@ -642,6 +653,8 @@ describe('a listed id that is not a plain name is never sent', () => {
     ['../realms/root', 'a path up'],
     ['a/b', 'a slash'],
     ['a\\b', 'a backslash'],
+    ['a..b', 'a double dot inside the id'],
+    ['a..', 'a double dot at the end'],
     ['a?b', 'a query'],
     ['a#b', 'a fragment'],
     ['a%2Fb', 'a percent'],
@@ -671,17 +684,23 @@ describe('a listed id that is not a plain name is never sent', () => {
     }
   );
 
-  test('the dry run names them and says that each would count as a failed delete', async () => {
+  test('the dry run names them, says that each would count as a failed delete, and fails as the real run does; --allow-failures forgives it in both', async () => {
     store.alpha = [service('email'), service('a/b')];
 
+    // it says how the real run would end: the real run fails for such an id, so the dry run fails
     expect(await configManagerDeleteServices(undefined, 'alpha', true)).toBe(
-      true
+      false
     );
 
-    expect(output()).toContain('These listed ids are not plain names');
+    expect(output()).toContain('are not plain names');
     expect(output()).toContain('alpha/a/b');
+    expect(output()).toContain('1 of 2 services failed:');
     expect(output()).toContain('- email');
     expect(deleteFullService).not.toHaveBeenCalled();
+
+    expect(
+      await configManagerDeleteServices(undefined, 'alpha', true, true)
+    ).toBe(true);
   });
 
   test('--allow-failures keeps the exit at 0 for it, as for any failed delete', async () => {
@@ -710,5 +729,267 @@ describe('a listed id that is not a plain name is never sent', () => {
       'alpha/SocialIdentityProviders',
       'alpha/v2',
     ]);
+  });
+});
+
+describe('a next descendent that is not a plain name stops the delete of its service', () => {
+  // the library builds the delete of a next descendent from its type and its id as the realm lists them
+  const HOSTILE_DESCENDENTS = [
+    [
+      ['smtpTransports', '../../session'],
+      'an id that climbs out of the service',
+    ],
+    [['../session', 'x'], 'a type that climbs out of the service'],
+    [['smtpTransports', 'a#b'], 'an id with a fragment'],
+    [['smtpTransports', 'q?x'], 'an id with a query'],
+    [['smtpTransports', 'a/b'], 'an id with a slash'],
+    [['smtp/Transports', 'SMTP'], 'a type with a slash'],
+    [['smtpTransports', 'a%2e%2e'], 'an id with a percent sign'],
+    [['smtpTransports', 'a..b'], 'an id with a double dot inside'],
+    [['smtpTransports', ''], 'no id'],
+    [['', 'SMTP'], 'no type'],
+    [['smtpTransports', 'a\u0001b'], 'an id with a control character'],
+  ];
+  const shown = ([type, id]) =>
+    `${type}/${id}`.replace(
+      /\p{Cc}/gu,
+      (c) => `\\u${c.codePointAt(0).toString(16).padStart(4, '0')}`
+    );
+
+  test.each(HOSTILE_DESCENDENTS)(
+    'a named delete of a service with the next descendent %j (%s) sends no delete, names the descendent and exits 1',
+    async (descendent) => {
+      store.alpha = [
+        service('email', [descendent, ['smtpTransports', 'SMTP']]),
+      ];
+
+      expect(await configManagerDeleteServices('email', 'alpha')).toBe(false);
+
+      expect(deleteFullService).not.toHaveBeenCalled();
+      expect(deleted).toEqual([]);
+      expect(output()).toContain(
+        `Next descendent '${shown(descendent)}' of service 'email'`
+      );
+      expect(output()).toContain('not a plain name');
+      expect(output()).toContain(
+        'the service is not deleted, and no request was sent for it'
+      );
+      // eslint-disable-next-line no-control-regex
+      expect(output()).not.toMatch(/[\u0000-\u0009\u000b-\u001f\u007f-\u009f]/);
+    }
+  );
+
+  test.each(HOSTILE_DESCENDENTS)(
+    'a delete of all services with the next descendent %j (%s) deletes the others, sends none for that service, names the descendent and fails',
+    async (descendent) => {
+      store.alpha = [
+        service('custom'),
+        service('email', [descendent, ['smtpTransports', 'SMTP']]),
+        service('session'),
+      ];
+
+      expect(await configManagerDeleteServices(undefined, 'alpha')).toBe(false);
+
+      expect(deleted).toEqual(['alpha/custom', 'alpha/session']);
+      expect(deleteFullService.mock.calls.map(([id]) => id)).toEqual([
+        'custom',
+        'session',
+      ]);
+      expect(output()).toContain('1 of 3 services failed:');
+      expect(output()).toContain(
+        `- alpha/email/${shown(descendent)}: its type or its id is not a plain name`
+      );
+    }
+  );
+
+  test('every unsafe next descendent of a service is one failure, named by the service and the descendent', async () => {
+    store.alpha = [
+      service('email', [
+        ['smtpTransports', '../../session'],
+        ['smtpTransports', 'a#b'],
+        ['smtpTransports', 'SMTP'],
+      ]),
+    ];
+
+    expect(await configManagerDeleteServices(undefined, 'alpha')).toBe(false);
+
+    expect(deleteFullService).not.toHaveBeenCalled();
+    expect(output()).toContain('2 of 2 services failed:');
+    expect(output()).toContain('- alpha/email/smtpTransports/../../session');
+    expect(output()).toContain('- alpha/email/smtpTransports/a#b');
+  });
+
+  test('a dry run of all services fails like the real run, names the descendents in the plan, and does not list the service as deletable', async () => {
+    store.alpha = [
+      service('custom'),
+      service('email', [['smtpTransports', '../../session']]),
+    ];
+
+    expect(await configManagerDeleteServices(undefined, 'alpha', true)).toBe(
+      false
+    );
+
+    expect(output()).toContain('1 service in 1 realm (alpha) would be deleted');
+    expect(output()).toContain('- custom');
+    expect(output()).not.toContain('- email');
+    expect(output()).toContain('alpha/email/smtpTransports/../../session');
+    expect(output()).toContain('1 of 2 services failed:');
+    expect(deleteFullService).not.toHaveBeenCalled();
+
+    printMessage.mockClear();
+    expect(
+      await configManagerDeleteServices(undefined, 'alpha', true, true)
+    ).toBe(true);
+  });
+
+  test('a named dry run of such a service fails too, and sends nothing', async () => {
+    store.alpha = [service('email', [['smtpTransports', '../../session']])];
+
+    expect(await configManagerDeleteServices('email', 'alpha', true)).toBe(
+      false
+    );
+
+    expect(output()).not.toContain('Dry run: Deleting service');
+    expect(deleteFullService).not.toHaveBeenCalled();
+  });
+
+  test('--allow-failures keeps the exit at 0 for it in a delete of all services, and never for a named one', async () => {
+    store.alpha = [service('email', [['smtpTransports', '../../session']])];
+
+    expect(
+      await configManagerDeleteServices(undefined, 'alpha', false, true)
+    ).toBe(true);
+    expect(
+      await configManagerDeleteServices('email', 'alpha', false, true)
+    ).toBe(false);
+
+    expect(deleteFullService).not.toHaveBeenCalled();
+  });
+
+  test('plain next descendents of any shape that a tenant lists are deleted with the service', async () => {
+    store.alpha = [
+      service('email', [
+        ['smtpTransports', 'SMTP'],
+        ['LDAPv3ForForgeRockIAM', 'Open-DJ.2'],
+      ]),
+    ];
+
+    expect(await configManagerDeleteServices('email', 'alpha')).toBe(true);
+
+    expect(deleted).toEqual(['alpha/email']);
+  });
+});
+
+describe('another service of the realm that cannot be read', () => {
+  const unreadable = (id) =>
+    new FrodoError(`Unable to retrieve data for service '${id}'`, [
+      new Error('read failed'),
+    ]);
+  const withUnreadable = (id, services) =>
+    getFullServices
+      .mockReset()
+      .mockImplementation(async (_global, callback) => {
+        callback(unreadable(id));
+        return services;
+      });
+
+  test.each([
+    ['a real run', [false, false]],
+    ['a dry run', [true, false]],
+    ['--allow-failures', [false, true]],
+    ['a dry run with --allow-failures', [true, true]],
+  ])(
+    'does not turn a named service that is not there into anything but exit 1: %s',
+    async (_name, [dryRun, allowFailures]) => {
+      withUnreadable('session', [service('email')]);
+
+      expect(
+        await configManagerDeleteServices(
+          'NOPE',
+          'alpha',
+          dryRun,
+          allowFailures
+        )
+      ).toBe(false);
+
+      expect(output()).toContain("Service 'NOPE' not found in realm 'alpha'.");
+      expect(deleteFullService).not.toHaveBeenCalled();
+    }
+  );
+
+  test('is a warning in a named delete, which counts the named service only: it is deleted and the command succeeds', async () => {
+    withUnreadable('session', [service('email')]);
+
+    expect(await configManagerDeleteServices('email', 'alpha')).toBe(true);
+
+    expect(deleted).toEqual(['alpha/email']);
+    expect(
+      levelOf(
+        "Service 'session' of realm 'alpha' could not be read, and was not named: read failed"
+      )
+    ).toBe('warn');
+    expect(output()).not.toContain('failed:');
+    expect(printError).not.toHaveBeenCalled();
+  });
+
+  test('is a warning in a named dry run too, and the dry run succeeds', async () => {
+    withUnreadable('session', [service('email')]);
+
+    expect(await configManagerDeleteServices('email', 'alpha', true)).toBe(
+      true
+    );
+
+    expect(levelOf('could not be read, and was not named')).toBe('warn');
+    expect(output()).toContain(
+      "Dry run: Deleting service 'email' in realm 'alpha'."
+    );
+  });
+
+  test('is still a failed service in a delete of all services', async () => {
+    withUnreadable('session', [service('email')]);
+
+    expect(await configManagerDeleteServices(undefined, 'alpha')).toBe(false);
+
+    expect(deleted).toEqual(['alpha/email']);
+    expect(output()).toContain('1 of 2 services failed:');
+    expect(output()).toContain('- alpha/session: read failed');
+    expect(output()).not.toContain('was not named');
+  });
+});
+
+describe('what a delete says about the services that a realm depends on', () => {
+  test('a delete of all services prints no sentence about them after the delete: the plan said it, and -y chose it', async () => {
+    store.alpha = [
+      service('email'),
+      service('session'),
+      service('id-repositories'),
+    ];
+
+    expect(await configManagerDeleteServices(undefined, 'alpha')).toBe(true);
+
+    expect(output()).not.toContain('commonly depends on');
+    expect(levelOf('commonly depends on')).toBeUndefined();
+  });
+
+  test('a named delete of DataStoreService says that push services cannot bring it back', async () => {
+    expect(await configManagerDeleteServices('DataStoreService', 'alpha')).toBe(
+      true
+    );
+
+    expect(deleted).toEqual(['alpha/DataStoreService']);
+    expect(output()).toContain(
+      "Service 'DataStoreService' is one that a realm commonly depends on: pull services never exports what it holds, so push services cannot bring it back."
+    );
+  });
+
+  test('DataStoreService is not in the plan of a delete of all services, which says that it is never deleted', async () => {
+    expect(await configManagerDeleteServices(undefined, 'alpha', true)).toBe(
+      true
+    );
+
+    expect(output()).not.toContain('- DataStoreService');
+    expect(output()).toContain(
+      'DataStoreService is never deleted by a delete of all services.'
+    );
   });
 });

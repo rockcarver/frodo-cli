@@ -192,7 +192,21 @@ describe('the options', () => {
     expect(help).toContain('DataStoreService excepted');
     expect(help).toContain('It does not refuse to delete them');
     expect(help).toContain(
-      '--allow-failures keeps the exit code at 0 for a service that could not be deleted, but never for a service that is not there or for a realm whose services could not be listed.'
+      '--allow-failures keeps the exit code at 0 for a service that could not be read or deleted and for a realm that could not be listed, but never for a service that is not there.'
+    );
+    // what the summary counts, what is never sent, and what a restore can and cannot bring back
+    expect(help).toContain(
+      'a realm whose services cannot be listed is one operation named realm followed by its name, so the summary counts it as one'
+    );
+    expect(help).toContain(
+      'named realm/service (root/service in the root realm)'
+    );
+    expect(help).toContain(
+      'or the type or id of one of its next descendents, is not a plain name'
+    );
+    expect(help).toContain('With -i only the named service counts');
+    expect(help).toContain(
+      'as far as pull services exports it: it never exports DataStoreService'
     );
     // no word that belongs to the library
     expect(help).not.toMatch(/deleteFullService|getFullServices|frodo-lib/);
