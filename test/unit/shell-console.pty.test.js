@@ -251,9 +251,8 @@ describe('frodo shell PTY (console mode)', () => {
       expect(screen).not.toMatch(/SyntaxError|Unexpected token/);
       // One history entry, the script whole and in order. LF was the
       // wrong join: readline reverses a line buffer holding LF and the
-      // entry arrived inside-out (the bug this test pins). With
-      // metadata the entry stores in the rich #h: form (issue: the
-      // old #ml: form dropped ts/host/id).
+      // entry arrived inside-out (the bug this test pins). The entry
+      // stores in the rich #h: form, with ts/host/id.
       const file = path.join(
         homeDir,
         '.frodo',
@@ -263,7 +262,7 @@ describe('frodo shell PTY (console mode)', () => {
       const stored = fs.readFileSync(file, 'utf-8');
       const entries = stored
         .split('\n')
-        .filter((l) => l.startsWith('#h:') || l.startsWith('#ml:'))
+        .filter((l) => l.startsWith('#h:'))
         .map((l) => JSON.parse(l.slice(l.startsWith('#h:') ? 3 : 4)))
         .map((e) => (typeof e === 'string' ? { text: e } : e));
       // The paste is one entry (the fragments did not store

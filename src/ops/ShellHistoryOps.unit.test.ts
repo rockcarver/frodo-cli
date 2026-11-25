@@ -112,17 +112,6 @@ describe('ShellHistory multi-line entries', () => {
     ]);
   });
 
-  it('reads a metadata-less #ml: entry written by an older version', () => {
-    const history = new ShellHistory('https://tenant.example.com/am');
-    fs.writeFileSync(
-      history.getHistoryPath(),
-      `#ml:${JSON.stringify('a\nb')}\n`,
-      'utf-8'
-    );
-    const reloaded = new ShellHistory('https://tenant.example.com/am');
-    expect(reloaded.getLines()).toEqual(['a\nb']);
-  });
-
   it('offers single-line entries only to the terminal', () => {
     const history = new ShellHistory('https://tenant.example.com/am');
     history.addLine('one');
@@ -144,9 +133,9 @@ describe('ShellHistory multi-line entries', () => {
 
   it('keeps a line that merely starts like an encoded entry', () => {
     const history = new ShellHistory('https://tenant.example.com/am');
-    fs.writeFileSync(history.getHistoryPath(), '#ml:not json\n', 'utf-8');
+    fs.writeFileSync(history.getHistoryPath(), '#h:not json\n', 'utf-8');
     const reloaded = new ShellHistory('https://tenant.example.com/am');
-    expect(reloaded.getLines()).toEqual(['#ml:not json']);
+    expect(reloaded.getLines()).toEqual(['#h:not json']);
   });
 });
 
