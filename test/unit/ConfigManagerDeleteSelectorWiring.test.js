@@ -52,6 +52,12 @@ const WIRING = {
     id: 0,
     name: null,
   },
+  'connector-mappings': {
+    module: 'configManagerOps/FrConfigConnectorMappingOps',
+    fn: 'configManagerDeleteMappings',
+    id: 0,
+    name: null,
+  },
   'custom-nodes': {
     module: 'configManagerOps/FrConfigCustomNodesOps',
     fn: 'configManagerDeleteCustomNodes',
@@ -284,7 +290,7 @@ afterEach(() => {
 describe('the delete commands: a named delete never asks, and the selectors reach the ops function', () => {
   it('has an entry for every delete row of the selectors, and no pull or push row', () => {
     expect(deleteRows.map(typeOf).sort()).toEqual(Object.keys(WIRING).sort());
-    expect(deleteRows).toHaveLength(20);
+    expect(deleteRows).toHaveLength(21);
   });
 
   it.each(deleteRows.map((row) => [typeOf(row), row]))(
@@ -433,6 +439,7 @@ describe('the delete commands: an empty selector is refused before anything, a b
   /** The commands that check a value of blanks themselves: they say so in their own words and go no further. */
   const REFUSES_BLANKS = new Set([
     'connector-definitions',
+    'connector-mappings',
     'secrets',
     'oauth-cimd-profiles',
     'oauth-issuers',

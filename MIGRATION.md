@@ -526,6 +526,54 @@ exits with code 1 if any failed; `--allow-failures` keeps the exit code at 0 for
 failed writes
 ([a command that runs many operations runs them all, then fails if any failed](https://github.com/rockcarver/frodo-cli/blob/main/docs/decisions/0040-a-command-that-runs-many-operations-runs-them-all-then-fails-if-any-failed.md)).
 
+**New command: `frodo config-manager delete connector-mappings`** deletes one
+connector mapping of the `sync` configuration by name, or all of them. It works on
+Cloud and ForgeOps. `-i, --connector-mapping-id <name>` (alias `-n, --name`) is the
+name of the mapping without the `sync/` prefix, matched exactly and
+case-sensitively against the list of the configuration; the mapping that the list
+holds is what is deleted, so a value that is written as a path (`-i ../x`) is a
+mapping that does not exist
+([a selector is an id or a name, never a path](https://github.com/rockcarver/frodo-cli/blob/main/docs/decisions/0059-a-selector-is-an-id-or-a-name-never-a-path.md)).
+A mapping that is not in the list exits with code 1, also with `--dry-run` and
+`--allow-failures`, because the name names one mapping. A name that is empty or
+only blanks is refused before anything is sent and never means all of them.
+
+A named delete is refused while a schedule (`invokeContext.mapping`), another
+mapping (`links` or `syncAfter`, in the `sync` configuration or as a `mapping/<name>`
+configuration) or an application (`mappingNames`, in any realm) still names the
+mapping. The command says which and in which field, deletes nothing and exits with
+code 1, also with `--allow-failures`; an application owns the mappings that it
+names, and `config-manager delete applications` removes both. If a source cannot
+be read, the command says which and deletes nothing. `--force` (long form only; it
+needs `-i`) deletes the mapping anyway and **changes nothing else**: every schedule,
+mapping or application that names it is left exactly as it is, is listed, and
+names a mapping that does not exist afterwards. It asks on a terminal, and needs
+`-y` (or `-d`) without one. An empty answer is not proof that a mapping is unused:
+a script or an endpoint that calls it, its links in a link table and a
+reconciliation that is running or ran are not seen.
+
+Deleting all mappings (no `-i`) asks first, as every delete of more than one object
+does: on a terminal it shows what would be deleted and what names each mapping (at
+most 20 for each), from one lookup for all of them, and asks with the answer
+defaulting to no; without a terminal it is refused before the login and exits with
+code 1 unless you pass `-y`/`--yes`; `-d`/`--dry-run` only shows the plan. A delete
+of all never refuses for what names the mappings, and a real run looks nothing up.
+It deletes the mappings one by one, each as a delete of its own that reads the
+`sync` configuration again and checks that the mapping is gone, so a write that the
+tenant refuses leaves its mapping where it was. It tries every mapping, prints one
+summary of what failed and exits with code 1 if any failed; `--allow-failures`
+keeps the exit code at 0 for a delete that failed, but never for a mapping that
+does not exist, a refusal, or a `sync` configuration that cannot be read. See
+[a command that can delete more than the one object it names asks first](https://github.com/rockcarver/frodo-cli/blob/main/docs/decisions/0037-a-command-that-can-delete-more-than-the-one-object-it-names-asks-first.md)
+and
+[a command that runs many operations runs them all, then fails if any failed](https://github.com/rockcarver/frodo-cli/blob/main/docs/decisions/0040-a-command-that-runs-many-operations-runs-them-all-then-fails-if-any-failed.md).
+
+Only the `sync` configuration is covered, as in `pull connector-mappings` and
+`push connector-mappings`: a mapping that is stored as `mapping/<name>` is neither
+deleted nor listed, although a mapping of either store that names the mapping
+stops a named delete. Pull, push and delete of the `mapping/<name>` store will
+likely be added later; `frodo mapping delete` covers both stores today.
+
 **New command: `frodo config-manager delete services`** deletes one realm
 service, or every realm service of the selected realms. It works on every
 deployment type, and it never touches a global service. A realm service is a
@@ -1017,6 +1065,7 @@ entity and drop the others.
 | ---------------------------------- | -------------------------------------- | -------------- |
 | `delete applications`              | `-i, --app-id`, `-n, --app-name`       | `--name`       |
 | `delete connector-definitions`     | `-i, --connector-id`                   | `-n`, `--name` |
+| `delete connector-mappings`        | `-i, --connector-mapping-id`           | `-n`, `--name` |
 | `delete custom-nodes`              | `-i, --node-id`, `-n, --node-name`     | `--name`       |
 | `delete endpoints`                 | `-i, --endpoint-id`                    | `-n`, `--name` |
 | `delete journeys`                  | `-i, --journey-id`                     | `-n`, `--name` |
