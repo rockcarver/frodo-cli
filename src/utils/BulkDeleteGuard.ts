@@ -82,6 +82,7 @@ function describeTarget(): string {
  * @param {boolean} guard.dryRunAvailable true if the command has a preview option to name in the refusal
  * @param {string} guard.dryRunOption the preview option to name in the refusal. Default: `--dry-run`
  * @param {() => Promise<boolean>} guard.showPlan optional: prints what would be deleted and resolves to false if that failed
+ * @param {string} guard.warning optional: the whole warning line shown above the question, for a command whose question does not read well as "This permanently deletes <what> from <host and realm>." (a command that deletes and also resets something, or one that ignores the realm). Default: that sentence
  * @returns {Promise<boolean>} a promise that resolves to true if the delete may go ahead; the reason has been printed otherwise
  */
 export async function confirmBulkDelete({
@@ -91,6 +92,7 @@ export async function confirmBulkDelete({
   dryRunAvailable = true,
   dryRunOption,
   showPlan,
+  warning,
 }: {
   what: string;
   yes?: boolean;
@@ -98,6 +100,7 @@ export async function confirmBulkDelete({
   dryRunAvailable?: boolean;
   dryRunOption?: string;
   showPlan?: () => Promise<boolean>;
+  warning?: string;
 }): Promise<boolean> {
   if (!checkBulkDelete({ what, yes, dryRun, dryRunAvailable, dryRunOption })) {
     return false;
@@ -105,7 +108,7 @@ export async function confirmBulkDelete({
   if (dryRun || yes) return true;
   if (showPlan && !(await showPlan())) return false;
   printMessage(
-    `This permanently deletes ${what} from ${describeTarget()}.`,
+    warning ?? `This permanently deletes ${what} from ${describeTarget()}.`,
     'warn'
   );
   const answered = await confirm({

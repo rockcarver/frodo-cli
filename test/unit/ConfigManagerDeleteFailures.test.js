@@ -223,6 +223,45 @@ const CASES = [
     fn: 'configManagerDeleteMappings',
   },
   {
+    name: 'config-manager delete cors',
+    file: 'src/configManagerOps/FrConfigCorsOps.ts',
+    summaryName: (id) => `CORS configuration ${id}`,
+    unit: 'CORS operation',
+    arrange({ failing, attempted }) {
+      // the library lists the named configurations of the global CORS service and deletes each by its listed id
+      frodo.service.exportService.mockReset().mockResolvedValue({
+        service: {
+          CorsService: {
+            nextDescendents: IDS.map((id) => ({
+              _id: id,
+              _type: { _id: 'configuration' },
+            })),
+          },
+        },
+      });
+      frodo.service.deleteServiceNextDescendent
+        .mockReset()
+        .mockImplementation(async (service, id) => {
+          attempted.push(id);
+          if (failing.has(id)) throw new Error(`could not delete ${id}`);
+          return { _id: id };
+        });
+    },
+    empty: () =>
+      frodo.service.exportService.mockReset().mockResolvedValue({
+        service: { CorsService: { nextDescendents: [] } },
+      }),
+    emptyMessage: /No CORS configurations found to delete\./,
+    notFound: (m) => m.configManagerDeleteCors('zzz', false, false),
+    failToRead: () =>
+      frodo.service.exportService
+        .mockReset()
+        .mockRejectedValue(new Error('read failed')),
+    run: (m, allowFailures) =>
+      m.configManagerDeleteCors(undefined, false, allowFailures),
+    fn: 'configManagerDeleteCors',
+  },
+  {
     name: 'config-manager delete scripts',
     file: 'src/configManagerOps/FrConfigScriptOps.ts',
     summaryName: (id) => `${id} in realm /alpha`,

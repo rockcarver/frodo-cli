@@ -41,7 +41,6 @@ export default function setup() {
         options,
         command
       );
-
       if (!(await getTokens(false, true, deploymentTypes))) {
         process.exitCode = 1;
         return;
@@ -49,7 +48,7 @@ export default function setup() {
       verboseMessage(
         options.connectorId
           ? `Exporting connector definition for connector: "${options.connectorId}"`
-          : 'Exporting all connector defitions.'
+          : 'Exporting all connector definitions.'
       );
       const outcome = await configManagerExportConnectorDefinitions(
         options.connectorId,

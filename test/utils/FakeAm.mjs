@@ -114,12 +114,13 @@
  * global?: [service, ...], unavailable?: [id, ...] }` the fake serves as the AM services of
  * each realm (`/` is the root realm) and the global ones, as a store that a delete changes
  * (it answers every request for the services of a realm or the global ones, so FAKE_AM_SERVICES
- * is not used with it). A service is `{ _id, nextDescendents?: [{ _id, _type: { _id } }] }`. The list
+ * is not used with it). A service is `{ _id, singleton?, nextDescendents?: [{ _id, _type: { _id } }] }`. The list
  * (`POST .../services?_action=nextdescendents`), one service (`GET .../services/<id>`, which
  * answers `_id: ""` as AM does) and its next descendents (`POST .../services/<id>?_action=nextdescendents`)
  * are served; `DELETE .../services/<id>/<type>/<descendent id>` removes a next descendent and
- * `DELETE .../services/<id>` the service with the ones it still has; `404` for an id that
- * is not held and for a realm that the file does not name. The ids in `unavailable` answer the
+ * `DELETE .../services/<id>` the service with the ones it still has (`400 The singleton resource
+ * cannot be deleted` for a service with `singleton: true`, as AM answers for the global
+ * CorsService); `404` for an id that is not held and for a realm that the file does not name. The ids in `unavailable` answer the
  * read of their next descendents with the Cloud `403` "This operation is not available in
  * PingOne Advanced Identity Cloud.". A service whose id has a slash in it is read and deleted by
  * the whole rest of the path. The store lives as long as the fake; the request log shows
@@ -630,6 +631,15 @@ function serveRealmServices(req, send) {
   if (req.method !== 'DELETE') return false;
   if (!service) {
     notFound();
+    return true;
+  }
+  if (tail.length === 0 && service.singleton) {
+    // AM does not delete a singleton service, such as the global CorsService
+    send(400, {
+      code: 400,
+      reason: 'Bad Request',
+      message: 'The singleton resource cannot be deleted',
+    });
     return true;
   }
   if (tail.length === 0) {

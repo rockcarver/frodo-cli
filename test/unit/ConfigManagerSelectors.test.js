@@ -800,7 +800,7 @@ describe('the selectors of the configuration commands', () => {
     expect(
       EXPECTED_SELECTORS.filter((row) => row.command.includes(' delete '))
         .length
-    ).toBe(21);
+    ).toBe(22);
   });
 
   it('has the options of every row, and nothing else on -i and -n: one -i, a -n of its own only for a name that can change, the conflicts in both directions', () => {

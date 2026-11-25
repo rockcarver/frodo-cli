@@ -58,6 +58,12 @@ const WIRING = {
     id: 0,
     name: null,
   },
+  cors: {
+    module: 'configManagerOps/FrConfigCorsOps',
+    fn: 'configManagerDeleteCors',
+    id: 0,
+    name: null,
+  },
   'custom-nodes': {
     module: 'configManagerOps/FrConfigCustomNodesOps',
     fn: 'configManagerDeleteCustomNodes',
@@ -290,7 +296,7 @@ afterEach(() => {
 describe('the delete commands: a named delete never asks, and the selectors reach the ops function', () => {
   it('has an entry for every delete row of the selectors, and no pull or push row', () => {
     expect(deleteRows.map(typeOf).sort()).toEqual(Object.keys(WIRING).sort());
-    expect(deleteRows).toHaveLength(21);
+    expect(deleteRows).toHaveLength(22);
   });
 
   it.each(deleteRows.map((row) => [typeOf(row), row]))(
@@ -440,6 +446,7 @@ describe('the delete commands: an empty selector is refused before anything, a b
   const REFUSES_BLANKS = new Set([
     'connector-definitions',
     'connector-mappings',
+    'cors',
     'secrets',
     'oauth-cimd-profiles',
     'oauth-issuers',

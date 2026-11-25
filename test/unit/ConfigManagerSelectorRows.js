@@ -360,6 +360,12 @@ export const EXPECTED_SELECTORS = [
     aliases: ['-n', '--name'],
   },
   {
+    command: 'frodo config-manager delete cors',
+    id: '--cors-id',
+    name: null,
+    aliases: ['-n', '--name'],
+  },
+  {
     command: 'frodo config-manager delete custom-nodes',
     id: '--node-id',
     name: '--node-name',
