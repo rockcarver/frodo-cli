@@ -1,6 +1,7 @@
 import { FrodoStubCommand } from '../../FrodoCommand';
 import Applications from '../config-manager-delete/config-manager-delete-applications';
 import ConnectorDefinitions from '../config-manager-delete/config-manager-delete-connector-definitions';
+import ConnectorMappings from '../config-manager-delete/config-manager-delete-connector-mappings';
 import Cors from '../config-manager-delete/config-manager-delete-cors';
 import EmailTemplates from '../config-manager-delete/config-manager-delete-email-templates';
 import Endpoints from '../config-manager-delete/config-manager-delete-endpoints';
@@ -28,6 +29,7 @@ export default function setup() {
   );
   program.addCommand(Applications().name('applications'));
   program.addCommand(ConnectorDefinitions().name('connector-definitions'));
+  program.addCommand(ConnectorMappings().name('connector-mappings'));
   program.addCommand(CustomNodes().name('custom-nodes'));
   program.addCommand(Endpoints().name('endpoints'));
   program.addCommand(Scripts().name('scripts'));

@@ -36,7 +36,7 @@ const fakeAmPath = fileURLToPath(new URL('./FakeAm.mjs', import.meta.url));
  * @param {object[]} [options.users] managed users the fake serves under /openidm/managed/ (`_id`, `userName`, `givenName`, `sn`, `mail`)
  * @param {string[]} [options.managedTypes] managed object type names the fake's config entity answers with (for catalog enrichment)
  * @param {string[]} [options.realms] realm names the realm list answers with (default: it answers 404)
- * @param {{method: string, path: string, echo?: {text: string, padding?: number}}[]} [options.failRequests] requests that answer with HTTP 500 (path is a URL fragment); `echo` adds a `detail.echo` of that text, `@PADDING@` in it replaced by `padding` characters
+ * @param {{method: string, path: string, nth?: number, echo?: {text: string, padding?: number}}[]} [options.failRequests] requests that answer with HTTP 500 (path is a URL fragment); `nth` makes only the n-th matching request fail (without it every matching request fails); `echo` adds a `detail.echo` of that text, `@PADDING@` in it replaced by `padding` characters
  * @param {object[]} [options.logApiKeys] keys returned by the log API key list
  * @param {string[]} [options.agentTypes] ids the agent type list of the realm answers with; an empty array is a realm that offers no type (default: it answers 404)
  * @param {object[]} [options.cimdProfiles] CIMD profiles in the plain shape the fake serves, stores and deletes (default: the type's endpoints answer 404)

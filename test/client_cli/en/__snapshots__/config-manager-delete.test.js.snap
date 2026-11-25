@@ -23,6 +23,10 @@ Commands:
                              id, or delete all connector definitions. A
                              connector definition that other objects still name
                              is not deleted without --force.
+  connector-mappings         [Experimental] Delete one connector mapping by
+                             name, or delete all connector mappings of the sync
+                             configuration. A connector mapping that other
+                             objects still name is not deleted without --force.
   cors                       [Experimental] Delete CORS configurations.
   custom-nodes               [Experimental] Delete custom nodes.
   email-templates            [Experimental] Delete email template objects.

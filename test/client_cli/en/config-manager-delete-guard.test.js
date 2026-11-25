@@ -28,6 +28,7 @@ describe('a delete of more than one object without a terminal and without --yes'
   test.each([
     'frodo config-manager delete applications',
     'frodo config-manager delete connector-definitions',
+    'frodo config-manager delete connector-mappings',
     'frodo config-manager delete cors',
     'frodo config-manager delete cors --deep',
     'frodo config-manager delete oauth-cimd-profiles',
@@ -190,6 +191,8 @@ describe('what is not refused', () => {
     'frodo config-manager delete applications -y',
     'frodo config-manager delete connector-definitions -d',
     'frodo config-manager delete connector-definitions -y',
+    'frodo config-manager delete connector-mappings -d',
+    'frodo config-manager delete connector-mappings -y',
     'frodo config-manager delete cors -d',
     'frodo config-manager delete cors -y',
     'frodo config-manager delete cors --deep -d',
@@ -283,6 +286,74 @@ describe('a delete of connector definitions', () => {
 
     expect(code).toBe(1);
     expect(stderr).toContain('--force applies to a named connector definition only');
+    expect(stderr).not.toMatch(NOT_REACHED);
+  });
+});
+
+describe('a delete of connector mappings', () => {
+  // the word "connector" is in every message of the command, so the check that the host was never reached
+  // names the error that an unreachable host gives, and not the word "connect"
+  const NOT_REACHED = /ECONNREFUSED/;
+
+  test('a delete of all of them is refused before the login without a terminal and without -y, and says what goes', async () => {
+    const { code, stderr } = await run('frodo config-manager delete connector-mappings');
+
+    expect(code).toBe(1);
+    expect(stderr).toContain('Refusing to delete all connector mappings without confirmation');
+    expect(stderr).toContain('-y/--yes');
+    expect(stderr).toContain('--dry-run');
+    expect(stderr).not.toMatch(NOT_REACHED);
+  });
+
+  test.each([
+    'frodo config-manager delete connector-mappings -i mapA --force',
+    'frodo config-manager delete connector-mappings -n mapA --force',
+  ])('"%s" is refused before the login without -y, as every forced delete is', async (command) => {
+    const { code, stderr } = await run(command);
+
+    expect(code).toBe(1);
+    expect(stderr).toContain("Refusing to delete connector mapping 'mapA' although other objects may name it");
+    expect(stderr).toContain('-y/--yes');
+    expect(stderr).toContain('--dry-run');
+    expect(stderr).not.toMatch(NOT_REACHED);
+  });
+
+  test.each([
+    'frodo config-manager delete connector-mappings -i mapA',
+    'frodo config-manager delete connector-mappings -n mapA',
+    'frodo config-manager delete connector-mappings --name mapA',
+    'frodo config-manager delete connector-mappings -i mapA -d',
+    'frodo config-manager delete connector-mappings -i mapA --force -d',
+    'frodo config-manager delete connector-mappings -i mapA --force -y',
+  ])('"%s" goes on to the login', async (command) => {
+    const { stderr } = await run(command);
+
+    expect(stderr).not.toContain('Refusing to delete');
+    expect(stderr).not.toContain('unknown option');
+  });
+
+  test.each([
+    'frodo config-manager delete connector-mappings --force',
+    'frodo config-manager delete connector-mappings --force -y',
+    'frodo config-manager delete connector-mappings --force -d',
+  ])('"%s" is refused before the login: --force applies to a named connector mapping only', async (command) => {
+    const { code, stderr } = await run(command);
+
+    expect(code).toBe(1);
+    expect(stderr).toContain('--force applies to a named connector mapping only');
+    expect(stderr).not.toMatch(NOT_REACHED);
+  });
+
+  test.each([
+    'frodo config-manager delete connector-mappings -i "" -y',
+    'frodo config-manager delete connector-mappings -n "" -y',
+    'frodo config-manager delete connector-mappings --name "" -y',
+    'frodo config-manager delete connector-mappings --connector-mapping-id= -y',
+  ])('"%s" is refused while the command line is parsed: an empty name never means all', async (command) => {
+    const { code, stderr } = await run(command);
+
+    expect(code).toBe(1);
+    expect(stderr).toContain('An empty value never selects all objects');
     expect(stderr).not.toMatch(NOT_REACHED);
   });
 });
@@ -620,8 +691,8 @@ describe('a delete that names one object, for every command and every spelling o
     ...(row.aliases.includes('--name') ? [['--name', "''"], ['--name=']] : []),
   ];
 
-  test('has the 21 delete rows', () => {
-    expect(rows).toHaveLength(21);
+  test('has the 22 delete rows', () => {
+    expect(rows).toHaveLength(22);
   });
 
   test.each(rows.map((row) => [typeOf(row), row]))(

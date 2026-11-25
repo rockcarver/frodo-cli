@@ -354,6 +354,12 @@ export const EXPECTED_SELECTORS = [
     aliases: ['-n', '--name'],
   },
   {
+    command: 'frodo config-manager delete connector-mappings',
+    id: '--connector-mapping-id',
+    name: null,
+    aliases: ['-n', '--name'],
+  },
+  {
     command: 'frodo config-manager delete cors',
     id: '--cors-id',
     name: null,

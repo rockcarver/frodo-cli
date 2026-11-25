@@ -1,0 +1,66 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`CLI help interface for 'config-manager delete connector-mappings' should be expected english 1`] = `
+"Usage: frodo config-manager delete connector-mappings [options] [host] [realm] [username] [password]
+
+[Experimental] Delete one connector mapping by name, or delete all connector
+mappings of the sync configuration. A connector mapping that other objects still
+name is not deleted without --force.
+
+Arguments:
+  host                               AM base URL, e.g.:
+                                     https://cdk.iam.example.com/am. To use a
+                                     connection profile, just specify a unique
+                                     substring or alias.
+  realm                              Realm. Specify realm as '/' for the root
+                                     realm or 'realm' or '/parent/child'
+                                     otherwise. (default: "alpha" for Identity
+                                     Cloud tenants, "/" otherwise.)
+  username                           Username to login with. Must be an admin
+                                     user with appropriate rights to manage
+                                     authentication journeys/trees. If given
+                                     without a password, and it matches the
+                                     username already stored in the connection
+                                     profile for the target host, frodo uses
+                                     that profile's stored password instead of
+                                     requiring it on the command line.
+  password                           Password.
+
+Options:
+  --allow-failures                   Report operations that fail, but still exit
+                                     with code 0. Without this option the
+                                     command runs every operation, prints a
+                                     summary of what failed and exits with code
+                                     1.
+  -d, --dry-run                      Show what would be deleted, and what other
+                                     objects name it (at most 20 for each
+                                     connector mapping when all are deleted),
+                                     without deleting anything.
+  --force                            Delete the connector mapping with -i
+                                     although other objects still name it. It
+                                     deletes the connector mapping and clears no
+                                     reference itself: every object that names
+                                     it is listed, and names a connector mapping
+                                     that does not exist afterwards. A schedule,
+                                     an application or a mapping/<name>
+                                     configuration that names it is not written;
+                                     the other entries of the sync configuration
+                                     are written again by the library. It also
+                                     deletes it when not every source of what
+                                     names it could be read. Only with -i.
+  -i, --connector-mapping-id <name>  Name of the connector mapping to delete,
+                                     without the sync/ prefix, matched exactly.
+                                     If it is left out, all connector mappings
+                                     are deleted, after a question or with -y.
+                                     (alias: -n, --name)
+  -y, --yes                          Do not ask for confirmation before deleting
+                                     all connector mappings, or before deleting
+                                     one with --force. Without a terminal those
+                                     two are refused unless -y or -d is given;
+                                     deleting one without --force never asks.
+  -h, --help                         Help
+  -hh, --help-more                   Help with all options.
+  -hhh, --help-all                   Help with all options, environment
+                                     variables, and usage examples.
+"
+`;

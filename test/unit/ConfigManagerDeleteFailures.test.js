@@ -194,6 +194,35 @@ const CASES = [
     fn: 'configManagerDeleteConnectorDefinitions',
   },
   {
+    name: 'config-manager delete connector-mappings',
+    file: 'src/configManagerOps/FrConfigConnectorMappingOps.ts',
+    summaryName: nameOf,
+    unit: 'mapping',
+    arrange({ failing, attempted }) {
+      frodo.idm.mapping.readSyncMappings
+        .mockReset()
+        .mockResolvedValue(IDS.map((id) => ({ _id: `sync/${id}`, name: id })));
+      frodo.idm.mapping.deleteMapping
+        .mockReset()
+        .mockImplementation(async (id) => {
+          const name = id.replace(/^sync\//, '');
+          attempted.push(name);
+          if (failing.has(name)) throw new Error(`could not delete ${name}`);
+        });
+    },
+    empty: () =>
+      frodo.idm.mapping.readSyncMappings.mockReset().mockResolvedValue([]),
+    emptyMessage: /No connector mappings found to delete\./,
+    notFound: (m) => m.configManagerDeleteMappings('zzz', false, false),
+    failToRead: () =>
+      frodo.idm.mapping.readSyncMappings
+        .mockReset()
+        .mockRejectedValue(new Error('read failed')),
+    run: (m, allowFailures) =>
+      m.configManagerDeleteMappings(undefined, false, allowFailures),
+    fn: 'configManagerDeleteMappings',
+  },
+  {
     name: 'config-manager delete cors',
     file: 'src/configManagerOps/FrConfigCorsOps.ts',
     summaryName: (id) => `CORS configuration ${id}`,
