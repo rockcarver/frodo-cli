@@ -698,7 +698,9 @@ suite('config-manager delete connector-mappings (fake tenant)', () => {
     );
   });
 
-  describe('--force deletes the mapping and nothing else', () => {
+  // "every other object" below does not include the other entries of the sync configuration: the library writes
+  // them again with the mapping gone, see https://github.com/rockcarver/frodo-lib/issues/1153
+  describe('--force deletes the mapping and clears no reference', () => {
     test(
       'every holder is named, one write of the sync configuration is sent, and every other object is exactly as it was afterwards',
       async () => {
@@ -732,7 +734,7 @@ suite('config-manager delete connector-mappings (fake tenant)', () => {
         expect(links.links).toBe('mapA');
         expect(output).toContain('Deleted mapping: mapA');
         expect(output).toContain(
-          'Left alone, these now name a mapping that does not exist:'
+          'No reference was cleared: these still name a mapping that does not exist:'
         );
         expect(output).toContain("schedule 'schedule/reconA'");
         expect(output).toContain("mapping 'mapping/newMap'");
@@ -742,7 +744,7 @@ suite('config-manager delete connector-mappings (fake tenant)', () => {
     );
 
     test(
-      'a dry run with --force lists what would be left alone and sends no write',
+      'a dry run with --force lists what still names the mapping and sends no write',
       async () => {
         const { code, output } = await deleteMappings(
           ['-i', 'mapA', '--force', '-d'],
@@ -751,7 +753,7 @@ suite('config-manager delete connector-mappings (fake tenant)', () => {
 
         expect(code).toBe(0);
         expect(output).toContain(
-          'Leave these alone, they would name a mapping that does not exist afterwards:'
+          'No reference to it would be cleared: these would still name a mapping that does not exist afterwards:'
         );
         expect(changes()).toEqual([]);
       },

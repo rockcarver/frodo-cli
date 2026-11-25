@@ -55,12 +55,12 @@ export default function setup() {
     .addOption(
       new Option(
         '--force',
-        'Delete the connector mapping with -i although other objects still name it. It deletes the connector mapping and nothing else: every object that names it is left as it is, is listed, and names a connector mapping that does not exist afterwards. It also deletes it when not every source of what names it could be read. Only with -i.'
+        'Delete the connector mapping with -i although other objects still name it. It deletes the connector mapping and clears no reference: every object that names it is left as it is, is listed, and names a connector mapping that does not exist afterwards. It also deletes it when not every source of what names it could be read. Only with -i.'
       )
     )
     .addHelpText(
       'after',
-      `Only the connector mappings of the sync configuration are covered, as in pull and push connector-mappings: a mapping that is stored as mapping/<name> is not deleted, and pull, push and delete of those will likely be added later. What names a connector mapping is looked up in both places.\n` +
+      `Only the connector mappings of the sync configuration are covered, as in pull and push connector-mappings: a mapping that is stored as mapping/<name> is not deleted, and pull, push and delete of those will likely be added later. What names a connector mapping is looked up in the sync configuration, in the mapping/<name> configurations, in the schedules and in the applications of every realm.\n` +
         `Without --force, a connector mapping that a schedule (invokeContext.mapping), another mapping (links or syncAfter) or an application (mappingNames) still names is not deleted, the command says which and exits with code 1. An application owns the mappings that it names: config-manager delete applications removes both. --allow-failures keeps the exit code at 0 for a delete that failed, but never for a refusal, for a connector mapping that does not exist or for a list of connector mappings that cannot be read. An answer that nothing names it is not proof that it is unused: a connector mapping that a script or an endpoint calls, that has links in a link table or that a running or past reconciliation used is not seen.\n` +
         `Deleting all connector mappings deletes every one of them, one write each, and does not refuse for what names them. The plan that -d shows, and the plan before the question on a terminal, list what names each of them (at most 20 for each connector mapping), from one lookup for all; a delete with -y looks up nothing.\n` +
         `Usage Examples:\n` +
@@ -152,7 +152,7 @@ export default function setup() {
         options.force &&
         !(await confirmProceed({
           ...guardOptions,
-          warning: `Connector mapping '${options.connectorMappingId}' is deleted, and nothing else is changed. This cannot be undone.`,
+          warning: `Connector mapping '${options.connectorMappingId}' is deleted, and no reference to it is cleared. This cannot be undone.`,
           showPlan,
         }))
       ) {

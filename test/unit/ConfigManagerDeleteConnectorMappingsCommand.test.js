@@ -195,10 +195,10 @@ describe('the options', () => {
     expect(
       program.options.find((option) => option.long === '--yes').description
     ).toContain('deleting one without --force never asks');
-    // the help says what --force changes: the connector mapping, and nothing else
+    // the help says what --force does: it deletes the mapping and clears no reference (not that nothing else is changed: the library writes the other entries of the sync configuration again)
     expect(
       program.options.find((option) => option.long === '--force').description
-    ).toContain('It deletes the connector mapping and nothing else');
+    ).toContain('It deletes the connector mapping and clears no reference');
   });
 
   test('the text of the command says connector mapping, and never remote server or group', async () => {
@@ -457,7 +457,7 @@ describe('a named delete with --force', () => {
       "Delete connector mapping 'mapA' although other objects may name it"
     );
     expect(messages().join('\n')).toContain(
-      "Connector mapping 'mapA' is deleted, and nothing else is changed. This cannot be undone."
+      "Connector mapping 'mapA' is deleted, and no reference to it is cleared. This cannot be undone."
     );
     expect(
       configManagerDeleteMappings.mock.invocationCallOrder[0]

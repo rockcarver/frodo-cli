@@ -12,7 +12,7 @@ import { beforeEach, describe, expect, jest, test } from '@jest/globals';
  * typed never reaches a request); one that is not in the list fails the command
  * whatever `--allow-failures` says; anything that still names it (a schedule,
  * another mapping, an application) stops the delete until `--force`, which
- * deletes the mapping and changes nothing else; a source that cannot be read
+ * deletes the mapping and clears no reference; a source that cannot be read
  * stops it too. For a delete of all: nothing is looked up in a real run, a plan
  * looks up what names them ONCE for all of them and never refuses, and a failed
  * delete does not stop the others.
@@ -449,7 +449,7 @@ describe('a named delete is refused while something names the mapping', () => {
 });
 
 describe('a named delete with --force', () => {
-  test('deletes the mapping with one delete and nothing else, and lists what was left alone', async () => {
+  test('deletes the mapping with one delete, clears no reference, and lists what still names it', async () => {
     answerLookups({ mapA: [SCHEDULE, LINKS, SYNC_AFTER, APPLICATION] });
 
     expect(
@@ -461,11 +461,13 @@ describe('a named delete with --force', () => {
     expect(held()).toEqual(['mapB', 'mapC']);
     expect(output()).toContain('Deleted mapping: mapA');
     expect(output()).toContain(
-      'Left alone, these now name a mapping that does not exist:'
+      'No reference was cleared: these still name a mapping that does not exist:'
     );
     expect(output()).toContain("schedule 'schedule/reconA'");
     expect(output()).toContain("mapping 'sync/mapB'");
-    expect(levelOf('Left alone')).toBe('warn');
+    expect(levelOf('No reference was cleared')).toBe('warn');
+    // the text never says that nothing else was changed: the library writes the other entries of the sync configuration again
+    expect(output()).not.toMatch(/nothing else|left alone/i);
     // the holders are not written: no call of the library except the three
     expect(stray).toEqual([]);
   });
@@ -493,7 +495,7 @@ describe('a named delete with --force', () => {
     expect(deleteMapping).not.toHaveBeenCalled();
   });
 
-  test('a delete that fails with --force is a failed delete, and the holders are not said to be left alone', async () => {
+  test('a delete that fails with --force is a failed delete, and the holders are not said to be still naming a deleted mapping', async () => {
     answerLookups({ mapA: [SCHEDULE] });
     refusedIds.add('sync/mapA');
 
@@ -502,7 +504,7 @@ describe('a named delete with --force', () => {
     ).toBe(false);
 
     expect(output()).toContain('1 of 1 mapping failed');
-    expect(output()).not.toContain('Left alone');
+    expect(output()).not.toContain('No reference was cleared');
     expect(held()).toEqual(NAMES);
   });
 
@@ -540,13 +542,12 @@ describe('a named delete with --force', () => {
 });
 
 describe('a dry run of a named delete of a mapping that nothing names', () => {
-  test('says what it would delete and that nothing else is changed, and deletes nothing', async () => {
+  test('says what it would delete and that nothing else names the mapping, and deletes nothing', async () => {
     expect(await configManagerDeleteMappings('mapB', true)).toBe(true);
 
     expect(output()).toContain('Dry run: Deleting mapping: mapB');
-    expect(output()).toContain(
-      'Nothing else names the mapping, and nothing else is changed.'
-    );
+    expect(output()).toContain('Nothing else names the mapping.');
+    expect(output()).not.toContain('nothing else is changed');
     expect(deleteMapping).not.toHaveBeenCalled();
     expect(held()).toEqual(NAMES);
   });

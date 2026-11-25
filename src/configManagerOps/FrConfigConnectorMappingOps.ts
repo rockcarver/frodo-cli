@@ -399,7 +399,7 @@ function namedPlanLines(
   const lines = [`${asPlan ? 'Plan' : 'Dry run'}: Deleting mapping: ${name}`];
   if (references.length > 0) {
     lines.push(
-      '  Leave these alone, they would name a mapping that does not exist afterwards:',
+      '  No reference to it would be cleared: these would still name a mapping that does not exist afterwards:',
       ...references.map((reference) => `    - ${holderLine(reference)}`)
     );
   }
@@ -409,9 +409,7 @@ function namedPlanLines(
       '  What else names the mapping is not known: not every source could be read.'
     );
   } else if (references.length === 0) {
-    lines.push(
-      '  Nothing else names the mapping, and nothing else is changed.'
-    );
+    lines.push('  Nothing else names the mapping.');
   }
   return lines;
 }
@@ -512,6 +510,10 @@ function bulkPlanLines(
   return lines;
 }
 
+// The delete reaches `frodo.idm.mapping.*` where it uses it, and does not take the
+// namespace apart when the module loads: the pull and push suites stub `frodo.idm`
+// without `mapping`, and they load this module for the pull and the push.
+
 /**
  * Delete one mapping by the id that the library lists for it. Every failure is
  * printed and recorded in the run with its cause.
@@ -548,9 +550,16 @@ async function deleteListedMapping(
  * cannot be anything but a mapping that is listed. Before it is deleted, the
  * library is asked what still names it: a schedule, another mapping or an
  * application. Anything that does stops the delete, until `force` is given; then
- * the mapping is deleted and nothing else is changed, every holder is left as it
- * is and listed. A source that cannot be read stops it too, and `force` goes on
- * after saying that it was not checked.
+ * the mapping is deleted and no reference to it is cleared: every holder is left
+ * as it is and listed. A source that cannot be read stops it too, and `force`
+ * goes on after saying that it was not checked.
+ *
+ * The library deletes a mapping by writing the whole sync configuration again
+ * without it, with an `_id` and a derived `syncAfter` for every remaining entry,
+ * so the other entries of the sync configuration are written too, and this
+ * command does not say that nothing else is changed. The library fix is tracked
+ * at https://github.com/rockcarver/frodo-lib/issues/1153; the stronger wording
+ * can come back once it is fixed.
  *
  * Deleting all mappings does not look at what names them and never refuses; only
  * a plan (`dryRun`) looks, once for all of them, and lists the holders. Every
@@ -652,7 +661,7 @@ async function deleteNamedMapping(
       ? '\nAn application owns the mapping that it names: config-manager delete applications removes both.'
       : '';
     printMessage(
-      `${dryRun ? 'Dry run: the delete would be refused. ' : ''}Mapping '${printable(name)}' is still named by:\n${namedByLines(found).join('\n')}${owner}\nNothing was deleted. --force deletes it anyway: it deletes the mapping and nothing else, every object above is left as it is and names a mapping that does not exist afterwards.`,
+      `${dryRun ? 'Dry run: the delete would be refused. ' : ''}Mapping '${printable(name)}' is still named by:\n${namedByLines(found).join('\n')}${owner}\nNothing was deleted. --force deletes it anyway: it deletes the mapping and clears no reference, every object above is left as it is and names a mapping that does not exist afterwards.`,
       'error'
     );
     return false;
@@ -674,7 +683,7 @@ async function deleteNamedMapping(
   const deleted = await deleteListedMapping(run, listed);
   if (deleted && found.length > 0) {
     printMessage(
-      `Left alone, these now name a mapping that does not exist:\n${namedByLines(found).join('\n')}`,
+      `No reference was cleared: these still name a mapping that does not exist:\n${namedByLines(found).join('\n')}`,
       'warn'
     );
   }
