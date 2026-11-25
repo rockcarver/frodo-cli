@@ -21,6 +21,7 @@ import { printError, printMessage } from '../utils/Console';
 import { causeOf } from '../utils/ErrorCause';
 import { countItems, importItemsOfFile } from '../utils/ImportItems';
 import { OperationRun } from '../utils/OperationRun';
+import { isPlainName, PLAIN_NAME_RULE, shownId } from '../utils/PlainName';
 import type { ApplicationLayoutDecision } from '../utils/TreeLayout';
 import { reasonOf, unreadableSources } from './ReferenceDelete';
 
@@ -216,44 +217,6 @@ export async function configManagerImportConnectors(
 
 /** The prefix of the id of a connector definition in the configuration of IDM. */
 const CONNECTOR_PREFIX = 'provisioner.openicf/';
-
-/** What a name is, in the words of a message about an id that is not one. */
-const PLAIN_NAME_RULE =
-  'a plain name is not blank, is not just a dot, and has no /, \\, ?, #, %, .. or control character';
-
-/**
- * Whether the part of a listed id after the type prefix is a plain name. The
- * library puts the name into the path of the request as it is given, so a name
- * with a slash, a `..` segment, a `?` or a `#` in it would name another object
- * than the one that was listed, whatever the tenant lists. Such an id is never
- * sent to the tenant.
- * @param {string} name the listed id without the type prefix
- * @returns {boolean} true if the name is safe to put into a path
- */
-function isPlainName(name: string): boolean {
-  return (
-    name.trim() !== '' &&
-    name !== '.' &&
-    !name.includes('..') &&
-    !/[/\\?#%\p{Cc}]/u.test(name)
-  );
-}
-
-/**
- * A listed id as a message shows it: quoted, and every control character written
- * out as `\uXXXX`, so that it cannot change what the terminal shows. `JSON.stringify`
- * writes out the characters below U+0020 only; DEL and the controls of U+0080 to
- * U+009F are written out here.
- * @param {string} id the listed id
- * @returns {string} the id as a quoted text without a raw control character
- */
-function shownId(id: string): string {
-  return JSON.stringify(id).replace(
-    /\p{Cc}/gu,
-    (character) =>
-      `\\u${(character.codePointAt(0) as number).toString(16).padStart(4, '0')}`
-  );
-}
 
 /** What a delete of connector definitions needs to know besides the id, the dry run and `--allow-failures`. */
 export type DeleteConnectorDefinitionsOptions = {
