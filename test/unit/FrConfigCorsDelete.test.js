@@ -749,6 +749,77 @@ describe('--deep: the IDM CORS filter', () => {
     expect(output()).not.toContain('not reset (failed');
   });
 
+  describe('what the summary counts', () => {
+    // An operation is something the command did to the tenant, or read and found nothing to do: each
+    // configuration, and the IDM filter when the tenant has one that is reset or already at the defaults.
+    // A part that does not apply (a classic deployment, a tenant without the filter) is no operation.
+    /** Runs a delete of all with --deep and one delete that fails, and returns the first line of the summary. */
+    const firstLineOfSummary = async () => {
+      refuse.set('test', new Error('could not delete test'));
+
+      expect(
+        await configManagerDeleteCors(undefined, false, false, { deep: true })
+      ).toBe(false);
+
+      return summary()[0].split('\n')[0];
+    };
+
+    test('a filter that is reset is one operation', async () => {
+      idmFilter = filter({ urlPatterns: ['/x'] });
+
+      expect(await firstLineOfSummary()).toBe('1 of 4 CORS operations failed:');
+    });
+
+    test('a filter that is already at the defaults is one operation too: it was read and compared, and there was nothing to write', async () => {
+      idmFilter = filter();
+
+      expect(await firstLineOfSummary()).toBe('1 of 4 CORS operations failed:');
+      expect(updateConfigEntity).not.toHaveBeenCalled();
+    });
+
+    test('a filter that cannot be written is one operation, and a failed one', async () => {
+      idmFilter = filter({ urlPatterns: ['/x'] });
+      idmWriteError = new Error('write refused');
+
+      expect(await firstLineOfSummary()).toBe('2 of 4 CORS operations failed:');
+    });
+
+    test('a tenant without the filter has no operation for it', async () => {
+      idmFilter = undefined;
+
+      expect(await firstLineOfSummary()).toBe('1 of 3 CORS operations failed:');
+    });
+
+    test('a classic deployment has no operation for it', async () => {
+      deployment = 'classic';
+
+      expect(await firstLineOfSummary()).toBe('1 of 3 CORS operations failed:');
+    });
+
+    test('a run without --deep counts the configurations only', async () => {
+      refuse.set('test', new Error('could not delete test'));
+
+      expect(await configManagerDeleteCors()).toBe(false);
+
+      expect(summary()[0].split('\n')[0]).toBe(
+        '1 of 3 CORS operations failed:'
+      );
+    });
+
+    test('a dry run counts the same, so that it says how a real run would end', async () => {
+      idmFilter = filter();
+      store = [configuration('cors'), configuration('a#b')];
+
+      expect(
+        await configManagerDeleteCors(undefined, true, false, { deep: true })
+      ).toBe(false);
+
+      expect(summary()[0].split('\n')[0]).toBe(
+        '1 of 3 CORS operations failed:'
+      );
+    });
+  });
+
   test('a real run says in its closing lines what was done, and that the CORS service entry was not changed', async () => {
     idmFilter = filter({ urlPatterns: ['/x'] });
 
