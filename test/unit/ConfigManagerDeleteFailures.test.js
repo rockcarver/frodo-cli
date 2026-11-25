@@ -504,7 +504,8 @@ const CASES = [
 ];
 
 // every relative import of the modules under test becomes spies, except the
-// run tracker, the cause helper and the modules under test themselves
+// run tracker, the cause helper, the plain-name rule and the modules under test
+// themselves
 const modulesUnderTest = new Set(
   CASES.map((c) => path.resolve(root, c.file).replace(/\.ts$/, ''))
 );
@@ -519,7 +520,8 @@ for (const file of new Set(CASES.map((c) => c.file))) {
     if (
       modulesUnderTest.has(target) ||
       target.endsWith('/utils/OperationRun') ||
-      target.endsWith('/utils/ErrorCause')
+      target.endsWith('/utils/ErrorCause') ||
+      target.endsWith('/utils/PlainName')
     ) {
       continue;
     }
