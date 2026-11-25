@@ -55,7 +55,7 @@ export default function setup() {
     .addOption(
       new Option(
         '--force',
-        'Delete the connector mapping with -i although other objects still name it. It deletes the connector mapping and clears no reference: every object that names it is left as it is, is listed, and names a connector mapping that does not exist afterwards. It also deletes it when not every source of what names it could be read. Only with -i.'
+        'Delete the connector mapping with -i although other objects still name it. It deletes the connector mapping and clears no reference itself: every object that names it is listed, and names a connector mapping that does not exist afterwards. A schedule, an application or a mapping/<name> configuration that names it is not written; the other entries of the sync configuration are written again by the library. It also deletes it when not every source of what names it could be read. Only with -i.'
       )
     )
     .addHelpText(
@@ -80,7 +80,7 @@ export default function setup() {
         c.command(
           `  $ frodo config-manager delete connector-mappings -i ${s.mappingId} -d ${s.connId}\n`
         ) +
-        `  Delete a connector mapping that other objects name, and leave them as they are, without asking:\n` +
+        `  Delete a connector mapping that other objects name, and clear no reference, without asking:\n` +
         c.command(
           `  $ frodo config-manager delete connector-mappings -i ${s.mappingId} --force -y ${s.connId}\n`
         )
@@ -152,7 +152,7 @@ export default function setup() {
         options.force &&
         !(await confirmProceed({
           ...guardOptions,
-          warning: `Connector mapping '${options.connectorMappingId}' is deleted, and no reference to it is cleared. This cannot be undone.`,
+          warning: `Connector mapping '${options.connectorMappingId}' is deleted, and this command clears no reference to it. This cannot be undone.`,
           showPlan,
         }))
       ) {

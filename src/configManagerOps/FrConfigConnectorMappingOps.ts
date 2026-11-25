@@ -317,7 +317,7 @@ export function readMappingFromDirectory(
 
 /** What a delete of mappings needs to know besides the name, the dry run and `--allow-failures`. */
 export type DeleteMappingsOptions = {
-  /** Delete a named mapping although other objects still name it. Nothing but the mapping is changed. */
+  /** Delete a named mapping although other objects still name it; this command clears no reference to it. */
   force?: boolean;
   /** With `dryRun`: the dry run is the plan that is shown before a question, so its text says plan and not dry run. */
   plan?: boolean;
@@ -399,7 +399,7 @@ function namedPlanLines(
   const lines = [`${asPlan ? 'Plan' : 'Dry run'}: Deleting mapping: ${name}`];
   if (references.length > 0) {
     lines.push(
-      '  No reference to it would be cleared: these would still name a mapping that does not exist afterwards:',
+      '  This command clears no reference: these would name a mapping that does not exist afterwards:',
       ...references.map((reference) => `    - ${holderLine(reference)}`)
     );
   }
@@ -550,8 +550,8 @@ async function deleteListedMapping(
  * cannot be anything but a mapping that is listed. Before it is deleted, the
  * library is asked what still names it: a schedule, another mapping or an
  * application. Anything that does stops the delete, until `force` is given; then
- * the mapping is deleted and no reference to it is cleared: every holder is left
- * as it is and listed. A source that cannot be read stops it too, and `force`
+ * the mapping is deleted and this command clears no reference to it: every
+ * holder is listed. A source that cannot be read stops it too, and `force`
  * goes on after saying that it was not checked.
  *
  * The library deletes a mapping by writing the whole sync configuration again
@@ -661,7 +661,7 @@ async function deleteNamedMapping(
       ? '\nAn application owns the mapping that it names: config-manager delete applications removes both.'
       : '';
     printMessage(
-      `${dryRun ? 'Dry run: the delete would be refused. ' : ''}Mapping '${printable(name)}' is still named by:\n${namedByLines(found).join('\n')}${owner}\nNothing was deleted. --force deletes it anyway: it deletes the mapping and clears no reference, every object above is left as it is and names a mapping that does not exist afterwards.`,
+      `${dryRun ? 'Dry run: the delete would be refused. ' : ''}Mapping '${printable(name)}' is still named by:\n${namedByLines(found).join('\n')}${owner}\nNothing was deleted. --force deletes it anyway: it deletes the mapping and clears no reference itself, and every object above names a mapping that does not exist afterwards.`,
       'error'
     );
     return false;
@@ -683,7 +683,7 @@ async function deleteNamedMapping(
   const deleted = await deleteListedMapping(run, listed);
   if (deleted && found.length > 0) {
     printMessage(
-      `No reference was cleared: these still name a mapping that does not exist:\n${namedByLines(found).join('\n')}`,
+      `These named the mapping before it was deleted; this command clears no reference:\n${namedByLines(found).join('\n')}`,
       'warn'
     );
   }

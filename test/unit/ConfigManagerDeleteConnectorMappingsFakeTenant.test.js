@@ -558,6 +558,11 @@ suite('config-manager delete connector-mappings (fake tenant)', () => {
             "  - schedule 'schedule/reconA' (invokeContext.mapping), hard",
           ].sort()
         );
+        // the sentence that a user reads when deciding on --force says what it does, and no more than that
+        expect(output).toContain(
+          '--force deletes it anyway: it deletes the mapping and clears no reference itself'
+        );
+        expect(output).not.toMatch(/and nothing else|left as it is/);
         expect(changes()).toEqual([]);
         for (const [id, was] of Object.entries(before)) {
           expect([id, await held(id)]).toEqual([id, was]);
@@ -734,7 +739,7 @@ suite('config-manager delete connector-mappings (fake tenant)', () => {
         expect(links.links).toBe('mapA');
         expect(output).toContain('Deleted mapping: mapA');
         expect(output).toContain(
-          'No reference was cleared: these still name a mapping that does not exist:'
+          'These named the mapping before it was deleted; this command clears no reference:'
         );
         expect(output).toContain("schedule 'schedule/reconA'");
         expect(output).toContain("mapping 'mapping/newMap'");
@@ -753,7 +758,7 @@ suite('config-manager delete connector-mappings (fake tenant)', () => {
 
         expect(code).toBe(0);
         expect(output).toContain(
-          'No reference to it would be cleared: these would still name a mapping that does not exist afterwards:'
+          'This command clears no reference: these would name a mapping that does not exist afterwards:'
         );
         expect(changes()).toEqual([]);
       },

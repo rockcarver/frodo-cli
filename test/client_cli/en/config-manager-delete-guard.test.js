@@ -308,7 +308,7 @@ describe('a delete of connector mappings', () => {
   test.each([
     'frodo config-manager delete connector-mappings -i mapA --force',
     'frodo config-manager delete connector-mappings -n mapA --force',
-  ])('"%s" changes nothing but the mapping, yet is refused before the login without -y', async (command) => {
+  ])('"%s" is refused before the login without -y, as every forced delete is', async (command) => {
     const { code, stderr } = await run(command);
 
     expect(code).toBe(1);

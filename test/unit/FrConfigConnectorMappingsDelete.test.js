@@ -226,7 +226,7 @@ beforeEach(() => {
 });
 
 describe('a named delete: the mapping is looked up in the list of the sync configuration', () => {
-  test('deletes the listed id, with one delete and nothing else, and says so', async () => {
+  test('deletes the listed id, with one delete and no other call of the library, and says so', async () => {
     expect(await configManagerDeleteMappings('mapB')).toBe(true);
 
     // the listed id, not the typed text
@@ -405,6 +405,11 @@ describe('a named delete is refused while something names the mapping', () => {
     expect(output()).toContain(
       'An application owns the mapping that it names: config-manager delete applications removes both.'
     );
+    // the sentence that a user reads when deciding on --force says what it does, and no more than that
+    expect(output()).toContain(
+      '--force deletes it anyway: it deletes the mapping and clears no reference itself, and every object above names a mapping that does not exist afterwards.'
+    );
+    expect(output()).not.toMatch(/and nothing else|left as it is/);
   });
 
   test('without an application the line about applications is not there', async () => {
@@ -461,11 +466,11 @@ describe('a named delete with --force', () => {
     expect(held()).toEqual(['mapB', 'mapC']);
     expect(output()).toContain('Deleted mapping: mapA');
     expect(output()).toContain(
-      'No reference was cleared: these still name a mapping that does not exist:'
+      'These named the mapping before it was deleted; this command clears no reference:'
     );
     expect(output()).toContain("schedule 'schedule/reconA'");
     expect(output()).toContain("mapping 'sync/mapB'");
-    expect(levelOf('No reference was cleared')).toBe('warn');
+    expect(levelOf('These named the mapping')).toBe('warn');
     // the text never says that nothing else was changed: the library writes the other entries of the sync configuration again
     expect(output()).not.toMatch(/nothing else|left alone/i);
     // the holders are not written: no call of the library except the three
@@ -504,7 +509,7 @@ describe('a named delete with --force', () => {
     ).toBe(false);
 
     expect(output()).toContain('1 of 1 mapping failed');
-    expect(output()).not.toContain('No reference was cleared');
+    expect(output()).not.toContain('These named the mapping');
     expect(held()).toEqual(NAMES);
   });
 

@@ -39,12 +39,15 @@ Options:
   --force                            Delete the connector mapping with -i
                                      although other objects still name it. It
                                      deletes the connector mapping and clears no
-                                     reference: every object that names it is
-                                     left as it is, is listed, and names a
-                                     connector mapping that does not exist
-                                     afterwards. It also deletes it when not
-                                     every source of what names it could be
-                                     read. Only with -i.
+                                     reference itself: every object that names
+                                     it is listed, and names a connector mapping
+                                     that does not exist afterwards. A schedule,
+                                     an application or a mapping/<name>
+                                     configuration that names it is not written;
+                                     the other entries of the sync configuration
+                                     are written again by the library. It also
+                                     deletes it when not every source of what
+                                     names it could be read. Only with -i.
   -i, --connector-mapping-id <name>  Name of the connector mapping to delete,
                                      without the sync/ prefix, matched exactly.
                                      If it is left out, all connector mappings
