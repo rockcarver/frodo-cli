@@ -44,6 +44,7 @@ const fakeAmPath = fileURLToPath(new URL('./FakeAm.mjs', import.meta.url));
  * @param {object[]} [options.features] IDM features the registry serves (`_id`, `installedVersion`, `availableVersions`, `validate`: the body the validate action answers with), reads and validate only (default: the registry answers 404)
  * @param {{ managed?: object, 'repo.ds'?: object }} [options.idmConfig] the IDM configuration `config/managed` and `config/repo.ds` answer with on a read; a write to them answers 500 (default: they answer 404)
  * @param {Record<string, object>} [options.idmEntities] IDM configuration objects by config id (`sync`, `provisioner.openicf/xyz`, ...) the fake serves on a read, replaces on a write (`_id` taken from the URL) and removes on a delete (it answers the object, `404` for an id it does not hold), and lists as IDM does (`GET /openidm/config?_queryFilter=true` or `_id sw '<prefix>'`, a string prefix that is case sensitive, with an exact total and `_fields` for top-level fields; any other filter answers 400); the request log holds every body (default: they answer 404)
+ * @param {Record<string, Record<string, object>>} [options.idmSchemaProperties] the relationship properties of the managed types, as `{ <type>: { <property>: <definition> } }`, which the fake serves as `GET /openidm/schema/managed/<type>/properties/<property>` and stores as `PUT` (the body replaces the definition; a type and a property that are not there are created; a request without `accept-api-version: resource=2.0` answers 400); `{}` is a tenant that holds none, and without the option the route answers 404, as an IDM below 7.5 does; a write that must fail is one of `failRequests` (default: 404)
  * @param {Record<string, object[]>} [options.managedObjects] managed objects by type name (`alpha_application`, the application records of realm alpha), as `{ <type>: [objects] }`, which the fake serves as `GET /openidm/managed/<type>?_queryFilter=true` with `_pageSize`, `_pagedResultsCookie` (the next offset, `null` on the last page) and `_fields` (the objects reduced to `_id`, `_rev` and those fields; every object is answered with a `_rev`, its own or a hash of its content); any other filter, a page size or a cookie that is not a number answers 400; a read of one object and every write are not served, and a type that is not in the object is answered by the routes after it (the users, then 404) (default: they answer as they do without the option)
  * @param {Record<string, Record<string, string>>} [options.journeys] journeys the fake serves, reads and deletes, as `{ <journey>: { <node id>: <node type> } }` (default: the routes answer 404)
  * @param {{ location: 'hosted' | 'remote', entityId: string, config: object }[]} [options.samlProviders] SAML entity providers served as AM serves them: stubs with the location, reads without a location, a PUT that replaces the config; a path with a wrong location answers 404 (default: the routes answer as they do without the option)
@@ -90,6 +91,7 @@ export async function startFakeAm({
   features,
   idmConfig,
   idmEntities,
+  idmSchemaProperties,
   managedObjects,
   emptyCollections,
   journeys,
@@ -203,6 +205,14 @@ export async function startFakeAm({
             FAKE_AM_IDM_ENTITIES_FILE: written(
               'idm-entities.json',
               idmEntities
+            ),
+          }
+        : {}),
+      ...(idmSchemaProperties
+        ? {
+            FAKE_AM_IDM_SCHEMA_PROPERTIES_FILE: written(
+              'idm-schema-properties.json',
+              idmSchemaProperties
             ),
           }
         : {}),
