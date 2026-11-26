@@ -9,7 +9,7 @@ import {
 } from '@rockcarver/frodo-lib';
 import { sameOnAnyFileSystem } from './ConfigTreePath';
 import {
-  asError,
+  asSetError,
   codeOf,
   containerOf,
   resolveRoot,
@@ -63,8 +63,14 @@ export type FileSetWriter = {
    * On a file system that ignores case, a file that is there under another spelling than the set gives
    * is replaced under the spelling of the set (the old entry is removed just before the rename, so a
    * rename that then fails leaves neither the old file nor the new one, and says so in `failed`).
-   * On Windows, a file whose path has a part that is a name of a device (`con`, `nul`, `com1`, ...) or
-   * that ends with a dot or a space fails; no name is changed.
+   * Two paths of the set that end on one file of the disk (a link that leads to the same folder, or two
+   * names that the disk takes for one and the check before the write does not know, such as a sharp s and
+   * `ss`): the later one fails and says so, the first is left as it is, and a file of the set is never
+   * removed or written over to make room for another.
+   *
+   * On Windows, a file whose path has a part that is a name of a device (`con`, `nul`, `com1`, `lpt1`, the
+   * same with a superscript digit, `conin$`, `conout$`, with or without an extension), that holds a colon
+   * (it would address a stream of another file) or that ends with a dot or a space fails; no name is changed.
    *
    * Every owned folder is made, an empty one too. With `clean`, and only when no file and no folder
    * failed, the entries below each owned folder that the set does not list, and that are not a folder on
@@ -86,8 +92,9 @@ export type FileSetWriter = {
   ): Promise<FileSetWriteResult>;
 };
 
-/** What a name of Windows cannot be: a device (with or without an extension). */
-const WINDOWS_DEVICE = /^(?:con|prn|aux|nul|com[1-9]|lpt[1-9])(?:\..*)?$/i;
+/** What a name of Windows cannot be: a device (with or without an extension), the superscript digits that count as digits for it, and the console devices. */
+const WINDOWS_DEVICE =
+  /^(?:con|prn|aux|nul|com[1-9\u00b9\u00b2\u00b3]|lpt[1-9\u00b9\u00b2\u00b3]|conin\$|conout\$)(?:\..*)?$/i;
 
 /**
  * A path as a message shows it.
@@ -188,7 +195,7 @@ function checkFileSet(fileSet: VirtualFileSet): void {
 function checkWindowsNames(parts: string[]): void {
   if (process.platform !== 'win32') return;
   for (const part of parts) {
-    if (WINDOWS_DEVICE.test(part) || /[. ]$/.test(part)) {
+    if (WINDOWS_DEVICE.test(part) || /[. ]$/.test(part) || part.includes(':')) {
       throw new Error(
         `The name ${quoted(part)} cannot be the name of a file on Windows.`
       );
@@ -249,10 +256,17 @@ async function ensureFolder(
  * Writes one file: into a temporary file next to it, then renamed onto it.
  * @param {string} container the real path of the container
  * @param {VirtualFile} file the file
+ * @param {Map<string, string>} claimed the files that this call wrote so far: the real path of each, to its path in the set
+ * @param {Set<string>} listed every path of a file of the set
  * @returns {Promise<string>} the real path of the file that was written (the path of the set below the container, unless a link is on the way)
  * @throws {Error} if the file cannot be written
  */
-async function writeOne(container: string, file: VirtualFile): Promise<string> {
+async function writeOne(
+  container: string,
+  file: VirtualFile,
+  claimed: Map<string, string>,
+  listed: Set<string>
+): Promise<string> {
   const parts = file.path.split('/');
   checkWindowsNames(parts);
   const name = parts[parts.length - 1];
@@ -276,6 +290,24 @@ async function writeOne(container: string, file: VirtualFile): Promise<string> {
     }
     const spelled = await spellingOnDisk(folder, name, existing);
     if (spelled !== name) stale = path.join(folder, spelled);
+  }
+  // Two paths of the set that end on one file of the disk (a link that leads to the same folder, or two names that
+  // the disk takes for one and the key of the set does not, a sharp s and `ss`): the later one fails, and a file of
+  // the set that is there is never removed or written over to make room for it.
+  const staleInSet =
+    stale === undefined
+      ? undefined
+      : [...parts.slice(0, -1), path.basename(stale)].join('/');
+  const sameAs =
+    claimed.get(target) ??
+    (stale === undefined ? undefined : claimed.get(stale)) ??
+    (staleInSet !== undefined && listed.has(staleInSet)
+      ? staleInSet
+      : undefined);
+  if (sameAs !== undefined) {
+    throw new Error(
+      `The path '${file.path}' is the same file as '${sameAs}' on this file system.`
+    );
   }
   // the temporary file is made with the mode that the file will have (the umask still takes bits away), so
   // that the new text is never in a file that is wider than the file it becomes; `wx` fails for a name that is
@@ -309,6 +341,7 @@ async function writeOne(container: string, file: VirtualFile): Promise<string> {
     // the stale spelling goes just before the rename, so the file is missing for as short a time as possible
     if (stale !== undefined) await fs.promises.unlink(stale);
     await fs.promises.rename(temporary, target);
+    claimed.set(target, file.path);
   } catch (error) {
     await fs.promises.rm(temporary, { force: true }).catch(() => undefined);
     throw error;
@@ -373,7 +406,10 @@ async function prune(
     } catch (error) {
       context.failed.push({
         path: entryPath,
-        error: new FrodoError(`Error cleaning ${entryPath}`, asError(error)),
+        error: new FrodoError(
+          `Error cleaning ${entryPath}`,
+          asSetError(error, context.container)
+        ),
       });
     }
   }
@@ -469,13 +505,21 @@ export function fsFileSetWriter(root: string): FileSetWriter {
       const failedWith = (what: string, filePath: string, error: unknown) =>
         result.failed.push({
           path: filePath,
-          error: new FrodoError(`Error ${what} ${filePath}`, asError(error)),
+          error: new FrodoError(
+            `Error ${what} ${filePath}`,
+            asSetError(error, container)
+          ),
         });
       // where each file went (a link on the way may make it another place than the path says)
       const wroteTo = new Map<string, string>();
+      const claimed = new Map<string, string>();
+      const listed = new Set(fileSet.files.map((one) => one.path));
       for (const file of fileSet.files) {
         try {
-          wroteTo.set(file.path, await writeOne(container, file));
+          wroteTo.set(
+            file.path,
+            await writeOne(container, file, claimed, listed)
+          );
           result.written.push(file.path);
         } catch (error) {
           failedWith('writing', file.path, error);

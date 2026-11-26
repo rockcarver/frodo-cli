@@ -384,3 +384,13 @@ export function ignoresCase(folder) {
     fs.rmSync(probe, { force: true });
   }
 }
+
+/**
+ * Whether a unix socket can be made in a folder like the ones of these tests: the path of a socket is limited to
+ * about 100 bytes, and the temporary folder of a machine can be longer than that.
+ * @returns {boolean} true if the longest socket path of a test fits
+ */
+export function socketsFit() {
+  const longest = path.join(os.tmpdir(), 'frodo-fileset-XXXXXX', 'root', 'd', 's');
+  return process.platform !== 'win32' && Buffer.byteLength(longest) < 100;
+}

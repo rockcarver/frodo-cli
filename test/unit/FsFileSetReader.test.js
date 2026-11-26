@@ -21,6 +21,7 @@ import {
   makeTemporaryFolder,
   outsideIsUntouched,
   removeTemporaryFolder,
+  socketsFit,
 } from './FsFileSetFixtures.js';
 
 /**
@@ -38,6 +39,8 @@ import {
 const WINDOWS = process.platform === 'win32';
 const IS_SUPERUSER = typeof process.getuid === 'function' && process.getuid() === 0;
 const linkTest = WINDOWS ? test.skip : test;
+// a unix socket has a path of at most about 100 bytes: where the temporary folder is longer the test cannot be made
+const socketTest = socketsFit() ? test : test.skip;
 const unprivilegedTest = WINDOWS || IS_SUPERUSER ? test.skip : test;
 
 /** Whether the file system of the temporary folder ignores case, found once. */
@@ -211,6 +214,32 @@ describe('a failure of the file system in the middle of a path', () => {
     }
   });
 
+  unprivilegedTest('the error names the path of the set, not the folders of the machine', async () => {
+    put('d/inside/x.json', 'x');
+    fs.chmodSync(path.join(root, 'd'), 0o000);
+    try {
+      const error = await fsFileSetReader(root).readFile('d/inside/x.json').catch((thrown) => thrown);
+
+      const said = error.getCombinedMessage();
+      expect(said).toContain('d/inside/x.json');
+      expect(said).not.toContain(layout.base);
+      expect(said).not.toContain(fs.realpathSync(layout.base));
+      expect(error.originalErrors[0].code).toBe('EACCES');
+    } finally {
+      fs.chmodSync(path.join(root, 'd'), 0o700);
+    }
+  });
+
+  unprivilegedTest('the error of a file that cannot be read names the path of the set as well', async () => {
+    put('d/secret.json', 'x');
+    fs.chmodSync(path.join(root, 'd', 'secret.json'), 0o000);
+
+    const error = await fsFileSetReader(root).readFile('d/secret.json').catch((thrown) => thrown);
+
+    expect(error.getCombinedMessage()).toContain('d/secret.json');
+    expect(error.getCombinedMessage()).not.toContain(fs.realpathSync(layout.base));
+  });
+
   test('a root below a file is a root that is not there', async () => {
     const file = path.join(layout.base, 'file.txt');
     fs.writeFileSync(file, 'x');
@@ -298,6 +327,17 @@ describe('listing a directory', () => {
     const names = (await fsFileSetReader(root).listDirectory('d')).map((entry) => entry.name);
 
     expect(names).toEqual(['B1.json', '_.json', 'a.json', 'b.json', 'c.json']);
+  });
+
+  test('sorts by UTF-16 code unit, not by code point or by UTF-8 bytes: a character above U+FFFF comes before U+E000, and after z', async () => {
+    const astral = '\ud835\udc9c';
+    put(`d/${astral}.json`);
+    put('d/\ue000.json');
+    put('d/z.json');
+
+    const names = (await fsFileSetReader(root).listDirectory('d')).map((entry) => entry.name);
+
+    expect(names).toEqual(['z.json', `${astral}.json`, '\ue000.json']);
   });
 
   test('lists 10,000 entries in less than 2 seconds', async () => {
@@ -491,7 +531,7 @@ describe('reading a file', () => {
     }
   );
 
-  (WINDOWS ? test.skip : test)('a socket rejects, it is not a regular file', async () => {
+  socketTest('a socket rejects, it is not a regular file', async () => {
     fs.mkdirSync(path.join(root, 'd'));
     const socketPath = path.join(root, 'd', 's');
     const server = net.createServer();

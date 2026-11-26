@@ -8,7 +8,7 @@ import {
 } from '@rockcarver/frodo-lib';
 import { assertInside } from './ConfigTreePath';
 import {
-  asError,
+  asSetError,
   codeOf,
   containerOf,
   resolveRoot,
@@ -68,10 +68,15 @@ export function fsFileSetReader(root: string): FileSetReader {
         if (codeOf(error) === 'ENOENT') return undefined;
         if (codeOf(error) === 'ENOTDIR') {
           throw new Error(`The path '${setPath}' is a file, not a directory.`, {
-            cause: error,
+            // the error without the folders of the machine, not the caught error itself
+            // eslint-disable-next-line preserve-caught-error
+            cause: asSetError(error, base),
           });
         }
-        throw new FrodoError(`Error reading ${setPath}`, asError(error));
+        throw new FrodoError(
+          `Error reading ${setPath}`,
+          asSetError(error, base)
+        );
       }
       const entries: FileSetEntry[] = [];
       for (const dirent of dirents) {
@@ -126,7 +131,10 @@ export function fsFileSetReader(root: string): FileSetReader {
         if (codeOf(error) === 'ENOENT') return undefined;
         // an error of ours (a folder, a FIFO) has no system code and is thrown as it is
         if (codeOf(error) === undefined) throw error;
-        throw new FrodoError(`Error reading ${setPath}`, asError(error));
+        throw new FrodoError(
+          `Error reading ${setPath}`,
+          asSetError(error, base)
+        );
       }
       try {
         // `ignoreBOM` keeps the byte order mark in the text: a file is read byte for byte
@@ -138,7 +146,7 @@ export function fsFileSetReader(root: string): FileSetReader {
         throw new FrodoError(
           `Error reading ${setPath}`,
           new Error('The file is not valid UTF-8 text.', {
-            cause: asError(error),
+            cause: asSetError(error, base),
           })
         );
       }
@@ -159,7 +167,10 @@ async function walkOf(container: string, setPath: string): Promise<Walked> {
     return await walk(container, setPath.split('/'));
   } catch (error) {
     if (codeOf(error) === undefined) throw error;
-    throw new FrodoError(`Error reading ${setPath}`, asError(error));
+    throw new FrodoError(
+      `Error reading ${setPath}`,
+      asSetError(error, container)
+    );
   }
 }
 

@@ -50,6 +50,31 @@ export function asError(error: unknown): Error {
 }
 
 /**
+ * An error of the file system, as an error that does not tell the folders of the machine: the system names
+ * the whole path in its message (`EACCES: permission denied, open '/home/person/work/config/a.json'`), and the
+ * container of the set, which the caller gave, is written as `.` (`open './a.json'`). The code, the number
+ * and the call of the system are kept.
+ * @param {unknown} error what was thrown
+ * @param {string} container the real path of the container
+ * @returns {Error} the error itself when its text holds no folder of the container, else a copy with the path of the set
+ */
+export function asSetError(error: unknown, container: string): Error {
+  const original = asError(error);
+  const text = original.message.split(container).join('.');
+  if (text === original.message) return original;
+  const copy = new Error(text);
+  copy.name = original.name;
+  for (const key of ['code', 'errno', 'syscall']) {
+    if (key in original) {
+      (copy as unknown as Record<string, unknown>)[key] = (
+        original as unknown as Record<string, unknown>
+      )[key];
+    }
+  }
+  return copy;
+}
+
+/**
  * The folder of an adapter as the caller named it, resolved against the working directory. An empty
  * name, or one that is only white space, is refused: `path.resolve('')` is the working directory, and a
  * caller that forgot to set the folder would write (and with a clean, remove) there.
@@ -177,37 +202,48 @@ export async function walk(
   for (const [index, part] of parts.entries()) {
     const candidate = path.join(current, part);
     const inSet = parts.slice(0, index + 1).join('/');
-    let real: string;
-    try {
-      real = await fs.promises.realpath(candidate);
-    } catch (error) {
-      const code = codeOf(error);
-      if (code === 'ELOOP') {
-        throw new Error(`The link '${inSet}' leads round in a loop.`, {
-          cause: error,
-        });
-      }
-      // the parts above this one exist and are folders (or the walk would have stopped), so the part above is the file
-      if (code === 'ENOTDIR') {
-        return { state: 'notDirectory', at: parts.slice(0, index).join('/') };
-      }
-      if (code !== 'ENOENT') throw error;
+    let real: string | undefined;
+    for (let look = 0; real === undefined; look++) {
       try {
-        await fs.promises.lstat(candidate);
-      } catch (lstatError) {
-        if (codeOf(lstatError) === 'ENOENT') {
+        real = await fs.promises.realpath(candidate);
+      } catch (error) {
+        const code = codeOf(error);
+        if (code === 'ELOOP') {
+          throw new Error(`The link '${inSet}' leads round in a loop.`, {
+            // the error without the folders of the machine, not the caught error itself
+            // eslint-disable-next-line preserve-caught-error
+            cause: asSetError(error, container),
+          });
+        }
+        // the parts above this one exist and are folders (or the walk would have stopped), so the part above is the file
+        if (code === 'ENOTDIR') {
           return {
-            state: 'missing',
-            existing: current,
-            rest: parts.slice(index),
+            state: 'notDirectory',
+            at: parts.slice(0, index).join('/'),
           };
         }
-        throw lstatError;
+        if (code !== 'ENOENT') throw error;
+        try {
+          await fs.promises.lstat(candidate);
+        } catch (lstatError) {
+          if (codeOf(lstatError) === 'ENOENT') {
+            return {
+              state: 'missing',
+              existing: current,
+              rest: parts.slice(index),
+            };
+          }
+          throw lstatError;
+        }
+        // the entry is there, though the look did not find it: another process may have made it just now, so
+        // the part is looked at once more; only when the target is still not there is it a link that leads nowhere
+        if (look >= 1) {
+          throw new Error(`The link '${inSet}' leads nowhere.`, {
+            // eslint-disable-next-line preserve-caught-error
+            cause: asSetError(error, container),
+          });
+        }
       }
-      // the entry is there but its target is not
-      throw new Error(`The link '${inSet}' leads nowhere.`, {
-        cause: error,
-      });
     }
     if (real !== candidate) {
       // a link, or an entry that is there under another spelling
