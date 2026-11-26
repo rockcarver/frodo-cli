@@ -9,6 +9,7 @@ import {
 } from '@rockcarver/frodo-lib';
 import { sameOnAnyFileSystem } from './ConfigTreePath';
 import {
+  asError,
   asSetError,
   codeOf,
   containerOf,
@@ -81,7 +82,11 @@ export type FileSetWriter = {
    * set, so it runs only where the names are the places: when an owned folder is behind a link, or a file
    * was written below one through a link (a link to the folder itself, to a folder above it, or to the
    * same place under another owned folder), nothing is cleaned and each such folder is in `failed` with
-   * the reason; the files are written all the same.
+   * the reason; the files are written all the same. The check is made once for every owned folder, and each folder is
+   * looked at again right before it is listed and right before each removal in it: a folder that was swapped for a link
+   * in between is not cleaned further and is in `failed`. What a removal does to an entry is told at the function that
+   * does it; one window stays, between the last look and the removal of one entry, which no call of Node can close.
+   * Once a file is written, nothing that concerns one folder or one file rejects the call: it is a line of `failed`.
    * @param {VirtualFileSet} fileSet the files, and the folders that the set owns
    * @param {{ clean?: boolean }} options `clean`: remove what an owned folder holds that the set does not list
    * @returns {Promise<FileSetWriteResult>} what was written, what failed, what was removed
@@ -362,8 +367,43 @@ async function writeOne(
 }
 
 /**
+ * Looks at a folder of a clean once more: its real path must be the path that the clean has for it (the real
+ * path of the container and the names of the set). That holds when no link lies on the way, the folder itself
+ * included, and every part is spelled as the disk has it. A folder that fails the look was changed by someone while
+ * it was cleaned.
+ * @param {string} real the path that the clean has for the folder
+ * @param {string} inSet the path of the folder in the set
+ * @throws {Error} if the folder is gone or is behind a link now, or cannot be looked at
+ */
+async function assertStillThere(real: string, inSet: string): Promise<void> {
+  let now: string | undefined;
+  try {
+    now = await fs.promises.realpath(real);
+  } catch (error) {
+    if (codeOf(error) !== 'ENOENT' && codeOf(error) !== 'ENOTDIR') throw error;
+  }
+  if (now !== real) {
+    throw new Error(
+      `The folder '${inSet}' changed while it was cleaned (it is gone, or it is behind a link now), so the rest of it is not cleaned.`
+    );
+  }
+}
+
+/**
  * Removes what a folder holds that the set does not list, and goes down into the folders on the way
  * to a listed file or to an owned folder.
+ *
+ * A folder is looked at again (`assertStillThere`) right before it is listed, and right before each removal in it, so
+ * that a link put at the folder or above it after the check that opened the clean is met and not followed; the
+ * clean of that folder then stops, and the caller reports it. What a removal does is decided by what the entry is when
+ * it is removed, not by what the listing said: an entry that the set lists as a file is left alone and not looked at;
+ * a folder on the way to a listed file or to an owned folder is entered (after the look); every other entry is removed
+ * with `rm`, which looks at the entry itself (`lstat`) and does not follow what it finds: a file, a FIFO, a socket
+ * and a link (of a file, of a folder, or to nothing) are unlinked, so a link is removed and what it leads to is left
+ * alone, and a folder is emptied the same way, entry by entry. An entry that became a link after the listing is removed
+ * as a link. What stays open is the time between the last look at the folder and the removal of one entry: no call of
+ * Node removes relative to a folder that is held open, so a person who can swap the folder itself for a link in that
+ * time can still win the race.
  * @param {object} context what the clean knows
  * @param {string} context.container the real path of the container
  * @param {Set<string>} context.files the paths of the listed files
@@ -371,8 +411,9 @@ async function writeOne(
  * @param {Set<string>} context.folders the folders on the way to a listed file, and the owned folders
  * @param {string[]} context.removed gets the paths that were removed
  * @param {{ path: string; error: FrodoError }[]} context.failed gets the removals that failed
- * @param {string} real the real path of the folder
+ * @param {string} real the path of the folder that the clean has: the real path of the container and the names of the set
  * @param {string} inSet the path of the folder in the set
+ * @throws {Error} if the folder is not as the clean has it, or cannot be listed
  */
 async function prune(
   context: {
@@ -386,15 +427,16 @@ async function prune(
   real: string,
   inSet: string
 ): Promise<void> {
+  await assertStillThere(real, inSet);
   const dirents = await fs.promises.readdir(real, { withFileTypes: true });
   const names = dirents
     .map((dirent) => ({ name: dirent.name, dirent }))
     .sort((a, b) => (a.name < b.name ? -1 : a.name > b.name ? 1 : 0));
   for (const { name, dirent } of names) {
     const entryPath = `${inSet}/${name}`;
+    if (context.files.has(entryPath)) continue;
     const full = path.join(real, name);
     // a link is never entered: `isDirectory` of a dirent does not follow it
-    if (context.files.has(entryPath)) continue;
     if (context.folders.has(entryPath)) {
       if (dirent.isDirectory()) {
         await prune(context, full, entryPath);
@@ -412,6 +454,7 @@ async function prune(
       );
       if (same) continue;
     }
+    await assertStillThere(real, inSet);
     try {
       await fs.promises.rm(full, { recursive: true, force: true });
       context.removed.push(entryPath);
@@ -452,33 +495,43 @@ async function isSameEntry(a: string, b: string): Promise<boolean> {
  * went there through a link under another name (a link to the folder itself, to a folder above it, or to
  * the same place under another owned folder). If one owned folder is refused, none is cleaned: a pull that
  * cannot say what it owns keeps what was there.
+ *
+ * A folder that cannot be looked at is a refusal with the error, not a throw: the files are written by now, and the
+ * caller needs the result.
  * @param {string} container the real path of the container
  * @param {string[]} ownedFolders the owned folders of the set
  * @param {Map<string, string>} wroteTo the real path of every file that was written, by its path in the set
- * @returns {Promise<{ owned: string; reason: string }[]>} the folders that are refused, none when all can be cleaned
+ * @returns {Promise<{ owned: string; error: Error }[]>} the folders that are refused, none when all can be cleaned
  */
 async function refusalsOfClean(
   container: string,
   ownedFolders: string[],
   wroteTo: Map<string, string>
-): Promise<{ owned: string; reason: string }[]> {
-  const refusals: { owned: string; reason: string }[] = [];
+): Promise<{ owned: string; error: Error }[]> {
+  const refusals: { owned: string; error: Error }[] = [];
+  const refuse = (owned: string, reason: string) =>
+    refusals.push({ owned, error: new Error(reason) });
   for (const owned of ownedFolders) {
-    const parts = owned.split('/');
-    const direct = path.join(container, ...parts);
-    const walked = await walk(container, parts);
+    const direct = path.join(container, ...owned.split('/'));
+    let walked: Awaited<ReturnType<typeof walk>>;
+    try {
+      walked = await walk(container, owned.split('/'));
+    } catch (error) {
+      refusals.push({ owned, error: asError(error) });
+      continue;
+    }
     if (walked.state !== 'found') {
-      refusals.push({
+      refuse(
         owned,
-        reason: `The folder '${owned}' is not there as the set names it, so it is not cleaned.`,
-      });
+        `The folder '${owned}' is not there as the set names it, so it is not cleaned.`
+      );
       continue;
     }
     if (walked.real !== direct) {
-      refusals.push({
+      refuse(
         owned,
-        reason: `The folder '${owned}' is behind a link, so it is not cleaned.`,
-      });
+        `The folder '${owned}' is behind a link, so it is not cleaned.`
+      );
       continue;
     }
     for (const [filePath, real] of wroteTo) {
@@ -486,10 +539,10 @@ async function refusalsOfClean(
         real !== path.join(container, ...filePath.split('/')) &&
         real.startsWith(direct + path.sep)
       ) {
-        refusals.push({
+        refuse(
           owned,
-          reason: `The file '${filePath}' is written below it through a link, so it is not cleaned.`,
-        });
+          `The file '${filePath}' is written below it through a link, so it is not cleaned.`
+        );
         break;
       }
     }
@@ -551,8 +604,8 @@ export function fsFileSetWriter(root: string): FileSetWriter {
         options.clean && result.failed.length === 0
           ? await refusalsOfClean(container, ownedFolders, wroteTo)
           : [];
-      for (const { owned, reason } of refusals) {
-        failedWith('cleaning', owned, new Error(reason));
+      for (const { owned, error } of refusals) {
+        failedWith('cleaning', owned, error);
       }
       if (options.clean && result.failed.length === 0) {
         const files = new Set(fileSet.files.map((file) => file.path));
@@ -577,10 +630,8 @@ export function fsFileSetWriter(root: string): FileSetWriter {
         }
         for (const owned of ownedFolders) {
           try {
-            const walked = await walk(container, owned.split('/'));
-            if (walked.state !== 'found') {
-              throw new Error(`The folder '${owned}' is not there.`);
-            }
+            // `prune` looks at the folder itself, right before it lists it and before each removal: the check above was
+            // made some time ago, and for all the folders
             await prune(
               {
                 container,
@@ -590,7 +641,7 @@ export function fsFileSetWriter(root: string): FileSetWriter {
                 removed: result.removed,
                 failed: result.failed,
               },
-              walked.real,
+              path.join(container, ...owned.split('/')),
               owned
             );
             result.cleaned.push(owned);

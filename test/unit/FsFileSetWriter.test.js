@@ -1517,3 +1517,327 @@ describe('the rules of Windows, shown with a faked platform', () => {
     expect(exists(accepted)).toBe(true);
   });
 });
+
+describe('a clean looks at a folder again right before it cleans it', () => {
+  /** Where the folders of these tests are, as the writer names them (the real path of the root, and the path of the set). */
+  const placeOf = (relative) => path.join(fs.realpathSync.native(root), ...relative.split('/'));
+
+  /** Puts a link at `at` (a path of the root), in place of whatever is there. */
+  const swapForLink = (at, target) => {
+    fs.rmSync(at, { recursive: true, force: true });
+    fs.symlinkSync(target, at);
+  };
+
+  /**
+   * Runs `scenario` once with nothing swapped, which counts how often `name` of `fs.promises` is called with `watched`,
+   * then once for each of those calls, and in that run `swap` is done just before that call is made. Nothing here
+   * waits for a time: the swap is put at one call of the file system, so a run is the same on every machine.
+   * @param {string} name the function of `fs.promises`
+   * @param {string} watched the first argument that makes a call count
+   * @param {() => void} swap what to do just before the call
+   * @param {(swapped: boolean) => Promise<void>} scenario makes the folders, writes, and checks what must hold
+   * @returns {Promise<number>} how many calls were counted in the run that swapped nothing
+   */
+  const swapAtEveryCall = async (name, watched, swap, scenario) => {
+    const original = fs.promises[name].bind(fs.promises);
+    let calls = 0;
+    let swapOn = 0;
+    jest.spyOn(fs.promises, name).mockImplementation(async (target, ...rest) => {
+      if (String(target) === watched && ++calls === swapOn) swap();
+      return original(target, ...rest);
+    });
+    try {
+      await scenario(false);
+      const total = calls;
+      for (swapOn = 1; swapOn <= total; swapOn++) {
+        calls = 0;
+        await scenario(true);
+      }
+      return total;
+    } finally {
+      jest.restoreAllMocks();
+    }
+  };
+
+  // the folder `a/own` is owned; `a/before.json`, `a/precious.json` and `a/sub/other.json` lie ABOVE it and next to it, and the
+  // set does not list them: a clean that goes through a link at the owned folder (or at the folder `a/own/sub` in it) to `a`
+  // would remove them. `before.json` is listed before `own` and `precious.json` after it: a clean that removes the link `own`
+  // first loses the path of the second but not of the first
+  const prepare = () => {
+    fs.rmSync(root, { recursive: true, force: true });
+    fs.mkdirSync(root);
+    put('a/own/old.json', 'OLD');
+    put('a/own/sub/stale.json', 'STALE');
+    put('a/before.json', 'BEFORE');
+    put('a/precious.json', 'PRECIOUS');
+    put('a/sub/other.json', 'OTHER');
+  };
+  const nothingAboveIsGone = () => {
+    expect(text('a/before.json')).toBe('BEFORE');
+    expect(text('a/precious.json')).toBe('PRECIOUS');
+    expect(text('a/sub/other.json')).toBe('OTHER');
+    expect(outsideIsUntouched(layout)).toBe(true);
+  };
+  /** A folder outside the root that holds one file only, and the set lists a file of that name: a clean of it has nothing to remove. */
+  const onlyListed = (name) => {
+    const folder = path.join(layout.base, 'only-listed');
+    fs.rmSync(folder, { recursive: true, force: true });
+    fs.mkdirSync(folder);
+    fs.writeFileSync(path.join(folder, name), 'THEIRS');
+    return folder;
+  };
+  const FILES = [file('a/own/new.json', 'NEW'), file('a/own/sub/keep.json', 'KEEP')];
+
+  // each row: the folder that is swapped for a link, what the link says, the call of the file system that the swap precedes, and
+  // whether the owned folder must be refused whatever the call: a swap before the check of the folder, or at the first look of
+  // the clean, is met; a swap after the last look and before the listing can only be met by the look before a removal
+  linkTest.each([
+    ['the owned folder, before a look at its real path', 'a/own', '.', 'realpath', true],
+    ['the owned folder, before it is listed', 'a/own', '.', 'readdir', false],
+    ['the owned folder, before a look at its real path, and the link leads out of the root', 'a/own', 'OUTSIDE', 'realpath', true],
+    ['the owned folder, before it is listed, and the link leads out of the root', 'a/own', 'OUTSIDE', 'readdir', false],
+    ['the owned folder, before a look at its real path, and the folder that the link leads to holds nothing to remove', 'a/own', 'ONLY-LISTED', 'realpath', true],
+    ['the owned folder, before a look at its real path, and it is gone, not a link', 'a/own', 'GONE', 'realpath', false],
+    ['the owned folder, before it is listed, and it is gone, not a link', 'a/own', 'GONE', 'readdir', false],
+    ['a folder on the way to a listed file, before a look at its real path', 'a/own/sub', '..', 'realpath', false],
+    ['a folder on the way to a listed file, before it is listed', 'a/own/sub', '..', 'readdir', false],
+    ['a folder on the way to a listed file, before it is listed, and the link leads out of the root', 'a/own/sub', 'OUTSIDE', 'readdir', false],
+  ])(
+    'whatever the call at which %s becomes a link, no file above it or outside the root is removed, and the write does not reject',
+    async (_what, folder, linkTarget, name, refused) => {
+      const watched = placeOf(folder);
+      const target =
+        linkTarget === 'OUTSIDE' ? layout.outside : linkTarget === 'ONLY-LISTED' ? onlyListed('new.json') : linkTarget;
+      const swap = () => (linkTarget === 'GONE' ? fs.rmSync(watched, { recursive: true, force: true }) : swapForLink(watched, target));
+
+      const total = await swapAtEveryCall(name, watched, swap, async (swapped) => {
+        prepare();
+        // a result, whatever was swapped: a swap is a failure of one folder, never a rejection
+        const result = await writer.write(set(FILES, ['a/own']), { clean: true });
+
+        nothingAboveIsGone();
+        // a folder that is a link is not told as cleaned
+        if (swapped && refused) expect(result.cleaned).toEqual([]);
+        if (!swapped) expect(result.cleaned).toEqual(['a/own']);
+        // what is told as removed was removed by the clean: a folder that is gone is not a folder that was cleaned
+        if (swapped && linkTarget === 'GONE') expect(result.removed).toEqual([]);
+      });
+
+      // the run that swapped nothing did make the call that the swap precedes: the rows are not empty
+      expect(total).toBeGreaterThan(0);
+    }
+  );
+
+  linkTest.each([
+    ['a link above it', '..'],
+    ['a link out of the root', 'OUTSIDE'],
+    ['a link to a folder that holds nothing to remove', 'ONLY-LISTED'],
+  ])(
+    'a folder on the way to a listed file that becomes %s right after the folder above it was listed is not entered, and the clean of the owned folder is reported as failed',
+    async (_what, linkTarget) => {
+      prepare();
+      const sub = placeOf('a/own/sub');
+      const target =
+        linkTarget === 'OUTSIDE' ? layout.outside : linkTarget === 'ONLY-LISTED' ? onlyListed('keep.json') : linkTarget;
+      const original = fs.promises.readdir.bind(fs.promises);
+      let swapped = 0;
+      jest.spyOn(fs.promises, 'readdir').mockImplementation(async (folder, ...rest) => {
+        const entries = await original(folder, ...rest);
+        // the listing of the owned folder is made: the folder below it is swapped before the clean goes into it
+        if (String(folder) === placeOf('a/own')) {
+          swapped++;
+          swapForLink(sub, target);
+        }
+        return entries;
+      });
+
+      const result = await writer.write(set(FILES, ['a/own']), { clean: true });
+
+      expect(swapped).toBe(1);
+      nothingAboveIsGone();
+      expect(result.cleaned).toEqual([]);
+      expect(result.failed.map((one) => one.path)).toEqual(['a/own']);
+      expect(result.failed[0].error.getCombinedMessage()).toMatch(/changed while it was cleaned/);
+      expect(fs.lstatSync(path.join(root, 'a', 'own', 'sub')).isSymbolicLink()).toBe(true);
+    }
+  );
+
+  linkTest('a folder that becomes a link after the files are written is reported in `failed`, and the write still gives its result', async () => {
+    const watched = placeOf('a/own');
+    let reported = 0;
+    // one of the looks is the one that decides whether the folder may be cleaned, and one is made while it is cleaned
+    await swapAtEveryCall('realpath', watched, () => swapForLink(watched, layout.outside), async (swapped) => {
+      prepare();
+      const result = await writer.write(set([file('a/own/new.json', 'NEW')], ['a/own']), { clean: true });
+      nothingAboveIsGone();
+      if (swapped && result.failed.some((one) => one.path === 'a/own' && /^Error cleaning/.test(one.error.message))) {
+        reported++;
+        expect(result.cleaned).toEqual([]);
+      }
+    });
+
+    expect(reported).toBeGreaterThanOrEqual(2);
+  });
+
+  linkTest.each([
+    ['a file', 'stale.json', (at) => fs.writeFileSync(at, 'STALE'), 'x.json'],
+    [
+      'a folder with files',
+      'stale-folder',
+      (at) => {
+        fs.mkdirSync(at);
+        fs.writeFileSync(path.join(at, 'inner.json'), 'INNER');
+      },
+      '',
+    ],
+  ])('%s that becomes a link just before it is removed is removed as a link, and what the link leads to is left alone', async (_what, entry, make, leadsTo) => {
+    put('a/own/keep.json', 'KEEP');
+    make(path.join(root, 'a', 'own', entry));
+    const elsewhere = path.join(layout.base, 'elsewhere');
+    fs.mkdirSync(path.join(elsewhere, 'deep'), { recursive: true });
+    fs.writeFileSync(path.join(elsewhere, 'x.json'), 'X');
+    fs.writeFileSync(path.join(elsewhere, 'deep', 'y.json'), 'Y');
+    const before = entriesOf(elsewhere);
+    const original = fs.promises.rm.bind(fs.promises);
+    let swapped = 0;
+    jest.spyOn(fs.promises, 'rm').mockImplementation(async (target, ...rest) => {
+      if (String(target).endsWith(`${path.sep}own${path.sep}${entry}`)) {
+        swapped++;
+        swapForLink(String(target), path.join(elsewhere, leadsTo));
+      }
+      return original(target, ...rest);
+    });
+
+    const result = await writer.write(set([file('a/own/keep.json', 'KEEP')], ['a/own']), { clean: true });
+
+    expect(swapped).toBe(1);
+    expect(result.failed).toEqual([]);
+    expect(result.removed).toEqual([`a/own/${entry}`]);
+    expect(exists(`a/own/${entry}`)).toBe(false);
+    expect(entriesOf(elsewhere)).toEqual(before);
+  });
+
+  linkTest('what a clean does to each sort of entry: a link is removed and never followed, a folder is removed with what it holds', async () => {
+    const elsewhere = path.join(layout.base, 'elsewhere');
+    fs.mkdirSync(path.join(elsewhere, 'folder'), { recursive: true });
+    fs.writeFileSync(path.join(elsewhere, 'folder', 'x.json'), 'X');
+    fs.writeFileSync(path.join(elsewhere, 'file.json'), 'F');
+    const before = entriesOf(elsewhere);
+    put('o/keep.json', 'KEEP');
+    put('o/plain.json', 'plain');
+    put('o/folder-with-link/inner.json', 'inner');
+    link('o/folder-with-link/to-folder', elsewhere);
+    link('o/to-file', path.join(elsewhere, 'file.json'));
+    link('o/to-folder', path.join(elsewhere, 'folder'));
+    link('o/to-nowhere', path.join(layout.base, 'nowhere'));
+    link('o/to-itself', '.');
+    link('o/to-the-root', '..');
+    execFileSync('mkfifo', [path.join(root, 'o', 'a-pipe')]);
+
+    const result = await writer.write(set([file('o/keep.json', 'KEEP')], ['o']), { clean: true });
+
+    expect(result.failed).toEqual([]);
+    expect(result.removed).toEqual(['o/a-pipe', 'o/folder-with-link', 'o/plain.json', 'o/to-file', 'o/to-folder', 'o/to-itself', 'o/to-nowhere', 'o/to-the-root']);
+    expect(entriesOf(path.join(root, 'o')).map((entry) => entry.path)).toEqual(['keep.json']);
+    expect(entriesOf(elsewhere)).toEqual(before);
+    expect(text('o/keep.json')).toBe('KEEP');
+  });
+});
+
+describe('after the first byte is written, a write never rejects', () => {
+  const FILES = [file('a/own/n1.json', 'N1'), file('a/own/sub/n2.json', 'N2'), file('b/n3.json', 'N3'), file('c.json', 'C')];
+  const OWNED = ['a/own', 'c/empty'];
+  const prepare = () => {
+    fs.rmSync(root, { recursive: true, force: true });
+    fs.mkdirSync(root);
+    put('a/own/old.json', 'OLD');
+    put('a/own/gone/deep.json', 'DEEP');
+    put('a/own/sub/old.json', 'OLD');
+    put('c/empty/x.json', 'X');
+    put('b/keep.json', 'KEEP');
+  };
+  const FUNCTIONS = ['lstat', 'realpath', 'readdir', 'stat', 'mkdir', 'rename', 'unlink', 'rm', 'open'];
+  const METHODS = ['writeFile', 'chmod', 'close'];
+
+  /**
+   * Makes the `width` calls of the file system that follow the first byte of the first file, from the `failOn`-th on, fail
+   * with `EIO`. The calls that come before the first byte are not counted: a failure there is the failure of one file. Two
+   * calls in a row fail where one call is made again after a first failure (a look that is made twice, as the walk does).
+   * @param {number} failOn the number of the first call that fails; 0 fails none
+   * @param {number} width how many calls in a row fail
+   * @returns {{ calls: () => number }} how many calls were counted
+   */
+  const failTheCall = (failOn, width = 1) => {
+    let started = false;
+    let calls = 0;
+    const tick = () => {
+      if (!started) return false;
+      calls++;
+      return failOn > 0 && calls >= failOn && calls < failOn + width;
+    };
+    const wrap = (handle) => {
+      for (const method of METHODS) {
+        const real = handle[method].bind(handle);
+        handle[method] = async (...args) => {
+          if (tick()) {
+            if (method === 'close') await real();
+            throw failure('EIO');
+          }
+          const value = await real(...args);
+          if (method === 'writeFile') started = true;
+          return value;
+        };
+      }
+      return handle;
+    };
+    for (const name of FUNCTIONS) {
+      const original = fs.promises[name].bind(fs.promises);
+      jest.spyOn(fs.promises, name).mockImplementation(async (...args) => {
+        if (tick()) throw failure('EIO');
+        const value = await original(...args);
+        return name === 'open' ? wrap(value) : value;
+      });
+    }
+    return { calls: () => calls };
+  };
+
+  test('a failure of any one call of the file system, or of two in a row, is a line of `failed`, whatever the call', async () => {
+    prepare();
+    const counted = failTheCall(0);
+    await writer.write(set(FILES, OWNED), { clean: true });
+    const total = counted.calls();
+    jest.restoreAllMocks();
+    // the clean walks, lists and removes: many calls come after the first byte
+    expect(total).toBeGreaterThan(30);
+
+    let failedClean = 0;
+    // one call that fails, and two calls in a row
+    for (const [failOn, width] of Array.from({ length: 2 * total }, (_, index) => [(index % total) + 1, index < total ? 1 : 2])) {
+      prepare();
+      failTheCall(failOn, width);
+      let result;
+      try {
+        result = await writer.write(set(FILES, OWNED), { clean: true });
+      } catch (error) {
+        throw new Error(`the write rejected when ${width} call(s) from the call ${failOn} of ${total} failed: ${error.message}`, { cause: error });
+      } finally {
+        jest.restoreAllMocks();
+      }
+
+      // every file of the set is told as written or as failed, once
+      const told = [...result.written, ...result.failed.map((one) => one.path).filter((one) => FILES.some((entry) => entry.path === one))];
+      expect(told.sort()).toEqual(FILES.map((one) => one.path).sort());
+      for (const written of result.written) expect(text(written)).toBe(FILES.find((one) => one.path === written).content);
+      expect(result.failed.every((one) => one.error instanceof FrodoError)).toBe(true);
+      // nothing was swapped: no folder "changed while it was cleaned", a failure of the file system is told as what it is
+      expect(result.failed.map((one) => one.error.getCombinedMessage()).join('\n')).not.toMatch(/changed while it was cleaned/);
+      // one failure never leaves a temporary file; a write that fails and then fails to remove its temporary file does
+      if (width === 1) expect(temporaryFilesIn(root)).toEqual([]);
+      if (result.failed.some((one) => /^Error cleaning/.test(one.error.message))) failedClean++;
+    }
+    prepare();
+
+    // some of the failures were in the clean (a refusal to look at a folder, or to list it)
+    expect(failedClean).toBeGreaterThan(3);
+  }, 120000);
+});
