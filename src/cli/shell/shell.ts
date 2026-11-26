@@ -26,6 +26,7 @@ import {
 import { ShellHistory } from '../../ops/ShellHistoryOps';
 import { createConsoleInput } from '../../ops/ShellHistorySearchOps';
 import { getIdmCatalog, refreshIdmCatalog } from '../../ops/ShellIdmCatalogOps';
+import { clearLastShellRestResult } from '../../ops/ShellRestOps';
 import {
   BrowserLauncher,
   openBrowserThroughLauncherFile,
@@ -205,13 +206,16 @@ async function startWebMode(host?: string): Promise<void> {
   await new Promise<never>(() => undefined);
 }
 
-async function startConsole(host?: string): Promise<void> {
+async function startConsole(): Promise<void> {
   const bindings = createConsoleBindings();
   const { shellRest, rootBindings, docsByMethod } = bindings;
 
-  // Persistent history per connection profile/host. Declared first: the
-  // input filter below closes over it, and the REPL is started later.
-  const shellHistory = new ShellHistory(host);
+  // Persistent history, shared across connections and surfaces: one
+  // history for the person, wherever the command ran (the web console
+  // shares it; each entry carries the host it ran against). Declared
+  // first: the input filter below closes over it, and the REPL is
+  // started later.
+  const shellHistory = new ShellHistory();
 
   // The interactive object explorer (Ctrl+O / explore()): a full-screen
   // collapsible tree over the last result or any value. Its io routes bytes
@@ -255,6 +259,12 @@ async function startConsole(host?: string): Promise<void> {
   // The console's input stream: sits between process.stdin and the REPL so
   // Ctrl+R opens the fuzzy history search instead of readline's built-in
   // reverse search (which cannot be unbound), and Ctrl+O opens the explorer.
+  // Forward reference: replServer is assigned below, but the completer's
+  // hint callback fires via setImmediate so it is always defined by the time
+  // it runs.
+  // eslint-disable-next-line prefer-const
+  let replServer: repl.REPLServer | undefined;
+
   const consoleInput = createConsoleInput(() => shellHistory.getEntries(), {
     wantsInput: () => viewerActive,
     handle: (chunk: Buffer) => viewerChunkSink?.(chunk),
@@ -272,12 +282,6 @@ async function startConsole(host?: string): Promise<void> {
       void viewer.explore(candidate, { atPrompt: true });
     },
   });
-
-  // Forward reference: replServer is assigned below, but the completer's
-  // hint callback fires via setImmediate so it is always defined by the time
-  // it runs.
-  // eslint-disable-next-line prefer-const
-  let replServer: repl.REPLServer | undefined;
   const completer = createFrodoCompleter(
     rootBindings,
     docsByMethod,
@@ -295,6 +299,26 @@ async function startConsole(host?: string): Promise<void> {
     () => getIdmCatalog()
   );
 
+  // The prompt says which environment the next input runs against: a
+  // question the console exists to answer, and one the fixed `frodo> `
+  // left invisible after launch. Readline paints the prompt string it was
+  // last given, so the prompt is recomputed and set before every display
+  // (on each line and after each eval): a sign-in that happens between
+  // lines is on the next prompt with no redraw of its own.
+  const consolePrompt = (): string => {
+    const host = (state.getHost() || '')
+      .replace(/^https?:\/\//, '')
+      .replace(/\/.*$/, '');
+    const realm = state.getRealm() || '';
+    if (!host) return 'frodo> ';
+    // Realms root at '/'; the prompt reads `alpha` or `alpha/child`.
+    const realmPart = realm.replace(/^\/+/, '');
+    // Long hosts crowd the line: the first labels and an elision.
+    const labels = host.split('.');
+    const short = host.length <= 24 ? host : `${labels.slice(0, 2).join('.')}…`;
+    return `frodo[${short}${realmPart ? `/${realmPart}` : ''}]> `;
+  };
+
   // Raw mode comes before the first prompt is drawn, not after: switching
   // waits until the terminal has read what was written before it, so a key
   // typed in answer to the prompt would meet a terminal that still handles
@@ -302,7 +326,7 @@ async function startConsole(host?: string): Promise<void> {
   consoleInput.enterRawMode();
 
   const started = repl.start({
-    prompt: 'frodo> ',
+    prompt: consolePrompt(),
     ignoreUndefined: true,
     useColors: true,
     completer,
@@ -331,6 +355,42 @@ async function startConsole(host?: string): Promise<void> {
     // a vm-based eval for the first of these and got neither for the second).
   });
   replServer = started;
+
+  // While a paste is in flight, the eval answers with nothing instead
+  // of running: readline still hands it one line at a time (an Enter
+  // per pasted line is unavoidable in its line model), but the pasted
+  // script must run as ONE input, the way the web console runs it. The
+  // filter holds the lines; when the paste ends it calls runPastedScript,
+  // which goes through the REPL's own (wrapped) eval with the paste no
+  // longer in flight. No output, no history entry, no error per
+  // fragment. The wrapper replaces the instance property after start:
+  // the original (Node's default eval) is captured first.
+  const replEval = (
+    started as unknown as {
+      eval: (
+        code: string,
+        context: repl.REPLServer['context'],
+        file: string,
+        cb: (err: Error | null, result?: unknown) => void
+      ) => void;
+    }
+  ).eval;
+  (
+    started as unknown as {
+      eval: (
+        code: string,
+        context: repl.REPLServer['context'],
+        file: string,
+        cb: (err: Error | null, result?: unknown) => void
+      ) => void;
+    }
+  ).eval = (code, context, file, cb) => {
+    if (consoleInput.pasteState.pasteInFlight()) {
+      cb(null, undefined);
+      return;
+    }
+    replEval(code, context, file, cb);
+  };
   consoleInput.attachHooks({
     getLine: () => started.line,
     setLine: (line: string) => {
@@ -354,6 +414,64 @@ async function startConsole(host?: string): Promise<void> {
     sendEscape: () => {
       consoleInput.input.write('\x1b');
     },
+    echo: (text: string) => {
+      // The paste arrives while the live prompt row sits under the cursor
+      // (with any draft the user had). Erase that row first, or the
+      // script's first line glues onto it and the refresh's placeholder
+      // then repeats the line twice on screen.
+      started.output.write('\x1b[2K\r');
+      started.output.write(text);
+    },
+    hint: (text: string) => {
+      // Deferred (setImmediate): the paste path calls this from inside
+      // the input filter's write callback, and touching the readline
+      // frame there wedges it. Deferred, the hint lands on a clean
+      // stack and its line refresh paints the placeholder line too.
+      // An empty text only asks for that refresh (the hint line above
+      // the prompt scrolls away with the output; there is nothing to
+      // erase on the readline frame).
+      printHintAbovePrompt(started, text);
+    },
+    setPromptText: (text: string) => {
+      // The paste's waiting hint becomes the prompt line: the screen
+      // ends with the hint instead of a prompt and a placeholder that
+      // read like new input. Prompt string only here (called from
+      // inside the input filter's callback, where touching the frame
+      // wedges readline); the deferred refresh below paints the swap.
+      // The displayPrompt proxy sees the swap and keeps lastPrompt in
+      // step.
+      lastPrompt = text;
+      started.setPrompt(text);
+      setImmediate(() => {
+        const refreshLine = (
+          started as repl.REPLServer & { _refreshLine?: () => void }
+        )._refreshLine;
+        if (typeof refreshLine === 'function') {
+          refreshLine.call(started);
+        } else {
+          started.displayPrompt(true);
+        }
+      });
+    },
+    restorePrompt: () => {
+      // The console's own prompt returns (the real displayPrompt,
+      // not the proxy: this can run inside the filter's callback too).
+      // The repaint is deferred: the swap itself must not touch the
+      // readline frame inside the filter's callback, and the discard
+      // path has no later repaint of its own to lean on.
+      lastPrompt = consolePrompt();
+      started.setPrompt(lastPrompt);
+      setImmediate(() => {
+        const refreshLine = (
+          started as repl.REPLServer & { _refreshLine?: () => void }
+        )._refreshLine;
+        if (typeof refreshLine === 'function') {
+          refreshLine.call(started);
+        } else {
+          started.displayPrompt(true);
+        }
+      });
+    },
     onKeypress: (listener) => {
       const wrapped = (
         _char: string,
@@ -362,6 +480,17 @@ async function startConsole(host?: string): Promise<void> {
         listener(key ?? {});
       };
       started.input.on('keypress', wrapped);
+    },
+    promptRows: () => {
+      const width = Math.max(process.stdout.columns ?? 80, 1);
+      // The prompt the REPL was last given (the displayPrompt proxy
+      // keeps it current) plus the line: the visible span that wraps.
+      const prompt = lastPrompt ?? consolePrompt();
+      const visible =
+        // eslint-disable-next-line no-control-regex
+        prompt.replace(/\x1b\[[0-?]*[ -/]*[@-~]/g, '').length +
+        started.line.length;
+      return Math.max(1, Math.ceil(visible / width));
     },
   });
   consoleInput.install();
@@ -432,23 +561,121 @@ async function startConsole(host?: string): Promise<void> {
     },
   });
 
+  // Clear the JS state, the web console's reset: everything the session
+  // defined (variables, functions, imports, consts) goes away and the
+  // console names come back on a fresh context. History, the connection,
+  // and the screen are untouched. A dot-command runs between evals by
+  // construction (readline feeds it through the eval path as a command),
+  // so the swap cannot tear the context out from under a running script.
+  started.defineCommand('clear', {
+    help: 'Discard all variables and functions defined this session (like the web console reset)',
+    action() {
+      const serverWithReset = started as unknown as {
+        resetContext?: () => void;
+      };
+      if (typeof serverWithReset.resetContext !== 'function') {
+        started.output.write(
+          '.clear is not supported on this Node.js version.\n'
+        );
+        started.displayPrompt();
+        return;
+      }
+      serverWithReset.resetContext();
+      // The fresh context holds none of the console names: they live in
+      // installConsoleContext, so they go back on by hand.
+      installConsoleContext(started.context, bindings, {
+        write: (text) => started.output.write(text),
+        colors: true,
+      });
+      // Ctrl+O's last result came from the old context's work; with the
+      // state gone, exploring it is misleading. The $ facade's last
+      // response rides module state of its own and is cleared with it
+      // (below).
+      lastResult = undefined;
+      clearLastShellRestResult();
+      started.output.write('JS state cleared.\n');
+      started.displayPrompt();
+    },
+  });
+
   // Typed-signature hint when '(' is typed after a known method path.
   registerOpenParenHint(started, rootBindings, docsByMethod, (hint) => {
     printHintAbovePrompt(started, hint);
   });
+
+  // A prompt refreshed with the connection, whatever refreshes it: the
+  // line hook below covers evals; this proxy covers dot-commands and any
+  // other display that readline answers between lines. The proxy must
+  // not setPrompt when the prompt has not changed: readline answers a
+  // setPrompt by redrawing, and a redraw that rides a hint write cuts
+  // the hint short (the completion hint above the prompt lost everything
+  // past its first characters).
+  const displayPrompt = started.displayPrompt.bind(started);
+  let lastPrompt: string | undefined;
+  started.displayPrompt = (...args: Parameters<typeof displayPrompt>) => {
+    const next = consolePrompt();
+    if (next !== lastPrompt) {
+      lastPrompt = next;
+      started.setPrompt(next);
+    }
+    return displayPrompt(...args);
+  };
 
   (started as unknown as { history: string[] }).history = shellHistory.getLines(
     { singleLineOnly: true }
   );
 
   // Persist executed lines, stamped with when and (once known) where.
+  // A pasted multi-line buffer arrives as one input chunk and readline
+  // answers it with one 'line' event per pasted line; stored as-is, the
+  // lines enter history newest-first as separate entries and the search
+  // reads them bottom-up (the pasted script appears in reverse). Lines
+  // that arrive in the same tick belong to one submission: they join
+  // into one entry, the way the web console records its multi-line
+  // inputs. A human Enter is one line per input chunk, so typing cannot
+  // merge.
+  //
+  // Within that window the REPL's multiline handling also speaks: an
+  // input the eval reports as incomplete (an unclosed `do {` mid-paste)
+  // keeps its buffer, and the following 'line' events carry the
+  // ACCUMULATED text, \r-joined, each a strict extension of the one
+  // before. Joined naively, one paste becomes a stack of ever-growing
+  // copies of its own prefix. So within the window an event that only
+  // extends its predecessor replaces it: what survives is the final,
+  // complete input. A CR inside a value (readline's paste path keeps
+  // them) normalizes to a newline before storing.
+  let pasted: string[] = [];
+  let flushPasted: NodeJS.Timeout | undefined;
   started.on('line', (line: string) => {
-    if (line.trim().length > 0) {
-      shellHistory.addLine(line, {
-        ts: Date.now(),
-        host: state.getHost() || undefined,
-      });
+    const previous = pasted[pasted.length - 1];
+    if (previous !== undefined && line.startsWith(`${previous}\r`)) {
+      pasted[pasted.length - 1] = line;
+    } else if (previous !== undefined && previous.startsWith(`${line}\r`)) {
+      // The mirror case (the completion of a block whose earlier
+      // fragments already arrived): the shorter is a prefix of what is
+      // kept; drop the fragment.
+    } else {
+      pasted.push(line);
     }
+    if (flushPasted) clearTimeout(flushPasted);
+    flushPasted = setTimeout(() => {
+      const text = pasted
+        .join('\n')
+        .replace(/\r\n/g, '\n')
+        .replace(/\r/g, '\n')
+        .replace(/^\n+|\n+$/g, ''); // blank edges of the paste
+      pasted = [];
+      flushPasted = undefined;
+      if (text.trim().length > 0) {
+        shellHistory.addLine(text, {
+          ts: Date.now(),
+          host: state.getHost() || undefined,
+        });
+      }
+    }, 0);
+    // The next prompt names the environment as it is now (a sign-in the
+    // last eval triggered shows there, not on a stale prompt).
+    started.setPrompt(consolePrompt());
   });
 
   started.on('exit', () => {
@@ -500,8 +727,22 @@ async function startConsole(host?: string): Promise<void> {
           const width = process.stdout.columns ?? 80;
           const room = Math.max(width - 8 - 2, 20);
           entries.forEach((e, i) => {
-            const full = e.text.split('\n')[0];
-            const more = e.text.includes('\n');
+            // The entry's own id, not the position in this listing: the
+            // position shifts as entries are added, trimmed or deduped,
+            // while the id is the entry's for good. Entries from files
+            // written before ids existed fall back to the position, dim,
+            // so old rows still read as rows.
+            const label =
+              e.id !== undefined
+                ? String(e.id).padStart(4)
+                : `${DIM_HINT}${String(i + 1).padStart(4)}?${RESET_HINT}`;
+            // Line breaks read as a dim ¶ (the text-editor convention):
+            // the entry's shape stays visible and one command's extent is
+            // where its lines run out of marks. The list shows the whole
+            // entry only while it fits; past that it truncates, marks
+            // included.
+            const marked = e.text.replace(/\n/g, `${DIM_HINT}¶${RESET_HINT}`);
+            const markedExtra = marked.length - e.text.length;
             const meta: string[] = [];
             const w = when(e.ts);
             if (w) meta.push(w);
@@ -515,12 +756,12 @@ async function startConsole(host?: string): Promise<void> {
             // trim the command so the row fits the terminal.
             const budget =
               room - (meta.length > 0 ? meta.join(' · ').length + 4 : 0);
-            const max = Math.max(more ? budget - 3 : budget, 12);
-            const first =
-              full.length > max ? `${full.slice(0, max - 1)}…` : full;
-            console.log(
-              `  ${String(i + 1).padStart(4)}  ${first}${more ? `${DIM_HINT}  …${RESET_HINT}` : ''}${metaText}`
-            );
+            const max = Math.max(budget, 12);
+            const body =
+              marked.length > max + markedExtra
+                ? `${marked.slice(0, max + markedExtra - 1)}…`
+                : marked;
+            console.log(`  ${label}  ${body}${metaText}`);
           });
         }
       } else if (sub === 'clear') {
@@ -745,7 +986,7 @@ export default function setup() {
       printMessage(
         'Welcome to the frodo JS console!\nType "$" REST calls or frodo API expressions; ".help" for help, ".exit" to quit.\n'
       );
-      await startConsole(host);
+      await startConsole();
     });
   return program;
 }

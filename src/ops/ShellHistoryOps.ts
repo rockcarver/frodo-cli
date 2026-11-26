@@ -3,22 +3,29 @@ import path from 'node:path';
 import { frodo } from '@rockcarver/frodo-lib';
 
 /**
- * A history entry that spans several lines (a script pasted into the web
- * console) cannot be stored as-is in a file with one entry per line. It is
- * stored as this prefix plus the JSON-encoded text. The prefix cannot begin
- * a JavaScript statement (a bare `#` is only valid before a private field
- * name), so no ordinary entry is mistaken for an encoded one, and history
- * files written before this existed read back unchanged.
- */
-const MULTILINE_PREFIX = '#ml:';
-
-/**
- * A rich entry: the prefix plus a JSON object `{t: text, ts, h, s}`. The
- * same cannot-begin-a-statement argument holds, and the two prefixes are
- * told apart by the character after `#`. Files written before this existed
- * read back unchanged (bare lines, and #ml: lines, keep their meaning).
+ * A rich entry: the prefix plus a JSON object `{text, ts, host, id}`. A
+ * multi-line entry cannot be stored as-is in a file with one entry per
+ * line, and the JSON object holds the line breaks just as readily as a
+ * JSON string would, so every encoded entry takes this one form. The
+ * prefix cannot begin a JavaScript statement (a bare `#` is only valid
+ * before a private field name), so no ordinary entry is mistaken for an
+ * encoded one. Files written before this existed hold bare lines only
+ * (every addLine stamps ts, so the metadata-less multi-line form this
+ * branch once also wrote never shipped) and read back unchanged.
  */
 const RICH_PREFIX = '#h:';
+
+/**
+ * The base name of the file the shared history (the web console, and the
+ * terminal run without a host) writes, without the .txt suffix. The v2
+ * marks the entry format that stores a multi-line script whole with its
+ * metadata: the files this replaced (default.txt and the per-host ones)
+ * predate it and hold the corrupted per-line fragments of the old paste
+ * handling. They are still read (see absorbPerHostFiles), so a downgrade
+ * does not crash; they just stop being the record. A future format change
+ * bumps the version: v3, v4, ...
+ */
+const SHARED_HISTORY_BASE = 'shared-v2';
 
 /**
  * The most entries a history file holds. Beyond it, the oldest entries are
@@ -34,29 +41,34 @@ export type HistoryMeta = {
   ts?: number;
   /** The environment it ran against (the frodo host). */
   host?: string;
+  /**
+   * A stable id for the entry, unique within the history file and
+   * monotonic in insertion order. Stamped by the store on add (and by
+   * the fold of the old per-host files); display only, so entries from
+   * files written before it exist carry none and everything about them
+   * works unchanged.
+   */
+  id?: number;
 };
 
 export type HistoryEntry = { text: string } & HistoryMeta;
 
 function encodeEntry(entry: HistoryEntry): string {
-  if (/[\r\n]/.test(entry.text)) {
-    return MULTILINE_PREFIX + JSON.stringify(entry.text);
-  }
-  if (entry.ts !== undefined || entry.host !== undefined) {
+  const hasMeta =
+    entry.ts !== undefined ||
+    entry.host !== undefined ||
+    entry.id !== undefined;
+  // A multi-line text cannot sit bare in a one-entry-per-line file: it
+  // takes the JSON form, which holds the line breaks. Any metadata (the
+  // id included) needs it too: a bare line carries nothing but the
+  // command, so an id written bare would be lost on reload.
+  if (hasMeta || /[\r\n]/.test(entry.text)) {
     return RICH_PREFIX + JSON.stringify(entry);
   }
   return entry.text;
 }
 
 function decodeEntry(raw: string): HistoryEntry {
-  if (raw.startsWith(MULTILINE_PREFIX)) {
-    try {
-      const decoded: unknown = JSON.parse(raw.slice(MULTILINE_PREFIX.length));
-      if (typeof decoded === 'string') return { text: decoded };
-    } catch {
-      // not an encoded entry after all: fall through and keep the raw text
-    }
-  }
   if (raw.startsWith(RICH_PREFIX)) {
     try {
       const decoded: unknown = JSON.parse(raw.slice(RICH_PREFIX.length));
@@ -65,8 +77,13 @@ function decodeEntry(raw: string): HistoryEntry {
         typeof decoded === 'object' &&
         typeof (decoded as HistoryEntry).text === 'string'
       ) {
-        const { text, ts, host } = decoded as HistoryEntry;
-        return { text, ts, host };
+        const { text, ts, host, id } = decoded as HistoryEntry;
+        return {
+          text,
+          ts,
+          host,
+          id: typeof id === 'number' ? id : undefined,
+        };
       }
     } catch {
       // not a rich entry after all: fall through and keep the raw text
@@ -81,13 +98,16 @@ function decodeEntry(raw: string): HistoryEntry {
  * History files are stored under the Frodo home directory in shell-history/
  * with files keyed by a normalized host identifier. Entries are one per
  * line: plain lines carry just the command; `#h:` lines carry the command
- * plus when it ran and against which environment; `#ml:` lines carry a
- * multi-line script.
+ * plus its metadata (when it ran, against which environment, its id) as a
+ * JSON object, and a multi-line script uses that form too (the JSON holds
+ * the line breaks).
  */
 export class ShellHistory {
   private historyDir: string;
   private historyFile: string;
   private entries: HistoryEntry[] = [];
+  /** The next id an added entry gets; seeded past what the file holds. */
+  private nextId = 1;
 
   constructor(host?: string) {
     // Determine the history directory
@@ -103,7 +123,14 @@ export class ShellHistory {
     // across connections (one console, many environments; the commands are
     // the person's, not the tenant's). A host still names the file where
     // the terminal asks for one, so per-host history keeps working there.
-    const hostKey = this.normalizeHostKey(host || 'default');
+    // No host means the shared file. Its name carries a format version:
+    // the first shared format corrupted multi-line entries (each pasted
+    // line stored as a separate, reversed fragment), and rather than try
+    // to tell those fragments from real single-line commands, the file is
+    // cut over and the old one abandoned (read-only by absorbPerHostFiles,
+    // so nothing crashes but the fragments are left behind). A future
+    // format change bumps the version the same way.
+    const hostKey = host ? this.normalizeHostKey(host) : SHARED_HISTORY_BASE;
     this.historyFile = path.join(this.historyDir, `${hostKey}.txt`);
 
     // Load existing history
@@ -124,12 +151,18 @@ export class ShellHistory {
   }
 
   /**
-   * Read the per-host files this shared history used to write (default.txt
-   * plus one per environment) into the shared one, without re-writing
-   * them: their entries join the shared file on the next addLine, and the
-   * files stop being the record. Each folded entry is stamped with the
-   * host its file names, so the provenance the per-host layout held is
-   * not lost to the fold.
+   * Read the per-host files earlier versions wrote (default.txt plus one
+   * per environment) into the shared one, without re-writing them: their
+   * entries join the shared file on the next addLine, and the files stop
+   * being the record. Each folded entry is stamped with the host its file
+   * names, so the provenance the per-host layout held is not lost to the
+   * fold. The pre-shared default.txt is folded like the rest; it predates
+   * the whole-entry format and may hold the corrupted per-line fragments
+   * of the old paste handling (they fold in as the single-line commands
+   * they were stored as; the cutover to shared-v2 keeps them out of the
+   * way but cannot tell them from real commands). Versioned shared files
+   * (shared-v3 if one ever exists) are left alone: only the current
+   * shared file is this instance's.
    */
   private absorbPerHostFiles(): void {
     try {
@@ -140,6 +173,10 @@ export class ShellHistory {
       let changed = false;
       for (const name of files) {
         if (path.join(this.historyDir, name) === this.historyFile) continue;
+        // Another version's shared file is not folded in either: its
+        // entries belong to whichever format wrote them, and a future
+        // reader cuts over deliberately, not by absorption.
+        if (/^shared-v\d+\.txt$/.test(name)) continue;
         // yyc_dev.txt -> yyc dev; the reverse of normalizeHostKey is lossy,
         // but the name is still the only host hint the file carries.
         const foldedHost = name
@@ -159,6 +196,7 @@ export class ShellHistory {
               merged.push({
                 ...entry,
                 host: entry.host || foldedHost || undefined,
+                id: entry.id ?? this.nextId++,
               });
               changed = true;
             }
@@ -210,6 +248,13 @@ export class ShellHistory {
           (_entry, i) => texts.lastIndexOf(texts[i]) === i
         );
         this.entries = deduped.slice(Math.max(0, deduped.length - MAX_ENTRIES));
+        // The id counter continues past every id the file holds, so a
+        // reloaded entry's id is never reissued to a new one.
+        for (const e of this.entries) {
+          if (typeof e.id === 'number' && e.id >= this.nextId) {
+            this.nextId = e.id + 1;
+          }
+        }
       } else {
         this.entries = [];
       }
@@ -241,27 +286,45 @@ export class ShellHistory {
    */
   public addLine(line: string, meta?: HistoryMeta): void {
     if (line.trim().length === 0) return;
-    const next: HistoryEntry = { text: line, ...meta };
     const at = this.entries.findIndex((e) => e.text === line);
     if (at !== -1) {
       const existing = this.entries[at];
+      const next: HistoryEntry = { text: line, ...meta };
       this.entries.splice(at, 1);
       // A repeat refreshes what the entry says about itself; fields the
-      // caller does not supply keep the older values.
+      // caller does not supply keep the older values. The id is the
+      // entry's, not the run's: it never moves with a repeat (it is
+      // stable, that is the point), and a repeat is not an insertion,
+      // so it spends no id.
+      const { id: _ignored, ...rest } = next;
+      void _ignored;
       this.entries.push({
         ...existing,
         ...Object.fromEntries(
-          Object.entries(next).filter(([, v]) => v !== undefined)
+          Object.entries(rest).filter(([, v]) => v !== undefined)
         ),
       } as HistoryEntry);
     } else {
-      this.entries.push(next);
+      this.entries.push({ text: line, id: this.nextId++, ...meta });
     }
     // Oldest entries fall off past the cap (this.entries is oldest-first).
     if (this.entries.length > MAX_ENTRIES) {
       this.entries.splice(0, this.entries.length - MAX_ENTRIES);
     }
     this.save();
+  }
+
+  /**
+   * Remove the entry with exactly this text and persist. History dedups by
+   * text (a repeat moves rather than adds), so at most one entry carries a
+   * given text: one call removes it whole. False when no entry matched.
+   */
+  public deleteEntry(text: string): boolean {
+    const at = this.entries.findIndex((e) => e.text === text);
+    if (at === -1) return false;
+    this.entries.splice(at, 1);
+    this.save();
+    return true;
   }
 
   /**

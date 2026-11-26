@@ -56,6 +56,12 @@ export type WebEngine = {
   /** Persistent history for this host, newest first, with metadata. */
   history(): HistoryEntry[];
   /**
+   * Remove the history entry with exactly this text, persisted. False when
+   * no entry carried it (it may have been deleted in another tab already):
+   * a deletion is a wish, not an error.
+   */
+  deleteHistoryEntry(text: string): boolean;
+  /**
    * Discard everything the user defined: a fresh context with the console
    * names reinstalled. The connection and history survive; only the JS
    * namespace is wiped.
@@ -369,6 +375,7 @@ export function createWebEngine(options: {
       idmCatalog = await refreshIdmCatalog(idmCatalog);
     },
     history: () => history.getEntries(),
+    deleteHistoryEntry: (text) => history.deleteEntry(text),
     // Queued like an eval, so it cannot interleave with one: the context
     // never vanishes under a script that is running. resetContext() swaps
     // in an empty context; the console names (frodo, $, help, ...) live in

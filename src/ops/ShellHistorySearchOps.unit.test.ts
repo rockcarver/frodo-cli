@@ -268,6 +268,11 @@ function fakeNode(tag: string, className = '', text = ''): FakeNode {
     },
     addEventListener: () => undefined,
     querySelector: () => null,
+    // The row's delete × names itself for hover and readers (title,
+    // aria-label); the fake keeps the attributes, as the DOM would.
+    setAttribute: (name: string, value: string) => {
+      node[name] = value;
+    },
   } as FakeNode & Record<string, unknown>;
   Object.defineProperty(node, 'textContent', {
     get: () => own + node.children.map((c) => c.textContent).join(''),
@@ -313,12 +318,13 @@ function loadPageSearch(history: HistoryEntry[]) {
       render();
       return candidates.children.map((row) => ({
         text: row.children
-          .filter((c) => c.className !== 'when')
+          .filter((c) => c.className !== 'when' && c.className !== 'del')
           .map((c) => c.textContent)
           .join(''),
         marked: row.children
           .filter((c) => c.className === 'match')
           .map((c) => c.textContent),
+        delete: row.children.some((c) => c.className === 'del'),
       }));
     },
     counter: () => count.textContent,
@@ -752,6 +758,7 @@ describe('the Ctrl+R list of the terminal console', () => {
       refresh: () => undefined,
       sendEscape: () => undefined,
       onKeypress: () => undefined,
+      promptRows: () => 1,
     };
     search.attachHooks(hooks);
     search.install();
@@ -1051,6 +1058,12 @@ describe('the terminal mode of the console input', () => {
       refresh: () => undefined,
       sendEscape: () => undefined,
       onKeypress: () => undefined,
+      // The search's frame math needs these (SearchHooks requires them
+      // since the physical-row erase); the raw-mode tests that share this
+      // helper never assert on the painted frame.
+      echo: () => undefined,
+      hint: () => undefined,
+      promptRows: () => 1,
     });
   }
 
@@ -1235,11 +1248,19 @@ describe('the history search of the web console page', () => {
     it('marks the characters of every word of the query', () => {
       const page = loadPageSearch(entries('frodo config export -A'));
       expect(page.rows('export config')).toEqual([
-        { text: 'frodo config export -A', marked: ['config', 'export'] },
+        {
+          text: 'frodo config export -A',
+          marked: ['config', 'export'],
+          delete: true,
+        },
       ]);
       // c, n and f are not together in the line; export is
       expect(page.rows('cnf export')).toEqual([
-        { text: 'frodo config export -A', marked: ['c', 'nf', 'export'] },
+        {
+          text: 'frodo config export -A',
+          marked: ['c', 'nf', 'export'],
+          delete: true,
+        },
       ]);
       expect(page.counter()).toBe(' 1/1');
     });
@@ -1247,8 +1268,8 @@ describe('the history search of the web console page', () => {
     it('marks nothing when there is no query', () => {
       const page = loadPageSearch(entries('one', 'two'));
       expect(page.rows('')).toEqual([
-        { text: 'one', marked: [] },
-        { text: 'two', marked: [] },
+        { text: 'one', marked: [], delete: true },
+        { text: 'two', marked: [], delete: true },
       ]);
     });
 

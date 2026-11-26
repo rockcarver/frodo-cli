@@ -112,6 +112,8 @@ export type TabEngine = {
   json(id: number): Promise<unknown | null>;
   complete(line: string): Promise<[string[], string]>;
   history(): Promise<HistoryEntry[]>;
+  /** Remove the history entry with exactly this text; see the engine. */
+  deleteHistoryEntry(text: string): Promise<boolean>;
   connect(host: string): Promise<{ ok: boolean; info: SessionInfo }>;
   /** The connection as this engine's own process sees it. */
   info(): Promise<SessionInfo>;
@@ -624,6 +626,10 @@ export async function spawnTabEngine(
       const reply = await request({ op: 'history' });
       return reply.lines;
     },
+    async deleteHistoryEntry(text) {
+      const reply = await request({ op: 'history-delete', text });
+      return Boolean(reply.deleted);
+    },
     async connect(host) {
       const reply = await request({ op: 'connect', host });
       return { ok: reply.ok, info: reply.info };
@@ -761,6 +767,8 @@ export async function startWebConsole(
         json: async (id) => registry.json(id) ?? null,
         complete: async (line) => options.engine!.complete(line),
         history: async () => options.engine!.history(),
+        deleteHistoryEntry: async (text) =>
+          options.engine!.deleteHistoryEntry(text),
         connect: async (host) => {
           if (!options.connect)
             return { ok: false, info: options.sessionInfo() };
@@ -1024,6 +1032,17 @@ export async function startWebConsole(
     const body = (await readJson(req)) as Record<string, unknown>;
     if (body === null || typeof body !== 'object') {
       throw new HttpError(400, 'Expected a JSON object');
+    }
+
+    // Remove one entry from the shared history: the × on a Ctrl+R row
+    // (or Ctrl+D on the selection) asks for its text. Whatever the entry's
+    // fate (already gone in another tab, never existed), the answer is the
+    // same: the page removes the row it sees.
+    if (path === '/api/history/delete') {
+      const text = typeof body.text === 'string' ? body.text : '';
+      if (!text) throw new HttpError(400, 'text must be a non-empty string');
+      sendJson(res, 200, { deleted: await engine.deleteHistoryEntry(text) });
+      return;
     }
 
     if (path === '/api/connect') {
