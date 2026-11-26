@@ -30,7 +30,7 @@ export default function setup() {
         ) +
         `  Push it for one realm and log in with AM base URL, username, and password:\n` +
         c.command(
-          `  $ frodo config-manager push all-static -D ./config ${s.amBaseUrl} ${s.realm} ${s.username} '${s.password}'\n`
+          `  $ frodo config-manager push all-static -D ./config ${s.amBaseUrl} alpha ${s.username} '${s.password}'\n`
         ) +
         `  Stamp the metadata of the tenant in the same run:\n` +
         c.command(

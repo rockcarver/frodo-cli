@@ -759,9 +759,8 @@ suite('push all-static against a fake tenant', () => {
 
   /**
    * The examples of `-hhh`, run as they are written, with the connection profile of the sample data replaced
-   * by the fake tenant and the working folder ./config holding a tree. The second example logs in with the
-   * AM base URL, a realm, a user name and a password of the sample data, which this fake tenant does not
-   * take: the service account of the environment is what logs in here, so it is left out.
+   * by the fake tenant (or its AM base URL, for the example that logs in with a user name and a password: the
+   * service account of the environment is what logs in here) and the working folder ./config holding a tree.
    */
   describe('the usage examples run as written', () => {
     let examples;
@@ -801,14 +800,17 @@ suite('push all-static against a fake tenant', () => {
       expect(examples).toHaveLength(4);
     });
 
-    it.each([0, 2, 3])(
+    it.each([0, 1, 2, 3])(
       'example %i pushes the tree of ./config, exits 0 and asks nothing',
       async (index) => {
         write(cloudTree(), 'config');
         const words = [
-          ...examples[index]
-            .split(' ')
-            .map((word) => (word === 'matrix' ? '{host}' : word)),
+          ...examples[index].split(' ').map((word) =>
+            word === 'matrix' || word.startsWith('https://')
+              ? '{host}'
+              : // a quoted word, as the shell hands it over
+                word.replace(/^'(.*)'$/, '$1')
+          ),
           '--type',
           'cloud',
         ];
@@ -818,6 +820,13 @@ suite('push all-static against a fake tenant', () => {
         expect(code).toBe(0);
         expect(output).not.toContain('steps failed');
         expect(wrote('PUT', '/openidm/config/audit')).toBe(true);
+        // the last step, the journeys of the realm, ran too
+        expect(
+          wrote(
+            'PUT',
+            `${ALPHA}/realm-config/authentication/authenticationtrees/trees/j1`
+          )
+        ).toBe(true);
         // the metadata is written by the example that gives it, and by no other
         const metadata = writes().filter(
           (w) => pathOf(w) === '/openidm/config/custom-config.metadata'
