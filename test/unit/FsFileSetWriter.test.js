@@ -38,6 +38,15 @@ import {
  * case-insensitive disk or an unprivileged user say so in their names and are skipped where they
  * cannot run. The rules of Windows are shown by a faked platform (`process.platform` is set for the
  * duration of one call), because no test of the command line runs on Windows.
+ *
+ * Which disk kills which case. Six cases are killed only on a disk that ignores case (the default
+ * volume of macOS and Windows), because on a disk that tells case apart the entry they look at is never
+ * there under another spelling: a clean that keeps the entry which is the file just written (W16), a link
+ * whose name is spelled otherwise (W19b, RV-RT4: also in the reader and the contract tests), a folder that
+ * is there under another spelling (W41, RV-RM15), and the claim of a stale spelling that is a file of the set
+ * (S2). The ids are those of the mutants that were made of the code of these modules when they were added
+ * (https://github.com/rockcarver/frodo-cli/pull/1487). A Linux run cannot kill them; a run on a disk that
+ * ignores case does, and a run on a disk that tells case apart skips the tests that need one that does not.
  */
 
 const WINDOWS = process.platform === 'win32';

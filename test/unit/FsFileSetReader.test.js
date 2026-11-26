@@ -33,7 +33,8 @@ import {
  * as it was.
  *
  * The tests that need symbolic links, a case-insensitive disk or an unprivileged user say so in
- * their names and are skipped where they cannot run.
+ * their names and are skipped where they cannot run. A few cases are killed only on a disk that ignores
+ * case; the header of FsFileSetWriter.test.js says which.
  */
 
 const WINDOWS = process.platform === 'win32';
