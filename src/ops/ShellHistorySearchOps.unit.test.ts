@@ -1058,6 +1058,12 @@ describe('the terminal mode of the console input', () => {
       refresh: () => undefined,
       sendEscape: () => undefined,
       onKeypress: () => undefined,
+      // The search's frame math needs these (SearchHooks requires them
+      // since the physical-row erase); the raw-mode tests that share this
+      // helper never assert on the painted frame.
+      echo: () => undefined,
+      hint: () => undefined,
+      promptRows: () => 1,
     });
   }
 
