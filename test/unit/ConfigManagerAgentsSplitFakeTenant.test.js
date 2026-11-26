@@ -501,6 +501,33 @@ suite('config-manager oauth-clients and agents against a fake tenant', () => {
       },
       TIMEOUT
     );
+
+    it(
+      'pull oauth-clients ends with exit code 1 when a client cannot be read, names it in one summary of OAuth2 clients, still pulls the other clients, and ends with 0 with --allow-failures',
+      async () => {
+        const run = await tenant({
+          failRequests: [
+            { method: 'GET', path: '/agents/OAuth2Client/zion-client' },
+          ],
+        });
+
+        const refused = await pull(run, 'oauth-clients', ...target());
+        expect(refused.code).toBe(1);
+        expect(refused.output).toMatch(/1 of 2 OAuth2 clients failed/);
+        expect(refused.output).toContain('alpha/OAuth2Client/zion-client');
+        expect(files()).toEqual([CLIENT_FILES[0]]);
+
+        const allowed = await pull(
+          run,
+          'oauth-clients',
+          '--allow-failures',
+          ...target()
+        );
+        expect(allowed.code).toBe(0);
+        expect(allowed.output).toMatch(/1 of 2 OAuth2 clients failed/);
+      },
+      TIMEOUT
+    );
   });
 
   describe('push', () => {
@@ -607,6 +634,29 @@ suite('config-manager oauth-clients and agents against a fake tenant', () => {
 
         const allowed = await push(run, 'agents', '--allow-failures');
         expect(allowed.code).toBe(0);
+      },
+      TIMEOUT
+    );
+
+    it(
+      'push oauth-clients ends with exit code 1 when the tenant refuses a client, names it in one summary of OAuth2 clients, still sends the other clients, and ends with 0 with --allow-failures',
+      async () => {
+        const run = await pulledTree({
+          failRequests: [
+            { method: 'PUT', path: '/agents/OAuth2Client/zion-client' },
+          ],
+        });
+
+        const refused = await push(run, 'oauth-clients');
+        expect(refused.code).toBe(1);
+        expect(refused.output).toMatch(/1 of 3 OAuth2 clients failed/);
+        expect(refused.output).toContain('alpha/OAuth2Client/zion-client.json');
+        // every client was sent, the refused one included
+        expect(puts(taken())).toEqual(objectsOf(CLIENT_FILES));
+
+        const allowed = await push(run, 'oauth-clients', '--allow-failures');
+        expect(allowed.code).toBe(0);
+        expect(allowed.output).toMatch(/1 of 3 OAuth2 clients failed/);
       },
       TIMEOUT
     );

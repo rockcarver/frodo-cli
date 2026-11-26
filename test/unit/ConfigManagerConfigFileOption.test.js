@@ -50,7 +50,7 @@ const SIX = [
   ['saml', '-f, --file'],
   ['service-objects', '-f, --file'],
 ];
-/** The three where no file means everything, so an empty file name must not mean no file. */
+/** The five where no file means everything, so an empty file name must not mean no file. */
 const PULL_EVERYTHING = [
   'agents',
   'authz-policies',

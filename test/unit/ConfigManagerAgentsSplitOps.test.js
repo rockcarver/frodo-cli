@@ -34,6 +34,8 @@ const src = (file) => path.resolve(root, 'src', file);
 let tmp;
 let currentRealm;
 let printed;
+/** What the commands say only with --verbose. */
+let verbose;
 /** Every call the fake library got, in order: the request log of the test. */
 let calls;
 /** The tenant: for each realm the agents and the OAuth2 clients it holds. */
@@ -94,6 +96,8 @@ const readAgentByTypeAndId = jest.fn(async (type, id) => {
     _rev: '-1',
     _type: { _id: type, name: type, collection: true },
     description: { inherited: false, value: `the ${type} ${id}` },
+    // a property that is not set: a file leaves it out
+    unset: { inherited: false },
   };
 });
 const importAgent = jest.fn(async (id) => {
@@ -183,7 +187,9 @@ jest.unstable_mockModule(src('utils/Console'), () => ({
   printMessage: jest.fn((message, type) => {
     printed.push(`${(type ?? 'text').toUpperCase()} ${message}`);
   }),
-  verboseMessage: jest.fn(),
+  verboseMessage: jest.fn((message) => {
+    verbose.push(message);
+  }),
   createProgressIndicator: jest.fn(() => 'indicator'),
   stopProgressIndicator: jest.fn((id, message, status) => {
     printed.push(`INDICATOR ${status} ${message}`);
@@ -273,6 +279,7 @@ const filesOf = (dir) => Object.keys(treeOf(dir)).sort();
 beforeEach(() => {
   currentRealm = undefined;
   printed = [];
+  verbose = [];
   calls = [];
   savedFiles.length = 0;
   tenant = WORLD();
@@ -602,6 +609,58 @@ describe('pull agents', () => {
   });
 });
 
+describe('the verbose line about the properties that a file leaves out', () => {
+  const leftOut = () =>
+    verbose.filter((line) => line.startsWith('Left '));
+  const TAIL = 'written: a file holds only what is set on the object.';
+
+  test('says agents for the old command and for agents, and OAuth2 clients for oauth-clients, in the singular for one object', async () => {
+    await configManagerExportOAuth2Agents(null, false, undefined, 'alpha');
+    expect(leftOut()).toEqual([
+      `Left 6 unset or inherited properties out of 6 agents ${TAIL}`,
+    ]);
+
+    verbose = [];
+    await configManagerExportOAuth2Agents(
+      null,
+      false,
+      undefined,
+      'alpha',
+      undefined,
+      'oauth-clients'
+    );
+    expect(leftOut()).toEqual([
+      `Left 2 unset or inherited properties out of 2 OAuth2 clients ${TAIL}`,
+    ]);
+
+    verbose = [];
+    await configManagerExportOAuth2Agents(
+      null,
+      false,
+      undefined,
+      'alpha',
+      undefined,
+      'agents'
+    );
+    expect(leftOut()).toEqual([
+      `Left 4 unset or inherited properties out of 4 agents ${TAIL}`,
+    ]);
+
+    verbose = [];
+    await configManagerExportOAuth2Agents(
+      null,
+      false,
+      undefined,
+      'alpha',
+      'zion-client',
+      'oauth-clients'
+    );
+    expect(leftOut()).toEqual([
+      `Left 1 unset or inherited property out of 1 OAuth2 client ${TAIL}`,
+    ]);
+  });
+});
+
 describe('the two families together are the old command', () => {
   test('oauth-clients and agents into one tree leave the files of the old command, byte for byte, and ask for the same objects', async () => {
     await configManagerExportOAuth2Agents(null, false, FOLDERS, 'alpha');
@@ -765,6 +824,43 @@ describe('a config file that lists entries of the other family', () => {
     expect(output()).toBe(first);
     expect(first).not.toContain('failed');
     expect(readAgentByTypeAndId).not.toHaveBeenCalled();
+  });
+
+  test('an empty list or an empty realm of the other family gives no warning', async () => {
+    const empty = write('config/empty.json', {
+      alpha: { OAuth2Client: [], WebAgent: [{ id: 'web-a' }] },
+      bravo: { WebAgent: [], OAuth2Client: [{ id: 'bravo-client' }] },
+    });
+
+    expect(
+      await configManagerExportOAuth2Agents(
+        empty,
+        false,
+        undefined,
+        undefined,
+        undefined,
+        'agents'
+      )
+    ).toBe(true);
+    // bravo's client entry is the only entry of the other family
+    expect(warnings()).toEqual([
+      `WARN Skipping 1 OAuth2Client entry of realm 'bravo' (bravo-client): OAuth2 clients are pulled by "frodo config-manager pull oauth-clients".`,
+    ]);
+
+    printed = [];
+    expect(
+      await configManagerExportOAuth2Agents(
+        empty,
+        false,
+        undefined,
+        undefined,
+        undefined,
+        'oauth-clients'
+      )
+    ).toBe(true);
+    expect(warnings()).toEqual([
+      `WARN Skipping 1 WebAgent entry of realm 'alpha' (web-a): agents are pulled by "frodo config-manager pull agents".`,
+    ]);
   });
 
   test('the old command skips nothing of the two families: it pulls the client entries and the agent entries', async () => {
