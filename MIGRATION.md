@@ -2266,6 +2266,13 @@ object whose `protocol` and `resource` are versions of letters, digits, dots,
 underscores and hyphens (at most 64 characters) is ignored, as it was. The
 default output of `pull raw --config-file` is the same as before.
 
+**`config-manager push all-static` is new**: it pushes what `pull all-static`
+writes, in dependency order, from the folder given with `-D`. It writes the
+metadata of the tenant only when `-M` is given. A type whose folder is absent is
+skipped with a warning; a missing or empty tree fails before anything is
+written. Every step runs, one summary lists the failed ones and the exit code is
+1 if any failed; `--allow-failures` keeps it at 0.
+
 ### Node.js version matrix changes in 5.x
 
 - 5.x is tested on Node.js 26 only, and building frodo from source (the npm

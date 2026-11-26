@@ -3,7 +3,7 @@
 exports[`CLI help interface for 'config-manager push all-static' should be expected english 1`] = `
 "Usage: frodo config-manager push all-static [options] [host] [realm] [username] [password]
 
-[Experimental] Export all static config.
+[Experimental] Import all static configuration.
 
 Arguments:
   host                    AM base URL, e.g.: https://cdk.iam.example.com/am. To
@@ -26,10 +26,12 @@ Options:
                           0. Without this option the command runs every
                           operation, prints a summary of what failed and exits
                           with code 1.
-  -M, --metadata <value>  Configuration metadata; set properties using dot
+  -M, --metadata <value>  Configuration metadata written to
+                          custom-config.metadata; set properties using dot
                           notation, for example: -M.pushedAt
-                          2026-11-26T00:46:38Z -M.versionInfo.version 1.0
-                          --metadata.versionInfo.stable
+                          2026-11-26T00:00:00Z -M.versionInfo.version 1.0
+                          --metadata.versionInfo.stable. Without it the metadata
+                          of the tenant is left as it is.
   -h, --help              Help
   -hh, --help-more        Help with all options.
   -hhh, --help-all        Help with all options, environment variables, and
