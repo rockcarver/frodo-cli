@@ -69,8 +69,9 @@ export type FileSetWriter = {
    * removed or written over to make room for another.
    *
    * On Windows, a file whose path has a part that is a name of a device (`con`, `nul`, `com1`, `lpt1`, the
-   * same with a superscript digit, `conin$`, `conout$`, with or without an extension), that holds a colon
-   * (it would address a stream of another file) or that ends with a dot or a space fails; no name is changed.
+   * same with a superscript digit, `conin$`, `conout$`; the device is what comes before the first dot, without
+   * the spaces at its end, so `nul.txt` and `aux .json` are devices too), that holds a colon (it would address a
+   * stream of another file) or that ends with a dot or a space fails; no name is changed.
    *
    * Every owned folder is made, an empty one too. With `clean`, and only when no file and no folder
    * failed, the entries below each owned folder that the set does not list, and that are not a folder on
@@ -92,9 +93,20 @@ export type FileSetWriter = {
   ): Promise<FileSetWriteResult>;
 };
 
-/** What a name of Windows cannot be: a device (with or without an extension), the superscript digits that count as digits for it, and the console devices. */
+/** The names that Windows keeps for devices: the superscript digits count as digits for `com` and `lpt`, and `com0` and `lpt0` are ordinary names. */
 const WINDOWS_DEVICE =
-  /^(?:con|prn|aux|nul|com[1-9\u00b9\u00b2\u00b3]|lpt[1-9\u00b9\u00b2\u00b3]|conin\$|conout\$)(?:\..*)?$/i;
+  /^(?:con|prn|aux|nul|com[1-9\u00b9\u00b2\u00b3]|lpt[1-9\u00b9\u00b2\u00b3]|conin\$|conout\$)$/i;
+
+/**
+ * Whether a part of a path is the name of a device on Windows. The device is the part of the name before the first dot,
+ * without the spaces at the end of it, so `nul`, `NUL.txt`, `nul.tar.gz` and `aux .json` are all the device (and `aux x.json`
+ * and `.aux` are not).
+ * @param {string} part one part of a path
+ * @returns {boolean} true if Windows would open a device and not a file
+ */
+function isWindowsDeviceName(part: string): boolean {
+  return WINDOWS_DEVICE.test(part.split('.', 1)[0].replace(/ +$/, ''));
+}
 
 /**
  * A path as a message shows it.
@@ -195,7 +207,7 @@ function checkFileSet(fileSet: VirtualFileSet): void {
 function checkWindowsNames(parts: string[]): void {
   if (process.platform !== 'win32') return;
   for (const part of parts) {
-    if (WINDOWS_DEVICE.test(part) || /[. ]$/.test(part) || part.includes(':')) {
+    if (isWindowsDeviceName(part) || /[. ]$/.test(part) || part.includes(':')) {
       throw new Error(
         `The name ${quoted(part)} cannot be the name of a file on Windows.`
       );

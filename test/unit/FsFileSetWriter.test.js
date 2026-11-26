@@ -1455,12 +1455,28 @@ describe('the spelling of a name on the disk', () => {
 });
 
 describe('the rules of Windows, shown with a faked platform', () => {
+  // No Windows machine was available: every row is shown with a faked `process.platform` and rests on a text, not on a run.
+  // The sources of the rows:
+  // - the page of Microsoft on naming files, paths and namespaces: the device names (CON, PRN, AUX, NUL, COM1 to COM9 and
+  //   LPT1 to LPT9, with the superscript digits 1, 2 and 3 as well) "followed immediately by an extension" are the device
+  //   (`NUL.txt` and `NUL.tar.gz` are `NUL`), and a name must not end with a space or a dot; the list of the page has no
+  //   `COM0` and no `LPT0` (the page names `COM0` once, as a link of the object manager of the system, which is not the
+  //   rule for a name), so they are ordinary names here, and a refusal of them would cost one word of the rule;
+  // - the function `isreserved` of the `ntpath` module of CPython (and `pathlib` with it): the device is the part of the
+  //   name before the first dot, without the spaces at its end (its own example is `nul .txt`), and the console devices
+  //   `CONIN$` and `CONOUT$` are reserved as well;
+  // - the review of the pull request that added the writer, which found that `aux .json` was accepted
+  //   (https://github.com/rockcarver/frodo-cli/pull/1487).
   const REFUSED = [
     'con', 'CON', 'Con.json', 'prn', 'aux', 'nul', 'com1', 'COM9.txt', 'lpt1', 'LPT9.json', 'con.txt.json',
     'name.', 'name ', 'x/con/y.json', 'x/dir./y.json', 'x/dir /y.json',
     'COM\u00b9', 'com\u00b2.txt', 'COM\u00b3.json', 'LPT\u00b9', 'lpt\u00b2', 'LPT\u00b3.txt',
     'CONIN$', 'conout$', 'CONOUT$.json', 'conin$.txt.json',
     'a:b.json', 'x/a:b/y.json', 'Login:SSO.json',
+    // a device name, spaces, then an extension: the spaces do not make it another name
+    'aux .json', 'nul .txt', 'CON  .tar.gz', 'com1 .x', 'LPT\u00b2 .json', 'conin$ .x', 'CONOUT$   .a.b', 'x/aux .d/y.json',
+    // a device name with an extension of any length, or with more extensions
+    'NUL.tar.gz', 'prn.a.b.c', 'COM\u00b3.x.y',
   ];
 
   test.each(REFUSED)('on Windows the path %s is refused for that file, and the others are written', async (refused) => {
@@ -1472,7 +1488,11 @@ describe('the rules of Windows, shown with a faked platform', () => {
     expect(entriesOf(root).map((entry) => entry.path)).toEqual(['fine.json']);
   });
 
-  test.each(['console.json', 'com0.json', 'com10.json', 'lpt.json', 'a.b', 'nul-x.json', 'xcon.json', '.hidden', 'con-.json'])(
+  test.each([
+    'console.json', 'com0.json', 'com10.json', 'lpt.json', 'a.b', 'nul-x.json', 'xcon.json', '.hidden', 'con-.json',
+    // a space or a dot at the start, or a character between the device name and the extension, makes it another name
+    ' aux.json', 'aux x.json', 'a aux.json', '.aux', '.con.json', 'aux-.json', 'conin.json', 'com0 .json', 'lpt0 .json', 'com10 .json', 'COM\u2074 .json',
+  ])(
     'on Windows the path %s is an ordinary name',
     async (accepted) => {
       const result = await asWindows(() => writer.write(set([file(accepted)])));
@@ -1483,9 +1503,9 @@ describe('the rules of Windows, shown with a faked platform', () => {
   );
 
   test('on Windows an owned folder with a device name fails, and a name is never changed', async () => {
-    const result = await asWindows(() => writer.write(set([file('ok/a.json')], ['ok', 'aux/x'])));
+    const result = await asWindows(() => writer.write(set([file('ok/a.json')], ['ok', 'aux/x', 'nul .d/y'])));
 
-    expect(result.failed.map((one) => one.path)).toEqual(['aux/x']);
+    expect(result.failed.map((one) => one.path)).toEqual(['aux/x', 'nul .d/y']);
     expect(fs.readdirSync(root)).toEqual(['ok']);
   });
 
