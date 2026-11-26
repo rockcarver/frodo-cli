@@ -141,6 +141,15 @@ have `oauth-clients` and the other agent types `agents`, each with `pull` and
 `push`. `oauth2-agents` stays as a deprecated command that does what the two do
 together, and `pull all` is unchanged. See the [Migration Guide](../MIGRATION.md).
 
+**5.0.0 renames 25 `frodo config-manager` commands**: `apps`, `authn`, `nodes`,
+`connectors`, `secretstore-mappings` and `connector-servers` replace
+`applications`, `authentication`, `custom-nodes`, `connector-definitions`,
+`secret-mappings` and `remote-servers` in the verbs that have them (`pull`, `push`,
+`delete`, `migrate`), and the seven `promote` commands become `lock-status`, `lock`,
+`unlock`, `status`, `report`, `run` and `dry-run`. Every old name keeps working and
+prints a notice once per process; a future major release removes it. See the
+[Migration Guide](../MIGRATION.md).
+
 ### New in 4.x (carried forward)
 
 #### `frodo config-manager`
