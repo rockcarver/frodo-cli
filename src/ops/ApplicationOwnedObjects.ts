@@ -34,7 +34,7 @@ const KIND_LABEL: Record<OwnedKind, string> = {
 };
 
 /**
- * Whether the standalone pull kinds (`oauth2-agents`, `saml`,
+ * Whether the standalone pull kinds (`oauth-clients`, `saml`,
  * `connector-definitions`, `connector-mappings`) leave out what an application
  * owns (decision record 0042): only in a tree that uses the application layout.
  * `pull all` decides the layout of the tree once, before its first step, and

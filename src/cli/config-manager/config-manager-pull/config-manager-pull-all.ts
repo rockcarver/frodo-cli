@@ -30,7 +30,9 @@ export default function setup() {
         'authz-policies, oauth2-agents and saml need no config file: when the config\n' +
         'folder has authz-policies.json, oauth2-agents.json or saml.json, the file\n' +
         'selects what is exported; when it does not, everything is exported, for the\n' +
-        'realm that was given or for every realm. service-objects cannot export\n' +
+        'realm that was given or for every realm. The command "pull oauth2-agents" is\n' +
+        'deprecated, but its step here still pulls both the OAuth2 clients ("pull\n' +
+        'oauth-clients") and the other agents ("pull agents"). service-objects cannot export\n' +
         'anything without its file: it is skipped with a warning when\n' +
         'service-objects.json is not in the config folder, and the others are still\n' +
         'exported. A config file that exists but cannot be read is a failed step. A\n' +

@@ -10,14 +10,14 @@ import {
 
 /**
  * The config file of the `config-manager pull` commands is `--config-file <file>`, with no short
- * form and no other spelling, on the nine commands that take one:
+ * form and no other spelling, on the eleven commands that take one:
  * https://github.com/rockcarver/frodo-cli/blob/main/docs/decisions/0057-options-of-the-configuration-commands.md
  * (options of the configuration commands). Six of them took `-f, --file` (`pull raw`: `-f,
  * --config-file`) and gave it up at once, with no alias; the other three had `--config-file`
- * already. `pull service-objects` cannot guess what to pull, so the file is mandatory there;
+ * already, and `pull oauth-clients` and `pull agents`, which split `pull oauth2-agents`, never had `-f`. `pull service-objects` cannot guess what to pull, so the file is mandatory there;
  * `pull raw` cannot either, so it needs the file or `--path`, a requirement that is declared
- * (`requireOneOf`); on the other seven it is optional, and on `pull saml`, `pull authz-policies`
- * and `pull oauth2-agents` an empty value is refused while the command line is parsed (it would
+ * (`requireOneOf`); on the other nine it is optional, and on `pull saml`, `pull authz-policies`
+ * and the three agent commands (`pull oauth2-agents`, `pull oauth-clients`, `pull agents`) an empty value is refused while the command line is parsed (it would
  * read as "no file" and pull everything).
  *
  * This reads the real command tree and the real MIGRATION.md, without a build.
@@ -27,11 +27,13 @@ const migrationPath = fileURLToPath(
   new URL('../../MIGRATION.md', import.meta.url)
 );
 
-/** The nine pull commands that take a config file, and whether the file is mandatory (`pull raw` needs it or --path). */
-const NINE = [
+/** The eleven pull commands that take a config file, and whether the file is mandatory (`pull raw` needs it or --path). */
+const COMMANDS = [
+  ['agents', false],
   ['authz-policies', false],
   ['csp', false],
   ['oauth-cimd-profiles', false],
+  ['oauth-clients', false],
   ['oauth-issuers', false],
   ['oauth-software-publishers', false],
   ['oauth2-agents', false],
@@ -48,8 +50,14 @@ const SIX = [
   ['saml', '-f, --file'],
   ['service-objects', '-f, --file'],
 ];
-/** The three where no file means everything, so an empty file name must not mean no file. */
-const PULL_EVERYTHING = ['authz-policies', 'oauth2-agents', 'saml'];
+/** The five where no file means everything, so an empty file name must not mean no file. */
+const PULL_EVERYTHING = [
+  'agents',
+  'authz-policies',
+  'oauth-clients',
+  'oauth2-agents',
+  'saml',
+];
 
 const originalArgv = process.argv;
 let leaves = [];
@@ -75,12 +83,12 @@ afterAll(() => {
 });
 
 describe('the config file of the pull commands', () => {
-  test('finds the nine commands', () => {
-    for (const [verb] of NINE) expect(leafOf(verb)).toBeDefined();
-    expect(NINE).toHaveLength(9);
+  test('finds the eleven commands', () => {
+    for (const [verb] of COMMANDS) expect(leafOf(verb)).toBeDefined();
+    expect(COMMANDS).toHaveLength(11);
   });
 
-  test.each(NINE)(
+  test.each(COMMANDS)(
     'pull %s takes --config-file <file> and nothing else for it: no short form, no --file',
     (verb) => {
       const leaf = leafOf(verb);
@@ -112,12 +120,12 @@ describe('the config file of the pull commands', () => {
 
   test('the file is mandatory on service-objects only, and pull raw needs it or --path', () => {
     expect(
-      NINE.filter(([verb]) => configFileOf(verb).mandatory).map(
+      COMMANDS.filter(([verb]) => configFileOf(verb).mandatory).map(
         ([verb]) => verb
       )
     ).toEqual(['service-objects']);
     expect(
-      NINE.filter(([, mandatory]) => mandatory).map(([verb]) => verb)
+      COMMANDS.filter(([, mandatory]) => mandatory).map(([verb]) => verb)
     ).toEqual(['service-objects']);
     // declared as a requirement, so that --path alone is enough and neither is refused before login
     expect(getOneOfGroups(leafOf('raw'))).toEqual([
@@ -142,7 +150,7 @@ describe('the config file of the pull commands', () => {
   );
 
   test('the other commands keep the value of the file as it is typed', () => {
-    for (const [verb] of NINE.filter(
+    for (const [verb] of COMMANDS.filter(
       ([name]) => !PULL_EVERYTHING.includes(name)
     )) {
       const option = configFileOf(verb);
@@ -198,7 +206,7 @@ describe('the config file of the pull commands', () => {
       expect(text).toContain('--config-file');
     }
   );
-  /** The selectors of the three commands that pull everything without a file, by attribute. */
+  /** The selectors of the commands that pull everything without a file, by attribute. */
   const SELECTORS = {
     saml: [
       ['entityId', '-i, --entity-id <id>'],
@@ -209,6 +217,8 @@ describe('the config file of the pull commands', () => {
       ['setId', '--set-id <id>'],
     ],
     'oauth2-agents': [['agentId', '-i, --agent-id <id>']],
+    'oauth-clients': [['clientId', '-i, --client-id <id>']],
+    agents: [['agentId', '-i, --agent-id <id>']],
   };
   const optionOf = (verb, attribute) =>
     leafOf(verb).options.find((o) => o.attributeName() === attribute);
@@ -252,6 +262,8 @@ describe('the config file of the pull commands', () => {
       'authz-policies policyId': '-i',
       'authz-policies setId': null,
       'oauth2-agents agentId': '-i',
+      'oauth-clients clientId': '-i',
+      'agents agentId': '-i',
     });
     // pull csp and pull raw take no selector
     for (const verb of ['csp', 'raw']) {

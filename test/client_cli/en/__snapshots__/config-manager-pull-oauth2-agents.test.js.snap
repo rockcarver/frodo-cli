@@ -3,7 +3,8 @@
 exports[`CLI help interface for 'config-manager pull oauth2-agents' should be expected english 1`] = `
 "Usage: frodo config-manager pull oauth2-agents [options] [host] [realm] [username] [password]
 
-[Experimental] Export OAuth2 Agents
+[Deprecated] Deprecated: pulls what "pull oauth-clients" and "pull agents" pull
+together.
 
 Arguments:
   host                  AM base URL, e.g.: https://cdk.iam.example.com/am. To

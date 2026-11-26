@@ -187,12 +187,26 @@ const WIRING = {
     id: 4,
     name: null,
   },
+  // the same ops function, which has the family of the command as its last parameter
+  'oauth-clients': {
+    module: 'configManagerOps/FrConfigOauth2AgentOps',
+    fn: 'configManagerExportOAuth2Agents',
+    id: 4,
+    name: null,
+  },
+  agents: {
+    module: 'configManagerOps/FrConfigOauth2AgentOps',
+    fn: 'configManagerExportOAuth2Agents',
+    id: 4,
+    name: null,
+  },
 };
 
 const getTokens = jest.fn();
 const ops = {};
 for (const { module, fn } of Object.values(WIRING)) {
-  ops[fn] = jest.fn();
+  // the three commands of the agent families share one ops function
+  ops[fn] ??= jest.fn();
   jest.unstable_mockModule(`../../src/${module}`, () => ({ [fn]: ops[fn] }));
 }
 
@@ -223,6 +237,9 @@ jest.unstable_mockModule('../../src/cli/FrodoCommand', () => ({
 
     handleDefaultArgsAndOpts() {}
     usesRealm() {
+      return this;
+    }
+    withStability() {
       return this;
     }
     multiOp() {
@@ -343,7 +360,7 @@ describe('the selectors of the pull commands reach the ops function', () => {
  * own position, and a command line that breaks an exclusion or that holds an empty value is refused
  * while it is parsed: the ops function is not called and nobody logs in.
  */
-describe('the second selector, the exclusions and the empty values of saml, authz-policies and oauth2-agents', () => {
+describe('the second selector, the exclusions and the empty values of saml, authz-policies and the three agent commands', () => {
   /** The position of the second selector in the arguments of the ops function. */
   const SECOND = {
     saml: { option: '--cot-id', position: 5 },
@@ -387,6 +404,8 @@ describe('the second selector, the exclusions and the empty values of saml, auth
     ['saml', 3],
     ['authz-policies', 2],
     ['oauth2-agents', 3],
+    ['oauth-clients', 3],
+    ['agents', 3],
   ])(
     '%s: the realm of the command goes to position %i, which narrows a pull without a file',
     async (type, position) => {
@@ -395,7 +414,7 @@ describe('the second selector, the exclusions and the empty values of saml, auth
     }
   );
 
-  it.each(['saml', 'authz-policies', 'oauth2-agents'])(
+  it.each(['saml', 'authz-policies', 'oauth2-agents', 'oauth-clients', 'agents'])(
     '%s: --config-file goes to the position of the file, and no file gives null',
     async (type) => {
       expect((await run(type, ['--config-file', 'f.json']))[0]).toBe('f.json');
@@ -418,6 +437,12 @@ describe('the second selector, the exclusions and the empty values of saml, auth
     ['authz-policies', ['--set-id', 'y', '-i', 'x']],
     ['oauth2-agents', ['-i', 'x', '--config-file', 'f.json']],
     ['oauth2-agents', ['--config-file', 'f.json', '-i', 'x']],
+    ['oauth-clients', ['-i', 'x', '--config-file', 'f.json']],
+    ['oauth-clients', ['--config-file', 'f.json', '-i', 'x']],
+    ['oauth-clients', ['--client-id', 'x', '--config-file', 'f.json']],
+    ['agents', ['-i', 'x', '--config-file', 'f.json']],
+    ['agents', ['--config-file', 'f.json', '-i', 'x']],
+    ['agents', ['--agent-id', 'x', '--config-file', 'f.json']],
   ])(
     '%s %j is refused while it is parsed, before anything runs',
     async (type, args) => {
@@ -441,6 +466,12 @@ describe('the second selector, the exclusions and the empty values of saml, auth
     ['oauth2-agents', ['-i', '']],
     ['oauth2-agents', ['--agent-id=']],
     ['oauth2-agents', ['--config-file', '']],
+    ['oauth-clients', ['-i', '']],
+    ['oauth-clients', ['--client-id=']],
+    ['oauth-clients', ['--config-file', '']],
+    ['agents', ['-i', '']],
+    ['agents', ['--agent-id=']],
+    ['agents', ['--config-file', '']],
   ])(
     '%s %j is refused while it is parsed: an empty value never selects everything',
     async (type, args) => {
@@ -454,4 +485,30 @@ describe('the second selector, the exclusions and the empty values of saml, auth
       expect(result.getTokens).not.toHaveBeenCalled();
     }
   );
+});
+
+/**
+ * The three commands of the agent families call one ops function, which takes the family as its
+ * last parameter: the deprecated command hands none (it does what it always did, both families),
+ * the two new ones hand their own, and the value of `--config-file` and of the realm are in the
+ * same positions for all three.
+ */
+describe('the family of the agent commands reaches the ops function', () => {
+  const FAMILY = 5;
+
+  it.each([
+    ['oauth-clients', 'oauth-clients'],
+    ['agents', 'agents'],
+    ['oauth2-agents', undefined],
+  ])('%s hands %p to the position of the family', async (type, family) => {
+    for (const args of [[], ['-i', 'x'], ['--config-file', 'f.json']]) {
+      const call = await run(type, args);
+
+      expect([type, args.join(' '), call[FAMILY]]).toEqual([
+        type,
+        args.join(' '),
+        family,
+      ]);
+    }
+  });
 });

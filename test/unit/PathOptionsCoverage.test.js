@@ -156,11 +156,13 @@ describe('the path options of the command tree', () => {
       kind: 'directory',
       access: 'write',
     });
-    // the nine pull commands that read a config file name it --config-file
+    // the eleven pull commands that read a config file name it --config-file
     for (const verb of [
+      'agents',
       'authz-policies',
       'csp',
       'oauth-cimd-profiles',
+      'oauth-clients',
       'oauth-issuers',
       'oauth-software-publishers',
       'oauth2-agents',

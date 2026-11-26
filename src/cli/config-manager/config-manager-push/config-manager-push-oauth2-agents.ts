@@ -10,11 +10,27 @@ import {
 } from '../../../utils/PlaceholderValues';
 import { FrodoCommand } from '../../FrodoCommand';
 
+/**
+ * The notice a run prints (`Deprecated feature in use: 'frodo config-manager push oauth2-agents'. ...`).
+ * The command names are checked against the command tree by
+ * test/unit/ConfigManagerOauth2AgentsDeprecation.test.js, so a rename of one of them fails there.
+ */
+export const PUSH_OAUTH2_AGENTS_DEPRECATION_MESSAGE =
+  'This command is deprecated and will be removed in a future major release. ' +
+  'It does what "frodo config-manager push oauth-clients" and "frodo config-manager push agents" do together; use them instead.';
+
 export default function setup() {
   const program = new FrodoCommand('frodo config-manager push oauth2-agents');
 
   program
-    .description('Import Oauth2 agents.')
+    .description(
+      'Deprecated: pushes what "push oauth-clients" and "push agents" push together.'
+    )
+    .withStability(
+      'deprecated',
+      undefined,
+      PUSH_OAUTH2_AGENTS_DEPRECATION_MESSAGE
+    )
     .addHelpText(
       'after',
       `Usage Examples:\n` +

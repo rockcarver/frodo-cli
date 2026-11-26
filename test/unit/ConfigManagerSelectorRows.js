@@ -192,6 +192,18 @@ export const EXPECTED_SELECTORS = [
     aliases: [],
   },
   {
+    command: 'frodo config-manager pull oauth-clients',
+    id: '--client-id',
+    name: null,
+    aliases: [],
+  },
+  {
+    command: 'frodo config-manager pull agents',
+    id: '--agent-id',
+    name: null,
+    aliases: [],
+  },
+  {
     command: 'frodo config-manager push applications',
     id: '--app-id',
     name: '--app-name',

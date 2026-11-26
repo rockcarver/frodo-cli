@@ -584,14 +584,63 @@ describe('the old words of the planned renames (cli#1264)', () => {
       }
     );
 
-    for (const verb of verbs) {
-      it.todo(
-        `config-manager ${verb} oauth2-agents is a deprecated command that runs both oauth-clients and agents, not an alias of either; it is marked deprecated and its notice names oauth-clients and agents`
-      );
-    }
-    it.todo(
-      'config-manager pull all and a pipeline that types config-manager pull oauth2-agents keep working: they still pull the OAuth2 clients and the other agents'
+    it.each(verbs)(
+      'config-manager %s oauth2-agents is a deprecated command that runs both oauth-clients and agents, not an alias of either',
+      (verb) => {
+        const command = leafOf('config-manager', verb, 'oauth2-agents');
+        // it is a command of its own that keeps its name and has no alias
+        expect(command.name()).toBe('oauth2-agents');
+        expect(command.aliases()).toEqual([]);
+        for (const word of ['oauth-clients', 'agents']) {
+          const target = leafOf('config-manager', verb, word);
+          expect(target).toBeDefined();
+          expect(target).not.toBe(command);
+          expect(target.name()).toBe(word);
+          // the two new commands are commands, not aliases: typing one is not a transition
+          expect(target.aliases()).toEqual([]);
+          expect(getAliasKind(target, 'oauth2-agents')).toBeUndefined();
+          expect(getAliasKind(command, word)).toBeUndefined();
+        }
+      }
     );
+
+    it.each(verbs)(
+      'config-manager %s oauth2-agents is marked deprecated, and its page and its row name oauth-clients and agents',
+      (verb) => {
+        const command = leafOf('config-manager', verb, 'oauth2-agents');
+        // the page wraps its lines
+        const page = renderHelp(command).replace(/\s+/g, ' ');
+        const row = command.parent.createHelp().subcommandDescription(command);
+
+        for (const text of [page, row]) {
+          expect(text).toContain('Deprecated:');
+          expect(text).toContain(`"${verb} oauth-clients"`);
+          expect(text).toContain(`"${verb} agents"`);
+        }
+        expect(page).toContain('[Deprecated]');
+        // the two new commands are not deprecated
+        for (const word of ['oauth-clients', 'agents']) {
+          expect(
+            renderHelp(leafOf('config-manager', verb, word))
+          ).not.toContain('[Deprecated]');
+        }
+      }
+    );
+
+    it('config-manager pull all keeps one step named oauth2-agents and none named after the new commands, so a pipeline and pull all still pull the OAuth2 clients and the other agents', async () => {
+      const { deploymentMapAll } =
+        await import('../../src/configManagerOps/FrConfigAllOps.ts');
+      for (const steps of Object.values(deploymentMapAll)) {
+        const names = steps.map((step) => step.name);
+        expect(names.filter((name) => name === 'oauth2-agents')).toHaveLength(
+          1
+        );
+        expect(names).not.toContain('oauth-clients');
+        expect(names).not.toContain('agents');
+      }
+      // the step is named after a pull command, which is the deprecated one
+      expect(leafOf('config-manager', 'pull', 'oauth2-agents')).toBeDefined();
+    });
   });
 
   describe('-n, --name, which stays a permanent alias', () => {

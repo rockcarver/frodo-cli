@@ -3,7 +3,8 @@
 exports[`CLI help interface for 'frodo config-manager push oauth2-agents' should be expected english 1`] = `
 "Usage: frodo config-manager push oauth2-agents [options] [host] [realm] [username] [password]
 
-[Experimental] Import Oauth2 agents.
+[Deprecated] Deprecated: pushes what "push oauth-clients" and "push agents" push
+together.
 
 Arguments:
   host              AM base URL, e.g.: https://cdk.iam.example.com/am. To use a

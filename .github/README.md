@@ -136,6 +136,11 @@ on stdout only with `--json`. See the [Migration Guide](../MIGRATION.md).
 file: without one they pull every object of every realm, or of the realm given.
 See the [Migration Guide](../MIGRATION.md).
 
+**5.0.0 splits `frodo config-manager pull|push oauth2-agents`**: the OAuth2 clients
+have `oauth-clients` and the other agent types `agents`, each with `pull` and
+`push`. `oauth2-agents` stays as a deprecated command that does what the two do
+together, and `pull all` is unchanged. See the [Migration Guide](../MIGRATION.md).
+
 ### New in 4.x (carried forward)
 
 #### `frodo config-manager`
