@@ -146,7 +146,7 @@ const WIRING = {
     id: 0,
     name: null,
   },
-  'remote-servers': {
+  'connector-servers': {
     module: 'configManagerOps/FrConfigRemoteServersOps',
     fn: 'configManagerDeleteRemoteServers',
     id: 0,
@@ -454,7 +454,7 @@ describe('the delete commands: an empty selector is refused before anything, a b
     'oauth-issuers',
     'oauth-software-publishers',
     'locales',
-    'remote-servers',
+    'connector-servers',
     'schedules',
     'secretstore-mappings',
     'services',
