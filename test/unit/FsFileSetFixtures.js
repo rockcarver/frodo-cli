@@ -294,7 +294,7 @@ export function outsideIsUntouched(layout) {
 }
 
 /**
- * Writes a file set into a folder with plain `fs`, the way a person or a pull of the old kind would.
+ * Writes a file set into a folder with plain `fs`, the way a person or an earlier pull would.
  * @param {string} root the folder
  * @param {{ files: { path: string, content: string }[], ownedFolders?: string[] }} fileSet the set
  */
@@ -316,7 +316,7 @@ export function writeSetWithFs(root, fileSet) {
  * @param {string} root the folder
  * @returns {{ path: string, type: string, detail?: string }[]} the entries
  */
-export function listTree(root) {
+export function entriesOf(root) {
   const found = [];
   const visit = (folder, prefix) => {
     for (const name of fs.readdirSync(folder)) {
@@ -345,7 +345,7 @@ export function listTree(root) {
  * @returns {string[]} the paths of the files named `.frodo-<hex>.tmp`
  */
 export function temporaryFilesIn(root) {
-  return listTree(root)
+  return entriesOf(root)
     .map((entry) => entry.path)
     .filter((entry) => /(^|\/)\.frodo-[0-9a-f]{8}\.tmp$/.test(entry));
 }

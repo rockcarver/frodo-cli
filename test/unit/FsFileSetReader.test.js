@@ -167,17 +167,18 @@ describe('the root', () => {
     ).resolves.toBe('{"a":1}');
   });
 
-  test('a relative root is resolved against the working directory', async () => {
+  test('a relative root is resolved against the working directory of the moment the reader is made', async () => {
     put('a.json', 'here');
     const before = process.cwd();
     process.chdir(layout.base);
+    let reader;
     try {
-      await expect(fsFileSetReader('root').readFile('a.json')).resolves.toBe(
-        'here'
-      );
+      reader = fsFileSetReader('root');
     } finally {
       process.chdir(before);
     }
+
+    await expect(reader.readFile('a.json')).resolves.toBe('here');
   });
 });
 
@@ -491,6 +492,18 @@ describe('links', () => {
       { name: 'linked', isDirectory: true },
       { name: 'sub', isDirectory: true },
     ]);
+  });
+
+  linkTest('a link to a folder whose name starts with two dots is inside: two dots are a name, not a way up', async () => {
+    put('..hidden/x.json', 'dots');
+    link('alias', '..hidden');
+
+    await expect(fsFileSetReader(root).readFile('alias/x.json')).resolves.toBe(
+      'dots'
+    );
+    await expect(
+      fsFileSetReader(root).readFile('..hidden/x.json')
+    ).resolves.toBe('dots');
   });
 
   linkTest('a link that leads out of the folder rejects for a file, and the file outside is not read', async () => {

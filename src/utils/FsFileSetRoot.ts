@@ -3,11 +3,12 @@ import path from 'node:path';
 import { assertInside, sameOnAnyFileSystem } from './ConfigTreePath';
 
 /**
- * The part that the file-system reader and writer of a file set share: the folder that holds the
- * set (the container) and the walk from it down to a path of the set. The walk is what keeps a read
- * or a write inside the container: a link is followed only when its real path is strictly inside
- * the container, and a name is taken only as it is spelled on the disk (a path in another case or
- * Unicode form than the entry on a case-insensitive disk is not that entry).
+ * The part that the file-system reader and writer of a file set (FsFileSetReader.ts and
+ * FsFileSetWriter.ts) share: the folder that holds the set (the container) and the walk from it down
+ * to a path of the set. The walk is what keeps a read or a write inside the container: a link is
+ * followed only when its real path is strictly inside the container, and a name is taken only as it
+ * is spelled on the disk (a path in another case or Unicode form than the entry on a
+ * case-insensitive disk is not that entry).
  *
  * The test is made at the time of use, one component at a time. A person who can change the folder
  * while it is read or written can still win a race between the walk and the use; what the walk
@@ -90,6 +91,32 @@ export async function containerOf(
 }
 
 /**
+ * The name that the disk has for an entry that `lstat` found by a name that may be spelled otherwise
+ * (a disk that ignores case or Unicode form finds the entry all the same).
+ * @param {string} folder the real path of the folder that holds the entry
+ * @param {string} name the name as it was asked for
+ * @param {fs.Stats} entry what `lstat` found at the name
+ * @returns {Promise<string>} the name as the disk spells it
+ */
+export async function spellingOnDisk(
+  folder: string,
+  name: string,
+  entry: fs.Stats
+): Promise<string> {
+  if (!entry.isSymbolicLink()) {
+    // the real path of an entry that is not a link ends with the spelling of the disk
+    return path.basename(await fs.promises.realpath(path.join(folder, name)));
+  }
+  // the real path of a link is the path of its target: the folder says how the link is spelled
+  const names = await fs.promises.readdir(folder);
+  return names.includes(name)
+    ? name
+    : (names.find(
+        (one) => sameOnAnyFileSystem(one) === sameOnAnyFileSystem(name)
+      ) ?? name);
+}
+
+/**
  * Whether the real path of a link is a place that a file set may use: strictly inside the container.
  * @param {string} container the real path of the container
  * @param {string} real the real path of the link
@@ -135,7 +162,6 @@ export async function walk(
   for (const [index, part] of parts.entries()) {
     const candidate = path.join(current, part);
     const inSet = parts.slice(0, index + 1).join('/');
-    const isLast = index === parts.length - 1;
     let real: string;
     try {
       real = await fs.promises.realpath(candidate);
@@ -146,7 +172,10 @@ export async function walk(
           cause: error,
         });
       }
-      if (code === 'ENOTDIR') return { state: 'notDirectory', at: inSet };
+      // the parts above this one exist and are folders (or the walk would have stopped), so the part above is the file
+      if (code === 'ENOTDIR') {
+        return { state: 'notDirectory', at: parts.slice(0, index).join('/') };
+      }
       if (code !== 'ENOENT') throw error;
       try {
         await fs.promises.lstat(candidate);
@@ -166,30 +195,17 @@ export async function walk(
       });
     }
     if (real !== candidate) {
+      // a link, or an entry that is there under another spelling
       const entry = await fs.promises.lstat(candidate);
-      if (!entry.isSymbolicLink()) {
-        return {
-          state: 'otherSpelling',
-          at: inSet,
-          onDisk: path.basename(real),
-        };
+      const onDisk = await spellingOnDisk(current, part, entry);
+      if (onDisk !== part) {
+        return { state: 'otherSpelling', at: inSet, onDisk };
       }
-      // a link, whose own name may also be spelled otherwise on the disk
-      const names = await fs.promises.readdir(current);
-      if (!names.includes(part)) {
-        const onDisk = names.find(
-          (name) => sameOnAnyFileSystem(name) === sameOnAnyFileSystem(part)
-        );
-        return { state: 'otherSpelling', at: inSet, onDisk: onDisk ?? part };
-      }
-      if (!isStrictlyInside(container, real)) {
+      if (entry.isSymbolicLink() && !isStrictlyInside(container, real)) {
         throw new Error(
           `The link '${inSet}' leads out of the folder of the file set.`
         );
       }
-    }
-    if (!isLast && !(await fs.promises.stat(real)).isDirectory()) {
-      return { state: 'notDirectory', at: inSet };
     }
     current = real;
   }

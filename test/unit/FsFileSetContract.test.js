@@ -8,7 +8,7 @@ import {
   CONTRACT_ROWS,
   CONTRACT_SET,
   ignoresCase,
-  listTree,
+  entriesOf,
   makeTemporaryFolder,
   removeTemporaryFolder,
   sha256,
@@ -224,7 +224,7 @@ describe('the toy file set of the golden folder', () => {
       const bytes = fs.readFileSync(path.join(folder, ...file.path.split('/')));
       expect([bytes.length, sha256(bytes)]).toEqual(TOY_SHA256[file.path]);
     }
-    expect(listTree(folder).map((entry) => entry.path)).toEqual([
+    expect(entriesOf(folder).map((entry) => entry.path)).toEqual([
       'realms',
       'realms/alpha',
       'realms/alpha/toys',
@@ -240,11 +240,11 @@ describe('the toy file set of the golden folder', () => {
   test('written twice gives a folder that is byte for byte the same', async () => {
     const folder = newFolder();
     await fsFileSetWriter(folder).write(TOY_SET);
-    const first = listTree(folder);
+    const first = entriesOf(folder);
 
     await fsFileSetWriter(folder).write(TOY_SET);
 
-    expect(listTree(folder)).toEqual(first);
+    expect(entriesOf(folder)).toEqual(first);
   });
 
   test('the reader lists exactly the set, in ordinal order, with the name `a%2Fb.json` as it is', async () => {
@@ -289,13 +289,13 @@ describe('the toy file set of the golden folder', () => {
   test('a clean of the finished folder removes nothing, and the folder is the same', async () => {
     const folder = newFolder();
     await fsFileSetWriter(folder).write(TOY_SET);
-    const before = listTree(folder);
+    const before = entriesOf(folder);
 
     const result = await fsFileSetWriter(folder).write(TOY_SET, { clean: true });
 
     expect(result.removed).toEqual([]);
     expect(result.failed).toEqual([]);
     expect(result.cleaned).toEqual(['realms/alpha/toys', 'realms/bravo/toys']);
-    expect(listTree(folder)).toEqual(before);
+    expect(entriesOf(folder)).toEqual(before);
   });
 });

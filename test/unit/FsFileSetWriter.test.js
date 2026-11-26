@@ -13,7 +13,7 @@ import { fsFileSetWriter } from '../../src/utils/FsFileSetWriter.ts';
 import {
   BAD_PATHS,
   ignoresCase,
-  listTree,
+  entriesOf,
   makeLayout,
   makeTemporaryFolder,
   outsideIsUntouched,
@@ -168,7 +168,7 @@ describe('what a write does and says', () => {
       removed: [],
       cleaned: [],
     });
-    expect(listTree(root).map((entry) => entry.path)).toEqual([
+    expect(entriesOf(root).map((entry) => entry.path)).toEqual([
       'a.json',
       'b',
       'b/c',
@@ -199,6 +199,21 @@ describe('what a write does and says', () => {
     expect(fs.readFileSync(path.join(deeper, 'a.json'), 'utf8')).toBe('x\n');
   });
 
+  test('a relative root is resolved against the working directory of the moment the writer is made', async () => {
+    const before = process.cwd();
+    process.chdir(layout.base);
+    let relative;
+    try {
+      relative = fsFileSetWriter('root');
+    } finally {
+      process.chdir(before);
+    }
+
+    await relative.write(set([file('a.json', 'here')]));
+
+    expect(text('a.json')).toBe('here');
+  });
+
   test('replaces a file, and leaves what else is in the folder', async () => {
     put('d/x.json', 'old');
     put('d/other.json', 'other');
@@ -212,11 +227,11 @@ describe('what a write does and says', () => {
   test('writes the same folder twice: the second run changes nothing', async () => {
     const files = [file('a/1.json', '1'), file('a/2.json', '2'), file('b/3.json', '3')];
     await writer.write(set(files, ['a']));
-    const first = listTree(root);
+    const first = entriesOf(root);
 
     const second = await writer.write(set(files, ['a']));
 
-    expect(listTree(root)).toEqual(first);
+    expect(entriesOf(root)).toEqual(first);
     expect(second.written).toEqual(['a/1.json', 'a/2.json', 'b/3.json']);
   });
 
@@ -267,9 +282,9 @@ describe('the mode of a file and of a folder', () => {
 describe('a set that cannot be written is refused before anything is written', () => {
   const unchanged = async (fileSet, message) => {
     // a good file in front of the bad one: it must not be written either
-    const before = listTree(root);
+    const before = entriesOf(root);
     await expect(writer.write(fileSet)).rejects.toThrow(message);
-    expect(listTree(root)).toEqual(before);
+    expect(entriesOf(root)).toEqual(before);
   };
 
   test.each(BAD_PATHS.filter((badPath) => badPath !== '\ud800').map((badPath) => [JSON.stringify(badPath), badPath]))(
@@ -402,6 +417,16 @@ describe('where a file goes: links', () => {
     expect(text('real/keep.json')).toBe('keep');
   });
 
+  linkTest('a link to a folder whose name starts with two dots is inside: two dots are a name, not a way up', async () => {
+    put('..hidden/keep.json', 'keep');
+    link('alias', '..hidden');
+
+    const result = await writer.write(set([file('alias/x.json', 'dots')]));
+
+    expect(result.failed).toEqual([]);
+    expect(text('..hidden/x.json')).toBe('dots');
+  });
+
   linkTest('a link that leads out through another link fails the file', async () => {
     link('b', path.join('..', 'outside'));
     link('a', 'b');
@@ -465,6 +490,7 @@ describe('where a file goes: links', () => {
     const result = await writer.write(set([file('a.json'), file('b.json')]));
 
     expect(result.failed.map((one) => one.path)).toEqual(['a.json']);
+    expect(result.failed[0].error.getCombinedMessage()).toMatch(/is a folder, not a file/);
     expect(text('a.json/inner.json')).toBe('keep');
     expect(result.written).toEqual(['b.json']);
   });
@@ -570,7 +596,7 @@ describe('a clean', () => {
     put('realms/alpha/journeys/j1/j1.json', 'journey');
     put('realms/alpha/journeys/j2/nodes/x.json', 'other journey');
     put('realms/alpha/other.json', 'other');
-    const before = listTree(root);
+    const before = entriesOf(root);
 
     const result = await writer.write(
       set([file('realms/alpha/journeys/j1/j1.json', 'journey v2'), file(`${OWNED}/n1.json`, 'n1')], [OWNED]),
@@ -580,7 +606,7 @@ describe('a clean', () => {
     expect(result.failed).toEqual([]);
     expect(result.removed).toEqual([`${OWNED}/.hidden`, `${OWNED}/old.json`, `${OWNED}/sub`]);
     expect(result.cleaned).toEqual([OWNED]);
-    expect(listTree(root).map((entry) => entry.path)).toEqual([
+    expect(entriesOf(root).map((entry) => entry.path)).toEqual([
       'realms',
       'realms/alpha',
       'realms/alpha/journeys',
@@ -594,7 +620,7 @@ describe('a clean', () => {
       'realms/alpha/other.json',
     ]);
     // what is outside the owned folder is untouched
-    const after = listTree(root);
+    const after = entriesOf(root);
     for (const entry of before.filter((one) => !one.path.startsWith(`${OWNED}/`))) {
       if (entry.path === 'realms/alpha/journeys/j1/j1.json') continue;
       expect(after).toContainEqual(entry);
@@ -645,7 +671,7 @@ describe('a clean', () => {
     const result = await writer.write(set([file('realms/alpha/keep.json', 'k')], ['realms', 'realms/alpha']), { clean: true });
 
     expect(result.cleaned).toEqual(['realms', 'realms/alpha']);
-    expect(listTree(root).map((entry) => entry.path)).toEqual([
+    expect(entriesOf(root).map((entry) => entry.path)).toEqual([
       'other',
       'other/stale.json',
       'realms',
@@ -678,6 +704,19 @@ describe('a clean', () => {
     // the folder outside, and its sentinel, are checked after the test
   });
 
+  linkTest('keeps a link that a listed file goes through, and does not enter it', async () => {
+    put('real/stale.json', 'in the target');
+    link('o/alias', path.join('..', 'real'));
+
+    const result = await writer.write(set([file('o/alias/x.json', 'through')], ['o']), { clean: true });
+
+    expect(result.failed).toEqual([]);
+    expect(result.removed).toEqual([]);
+    expect(fs.lstatSync(path.join(root, 'o', 'alias')).isSymbolicLink()).toBe(true);
+    expect(text('real/x.json')).toBe('through');
+    expect(text('real/stale.json')).toBe('in the target');
+  });
+
   test('is not done when one file failed, and the old files stay', async () => {
     put('o/stale.json');
     put('o/blocked.json/inner', 'x');
@@ -706,13 +745,13 @@ describe('a clean', () => {
     put('o/stale.json');
     const files = [file('o/a.json', 'a')];
     await writer.write(set(files, ['o']), { clean: true });
-    const first = listTree(root);
+    const first = entriesOf(root);
 
     const second = await writer.write(set(files, ['o']), { clean: true });
 
     expect(second.removed).toEqual([]);
     expect(second.cleaned).toEqual(['o']);
-    expect(listTree(root)).toEqual(first);
+    expect(entriesOf(root)).toEqual(first);
   });
 
   test('changes nothing outside the owned folders, and nothing inside them that the set lists', async () => {
@@ -721,11 +760,11 @@ describe('a clean', () => {
     put('p/untouched.json');
     put('p/deep/untouched.json');
     put('top.json');
-    const before = listTree(root);
+    const before = entriesOf(root);
     const files = [file('o/keep/a.json', 'new')];
 
     await writer.write(set(files, ['o']), { clean: true });
-    const after = listTree(root);
+    const after = entriesOf(root);
 
     const gone = before.filter((one) => !after.some((kept) => kept.path === one.path && kept.detail === one.detail));
     const added = after.filter((one) => !before.some((old) => old.path === one.path));
@@ -841,7 +880,7 @@ describe('the rules of Windows, shown with a faked platform', () => {
     expect(result.failed.map((one) => one.path)).toEqual([refused]);
     expect(result.failed[0].error.getCombinedMessage()).toMatch(/cannot be the name of a file on Windows/);
     expect(result.written).toEqual(['fine.json']);
-    expect(listTree(root).map((entry) => entry.path)).toEqual(['fine.json']);
+    expect(entriesOf(root).map((entry) => entry.path)).toEqual(['fine.json']);
   });
 
   test.each(['console.json', 'com0.json', 'com10.json', 'lpt.json', 'a.b', 'nul-x.json', 'xcon.json', '.hidden', 'con-.json'])(

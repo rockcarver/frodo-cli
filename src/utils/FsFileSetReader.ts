@@ -97,7 +97,7 @@ export function fsFileSetReader(root: string): FileSetReader {
           throw new Error(`The path '${setPath}' is a directory, not a file.`);
         }
         // a FIFO, a socket or a device is not opened: opening a FIFO waits for a writer
-        if (!info.isFile()) {
+        if (!isRegularFile(info)) {
           throw new Error(`The path '${setPath}' is not a regular file.`);
         }
         const handle = await fs.promises.open(
@@ -108,7 +108,7 @@ export function fsFileSetReader(root: string): FileSetReader {
         );
         try {
           // the file that was opened is the file that was looked at
-          if (!(await handle.stat()).isFile()) {
+          if (!isRegularFile(await handle.stat())) {
             throw new Error(`The path '${setPath}' is not a regular file.`);
           }
           bytes = await handle.readFile();
@@ -137,6 +137,15 @@ export function fsFileSetReader(root: string): FileSetReader {
       }
     },
   };
+}
+
+/**
+ * Whether what `lstat` or `fstat` found is a regular file (not a folder, a FIFO, a socket or a device).
+ * @param {fs.Stats} info what was found
+ * @returns {boolean} true for a regular file
+ */
+function isRegularFile(info: fs.Stats): boolean {
+  return info.isFile();
 }
 
 /**

@@ -8,7 +8,13 @@ import {
   type VirtualFileSet,
 } from '@rockcarver/frodo-lib';
 import { sameOnAnyFileSystem } from './ConfigTreePath';
-import { asError, codeOf, containerOf, walk } from './FsFileSetRoot';
+import {
+  asError,
+  codeOf,
+  containerOf,
+  spellingOnDisk,
+  walk,
+} from './FsFileSetRoot';
 
 /**
  * The file-system writer of a file set: what a pull is given when its files go to a folder.
@@ -46,9 +52,10 @@ export type FileSetWriter = {
    * the files are written in the order of the set: each into a temporary file in its own folder,
    * which is renamed onto the file, so that a file is never half written and a link at the place of
    * a file is replaced and never followed. A new file has the mode that a file gets by default; a file
-   * that is replaced keeps its mode. A folder on the way may be a link only when its real path is strictly
-   * inside the root; otherwise that file fails. A file that fails (no permission, a link that leaves the
-   * root, a folder where the file belongs) is in `failed` and the next file is written.
+   * that is replaced keeps its mode, but not its owner, its extended attributes or its other hard links
+   * (the new file is a new entry). A folder on the way may be a link only when its real path is
+   * strictly inside the root; otherwise that file fails. A file that fails (no permission, a link that
+   * leaves the root, a folder where the file belongs) is in `failed` and the next file is written.
    *
    * On a file system that ignores case, a file that is there under another spelling than the set gives
    * is replaced under the spelling of the set. On Windows, a file whose path has a part that is a name
@@ -230,32 +237,6 @@ async function ensureFolder(
 }
 
 /**
- * The name that the disk has for an entry that `lstat` found under another spelling: the entry of the
- * folder that one file system takes for the name.
- * @param {string} folder the real path of the folder
- * @param {string} name the name as the set spells it
- * @param {fs.Stats} entry what `lstat` found at the name
- * @returns {Promise<string>} the name as the disk spells it
- */
-async function nameOnDisk(
-  folder: string,
-  name: string,
-  entry: fs.Stats
-): Promise<string> {
-  if (!entry.isSymbolicLink()) {
-    // the real path of an entry that is not a link ends with the spelling of the disk
-    return path.basename(await fs.promises.realpath(path.join(folder, name)));
-  }
-  // the real path of a link is the path of its target: the folder says how the link is spelled
-  const names = await fs.promises.readdir(folder);
-  return names.includes(name)
-    ? name
-    : (names.find(
-        (one) => sameOnAnyFileSystem(one) === sameOnAnyFileSystem(name)
-      ) ?? name);
-}
-
-/**
  * Writes one file: into a temporary file next to it, then renamed onto it.
  * @param {string} container the real path of the container
  * @param {VirtualFile} file the file
@@ -283,7 +264,7 @@ async function writeOne(container: string, file: VirtualFile): Promise<void> {
     else if (!existing.isSymbolicLink()) {
       throw new Error(`The path '${file.path}' is not a regular file.`);
     }
-    const spelled = await nameOnDisk(folder, name, existing);
+    const spelled = await spellingOnDisk(folder, name, existing);
     if (spelled !== name) stale = path.join(folder, spelled);
   }
   const temporary = path.join(
@@ -341,9 +322,13 @@ async function prune(
     const full = path.join(real, name);
     // a link is never entered: `isDirectory` of a dirent does not follow it
     if (context.files.has(entryPath)) continue;
-    if (dirent.isDirectory() && context.folders.has(entryPath)) {
-      await prune(context, full, entryPath);
-      continue;
+    if (context.folders.has(entryPath)) {
+      if (dirent.isDirectory()) {
+        await prune(context, full, entryPath);
+        continue;
+      }
+      // a link that a listed file goes through is kept, and not entered
+      if (dirent.isSymbolicLink()) continue;
     }
     const listed = context.fileKeys.get(sameOnAnyFileSystem(entryPath));
     if (listed !== undefined) {
