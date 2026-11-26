@@ -1,0 +1,475 @@
+import crypto from 'node:crypto';
+import fs from 'node:fs';
+import path from 'node:path';
+import {
+  frodo,
+  FrodoError,
+  type VirtualFile,
+  type VirtualFileSet,
+} from '@rockcarver/frodo-lib';
+import { sameOnAnyFileSystem } from './ConfigTreePath';
+import { asError, codeOf, containerOf, walk } from './FsFileSetRoot';
+
+/**
+ * The file-system writer of a file set: what a pull is given when its files go to a folder.
+ * `fsFileSetWriter(root).write(fileSet, { clean })` writes the files of a `VirtualFileSet` below
+ * `root`, one file at a time, and says what it did. It prints nothing, sets no exit code and reads
+ * no state: the caller feeds `failed` to its run (a command that runs many operations runs them all,
+ * then fails if any failed, see
+ * https://github.com/rockcarver/frodo-cli/blob/main/docs/decisions/0040-a-command-that-runs-many-operations-runs-them-all-then-fails-if-any-failed.md).
+ *
+ * The file name is what the set says. The writer never changes a name, never derives one and never
+ * reads one apart (no decoding, no cutting of an extension): a path is written as it is.
+ */
+
+/** What a write did. */
+export type FileSetWriteResult = {
+  /** The paths of the files that were written, in the order of the set. */
+  written: string[];
+  /** The files (and owned folders) that could not be written or cleaned, each with the error; the rest of the set was written anyway. */
+  failed: { path: string; error: FrodoError }[];
+  /** The paths of the entries that a clean removed, below the owned folders, in the order they were met. */
+  removed: string[];
+  /** The owned folders that a clean went through. */
+  cleaned: string[];
+};
+
+/** A writer of file sets into one folder. */
+export type FileSetWriter = {
+  /**
+   * Writes a file set.
+   *
+   * Before anything is made, every path (of a file and of an owned folder) passes the gate of the
+   * library, no path is there twice, no two paths (or folders on the way) are one on a file system
+   * that ignores case or Unicode form, no path is a file and a folder, and every text is well formed;
+   * if not, the call throws and the folder is as it was. Then the root is made when it is missing, and
+   * the files are written in the order of the set: each into a temporary file in its own folder,
+   * which is renamed onto the file, so that a file is never half written and a link at the place of
+   * a file is replaced and never followed. A new file has the mode that a file gets by default; a file
+   * that is replaced keeps its mode. A folder on the way may be a link only when its real path is strictly
+   * inside the root; otherwise that file fails. A file that fails (no permission, a link that leaves the
+   * root, a folder where the file belongs) is in `failed` and the next file is written.
+   *
+   * On a file system that ignores case, a file that is there under another spelling than the set gives
+   * is replaced under the spelling of the set. On Windows, a file whose path has a part that is a name
+   * of a device (`con`, `nul`, `com1`, ...) or that ends with a dot or a space fails; no name is changed.
+   *
+   * Every owned folder is made, an empty one too. With `clean`, and only when no file and no folder
+   * failed, the entries below each owned folder that the set does not list, and that are not a folder on
+   * the way to a listed file or to an owned folder, are removed (a link is removed, not followed; the
+   * owned folder itself and the root are never removed). The clean runs after every file is written, so
+   * a pull that fails keeps the files that were there.
+   * @param {VirtualFileSet} fileSet the files, and the folders that the set owns
+   * @param {{ clean?: boolean }} options `clean`: remove what an owned folder holds that the set does not list
+   * @returns {Promise<FileSetWriteResult>} what was written, what failed, what was removed
+   * @throws {Error} if the set is not one that can be written, or the root is not a folder
+   */
+  write(
+    fileSet: VirtualFileSet,
+    options?: { clean?: boolean }
+  ): Promise<FileSetWriteResult>;
+};
+
+/** What a name of Windows cannot be: a device (with or without an extension). */
+const WINDOWS_DEVICE = /^(?:con|prn|aux|nul|com[1-9]|lpt[1-9])(?:\..*)?$/i;
+
+/**
+ * A path as a message shows it.
+ * @param {string} value the path
+ * @returns {string} the path in double quotes, with every character that is not plain ASCII written as an escape
+ */
+function quoted(value: string): string {
+  return JSON.stringify(value).replace(
+    /[^\x20-\x7e]/g,
+    (character) => `\\u${character.charCodeAt(0).toString(16).padStart(4, '0')}`
+  );
+}
+
+/**
+ * Whether a text is well formed Unicode (no lone surrogate): such a text would be written as U+FFFD,
+ * not byte for byte.
+ * @param {string} text the text
+ * @returns {boolean} true if the text is well formed
+ */
+function isWellFormed(text: string): boolean {
+  return (text as unknown as { isWellFormed(): boolean }).isWellFormed();
+}
+
+/**
+ * Checks a file set before anything is written, and throws at the first problem. The gate of the
+ * library is the one gate for a path; the other checks are those that a builder of the library makes
+ * and that the writer does not take on trust from its caller.
+ * @param {VirtualFileSet} fileSet the set
+ * @throws {Error} if the set cannot be written
+ */
+function checkFileSet(fileSet: VirtualFileSet): void {
+  if (!fileSet || !Array.isArray(fileSet.files)) {
+    throw new Error('The file set needs a list of files.');
+  }
+  const ownedFolders = fileSet.ownedFolders ?? [];
+  if (!Array.isArray(ownedFolders)) {
+    throw new Error('The folders that the file set owns need to be a list.');
+  }
+  // what one file system takes for one name, to the path as spelled and what it is
+  const claims = new Map<string, { spelled: string; isFolder: boolean }>();
+  const claim = (spelled: string, isFolder: boolean): void => {
+    const key = sameOnAnyFileSystem(spelled);
+    const first = claims.get(key);
+    if (first === undefined) {
+      claims.set(key, { spelled, isFolder });
+    } else if (first.spelled !== spelled) {
+      throw new Error(
+        `The path ${quoted(spelled)} is the same as ${quoted(first.spelled)} on a file system that ignores case or Unicode form.`
+      );
+    } else if (first.isFolder !== isFolder) {
+      throw new Error(`The path ${quoted(spelled)} is a file and a folder.`);
+    }
+  };
+  const seenFiles = new Set<string>();
+  for (const file of fileSet.files) {
+    frodo.utils.assertFileSetPath(file?.path);
+    if (typeof file.content !== 'string') {
+      throw new Error(`The text of ${quoted(file.path)} is not a string.`);
+    }
+    if (!isWellFormed(file.content)) {
+      throw new Error(
+        `The text of ${quoted(file.path)} is not text (it holds a lone surrogate).`
+      );
+    }
+    if (seenFiles.has(file.path)) {
+      throw new Error(
+        `The file set holds the path ${quoted(file.path)} twice.`
+      );
+    }
+    seenFiles.add(file.path);
+    const parts = file.path.split('/');
+    parts.forEach((_, index) =>
+      claim(parts.slice(0, index + 1).join('/'), index < parts.length - 1)
+    );
+  }
+  const seenFolders = new Set<string>();
+  for (const folder of ownedFolders) {
+    frodo.utils.assertFileSetPath(folder);
+    if (seenFolders.has(folder)) {
+      throw new Error(
+        `The file set holds the owned folder ${quoted(folder)} twice.`
+      );
+    }
+    seenFolders.add(folder);
+    const parts = folder.split('/');
+    parts.forEach((_, index) =>
+      claim(parts.slice(0, index + 1).join('/'), true)
+    );
+  }
+}
+
+/**
+ * On Windows, a name that cannot be a name of a file there: a device, or a name that ends with a dot
+ * or a space (it would be written under another name). Nothing is changed; the file is refused.
+ * @param {string[]} parts the parts of a path
+ * @throws {Error} if a part cannot be a name on Windows
+ */
+function checkWindowsNames(parts: string[]): void {
+  if (process.platform !== 'win32') return;
+  for (const part of parts) {
+    if (WINDOWS_DEVICE.test(part) || /[. ]$/.test(part)) {
+      throw new Error(
+        `The name ${quoted(part)} cannot be the name of a file on Windows.`
+      );
+    }
+  }
+}
+
+/**
+ * The real path of a folder of the set, made when it is not there: the walk of the container, and one
+ * `mkdir` for each part that is missing (never one `mkdir` through a link that was not looked at).
+ * @param {string} container the real path of the container
+ * @param {string[]} parts the parts of the path of the folder; none is the container itself
+ * @returns {Promise<string>} the real path of the folder
+ * @throws {Error} if a part is a file, is there under another spelling, or is a link that leaves the container
+ */
+async function ensureFolder(
+  container: string,
+  parts: string[]
+): Promise<string> {
+  if (parts.length === 0) return container;
+  // a folder that another process makes at the same time is found by the next walk
+  for (let attempt = 0; attempt < 3; attempt++) {
+    const walked = await walk(container, parts);
+    if (walked.state === 'found') {
+      if (!(await fs.promises.stat(walked.real)).isDirectory()) {
+        throw new Error(
+          `The path '${parts.join('/')}' is a file, not a folder.`
+        );
+      }
+      return walked.real;
+    }
+    if (walked.state === 'notDirectory') {
+      throw new Error(`The path '${walked.at}' is a file, not a folder.`);
+    }
+    if (walked.state === 'otherSpelling') {
+      throw new Error(
+        `The folder '${walked.at}' is there under another spelling, '${walked.onDisk}'.`
+      );
+    }
+    let current = walked.existing;
+    let raced = false;
+    for (const part of walked.rest) {
+      current = path.join(current, part);
+      try {
+        await fs.promises.mkdir(current);
+      } catch (error) {
+        if (codeOf(error) !== 'EEXIST') throw error;
+        raced = true;
+        break;
+      }
+    }
+    if (!raced) return current;
+  }
+  throw new Error(`The folder '${parts.join('/')}' keeps changing.`);
+}
+
+/**
+ * The name that the disk has for an entry that `lstat` found under another spelling: the entry of the
+ * folder that one file system takes for the name.
+ * @param {string} folder the real path of the folder
+ * @param {string} name the name as the set spells it
+ * @param {fs.Stats} entry what `lstat` found at the name
+ * @returns {Promise<string>} the name as the disk spells it
+ */
+async function nameOnDisk(
+  folder: string,
+  name: string,
+  entry: fs.Stats
+): Promise<string> {
+  if (!entry.isSymbolicLink()) {
+    // the real path of an entry that is not a link ends with the spelling of the disk
+    return path.basename(await fs.promises.realpath(path.join(folder, name)));
+  }
+  // the real path of a link is the path of its target: the folder says how the link is spelled
+  const names = await fs.promises.readdir(folder);
+  return names.includes(name)
+    ? name
+    : (names.find(
+        (one) => sameOnAnyFileSystem(one) === sameOnAnyFileSystem(name)
+      ) ?? name);
+}
+
+/**
+ * Writes one file: into a temporary file next to it, then renamed onto it.
+ * @param {string} container the real path of the container
+ * @param {VirtualFile} file the file
+ * @throws {Error} if the file cannot be written
+ */
+async function writeOne(container: string, file: VirtualFile): Promise<void> {
+  const parts = file.path.split('/');
+  checkWindowsNames(parts);
+  const name = parts[parts.length - 1];
+  const folder = await ensureFolder(container, parts.slice(0, -1));
+  const target = path.join(folder, name);
+  let mode: number | undefined;
+  let stale: string | undefined;
+  let existing: fs.Stats | undefined;
+  try {
+    existing = await fs.promises.lstat(target);
+  } catch (error) {
+    if (codeOf(error) !== 'ENOENT') throw error;
+  }
+  if (existing !== undefined) {
+    if (existing.isDirectory()) {
+      throw new Error(`The path '${file.path}' is a folder, not a file.`);
+    }
+    if (existing.isFile()) mode = existing.mode & 0o7777;
+    else if (!existing.isSymbolicLink()) {
+      throw new Error(`The path '${file.path}' is not a regular file.`);
+    }
+    const spelled = await nameOnDisk(folder, name, existing);
+    if (spelled !== name) stale = path.join(folder, spelled);
+  }
+  const temporary = path.join(
+    folder,
+    `.frodo-${crypto.randomBytes(4).toString('hex')}.tmp`
+  );
+  try {
+    const handle = await fs.promises.open(temporary, 'wx');
+    try {
+      await handle.writeFile(Buffer.from(file.content, 'utf8'));
+      if (mode !== undefined) await handle.chmod(mode);
+    } finally {
+      await handle.close();
+    }
+    // the stale spelling goes just before the rename, so the file is missing for as short a time as possible
+    if (stale !== undefined) await fs.promises.unlink(stale);
+    await fs.promises.rename(temporary, target);
+  } catch (error) {
+    await fs.promises.rm(temporary, { force: true }).catch(() => undefined);
+    throw error;
+  }
+}
+
+/**
+ * Removes what a folder holds that the set does not list, and goes down into the folders on the way
+ * to a listed file or to an owned folder.
+ * @param {object} context what the clean knows
+ * @param {string} context.container the real path of the container
+ * @param {Set<string>} context.files the paths of the listed files
+ * @param {Map<string, string>} context.fileKeys the paths of the listed files by what one file system takes for the name
+ * @param {Set<string>} context.folders the folders on the way to a listed file, and the owned folders
+ * @param {string[]} context.removed gets the paths that were removed
+ * @param {{ path: string; error: FrodoError }[]} context.failed gets the removals that failed
+ * @param {string} real the real path of the folder
+ * @param {string} inSet the path of the folder in the set
+ */
+async function prune(
+  context: {
+    container: string;
+    files: Set<string>;
+    fileKeys: Map<string, string>;
+    folders: Set<string>;
+    removed: string[];
+    failed: { path: string; error: FrodoError }[];
+  },
+  real: string,
+  inSet: string
+): Promise<void> {
+  const dirents = await fs.promises.readdir(real, { withFileTypes: true });
+  const names = dirents
+    .map((dirent) => ({ name: dirent.name, dirent }))
+    .sort((a, b) => (a.name < b.name ? -1 : a.name > b.name ? 1 : 0));
+  for (const { name, dirent } of names) {
+    const entryPath = `${inSet}/${name}`;
+    const full = path.join(real, name);
+    // a link is never entered: `isDirectory` of a dirent does not follow it
+    if (context.files.has(entryPath)) continue;
+    if (dirent.isDirectory() && context.folders.has(entryPath)) {
+      await prune(context, full, entryPath);
+      continue;
+    }
+    const listed = context.fileKeys.get(sameOnAnyFileSystem(entryPath));
+    if (listed !== undefined) {
+      // on a file system that ignores case, the entry that is the file just written may still have another spelling
+      const same = await isSameEntry(
+        full,
+        path.join(context.container, ...listed.split('/'))
+      );
+      if (same) continue;
+    }
+    try {
+      await fs.promises.rm(full, { recursive: true, force: true });
+      context.removed.push(entryPath);
+    } catch (error) {
+      context.failed.push({
+        path: entryPath,
+        error: new FrodoError(`Error cleaning ${entryPath}`, asError(error)),
+      });
+    }
+  }
+}
+
+/**
+ * Whether two paths are the same entry of a disk (the same device and inode), neither followed if it is a link.
+ * @param {string} a the first path
+ * @param {string} b the second path
+ * @returns {Promise<boolean>} true if both are there and are one entry
+ */
+async function isSameEntry(a: string, b: string): Promise<boolean> {
+  try {
+    const first = await fs.promises.lstat(a);
+    const second = await fs.promises.lstat(b);
+    return (
+      first.ino !== 0 && first.dev === second.dev && first.ino === second.ino
+    );
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * The writer of file sets into a folder on the file system.
+ * @param {string} root the folder that holds the set; made on the first write if it is not there (a relative path is resolved against the working directory now)
+ * @returns {FileSetWriter} the writer
+ */
+export function fsFileSetWriter(root: string): FileSetWriter {
+  const folder = path.resolve(root);
+  return {
+    async write(fileSet, options = {}) {
+      checkFileSet(fileSet);
+      const result: FileSetWriteResult = {
+        written: [],
+        failed: [],
+        removed: [],
+        cleaned: [],
+      };
+      const container = await containerOf(folder, true);
+      const failedWith = (what: string, filePath: string, error: unknown) =>
+        result.failed.push({
+          path: filePath,
+          error: new FrodoError(`Error ${what} ${filePath}`, asError(error)),
+        });
+      for (const file of fileSet.files) {
+        try {
+          await writeOne(container, file);
+          result.written.push(file.path);
+        } catch (error) {
+          failedWith('writing', file.path, error);
+        }
+      }
+      const ownedFolders = fileSet.ownedFolders ?? [];
+      for (const owned of ownedFolders) {
+        try {
+          const parts = owned.split('/');
+          checkWindowsNames(parts);
+          await ensureFolder(container, parts);
+        } catch (error) {
+          failedWith('creating the folder', owned, error);
+        }
+      }
+      if (options.clean && result.failed.length === 0) {
+        const files = new Set(fileSet.files.map((file) => file.path));
+        const fileKeys = new Map(
+          fileSet.files.map((file) => [
+            sameOnAnyFileSystem(file.path),
+            file.path,
+          ])
+        );
+        const folders = new Set<string>();
+        for (const owned of ownedFolders) {
+          const parts = owned.split('/');
+          parts.forEach((_, index) =>
+            folders.add(parts.slice(0, index + 1).join('/'))
+          );
+        }
+        for (const file of fileSet.files) {
+          const parts = file.path.split('/').slice(0, -1);
+          parts.forEach((_, index) =>
+            folders.add(parts.slice(0, index + 1).join('/'))
+          );
+        }
+        for (const owned of ownedFolders) {
+          try {
+            const walked = await walk(container, owned.split('/'));
+            if (walked.state !== 'found') {
+              throw new Error(`The folder '${owned}' is not there.`);
+            }
+            await prune(
+              {
+                container,
+                files,
+                fileKeys,
+                folders,
+                removed: result.removed,
+                failed: result.failed,
+              },
+              walked.real,
+              owned
+            );
+            result.cleaned.push(owned);
+          } catch (error) {
+            failedWith('cleaning', owned, error);
+          }
+        }
+      }
+      return result;
+    },
+  };
+}
