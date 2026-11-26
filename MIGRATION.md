@@ -235,6 +235,8 @@ turns them on), and `ps` shows one `node .../launch.cjs` process, so
 `pkill -f app.cjs` no longer finds a server: use `frodo mcp server stop`.
 `require('@rockcarver/frodo-cli')` (unsupported) runs the CLI in the importer.
 
+**The npm package keeps Node's compile cache in a new folder, `~/.frodo/compile-cache`** (`$FRODO_CONFIG_PATH/compile-cache` when that is set): every start after the first takes about 75 to 83 ms less CPU time (measured on one machine), and the folder holds about 5.4 MB for each Node version and each version of the CLI that ran. It is off when the `CI` environment variable is set and when `FRODO_NO_COMPILE_CACHE=1` is set (also `NODE_DISABLE_COMPILE_CACHE`, and a `NODE_COMPILE_CACHE` of your own is respected), and it never stops a start: a folder that cannot be made is skipped. `rm -rf ~/.frodo/compile-cache` is always safe. A container that lives for one command can set `FRODO_NO_COMPILE_CACHE=1`. The native binary is unchanged.
+
 **Removed command aliases** (backwards-compatibility spellings of the
 canonical commands; use the canonical name):
 
