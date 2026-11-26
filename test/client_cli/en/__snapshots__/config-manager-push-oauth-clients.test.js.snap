@@ -5,8 +5,8 @@ exports[`CLI help interface for 'config-manager push oauth-clients' should be ex
 
 [Experimental] Import the OAuth2 clients from the files
 realms/<realm>/realm-config/agents/OAuth2Client/<id>.json that "pull
-oauth-clients" writes, from the working directory (-D). The other agent types
-are pushed by "push agents".
+oauth-clients" writes, from the working directory (-D). The agents that "push
+agents" handles are not pushed here.
 
 Arguments:
   host              AM base URL, e.g.: https://cdk.iam.example.com/am. To use a

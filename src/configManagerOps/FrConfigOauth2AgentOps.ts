@@ -424,7 +424,7 @@ export async function configManagerExportOAuth2Agents(
       }
     }
     if (leftOut > 0) {
-      verboseMessage(leftOutMessage(leftOut, written, 'agent', 'agents'));
+      verboseMessage(leftOutMessage(leftOut, written, words.unit, words.many));
     }
     return run.finish();
   } catch (error) {

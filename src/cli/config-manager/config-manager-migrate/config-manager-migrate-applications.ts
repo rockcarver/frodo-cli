@@ -40,7 +40,7 @@ export default function setup() {
     .addOption(
       new Option(
         '-C, --config-folder <config-folder-path>',
-        'Path to the folder with the config files of "pull oauth2-agents" and "pull saml" (oauth2-agents.json and saml.json). Their entries that name an object an application owns are reported. The files are never changed.'
+        'Path to the folder with the config files of "pull oauth2-agents" and "pull saml" (oauth2-agents.json and saml.json). Their entries that name an object an application owns are reported. The files are never changed. The command "pull oauth2-agents" is deprecated; it still pulls both the OAuth2 clients and the other agents.'
       )
     )
     .addHelpText(

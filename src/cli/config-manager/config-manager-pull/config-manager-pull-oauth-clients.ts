@@ -16,7 +16,7 @@ export default function setup() {
   program
     .summary('Export OAuth2 clients, one file per client.')
     .description(
-      'Export the OAuth2 clients of all realms or of one realm to realms/<realm>/realm-config/agents/OAuth2Client/<id>.json, one file for each. The files are the ones that the deprecated "pull oauth2-agents" writes for the OAuth2 clients, at the same paths. The other agent types are pulled by "pull agents".'
+      'Export the OAuth2 clients of all realms or of one realm to realms/<realm>/realm-config/agents/OAuth2Client/<id>.json, one file for each. The agents that "pull agents" handles are not pulled here.'
     )
     .addOption(
       selectorOption(

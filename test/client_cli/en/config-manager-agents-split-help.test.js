@@ -69,6 +69,14 @@ describe.each(['pull', 'push'])(
       expect(text).toContain(`"frodo config-manager ${verb} oauth-clients"`);
     });
 
+    test('does not teach the deprecated command', async () => {
+      expect(text).not.toContain(`${verb} oauth2-agents`);
+      const { stdout } = await exec(
+        `frodo config-manager ${verb} agents --help`
+      );
+      expect(stdout.replace(/\s+/g, ' ')).not.toContain('oauth2-agents"');
+    });
+
     test('names the three agent types that have a command of their own and the command of each', () => {
       expect(text).toContain(
         `The agent types CIMDProfile, TrustedJwtIssuer and SoftwarePublisher have a command of their own: ` +
@@ -147,12 +155,31 @@ describe.each(['pull', 'push'])(
     });
 
     if (verb === 'push') {
-      test('says that it does not read the folders of the other agent types, and which command pushes them', () => {
+      test('says that it does not read the folders of the agents, and which command pushes them, and that the folders of the three types with a command of their own are skipped with a warning', () => {
         expect(text).toContain(
-          'The folders of the other agent types are not read here: "push agents" pushes them.'
+          'The folders of the agent types that "push agents" handles are not read here: "push agents" pushes them.'
+        );
+        expect(text).toContain(
+          'The agent types CIMDProfile, TrustedJwtIssuer and SoftwarePublisher have a command of their own: ' +
+            '"frodo config-manager push oauth-cimd-profiles", "frodo config-manager push oauth-issuers" and "frodo config-manager push oauth-software-publishers". ' +
+            'The folders of those types are skipped here with a warning; no file in them is read or changed.'
         );
       });
     }
+
+    test('does not teach the deprecated command, and does not call the types with a command of their own agents of "agents"', async () => {
+      expect(text).not.toContain(`${verb} oauth2-agents`);
+      const { stdout } = await exec(
+        `frodo config-manager ${verb} oauth-clients --help`
+      );
+      const page = stdout.replace(/\s+/g, ' ');
+      expect(page).not.toContain('oauth2-agents"');
+      expect(page).toContain(
+        `The agents that "${verb} agents" handles are not ${verb === 'pull' ? 'pulled' : 'pushed'} here.`
+      );
+      // not "the other agent types are pulled by", which the types with a command of their own contradict
+      expect(page).not.toContain('The other agent types are');
+    });
 
     test('names none of the eight types of agents as a type it handles', () => {
       for (const agentType of EIGHT) {
@@ -215,3 +242,19 @@ describe.each(['pull', 'push'])(
     });
   }
 );
+
+describe('the help of the commands that still name oauth2-agents says that it is deprecated and pulls both', () => {
+  test("'config-manager pull all' says that its step pulls the OAuth2 clients and the other agents, and that the command is deprecated", async () => {
+    const { text } = await helpOf('pull', 'all');
+    expect(text).toContain(
+      'The command "pull oauth2-agents" is deprecated, but its step here still pulls both the OAuth2 clients ("pull oauth-clients") and the other agents ("pull agents").'
+    );
+  });
+
+  test("'config-manager migrate applications' says that the command whose config file it reads is deprecated and still pulls both", async () => {
+    const { text } = await helpOf('migrate', 'applications');
+    expect(text).toContain(
+      'The command "pull oauth2-agents" is deprecated; it still pulls both the OAuth2 clients and the other agents.'
+    );
+  });
+});
