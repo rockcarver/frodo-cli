@@ -109,7 +109,11 @@ jest.unstable_mockModule(src('ops/ApplicationConfigOps'), () => ({
   configManagerExportApplications: calls.applications,
 }));
 
-const { deploymentMapAll, deploymentMapAllStatic } = await import(
+const {
+  configManagerExportAllWithConfigFolder,
+  deploymentMapAll,
+  deploymentMapAllStatic,
+} = await import(
   src('configManagerOps/FrConfigAllOps.ts')
 );
 
@@ -227,3 +231,31 @@ describe.each(['cloud', 'forgeops'])(
     });
   }
 );
+
+describe('the runner of `pull all`', () => {
+  beforeEach(() => {
+    deployment = 'cloud';
+  });
+
+  // The steps above are called one by one, with a decision that the test makes. This one runs the command: the
+  // runner finds the `apps` step by its name, decides the layout of the tree once, before the first step, and hands
+  // the decision to the steps. A runner that looks for another name, or inverts the check, hands none.
+  test('decides the layout of a new tree before the first step and hands it to the steps that need it', async () => {
+    await configManagerExportAllWithConfigFolder({ configFolder: tmp });
+
+    expect(calls.applications).toHaveBeenCalledTimes(1);
+    expect(calls.applications.mock.calls[0][4]).toEqual(FOLDERS_NEW);
+    expect(calls.connectors).toHaveBeenCalledWith(
+      undefined,
+      false,
+      FOLDERS_NEW
+    );
+    expect(calls.mappings).toHaveBeenCalledWith(undefined, false, FOLDERS_NEW);
+    expect(calls.saml).toHaveBeenCalledWith(
+      `${tmp}/saml.json`,
+      false,
+      FOLDERS_NEW,
+      undefined
+    );
+  });
+});
