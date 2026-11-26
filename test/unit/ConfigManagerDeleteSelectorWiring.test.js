@@ -46,6 +46,24 @@ const WIRING = {
     id: 4,
     name: 0,
   },
+  'connector-definitions': {
+    module: 'configManagerOps/FrConfigConnectorDefinitionsOps',
+    fn: 'configManagerDeleteConnectorDefinitions',
+    id: 0,
+    name: null,
+  },
+  'connector-mappings': {
+    module: 'configManagerOps/FrConfigConnectorMappingOps',
+    fn: 'configManagerDeleteMappings',
+    id: 0,
+    name: null,
+  },
+  cors: {
+    module: 'configManagerOps/FrConfigCorsOps',
+    fn: 'configManagerDeleteCors',
+    id: 0,
+    name: null,
+  },
   'custom-nodes': {
     module: 'configManagerOps/FrConfigCustomNodesOps',
     fn: 'configManagerDeleteCustomNodes',
@@ -125,6 +143,18 @@ const WIRING = {
     module: 'ops/SoftwarePublisherConfigOps',
     fn: 'configManagerDeleteSoftwarePublishers',
     others: ['showSoftwarePublisherDeletePlan'],
+    id: 0,
+    name: null,
+  },
+  'remote-servers': {
+    module: 'configManagerOps/FrConfigRemoteServersOps',
+    fn: 'configManagerDeleteRemoteServers',
+    id: 0,
+    name: null,
+  },
+  services: {
+    module: 'configManagerOps/FrConfigServiceOps',
+    fn: 'configManagerDeleteServices',
     id: 0,
     name: null,
   },
@@ -266,7 +296,7 @@ afterEach(() => {
 describe('the delete commands: a named delete never asks, and the selectors reach the ops function', () => {
   it('has an entry for every delete row of the selectors, and no pull or push row', () => {
     expect(deleteRows.map(typeOf).sort()).toEqual(Object.keys(WIRING).sort());
-    expect(deleteRows).toHaveLength(17);
+    expect(deleteRows).toHaveLength(22);
   });
 
   it.each(deleteRows.map((row) => [typeOf(row), row]))(
@@ -414,13 +444,18 @@ describe('the delete commands: an empty selector is refused before anything, a b
 
   /** The commands that check a value of blanks themselves: they say so in their own words and go no further. */
   const REFUSES_BLANKS = new Set([
+    'connector-definitions',
+    'connector-mappings',
+    'cors',
     'secrets',
     'oauth-cimd-profiles',
     'oauth-issuers',
     'oauth-software-publishers',
     'locales',
+    'remote-servers',
     'schedules',
     'secret-mappings',
+    'services',
     'telemetry',
   ]);
 

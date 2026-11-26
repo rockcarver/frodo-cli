@@ -1,6 +1,6 @@
 {
   "name": "@rockcarver/frodo-cli",
-  "version": "5.0.0-32",
+  "version": "5.0.0-34",
   "type": "module",
   "description": "A command line interface to manage ForgeRock Identity Cloud tenants, ForgeOps deployments, and classic deployments.",
   "keywords": [
@@ -127,7 +127,7 @@
     "@modelcontextprotocol/client": "^2.0.0",
     "@modelcontextprotocol/node": "^2.0.0",
     "@modelcontextprotocol/server": "^2.0.0",
-    "@rockcarver/frodo-lib": "5.0.0-53",
+    "@rockcarver/frodo-lib": "5.0.0-55",
     "@types/fs-extra": "^11.0.1",
     "@types/jest": "30.0.0",
     "@types/node": "^26.6.4",

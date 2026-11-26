@@ -409,6 +409,269 @@ lists first, and nothing is deleted if either cannot be read). See
 and
 [a command that runs many operations runs them all, then fails if any failed](https://github.com/rockcarver/frodo-cli/blob/main/docs/decisions/0040-a-command-that-runs-many-operations-runs-them-all-then-fails-if-any-failed.md).
 
+**New command: `frodo config-manager delete connector-definitions`** deletes one
+connector definition, or all of them. `-i, --connector-id <id>` (alias `-n,
+--name`) names the connector definition by its id without the type prefix. It
+is looked up in the list of the connector definitions of the tenant, an exact and
+case-sensitive match, and the id that the list holds is what is deleted, so a
+value that is written as a path (`-i ../x`) is a connector definition that does
+not exist
+([a selector is an id or a name, never a path](https://github.com/rockcarver/frodo-cli/blob/main/docs/decisions/0059-a-selector-is-an-id-or-a-name-never-a-path.md)).
+One that is not there exits with code 1, also with `-d` and with
+`--allow-failures`, because the id names one connector definition. It works on
+Cloud and ForgeOps.
+
+Deleting all connector definitions (no `-i`) is guarded like the other deletes of
+a whole type: on a terminal it shows what would be deleted and what names it, and
+asks, with the answer defaulting to no; without a terminal it refuses before it
+connects and exits with code 1, unless you pass `-y`/`--yes`; `-d`/`--dry-run`
+only shows the plan. The plan, and the question, list what other objects still
+name each connector definition (at most 20 for each connector definition), from
+one lookup for all of them; a bulk delete never refuses for it, and `-y` sends
+no lookup at all. It tries every connector definition, prints a summary of what
+failed and exits with code 1 if any failed; `--allow-failures` keeps the exit
+code at 0 for a delete that failed. See
+[a command that can delete more than the one object it names asks first](https://github.com/rockcarver/frodo-cli/blob/main/docs/decisions/0037-a-command-that-can-delete-more-than-the-one-object-it-names-asks-first.md)
+and
+[a command that runs many operations runs them all, then fails if any failed](https://github.com/rockcarver/frodo-cli/blob/main/docs/decisions/0040-a-command-that-runs-many-operations-runs-them-all-then-fails-if-any-failed.md).
+
+A named delete asks the library what still names the connector definition: the
+mappings (the `sync` configuration and the `mapping` configurations, a mapping
+that is in both counted once), the applications of every realm, the schedules and
+the authentication modules. **Anything that does stops the delete**: the command
+says which holder and which field, deletes nothing and exits with code 1, also
+with `--allow-failures`. An application that names it owns it, and the command
+says so: `config-manager delete applications` removes both. If a source cannot
+be read, the command says which, and deletes nothing. An empty answer is not
+proof that a connector definition is unused: one that a script, an endpoint, a
+reconciliation or a client of the REST API names is not seen.
+
+A connector definition that the tenant lists with an id that is not a plain name
+(a name is not blank, is not just a dot, and has no `/`, `\`, `?`, `#`, `%`,
+`..` or control character in it) is never sent to the tenant: it is skipped with
+a message, and it counts as a failed delete. The name of every other connector
+definition is percent-encoded in the path of the request.
+
+`--force` (long form only, only with `-i`) deletes the connector definition
+anyway, and **changes nothing else**: every mapping, application, schedule or
+authentication module that names it is left exactly as it is, is listed, and
+names a connector definition that does not exist afterwards. It also deletes it
+when not every source could be read, after saying so. It asks on a terminal, and
+needs `-y` (or `-d`) without one.
+
+**New command: `frodo config-manager delete cors`** deletes one named CORS
+configuration of the global CORS service, or all of them. It works on Cloud,
+ForgeOps and classic deployments. `-i, --cors-id <id>` (alias `-n, --name`) is
+the id (the name) of the configuration, for example `cors`; it is looked up in
+the list that the service gives, an exact and case-sensitive match, and the id
+that the list holds is what is deleted, so a value that is written as a path
+(`-i ../x`) is a configuration that does not exist
+([a selector is an id or a name, never a path](https://github.com/rockcarver/frodo-cli/blob/main/docs/decisions/0059-a-selector-is-an-id-or-a-name-never-a-path.md)).
+One that is not there exits with code 1, also with `-d` and `--allow-failures`.
+Without `-i` every named CORS configuration is deleted, the one that a new
+tenant starts with included; browsers that were allowed by a deleted
+configuration are refused until one allows them again. Deleting all asks first
+(on a terminal, after a plan, with the answer defaulting to no), and without a
+terminal it refuses before it connects and exits with code 1, unless you pass
+`-y`; `-d` previews with reads only. A configuration that the tenant lists with
+an id (or a type) that is not a plain name is never sent to the tenant: it counts
+as a failed delete. The command runs every delete, prints one summary and exits
+with code 1 if any failed; `--allow-failures` keeps the exit code at 0 for them
+([a command that runs many operations runs them all, then fails if any failed](https://github.com/rockcarver/frodo-cli/blob/main/docs/decisions/0040-a-command-that-runs-many-operations-runs-them-all-then-fails-if-any-failed.md)).
+
+`--deep` also resets the IDM CORS filter (the IDM configuration
+`servletfilter/cors`) to its default values: its `initParams` and `urlPatterns`
+are replaced and every other key, the filter class among them, is kept; it is
+written only if something differs, and never deleted. **Unlike `frodo connector
+delete --deep` it deletes nothing more.** It cannot be combined with `-i`, and on
+a classic deployment, which has no IDM, the IDM part is skipped. The values are
+those that Cloud and ForgeOps tenants answer with, because no document states
+them, and the reset has not been observed on a tenant. **The CORS service entry
+itself, the switch that turns the CORS filter of AM on and off, is not changed by
+this command**: AM refuses to delete it, and the library cannot write its
+`enabled` switch today
+([frodo-lib#1152](https://github.com/rockcarver/frodo-lib/issues/1152)).
+
+**New command: `frodo config-manager delete remote-servers`** deletes one
+connector server (an entry of the list of connector servers in the IDM
+configuration `provisioner.openicf.connectorinfoprovider`), or all of them. It
+works on Cloud and ForgeOps. `-i, --server-id <id>` (alias `-n, --name`) is the
+name of the connector server, matched exactly and case-sensitively against the
+list of the configuration; the name that the list holds is what is deleted, so a
+value that is written as a path (`-i ../x`) is a connector server that does not
+exist
+([a selector is an id or a name, never a path](https://github.com/rockcarver/frodo-cli/blob/main/docs/decisions/0059-a-selector-is-an-id-or-a-name-never-a-path.md)).
+A connector server that is not in the list exits with code 1, also with
+`--dry-run` and `--allow-failures`, because the name names one connector server.
+A configuration without a list of connector servers has none: a delete of all of
+them then says so and exits with code 0, and an entry without a name is skipped
+with a warning.
+
+A named delete asks the library what still names the connector server: a server
+cluster that lists it (the library calls that a soft dependency) and a connector
+that has it as its host (hard). **Anything that does stops the delete**: the
+command says which server cluster or connector, and in which field, deletes
+nothing and exits with code 1, also with `--allow-failures`. If a source cannot be
+read, the command says which, and deletes nothing. An empty answer is not proof
+that a connector server is unused: the connector server process itself, an OAuth2
+client that the platform keeps for it, and a connector server name inside a script
+are not seen.
+
+`--force` (long form only; it needs `-i`) deletes the connector server anyway. In
+the one write that deletes it, the name also leaves the list of connector servers
+of every server cluster that has it; the configuration is then read again, and if
+anything else changed, it is written back as it was and the connector server is
+not deleted. A connector that names the connector server is never changed: the
+command lists it, and it names a connector server that does not exist afterwards.
+A server cluster that has no connector server left is said so. `--keep-links`
+leaves the name in the server clusters, for a connector server that is created
+again under the same name at once; it needs `--force`. Because `--force` changes
+more than the one object, it asks on a terminal after it has shown what it would
+change (the same plan that `-d` prints), and without a terminal it is refused
+before the login unless you pass `-y`/`--yes` (or `-d`/`--dry-run`). A failed
+check or restore exits with code 1 also with `--allow-failures`; a write that IDM
+refuses follows `--allow-failures` like any other failed operation. See
+[a command that can delete more than the one object it names asks first](https://github.com/rockcarver/frodo-cli/blob/main/docs/decisions/0037-a-command-that-can-delete-more-than-the-one-object-it-names-asks-first.md).
+
+A named delete, with or without `--force`, is one checked write. The
+configuration is one document that has no revision, so before the write it is
+read again: nothing is written if the connector server is gone, or if the server
+clusters that list it are not the ones that the lookup found. The write is built
+from that fresh read, so other changes made in the meantime are kept; only a
+change in the instant between that read and the write is overwritten.
+
+Without `-i` the command deletes every connector server, one write for each. It
+asks first, as every delete of more than one object does, and without a terminal
+it is refused before the login unless you pass `-y`. A real run looks nothing up
+and does not refuse, and it changes no server cluster: a server cluster that has a
+deleted connector server in its list lists a name that does not exist afterwards.
+The plan that `-d` prints, and that a terminal sees before the question, lists
+what names the connector servers (from one lookup for all of them) and which
+server clusters would have no connector server left; it is a reading made at that
+moment, and the real run does not look again. **A delete of all connector servers
+is not a checked write**: it reads the configuration once, and every one of its
+writes replaces the whole configuration with that list minus the connector servers
+deleted so far, without reading it again or reading it back. A change that
+someone else makes to the configuration after that first read (a server cluster, a
+connector server, a setting) is overwritten, and the run still ends with exit code
+0. It deletes every connector server it can, prints one summary of what failed and
+exits with code 1 if any failed; `--allow-failures` keeps the exit code at 0 for
+failed writes
+([a command that runs many operations runs them all, then fails if any failed](https://github.com/rockcarver/frodo-cli/blob/main/docs/decisions/0040-a-command-that-runs-many-operations-runs-them-all-then-fails-if-any-failed.md)).
+
+**New command: `frodo config-manager delete connector-mappings`** deletes one
+connector mapping of the `sync` configuration by name, or all of them. It works on
+Cloud and ForgeOps. `-i, --connector-mapping-id <name>` (alias `-n, --name`) is the
+name of the mapping without the `sync/` prefix, matched exactly and
+case-sensitively against the list of the configuration; the mapping that the list
+holds is what is deleted, so a value that is written as a path (`-i ../x`) is a
+mapping that does not exist
+([a selector is an id or a name, never a path](https://github.com/rockcarver/frodo-cli/blob/main/docs/decisions/0059-a-selector-is-an-id-or-a-name-never-a-path.md)).
+A mapping that is not in the list exits with code 1, also with `--dry-run` and
+`--allow-failures`, because the name names one mapping. A name that is empty or
+only blanks is refused before anything is sent and never means all of them.
+
+A named delete is refused while a schedule (`invokeContext.mapping`), another
+mapping (`links` or `syncAfter`, in the `sync` configuration or as a `mapping/<name>`
+configuration) or an application (`mappingNames`, in any realm) still names the
+mapping. The command says which and in which field, deletes nothing and exits with
+code 1, also with `--allow-failures`; an application owns the mappings that it
+names, and `config-manager delete applications` removes both. If a source cannot
+be read, the command says which and deletes nothing. `--force` (long form only; it
+needs `-i`) deletes the mapping anyway. It clears no reference itself: every
+schedule, mapping or application that names it is listed, and names a mapping that
+does not exist afterwards. A schedule, an application or a `mapping/<name>`
+configuration is not written; the other entries of the `sync` configuration are
+written again by the library, see below. It asks on a terminal,
+and needs `-y` (or `-d`) without one. An empty answer is not proof that a mapping
+is unused: a script or an endpoint that calls it, its links in a link table and a
+reconciliation that is running or ran are not seen.
+
+Deleting all mappings (no `-i`) asks first, as every delete of more than one object
+does: on a terminal it shows what would be deleted and what names each mapping (at
+most 20 for each), from one lookup for all of them, and asks with the answer
+defaulting to no; without a terminal it is refused before the login and exits with
+code 1 unless you pass `-y`/`--yes`; `-d`/`--dry-run` only shows the plan. A delete
+of all never refuses for what names the mappings, and a real run looks nothing up.
+It deletes the mappings one by one, each as a delete of its own that reads the
+`sync` configuration again and checks that the mapping is gone, so a write that the
+tenant refuses leaves its mapping where it was. It tries every mapping, prints one
+summary of what failed and exits with code 1 if any failed; `--allow-failures`
+keeps the exit code at 0 for a delete that failed, but never for a mapping that
+does not exist, a refusal, or a `sync` configuration that cannot be read. See
+[a command that can delete more than the one object it names asks first](https://github.com/rockcarver/frodo-cli/blob/main/docs/decisions/0037-a-command-that-can-delete-more-than-the-one-object-it-names-asks-first.md)
+and
+[a command that runs many operations runs them all, then fails if any failed](https://github.com/rockcarver/frodo-cli/blob/main/docs/decisions/0040-a-command-that-runs-many-operations-runs-them-all-then-fails-if-any-failed.md).
+
+**What a delete writes.** The delete of one mapping is made by the library's
+`deleteMapping`, which reads the whole `sync` document and writes the whole
+document again without that mapping. Every remaining entry is written with an
+`_id` and a derived `syncAfter` (the names of all the entries before it, in the
+order of the document, replacing a `syncAfter` that the entry had), and that
+includes the mapping that was just deleted: the written document names the
+deleted mapping in every later entry. A named delete, afterwards, of a mapping
+that stands before others in the document is refused, with those entries as soft
+`syncAfter` holders, until you pass `--force`. `frodo mapping delete` writes the same way today. No schedule,
+application or `mapping/<name>` configuration is written. This is the behaviour
+of the library; the command ships as it is, and the fix is tracked at
+https://github.com/rockcarver/frodo-lib/issues/1153.
+
+Only the `sync` configuration is covered, as in `pull connector-mappings` and
+`push connector-mappings`: a mapping that is stored as `mapping/<name>` is neither
+deleted nor listed, although a mapping of either store that names the mapping
+stops a named delete. Pull, push and delete of the `mapping/<name>` store will
+likely be added later; `frodo mapping delete` covers both stores today.
+
+**New command: `frodo config-manager delete services`** deletes one realm
+service, or every realm service of the selected realms. It works on every
+deployment type, and it never touches a global service. A realm service is a
+setting of the realm (the session, the base URL, the OAuth 2.0 provider, the
+identity stores, and so on); deleting one removes it with its next descendents.
+`-i, --service-id <id>` (alias `-n, --name`) names the service, for example
+`email`, and needs a realm argument. The services of the realm are read the way
+`pull services` reads them, and the id is matched exactly and case-sensitively
+against what the realm lists. The id that the realm lists is what is deleted, so
+a value that is written as a path (`-i ../x`) is a service that does not exist
+([a selector is an id or a name, never a path](https://github.com/rockcarver/frodo-cli/blob/main/docs/decisions/0059-a-selector-is-an-id-or-a-name-never-a-path.md)),
+and an id that the realm lists for a service, or a type or an id that it lists
+for one of its next descendents, that is not a plain name (a slash, a `..`, a
+`?`, a `#`, a `%` or a control character in it) is never sent to the tenant: the
+service is not deleted, and it counts as failed, also in a dry run. A service that
+is not in the realm exits with code 1, also with
+`--dry-run` and `--allow-failures`, because the id names one service. A service
+that Cloud does not offer is not read, as in `pull services`, so it is not found
+on Cloud either. A named delete asks nothing and prints what went with the
+service: its next descendents. It counts the service that was named only:
+another service of the realm that cannot be read is a warning.
+
+Without `-i` the command deletes every service that `pull services` covers, in
+the selected realms: every realm of the tenant without a realm argument, the root
+realm skipped on Cloud as `pull services` and `push services` skip it.
+`DataStoreService`, which `pull services` never exports, is left alone (a delete
+that names it deletes it, and says that `push services` cannot bring it back). It asks
+first, as every delete of more than one object does, and without a terminal it is
+refused before the login unless you pass `-y` (or `-d`). The question follows a
+plan that names the realms, the number of services and of next descendents of
+each, and the services that a realm commonly depends on: the identity stores
+(`id-repositories`), the OAuth 2.0 provider (`oauth-oidc`), the social identity
+providers, the email service, the PingOne connection, the self-service journeys,
+the session settings, the base URL and the valid goto URLs. **The command does not
+refuse to delete them**: AM accepts every one of these deletions, nothing in the
+library says what uses a service, and what a realm does without one has not been
+observed. A journey, client or user that needs a deleted service fails when it
+runs. A service that was deleted by mistake can be created again with
+`config-manager push services` from a `pull services` made before, as far as
+`pull services` exports it: it never exports `DataStoreService`.
+
+Every service is one operation, named `<realm>/<service>` (`root/<service>` in
+the root realm): one that cannot be read or deleted does not stop the others, the
+command prints one summary of what failed and exits with code 1 if any failed. A
+realm whose services cannot be listed is one operation too, named `realm <name>`,
+so the summary counts it as one. `--allow-failures` keeps the exit code at 0 for a
+service that could not be read or deleted and for a realm that could not be
+listed, but never for a service that is not there
+([a command that runs many operations runs them all, then fails if any failed](https://github.com/rockcarver/frodo-cli/blob/main/docs/decisions/0040-a-command-that-runs-many-operations-runs-them-all-then-fails-if-any-failed.md)).
+
 **New command: `frodo config-manager delete journeys`** deletes one journey, or
 every journey of the selected realms and then the orphaned nodes of those realms.
 `-i, --journey-id <id>` (alias `-n, --name`) names the journey and needs a realm
@@ -470,6 +733,8 @@ nodes that exist now, and says "would". It deletes every journey and every node 
 can, prints one summary of what failed with the reason of Access Management, and
 exits with code 1 if any failed; `--allow-failures` keeps the exit code at 0 for
 failed deletes ([a command that runs many operations runs them all, then fails if any failed](https://github.com/rockcarver/frodo-cli/blob/main/docs/decisions/0040-a-command-that-runs-many-operations-runs-them-all-then-fails-if-any-failed.md)).
+
+**`frodo config-manager push managed-objects` also pushes custom relationship schemas (experimental)**: `frodo config-manager push managed-objects` also pushes the custom relationship schema files in the `schema` folder of a managed object (the files that `pull managed-objects --custom-relationships` writes), one write for each file, after the managed configuration. The files are written through the relationship schema API of IDM 7.5 or later; a tenant without it fails each file with its own cause. The command tries every file, prints one summary and exits 1 if any failed; `--allow-failures` keeps the exit code at 0. A file whose property name is empty, `.` or `..`, or holds `/`, `\`, `?`, `#`, `%` or a control character (a name that a request cannot carry) is not pushed: it counts as a failed file and the summary names it, and so does a file of an object whose own name is such a name. Everything is read before anything is written: a schema file that cannot be read or parsed, or that holds a placeholder without a value, ends the command with exit code 1 before anything is sent, the managed configuration included, and so do a configuration that cannot be written (no file is pushed then) and an object that does not exist, in every case also with `--allow-failures`. A tree without `schema` folders is pushed as before. Writing a relationship property can create its reverse side on the other type, as the documentation of the library's call for this API says; that was not tried on a real tenant, so a later pull may show a property that the tree did not hold.
 
 **`config-manager push secrets --prune` asks before it deletes, and `-p` is
 gone**: `--prune` deletes the old versions of every secret it pushes, and in 4.x
@@ -849,6 +1114,9 @@ entity and drop the others.
 | Command                            | Select by                              | Still works    |
 | ---------------------------------- | -------------------------------------- | -------------- |
 | `delete applications`              | `-i, --app-id`, `-n, --app-name`       | `--name`       |
+| `delete connector-definitions`     | `-i, --connector-id`                   | `-n`, `--name` |
+| `delete connector-mappings`        | `-i, --connector-mapping-id`           | `-n`, `--name` |
+| `delete cors`                      | `-i, --cors-id`                        | `-n`, `--name` |
 | `delete custom-nodes`              | `-i, --node-id`, `-n, --node-name`     | `--name`       |
 | `delete endpoints`                 | `-i, --endpoint-id`                    | `-n`, `--name` |
 | `delete journeys`                  | `-i, --journey-id`                     | `-n`, `--name` |
@@ -862,8 +1130,10 @@ entity and drop the others.
 | `delete oauth-cimd-profiles`       | `-i, --profile-id`                     | `-n`, `--name` |
 | `delete oauth-issuers`             | `-i, --issuer-id`                      | `-n`, `--name` |
 | `delete oauth-software-publishers` | `-i, --software-publisher-id`          | `-n`, `--name` |
+| `delete remote-servers`            | `-i, --server-id`                      | `-n`, `--name` |
 | `delete schedules`                 | `-i, --schedule-id`                    | `-n`, `--name` |
 | `delete secret-mappings`           | `-i, --secret-mapping-id`              | `-n`, `--name` |
+| `delete services`                  | `-i, --service-id`                     | `-n`, `--name` |
 | `delete telemetry`                 | `-i, --exporter-id`                    | `-n`, `--name` |
 
 `delete applications`, `delete custom-nodes`, `delete scripts` and
@@ -1598,8 +1868,19 @@ the output meets:
 
 - The findings of a journey are printed as soon as that journey has been
   checked, not all at the end of the run. The heading of a journey
-  (`<counts> in journey <id>`) and the line of each finding (`  [CODE] message`)
-  are unchanged, and the journeys come in the same order.
+  (`<counts> in journey <id>`) and the shape of the line of each finding
+  (`  [CODE] message`) are unchanged, and the journeys come in the same order.
+- The line of a finding names a node as the Journey Editor shows it,
+  `"Check Age" (Scripted Decision)`, instead of its UUID. Where two nodes of a
+  journey have the same name and type, or a node has no name, the line adds the
+  first 8 characters of its id in parentheses (`(Scripted Decision, id 295a70ba)`);
+  with `--verbose` every node the line names gets its whole id, written
+  `id <uuid>` and no longer in quotes. The code in brackets, the heading and the exit codes are
+  unchanged; a script that matched a UUID in a finding line must use
+  `--verbose`. An entry node or the target of a connection that does not exist,
+  the Page Nodes listed by `INNER_NODE_REFERENCED_BY_MULTIPLE_PAGES` and the two
+  codes about an id (`NODE_ID_MISMATCH`, `NODE_ID_COLLISION`) keep their UUIDs as
+  before.
 - At a terminal (stderr is the terminal, whatever stdout is) a progress bar on
   stderr shows the journeys done out of all and the journey being checked. A
   pipe or a file never gets the bar.

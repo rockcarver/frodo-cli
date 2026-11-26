@@ -348,6 +348,24 @@ export const EXPECTED_SELECTORS = [
     aliases: ['--name'],
   },
   {
+    command: 'frodo config-manager delete connector-definitions',
+    id: '--connector-id',
+    name: null,
+    aliases: ['-n', '--name'],
+  },
+  {
+    command: 'frodo config-manager delete connector-mappings',
+    id: '--connector-mapping-id',
+    name: null,
+    aliases: ['-n', '--name'],
+  },
+  {
+    command: 'frodo config-manager delete cors',
+    id: '--cors-id',
+    name: null,
+    aliases: ['-n', '--name'],
+  },
+  {
     command: 'frodo config-manager delete custom-nodes',
     id: '--node-id',
     name: '--node-name',
@@ -426,6 +444,12 @@ export const EXPECTED_SELECTORS = [
     aliases: ['-n', '--name'],
   },
   {
+    command: 'frodo config-manager delete remote-servers',
+    id: '--server-id',
+    name: null,
+    aliases: ['-n', '--name'],
+  },
+  {
     command: 'frodo config-manager delete schedules',
     id: '--schedule-id',
     name: null,
@@ -434,6 +458,12 @@ export const EXPECTED_SELECTORS = [
   {
     command: 'frodo config-manager delete secret-mappings',
     id: '--secret-mapping-id',
+    name: null,
+    aliases: ['-n', '--name'],
+  },
+  {
+    command: 'frodo config-manager delete services',
+    id: '--service-id',
     name: null,
     aliases: ['-n', '--name'],
   },

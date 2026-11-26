@@ -161,6 +161,107 @@ const CASES = [
     fn: 'configManagerDeleteEndpoints',
   },
   {
+    name: 'config-manager delete connector-definitions',
+    file: 'src/configManagerOps/FrConfigConnectorDefinitionsOps.ts',
+    summaryName: nameOf,
+    unit: 'connector',
+    arrange({ failing, attempted }) {
+      frodo.idm.connector.readConnectors
+        .mockReset()
+        .mockResolvedValue(IDS.map((id) => ({ _id: `provisioner.openicf/${id}` })));
+      frodo.idm.connector.deleteConnector
+        .mockReset()
+        .mockImplementation(async (id) => {
+          attempted.push(id);
+          if (failing.has(id)) throw new Error(`could not delete ${id}`);
+        });
+    },
+    empty: () =>
+      frodo.idm.connector.readConnectors.mockReset().mockResolvedValue([]),
+    emptyMessage: /No connector definitions found to delete\./,
+    notFound: (m) =>
+      m.configManagerDeleteConnectorDefinitions('zzz', false, false),
+    failToRead: () =>
+      frodo.idm.connector.readConnectors
+        .mockReset()
+        .mockRejectedValue(new Error('read failed')),
+    run: (m, allowFailures) =>
+      m.configManagerDeleteConnectorDefinitions(
+        undefined,
+        false,
+        allowFailures
+      ),
+    fn: 'configManagerDeleteConnectorDefinitions',
+  },
+  {
+    name: 'config-manager delete connector-mappings',
+    file: 'src/configManagerOps/FrConfigConnectorMappingOps.ts',
+    summaryName: nameOf,
+    unit: 'mapping',
+    arrange({ failing, attempted }) {
+      frodo.idm.mapping.readSyncMappings
+        .mockReset()
+        .mockResolvedValue(IDS.map((id) => ({ _id: `sync/${id}`, name: id })));
+      frodo.idm.mapping.deleteMapping
+        .mockReset()
+        .mockImplementation(async (id) => {
+          const name = id.replace(/^sync\//, '');
+          attempted.push(name);
+          if (failing.has(name)) throw new Error(`could not delete ${name}`);
+        });
+    },
+    empty: () =>
+      frodo.idm.mapping.readSyncMappings.mockReset().mockResolvedValue([]),
+    emptyMessage: /No connector mappings found to delete\./,
+    notFound: (m) => m.configManagerDeleteMappings('zzz', false, false),
+    failToRead: () =>
+      frodo.idm.mapping.readSyncMappings
+        .mockReset()
+        .mockRejectedValue(new Error('read failed')),
+    run: (m, allowFailures) =>
+      m.configManagerDeleteMappings(undefined, false, allowFailures),
+    fn: 'configManagerDeleteMappings',
+  },
+  {
+    name: 'config-manager delete cors',
+    file: 'src/configManagerOps/FrConfigCorsOps.ts',
+    summaryName: (id) => `CORS configuration ${id}`,
+    unit: 'CORS operation',
+    arrange({ failing, attempted }) {
+      // the library lists the named configurations of the global CORS service and deletes each by its listed id
+      frodo.service.exportService.mockReset().mockResolvedValue({
+        service: {
+          CorsService: {
+            nextDescendents: IDS.map((id) => ({
+              _id: id,
+              _type: { _id: 'configuration' },
+            })),
+          },
+        },
+      });
+      frodo.service.deleteServiceNextDescendent
+        .mockReset()
+        .mockImplementation(async (service, id) => {
+          attempted.push(id);
+          if (failing.has(id)) throw new Error(`could not delete ${id}`);
+          return { _id: id };
+        });
+    },
+    empty: () =>
+      frodo.service.exportService.mockReset().mockResolvedValue({
+        service: { CorsService: { nextDescendents: [] } },
+      }),
+    emptyMessage: /No CORS configurations found to delete\./,
+    notFound: (m) => m.configManagerDeleteCors('zzz', false, false),
+    failToRead: () =>
+      frodo.service.exportService
+        .mockReset()
+        .mockRejectedValue(new Error('read failed')),
+    run: (m, allowFailures) =>
+      m.configManagerDeleteCors(undefined, false, allowFailures),
+    fn: 'configManagerDeleteCors',
+  },
+  {
     name: 'config-manager delete scripts',
     file: 'src/configManagerOps/FrConfigScriptOps.ts',
     summaryName: (id) => `${id} in realm /alpha`,
@@ -201,6 +302,53 @@ const CASES = [
         allowFailures
       ),
     fn: 'configManagerDeleteScripts',
+  },
+  {
+    name: 'config-manager delete remote-servers',
+    file: 'src/configManagerOps/FrConfigRemoteServersOps.ts',
+    summaryName: nameOf,
+    unit: 'connector server',
+    arrange({ failing, attempted, spy }) {
+      // the helpers of the module are spies: they answer what the real ones answer for this configuration
+      const helpers = spy('src/configManagerOps/RemoteServerReferenceClearing');
+      helpers.connectorServersOf
+        .mockReset()
+        .mockReturnValue({ names: IDS, nameless: 0 });
+      helpers.clustersLeftEmpty.mockReset().mockReturnValue([]);
+      frodo.idm.config.readConfigEntity
+        .mockReset()
+        .mockResolvedValue({
+          remoteConnectorClients: IDS.map((name) => ({ name })),
+        });
+      // one write for each connector server: the one that is gone from the list is the one that is tried
+      let present = [...IDS];
+      frodo.idm.config.updateConfigEntity
+        .mockReset()
+        .mockImplementation(async (_id, body) => {
+          const names = body.remoteConnectorClients.map((entry) => entry.name);
+          const tried = present.find((name) => !names.includes(name));
+          attempted.push(tried);
+          if (failing.has(tried)) throw new Error(`could not delete ${tried}`);
+          present = names;
+        });
+    },
+    empty: ({ spy }) => {
+      spy('src/configManagerOps/RemoteServerReferenceClearing')
+        .connectorServersOf.mockReset()
+        .mockReturnValue({ names: [], nameless: 0 });
+      frodo.idm.config.readConfigEntity
+        .mockReset()
+        .mockResolvedValue({ remoteConnectorClients: [] });
+    },
+    emptyMessage: /No connector servers found to delete\./,
+    notFound: (m) => m.configManagerDeleteRemoteServers('zzz', false, false),
+    failToRead: () =>
+      frodo.idm.config.readConfigEntity
+        .mockReset()
+        .mockRejectedValue(new Error('read failed')),
+    run: (m, allowFailures) =>
+      m.configManagerDeleteRemoteServers(undefined, false, allowFailures),
+    fn: 'configManagerDeleteRemoteServers',
   },
   {
     name: 'config-manager delete journeys',
@@ -249,6 +397,46 @@ const CASES = [
     run: (m, allowFailures) =>
       m.configManagerDeleteJourneys(undefined, undefined, false, allowFailures),
     fn: 'configManagerDeleteJourneys',
+  },
+  {
+    name: 'config-manager delete services',
+    file: 'src/configManagerOps/FrConfigServiceOps.ts',
+    summaryName: (id) => `alpha/${id}`,
+    unit: 'service',
+    arrange({ failing, attempted, spy }) {
+      spy('src/utils/FrConfig')
+        .realmList.mockReset()
+        .mockResolvedValue(['alpha']);
+      // the library reads the services of the realm, and the delete of each is one operation
+      frodo.service.getFullServices
+        .mockReset()
+        .mockResolvedValue(
+          IDS.map((id) => ({
+            _id: '',
+            _type: { _id: id },
+            nextDescendents: [],
+          }))
+        );
+      frodo.service.deleteFullService
+        .mockReset()
+        .mockImplementation(async (id) => {
+          attempted.push(id);
+          if (failing.has(id)) throw new Error(`could not delete ${id}`);
+          return { _id: id };
+        });
+    },
+    empty: () =>
+      frodo.service.getFullServices.mockReset().mockResolvedValue([]),
+    emptyMessage: /No services found to delete in realm 'alpha'\./,
+    notFound: (m) =>
+      m.configManagerDeleteServices('zzz', 'alpha', false, false),
+    failToRead: ({ spy }) =>
+      spy('src/utils/FrConfig')
+        .realmList.mockReset()
+        .mockRejectedValue(new Error('read failed')),
+    run: (m, allowFailures) =>
+      m.configManagerDeleteServices(undefined, undefined, false, allowFailures),
+    fn: 'configManagerDeleteServices',
   },
   {
     name: 'config-manager delete themes',
@@ -384,7 +572,8 @@ const CASES = [
 ];
 
 // every relative import of the modules under test becomes spies, except the
-// run tracker, the cause helper and the modules under test themselves
+// run tracker, the cause helper, the plain-name rule and the modules under test
+// themselves
 const modulesUnderTest = new Set(
   CASES.map((c) => path.resolve(root, c.file).replace(/\.ts$/, ''))
 );
@@ -399,7 +588,8 @@ for (const file of new Set(CASES.map((c) => c.file))) {
     if (
       modulesUnderTest.has(target) ||
       target.endsWith('/utils/OperationRun') ||
-      target.endsWith('/utils/ErrorCause')
+      target.endsWith('/utils/ErrorCause') ||
+      target.endsWith('/utils/PlainName')
     ) {
       continue;
     }

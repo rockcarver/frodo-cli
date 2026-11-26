@@ -110,6 +110,21 @@
  * and of the global ones (`.../services?_action=nextdescendents`) answer with
  * services of those ids; an empty value is a realm without services. Without it
  * the list answers 404. Deleting one is answered `200`.
+ * FAKE_AM_SERVICES_FILE=<path> names a JSON object `{ realms: { "<realm>": [service, ...] },
+ * global?: [service, ...], unavailable?: [id, ...] }` the fake serves as the AM services of
+ * each realm (`/` is the root realm) and the global ones, as a store that a delete changes
+ * (it answers every request for the services of a realm or the global ones, so FAKE_AM_SERVICES
+ * is not used with it). A service is `{ _id, singleton?, nextDescendents?: [{ _id, _type: { _id } }] }`. The list
+ * (`POST .../services?_action=nextdescendents`), one service (`GET .../services/<id>`, which
+ * answers `_id: ""` as AM does) and its next descendents (`POST .../services/<id>?_action=nextdescendents`)
+ * are served; `DELETE .../services/<id>/<type>/<descendent id>` removes a next descendent and
+ * `DELETE .../services/<id>` the service with the ones it still has (`400 The singleton resource
+ * cannot be deleted` for a service with `singleton: true`, as AM answers for the global
+ * CorsService); `404` for an id that is not held and for a realm that the file does not name. The ids in `unavailable` answer the
+ * read of their next descendents with the Cloud `403` "This operation is not available in
+ * PingOne Advanced Identity Cloud.". A service whose id has a slash in it is read and deleted by
+ * the whole rest of the path. The store lives as long as the fake; the request log shows
+ * every call. A failing read or delete is made with FAKE_AM_FAIL_REQUESTS.
  * FAKE_AM_SECRET_STORES_FILE=<path> names a JSON file `{ stores: [{ _id, type }],
  * mappings: { <store id>: [{ secretId, aliases }] } }` the fake serves the secret
  * stores of the realm (`.../secrets/stores?_action=nextdescendents`) and their
@@ -166,6 +181,9 @@
  * answers with a `detail.echo` of that text, `@PADDING@` replaced by that many `x`
  * (the answer of a tenant that echoes what it was sent; it is too long for the
  * environment, so the fake writes it).
+ * An entry that has `"nth": 2` fails only the second request that matches it (the first and the third
+ * and every later one are answered as if the entry were not there): a test that needs the second
+ * write of a run to be refused and the others to go through. Without `nth` every matching request fails.
  * FAKE_AM_FEATURES_FILE=<path> names a JSON array of IDM tenant-configuration features
  * (`_id`, `installedVersion`, `availableVersions`, and `validate`, the body the validate
  * action answers with: default `{ status: 200, success: true, message: 'Validate
@@ -214,6 +232,17 @@
  * that the fake does not know is ignored silently. The objects are read only: one object of the
  * type (`.../<type>/<id>`) and every write are not served, and a type that the object does not
  * hold is answered by the routes that follow (the users of FAKE_AM_USERS_FILE, then `404`).
+ * FAKE_AM_IDM_SCHEMA_PROPERTIES_FILE=<path> names a JSON object `{ "<managed type>": { "<property>": { ...the definition } } }`
+ * (the relationship properties that the IDM v2 schema API holds; `{}` is a tenant that holds none) the fake serves as
+ * `GET /openidm/schema/managed/<type>/properties/<property>` (the definition, `404` for a property it does not hold) and
+ * takes `PUT` for: the body replaces the definition of that property, whatever it holds (a type and a property that are
+ * not in the object are created), and is answered with `200` and the body. The query is ignored (`waitForCompletion`).
+ * The route is the v2 API of IDM 7.5 or later: a request without the header `accept-api-version: resource=2.0` is
+ * answered `400`, so a test that sees a write succeed has seen the header. The request log holds the body of every write.
+ * Without the option every request for this route answers `404`, as an IDM below 7.5 does, which is how a test sees a
+ * tenant without the endpoint. A write that must fail is made to fail by FAKE_AM_FAIL_REQUESTS: `{ "method": "PUT",
+ * "path": "/properties/<property>" }` fails that one property and no other. The managed configuration itself is served,
+ * stored and changed by FAKE_AM_IDM_ENTITIES_FILE above (`managed`, and `repo.ds` for a pull).
  * FAKE_AM_DIRECT_CONFIGURATION_FILE=<path> names a JSON object `{ apply?, states? }` that makes the
  * fake serve the direct configuration session of a Cloud tenant, and the list of service account
  * scopes that a service account login reads (`GET /environment/scopes/service-accounts`, which
@@ -296,6 +325,9 @@ const aiAgents = readJson(process.env.FAKE_AM_AI_AGENTS_FILE)?.map((agent) => ({
 const features = readJson(process.env.FAKE_AM_FEATURES_FILE);
 const idmConfig = readJson(process.env.FAKE_AM_IDM_CONFIG_FILE);
 const idmEntities = readJson(process.env.FAKE_AM_IDM_ENTITIES_FILE);
+const idmSchemaProperties = readJson(
+  process.env.FAKE_AM_IDM_SCHEMA_PROPERTIES_FILE
+);
 const managedObjects = readJson(process.env.FAKE_AM_MANAGED_OBJECTS_FILE);
 const failRequests = JSON.parse(process.env.FAKE_AM_FAIL_REQUESTS ?? '[]');
 const directConfiguration = readJson(
@@ -366,6 +398,8 @@ const idList = (value) =>
   value === undefined ? undefined : value.split(',').filter(Boolean);
 const secrets = idList(process.env.FAKE_AM_SECRETS);
 const services = idList(process.env.FAKE_AM_SERVICES);
+// the stateful store of the services of each realm (FAKE_AM_SERVICES_FILE): a delete changes it
+const realmServices = readJson(process.env.FAKE_AM_SERVICES_FILE);
 const serviceAccounts = idList(process.env.FAKE_AM_SERVICE_ACCOUNTS);
 const secretStores = readJson(process.env.FAKE_AM_SECRET_STORES_FILE);
 const agentTypes = idList(process.env.FAKE_AM_AGENT_TYPES);
@@ -510,6 +544,124 @@ function selectUsers(filter) {
       return operator === 'eq' ? have === wanted : have.startsWith(wanted);
     })
   );
+}
+/**
+ * Answers a request for the AM services of a realm or the global ones (`.../services...`) from
+ * the store of FAKE_AM_SERVICES_FILE, or returns false when the request is not one or there is no
+ * such store. `send(status, payload)` writes the answer.
+ */
+function serveRealmServices(req, send) {
+  if (!realmServices) return false;
+  const [path, query = ''] = req.url.split('?');
+  const route = path.match(
+    /\/json\/(global-config|realms\/root(?:\/realms\/[^/]+)*\/realm-config)\/services(?:\/(.*))?$/
+  );
+  if (!route) return false;
+  const notFound = () =>
+    send(404, { code: 404, reason: 'Not Found', message: 'Not Found' });
+  const page = (result) => ({
+    result,
+    resultCount: result.length,
+    pagedResultsCookie: null,
+    totalPagedResultsPolicy: 'NONE',
+    totalPagedResults: -1,
+    remainingPagedResults: -1,
+  });
+  const names = [...route[1].matchAll(/\/realms\/([^/]+)/g)].map(
+    ([, name]) => name
+  );
+  const realm = names.length > 0 ? names.join('/') : '/';
+  const list =
+    route[1] === 'global-config'
+      ? realmServices.global
+      : realmServices.realms?.[realm];
+  if (!list) {
+    notFound();
+    return true;
+  }
+  const decode = (text) => {
+    try {
+      return decodeURIComponent(text);
+    } catch {
+      return text;
+    }
+  };
+  const nextDescendents = query.includes('_action=nextdescendents');
+  // an id with a slash in it (a tenant may list one) is the service that the whole rest of the path names
+  const whole = list.find(({ _id }) => _id === decode(route[2] ?? ''));
+  const [rawId, ...splitTail] = (route[2] ?? '').split('/');
+  const tail = whole ? [] : splitTail;
+  const service = whole ?? list.find(({ _id }) => _id === decode(rawId));
+  if (route[2] === undefined) {
+    if (req.method !== 'POST' || !nextDescendents) return false;
+    send(
+      200,
+      page(
+        list.map(({ _id }) => ({
+          _id,
+          name: _id,
+          _type: { _id, name: _id, collection: true },
+        }))
+      )
+    );
+    return true;
+  }
+  if (tail.length === 0 && req.method === 'GET') {
+    if (!service) {
+      notFound();
+    } else {
+      send(200, {
+        _id: '',
+        _rev: '1',
+        _type: { _id: service._id, name: service._id, collection: true },
+      });
+    }
+    return true;
+  }
+  if (tail.length === 0 && req.method === 'POST' && nextDescendents) {
+    if (!service) {
+      notFound();
+    } else if ((realmServices.unavailable ?? []).includes(service._id)) {
+      send(403, CLOUD_NOT_AVAILABLE);
+    } else {
+      send(200, page(service.nextDescendents ?? []));
+    }
+    return true;
+  }
+  if (req.method !== 'DELETE') return false;
+  if (!service) {
+    notFound();
+    return true;
+  }
+  if (tail.length === 0 && service.singleton) {
+    // AM does not delete a singleton service, such as the global CorsService
+    send(400, {
+      code: 400,
+      reason: 'Bad Request',
+      message: 'The singleton resource cannot be deleted',
+    });
+    return true;
+  }
+  if (tail.length === 0) {
+    // the service goes with the next descendents it still has
+    list.splice(list.indexOf(service), 1);
+    send(200, { _id: service._id });
+    return true;
+  }
+  const descendents = service.nextDescendents ?? [];
+  const type = decode(tail[0]);
+  const descendentId = decode(tail.slice(1).join('/'));
+  const index = descendents.findIndex(
+    (descendent) =>
+      descendent._id === descendentId && descendent._type?._id === type
+  );
+  if (index < 0) {
+    notFound();
+  } else {
+    descendents.splice(index, 1);
+    send(200, {});
+  }
+  return true;
 }
 /**
  * Answers a request for the AI agent collection (`.../realm-config/agents/AIAgent`
@@ -806,6 +958,42 @@ function serveIdmConfigList(req, send) {
 }
 
 /**
+ * Answers the relationship schema property of a managed type (`GET` and `PUT
+ * /openidm/schema/managed/<type>/properties/<property>`) from `idmSchemaProperties`, or returns false
+ * when the request is not one, the method is neither, or there is no such store. `send(status,
+ * payload)` writes the answer.
+ */
+function serveIdmSchemaProperty(req, body, send) {
+  const { pathname } = new URL(req.url, 'http://fake');
+  const route = pathname.match(
+    /\/openidm\/schema\/managed\/([^/]+)\/properties\/([^/]+)$/
+  );
+  if (!idmSchemaProperties || !route || !['GET', 'PUT'].includes(req.method)) {
+    return false;
+  }
+  const type = decodeURIComponent(route[1]);
+  const property = decodeURIComponent(route[2]);
+  if (req.headers['accept-api-version'] !== 'resource=2.0') {
+    send(400, {
+      code: 400,
+      reason: 'Bad Request',
+      message: 'the fake tenant serves the schema API of version 2.0 only',
+    });
+    return true;
+  }
+  if (req.method === 'PUT') {
+    (idmSchemaProperties[type] ??= {})[property] = body ? JSON.parse(body) : {};
+  }
+  const held = idmSchemaProperties[type]?.[property];
+  if (held === undefined) {
+    send(404, { code: 404, reason: 'Not Found', message: 'Not Found' });
+  } else {
+    send(200, held);
+  }
+  return true;
+}
+
+/**
  * Answers the list of the managed objects of a type (`GET /openidm/managed/<type>?_queryFilter=true`)
  * from `managedObjects`, or returns false when the request is not one, the type is not held, or
  * there is no such store. `send(status, payload)` writes the answer.
@@ -898,9 +1086,15 @@ const server = http.createServer((req, res) => {
         answer();
       }
     };
-    const failing = failRequests.find(
-      ({ method, path }) => req.method === method && req.url.includes(path)
-    );
+    const failing = failRequests.find((entry) => {
+      if (req.method !== entry.method || !req.url.includes(entry.path)) {
+        return false;
+      }
+      if (entry.nth === undefined) return true;
+      // the entry counts the requests that match it, and fails the n-th only
+      entry.seen = (entry.seen ?? 0) + 1;
+      return entry.seen === entry.nth;
+    });
     if (failing) {
       return send(500, {
         code: 500,
@@ -951,6 +1145,7 @@ const server = http.createServer((req, res) => {
       });
     }
     if (serveAiAgents(req, body, send)) return;
+    if (serveRealmServices(req, send)) return;
     if (servePromotion(req, body, send)) return;
     if (directConfiguration) {
       const route = new URL(req.url, 'http://fake').pathname;
@@ -1643,6 +1838,7 @@ const server = http.createServer((req, res) => {
         message: 'the fake tenant does not take writes to this configuration',
       });
     }
+    if (serveIdmSchemaProperty(req, body, send)) return;
     if (serveIdmConfigList(req, send)) return;
     if (idmEntities && pathname.includes('/openidm/config/')) {
       const id = decodeURIComponent(pathname.split('/openidm/config/')[1]);

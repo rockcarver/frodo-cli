@@ -242,7 +242,17 @@ export function createConsoleInput(
   input: PassThrough;
   /** Attach the REPL hooks (available only after repl.start). */
   attachHooks(hooks: SearchHooks): void;
-  /** Begin piping process.stdin into the input (sets raw mode). */
+  /**
+   * Put the terminal into raw mode, once. Called before the first prompt is
+   * drawn so that the very first key typed at it reaches the console as a key
+   * and not the terminal's own handling of it. Nothing is read or piped yet:
+   * what is typed waits in the terminal until `install()`.
+   */
+  enterRawMode(): void;
+  /**
+   * Begin piping process.stdin into the input (sets raw mode, unless
+   * `enterRawMode()` already did).
+   */
   install(): void;
   /** Detach everything (called on console exit). */
   close(): void;
@@ -251,6 +261,22 @@ export function createConsoleInput(
 } {
   let hooks: SearchHooks | undefined;
   let installed = false;
+  let rawModeEntered = false;
+
+  function enterRawMode(): void {
+    if (rawModeEntered) return;
+    rawModeEntered = true;
+    const stdin = process.stdin;
+    if (stdin.isTTY && typeof stdin.setRawMode === 'function') {
+      stdin.setRawMode(true);
+      // Bracketed paste: the terminal wraps every paste in
+      // ESC[200~ ... ESC[201~, which is how the filter tells a paste
+      // from typed input (see the capture note). Terminals that do
+      // not support it simply never send the markers, and everything
+      // flows as before.
+      process.stdout.write('\x1b[?2004h');
+    }
+  }
 
   // --- paste capture -------------------------------------------------------
   // The console enables bracketed paste mode (the terminal's standard):
@@ -839,19 +865,12 @@ export function createConsoleInput(
         }
       });
     },
+    enterRawMode,
     install() {
       if (installed) return;
       installed = true;
+      enterRawMode();
       const stdin = process.stdin;
-      if (stdin.isTTY && typeof stdin.setRawMode === 'function') {
-        stdin.setRawMode(true);
-        // Bracketed paste: the terminal wraps every paste in
-        // ESC[200~ ... ESC[201~, which is how the filter tells a paste
-        // from typed input (see the capture note). Terminals that do
-        // not support it simply never send the markers, and everything
-        // flows as before.
-        process.stdout.write('\x1b[?2004h');
-      }
       stdin.resume();
       stdin.pipe(filter);
       filter.pipe(this.input);

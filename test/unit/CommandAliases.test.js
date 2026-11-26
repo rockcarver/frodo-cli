@@ -530,15 +530,15 @@ describe('the old words of the planned renames (cli#1264)', () => {
       ['apps', 'applications', ['pull', 'push', 'delete', 'migrate']],
       ['authn', 'authentication', ['pull', 'push']],
       ['nodes', 'custom-nodes', ['pull', 'push', 'delete']],
-      ['connectors', 'connector-definitions', ['pull', 'push']],
+      ['connectors', 'connector-definitions', ['pull', 'push', 'delete']],
       ['secretstore-mappings', 'secret-mappings', ['pull', 'push', 'delete']],
     ];
     const rows = renames.flatMap(([newWord, oldWord, verbs]) =>
       verbs.map((verb) => [verb, oldWord, newWord])
     );
 
-    it('has a row for every verb that has the old word today (14 rows)', () => {
-      expect(rows.length).toBe(14);
+    it('has a row for every verb that has the old word today (15 rows)', () => {
+      expect(rows.length).toBe(15);
       // the rows cover all of them: no other config-manager command carries an old word
       const olds = new Set(renames.map(([, oldWord]) => oldWord));
       const covered = new Set(

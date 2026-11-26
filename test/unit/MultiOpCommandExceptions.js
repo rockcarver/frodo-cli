@@ -77,7 +77,6 @@ export const NOT_MULTI_OP_BULK_CANDIDATES = [
   'frodo config-manager push email-provider',
   'frodo config-manager push idm-authentication',
   'frodo config-manager push kba',
-  'frodo config-manager push managed-objects',
   'frodo config-manager push remote-servers',
   'frodo config-manager push restart',
   'frodo config-manager push terms-and-conditions',

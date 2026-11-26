@@ -994,6 +994,147 @@ describe('the Ctrl+R list of the terminal console', () => {
   });
 });
 
+/**
+ * The terminal mode of the console input. The console puts the terminal into
+ * raw mode BEFORE the first prompt is drawn (`enterRawMode`), and starts to
+ * read the keys a little later (`install`). A key typed in answer to the
+ * first prompt must meet a raw terminal, and must still arrive, in order,
+ * once the console reads. The real terminal is the subject of the PTY tests
+ * of `test/unit/shell-first-keys.pty.test.js`; here the terminal is a fake.
+ */
+describe('the terminal mode of the console input', () => {
+  const CTRL_R = '\x12';
+  const ANSI = /\x1b\[[0-9;?]*[A-Za-z]/g;
+
+  type FakeStdin = PassThrough & {
+    isTTY?: boolean;
+    setRawMode?: unknown;
+  };
+
+  let stdin: FakeStdin;
+  let setRawMode: jest.Mock<(mode: boolean) => void>;
+  let written: string[];
+  let teardown: (() => void) | undefined;
+
+  beforeEach(() => {
+    stdin = new PassThrough() as FakeStdin;
+    stdin.isTTY = true;
+    setRawMode = jest.fn();
+    stdin.setRawMode = setRawMode;
+    written = [];
+    jest
+      .spyOn(process, 'stdin', 'get')
+      .mockImplementation(() => stdin as unknown as typeof process.stdin);
+    jest.spyOn(process.stdout, 'write').mockImplementation(((
+      chunk: unknown
+    ) => {
+      written.push(String(chunk));
+      return true;
+    }) as typeof process.stdout.write);
+  });
+
+  afterEach(() => {
+    teardown?.();
+    teardown = undefined;
+    jest.restoreAllMocks();
+  });
+
+  async function settle(): Promise<void> {
+    for (let i = 0; i < 5; i++) {
+      await new Promise((resolve) => setImmediate(resolve));
+    }
+  }
+
+  function create(history: HistoryEntry[] = []) {
+    const input = createConsoleInput(() => history);
+    teardown = () => input.close();
+    return input;
+  }
+
+  function withHooks(input: ReturnType<typeof createConsoleInput>) {
+    input.attachHooks({
+      getLine: () => '',
+      setLine: () => undefined,
+      refresh: () => undefined,
+      sendEscape: () => undefined,
+      onKeypress: () => undefined,
+    });
+  }
+
+  it('sets raw mode once with enterRawMode, and reads and pipes nothing', async () => {
+    const input = create();
+    input.enterRawMode();
+    input.enterRawMode();
+    expect(setRawMode.mock.calls).toEqual([[true]]);
+    // what is typed now stays where it is: not read from the terminal, not
+    // handed to the console
+    stdin.write('abc');
+    await settle();
+    expect(stdin.readableFlowing).not.toBe(true);
+    expect(stdin.readableLength).toBe(3);
+    expect(input.input.readableLength).toBe(0);
+  });
+
+  it('hands the bytes typed after enterRawMode and before install over in order, and a Ctrl+R among them opens the search', async () => {
+    const input = create(
+      ['zzz', 'zyx'].map((text) => ({ text }) as HistoryEntry)
+    );
+    withHooks(input);
+    const passed: string[] = [];
+    input.input.on('data', (chunk: Buffer) => passed.push(String(chunk)));
+    input.enterRawMode();
+    stdin.write('ab');
+    stdin.write(CTRL_R);
+    stdin.write('zz');
+    await settle();
+    expect(passed).toEqual([]);
+    input.install();
+    await settle();
+    // the bytes before the Ctrl+R went to the console, those after it to the
+    // search, in the order they were typed
+    expect(passed.join('')).toBe('ab');
+    const frames = written.join('').replace(ANSI, '');
+    expect(frames).toContain('(fuzzy-search)');
+    const status = frames.match(/\(fuzzy-search\)[^\n]*/g) ?? [];
+    expect(status[status.length - 1]).toContain('zz');
+  });
+
+  it('does not set raw mode a second time when install follows enterRawMode', () => {
+    const input = create();
+    input.enterRawMode();
+    input.install();
+    input.install();
+    expect(setRawMode.mock.calls).toEqual([[true]]);
+  });
+
+  it('still sets raw mode in install when enterRawMode was not called', () => {
+    const input = create();
+    input.install();
+    expect(setRawMode.mock.calls).toEqual([[true]]);
+  });
+
+  it('does nothing about the mode, and still pipes, when stdin is not a terminal', async () => {
+    stdin.isTTY = false;
+    delete stdin.setRawMode;
+    const input = create();
+    const passed: string[] = [];
+    input.input.on('data', (chunk: Buffer) => passed.push(String(chunk)));
+    expect(() => input.enterRawMode()).not.toThrow();
+    expect(() => input.install()).not.toThrow();
+    stdin.write('xy');
+    await settle();
+    expect(passed.join('')).toBe('xy');
+    expect(setRawMode).not.toHaveBeenCalled();
+  });
+
+  it('does not throw when stdin says it is a terminal but cannot switch the mode', () => {
+    delete stdin.setRawMode;
+    const input = create();
+    expect(() => input.enterRawMode()).not.toThrow();
+    expect(() => input.install()).not.toThrow();
+  });
+});
+
 describe('the history search of the web console page', () => {
   const entries = (...texts: string[]): HistoryEntry[] =>
     texts.map((text) => ({ text }));

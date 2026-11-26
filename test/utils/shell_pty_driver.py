@@ -6,6 +6,7 @@ import re
 import select
 import signal
 import sys
+import termios
 import time
 
 ANSI_ESCAPE_CODES = re.compile(r"\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])")
@@ -52,6 +53,10 @@ class PtyScenarioRunner:
         self.env["USERPROFILE"] = self.home_dir
         self.actions = scenario["actions"]
         self.output = ""
+        self.lflag_at_read = None
+        # Set when a read found nothing more to read, because the child (and
+        # with it every other holder of the terminal) has ended.
+        self.read_ended = False
         self.captures = {}
         self.child_pid = None
         self.fd = None
@@ -79,16 +84,22 @@ class PtyScenarioRunner:
         self.child_pid = pid
         self.fd = fd
 
-    def _read_once(self, timeout_seconds=0.05):
+    def _read_once(self, timeout_seconds=0.05, note_mode=False):
         readable, _, _ = select.select([self.fd], [], [], timeout_seconds)
         if self.fd not in readable:
             return False
         try:
             data = os.read(self.fd, 4096)
         except OSError:
+            self.read_ended = True
             return False
         if not data:
+            self.read_ended = True
             return False
+        if note_mode:
+            # The line discipline's flags at the instant of the read, before
+            # anything else is done with the bytes.
+            self.lflag_at_read = termios.tcgetattr(self.fd)[3]
         self.output += data.decode("utf-8", errors="replace")
         return True
 
@@ -112,6 +123,51 @@ class PtyScenarioRunner:
                 return haystack
             time.sleep(0.02)
         raise TimeoutError(f"Timed out waiting for {matcher}.\nCaptured output:\n{strip_ansi(self.output)}")
+
+    def _send_on_match(self, action):
+        # Wait for the regex in the plain output, then answer with `text` in
+        # the very pass that read the match: no sleep, no other action
+        # between the read and the write. This is how a fast terminal
+        # emulator or a pasted key answers a prompt. The terminal's line
+        # discipline is read (the master reports the slave's flags) right
+        # after the read that brought the match, before the bytes are
+        # decoded, so a test can say what the terminal was doing at the
+        # instant the prompt was read. The capture of `label` holds the
+        # output up to the match and the three flags.
+        deadline = time.time() + action.get("timeoutMs", 10000) / 1000.0
+        compiled = re.compile(action["regex"])
+        lflag = None
+        while True:
+            if self._read_once(note_mode=True):
+                lflag = self.lflag_at_read
+            if compiled.search(strip_ansi(self.output)):
+                break
+            if self.read_ended:
+                # An ended child makes every read return at once: without
+                # this the loop would spin on the processor until the
+                # deadline. Say what happened instead.
+                raise RuntimeError(
+                    f"The process ended before {action['regex']} appeared.\nCaptured output:\n{strip_ansi(self.output)}"
+                )
+            if time.time() >= deadline:
+                raise TimeoutError(
+                    f"Timed out waiting for {action['regex']}.\nCaptured output:\n{strip_ansi(self.output)}"
+                )
+        if lflag is None:
+            # the match was in output read before this action
+            lflag = termios.tcgetattr(self.fd)[3]
+        text = action.get("text", "")
+        if text:
+            self._write(text.encode("utf-8"))
+        self.captures[action["label"]] = {
+            "raw": self.output,
+            "plain": strip_ansi(self.output),
+            "tty": {
+                "echo": bool(lflag & termios.ECHO),
+                "icanon": bool(lflag & termios.ICANON),
+                "isig": bool(lflag & termios.ISIG),
+            },
+        }
 
     def _drain_for(self, duration_ms):
         deadline = time.time() + duration_ms / 1000.0
@@ -152,6 +208,8 @@ class PtyScenarioRunner:
                 self._wait_for_exit(action.get("timeoutMs", 10000))
             elif kind == "clear_output":
                 self.output = ""
+            elif kind == "send_on_match":
+                self._send_on_match(action)
             elif kind == "send":
                 self._write(action["text"].encode("utf-8"))
             elif kind == "send_line":

@@ -7,6 +7,33 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+## [v5.0.0-34] - 2026-11-25
+
+### Added
+- Introduced `config-manager delete connector-mappings` command, allowing users to delete one or all connector mappings from the `sync` configuration by name. The command checks for references before deletion. (PR #1473)
+- Added `config-manager delete cors` command to remove a specific or all CORS configurations from the global CORS service. The `--deep` flag resets the IDM CORS filter to default values. (PR #1472)
+- Enhanced `config-manager push managed-objects` command to include pushing custom relationship schema files. These schemas are stored in the `schema` folder of each managed object. (PR #1471)
+- Added `config-manager delete services` command to delete realm services by specifying a service ID or name. The command requires a realm argument. (PR #1467)
+
+### Fixed
+- Corrected the `config-manager delete connector-mappings` command to accurately describe its operation, ensuring clarity in its function. (commit 8e56a8015)
+- Improved the `config-manager delete cors` command to clearly state the host and reset actions, ensuring the entry remains unchanged. (commit c1677f1d5)
+- Enhanced the `config-manager delete services` command to verify next descendants, count only the named service, and handle unlistable realms gracefully. (commit b2ff0a02e)
+
+### Security
+- Updated `frodo-lib` to version 5.0.0-55, incorporating security enhancements and new functions for service deletion. (PR #1468)
+
+## [v5.0.0-33] - 2026-11-24
+
+### Added
+- Introduced `config-manager delete remote-servers` command, allowing users to delete connector servers from the IDM configuration. The command refuses to delete servers that are still referenced by other objects. (PR #1458)
+- Added `config-manager delete connector-definitions` command, which enables the deletion of connector definitions. The command prompts for confirmation and prevents deletion if other objects reference the definition. (PR #1457)
+
+### Fixed
+- Resolved an issue in `frodo shell` where the terminal was not in raw mode before the first prompt, causing unintended behavior with certain key inputs. The terminal now enters raw mode before the initial prompt. (PR #1460)
+- Fixed the web console to clear the prompt upon submission rather than with the result, ensuring a smoother user experience. (commit 8630331f6)
+- Corrected the shell URL encoder to preserve existing `%XX` escapes and values, preventing double encoding of URLs. (PR #1459)
+
 ## [v5.0.0-32] - 2026-11-24
 
 ### Added
@@ -3386,6 +3413,8 @@ Frodo CLI 2.x automatically refreshes session and access tokens before they expi
 - Fixed problem with adding connection profiles
 - Miscellaneous bug fixes
 
+[v5.0.0-34]: https://github.com/rockcarver/frodo-cli/compare/v5.0.0-33...v5.0.0-34
+[v5.0.0-33]: https://github.com/rockcarver/frodo-cli/compare/v5.0.0-32...v5.0.0-33
 [v5.0.0-32]: https://github.com/rockcarver/frodo-cli/compare/v5.0.0-31...v5.0.0-32
 [v5.0.0-31]: https://github.com/rockcarver/frodo-cli/compare/v5.0.0-30...v5.0.0-31
 [v5.0.0-30]: https://github.com/rockcarver/frodo-cli/compare/v5.0.0-29...v5.0.0-30

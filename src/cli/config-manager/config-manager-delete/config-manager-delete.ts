@@ -1,14 +1,19 @@
 import { FrodoStubCommand } from '../../FrodoCommand';
 import Applications from '../config-manager-delete/config-manager-delete-applications';
+import ConnectorDefinitions from '../config-manager-delete/config-manager-delete-connector-definitions';
+import ConnectorMappings from '../config-manager-delete/config-manager-delete-connector-mappings';
+import Cors from '../config-manager-delete/config-manager-delete-cors';
 import EmailTemplates from '../config-manager-delete/config-manager-delete-email-templates';
 import Endpoints from '../config-manager-delete/config-manager-delete-endpoints';
 import Locales from '../config-manager-delete/config-manager-delete-locales';
 import OauthCimdProfiles from '../config-manager-delete/config-manager-delete-oauth-cimd-profiles';
+import Services from '../config-manager-delete/config-manager-delete-services';
 import Themes from '../config-manager-delete/config-manager-delete-themes';
 import CustomNodes from './config-manager-delete-custom-nodes';
 import Journeys from './config-manager-delete-journeys';
 import OauthIssuers from './config-manager-delete-oauth-issuers';
 import OauthSoftwarePublishers from './config-manager-delete-oauth-software-publishers';
+import RemoteServers from './config-manager-delete-remote-servers';
 import Schedules from './config-manager-delete-schedules';
 import Scripts from './config-manager-delete-scripts';
 import SecretMappings from './config-manager-delete-secret-mappings';
@@ -23,6 +28,8 @@ export default function setup() {
     'Delete configuration optimized for CI/CD pipelines (format compatible with fr-config-manager).'
   );
   program.addCommand(Applications().name('applications'));
+  program.addCommand(ConnectorDefinitions().name('connector-definitions'));
+  program.addCommand(ConnectorMappings().name('connector-mappings'));
   program.addCommand(CustomNodes().name('custom-nodes'));
   program.addCommand(Endpoints().name('endpoints'));
   program.addCommand(Scripts().name('scripts'));
@@ -37,10 +44,13 @@ export default function setup() {
   program.addCommand(
     OauthSoftwarePublishers().name('oauth-software-publishers')
   );
+  program.addCommand(RemoteServers().name('remote-servers'));
   program.addCommand(Schedules().name('schedules'));
   program.addCommand(SecretMappings().name('secret-mappings'));
   program.addCommand(Telemetry().name('telemetry'));
   program.addCommand(TenantConfig().name('tenant-config'));
   program.addCommand(Journeys().name('journeys'));
+  program.addCommand(Services().name('services'));
+  program.addCommand(Cors().name('cors'));
   return program;
 }

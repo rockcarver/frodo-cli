@@ -16,7 +16,8 @@
 //
 // It warns, and never fails, about a line of .github/issue-concierge/settings.yml that the Concierge cannot use
 // (an unknown setting, a value out of range): the default stays, so nothing stops, but the setting does not do what
-// the file says.
+// the file says. It warns, and never fails, about an issue template or form that assigns every new issue
+// (`assignees:`): an issue assigned to a person is handled by that person and gets `no-auto-processing`.
 import fs from 'node:fs';
 import { parseSettings, readSettingsText } from './issue-concierge-settings.mjs';
 import { parseRelatedRepos } from './dependency-watch.mjs';
@@ -43,6 +44,34 @@ export function checkLegacyFolder(exists) {
       : [],
     warnings: both.map((m) => `${name(m)} is in both ${LEGACY_DIR}/ and ${CONFIG_DIR}/. The one in ${CONFIG_DIR}/ is used and the one in ${LEGACY_DIR}/ is ignored: delete it.`),
   };
+}
+
+/** Where GitHub reads issue templates and issue forms from. */
+export const TEMPLATE_DIR = '.github/ISSUE_TEMPLATE';
+
+/**
+ * Warnings (never errors) about an issue template or form that assigns every issue it creates. GitHub assigns the issue when it is
+ * created, an issue assigned to a person is handled by that person, and the Concierge gives such an issue `no-auto-processing`
+ * (docs/decisions/0043), so no gate would start for those issues. `files`: { name: text } of the folder. A markdown template has
+ * `assignees:` in its front matter, a form at the top of the file; an empty value (`''`, `[]`, nothing) assigns nobody.
+ */
+export function checkTemplates(files) {
+  const warnings = [];
+  for (const [name, text] of Object.entries(files || {})) {
+    if (!/\.(md|ya?ml)$/i.test(name) || /^config\.ya?ml$/i.test(name)) continue;
+    const head = /\.md$/i.test(name) ? String(text).match(/^---\r?\n([\s\S]*?)\r?\n---/)?.[1] ?? '' : String(text);
+    const lines = head.split(/\r?\n/);
+    const at = lines.findIndex((l) => /^assignees:/.test(l));
+    if (at < 0) continue;
+    const value = lines[at].replace(/^assignees:\s*/, '').replace(/\s+#.*$/, '').trim();
+    const assigns = value ? !/^(\[\s*\]|''|"")$/.test(value) : /^\s*-\s*\S/.test(lines[at + 1] ?? '');
+    if (assigns) {
+      warnings.push(
+        `${TEMPLATE_DIR}/${name} assigns every issue it creates (assignees:). An issue assigned to a person is handled by that person: the Concierge gives it no-auto-processing, so no gate starts for it. Remove the line unless that is what you want (a coding agent as the assignee does not count).`
+      );
+    }
+  }
+  return warnings;
 }
 
 /** Safe outputs a related repository must be reachable through, per compiled workflow. */
@@ -205,6 +234,14 @@ const isDirectory = (p) => {
   }
 };
 
+const listFiles = (p) => {
+  try {
+    return fs.readdirSync(p);
+  } catch {
+    return [];
+  }
+};
+
 export function main(cwd = process.cwd()) {
   for (const notice of checkGuidance((f) => isFile(`${cwd}/${f}`))) console.log(`::notice::${notice}`);
   for (const notice of checkDecisions((d) => isDirectory(`${cwd}/${d}`))) console.log(`::notice::${notice}`);
@@ -213,6 +250,8 @@ export function main(cwd = process.cwd()) {
   for (const notice of legacy.notices) console.log(`::notice::${notice}`);
   for (const warning of legacy.warnings) console.log(`::warning::${warning}`);
   for (const problem of checkSettings(readSettingsText(readFile))) console.log(`::warning::${problem}`);
+  const templates = Object.fromEntries(listFiles(`${cwd}/${TEMPLATE_DIR}`).map((name) => [name, readFile(`${TEMPLATE_DIR}/${name}`) ?? '']));
+  for (const warning of checkTemplates(templates)) console.log(`::warning::${warning}`);
   const related = readConfig('related-repos.md', readFile);
   if (related.value === null) {
     console.log(`No ${configPath('related-repos.md')}: nothing to check.`);

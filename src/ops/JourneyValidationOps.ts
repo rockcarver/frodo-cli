@@ -131,6 +131,7 @@ export async function validateJourneyExports(
             ),
           ];
 
+    const verbose = state.getVerbose();
     const findings: JourneyValidationFinding[] = [];
     // why a journey failed: its findings; a validated journey without a reason passed
     const verdicts = new Map<string, string | undefined>();
@@ -170,7 +171,7 @@ export async function validateJourneyExports(
           );
           for (const finding of ofJourney) {
             printMessage(
-              findingLine(finding),
+              findingLine(finding, verbose),
               finding.severity === 'error' ? 'error' : 'warn'
             );
           }
