@@ -287,6 +287,12 @@
  * with an empty `result`. It is checked last, so every route above still wins. A
  * command that reads many kinds of configuration (`config export`) then runs through
  * on an empty tenant without a route for each kind; the request log shows what it asked for.
+ * FAKE_AM_ACCEPT_WRITES=1 makes the fake accept every write it has no route for: a `PUT`, `POST` or `PATCH` is
+ * answered `200` with the body it was sent (without an `_action` in the query the answer also has an `_id`, the last
+ * segment of the path, unless the body holds one), so a command that pushes many configurations runs through on a
+ * tenant that holds none of them; the request log shows every body. It is checked last, after the empty
+ * collections, so every route above still wins and a read that nothing serves still answers `404`. A write that must
+ * fail is one of FAKE_AM_FAIL_REQUESTS, which is checked first.
  * FAKE_AM_LOG_API_KEYS_FILE=<path> names a JSON array of log API keys
  * (`api_key_id`, `name`) the fake serves as the log API key list (`GET /keys`)
  * and one key (`GET /keys/<id>`), and it makes the fake answer the OAuth2
@@ -350,6 +356,7 @@ const promotion = promotionScript && {
   unlockPollsLeft: 0,
 };
 const emptyCollections = process.env.FAKE_AM_EMPTY_COLLECTIONS === '1';
+const acceptWrites = process.env.FAKE_AM_ACCEPT_WRITES === '1';
 const logApiKeys = readJson(process.env.FAKE_AM_LOG_API_KEYS_FILE);
 const oauth2Clients = (process.env.FAKE_AM_OAUTH2_CLIENTS ?? '')
   .split(',')
@@ -2012,6 +2019,22 @@ const server = http.createServer((req, res) => {
           remainingPagedResults: -1,
         });
       }
+    }
+    if (acceptWrites && ['PUT', 'POST', 'PATCH'].includes(req.method)) {
+      const url = new URL(req.url, 'http://fake');
+      let sent = {};
+      try {
+        sent = JSON.parse(body || '{}');
+      } catch {
+        // a body that is not JSON (a script, a text) is accepted as it is
+      }
+      const last = decodeURIComponent(
+        url.pathname.split('/').filter(Boolean).pop() ?? ''
+      );
+      return send(
+        200,
+        url.searchParams.get('_action') ? { ...sent } : { _id: last, ...sent }
+      );
     }
     return send(404, {});
   });
