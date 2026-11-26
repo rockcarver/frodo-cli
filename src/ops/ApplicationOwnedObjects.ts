@@ -328,5 +328,5 @@ export function ownedObjectMessage(
       ? `application ${names[0]}`
       : `applications ${names.slice(0, -1).join(', ')} and ${names[names.length - 1]}`;
   const command = direction === 'pulled' ? 'pull' : 'push';
-  return `${KIND_LABEL[kind]} ${id} is owned by ${who} and is ${direction} by "${command} applications".`;
+  return `${KIND_LABEL[kind]} ${id} is owned by ${who} and is ${direction} by "${command} apps".`;
 }

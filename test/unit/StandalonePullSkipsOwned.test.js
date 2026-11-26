@@ -259,7 +259,7 @@ describe('pull oauth2-agents', () => {
       exists('realms/alpha/realm-config/agents/OAuth2Client/shared-client.json')
     ).toBe(true);
     expect(messages()).toContain(
-      'OAuth2 client portal-client is owned by application "Zion Portal" and is pulled by "pull applications".'
+      'OAuth2 client portal-client is owned by application "Zion Portal" and is pulled by "pull apps".'
     );
     expect(frodo.agent.readAgentByTypeAndId).not.toHaveBeenCalledWith(
       'OAuth2Client',
@@ -282,7 +282,7 @@ describe('pull oauth2-agents', () => {
     await configManagerExportOAuth2Agents(config());
 
     expect(messages()).toContain(
-      'is owned by applications "Zion Portal" and "Zion Mobile" and is pulled by "pull applications".'
+      'is owned by applications "Zion Portal" and "Zion Mobile" and is pulled by "pull apps".'
     );
     expect(
       exists('realms/alpha/realm-config/agents/OAuth2Client/portal-client.json')
@@ -442,7 +442,7 @@ describe('pull saml', () => {
       true
     );
     expect(messages()).toContain(
-      'SAML provider urn:zion:portal is owned by application "Zion Portal" and is pulled by "pull applications".'
+      'SAML provider urn:zion:portal is owned by application "Zion Portal" and is pulled by "pull apps".'
     );
     expect(
       frodo.saml2.entityProvider.exportSaml2Provider
@@ -506,7 +506,7 @@ describe('pull connector-definitions', () => {
     expect(exists('sync/connectors/Entra.json')).toBe(false);
     expect(exists('sync/connectors/Workday.json')).toBe(true);
     expect(messages()).toContain(
-      'connector Entra is owned by application "Zion Directory" (realm bravo) and is pulled by "pull applications".'
+      'connector Entra is owned by application "Zion Directory" (realm bravo) and is pulled by "pull apps".'
     );
     expect(messages()).not.toContain('No connector definitions found');
   });
@@ -603,7 +603,7 @@ describe('pull connector-mappings', () => {
       )
     ).toBe(true);
     expect(messages()).toContain(
-      'mapping systemEntraUser_managedAlpha_user is owned by application "Zion Directory" (realm alpha) and is pulled by "pull applications".'
+      'mapping systemEntraUser_managedAlpha_user is owned by application "Zion Directory" (realm alpha) and is pulled by "pull apps".'
     );
   });
 

@@ -357,7 +357,7 @@ describe('push oauth2-agents', () => {
       'portal-client',
     ]);
     expect(messages()).toContain(
-      'OAuth2 client portal-client is owned by application "Zion Portal" and is pushed by "push applications".'
+      'OAuth2 client portal-client is owned by application "Zion Portal" and is pushed by "push apps".'
     );
     expect(treeFiles()).toEqual(before);
     expect(errors()).toBe('');
@@ -399,7 +399,7 @@ describe('push oauth2-agents', () => {
     await configManagerImportAgents();
 
     expect(messages()).toContain(
-      'is owned by applications "Zion Mobile" and "Zion Portal" and is pushed by "push applications".'
+      'is owned by applications "Zion Mobile" and "Zion Portal" and is pushed by "push apps".'
     );
   });
 
@@ -603,10 +603,10 @@ describe('push saml', () => {
     expect(outcome).toBe(true);
     expect(importedEntityIds()).toEqual(['https://other.example.com']);
     expect(messages()).toContain(
-      'SAML provider https://idp.zion.example.com is owned by application "Zion SSO" and is pushed by "push applications".'
+      'SAML provider https://idp.zion.example.com is owned by application "Zion SSO" and is pushed by "push apps".'
     );
     expect(messages()).toContain(
-      'SAML provider https://sp.zion.example.com is owned by application "Zion SSO" and is pushed by "push applications".'
+      'SAML provider https://sp.zion.example.com is owned by application "Zion SSO" and is pushed by "push apps".'
     );
     expect(
       frodo.saml2.circlesOfTrust.importCirclesOfTrust
@@ -753,7 +753,7 @@ describe('push connector-definitions', () => {
     expect(outcome).toBe(true);
     expect(importedConnectorIds()).toEqual(['Workday']);
     expect(messages()).toContain(
-      'connector Entra is owned by application "Zion HR" (realm bravo) and is pushed by "push applications".'
+      'connector Entra is owned by application "Zion HR" (realm bravo) and is pushed by "push apps".'
     );
     expect(treeFiles()).toEqual(before);
     expect(errors()).toBe('');
@@ -882,7 +882,7 @@ describe('push connector-mappings', () => {
 
     expect(outcome).toBe(true);
     expect(messages()).toContain(
-      'mapping systemEntraUser_managedBravo_user is owned by application "Zion HR" (realm bravo) and is pushed by "push applications".'
+      'mapping systemEntraUser_managedBravo_user is owned by application "Zion HR" (realm bravo) and is pushed by "push apps".'
     );
     expect(subImportedMappingNames()).toEqual([
       'managedBravo_user_systemWorkdayUser',
@@ -1116,10 +1116,10 @@ describe('the ownership read from the application folders of a tree', () => {
     const owners = [{ realm: 'alpha', applicationName: 'Zion Portal' }];
 
     expect(ownedObjectMessage('mapping', 'm', owners)).toBe(
-      'mapping m is owned by application "Zion Portal" and is pulled by "pull applications".'
+      'mapping m is owned by application "Zion Portal" and is pulled by "pull apps".'
     );
     expect(ownedObjectMessage('mapping', 'm', owners, true, 'pushed')).toBe(
-      'mapping m is owned by application "Zion Portal" (realm alpha) and is pushed by "push applications".'
+      'mapping m is owned by application "Zion Portal" (realm alpha) and is pushed by "push apps".'
     );
   });
 });
