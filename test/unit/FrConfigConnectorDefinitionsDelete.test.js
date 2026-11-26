@@ -1046,7 +1046,7 @@ describe('an application that names the connector definition owns it', () => {
     expect(await configManagerDeleteConnectorDefinitions('Azure')).toBe(false);
 
     expect(output()).toContain(
-      'An application owns the connector definition that it names: config-manager delete applications removes both.'
+      'An application owns the connector definition that it names: config-manager delete apps removes both.'
     );
     // the sentence comes after the list of holders and before the refusal
     expect(output().indexOf("application 'Azure'")).toBeLessThan(

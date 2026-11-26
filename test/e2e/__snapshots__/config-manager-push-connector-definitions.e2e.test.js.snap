@@ -3,13 +3,15 @@
 exports[`frodo config-manager push connector-definitions "frodo config-manager push connector-definitions -D test/e2e/exports/fr-config-manager/forgeops -m forgeops": should import the connector definitions into forgeops" 1`] = `""`;
 
 exports[`frodo config-manager push connector-definitions "frodo config-manager push connector-definitions -D test/e2e/exports/fr-config-manager/forgeops -m forgeops": should import the connector definitions into forgeops" 2`] = `
-"Experimental feature in use: 'frodo config-manager push connector-definitions'. This feature may change without notice.
+"'connector-definitions' is now called 'connectors'. The old name still works and will be removed in a future major release.
+Experimental feature in use: 'frodo config-manager push connectors'. This feature may change without notice.
 "
 `;
 
 exports[`frodo config-manager push connector-definitions "frodo config-manager push connector-definitions -n csv -D test/e2e/exports/fr-config-manager/forgeops -m forgeops": should import the csv connector definition into forgeops" 1`] = `""`;
 
 exports[`frodo config-manager push connector-definitions "frodo config-manager push connector-definitions -n csv -D test/e2e/exports/fr-config-manager/forgeops -m forgeops": should import the csv connector definition into forgeops" 2`] = `
-"Experimental feature in use: 'frodo config-manager push connector-definitions'. This feature may change without notice.
+"'connector-definitions' is now called 'connectors'. The old name still works and will be removed in a future major release.
+Experimental feature in use: 'frodo config-manager push connectors'. This feature may change without notice.
 "
 `;

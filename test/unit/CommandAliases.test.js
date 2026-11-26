@@ -492,7 +492,7 @@ describe('the old words of the planned renames (cli#1264)', () => {
       ['push', 'cors'],
       ['delete', 'scripts'],
       ['migrate', 'applications'],
-      ['promote', 'run-promotion'],
+      ['promote', 'run'],
     ];
 
     it.each(verbs)('config-manager %s %s leads to a command', (verb, word) => {
@@ -565,11 +565,23 @@ describe('the old words of the planned renames (cli#1264)', () => {
       }
     );
 
-    for (const [verb, oldWord, newWord] of rows) {
-      it.todo(
-        `config-manager ${verb} ${oldWord}: ${oldWord} is a transition alias of ${newWord} (getAliasKind), help ends (formerly: ${oldWord}), one stderr notice, same help as ${newWord}`
-      );
-    }
+    // the notice and the unchanged stdout and exit code of every rename are run in ConfigManagerTransitionAliases.test.js
+    it.each(rows)(
+      'config-manager %s %s is a transition alias of the new word (getAliasKind), the help ends (formerly: old), and the old word leads to the command of the new word',
+      (verb, oldWord, newWord) => {
+        const command = leafOf('config-manager', verb, newWord);
+        expect(command).toBeDefined();
+        expect(command.name()).toBe(newWord);
+        expect(getAliasKind(command, oldWord)).toBe('transition');
+        expect(leafOf('config-manager', verb, oldWord)).toBe(command);
+        expect(
+          command.parent.createHelp().subcommandDescription(command)
+        ).toMatch(new RegExp(`\\(formerly: ${oldWord}\\)$`));
+        expect(renderHelp(command).replace(/\s+/g, ' ')).toContain(
+          `(formerly: ${oldWord})`
+        );
+      }
+    );
   });
 
   describe('oauth2-agents, which splits into oauth-clients and agents and stays as a deprecated command that runs both', () => {

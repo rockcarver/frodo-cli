@@ -10,16 +10,16 @@ const exec = promisify(cp.exec);
 const KINDS = [
   ['oauth2-agents', 'OAuth2 clients'],
   ['saml', 'SAML providers'],
-  ['connector-definitions', 'connectors'],
+  ['connectors', 'connectors'],
   ['connector-mappings', 'mappings'],
 ];
 
 describe.each(KINDS)("'config-manager push %s' full help", (kind, what) => {
-  test(`names ${what} that an application owns and points at 'push applications'`, async () => {
+  test(`names ${what} that an application owns and points at 'push apps'`, async () => {
     const { stdout } = await exec(`frodo config-manager push ${kind} -hhh`);
     const text = stdout.replace(/\s+/g, ' ');
     expect(text).toContain(
-      `In a tree that uses one folder per application (see frodo config-manager push applications), ${what} that an application owns are not pushed here`
+      `In a tree that uses one folder per application (see frodo config-manager push apps), ${what} that an application owns are not pushed here`
     );
   });
 });

@@ -1,7 +1,7 @@
 // Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
-exports[`CLI help interface for 'config-manager delete applications' should be expected english 1`] = `
-"Usage: frodo config-manager delete applications [options] [host] [realm] [username] [password]
+exports[`CLI help interface for 'config-manager delete apps' should be expected english 1`] = `
+"Usage: frodo config-manager delete apps [options] [host] [realm] [username] [password]
 
 [Experimental] Delete applications: the application record first, then the
 objects it owns (the OAuth2 client, the SAML providers, the connector and its
@@ -9,7 +9,7 @@ mappings). An owned object that another application still names is kept. The
 scripts and circles of trust that an application uses are never deleted. An
 application whose connector is active is not deleted: switch it off first with
 "frodo app disable". The glossary values and request forms of Identity
-Governance tenants are not handled by this command.
+Governance tenants are not handled by this command. (formerly: applications)
 
 Arguments:
   host                   AM base URL, e.g.: https://cdk.iam.example.com/am. To

@@ -2,7 +2,7 @@ import { jest } from '@jest/globals';
 import { Command } from 'commander';
 
 /**
- * `--full` of `config-manager promote run-promotion`, `run-dryrun-promotion`
+ * `--full` of `config-manager promote run`, `dry-run`
  * and `rollback`, and the question these commands ask before they start: how
  * the commands and the operations compose the library calls. The library is a
  * fake that records the order of its calls, so what is pinned here is the
@@ -171,9 +171,9 @@ beforeEach(() => {
 });
 
 const COMMANDS = [
-  ['run-promotion', setupRunPromotion, 'promoteConfiguration', 'promotion'],
+  ['run', setupRunPromotion, 'promoteConfiguration', 'promotion'],
   [
-    'run-dryrun-promotion',
+    'dry-run',
     setupRunDryrunPromotion,
     'promoteConfiguration',
     'promotion',
@@ -222,7 +222,7 @@ describe.each(COMMANDS)('%s', (name, setup, operationName, statusType) => {
       expect(unlockEnvironment).toHaveBeenCalledWith(LOCK_ID, true);
       // the hint with the id is printed before the wait, not only after it
       expect(printed('warn')).toContain(`lock id ${LOCK_ID}`);
-      expect(printed('warn')).toContain(`unlock-tenants --id ${LOCK_ID}`);
+      expect(printed('warn')).toContain(`unlock --id ${LOCK_ID}`);
       expect(printed('info')).toContain('Lock: done.');
       expect(printed('info')).toContain('Unlock: done.');
       expect(exitCode).toBe(0);
@@ -329,7 +329,7 @@ describe.each(COMMANDS)('%s', (name, setup, operationName, statusType) => {
           expect(unlockEnvironment).not.toHaveBeenCalled();
           expect(operation()).not.toHaveBeenCalled();
           expect(errors()).toContain(`lock id ${OTHER_ID}`);
-          expect(errors()).toContain(`unlock-tenants --id ${OTHER_ID}`);
+          expect(errors()).toContain(`unlock --id ${OTHER_ID}`);
           expect(exitCode).toBe(1);
         }
       );
@@ -342,7 +342,7 @@ describe.each(COMMANDS)('%s', (name, setup, operationName, statusType) => {
         const { exitCode } = await run(setup, ['--full', '-y']);
 
         expect(unlockEnvironment).not.toHaveBeenCalled();
-        expect(errors()).toContain(`unlock-tenants --id ${LOCK_ID}`);
+        expect(errors()).toContain(`unlock --id ${LOCK_ID}`);
         expect(exitCode).toBe(1);
       });
 
@@ -354,7 +354,7 @@ describe.each(COMMANDS)('%s', (name, setup, operationName, statusType) => {
         const { exitCode } = await run(setup, ['--full', '-y']);
 
         expect(unlockEnvironment).not.toHaveBeenCalled();
-        expect(errors()).toContain('check-locked-status');
+        expect(errors()).toContain('promote lock-status');
         expect(exitCode).toBe(1);
       });
 
@@ -394,8 +394,8 @@ describe.each(COMMANDS)('%s', (name, setup, operationName, statusType) => {
         expect(errors()).toContain('cannot tell whose lock it is');
         expect(errors()).not.toContain("somebody else's");
         // the ids that may be left over are named, with the command for each
-        expect(errors()).toContain(`unlock-tenants --id ${OTHER_ID}`);
-        expect(errors()).toContain(`unlock-tenants --id ${LOCK_ID}`);
+        expect(errors()).toContain(`unlock --id ${OTHER_ID}`);
+        expect(errors()).toContain(`unlock --id ${LOCK_ID}`);
         expect(exitCode).toBe(1);
       });
 
@@ -425,7 +425,7 @@ describe.each(COMMANDS)('%s', (name, setup, operationName, statusType) => {
         expect(operation()).not.toHaveBeenCalled();
         expect(unlockEnvironment).not.toHaveBeenCalled();
         expect(printError).toHaveBeenCalled();
-        expect(errors()).toContain(`unlock-tenants --id ${LOCK_ID}`);
+        expect(errors()).toContain(`unlock --id ${LOCK_ID}`);
         expect(exitCode).toBe(1);
       });
     });
@@ -542,8 +542,8 @@ describe.each(COMMANDS)('%s', (name, setup, operationName, statusType) => {
           expect(unlockEnvironment).not.toHaveBeenCalled();
           expect(errors()).toContain('The lock stays on purpose');
           expect(errors()).toContain(`lock id ${LOCK_ID}`);
-          expect(errors()).toContain(`unlock-tenants --id ${LOCK_ID}`);
-          expect(errors()).toContain('check-promotion-status');
+          expect(errors()).toContain(`unlock --id ${LOCK_ID}`);
+          expect(errors()).toContain('promote status');
           expect(printed('error')).toContain('Unlock: kept on purpose.');
           expect(exitCode).toBe(1);
         }
@@ -571,7 +571,7 @@ describe.each(COMMANDS)('%s', (name, setup, operationName, statusType) => {
 
         expect(printError).toHaveBeenCalled();
         expect(errors()).toContain('The environments are still locked');
-        expect(errors()).toContain(`unlock-tenants --id ${LOCK_ID}`);
+        expect(errors()).toContain(`unlock --id ${LOCK_ID}`);
         expect(printed('error')).toContain('Unlock: failed.');
         expect(exitCode).toBe(1);
       });

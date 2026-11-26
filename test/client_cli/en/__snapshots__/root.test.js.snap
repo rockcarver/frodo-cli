@@ -69,8 +69,8 @@ Continuous integration:
   dcc               [Preview] [Cloud-only] Direct Configuration Control (DCC)
                     commands.
   promote           [Deprecated] Deprecated: this command does not run a
-                    platform promotion; use frodo config-manager promote
-                    run-promotion. Will be removed in 5.0.0.
+                    platform promotion; use frodo config-manager promote run.
+                    Will be removed in 5.0.0.
 
 
 Run without a sub-command to enter interactive mode."

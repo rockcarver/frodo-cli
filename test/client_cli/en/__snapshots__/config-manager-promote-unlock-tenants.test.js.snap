@@ -1,9 +1,10 @@
 // Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
-exports[`CLI help interface for 'config-manager promote unlock-tenants' should be expected english 1`] = `
-"Usage: frodo config-manager promote unlock-tenants [options] [host] [realm] [username] [password]
+exports[`CLI help interface for 'config-manager promote unlock' should be expected english 1`] = `
+"Usage: frodo config-manager promote unlock [options] [host] [realm] [username] [password]
 
 [Experimental] [Cloud-only] Unlock tenants and wait until they are unlocked.
+(formerly: unlock-tenants)
 
 Arguments:
   host              AM base URL, e.g.: https://cdk.iam.example.com/am. To use a

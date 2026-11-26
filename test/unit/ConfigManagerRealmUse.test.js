@@ -9,6 +9,7 @@ import {
   realmUseOf,
 } from '../../src/utils/interactive/RealmUse.ts';
 import { fullName, loadLeafCommands } from '../utils/CommandExamples.js';
+import { ALL_RENAMES } from '../utils/ConfigManagerRenames.js';
 
 /**
  * Every config-manager command is one of two kinds, and must say which:
@@ -28,24 +29,24 @@ import { fullName, loadLeafCommands } from '../utils/CommandExamples.js';
  * pick. A new config-manager command therefore has to choose.
  */
 const USES_REALM = [
-  'frodo config-manager delete applications',
+  'frodo config-manager delete apps',
   'frodo config-manager delete oauth-cimd-profiles',
   'frodo config-manager delete scripts',
-  'frodo config-manager delete secret-mappings',
+  'frodo config-manager delete secretstore-mappings',
   'frodo config-manager delete themes',
   'frodo config-manager delete oauth-issuers',
   'frodo config-manager delete oauth-software-publishers',
-  'frodo config-manager migrate applications',
+  'frodo config-manager migrate apps',
   'frodo config-manager pull all',
   'frodo config-manager pull all-static',
-  'frodo config-manager pull applications',
-  'frodo config-manager pull authentication',
+  'frodo config-manager pull apps',
+  'frodo config-manager pull authn',
   'frodo config-manager pull oauth-cimd-profiles',
   'frodo config-manager pull journeys',
   'frodo config-manager pull org-privileges',
   'frodo config-manager pull password-policy',
   'frodo config-manager pull scripts',
-  'frodo config-manager pull secret-mappings',
+  'frodo config-manager pull secretstore-mappings',
   'frodo config-manager pull services',
   'frodo config-manager pull themes',
   'frodo config-manager pull oauth-issuers',
@@ -56,14 +57,14 @@ const USES_REALM = [
   'frodo config-manager pull oauth-clients',
   'frodo config-manager pull agents',
   'frodo config-manager push all-static',
-  'frodo config-manager push applications',
-  'frodo config-manager push authentication',
+  'frodo config-manager push apps',
+  'frodo config-manager push authn',
   'frodo config-manager push oauth-cimd-profiles',
   'frodo config-manager push journeys',
   'frodo config-manager push password-policy',
   'frodo config-manager push saml',
   'frodo config-manager push scripts',
-  'frodo config-manager push secret-mappings',
+  'frodo config-manager push secretstore-mappings',
   'frodo config-manager push services',
   'frodo config-manager push themes',
   'frodo config-manager push oauth-issuers',
@@ -96,11 +97,16 @@ const root = path.resolve(
 /** The source file of a leaf: `frodo config-manager pull all-static` -> config-manager-pull-all-static.ts */
 function sourceOf(name) {
   const [, , group, ...rest] = name.split(' ');
+  const word = rest.join('-');
+  // the file of a renamed command keeps the name the command had first: it is the old name, which is the alias
+  const renamed = ALL_RENAMES.find(
+    ([verb, , newName]) => verb === group && newName === word
+  );
   return path.join(
     root,
     'src/cli/config-manager',
     `config-manager-${group}`,
-    `config-manager-${group}-${rest.join('-')}.ts`
+    `config-manager-${group}-${renamed ? renamed[1] : word}.ts`
   );
 }
 
@@ -133,7 +139,7 @@ describe('config-manager commands and their realm', () => {
     expect(names.length).toBeGreaterThan(90);
     expect(names).toContain('frodo config-manager pull journeys');
     expect(names).toContain('frodo config-manager pull cors');
-    expect(names).toContain('frodo config-manager promote run-promotion');
+    expect(names).toContain('frodo config-manager promote run');
     expect(
       names.every((name) => name.startsWith('frodo config-manager '))
     ).toBe(true);

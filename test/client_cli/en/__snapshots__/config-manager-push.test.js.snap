@@ -21,19 +21,21 @@ Commands:
   agents                     [Experimental] Import agents from the files written
                              by pull.
   all-static                 [Experimental] Import all static configuration.
-  applications               [Experimental] Import applications, one folder per
-                             application with the objects it owns.
+  apps                       [Experimental] Import applications, one folder per
+                             application with the objects it owns. (formerly:
+                             applications)
   audit                      [Experimental] Import audit configuration.
-  authentication             [Experimental] Import authentication objects.
+  authn                      [Experimental] Import authentication objects.
+                             (formerly: authentication)
   authz-policies             [Experimental] Import authorization policies.
   config-metadata            [Experimental] Import metadata.
-  connector-definitions      [Experimental] Import connector definitions.
   connector-mappings         [Experimental] Import connector mappings.
+  connectors                 [Experimental] Import connector definitions.
+                             (formerly: connector-definitions)
   cookie-domains             [Experimental] [Cloud-only] Import cookie domains.
   cors                       [Experimental] Import CORS configuration.
   csp                        [Experimental] [Cloud-only] Import content security
                              policy.
-  custom-nodes               [Experimental] Import custom nodes.
   email-provider             [Experimental] Import email provider configuration.
   email-templates            [Experimental] Import email template objects.
   endpoints                  [Experimental] Import custom endpoints objects.
@@ -45,6 +47,8 @@ Commands:
   locales                    [Experimental] Import custom locales objects.
   managed-objects            [Experimental] Import managed objects and their
                              custom relationship schemas.
+  nodes                      [Experimental] Import custom nodes. (formerly:
+                             custom-nodes)
   oauth-cimd-profiles        [Experimental] Import CIMD profiles from the files
                              written by pull.
   oauth-clients              [Experimental] Import OAuth2 clients from the files
@@ -67,8 +71,9 @@ Commands:
   saml                       [Experimental] Import saml configuration.
   schedules                  [Experimental] Import schedules.
   scripts                    [Experimental] Import scripts.
-  secret-mappings            [Experimental] [Cloud-only] Import secret mappings.
   secrets                    [Experimental] [Cloud-only] Import secrets.
+  secretstore-mappings       [Experimental] [Cloud-only] Import secret mappings.
+                             (formerly: secret-mappings)
   service-objects            [Experimental] Import service objects.
   services                   [Experimental] Import AM authentication services.
   telemetry                  [Experimental] [Cloud-only] Import telemetry

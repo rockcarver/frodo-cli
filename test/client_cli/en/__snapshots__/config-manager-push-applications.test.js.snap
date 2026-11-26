@@ -1,10 +1,10 @@
 // Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
-exports[`CLI help interface for 'config-manager push applications' should be expected english 1`] = `
-"Usage: frodo config-manager push applications [options] [host] [realm] [username] [password]
+exports[`CLI help interface for 'config-manager push apps' should be expected english 1`] = `
+"Usage: frodo config-manager push apps [options] [host] [realm] [username] [password]
 
 [Experimental] Import applications from the folders
-realms/<realm>/applications/<name>/ that "pull applications" writes. For each
+realms/<realm>/applications/<name>/ that "pull apps" writes. For each
 application the scripts it uses, its connector and mappings, its OAuth2 client
 and its SAML providers are imported first, then the circles of trust the
 providers are members of, and the application itself last. An application is
@@ -15,7 +15,7 @@ an application whose variable is not set is not imported. A key set that a pull
 replaced by \${APP_<NAME>_JWKSET} is filled from that variable, which holds the
 key set as JSON text. Members, owners and roles of an application, and the
 glossary values and request forms of Identity Governance tenants, are never
-changed.
+changed. (formerly: applications)
 
 Arguments:
   host                   AM base URL, e.g.: https://cdk.iam.example.com/am. To

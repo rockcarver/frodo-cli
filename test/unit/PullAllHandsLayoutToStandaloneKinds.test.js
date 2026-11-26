@@ -15,8 +15,8 @@ import {
  * `config-manager pull all` decides the layout of the tree once, before its first
  * step, and hands the decision to the four standalone kinds that it concerns
  * (decision record 0042, slice S3 of frodo-cli#1101): in a new tree the marker is
- * written only by the last step, `applications`, so the earlier steps cannot read
- * it. `pull all-static` has no `applications` step and decides nothing: its steps
+ * written only by the last step, `apps`, so the earlier steps cannot read
+ * it. `pull all-static` has no `apps` step and decides nothing: its steps
  * read the marker of the tree.
  *
  * The four exporters are fakes that record how they are called; everything else a
@@ -158,8 +158,8 @@ describe.each(['cloud', 'forgeops'])('the steps of `pull all` (%s)', (type) => {
     );
   });
 
-  test('connector-definitions and connector-mappings get the layout decision', async () => {
-    await stepNamed(deploymentMapAll, 'connector-definitions').export(
+  test('connectors and connector-mappings get the layout decision', async () => {
+    await stepNamed(deploymentMapAll, 'connectors').export(
       options({ applicationLayout: FOLDERS_NEW })
     );
     await stepNamed(deploymentMapAll, 'connector-mappings').export(
@@ -199,7 +199,7 @@ describe.each(['cloud', 'forgeops'])('the steps of `pull all` (%s)', (type) => {
   });
 
   test('the steps of `pull all-static` are unchanged: they read the marker themselves', async () => {
-    await stepNamed(deploymentMapAllStatic, 'connector-definitions').export(
+    await stepNamed(deploymentMapAllStatic, 'connectors').export(
       options({ applicationLayout: FOLDERS_NEW })
     );
     await stepNamed(deploymentMapAllStatic, 'connector-mappings').export(
@@ -214,15 +214,15 @@ describe.each(['cloud', 'forgeops'])('the steps of `pull all` (%s)', (type) => {
 describe.each(['cloud', 'forgeops'])(
   'the order of the steps of `pull all` (%s)',
   (type) => {
-    test('the four standalone kinds come last, just before applications: the recorded replays hand out their recordings in order', () => {
+    test('the four standalone kinds come last, just before apps: the recorded replays hand out their recordings in order', () => {
       const names = deploymentMapAll[type].map((step) => step.name);
 
       expect(names.slice(-5)).toEqual([
-        'connector-definitions',
+        'connectors',
         'oauth2-agents',
         'connector-mappings',
         'saml',
-        'applications',
+        'apps',
       ]);
     });
   }

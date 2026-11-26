@@ -21,19 +21,21 @@ Commands:
   agents                     [Experimental] Export agents, one file per agent.
   all                        [Experimental] Export all config.
   all-static                 [Experimental] Export all static config.
-  applications               [Experimental] Export applications, one folder per
-                             application with the objects it owns.
+  apps                       [Experimental] Export applications, one folder per
+                             application with the objects it owns. (formerly:
+                             applications)
   audit                      [Experimental] Export audit objects.
-  authentication             [Experimental] Export authentication settings.
+  authn                      [Experimental] Export authentication settings.
+                             (formerly: authentication)
   authz-policies             [Experimental] Export authorization policies.
   config-metadata            [Experimental] Show metadata.
-  connector-definitions      [Experimental] Export connector definitions.
   connector-mappings         [Experimental] Export connector mappings.
+  connectors                 [Experimental] Export connector definitions.
+                             (formerly: connector-definitions)
   cookie-domains             [Experimental] [Cloud-only] Export cookie domains.
   cors                       [Experimental] Export CORS configuration.
   csp                        [Experimental] [Cloud-only] Export content security
                              policy.
-  custom-nodes               [Experimental] Export custom nodes.
   email-provider             [Experimental] Export email provider configuration.
   email-templates            [Experimental] Export email-templates objects.
   endpoints                  [Experimental] Export custom endpoints.
@@ -44,6 +46,8 @@ Commands:
   kba                        [Experimental] Export KBA.
   locales                    [Experimental] Export locales.
   managed-objects            [Experimental] Export managed-objects.
+  nodes                      [Experimental] Export custom nodes. (formerly:
+                             custom-nodes)
   oauth-cimd-profiles        [Experimental] Export CIMD profiles, one file per
                              profile.
   oauth-clients              [Experimental] Export OAuth2 clients, one file per
@@ -66,8 +70,9 @@ Commands:
   saml                       [Experimental] Export saml.
   schedules                  [Experimental] Export schedules.
   scripts                    [Experimental] Export AM scripts.
-  secret-mappings            [Experimental] [Cloud-only] Export secret mappings.
   secrets                    [Experimental] [Cloud-only] Export secrets.
+  secretstore-mappings       [Experimental] [Cloud-only] Export secret mappings.
+                             (formerly: secret-mappings)
   service-objects            [Experimental] Export service objects.
   services                   [Experimental] Export authentication services.
   telemetry                  [Experimental] [Cloud-only] Export telemetry

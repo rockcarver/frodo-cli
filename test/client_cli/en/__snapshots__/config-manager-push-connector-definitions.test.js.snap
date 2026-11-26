@@ -1,9 +1,9 @@
 // Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
-exports[`CLI help interface for 'config-manager push connector-definitions' should be expected english 1`] = `
-"Usage: frodo config-manager push connector-definitions [options] [host] [realm] [username] [password]
+exports[`CLI help interface for 'config-manager push connectors' should be expected english 1`] = `
+"Usage: frodo config-manager push connectors [options] [host] [realm] [username] [password]
 
-[Experimental] Import connector definitions.
+[Experimental] Import connector definitions. (formerly: connector-definitions)
 
 Arguments:
   host                     AM base URL, e.g.: https://cdk.iam.example.com/am. To

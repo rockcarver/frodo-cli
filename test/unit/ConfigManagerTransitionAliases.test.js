@@ -115,7 +115,7 @@ describe('the renamed config-manager commands', () => {
           new RegExp(`^ {2}${newName} {2,}.*\\(formerly: ${oldName}\\)$`, 'm')
         );
         expect(renderHelp(command)).toContain(
-          `Usage: frodo config-manager ${verb} ${newName} `
+          `Usage: config-manager ${verb} ${newName} `
         );
       });
 

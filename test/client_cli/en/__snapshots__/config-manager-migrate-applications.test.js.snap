@@ -1,12 +1,12 @@
 // Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
-exports[`CLI help interface for 'config-manager migrate applications' should be expected english 1`] = `
-"Usage: frodo config-manager migrate applications [options] [host] [realm] [username] [password]
+exports[`CLI help interface for 'config-manager migrate apps' should be expected english 1`] = `
+"Usage: frodo config-manager migrate apps [options] [host] [realm] [username] [password]
 
 [Experimental] Move a tree that keeps the objects of an application at the paths
 of their own kinds (the layout of config-manager before applications) to one
 folder per application. The tenant says which objects an application owns, so
-the command reads it. It writes each application as "pull applications" does
+the command reads it. It writes each application as "pull apps" does
 (realms/<realm>/applications/<name>/), removes the files of the objects the
 application owns from the paths of their own kinds (OAuth2 clients, SAML
 providers, connectors and mappings; never scripts or circles of trust), and
@@ -15,7 +15,7 @@ everything succeeded. An application that cannot be written keeps its files
 where they are, and the command can be run again. Use -d to see what would
 happen first. The command does not ask: the tree is a working copy, and the
 preview is the safeguard. A tree that already keeps one folder per application
-is left alone.
+is left alone. (formerly: applications)
 
 Arguments:
   host                                      AM base URL, e.g.: https://cdk.iam.example.com/am. To use a connection profile, just specify a unique substring or alias.

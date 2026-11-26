@@ -15,7 +15,7 @@ const {
 } = require('../e2e/utils/FrodoBinary.cjs');
 
 /**
- * `--full` of `config-manager promote run-promotion`, `run-dryrun-promotion`
+ * `--full` of `config-manager promote run`, `dry-run`
  * and `rollback`, and the question that these commands ask first, through the
  * REAL CLI and the real library of this checkout against the fake tenant of
  * test/utils/FakeAm.mjs in a separate process, with no tenant and no recording.
@@ -51,8 +51,8 @@ const { privateKey } = generateKeyPairSync('rsa', { modulusLength: 2048 });
 const serviceAccountJwk = JSON.stringify(privateKey.export({ format: 'jwk' }));
 
 const COMMANDS = [
-  ['run-promotion', 'promote'],
-  ['run-dryrun-promotion', 'promote'],
+  ['run', 'promote'],
+  ['dry-run', 'promote'],
   ['rollback', 'rollback'],
 ];
 
@@ -257,10 +257,10 @@ suite('config-manager promote --full through the CLI', () => {
         expect(sent.dryRun).toBe(
           command === 'rollback'
             ? undefined
-            : command === 'run-dryrun-promotion'
+            : command === 'dry-run'
         );
         expect(stderr).toContain(`lock id ${LOCK_ID}`);
-        expect(stderr).toContain('frodo config-manager promote unlock-tenants');
+        expect(stderr).toContain('frodo config-manager promote unlock');
         expect(stderr).toMatch(/Lock: done\. .*: done\. Unlock: done\./);
         expect(code).toBe(0);
         expect(await lockNow(server)).toBe('unlocked');
@@ -273,7 +273,7 @@ suite('config-manager promote --full through the CLI', () => {
       async () => {
         const server = await fake({ promote: [{ statuses: [COMPLETED] }] });
 
-        const { code } = await promote(server, 'run-promotion', [
+        const { code } = await promote(server, 'run', [
           '--full',
           '-u',
           '-y',
@@ -293,7 +293,7 @@ suite('config-manager promote --full through the CLI', () => {
       async () => {
         const server = await fake({ promote: [{ statuses: [COMPLETED] }] });
 
-        const { code } = await promote(server, 'run-promotion', [
+        const { code } = await promote(server, 'run', [
           '--full',
           '-I',
           '-y',
@@ -335,7 +335,7 @@ suite('config-manager promote --full through the CLI', () => {
           promote: [{ statuses: [COMPLETED] }],
         });
 
-        const { code } = await promote(server, 'run-promotion', ['-y']);
+        const { code } = await promote(server, 'run', ['-y']);
 
         expect(calls()).toEqual(['POST promote']);
         expect(bodies('POST', 'promote')[0]).toEqual({
@@ -356,7 +356,7 @@ suite('config-manager promote --full through the CLI', () => {
           promote: [{ statuses: [COMPLETED] }],
         });
 
-        const { code } = await promote(server, 'run-promotion', ['-w', '-y']);
+        const { code } = await promote(server, 'run', ['-w', '-y']);
 
         expect(calls()).toEqual(['GET promote', 'POST promote', 'GET promote']);
         expect(code).toBe(0);
@@ -373,7 +373,7 @@ suite('config-manager promote --full through the CLI', () => {
           lock: { result, promotionId: OTHER_LOCK_ID },
         });
 
-        const { code, stderr } = await promote(server, 'run-promotion', [
+        const { code, stderr } = await promote(server, 'run', [
           '--full',
           '-y',
         ]);
@@ -382,7 +382,7 @@ suite('config-manager promote --full through the CLI', () => {
         expect(stderr).toContain(`state ${result}`);
         expect(stderr).toContain(`lock id ${OTHER_LOCK_ID}`);
         expect(stderr).toContain(
-          `promote unlock-tenants --id ${OTHER_LOCK_ID}`
+          `promote unlock --id ${OTHER_LOCK_ID}`
         );
         expect(code).toBe(1);
         expect(await lockNow(server)).toBe(result);
@@ -398,7 +398,7 @@ suite('config-manager promote --full through the CLI', () => {
           { failRequests: [{ method: 'GET', path: '/promotion/lock/state' }] }
         );
 
-        const { code, stderr } = await promote(server, 'run-promotion', [
+        const { code, stderr } = await promote(server, 'run', [
           '--full',
           '-y',
         ]);
@@ -451,7 +451,7 @@ suite('config-manager promote --full through the CLI', () => {
           ],
         });
 
-        const { code, stderr } = await promote(server, 'run-promotion', [
+        const { code, stderr } = await promote(server, 'run', [
           '--full',
           '-y',
         ]);
@@ -481,7 +481,7 @@ suite('config-manager promote --full through the CLI', () => {
           ],
         });
 
-        const { code, stderr } = await promote(server, 'run-promotion', [
+        const { code, stderr } = await promote(server, 'run', [
           '--full',
           '-y',
         ]);
@@ -495,7 +495,7 @@ suite('config-manager promote --full through the CLI', () => {
   });
 
   describe('encrypted secrets', () => {
-    it.each(['run-promotion', 'run-dryrun-promotion'])(
+    it.each(['run', 'dry-run'])(
       '%s --full -y without a terminal: -y does not answer the question, the command fails, names -I, and unlocks',
       async (command) => {
         const server = await fake({
@@ -528,7 +528,7 @@ suite('config-manager promote --full through the CLI', () => {
           promote: [{ statuses: [COMPLETED] }],
         });
 
-        const { code } = await promote(server, 'run-promotion', [
+        const { code } = await promote(server, 'run', [
           '--full',
           '-I',
           '-y',
@@ -574,7 +574,7 @@ suite('config-manager promote --full through the CLI', () => {
           ],
         });
 
-        const { code, stderr } = await promote(server, 'run-promotion', [
+        const { code, stderr } = await promote(server, 'run', [
           '--full',
           '--timeout',
           '1',
@@ -584,8 +584,8 @@ suite('config-manager promote --full through the CLI', () => {
         expect(calls().some((call) => call.startsWith('DELETE'))).toBe(false);
         expect(stderr).toContain('The lock stays on purpose');
         expect(stderr).toContain(`lock id ${LOCK_ID}`);
-        expect(stderr).toContain(`promote unlock-tenants --id ${LOCK_ID}`);
-        expect(stderr).toContain('check-promotion-status');
+        expect(stderr).toContain(`promote unlock --id ${LOCK_ID}`);
+        expect(stderr).toContain('promote status');
         expect(stderr).toContain(
           'Promotion: not finished. Unlock: kept on purpose.'
         );
@@ -608,7 +608,7 @@ suite('config-manager promote --full through the CLI', () => {
           promote: [{ statuses: [COMPLETED] }],
         });
 
-        const { code, stderr } = await promote(server, 'run-promotion', [
+        const { code, stderr } = await promote(server, 'run', [
           '--full',
           '-y',
         ]);
@@ -639,7 +639,7 @@ suite('config-manager promote --full through the CLI', () => {
           promote: [{ statuses: [COMPLETED] }],
         });
 
-        const { code, stderr } = await promote(server, 'run-promotion', [
+        const { code, stderr } = await promote(server, 'run', [
           '--full',
           '-y',
         ]);
@@ -648,7 +648,7 @@ suite('config-manager promote --full through the CLI', () => {
         expect(calls().some((call) => call.startsWith('DELETE'))).toBe(false);
         expect(stderr).toContain('already running');
         expect(stderr).toContain('The lock stays on purpose');
-        expect(stderr).toContain(`promote unlock-tenants --id ${LOCK_ID}`);
+        expect(stderr).toContain(`promote unlock --id ${LOCK_ID}`);
         expect(code).toBe(1);
         expect(await lockNow(server)).toBe('locked');
       },
@@ -663,7 +663,7 @@ suite('config-manager promote --full through the CLI', () => {
           { failRequests: [{ method: 'GET', path: '/promotion/promote' }] }
         );
 
-        const { code, stderr } = await promote(server, 'run-promotion', [
+        const { code, stderr } = await promote(server, 'run', [
           '--full',
           '--timeout',
           '1',
@@ -689,7 +689,7 @@ suite('config-manager promote --full through the CLI', () => {
           ],
         });
 
-        const { code, stderr } = await promote(server, 'run-promotion', [
+        const { code, stderr } = await promote(server, 'run', [
           '--full',
           '-y',
         ]);
@@ -708,7 +708,7 @@ suite('config-manager promote --full through the CLI', () => {
       async () => {
         const server = await fake({ promote: [{ request: 'refuse' }] });
 
-        const { code } = await promote(server, 'run-promotion', [
+        const { code } = await promote(server, 'run', [
           '--full',
           '-y',
         ]);
@@ -729,14 +729,14 @@ suite('config-manager promote --full through the CLI', () => {
           unlockRequest: 'refuse',
         });
 
-        const { code, stderr } = await promote(server, 'run-promotion', [
+        const { code, stderr } = await promote(server, 'run', [
           '--full',
           '-y',
         ]);
 
         expect(calls()).toContain(`DELETE lock/${LOCK_ID}`);
         expect(stderr).toContain('The environments are still locked');
-        expect(stderr).toContain(`promote unlock-tenants --id ${LOCK_ID}`);
+        expect(stderr).toContain(`promote unlock --id ${LOCK_ID}`);
         expect(stderr).toMatch(/Promotion: done\. Unlock: failed\./);
         expect(code).toBe(1);
         expect(await lockNow(server)).toBe('locked');
@@ -751,7 +751,7 @@ suite('config-manager promote --full through the CLI', () => {
       async () => {
         const server = await fake({ lockRequest: 'refuse' });
 
-        const { code, stderr } = await promote(server, 'run-promotion', [
+        const { code, stderr } = await promote(server, 'run', [
           '--full',
           '-y',
         ]);
@@ -769,7 +769,7 @@ suite('config-manager promote --full through the CLI', () => {
       async () => {
         const server = await fake({ lockRequest: 'refuse-but-lock' });
 
-        const { code, stderr } = await promote(server, 'run-promotion', [
+        const { code, stderr } = await promote(server, 'run', [
           '--full',
           '-y',
         ]);
@@ -777,7 +777,7 @@ suite('config-manager promote --full through the CLI', () => {
         expect(calls().some((call) => call.startsWith('DELETE'))).toBe(false);
         expect(calls()).not.toContain('POST promote');
         expect(stderr).toContain(`lock id ${LOCK_ID}`);
-        expect(stderr).toContain(`promote unlock-tenants --id ${LOCK_ID}`);
+        expect(stderr).toContain(`promote unlock --id ${LOCK_ID}`);
         expect(code).toBe(1);
         expect(await lockNow(server)).toBe('locked');
       },
@@ -792,7 +792,7 @@ suite('config-manager promote --full through the CLI', () => {
           foreignLockId: OTHER_LOCK_ID,
         });
 
-        const { code, stderr } = await promote(server, 'run-promotion', [
+        const { code, stderr } = await promote(server, 'run', [
           '--full',
           '-y',
         ]);
@@ -830,9 +830,9 @@ suite('config-manager promote --full through the CLI', () => {
         expect(stderr).toContain('cannot tell whose lock it is');
         expect(stderr).not.toContain("somebody else's");
         expect(stderr).toContain(
-          `promote unlock-tenants --id ${OTHER_LOCK_ID}`
+          `promote unlock --id ${OTHER_LOCK_ID}`
         );
-        expect(stderr).toContain(`promote unlock-tenants --id ${LOCK_ID}`);
+        expect(stderr).toContain(`promote unlock --id ${LOCK_ID}`);
         expect(code).toBe(1);
         expect(await lockNow(server)).toBe('locked');
       },
@@ -848,7 +848,7 @@ suite('config-manager promote --full through the CLI', () => {
           foreignLockId: OTHER_LOCK_ID,
         });
 
-        const { code, stderr } = await promote(server, 'run-promotion', [
+        const { code, stderr } = await promote(server, 'run', [
           '--full',
           '-y',
         ]);
@@ -872,7 +872,7 @@ suite('config-manager promote --full through the CLI', () => {
           promote: [{ statuses: [COMPLETED] }],
         });
 
-        const { code, stderr } = await promote(server, 'run-promotion', [
+        const { code, stderr } = await promote(server, 'run', [
           '--full',
           '-y',
         ]);
@@ -897,7 +897,7 @@ suite('config-manager promote --full through the CLI', () => {
 
         const result = await promote(
           server,
-          'run-promotion',
+          'run',
           ['--full', '-y'],
           {
             signal,
@@ -911,7 +911,7 @@ suite('config-manager promote --full through the CLI', () => {
         expect(result.stderr).toContain('may end up locked');
         expect(result.stderr).toContain(`lock id ${LOCK_ID}`);
         expect(result.stderr).toContain(
-          `promote unlock-tenants --id ${LOCK_ID}`
+          `promote unlock --id ${LOCK_ID}`
         );
         // the platform goes on locking by itself
         expect(await lockNow(server)).not.toBe('unlocked');

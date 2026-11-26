@@ -9,7 +9,7 @@ import {
 import { Command } from 'commander';
 
 /**
- * The command `config-manager delete applications` (records 0037, 0040, 0041 and
+ * The command `config-manager delete apps` (records 0037, 0040, 0041 and
  * 0042): it adds the shared `--allow-failures` option (`.multiOp()`), runs for
  * Cloud and ForgeOps, refuses a bulk delete that nobody can be asked about before
  * it logs in, asks before more than one application is deleted (the plan comes
@@ -112,12 +112,12 @@ afterEach(() => {
   process.exitCode = undefined;
 });
 
-describe('frodo config-manager delete applications', () => {
+describe('frodo config-manager delete apps', () => {
   test('is a multi-operation command, for Cloud and ForgeOps', async () => {
     const program = await run('-y');
 
     expect(program.multiOpCalled).toBe(true);
-    expect(constructed[0]).toBe('frodo config-manager delete applications');
+    expect(constructed[0]).toBe('frodo config-manager delete apps');
     expect(constructed[2]).toEqual(['cloud', 'forgeops']);
   });
 

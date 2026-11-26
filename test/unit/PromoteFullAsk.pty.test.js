@@ -11,8 +11,8 @@ import {
 import { startFakeAm } from '../utils/StartFakeAm.js';
 
 /**
- * The two questions of `config-manager promote run-promotion`, `rollback` and
- * `run-dryrun-promotion` that need a real terminal, answered through a
+ * The two questions of `config-manager promote run`, `rollback` and
+ * `dry-run` that need a real terminal, answered through a
  * pseudo-terminal against the fake tenant:
  *
  * - the question before the command starts (these commands ask first, see
@@ -117,7 +117,7 @@ suite('promote questions, on a real terminal', () => {
     it('is asked with the target and the default answer no, and a yes starts the promotion', async () => {
       const result = await onTerminal(
         { promote: [{ statuses: [COMPLETED] }] },
-        ['run-promotion'],
+        ['run'],
         [QUESTION, { type: 'send_line', text: 'y' }, ENDED]
       );
 
@@ -132,7 +132,7 @@ suite('promote questions, on a real terminal', () => {
     it('a no sends nothing to the promotion API and exits 1', async () => {
       const result = await onTerminal(
         { promote: [{ statuses: [COMPLETED] }] },
-        ['run-promotion'],
+        ['run'],
         [QUESTION, { type: 'send_line', text: 'n' }, ENDED]
       );
 
@@ -144,7 +144,7 @@ suite('promote questions, on a real terminal', () => {
     it('a bare Enter is a no: the default answer is no', async () => {
       const result = await onTerminal(
         { promote: [{ statuses: [COMPLETED] }] },
-        ['run-promotion'],
+        ['run'],
         [QUESTION, { type: 'key', name: 'enter' }, ENDED]
       );
 
@@ -155,7 +155,7 @@ suite('promote questions, on a real terminal', () => {
     it('the dry run asks as well, and says that it locks the environments with --full', async () => {
       const result = await onTerminal(
         { promote: [{ statuses: [COMPLETED] }] },
-        ['run-dryrun-promotion', '--full'],
+        ['dry-run', '--full'],
         [QUESTION, { type: 'send_line', text: 'n' }, ENDED]
       );
 
@@ -184,7 +184,7 @@ suite('promote questions, on a real terminal', () => {
     it('with prompting turned off the command is refused as it is without a terminal, naming -y', async () => {
       const result = await onTerminal(
         { promote: [{ statuses: [COMPLETED] }] },
-        ['run-promotion', '--full'],
+        ['run', '--full'],
         [ENDED],
         { FRODO_NO_PROMPT: '1' }
       );
@@ -205,7 +205,7 @@ suite('promote questions, on a real terminal', () => {
     it('a yes, although -y was given, runs the promotion again with the encrypted secrets ignored, in the same lock, and unlocks', async () => {
       const result = await onTerminal(
         { promote: [{ statuses: [ENCRYPTED] }, { statuses: [COMPLETED] }] },
-        ['run-promotion', '--full', '-y'],
+        ['run', '--full', '-y'],
         [ENCRYPTED_QUESTION, { type: 'send_line', text: 'y' }, ENDED]
       );
 
@@ -223,7 +223,7 @@ suite('promote questions, on a real terminal', () => {
     it('a no does not run it again, says so in its own words, unlocks, and exits 1', async () => {
       const result = await onTerminal(
         { promote: [{ statuses: [ENCRYPTED] }, { statuses: [COMPLETED] }] },
-        ['run-promotion', '--full', '-y'],
+        ['run', '--full', '-y'],
         [ENCRYPTED_QUESTION, { type: 'send_line', text: 'n' }, ENDED]
       );
 
@@ -239,7 +239,7 @@ suite('promote questions, on a real terminal', () => {
     it('a bare Enter is a no', async () => {
       const result = await onTerminal(
         { promote: [{ statuses: [ENCRYPTED] }, { statuses: [COMPLETED] }] },
-        ['run-promotion', '--full', '-y'],
+        ['run', '--full', '-y'],
         [ENCRYPTED_QUESTION, { type: 'key', name: 'enter' }, ENDED]
       );
 
@@ -251,7 +251,7 @@ suite('promote questions, on a real terminal', () => {
     it('with prompting turned off it is not asked: the command fails, names -I, and unlocks', async () => {
       const result = await onTerminal(
         { promote: [{ statuses: [ENCRYPTED] }, { statuses: [COMPLETED] }] },
-        ['run-promotion', '--full', '-y'],
+        ['run', '--full', '-y'],
         [ENDED],
         { FRODO_NO_PROMPT: '1' }
       );

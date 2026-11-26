@@ -207,7 +207,7 @@ describe.each(['pull', 'push'])(
 
     test('says what it leaves out in a tree that uses one folder per application', () => {
       expect(text).toContain(
-        `In a tree that uses one folder per application (see frodo config-manager ${verb} applications), OAuth2 clients that an application owns are not ${verb === 'pull' ? 'pulled' : 'pushed'} here`
+        `In a tree that uses one folder per application (see frodo config-manager ${verb} apps), OAuth2 clients that an application owns are not ${verb === 'pull' ? 'pulled' : 'pushed'} here`
       );
     });
 
@@ -251,8 +251,8 @@ describe('the help of the commands that still name oauth2-agents says that it is
     );
   });
 
-  test("'config-manager migrate applications' says that the command whose config file it reads is deprecated and still pulls both", async () => {
-    const { text } = await helpOf('migrate', 'applications');
+  test("'config-manager migrate apps' says that the command whose config file it reads is deprecated and still pulls both", async () => {
+    const { text } = await helpOf('migrate', 'apps');
     expect(text).toContain(
       'The command "pull oauth2-agents" is deprecated; it still pulls both the OAuth2 clients and the other agents.'
     );

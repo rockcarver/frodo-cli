@@ -667,7 +667,7 @@ describe('a delete that names one object, for every command and every spelling o
   const typeOf = (row) => row.command.split(' ').pop();
   // a named telemetry exporter needs its category, a named secret mapping, journey or service needs a realm
   const extraOf = (row) => (typeOf(row) === 'telemetry' ? ' -c otlp' : '');
-  const envOf = (row) => (['secret-mappings', 'journeys', 'services'].includes(typeOf(row)) ? { FRODO_REALM: 'alpha' } : {});
+  const envOf = (row) => (['secretstore-mappings', 'journeys', 'services'].includes(typeOf(row)) ? { FRODO_REALM: 'alpha' } : {});
   const selectorsOf = (row) => [
     ['-i', 'x'],
     [row.id, 'x'],

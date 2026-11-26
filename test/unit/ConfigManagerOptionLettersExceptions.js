@@ -17,6 +17,10 @@
  *   it is now (`short` null: a long form only) and as it was (`was` null: the
  *   option had no short form). MIGRATION.md has to list each `was` spelling,
  *   with the long name that the option had (`wasLong`, when it is not `long`).
+ * - A row of EXPECTED_SHORT_FORMS of a command that was renamed carries
+ *   `formerly`, the old name that stays as its alias: MIGRATION.md names the
+ *   removed spelling next to the name the command had when it was written, or
+ *   next to its new name.
  * - HERITAGE_OVERLAPS: the letters of the group that a heritage command (any
  *   command outside the group) uses for an option with another long name, one
  *   entry per letter, with the reason why a mix-up is harmless: the concepts
@@ -82,25 +86,29 @@ export const EXPECTED_SHORT_FORMS = [
     was: null,
   },
   {
-    command: 'frodo config-manager delete secret-mappings',
+    command: 'frodo config-manager delete secretstore-mappings',
+    formerly: 'frodo config-manager delete secret-mappings',
     long: '--dry-run',
     short: '-d',
     was: null,
   },
   {
-    command: 'frodo config-manager promote check-locked-status',
+    command: 'frodo config-manager promote lock-status',
+    formerly: 'frodo config-manager promote check-locked-status',
     long: '--local-lock-only',
     short: '-L',
     was: '-l',
   },
   {
-    command: 'frodo config-manager promote check-promotion-reports',
+    command: 'frodo config-manager promote report',
+    formerly: 'frodo config-manager promote check-promotion-reports',
     long: '--provisional',
     short: null,
     was: '-p',
   },
   {
-    command: 'frodo config-manager promote check-promotion-reports',
+    command: 'frodo config-manager promote report',
+    formerly: 'frodo config-manager promote check-promotion-reports',
     long: '--provisional-rollback',
     short: null,
     was: '-r',
@@ -118,37 +126,43 @@ export const EXPECTED_SHORT_FORMS = [
     was: '-d',
   },
   {
-    command: 'frodo config-manager promote run-dryrun-promotion',
+    command: 'frodo config-manager promote dry-run',
+    formerly: 'frodo config-manager promote run-dryrun-promotion',
     long: '--ignore-encrypted-secrets',
     short: '-I',
     was: '-i',
   },
   {
-    command: 'frodo config-manager promote run-dryrun-promotion',
+    command: 'frodo config-manager promote dry-run',
+    formerly: 'frodo config-manager promote run-dryrun-promotion',
     long: '--promoter',
     short: '-P',
     was: '-p',
   },
   {
-    command: 'frodo config-manager promote run-dryrun-promotion',
+    command: 'frodo config-manager promote dry-run',
+    formerly: 'frodo config-manager promote run-dryrun-promotion',
     long: '--description',
     short: null,
     was: '-d',
   },
   {
-    command: 'frodo config-manager promote run-promotion',
+    command: 'frodo config-manager promote run',
+    formerly: 'frodo config-manager promote run-promotion',
     long: '--ignore-encrypted-secrets',
     short: '-I',
     was: '-i',
   },
   {
-    command: 'frodo config-manager promote run-promotion',
+    command: 'frodo config-manager promote run',
+    formerly: 'frodo config-manager promote run-promotion',
     long: '--promoter',
     short: '-P',
     was: '-p',
   },
   {
-    command: 'frodo config-manager promote run-promotion',
+    command: 'frodo config-manager promote run',
+    formerly: 'frodo config-manager promote run-promotion',
     long: '--description',
     short: null,
     was: '-d',
@@ -219,7 +233,8 @@ export const EXPECTED_SHORT_FORMS = [
     was: '-u',
   },
   {
-    command: 'frodo config-manager push custom-nodes',
+    command: 'frodo config-manager push nodes',
+    formerly: 'frodo config-manager push custom-nodes',
     long: '--filename-filter',
     short: null,
     was: '-f',

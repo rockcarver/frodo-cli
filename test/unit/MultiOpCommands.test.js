@@ -120,7 +120,7 @@ describe('multi-op commands accept --allow-failures', () => {
     // anchors: bulk options, a config-manager loop, one that is not a candidate
     expect(candidates).toContain('frodo journey export');
     expect(candidates).toContain('frodo config-manager pull all-static');
-    expect(candidates).toContain('frodo config-manager migrate applications');
+    expect(candidates).toContain('frodo config-manager migrate apps');
     expect(candidates).toContain('frodo esv secret delete');
     expect(candidates).not.toContain('frodo journey list');
     expect(candidates).not.toContain('frodo idm remote-proxy test');

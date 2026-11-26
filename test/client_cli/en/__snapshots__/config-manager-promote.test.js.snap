@@ -9,36 +9,37 @@ exports[`CLI help interface for 'config-manager promote' should be expected engl
 Deployment: Cloud-only
 
 Options:
-  -h, --help               Help
-  -hh, --help-more         Help with all options.
-  -hhh, --help-all         Help with all options, environment variables, and
-                           usage examples.
+  -h, --help        Help
+  -hh, --help-more  Help with all options.
+  -hhh, --help-all  Help with all options, environment variables, and usage
+                    examples.
 
 Runtime Options:
-  --no-prompt              Never prompt interactively (same as setting
-                           FRODO_NO_PROMPT).
+  --no-prompt       Never prompt interactively (same as setting
+                    FRODO_NO_PROMPT).
 
 Commands:
-  check-locked-status      [Experimental] [Cloud-only] Check the lock status of
-                           the environments.
-  check-promotion-reports  [Experimental] [Cloud-only] Retrieve promotion
-                           reports. Defaults to the latest report if no option
-                           is specified.
-  check-promotion-status   [Experimental] [Cloud-only] Check the current
-                           promotion status.
-  lock-tenants             [Experimental] [Cloud-only] Lock tenants and wait
-                           until they are locked.
-  rollback                 [Experimental] [Cloud-only] Roll back the previous
-                           promotion.
-  run-dryrun-promotion     [Experimental] [Cloud-only] Run a dry-run
-                           configuration promotion without applying changes.
-  run-promotion            [Experimental] [Cloud-only] Run a configuration
-                           promotion.
-  unlock-tenants           [Experimental] [Cloud-only] Unlock tenants and wait
-                           until they are unlocked.
+  dry-run           [Experimental] [Cloud-only] Run a dry-run configuration
+                    promotion without applying changes. (formerly:
+                    run-dryrun-promotion)
+  lock              [Experimental] [Cloud-only] Lock tenants and wait until they
+                    are locked. (formerly: lock-tenants)
+  lock-status       [Experimental] [Cloud-only] Check the lock status of the
+                    environments. (formerly: check-locked-status)
+  report            [Experimental] [Cloud-only] Retrieve promotion reports.
+                    Defaults to the latest report if no option is specified.
+                    (formerly: check-promotion-reports)
+  rollback          [Experimental] [Cloud-only] Roll back the previous
+                    promotion.
+  run               [Experimental] [Cloud-only] Run a configuration promotion.
+                    (formerly: run-promotion)
+  status            [Experimental] [Cloud-only] Check the current promotion
+                    status. (formerly: check-promotion-status)
+  unlock            [Experimental] [Cloud-only] Unlock tenants and wait until
+                    they are unlocked. (formerly: unlock-tenants)
 
 Utilities:
-  help                     display help for command
+  help              display help for command
 
 
 Run without a sub-command to enter interactive mode."

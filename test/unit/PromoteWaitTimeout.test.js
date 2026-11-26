@@ -2,8 +2,8 @@ import { jest } from '@jest/globals';
 import { Command } from 'commander';
 
 /**
- * `--wait` and `--timeout <seconds>` of `config-manager promote run-promotion`,
- * `run-dryrun-promotion` and `rollback`. What must hold:
+ * `--wait` and `--timeout <seconds>` of `config-manager promote run`,
+ * `dry-run` and `rollback`. What must hold:
  *
  * - without `--wait` the library is asked not to wait;
  * - with `--wait` and no `--timeout` the timeout is left to the library, which
@@ -92,8 +92,8 @@ beforeEach(() => {
 });
 
 describe.each([
-  ['run-promotion', setupRunPromotion, promoteConfiguration],
-  ['run-dryrun-promotion', setupRunDryrunPromotion, promoteConfiguration],
+  ['run', setupRunPromotion, promoteConfiguration],
+  ['dry-run', setupRunDryrunPromotion, promoteConfiguration],
   ['rollback', setupRollback, rollbackPromotion],
 ])('%s', (_name, setup, library) => {
   test('does not wait without --wait', async () => {

@@ -1,7 +1,8 @@
 // Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
 exports[`frodo config-manager promote run-promotion "frodo config-manager promote run-promotion --wait --timeout 6": Should time out waiting for promotion 1`] = `
-"Experimental feature in use: 'frodo config-manager promote run-promotion'. This feature may change without notice.
+"'run-promotion' is now called 'run'. The old name still works and will be removed in a future major release.
+Experimental feature in use: 'frodo config-manager promote run'. This feature may change without notice.
 ⚠ Promotion timed out after 6s with final message: Clone repos
 Error promoting configuration
 "
@@ -15,7 +16,8 @@ exports[`frodo config-manager promote run-promotion "frodo config-manager promot
 `;
 
 exports[`frodo config-manager promote run-promotion "frodo config-manager promote run-promotion --wait": Should wait for promotion to complete 2`] = `
-"Experimental feature in use: 'frodo config-manager promote run-promotion'. This feature may change without notice.
+"'run-promotion' is now called 'run'. The old name still works and will be removed in a future major release.
+Experimental feature in use: 'frodo config-manager promote run'. This feature may change without notice.
 ✔ Promotion completed in 40s with final message: Promotion completed
 "
 `;
@@ -26,7 +28,8 @@ exports[`frodo config-manager promote run-promotion "frodo config-manager promot
 `;
 
 exports[`frodo config-manager promote run-promotion "frodo config-manager promote run-promotion -p provisional-report -uid 'provisional report' -t ticket": Will run promotion with promoter, description, ignoring encrpted secrets, unlocking after, and Zendesk ticket" 2`] = `
-"Experimental feature in use: 'frodo config-manager promote run-promotion'. This feature may change without notice.
+"'run-promotion' is now called 'run'. The old name still works and will be removed in a future major release.
+Experimental feature in use: 'frodo config-manager promote run'. This feature may change without notice.
 ✔ Promotion in progress.
 "
 `;
@@ -37,7 +40,8 @@ exports[`frodo config-manager promote run-promotion "frodo config-manager promot
 `;
 
 exports[`frodo config-manager promote run-promotion "frodo config-manager promote run-promotion": Will run promotion with promoter name" 2`] = `
-"Experimental feature in use: 'frodo config-manager promote run-promotion'. This feature may change without notice.
+"'run-promotion' is now called 'run'. The old name still works and will be removed in a future major release.
+Experimental feature in use: 'frodo config-manager promote run'. This feature may change without notice.
 ✔ Promotion in progress.
 "
 `;

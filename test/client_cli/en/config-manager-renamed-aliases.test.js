@@ -26,7 +26,10 @@ describe.each(ALL_RENAMES)(
       expect(asOld.stdout).toContain(
         `Usage: frodo config-manager ${verb} ${newName} `
       );
-      expect(asOld.stdout).toContain(`(formerly: ${oldName})`);
+      // the note can wrap onto a second line of the description: read the page joined
+      expect(asOld.stdout.replace(/\s+/g, ' ')).toContain(
+        `(formerly: ${oldName})`
+      );
       expect(asOld.stderr.trim()).toBe(noticeFor(oldName, newName));
       expect(asNew.stderr).toBe('');
     });

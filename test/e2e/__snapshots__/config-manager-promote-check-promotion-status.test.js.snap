@@ -12,6 +12,7 @@ exports[`frodo config-manager promote check-promotion-status "frodo config-manag
 `;
 
 exports[`frodo config-manager promote check-promotion-status "frodo config-manager promote check-promotion-status": Will check the current promotion status" 2`] = `
-"Experimental feature in use: 'frodo config-manager promote check-promotion-status'. This feature may change without notice.
+"'check-promotion-status' is now called 'status'. The old name still works and will be removed in a future major release.
+Experimental feature in use: 'frodo config-manager promote status'. This feature may change without notice.
 "
 `;
