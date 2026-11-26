@@ -943,6 +943,25 @@ describe('push', () => {
     expect(output()).toContain('INDICATOR success Agents import completed.');
   });
 
+  test('oauth-clients does not read the application folders of a realm that holds no client, and agents does not read those of any realm', async () => {
+    write('frodo-config-manager.json', {
+      applications: 'folders',
+      formatVersion: 1,
+    });
+    write(AGENT_PATH('OAuth2Client', 'zion-client'), { _id: 'zion-client' });
+    write(AGENT_PATH('SharedAgent', 'shared-b', 'bravo'), { _id: 'shared-b' });
+    // bravo holds agents only, and an application folder that cannot be read
+    write('realms/bravo/applications/broken/application.json', 'not json');
+
+    expect(await configManagerImportAgents(false, 'oauth-clients')).toBe(true);
+
+    expect(imported()).toEqual(['alpha/zion-client']);
+    expect(output()).not.toContain('application folders');
+    printed = [];
+    expect(await configManagerImportAgents(false, 'agents')).toBe(true);
+    expect(output()).not.toContain('application folders');
+  });
+
   test('the two families together push what the old command pushed, no file twice and none missed', async () => {
     writeTree();
     await configManagerImportAgents();

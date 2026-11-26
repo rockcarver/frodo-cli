@@ -81,7 +81,18 @@ describe.each(['pull', 'push'])(
       expect(text).toContain('Usage Examples:');
       expect(text).toContain(`$ frodo config-manager ${verb} agents`);
       expect(text).toContain('-D ./config');
-      expect(text).toContain('--allow-failures');
+      // one example line, so that the option in a sentence below does not count
+      expect(raw).toMatch(
+        new RegExp(
+          `^\\s*\\$ frodo config-manager ${verb} agents .*--allow-failures`,
+          'm'
+        )
+      );
+      if (verb === 'pull') {
+        expect(text).toContain(
+          '$ frodo config-manager pull agents -i zion-gateway matrix /alpha'
+        );
+      }
     });
 
     test('says that an entry or file of a type the deployment cannot serve is a request that fails', () => {
@@ -145,7 +156,18 @@ describe.each(['pull', 'push'])(
       expect(text).toContain('Usage Examples:');
       expect(text).toContain(`$ frodo config-manager ${verb} oauth-clients`);
       expect(text).toContain('-D ./config');
-      expect(text).toContain('--allow-failures');
+      // one example line, so that the option in a sentence below does not count
+      expect(raw).toMatch(
+        new RegExp(
+          `^\\s*\\$ frodo config-manager ${verb} oauth-clients .*--allow-failures`,
+          'm'
+        )
+      );
+      if (verb === 'pull') {
+        expect(text).toContain(
+          '$ frodo config-manager pull oauth-clients -i zion-portal-client matrix /alpha'
+        );
+      }
     });
 
     test('says what it leaves out in a tree that uses one folder per application', () => {

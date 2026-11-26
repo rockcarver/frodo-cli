@@ -140,9 +140,9 @@ const FAMILY_WORDS: Record<AgentFamilySelection, FamilyWords> = {
  */
 async function everythingOfAgents(
   run: OperationRun,
-  onlyRealm?: string,
-  agentId?: string,
-  family: AgentFamilySelection = 'both'
+  onlyRealm: string | undefined,
+  agentId: string | undefined,
+  family: AgentFamilySelection
 ): Promise<Record<string, Record<string, { id: string }[]>> | undefined> {
   const words = FAMILY_WORDS[family];
   const everything: Record<string, Record<string, { id: string }[]>> = {};
