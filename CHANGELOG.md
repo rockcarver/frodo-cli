@@ -7,6 +7,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+## [v5.0.0-35] - 2026-11-26
+
+### Added
+- Introduced `config-manager push all-static` command, which pushes all static configurations as written by `pull all-static`. This command ensures consistency across environments. (commit 91b58cf27)
+- Added `config-manager push oauth-clients` and `config-manager push agents` commands, replacing the deprecated `oauth2-agents` command. These commands allow for more granular management of OAuth2 clients and agents. (commit ad624646c)
+- Each history entry in the web console now carries a stable ID, displayed in front of the entry, enhancing traceability. (commit 9978f1b41)
+- History in the web console is now shared across connections and surfaces, with multi-line entries read as one. The terminal prompt now names the environment for clarity. (commit 9f22ebe81)
+
+### Changed
+- The web console UX has been improved to handle paste, history, search, and state resets more intuitively, enhancing user experience. (PR #1478)
+
+### Deprecated
+- The `config-manager oauth2-agents` command is now deprecated in favor of the new `oauth-clients` and `agents` commands. Users are encouraged to transition to the new commands for future compatibility. (commit ad624646c)
+
+### Fixed
+- Corrected the web console to ensure that a pasted multi-line script is treated as a single history entry, preventing reverse line storage and reducing errors. (commit f967ba351)
+- Resolved an issue where the search buffer in the web console only carried the first line of a multi-line entry, ensuring complete entry visibility during search operations. (commit d8e21451f)
+- Fixed the web console's Connect button positioning to sit correctly to the right of the profile dropdown, improving layout consistency. (commit 27ed68cb1)
+
+### Security
+- Updated `frodo-lib` to version 5.0.0-56, incorporating the latest security enhancements. (commit cc7acdc44)
+
 ## [v5.0.0-34] - 2026-11-25
 
 ### Added
@@ -3413,6 +3435,7 @@ Frodo CLI 2.x automatically refreshes session and access tokens before they expi
 - Fixed problem with adding connection profiles
 - Miscellaneous bug fixes
 
+[v5.0.0-35]: https://github.com/rockcarver/frodo-cli/compare/v5.0.0-34...v5.0.0-35
 [v5.0.0-34]: https://github.com/rockcarver/frodo-cli/compare/v5.0.0-33...v5.0.0-34
 [v5.0.0-33]: https://github.com/rockcarver/frodo-cli/compare/v5.0.0-32...v5.0.0-33
 [v5.0.0-32]: https://github.com/rockcarver/frodo-cli/compare/v5.0.0-31...v5.0.0-32
