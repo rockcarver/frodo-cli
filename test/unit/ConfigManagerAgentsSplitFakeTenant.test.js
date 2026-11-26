@@ -132,7 +132,7 @@ suite('config-manager oauth-clients and agents against a fake tenant', () => {
             HOME: home,
             USERPROFILE: home,
             FRODO_HOST: `http://127.0.0.1:${fakeAm.port}/am`,
-            FRODO_USERNAME: 'someone@example.com',
+            FRODO_USERNAME: 'someone',
             FRODO_PASSWORD: 'secret',
             FRODO_TEST: '',
             FRODO_NO_CACHE: 'true',

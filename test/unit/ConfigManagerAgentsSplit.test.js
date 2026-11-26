@@ -20,7 +20,7 @@ const {
 const { DEDICATED_AGENT_KINDS, skippedForDedicatedKind } =
   await import('../../src/ops/DedicatedAgentKinds.ts');
 
-/** The eight agent types of the `agents` command, as the decision of the maintainer lists them. */
+/** The eight agent types of the `agents` command, as its help lists them. */
 const EIGHT = [
   'IdentityGatewayAgent',
   'J2EEAgent',
