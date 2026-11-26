@@ -2469,7 +2469,9 @@ describe('removing one history entry', () => {
     // A body without a string text is refused before it reaches the engine.
     const bad = await del(42);
     expect(bad.status).toBe(400);
-    expect(errors.mock.calls.filter((c) => String(c[0]).includes('drop'))).toHaveLength(0);
+    expect(
+      errors.mock.calls.filter((c) => String(c[0]).includes('drop'))
+    ).toHaveLength(0);
   });
 });
 
