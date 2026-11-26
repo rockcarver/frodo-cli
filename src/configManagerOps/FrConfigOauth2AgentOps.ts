@@ -7,6 +7,12 @@ import {
   type IdObjectSkeletonInterface,
 } from '@rockcarver/frodo-lib';
 import {
+  handlesAgentType,
+  skippedForOtherFamily,
+  skippedOtherFamilyEntriesMessage,
+  type AgentFamilySelection,
+} from '../ops/AgentFamilies';
+import {
   leftOutMessage,
   plainOverrides,
   toPlainShape,
@@ -59,6 +65,57 @@ const { mergeDeep } = frodo.utils.json;
 const { readAgentByTypeAndId, readAgents, importAgent } = frodo.agent;
 
 /**
+ * The words of the messages of a command. `both` keeps the words that the old `oauth2-agents`
+ * command used, so that its output does not change.
+ */
+interface FamilyWords {
+  /** One named object, in a sentence: `a named agent or OAuth2 client`. */
+  one: string;
+  /** One named object, at the start of a sentence. */
+  oneCapital: string;
+  /** The objects, in the plural, in a sentence about reading a realm. */
+  many: string;
+  /** What the run counts: `3 of 5 agents failed`. */
+  unit: string;
+  /** What an export that cannot go on is called: `Error exporting OAuth2 agents`. */
+  exporting: string;
+  /** What an import is called in the progress indicator: `Importing OAuth2 Agents...`. */
+  importing: string;
+  /** What the outcome of an import is called: `Oauth2 Agents import completed.`. */
+  importLabel: string;
+}
+
+const FAMILY_WORDS: Record<AgentFamilySelection, FamilyWords> = {
+  both: {
+    one: 'agent or OAuth2 client',
+    oneCapital: 'Agent or OAuth2 client',
+    many: 'agents',
+    unit: 'agent',
+    exporting: 'OAuth2 agents',
+    importing: 'OAuth2 Agents',
+    importLabel: 'Oauth2 Agents',
+  },
+  'oauth-clients': {
+    one: 'OAuth2 client',
+    oneCapital: 'OAuth2 client',
+    many: 'OAuth2 clients',
+    unit: 'OAuth2 client',
+    exporting: 'OAuth2 clients',
+    importing: 'OAuth2 clients',
+    importLabel: 'OAuth2 clients',
+  },
+  agents: {
+    one: 'agent',
+    oneCapital: 'Agent',
+    many: 'agents',
+    unit: 'agent',
+    exporting: 'agents',
+    importing: 'agents',
+    importLabel: 'Agents',
+  },
+};
+
+/**
  * What a config file for `configManagerExportOAuth2Agents` would hold if it listed every agent
  * and every OAuth2 client of the realms: for each realm, the ids of its agents and OAuth2 clients
  * by type, read from the tenant. The realms are the one that was given, or every realm of the
@@ -78,13 +135,16 @@ const { readAgentByTypeAndId, readAgents, importAgent } = frodo.agent;
  * @param {OperationRun} run the run of the command, which records the realms that cannot be read
  * @param {string} onlyRealm the realm to read; default: every realm
  * @param {string} agentId pull only the agent or OAuth2 client with this id
+ * @param {AgentFamilySelection} family what the command handles; the list of the other family is not asked for
  * @returns {Promise<Record<string, Record<string, { id: string }[]>> | undefined>} the content of the file: for each realm, the ids of each agent type; undefined when the command cannot go on (the reason is printed)
  */
 async function everythingOfAgents(
   run: OperationRun,
   onlyRealm?: string,
-  agentId?: string
+  agentId?: string,
+  family: AgentFamilySelection = 'both'
 ): Promise<Record<string, Record<string, { id: string }[]>> | undefined> {
+  const words = FAMILY_WORDS[family];
   const everything: Record<string, Record<string, { id: string }[]>> = {};
   const realms =
     onlyRealm && onlyRealm !== DEFAULT_REALM_KEY
@@ -92,7 +152,7 @@ async function everythingOfAgents(
       : await realmList();
   if (agentId !== undefined && realms.length !== 1) {
     printMessage(
-      'Error: for a named agent or OAuth2 client, specify a single realm',
+      `Error: for a named ${words.one}, specify a single realm`,
       'error'
     );
     return undefined;
@@ -118,7 +178,7 @@ async function everythingOfAgents(
     try {
       const found = new Map<string, Set<string>>();
       const add = (agentType: string, id: string): void => {
-        if (skippedForDedicatedKind(agentType)) return;
+        if (!handlesAgentType(family, agentType)) return;
         if (agentId !== undefined) {
           if (id !== agentId) return;
           holders.add(agentType);
@@ -141,11 +201,15 @@ async function everythingOfAgents(
         }
         found.set(agentType, (found.get(agentType) ?? new Set()).add(id));
       };
-      for (const agent of await readAgents(false)) {
-        add(String(agent._type?._id ?? ''), String(agent._id ?? ''));
+      if (family !== 'oauth-clients') {
+        for (const agent of await readAgents(false)) {
+          add(String(agent._type?._id ?? ''), String(agent._id ?? ''));
+        }
       }
-      for (const client of await frodo.oauth2oidc.client.readOAuth2Clients()) {
-        add('OAuth2Client', String(client._id ?? ''));
+      if (family !== 'agents') {
+        for (const client of await frodo.oauth2oidc.client.readOAuth2Clients()) {
+          add('OAuth2Client', String(client._id ?? ''));
+        }
       }
       everything[currentRealm] = Object.fromEntries(
         [...found.keys()]
@@ -156,7 +220,10 @@ async function everythingOfAgents(
           ])
       );
     } catch (error) {
-      printError(error, `Error reading the agents of realm '${currentRealm}'`);
+      printError(
+        error,
+        `Error reading the ${words.many} of realm '${currentRealm}'`
+      );
       // the one object that was asked for: nothing for the flag to allow
       if (agentId !== undefined) return undefined;
       run.recordFailure(`realm ${realmDir}`, causeOf(error));
@@ -165,11 +232,14 @@ async function everythingOfAgents(
   if (refused) return undefined;
   if (agentId !== undefined && holders.size === 0) {
     printMessage(
-      `Agent or OAuth2 client '${agentId}' not found in realm '${realms[0]}'. The agent types that have a command of their own (${Object.values(
-        DEDICATED_AGENT_KINDS
-      )
-        .map((entry) => entry.kind)
-        .join(', ')}) are not looked up here.`,
+      `${words.oneCapital} '${agentId}' not found in realm '${realms[0]}'.` +
+        (family === 'oauth-clients'
+          ? ''
+          : ` The agent types that have a command of their own (${Object.values(
+              DEDICATED_AGENT_KINDS
+            )
+              .map((entry) => entry.kind)
+              .join(', ')}) are not looked up here.`),
       'error'
     );
     return undefined;
@@ -206,11 +276,17 @@ async function everythingOfAgents(
  * skip is not an operation, so it changes neither the result nor what `allowFailures` does, and the
  * config file is never changed; the applications of a realm are not read for the sake of such
  * entries alone.
+ * With a family (`oauth-clients` or `agents`) the function handles that family only: the list of the
+ * other family is not asked for, and an entry of the other family in a config file is named in one
+ * warning per realm and type that names the command that pulls it, which is not a failure and not an
+ * operation either. The applications are read only for the family that has OAuth2 clients. Without a
+ * family (`both`) it handles both, as the old `oauth2-agents` command did, in the same order of requests.
  * @param {string | null} configFile The path to the file; null to export every agent
  * @param {boolean} allowFailures True to succeed although some agents could not be exported (the failures are still summarised)
  * @param {ApplicationLayoutDecision} layout The layout of the tree, when `pull all` has decided it before its first step; default: read from the marker of the tree
  * @param {string} onlyRealm Without a file: the realm to export; default: every realm
  * @param {string} agentId Without a file: export only the agent or OAuth2 client with this id (needs a single realm)
+ * @param {AgentFamilySelection} family What to export: the OAuth2 clients (`oauth-clients`), the other agents (`agents`) or both. Default: both
  * @returns False if the config file cannot be read or an agent cannot be exported (unless failures are allowed), true otherwise
  */
 export async function configManagerExportOAuth2Agents(
@@ -218,16 +294,22 @@ export async function configManagerExportOAuth2Agents(
   allowFailures: boolean = false,
   layout?: ApplicationLayoutDecision,
   onlyRealm?: string,
-  agentId?: string
+  agentId?: string,
+  family: AgentFamilySelection = 'both'
 ): Promise<boolean> {
+  const words = FAMILY_WORDS[family];
   try {
-    const run = new OperationRun({ unit: 'agent', allowFailures });
+    const run = new OperationRun({ unit: words.unit, allowFailures });
     const configFileData =
       configFile === null
-        ? await everythingOfAgents(run, onlyRealm, agentId)
+        ? await everythingOfAgents(run, onlyRealm, agentId, family)
         : readJsonFile(configFile, false);
     if (!configFileData) return false;
-    const owned = skipsOwnedObjects(layout) ? new OwnedObjects() : undefined;
+    // only an OAuth2 client can be owned by an application, so the other family never asks
+    const owned =
+      family !== 'agents' && skipsOwnedObjects(layout)
+        ? new OwnedObjects()
+        : undefined;
     // what the files do not hold: the properties that are not set on their agents
     let leftOut = 0;
     let written = 0;
@@ -243,7 +325,7 @@ export async function configManagerExportOAuth2Agents(
       let ownershipKnown = true;
       // The ownership of a realm matters for the types this command handles, not for the ones it
       // leaves to a kind of their own.
-      if (owned && agentTypes.some((type) => !skippedForDedicatedKind(type))) {
+      if (owned && agentTypes.some((type) => handlesAgentType(family, type))) {
         try {
           await owned.loadCurrentRealm();
         } catch (error) {
@@ -264,6 +346,17 @@ export async function configManagerExportOAuth2Agents(
           if (Array.isArray(entries) && entries.length > 0) {
             printMessage(
               skippedEntriesMessage(realm, agentType, entries),
+              'warn'
+            );
+          }
+          continue;
+        }
+        const otherFamily = skippedForOtherFamily(family, agentType);
+        if (otherFamily) {
+          const entries = configFileData[realm][agentType];
+          if (Array.isArray(entries) && entries.length > 0) {
+            printMessage(
+              skippedOtherFamilyEntriesMessage(realm, agentType, entries),
               'warn'
             );
           }
@@ -335,7 +428,7 @@ export async function configManagerExportOAuth2Agents(
     }
     return run.finish();
   } catch (error) {
-    printError(error, 'Error exporting OAuth2 agents');
+    printError(error, `Error exporting ${words.exporting}`);
     return false;
   }
 }
@@ -369,27 +462,34 @@ function countJsonFiles(folder: string): number {
  * operation, so it changes neither the result nor what `allowFailures` does; a folder that is not
  * a directory counts no file; the application folders of a realm are not read for the sake of such
  * folders alone.
+ * With a family (`oauth-clients` or `agents`) only the folders of that family are imported; the
+ * folders of the other family are not this command's business and are neither read nor named. The
+ * application folders are read only for the family that has OAuth2 clients. Without a family
+ * (`both`) the folders of both are imported, as the old `oauth2-agents` command did.
  * @param {boolean} allowFailures True to succeed although some agents could not be imported (the failures are still summarised)
+ * @param {AgentFamilySelection} family What to import: the OAuth2 clients (`oauth-clients`), the other agents (`agents`) or both. Default: both
  * @returns {Promise<boolean>} False if the realms folder is missing or an agent cannot be imported (unless failures are allowed), true otherwise
  */
 export async function configManagerImportAgents(
-  allowFailures: boolean = false
+  allowFailures: boolean = false,
+  family: AgentFamilySelection = 'both'
 ): Promise<boolean> {
+  const words = FAMILY_WORDS[family];
   const indicatorId = createProgressIndicator(
     'indeterminate',
     0,
-    'Importing OAuth2 Agents...'
+    `Importing ${words.importing}...`
   );
   try {
     const realmsDir = `${getWorkingDirectory()}/realms`;
     if (!fs.existsSync(realmsDir)) {
       stopProgressIndicator(
         indicatorId,
-        'Oauth2 Agents import failed.',
+        `${words.importLabel} import failed.`,
         'fail'
       );
       printMessage(
-        `No realms folder found to import OAuth2 agents from: ${realmsDir}`,
+        `No realms folder found to import ${words.exporting} from: ${realmsDir}`,
         'error'
       );
       return false;
@@ -399,8 +499,12 @@ export async function configManagerImportAgents(
       .filter((entry) => entry.isDirectory())
       .map((entry) => entry.name);
 
-    const run = new OperationRun({ unit: 'agent', allowFailures });
-    const owned = skipsOwnedObjects() ? new OwnedObjects() : undefined;
+    const run = new OperationRun({ unit: words.unit, allowFailures });
+    // only an OAuth2 client can be owned by an application, so the other family never asks
+    const owned =
+      family !== 'agents' && skipsOwnedObjects()
+        ? new OwnedObjects()
+        : undefined;
     for (const realmDir of realms) {
       const realm = realmDir === 'root' ? '/' : realmDir;
       if (
@@ -430,7 +534,7 @@ export async function configManagerImportAgents(
       let ownershipKnown = true;
       // The application folders of a realm matter for the types this command handles, not for the
       // ones it leaves to a kind of their own.
-      if (owned && agentTypes.some((type) => !skippedForDedicatedKind(type))) {
+      if (owned && agentTypes.some((type) => handlesAgentType(family, type))) {
         try {
           owned.loadRealmOfTree(getWorkingDirectory(), realm);
         } catch (error) {
@@ -447,7 +551,7 @@ export async function configManagerImportAgents(
       }
 
       for (const agentType of agentTypes) {
-        if (skippedForDedicatedKind(agentType)) continue;
+        if (!handlesAgentType(family, agentType)) continue;
         // Only an OAuth2 client can be owned, so only its push depends on the answer.
         if (!ownershipKnown && agentType === 'OAuth2Client') continue;
         const agentTypeDir = path.join(agentDir, agentType);
@@ -498,14 +602,18 @@ export async function configManagerImportAgents(
     stopProgressIndicator(
       indicatorId,
       run.hasFailures
-        ? 'Oauth2 Agents import completed with errors.'
-        : 'Oauth2 Agents import completed.',
+        ? `${words.importLabel} import completed with errors.`
+        : `${words.importLabel} import completed.`,
       run.hasFailures ? 'fail' : 'success'
     );
     return run.finish();
   } catch (error) {
-    stopProgressIndicator(indicatorId, 'Oauth2 Agents import failed.', 'fail');
-    printError(error, 'Oauth2 Agents import failed');
+    stopProgressIndicator(
+      indicatorId,
+      `${words.importLabel} import failed.`,
+      'fail'
+    );
+    printError(error, `${words.importLabel} import failed`);
     return false;
   }
 }

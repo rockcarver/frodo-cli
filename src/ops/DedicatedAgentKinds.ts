@@ -53,6 +53,35 @@ export function skippedForDedicatedKind(agentType: string): string | undefined {
 }
 
 /**
+ * The warning of a pull for the entries of a config file that it does not pull, in one realm: the
+ * entries name the type, and another command pulls it.
+ * @param {string} realm the realm, as the state names it
+ * @param {string} agentType the agent type of the entries
+ * @param {{ id?: unknown; overrides?: unknown }[]} entries the entries of the type in that realm
+ * @param {string} plural what the objects are called, in the plural
+ * @param {string} command the name of the command that pulls them (the last word of its path)
+ * @returns {string} one sentence that names the entries and the command, and, when an entry has
+ * `overrides`, that they are not applied and where they go
+ */
+export function entriesPulledElsewhereMessage(
+  realm: string,
+  agentType: string,
+  entries: { id?: unknown; overrides?: unknown }[],
+  plural: string,
+  command: string
+): string {
+  const ids = entries.map((entry) => String(entry?.id)).join(', ');
+  const message =
+    `Skipping ${entries.length} ${agentType} ${entries.length === 1 ? 'entry' : 'entries'} ` +
+    `of realm '${realm}' (${ids}): ${plural} are pulled by ` +
+    `"frodo config-manager pull ${command}".`;
+  return entries.some((entry) => entry?.overrides)
+    ? `${message} ${entries.length === 1 ? 'Its' : 'Their'} overrides are not applied here: ` +
+        `move them to the overrides file of that command (--config-file).`
+    : message;
+}
+
+/**
  * The warning of `pull oauth2-agents` for the entries of a skipped type in one realm.
  * @param {string} realm the realm, as the state names it
  * @param {string} agentType a type for which {@link skippedForDedicatedKind} answers
@@ -66,15 +95,7 @@ export function skippedEntriesMessage(
   entries: { id?: unknown; overrides?: unknown }[]
 ): string {
   const { kind, plural } = DEDICATED_AGENT_KINDS[agentType];
-  const ids = entries.map((entry) => String(entry?.id)).join(', ');
-  const message =
-    `Skipping ${entries.length} ${agentType} ${entries.length === 1 ? 'entry' : 'entries'} ` +
-    `of realm '${realm}' (${ids}): ${plural} are pulled by ` +
-    `"frodo config-manager pull ${kind}".`;
-  return entries.some((entry) => entry?.overrides)
-    ? `${message} ${entries.length === 1 ? 'Its' : 'Their'} overrides are not applied here: ` +
-        `move them to the overrides file of that command (--config-file).`
-    : message;
+  return entriesPulledElsewhereMessage(realm, agentType, entries, plural, kind);
 }
 
 /**
