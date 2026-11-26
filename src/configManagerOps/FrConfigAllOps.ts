@@ -680,8 +680,12 @@ export const deploymentMapAll: Record<string, AllStep[]> = {
  * `config-metadata`, which only a push writes and only when it is asked for (`when`). Every import has the paths it reads
  * (`reads`), so that a type whose folder is not in the tree is skipped.
  *
- * The order of the configurations below is important because imports have dependencies, so the order below ensures that
- * configurations that depend on other configurations are imported after its dependencies.
+ * The order below is the one that `push all-static` was first written with: the configuration of the tenant first, then the
+ * configuration of the realm, starting with the scripts that the other realm steps refer to, and `scripts` before
+ * `authentication`, `services` and `journeys`. Two pairs of it are not verified: `connector-mappings` is pushed before
+ * `managed-objects` (a mapping names managed types, so the reference runs the other way) and `authentication` before
+ * `journeys`. The order is kept, and whether a tenant accepts it was not tried against a tenant. `pull all-static` runs
+ * its steps in this order too.
  */
 export const deploymentMapAllStatic: Record<string, AllStep[]> = {
   [FORGEOPS_DEPLOYMENT_TYPE_KEY]: [
@@ -1019,6 +1023,11 @@ export interface ConfigManagerAllOptions {
    */
   configFolderUnusable?: boolean;
   realm?: string;
+  /**
+   * The metadata of the tenant that a push writes to `custom-config.metadata`: the properties the run was given. The
+   * `config-metadata` step runs only when there is at least one (see `when` of the step), so that a push without any
+   * leaves the metadata of the tenant as it is. A classic deployment has no such step.
+   */
   metadata?: object;
   /** Report failed steps but succeed anyway (`--allow-failures`, decision record 0040). */
   allowFailures?: boolean;
@@ -1260,6 +1269,18 @@ export async function configManagerExportAllStatic(
   }
 }
 
+/**
+ * Pushes the static configuration of the tree in the working directory to the tenant: the `import` of every step of
+ * `deploymentMapAllStatic` for the connected deployment type, in the order of the table. Before the first write it
+ * checks the tree (see {@link stepsToPush}): a working directory that is not a folder, or a tree that holds none of the
+ * folders of the steps, ends the push with one error and nothing written; a step whose folder is not in the tree is
+ * skipped with a warning. Every step that runs is run even after one failed, one summary names the failed ones
+ * (https://github.com/rockcarver/frodo-cli/blob/main/docs/decisions/0040-a-command-that-runs-many-operations-runs-them-all-then-fails-if-any-failed.md,
+ * run them all, then fail if any failed), and `allowFailures` keeps the result true.
+ * @param {ConfigManagerAllOptions} options what the command was given: the realm to push (every realm folder of the
+ * tree without one), the metadata of the tenant to write and `allowFailures`
+ * @returns {Promise<boolean>} true if the push succeeded: no step failed, or `allowFailures` was given
+ */
 export async function configManagerImportAllStatic(
   options: ConfigManagerAllOptions = {}
 ): Promise<boolean> {
