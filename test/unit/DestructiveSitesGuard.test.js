@@ -104,6 +104,40 @@ const ALLOWED = [
     why: 'the temporary file next to the layout marker is renamed over the marker: both names are made from the folder of the tree and constants',
   },
   {
+    module: 'src/utils/FsFileSetWriter.ts',
+    call: 'fs.promises.rename(temporary, target)',
+    via: [
+      'frodo.utils.assertFileSetPath(file?.path);',
+      "`.frodo-${crypto.randomBytes(4).toString('hex')}.tmp`",
+    ],
+    why: 'the temporary file that the writer made next to a file of the set (a random name in the folder that the walk of the root checked) is renamed onto the path of that file, which passed the gate of the library; a link at that path is replaced, not followed',
+  },
+  {
+    module: 'src/utils/FsFileSetWriter.ts',
+    call: 'fs.promises.rm(temporary, { force: true })',
+    via: ["`.frodo-${crypto.randomBytes(4).toString('hex')}.tmp`"],
+    why: 'the temporary file that the writer made itself, with a random name, when writing the file failed',
+  },
+  {
+    module: 'src/utils/FsFileSetWriter.ts',
+    call: 'fs.promises.unlink(stale)',
+    via: [
+      'frodo.utils.assertFileSetPath(file?.path);',
+      'if (spelled !== name) stale = path.join(folder, spelled);',
+    ],
+    why: 'the entry of a folder that is the file about to be written under another spelling of its name (case or Unicode form, found by the real path of the entry on a file system that ignores the difference); the folder was walked from the root of the set and the path passed the gate of the library; unlink removes a link and does not follow it',
+  },
+  {
+    module: 'src/utils/FsFileSetWriter.ts',
+    call: 'fs.promises.rm(full, { recursive: true, force: true })',
+    via: [
+      'if (options.clean && result.failed.length === 0) {',
+      'if (walked.real !== direct) {',
+      'frodo.utils.assertFileSetPath(folder);',
+    ],
+    why: 'an entry found by listing an owned folder of the set that the set does not list, only when a clean is asked for, no file failed, the owned folder is reached without a link (its real path is the container and the path of the set) and no file was written below it through a link; the entry is a name that the listing gave, and rm does not follow a link',
+  },
+  {
     module: 'src/ops/ConfigOps.ts',
     call: 'fs.rmdirSync(`${baseDirectory}/${fileType}`)',
     via: ['if (!fs.readdirSync(`${baseDirectory}/${fileType}`).length) {'],

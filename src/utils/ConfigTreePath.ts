@@ -323,7 +323,7 @@ export class PulledPaths {
  * @param {string} name the name or the path
  * @returns {string} the name in one form
  */
-function sameOnAnyFileSystem(name: string): string {
+export function sameOnAnyFileSystem(name: string): string {
   // a lone surrogate is written as U+FFFD, so two of them are one name
   return name
     .replace(
