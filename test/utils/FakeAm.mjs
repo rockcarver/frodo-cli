@@ -67,6 +67,14 @@
  * are kept in memory for the life of the process, whatever the realm of the URL. An empty
  * array is a realm without AI agents. Only the AM calls are served, so use a classic
  * login (`-m classic`): a cloud login reads the agent identities from IDM as well.
+ * FAKE_AM_AGENTS_FILE=<path> names a JSON object `{ "<realm>": { "<AgentType>": [ { "_id": ..., ...properties } ] } }`
+ * (`/` is the root realm) of the agents and OAuth2 clients of each realm, which the fake serves the way
+ * AM does and keeps in memory: the agent type list of the realm (`POST .../realm-config/agents?_action=getAllTypes`
+ * answers the types the realm holds), the list of one type (`GET .../agents/<AgentType>?_queryFilter=true`, the
+ * objects as they are), a read of one (`GET .../agents/<AgentType>/<id>`, every property wrapped in
+ * `{ inherited, value }`, `404` for a missing id) and a `PUT` (the body is stored without `_rev`; `201` for a
+ * new id, `200` otherwise). A realm or a type that the object does not name is answered by the routes after
+ * it (`404`). It is checked before FAKE_AM_OAUTH2_CLIENTS, so the OAuth2 clients can be served in full.
  * FAKE_AM_OAUTH2_CLIENTS=<id,id,...> makes the OAuth2 client list of the realm
  * (`.../realm-config/agents/OAuth2Client`) answer with those client ids, the way
  * the OAuth2 client picker of the admin commands reads it.
@@ -403,6 +411,8 @@ const realmServices = readJson(process.env.FAKE_AM_SERVICES_FILE);
 const serviceAccounts = idList(process.env.FAKE_AM_SERVICE_ACCOUNTS);
 const secretStores = readJson(process.env.FAKE_AM_SECRET_STORES_FILE);
 const agentTypes = idList(process.env.FAKE_AM_AGENT_TYPES);
+// the agents and OAuth2 clients of each realm (FAKE_AM_AGENTS_FILE), which a PUT changes
+const agentCollections = readJson(process.env.FAKE_AM_AGENTS_FILE);
 // the profiles of FAKE_AM_CIMD_PROFILES_FILE (a list that the `oauth cimd` tests
 // read, store and delete); FAKE_AM_OAUTH_CIMD_PROFILES keeps its own map above
 const cimdProfileList = readJson(process.env.FAKE_AM_CIMD_PROFILES_FILE);
@@ -703,6 +713,69 @@ function serveAiAgents(req, body, send) {
   } else if (id && req.method === 'DELETE') {
     if (index < 0) send(404, notFound);
     else send(200, aiAgents.splice(index, 1)[0]);
+  } else {
+    return false;
+  }
+  return true;
+}
+/**
+ * Answers a request for the agents of a realm (`.../realm-config/agents`, `.../agents/<AgentType>` and
+ * `.../agents/<AgentType>/<id>`) from `agentCollections`, or returns false when the request is not one
+ * of those or the realm or the type is not in it. `send(status, payload)` writes the answer.
+ */
+function serveAgentCollections(req, body, send) {
+  if (!agentCollections) return false;
+  const { pathname, searchParams } = new URL(req.url, 'http://fake');
+  const route = pathname.match(
+    /\/json\/realms\/root(?:\/realms\/([^/]+))?\/realm-config\/agents(?:\/([^/]+)(?:\/([^/]+))?)?$/
+  );
+  if (!route) return false;
+  const realm = route[1] ? decodeURIComponent(route[1]) : '/';
+  const type = route[2] && decodeURIComponent(route[2]);
+  const id = route[3] && decodeURIComponent(route[3]);
+  const types = agentCollections[realm];
+  if (!types) return false;
+  const notFound = { code: 404, reason: 'Not Found', message: 'Not Found' };
+  const typeOf = (name) => ({ _id: name, name, collection: true });
+  const page = (result) => ({
+    result,
+    resultCount: result.length,
+    pagedResultsCookie: null,
+    totalPagedResultsPolicy: 'EXACT',
+    totalPagedResults: result.length,
+    remainingPagedResults: -1,
+  });
+  if (!type) {
+    if (
+      req.method === 'POST' &&
+      searchParams.get('_action') === 'getAllTypes'
+    ) {
+      send(200, page(Object.keys(types).map(typeOf)));
+      return true;
+    }
+    return false;
+  }
+  const objects = types[type];
+  if (!objects) return false;
+  const index = id ? objects.findIndex(({ _id }) => _id === id) : -1;
+  if (!id && req.method === 'GET' && searchParams.get('_queryFilter')) {
+    send(
+      200,
+      page(objects.map((object) => ({ ...object, _type: typeOf(type) })))
+    );
+  } else if (id && req.method === 'GET') {
+    send(
+      index < 0 ? 404 : 200,
+      index < 0
+        ? notFound
+        : wrapJwtIssuer({ ...objects[index], _type: typeOf(type) })
+    );
+  } else if (id && req.method === 'PUT') {
+    const { _rev, _type, ...posted } = body ? JSON.parse(body) : {};
+    const stored = { ...posted, _id: id };
+    if (index < 0) objects.push(stored);
+    else objects[index] = stored;
+    send(index < 0 ? 201 : 200, { ...stored, _rev: '1', _type: typeOf(type) });
   } else {
     return false;
   }
@@ -1145,6 +1218,7 @@ const server = http.createServer((req, res) => {
       });
     }
     if (serveAiAgents(req, body, send)) return;
+    if (serveAgentCollections(req, body, send)) return;
     if (serveRealmServices(req, send)) return;
     if (servePromotion(req, body, send)) return;
     if (directConfiguration) {
