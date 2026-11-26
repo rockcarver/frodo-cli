@@ -448,21 +448,28 @@ describe('a transition alias in a nested tree', () => {
 });
 
 /**
- * The old words of the renames planned in cli#1264. None of the aliases exists
- * yet: the words below are still the real names. Each row says what has to stay
- * true when the rename lands, in two parts:
+ * The old words of the renames of cli#1264. The old words of the types and of the
+ * promotion commands (`applications`, `authentication`, `custom-nodes`,
+ * `connector-definitions`, `secret-mappings`, `remote-servers`, and the seven
+ * promotion names) are transition aliases now, and their rows below are real
+ * tests of the real tree. The group word `config-manager`, which becomes a
+ * transition alias of `config`, is not renamed yet: its words are still the real
+ * names, and the `it.todo` of that group stay for the step that renames it. Each
+ * row says what has to stay true, in two parts:
  *
- * - a real test, green now and green after the rename, that the old word still
- *   leads to a command (`resolveCommand` finds a command by name or by alias).
- *   It fails if a rename drops the word, the property the recorded e2e tests
- *   rely on because they type the old spelling;
- * - an `it.todo` for the transition contract, which the step that adds the alias
- *   turns into a test: `getAliasKind` is `transition`, the help ends
- *   `(formerly: old)`, the first use prints one notice on stderr, and the help is
- *   the one of the new name.
+ * - a real test that the old word still leads to a command (`resolveCommand`
+ *   finds a command by name or by alias). It fails if a rename drops the word,
+ *   the property the recorded e2e tests rely on because they type the old
+ *   spelling;
+ * - for the renamed types, a real test of the transition contract: `getAliasKind`
+ *   is `transition`, the help ends `(formerly: old)`, and the old word leads to
+ *   the command of the new name. For the group word, an `it.todo` that the step
+ *   which adds the alias turns into a test: the first use prints one notice on
+ *   stderr, and the help is the one of the new name.
  *
- * The notice and help of a transition alias are proven on a small tree above, so
- * the rows here only need the real tree. An alias is named in the description
+ * The notice and help of a transition alias are proven on a small tree above and,
+ * for every renamed command of the real tree, in
+ * ConfigManagerTransitionAliases.test.js. An alias is named in the description
  * and the old name of a renamed command stays as a transition alias:
  * https://github.com/rockcarver/frodo-cli/blob/main/docs/decisions/0049-an-alias-is-named-in-the-description-and-the-old-name-of-a-renamed-command-stays-as-a-transition-alias.md
  */
