@@ -37,6 +37,7 @@ const fakeAmPath = fileURLToPath(new URL('./FakeAm.mjs', import.meta.url));
  * @param {string[]} [options.managedTypes] managed object type names the fake's config entity answers with (for catalog enrichment)
  * @param {string[]} [options.realms] realm names the realm list answers with (default: it answers 404)
  * @param {{method: string, path: string, nth?: number, echo?: {text: string, padding?: number}}[]} [options.failRequests] requests that answer with HTTP 500 (path is a URL fragment); `nth` makes only the n-th matching request fail (without it every matching request fails); `echo` adds a `detail.echo` of that text, `@PADDING@` in it replaced by `padding` characters
+ * @param {boolean} [options.acceptWrites] answers every `PUT`, `POST` and `PATCH` that no route serves with `200` and the body it was sent, so a command that pushes many configurations runs through on a tenant that holds none of them (default: they answer 404); a read that nothing serves still answers 404, so combine it with `emptyCollections` for the lists
  * @param {object[]} [options.logApiKeys] keys returned by the log API key list
  * @param {string[]} [options.agentTypes] ids the agent type list of the realm answers with; an empty array is a realm that offers no type (default: it answers 404)
  * @param {object[]} [options.cimdProfiles] CIMD profiles in the plain shape the fake serves, stores and deletes (default: the type's endpoints answer 404)
@@ -94,6 +95,7 @@ export async function startFakeAm({
   idmSchemaProperties,
   managedObjects,
   emptyCollections,
+  acceptWrites,
   journeys,
   nodes,
   samlProviders,
@@ -225,6 +227,7 @@ export async function startFakeAm({
           }
         : {}),
       ...(emptyCollections ? { FAKE_AM_EMPTY_COLLECTIONS: '1' } : {}),
+      ...(acceptWrites ? { FAKE_AM_ACCEPT_WRITES: '1' } : {}),
       ...(nodes ? { FAKE_AM_NODES_FILE: written('nodes.json', nodes) } : {}),
       ...(samlProviders
         ? { FAKE_AM_SAML_FILE: written('saml.json', samlProviders) }
