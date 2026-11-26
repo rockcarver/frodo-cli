@@ -55,6 +55,7 @@ const USES_REALM = [
   'frodo config-manager pull oauth2-agents',
   'frodo config-manager pull oauth-clients',
   'frodo config-manager pull agents',
+  'frodo config-manager push all-static',
   'frodo config-manager push applications',
   'frodo config-manager push authentication',
   'frodo config-manager push oauth-cimd-profiles',
@@ -75,6 +76,7 @@ const USES_REALM = [
 const ALSO_TENANT_WIDE = [
   'frodo config-manager pull all',
   'frodo config-manager pull all-static',
+  'frodo config-manager push all-static',
 ];
 
 const HOW_TO_FIX =

@@ -20,6 +20,7 @@ Commands:
   access-config              [Experimental] Import access configuration.
   agents                     [Experimental] Import agents from the files written
                              by pull.
+  all-static                 [Experimental] Import all static configuration.
   applications               [Experimental] Import applications, one folder per
                              application with the objects it owns.
   audit                      [Experimental] Import audit configuration.
