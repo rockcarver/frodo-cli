@@ -56,7 +56,10 @@ suite('frodo shell openidm resource completion', () => {
         { type: 'clear_output' },
         { type: 'send', text: "openidm.read('alpha_" },
         { type: 'key', name: 'tab' },
-        { type: 'wait_plain', regex: '▸', timeoutMs: 15000 },
+        // The hint arrives in pieces over the pty; '▸' alone can match
+        // after only its first characters landed ('▸ managed'). Wait for
+        // the hint's last item: only the whole hint carries it.
+        { type: 'wait_plain', regex: 'alpha_role', timeoutMs: 15000 },
         { type: 'capture', label: 'types' },
       ],
     });

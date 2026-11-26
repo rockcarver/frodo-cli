@@ -454,3 +454,11 @@ export function createShellRest(): ShellRest {
 export function getLastShellRestResult(): ShellRestResult | undefined {
   return lastResult;
 }
+
+/**
+ * Forget the last completed request (the console state reset's `$.last`
+ * half: a cleared session has no responses to look back on).
+ */
+export function clearLastShellRestResult(): void {
+  lastResult = undefined;
+}

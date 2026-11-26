@@ -47,6 +47,7 @@ type Request = {
     | 'eval'
     | 'complete'
     | 'history'
+    | 'history-delete'
     | 'connect'
     | 'info'
     | 'children'
@@ -59,6 +60,7 @@ type Request = {
   id2?: number;
   offset?: number;
   limit?: number;
+  text?: string;
 };
 
 function emit(message: Record<string, unknown>): void {
@@ -212,6 +214,14 @@ async function handle(request: Request): Promise<void> {
       }
       case 'history': {
         emit({ id: request.id, op: 'history', lines: engine.history() });
+        break;
+      }
+      case 'history-delete': {
+        emit({
+          id: request.id,
+          op: 'history-delete',
+          deleted: engine.deleteHistoryEntry(request.text ?? ''),
+        });
         break;
       }
       case 'connect': {

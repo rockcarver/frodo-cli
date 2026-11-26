@@ -97,6 +97,21 @@ describe('ShellHistory multi-line entries', () => {
     expect(raw.split('\n')).toHaveLength(2);
   });
 
+  it('writes a multi-line entry with its metadata as one #h: line', () => {
+    const history = new ShellHistory('https://tenant.example.com/am');
+    history.addLine('a\nb', { ts: 1_700_000_000_000, host: 'h' });
+    const raw = fs.readFileSync(history.getHistoryPath(), 'utf-8');
+    expect(raw.split('\n')).toHaveLength(1);
+    expect(raw).toBe(
+      `#h:${JSON.stringify({ text: 'a\nb', id: 1, ts: 1_700_000_000_000, host: 'h' })}`
+    );
+    // And it reloads with the metadata whole.
+    const reloaded = new ShellHistory('https://tenant.example.com/am');
+    expect(reloaded.getEntries()).toEqual([
+      { text: 'a\nb', id: 1, ts: 1_700_000_000_000, host: 'h' },
+    ]);
+  });
+
   it('offers single-line entries only to the terminal', () => {
     const history = new ShellHistory('https://tenant.example.com/am');
     history.addLine('one');
@@ -118,9 +133,9 @@ describe('ShellHistory multi-line entries', () => {
 
   it('keeps a line that merely starts like an encoded entry', () => {
     const history = new ShellHistory('https://tenant.example.com/am');
-    fs.writeFileSync(history.getHistoryPath(), '#ml:not json\n', 'utf-8');
+    fs.writeFileSync(history.getHistoryPath(), '#h:not json\n', 'utf-8');
     const reloaded = new ShellHistory('https://tenant.example.com/am');
-    expect(reloaded.getLines()).toEqual(['#ml:not json']);
+    expect(reloaded.getLines()).toEqual(['#h:not json']);
   });
 });
 
@@ -154,7 +169,7 @@ describe('ShellHistory.shared (the web console)', () => {
       'against tenant one',
     ]);
     const files = fs.readdirSync(path.join(home, '.frodo', 'shell-history'));
-    expect(files).toEqual(['default.txt']);
+    expect(files).toEqual(['shared-v2.txt']);
   });
 
   it('folds existing per-host files into the shared one', () => {
@@ -219,23 +234,46 @@ describe('ShellHistory entry metadata (ts, host)', () => {
     history.addLine('without meta');
     const reloaded = new ShellHistory('https://tenant.example.com/am');
     expect(reloaded.getEntries()).toEqual([
-      { text: 'without meta' },
-      { text: 'with meta', ts: 1_700_000_000_000, host: 'tenant.example.com' },
+      { text: 'without meta', id: 2 },
+      {
+        text: 'with meta',
+        id: 1,
+        ts: 1_700_000_000_000,
+        host: 'tenant.example.com',
+      },
     ]);
     // getLines is unchanged for the REPL: just the texts.
     expect(reloaded.getLines()).toEqual(['without meta', 'with meta']);
   });
 
-  it('writes rich entries as #h: lines and plain entries bare', () => {
+  it('stamps a stable, monotonic id: repeats keep theirs, new ones continue the sequence', () => {
     const history = new ShellHistory('https://tenant.example.com/am');
-    history.addLine('plain one');
+    history.addLine('first');
+    history.addLine('second');
+    history.addLine('first', { ts: 5 });
+    // The repeat kept the id it was born with and spent none (it is not
+    // an insertion); the newest new entry holds the highest id.
+    expect(history.getEntries().map((e) => e.id)).toEqual([1, 2]);
+    // The sequence continues past the file's ids across a reload.
+    const reloaded = new ShellHistory('https://tenant.example.com/am');
+    reloaded.addLine('third');
+    expect(reloaded.getEntries()[0]).toMatchObject({ id: 3 });
+  });
+
+  it('writes entries with any metadata (id included) as #h: lines', () => {
+    const history = new ShellHistory('https://tenant.example.com/am');
     history.addLine('rich one', { ts: 123, host: 'h' });
+    history.addLine('id only');
     const raw = fs.readFileSync(history.getHistoryPath(), 'utf-8');
     const lines = raw.split('\n').filter((l) => l.length > 0);
-    expect(lines[0]).toBe('plain one');
-    expect(lines[1]).toBe(
-      `#h:${JSON.stringify({ text: 'rich one', ts: 123, host: 'h' })}`
+    expect(lines[0]).toBe(
+      `#h:${JSON.stringify({ text: 'rich one', id: 1, ts: 123, host: 'h' })}`
     );
+    // An id alone is metadata: the rich form is what makes it survive
+    // a reload.
+    expect(lines[1]).toBe(`#h:${JSON.stringify({ text: 'id only', id: 2 })}`);
+    const reloaded = new ShellHistory('https://tenant.example.com/am');
+    expect(reloaded.getEntries()[0]).toEqual({ text: 'id only', id: 2 });
   });
 
   it('a repeat moves the entry and refreshes its metadata', () => {
@@ -243,15 +281,17 @@ describe('ShellHistory entry metadata (ts, host)', () => {
     history.addLine('cmd', { ts: 111, host: 'old.example.com' });
     history.addLine('other');
     history.addLine('cmd', { ts: 222, host: 'new.example.com' });
-    // Newest first: the moved repeat is the newest entry.
+    // Newest first: the moved repeat is the newest entry, with the id it
+    // was born with (the id is the entry's, not the run's).
     expect(history.getEntries()).toEqual([
-      { text: 'cmd', ts: 222, host: 'new.example.com' },
-      { text: 'other' },
+      { text: 'cmd', id: 1, ts: 222, host: 'new.example.com' },
+      { text: 'other', id: 2 },
     ]);
     // The repeat survives a reload with the refreshed metadata.
     const reloaded = new ShellHistory('https://tenant.example.com/am');
     expect(reloaded.getEntries()[0]).toEqual({
       text: 'cmd',
+      id: 1,
       ts: 222,
       host: 'new.example.com',
     });
@@ -261,7 +301,9 @@ describe('ShellHistory entry metadata (ts, host)', () => {
     const history = new ShellHistory('https://tenant.example.com/am');
     history.addLine('cmd', { ts: 111, host: 'h' });
     history.addLine('cmd');
-    expect(history.getEntries()).toEqual([{ text: 'cmd', ts: 111, host: 'h' }]);
+    expect(history.getEntries()).toEqual([
+      { text: 'cmd', id: 1, ts: 111, host: 'h' },
+    ]);
   });
 
   it('reads a file of bare lines into metadata-less entries', () => {
@@ -287,14 +329,30 @@ describe('ShellHistory entry metadata (ts, host)', () => {
     fs.writeFileSync(path.join(dir, 'yyc_dev.txt'), 'yyc command\n', 'utf-8');
     const shared = ShellHistory.shared();
     expect(shared.getEntries()).toEqual([
-      { text: 'yyc command', host: 'yyc.dev' },
+      { text: 'yyc command', host: 'yyc.dev', id: 1 },
     ]);
     // And it persists stamped, so the fold is one-time.
     shared.addLine('next', { ts: 5, host: 'other' });
     const again = ShellHistory.shared();
     expect(again.getEntries()).toEqual([
-      { text: 'next', ts: 5, host: 'other' },
-      { text: 'yyc command', host: 'yyc.dev' },
+      { text: 'next', id: 2, ts: 5, host: 'other' },
+      { text: 'yyc command', host: 'yyc.dev', id: 1 },
     ]);
+  });
+
+  it('deleteEntry removes exactly the entry named, persisted', () => {
+    const history = new ShellHistory('https://tenant.example.com/am');
+    history.addLine('first');
+    history.addLine('second');
+    history.addLine('multi\nline');
+    expect(history.deleteEntry('second')).toBe(true);
+    expect(history.getLines()).toEqual(['multi\nline', 'first']);
+    // The deletion survives a reload: it went to the file.
+    const reloaded = new ShellHistory('https://tenant.example.com/am');
+    expect(reloaded.getLines()).toEqual(['multi\nline', 'first']);
+    // Removing what is not there says so, and changes nothing.
+    expect(history.deleteEntry('second')).toBe(false);
+    expect(history.deleteEntry('')).toBe(false);
+    expect(history.getLines()).toEqual(['multi\nline', 'first']);
   });
 });

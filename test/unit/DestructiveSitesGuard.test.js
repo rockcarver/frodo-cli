@@ -171,7 +171,8 @@ const ALLOWED = [
   {
     module: 'src/ops/ShellWebServerOps.unit.test.ts',
     call: 'fs.rmSync(dir, { recursive: true, force: true })',
-    why: 'the temporary folder that the test made with `mkdtempSync` in the temporary folder of the machine',
+    count: 2,
+    why: 'the temporary folder that a test block made with `mkdtempSync` in the temporary folder of the machine (the engine-failure block and the history-delete block each clean their own)',
   },
   {
     module: 'src/utils/interactive/FileSystemPaths.test.ts',

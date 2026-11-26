@@ -165,6 +165,29 @@ export type SearchHooks = {
   setLine(line: string): void;
   refresh(): void;
   /**
+   * Draw the pasted script on the output as the terminal would have:
+   * the filter swallows the paste bytes (they must not reach readline),
+   * so without this the screen shows nothing until the result appears.
+   */
+  echo(text: string): void;
+  /**
+   * A transient status line above the prompt (the paste's "Enter to
+   * run" notice). Empty string clears it.
+   */
+  hint(text: string): void;
+  /**
+   * Replace the text readline paints as the prompt, without a repaint
+   * (the next refresh shows it). The paste's waiting hint becomes the
+   * prompt line while the stash waits, so the screen ends with the hint
+   * instead of a prompt and a placeholder that read like new input.
+   */
+  setPromptText?(text: string): void;
+  /**
+   * Put the console's own prompt back (after a paste made the hint the
+   * prompt line).
+   */
+  restorePrompt?(): void;
+  /**
    * Recovery path: forward an escape byte to readline. Used when a Ctrl+R
    * raced past the filter and readline's built-in reverse search activated
    * anyway (rare, load-dependent): the guard cancels readline's search and
@@ -173,6 +196,12 @@ export type SearchHooks = {
   sendEscape(): void;
   /** Subscribe to decoded keypresses on the REPL's input. */
   onKeypress(listener: (key: { ctrl?: boolean; name?: string }) => void): void;
+  /**
+   * How many physical rows the prompt block (prompt plus current line)
+   * occupies at this width: the frame erase has to clear them, and a
+   * long prompt with a long line wraps into several.
+   */
+  promptRows(): number;
 };
 
 /**
@@ -195,6 +224,16 @@ export type InputOverlay = {
  * @param getHistory newest-first history entries to search; read live on
  *   every keystroke, so entries added during the session are found too
  */
+export type ConsoleInputState = {
+  /**
+   * A paste is in flight: the filter is holding the pasted lines and
+   * the REPL's eval must collect rather than run, so the paste runs as
+   * one script when it completes (the web console's behavior), not
+   * line by line with an error per fragment.
+   */
+  pasteInFlight(): boolean;
+};
+
 export function createConsoleInput(
   getHistory: () => HistoryEntry[],
   overlay?: InputOverlay
@@ -217,6 +256,8 @@ export function createConsoleInput(
   install(): void;
   /** Detach everything (called on console exit). */
   close(): void;
+  /** The paste state, for the eval to cooperate with. */
+  pasteState: ConsoleInputState;
 } {
   let hooks: SearchHooks | undefined;
   let installed = false;
@@ -228,7 +269,89 @@ export function createConsoleInput(
     const stdin = process.stdin;
     if (stdin.isTTY && typeof stdin.setRawMode === 'function') {
       stdin.setRawMode(true);
+      // Bracketed paste: the terminal wraps every paste in
+      // ESC[200~ ... ESC[201~, which is how the filter tells a paste
+      // from typed input (see the capture note). Terminals that do
+      // not support it simply never send the markers, and everything
+      // flows as before.
+      process.stdout.write('\x1b[?2004h');
     }
+  }
+
+  // --- paste capture -------------------------------------------------------
+  // The console enables bracketed paste mode (the terminal's standard):
+  // the terminal then wraps every paste in ESC[200~ ... ESC[201~. Only
+  // marker-wrapped input is held as a paste. A paste FILLS, not runs:
+  // at the end marker the script is stashed, the line buffer shows its
+  // first line, and a hint names the rest. The user's next Enter
+  // submits the stash as one input (one 'line' event, one eval, one
+  // history entry); Esc discards it. Unmarked multi-Enter input (fast
+  // typing, a driver's send_line) is typed input as far as anything can
+  // tell, and flows through line by line.
+  const PASTE_START = '\x1b[200~';
+  const PASTE_END = '\x1b[201~';
+  let pasteBuffer: string[] = [];
+  let pasteSeen = false;
+  // The script a completed paste left behind, waiting for the Enter
+  // that submits it ('\r'-joined: readline reverses a line buffer
+  // holding LF, but carries CR through verbatim; JavaScript reads CR
+  // as a line terminator, so the eval parses it, and the shell's line
+  // handler normalizes CR back to LF for history). Null when nothing
+  // waits.
+  let pasteStash: string | null = null;
+  // The line the buffer held before the paste loaded its placeholder;
+  // what a discard puts back (an empty prompt, or the draft the user
+  // was editing when they pasted).
+  let pasteDraft = '';
+
+  const pasteState: ConsoleInputState = {
+    pasteInFlight: () => pasteSeen,
+  };
+
+  function endPaste(): void {
+    if (!pasteSeen) return;
+    pasteSeen = false;
+    const lines = pasteBuffer;
+    pasteBuffer = [];
+    const text = lines
+      .join('\n')
+      .replace(/^\n+|\n+$/g, '')
+      .trim();
+    if (text.length === 0) return;
+    pasteStash = text.replace(/\n/g, '\r');
+    pasteDraft = hooks?.getLine() ?? '';
+    if (hooks) {
+      // The paste bytes never reached readline, so nothing was echoed:
+      // draw the script once, as pasted. The waiting hint becomes the
+      // prompt line (the screen ends with the hint, no prompt and no
+      // placeholder that read like new input); the buffer holds the
+      // pre-paste draft, untouched. No readline redraw here (called
+      // from inside the input filter's callback, where a refresh
+      // double-paints the prompt row); the swapped prompt shows with
+      // the next repaint.
+      hooks.echo(`${text}\n`);
+      hooks.setPromptText?.(
+        `script pasted (${text.split('\n').length} lines): Enter to run, Esc to discard`
+      );
+    }
+  }
+
+  /** Drop the waiting stash and restore the line the buffer held
+   * before the paste (an empty prompt, or the draft the user was
+   * editing). No readline redraw: called from inside the input
+   * filter's callback, where a refresh double-paints the prompt row;
+   * the bytes this chunk carries land on the restored buffer and
+   * readline repaints on its own. */
+  function discardStash(): void {
+    const had = pasteStash !== null;
+    pasteStash = null;
+    if (had && hooks) {
+      // The hint-as-prompt goes with the stash; the console's own prompt
+      // and the pre-paste draft come back.
+      hooks.restorePrompt?.();
+      hooks.setLine(pasteDraft);
+    }
+    pasteDraft = '';
   }
 
   // --- search state -------------------------------------------------------
@@ -238,9 +361,15 @@ export function createConsoleInput(
   let matchCursor = 0;
   // The REPL line when the search opened; restored on cancel.
   let savedDraft = '';
-  // Rows of the candidate list currently on screen (status line excluded).
-  // Tracked so each redraw can erase the previous frame exactly.
+  // Physical rows of the frame currently on screen (the list, the
+  // status line, and the annotation; a row wider than the terminal
+  // wraps into several). Tracked so each redraw can erase the previous
+  // frame exactly.
   let drawnRows = 0;
+  // Physical rows the prompt block (prompt + current line) occupied at
+  // the last paint: the erase has to clear them as well, and a long
+  // prompt with a long line wraps into several.
+  let promptRowsPrev = 1;
   // Persists across chunks while active so a multi-byte UTF-8 character
   // split over two reads still decodes as one character.
   const decoder = new StringDecoder('utf8');
@@ -286,21 +415,67 @@ export function createConsoleInput(
   const LIST_ROWS = 8;
 
   /**
-   * One line of the candidate list: the command, trimmed to the terminal
-   * width, with the selected row highlighted. Long commands truncate to
-   * the width available; the status line above the list already carries
-   * the query and the counter.
+   * The screen width the frame draws against.
+   */
+  function termWidth(): number {
+    return process.stdout.columns ?? 80;
+  }
+
+  /** The string with its ANSI escapes removed: the length the terminal
+   * actually paints (what wrapping and row math must count). */
+  function visibleLen(s: string): number {
+    // eslint-disable-next-line no-control-regex
+    return s.replace(/\x1b\[[0-?]*[ -/]*[@-~]/g, '').length;
+  }
+
+  /** How many physical rows a painted line occupies at this width: the
+   * frame erase moves the cursor in physical rows, and a row wider
+   * than the terminal wraps into several. */
+  function physicalRows(s: string): number {
+    return Math.max(1, Math.ceil(visibleLen(s) / termWidth()));
+  }
+
+  /** Cut plain text to fit a visible budget, marking the cut with an
+   * ellipsis. */
+  function fitText(text: string, budget: number): string {
+    if (text.length <= budget) return text;
+    return `${text.slice(0, Math.max(budget - 1, 1))}…`;
+  }
+
+  /**
+   * One line of the candidate list: the entry's id (a stable counter,
+   * dim, so the eye can tell entries apart at a glance), then the
+   * command, trimmed to the terminal width, with the selected row
+   * highlighted. A multi-line entry shows its breaks as a dim ¶ (one
+   * command, several lines; the marks say where the lines inside it
+   * sit) and truncates after the first of them; the status line above
+   * the list already carries the query and the counter. Entries from
+   * files written before ids existed show without one. The trim
+   * budgets the VISIBLE width (the marks around ¶ and the colors add
+   * escape bytes the terminal does not paint, and a row painted wider
+   * than the terminal wraps and breaks the frame's row accounting).
    */
   function listRowText(entry: HistoryEntry, selected: boolean): string {
-    const width = process.stdout.columns ?? 80;
-    const max = Math.max(width - 6, 16);
-    let text = entry.text.split('\n')[0];
-    if (entry.text.includes('\n')) {
-      text = text.length > max - 1 ? `${text.slice(0, max - 2)}…` : `${text} …`;
-      // max for multiline: leave room for the ellipsis marker
+    const width = termWidth();
+    const idLabel = entry.id !== undefined ? String(entry.id) : '';
+    // '  ' + id + spaces before the command; the id column is 6
+    // visible columns wide when there is an id.
+    const prefix = idLabel
+      ? `  ${idLabel}${' '.repeat(Math.max(1, 6 - idLabel.length))}`
+      : '  ';
+    const budget = Math.max(width - visibleLen(prefix) - 2, 16);
+    const more = entry.text.includes('\n');
+    // The line breaks become ¶ in a PLAIN pass first, the cut applies
+    // to the plain text (so the visible length is exact), and only
+    // then each surviving ¶ gains its color.
+    const plain = entry.text.replace(/\n/g, '¶');
+    const suffixLen = more ? 2 : 0; // ' …' after the first line
+    const fitted = fitText(plain, budget - suffixLen);
+    let text = fitted.replace(/¶/g, `${DIM}¶${RESET}`);
+    if (fitted.length >= plain.length && more) {
+      text += ` ${DIM}…${RESET}`;
     }
-    if (text.length > max) text = `${text.slice(0, max - 1)}…`;
-    const body = `  ${text}`;
+    const body = `${prefix}${text}`;
     return selected ? `${CYAN}${body}${RESET}` : `${DIM}${body}${RESET}`;
   }
 
@@ -316,12 +491,14 @@ export function createConsoleInput(
       statusLine = `${DIM}(fuzzy-search)${RESET} ${CYAN}${query}${RESET}${DIM}${counter}${RESET}`;
     }
     // Erase the previous frame (list + status line + annotation). The
-    // cursor is on the prompt row, below the annotation: move up over
-    // every drawn row plus the status line, then clear down through all
-    // of it, then draw the new frame top-down.
+    // cursor is at the end of the prompt block, below the frame: move
+    // up over every PHYSICAL row the frame painted (a long row wraps)
+    // plus the prompt block's own rows, then clear down through all of
+    // it, then draw the new frame top-down.
     readline.cursorTo(process.stdout, 0);
-    if (drawnRows > 0) {
-      readline.moveCursor(process.stdout, 0, -(drawnRows + 1));
+    const up = drawnRows + promptRowsPrev;
+    if (up > 1) {
+      readline.moveCursor(process.stdout, 0, -(up - 1));
       readline.clearScreenDown(process.stdout);
     } else {
       readline.clearLine(process.stdout, 0);
@@ -342,11 +519,13 @@ export function createConsoleInput(
       const history = getHistory();
       for (let i = start; i < end; i++) {
         const entry = history[matches[i]];
-        process.stdout.write(`${listRowText(entry, i === matchCursor)}\n`);
-        drawnRows++;
+        const row = listRowText(entry, i === matchCursor);
+        process.stdout.write(`${row}\n`);
+        drawnRows += physicalRows(row);
       }
     }
     process.stdout.write(`${statusLine}\n`);
+    drawnRows += physicalRows(statusLine);
     // The selection's age and environment, under the list (or under the
     // status line when it is hidden). One row, dim.
     if (selection && (selection.ts !== undefined || selection.host)) {
@@ -365,12 +544,35 @@ export function createConsoleInput(
       }
       if (selection.host) parts.push(selection.host);
       if (parts.length > 0) {
-        process.stdout.write(`${DIM}${parts.join(' · ')}${RESET}\n`);
-        drawnRows++;
+        const note = `${DIM}${parts.join(' · ')}${RESET}`;
+        process.stdout.write(`${note}\n`);
+        drawnRows += physicalRows(note);
       }
     }
-    hooks.setLine(selection?.text ?? query);
+    // The selection rides the readline line while the list is open, so
+    // the eye sees what Enter would run. A multi-line entry set whole
+    // wraps the prompt block over several physical rows, and the frame
+    // erase (which counts rows) then lands wrong: every scroll step left
+    // the previous frame's top rows on screen. The buffer shows the
+    // entry's first line only; the whole text goes onto the line where
+    // it is used (Enter and Tab below, after the frame is gone).
+    const shown = selection ? selection.text.split('\n')[0] : query;
+    hooks.setLine(shown);
+    // Seat the cursor on the prompt block's last row before the
+    // refresh: readline's repaint moves up by the rows of the block it
+    // believes the cursor is in, and with a wrapped block those rows
+    // would otherwise reach into the frame just painted and clip it.
+    // The erase above clears from the frame top down, so the rows the
+    // newlines cross are already blank.
+    const blockRows = hooks.promptRows();
+    for (let i = 1; i < blockRows; i++) {
+      process.stdout.write('\n');
+    }
     hooks.refresh();
+    // How many physical rows the prompt block occupied at this paint:
+    // the next erase has to clear them too (a long prompt + a long
+    // first line wraps into several).
+    promptRowsPrev = blockRows;
   }
 
   function openSearch(): void {
@@ -389,19 +591,21 @@ export function createConsoleInput(
     active = false;
     decoder.end();
     // Erase the whole frame: the list, the annotation, and the status
-    // line. The cursor is on the prompt row below the annotation.
-    if (drawnRows > 0) {
-      readline.cursorTo(process.stdout, 0);
-      readline.moveCursor(process.stdout, 0, -(drawnRows + 1));
+    // line, in physical rows, plus the prompt block's own rows. The
+    // cursor sits at the end of the prompt block.
+    const up = drawnRows + promptRowsPrev;
+    readline.cursorTo(process.stdout, 0);
+    if (up > 1) {
+      readline.moveCursor(process.stdout, 0, -(up - 1));
       readline.clearScreenDown(process.stdout);
     } else {
-      readline.cursorTo(process.stdout, 0);
       readline.clearLine(process.stdout, 0);
     }
     drawnRows = 0;
     if (restoreDraft && hooks) {
       hooks.setLine(savedDraft);
       hooks.refresh();
+      promptRowsPrev = hooks.promptRows();
     }
   }
 
@@ -433,9 +637,13 @@ export function createConsoleInput(
         const selection = currentSelection();
         if (selection !== null) {
           // Accept: put the selection on the line and let the Enter
-          // (already accounted for below) submit it.
+          // (already accounted for below) submit it. CR-joined, not
+          // LF: readline reverses a line buffer holding LF, so the
+          // submitted line event would run the entry inside-out (a
+          // stored multi-line entry then re-runs backwards and errors
+          // on its own redeclarations).
           closeSearch(false);
-          hooks?.setLine(selection.text);
+          hooks?.setLine(selection.text.replace(/\n/g, '\r'));
           hooks?.refresh();
           passthrough.push(CR);
         } else {
@@ -449,7 +657,7 @@ export function createConsoleInput(
         const selection = currentSelection();
         if (selection !== null) {
           closeSearch(false);
-          hooks?.setLine(selection.text);
+          hooks?.setLine(selection.text.replace(/\n/g, '\r'));
           hooks?.refresh();
         } else {
           closeSearch(true);
@@ -505,23 +713,92 @@ export function createConsoleInput(
       _encoding: BufferEncoding,
       callback: (err?: Error | null, data?: Buffer) => void
     ) {
+      const push = (data?: Buffer) => callback(null, data);
       try {
         // The overlay (object explorer) has first claim on the input while
         // it is open.
         if (overlay?.wantsInput()) {
           overlay.handle(chunk);
-          callback(null, undefined);
+          push(undefined);
           return;
         }
         if (active) {
           const rest = interpretActive(chunk);
-          callback(null, rest.length > 0 ? rest : undefined);
+          push(rest.length > 0 ? rest : undefined);
+          return;
+        }
+        // A paste waits on the stash (see the capture note): the next
+        // Enter submits the whole script. A chunk that opens with Enter
+        // is that submit. Anything else first (an edit, a recall, Esc)
+        // leaves the buffer disagreeing with the first line the stash
+        // was keyed to: the stash is dropped and the chunk flows
+        // through as plain typing. One shot: paste, then Enter runs it.
+        if (pasteStash !== null && !pasteSeen) {
+          if (chunk[0] === CR) {
+            // The Enter byte flows through the pipe unchanged; the
+            // script is already on the line buffer, so readline's
+            // normal Enter path submits it as one line event. (An
+            // injected Enter written straight into readline's input
+            // from inside this transform wedges readline: bytes stop
+            // being read. The real byte through the pipe never does.)
+            hooks.setLine(pasteStash);
+            hooks.restorePrompt?.();
+            pasteStash = null;
+            pasteDraft = '';
+            push(chunk);
+            return;
+          }
+          discardStash();
+          // Fall through: plain typed input from here on.
+        }
+        // A bracketed paste: the terminal wrapped it (see the capture
+        // note). Everything from the start marker to the end marker is
+        // one script: hold the lines, drop the markers, and stash the
+        // whole at the end marker. Bytes around the markers flow as
+        // typed input.
+        const text = chunk.toString('utf8');
+        const startIndex = text.indexOf(PASTE_START);
+        const endIndex = text.indexOf(PASTE_END);
+        if (pasteSeen) {
+          if (endIndex !== -1) {
+            const body = text.slice(0, endIndex);
+            for (const line of body.split(/[\r\n]+/)) {
+              if (line.length > 0) pasteBuffer.push(line);
+            }
+            endPaste();
+            const rest = text.slice(endIndex + PASTE_END.length);
+            push(rest.length > 0 ? Buffer.from(rest, 'utf8') : undefined);
+            return;
+          }
+          for (const line of text.split(/[\r\n]+/)) {
+            if (line.length > 0) pasteBuffer.push(line);
+          }
+          push(undefined);
+          return;
+        }
+        if (startIndex !== -1) {
+          pasteSeen = true;
+          const afterStart = text.slice(startIndex + PASTE_START.length);
+          if (endIndex > startIndex) {
+            const body = text.slice(startIndex + PASTE_START.length, endIndex);
+            for (const line of body.split(/[\r\n]+/)) {
+              if (line.length > 0) pasteBuffer.push(line);
+            }
+            endPaste();
+            const rest = text.slice(endIndex + PASTE_END.length);
+            push(rest.length > 0 ? Buffer.from(rest, 'utf8') : undefined);
+            return;
+          }
+          for (const line of afterStart.split(/[\r\n]+/)) {
+            if (line.length > 0) pasteBuffer.push(line);
+          }
+          push(undefined);
           return;
         }
         const open = chunk.indexOf(CTRL_R);
         const openExplore = chunk.indexOf(CTRL_O);
         if (open === -1 && openExplore === -1) {
-          callback(null, chunk);
+          push(chunk);
           return;
         }
         // The earliest trigger byte in the chunk wins; bytes before it pass
@@ -537,8 +814,7 @@ export function createConsoleInput(
         if (trigger === open) {
           openSearch();
           const rest = interpretActive(after);
-          callback(
-            null,
+          push(
             before.length > 0
               ? Buffer.concat([before, rest])
               : rest.length > 0
@@ -550,24 +826,29 @@ export function createConsoleInput(
           // The viewer claims the stream from here; interpret the remainder
           // as viewer input.
           if (after.length > 0) overlay.handle(after);
-          callback(null, before.length > 0 ? before : undefined);
+          push(before.length > 0 ? before : undefined);
         } else {
           // No overlay registered: let the byte through untouched.
-          callback(null, chunk);
+          push(chunk);
         }
       } catch (error) {
         callback(error as Error);
       }
     },
     flush(callback) {
-      // In case the stream ends mid-search (process teardown).
+      // In case the stream ends mid-search (process teardown) or
+      // mid-paste (the paste end timer never fired): run what was held.
       if (active) closeSearch(false);
+      if (pasteBuffer.length > 0) {
+        endPaste();
+      }
       callback();
     },
   });
 
   return {
     input: new PassThrough(),
+    pasteState,
     attachHooks(attached: SearchHooks) {
       hooks = attached;
       // Defense-in-depth: if a Ctrl+R ever races past the filter (seen once
@@ -596,7 +877,12 @@ export function createConsoleInput(
     },
     close() {
       closeSearch(false);
+      endPaste();
+      discardStash();
       if (installed) {
+        if (process.stdin.isTTY) {
+          process.stdout.write('\x1b[?2004l');
+        }
         process.stdin.unpipe(filter);
         filter.unpipe(this.input);
         installed = false;
