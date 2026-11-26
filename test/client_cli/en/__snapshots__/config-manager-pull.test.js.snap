@@ -30,6 +30,8 @@ Commands:
   authz-policies             [Experimental] Export authorization policies.
   config-metadata            [Experimental] Show metadata.
   connector-mappings         [Experimental] Export connector mappings.
+  connector-servers          [Experimental] Export RCS server configurations.
+                             (formerly: remote-servers)
   connectors                 [Experimental] Export connector definitions.
                              (formerly: connector-definitions)
   cookie-domains             [Experimental] [Cloud-only] Export cookie domains.
@@ -66,7 +68,6 @@ Commands:
   remote-proxies             [Experimental] [Cloud-only] Export IDM remote
                              proxies: one file remote-proxies/<name>.json for
                              each.
-  remote-servers             [Experimental] Export RCS server configurations.
   saml                       [Experimental] Export saml.
   schedules                  [Experimental] Export schedules.
   scripts                    [Experimental] Export AM scripts.

@@ -179,7 +179,7 @@ const SPEC = {
     call: ['RemoteProxyOps', 'configManagerImportRemoteProxies'],
     reads: 'remote-proxies',
   },
-  'remote-servers': {
+  'connector-servers': {
     call: ['FrConfigRemoteServersOps', 'configManagerImportRemoteServers'],
     reads: 'sync/rcs/provisioner.openicf.connectorinfoprovider.json',
   },
@@ -254,7 +254,7 @@ const GLOBAL_STEPS = {
     'org-privileges',
     'password-policy',
     'remote-proxies',
-    'remote-servers',
+    'connector-servers',
     'schedules',
     'terms-and-conditions',
     'themes',
@@ -277,7 +277,7 @@ const GLOBAL_STEPS = {
     'managed-objects',
     'org-privileges',
     'password-policy',
-    'remote-servers',
+    'connector-servers',
     'schedules',
     'terms-and-conditions',
     'themes',

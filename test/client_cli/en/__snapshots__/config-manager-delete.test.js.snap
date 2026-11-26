@@ -23,6 +23,10 @@ Commands:
                              name, or delete all connector mappings of the sync
                              configuration. A connector mapping that other
                              objects still name is not deleted without --force.
+  connector-servers          [Experimental] Delete one connector server by name,
+                             or delete all of them. A connector server that a
+                             server cluster or a connector still names is not
+                             deleted without --force. (formerly: remote-servers)
   connectors                 [Experimental] Delete one connector definition by
                              id, or delete all connector definitions. A
                              connector definition that other objects still name
@@ -41,10 +45,6 @@ Commands:
   oauth-cimd-profiles        [Experimental] Delete CIMD profiles.
   oauth-issuers              [Experimental] Delete trusted JWT issuers.
   oauth-software-publishers  [Experimental] Delete software publishers.
-  remote-servers             [Experimental] Delete one connector server by name,
-                             or delete all of them. A connector server that a
-                             server cluster or a connector still names is not
-                             deleted without --force.
   schedules                  [Experimental] Delete schedules.
   scripts                    [Experimental] Delete AM scripts. Default scripts
                              are never deleted.

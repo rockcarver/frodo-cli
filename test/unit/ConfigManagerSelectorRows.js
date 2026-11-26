@@ -470,7 +470,8 @@ export const EXPECTED_SELECTORS = [
     aliases: ['-n', '--name'],
   },
   {
-    command: 'frodo config-manager delete remote-servers',
+    command: 'frodo config-manager delete connector-servers',
+    formerly: 'frodo config-manager delete remote-servers',
     id: '--server-id',
     name: null,
     aliases: ['-n', '--name'],

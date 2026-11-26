@@ -270,7 +270,7 @@ const FIRST_WRITES = [
   ['password-policy', 'PUT', '/openidm/config/fieldPolicy/alpha_user'],
   ['remote-proxies', 'PUT', '/openidm/config/external.idm/p1'],
   [
-    'remote-servers',
+    'connector-servers',
     'PUT',
     '/openidm/config/provisioner.openicf.connectorinfoprovider',
   ],

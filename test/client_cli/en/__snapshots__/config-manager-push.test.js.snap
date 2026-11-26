@@ -30,6 +30,8 @@ Commands:
   authz-policies             [Experimental] Import authorization policies.
   config-metadata            [Experimental] Import metadata.
   connector-mappings         [Experimental] Import connector mappings.
+  connector-servers          [Experimental] Import RCS config. (formerly:
+                             remote-servers)
   connectors                 [Experimental] Import connector definitions.
                              (formerly: connector-definitions)
   cookie-domains             [Experimental] [Cloud-only] Import cookie domains.
@@ -65,7 +67,6 @@ Commands:
   raw                        [Experimental] Import raw configurations.
   remote-proxies             [Experimental] [Cloud-only] Import IDM remote
                              proxies from the files remote-proxies/<name>.json.
-  remote-servers             [Experimental] Import RCS config.
   restart                    [Experimental] [Cloud-only] Restart the
                              environment.
   saml                       [Experimental] Import saml configuration.
