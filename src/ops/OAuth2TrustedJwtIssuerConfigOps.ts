@@ -11,7 +11,7 @@
  *   read is a failed realm;
  * - the file is the single read of the issuer in the plain shape (record 0054, rule 6: a property
  *   that is set on the object as its value; nothing for one that is unset or inherited), the same
- *   file that `pull oauth2-agents` writes for the types it handles;
+ *   shape of file that `pull agents` writes for the types it handles;
  * - an issuer is a trust anchor: a `jwkSet` that holds private or secret key material is not
  *   written (record 0055): the file has `${<ID>_JWKSET}` in its place, a warning says so and never
  *   prints the key, and a push fills the variable and says what it replaces and never deletes.
@@ -114,7 +114,7 @@ export async function configManagerExportTrustedJwtIssuers(
 
 /**
  * Import the trusted JWT issuers of the files `realms/<realm>/realm-config/agents/TrustedJwtIssuer/<name>.json`
- * (what `pull oauth-issuers` and `pull oauth2-agents` write) into the realms they are in: an
+ * (what `pull oauth-issuers` writes) into the realms they are in: an
  * issuer that does not exist is created and one that does is replaced by the file. An issuer is a
  * trust anchor (a JWT signed by it is accepted as a grant), so a pull request that changes a file
  * changes who may obtain tokens after the next push: read the files before pushing them. Nothing

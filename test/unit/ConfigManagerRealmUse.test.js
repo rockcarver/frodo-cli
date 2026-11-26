@@ -53,6 +53,8 @@ const USES_REALM = [
   'frodo config-manager pull saml',
   'frodo config-manager pull authz-policies',
   'frodo config-manager pull oauth2-agents',
+  'frodo config-manager pull oauth-clients',
+  'frodo config-manager pull agents',
   'frodo config-manager push applications',
   'frodo config-manager push authentication',
   'frodo config-manager push oauth-cimd-profiles',

@@ -1,5 +1,6 @@
 import { FrodoStubCommand } from '../../FrodoCommand';
 import AccessConfig from './config-manager-pull-access-config';
+import Agents from './config-manager-pull-agents';
 import All from './config-manager-pull-all';
 import AllStatic from './config-manager-pull-all-static';
 import Applications from './config-manager-pull-applications';
@@ -24,6 +25,7 @@ import Kba from './config-manager-pull-kba';
 import Locales from './config-manager-pull-locales';
 import ManagedObjects from './config-manager-pull-managed-objects';
 import OauthCimdProfiles from './config-manager-pull-oauth-cimd-profiles';
+import OauthClients from './config-manager-pull-oauth-clients';
 import OauthIssuers from './config-manager-pull-oauth-issuers';
 import OauthSoftwarePublishers from './config-manager-pull-oauth-software-publishers';
 import Oauth2Agents from './config-manager-pull-oauth2-agents';
@@ -53,11 +55,13 @@ export default function setup() {
   program.addCommand(All().name('all'));
   program.addCommand(AllStatic().name('all-static'));
   program.addCommand(AccessConfig().name('access-config'));
+  program.addCommand(Agents().name('agents'));
   program.addCommand(Applications().name('applications'));
   program.addCommand(Audit().name('audit'));
   program.addCommand(Authentication().name('authentication'));
   program.addCommand(AuthzPolicies().name('authz-policies'));
   program.addCommand(OauthCimdProfiles().name('oauth-cimd-profiles'));
+  program.addCommand(OauthClients().name('oauth-clients'));
   program.addCommand(ConnectorDefinitions().name('connector-definitions'));
   program.addCommand(ConnectorMappings().name('connector-mappings'));
   program.addCommand(CookieDomains().name('cookie-domains'));

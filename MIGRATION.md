@@ -1025,6 +1025,8 @@ the new option.
 | `pull saml`                      | `-i, --entity-id`                          | new              |
 | `pull authz-policies`            | `-i, --policy-id`                          | new              |
 | `pull oauth2-agents`             | `-i, --agent-id`                           | new              |
+| `pull oauth-clients`             | `-i, --client-id`                          | new              |
+| `pull agents`                    | `-i, --agent-id`                           | new              |
 
 `pull themes` takes `-n, --theme-name` for the first time, and
 `pull connector-mappings`, `pull secrets` and `pull variables` take `-i` for the

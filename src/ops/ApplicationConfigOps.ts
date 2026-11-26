@@ -128,7 +128,7 @@ export function isConfidentialClient(client: any): boolean {
 
 /**
  * The OAuth2 client of an application as it is written to `oauth2-client.json`:
- * the format of the `oauth2-agents` kind (the plain shape of record 0054, rule 6),
+ * the format of the `oauth-clients` files (the plain shape of record 0054, rule 6),
  * with literal `${` escaped, for a confidential client the secret as a
  * placeholder (the library masks it on reads, and a secret is never written in
  * the clear: core record 0013), and a key set that holds private or secret key
@@ -1048,7 +1048,7 @@ async function pushApplication(
   }
   if (files.client) {
     const client = files.client;
-    // the operational attributes, the id among them, are cleared from what is sent, as `push oauth2-agents` does
+    // the operational attributes, the id among them, are cleared from what is sent, as `push oauth-clients` does
     const clientId = client._id as string;
     await step(`OAuth2 client ${clientId}`, () => {
       clearOperationalAttributes(client);

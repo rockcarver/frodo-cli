@@ -1,5 +1,6 @@
 import { FrodoCommand, FrodoStubCommand } from '../../FrodoCommand';
 import AccessConfig from './config-manager-push-access-config';
+import Agents from './config-manager-push-agents';
 import Applications from './config-manager-push-applications';
 import Audit from './config-manager-push-audit';
 import Authentication from './config-manager-push-authentication';
@@ -22,6 +23,7 @@ import Kba from './config-manager-push-kba';
 import Locales from './config-manager-push-locales';
 import ManagedObjects from './config-manager-push-managed-objects';
 import OauthCimdProfiles from './config-manager-push-oauth-cimd-profiles';
+import OauthClients from './config-manager-push-oauth-clients';
 import OauthIssuers from './config-manager-push-oauth-issuers';
 import OauthSoftwarePublishers from './config-manager-push-oauth-software-publishers';
 import OAuth2Agents from './config-manager-push-oauth2-agents';
@@ -62,6 +64,8 @@ export default function setup() {
   program.addCommand(Schedules().name('schedules'));
   program.addCommand(OrgPrivileges().name('org-privileges'));
   program.addCommand(OAuth2Agents().name('oauth2-agents'));
+  program.addCommand(OauthClients().name('oauth-clients'));
+  program.addCommand(Agents().name('agents'));
   program.addCommand(ManagedObjects().name('managed-objects'));
   program.addCommand(AccessConfig().name('access-config'));
   program.addCommand(Applications().name('applications'));

@@ -1,0 +1,46 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`CLI help interface for 'config-manager pull oauth-clients' should be expected english 1`] = `
+"Usage: frodo config-manager pull oauth-clients [options] [host] [realm] [username] [password]
+
+[Experimental] Export the OAuth2 clients of all realms or of one realm to
+realms/<realm>/realm-config/agents/OAuth2Client/<id>.json, one file for each.
+The files are the ones that the deprecated "pull oauth2-agents" writes for the
+OAuth2 clients, at the same paths. The other agent types are pulled by "pull
+agents".
+
+Arguments:
+  host                  AM base URL, e.g.: https://cdk.iam.example.com/am. To
+                        use a connection profile, just specify a unique
+                        substring or alias.
+  realm                 Realm. Specify realm as '/' for the root realm or
+                        'realm' or '/parent/child' otherwise. (default: "alpha"
+                        for Identity Cloud tenants, "/" otherwise.)
+  username              Username to login with. Must be an admin user with
+                        appropriate rights to manage authentication
+                        journeys/trees. If given without a password, and it
+                        matches the username already stored in the connection
+                        profile for the target host, frodo uses that profile's
+                        stored password instead of requiring it on the command
+                        line.
+  password              Password.
+
+Options:
+  --allow-failures      Report operations that fail, but still exit with code 0.
+                        Without this option the command runs every operation,
+                        prints a summary of what failed and exits with code 1.
+  --config-file <file>  A JSON file that lists the OAuth2 clients to pull for
+                        each realm, with overrides. ex: "oauth2-agents.json".
+                        Without it, every OAuth2 client of every realm is
+                        pulled. The realm argument narrows a pull without a
+                        file; with a file the realms of the file are pulled and
+                        the realm argument is not used. Cannot be used with -i.
+  -i, --client-id <id>  OAuth2 client id. If specified, pulls only that client.
+                        Needs a single realm (the realm argument). Cannot be
+                        used with --config-file.
+  -h, --help            Help
+  -hh, --help-more      Help with all options.
+  -hhh, --help-all      Help with all options, environment variables, and usage
+                        examples.
+"
+`;

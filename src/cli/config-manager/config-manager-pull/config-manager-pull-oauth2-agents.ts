@@ -10,11 +10,27 @@ import { KEY_SET_PULL_SENTENCE } from '../../../utils/PlaceholderValues';
 import { FrodoCommand } from '../../FrodoCommand';
 import { refuseEmptySelector, selectorOption } from '../../SelectorOption';
 
+/**
+ * The notice a run prints (`Deprecated feature in use: 'frodo config-manager pull oauth2-agents'. ...`).
+ * The command names are checked against the command tree by
+ * test/unit/ConfigManagerOauth2AgentsDeprecation.test.js, so a rename of one of them fails there.
+ */
+export const PULL_OAUTH2_AGENTS_DEPRECATION_MESSAGE =
+  'This command is deprecated and will be removed in a future major release. ' +
+  'It does what "frodo config-manager pull oauth-clients" and "frodo config-manager pull agents" do together; use them instead.';
+
 export default function setup() {
   const program = new FrodoCommand('frodo config-manager pull oauth2-agents');
 
   program
-    .description('Export OAuth2 Agents')
+    .description(
+      'Deprecated: pulls what "pull oauth-clients" and "pull agents" pull together.'
+    )
+    .withStability(
+      'deprecated',
+      undefined,
+      PULL_OAUTH2_AGENTS_DEPRECATION_MESSAGE
+    )
     .addOption(
       selectorOption(
         '-i, --agent-id <id>',

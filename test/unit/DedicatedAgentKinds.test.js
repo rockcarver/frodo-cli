@@ -16,6 +16,7 @@ const {
   skippedEntriesMessage,
   skippedFilesMessage,
 } = await import('../../src/ops/DedicatedAgentKinds.ts');
+const { AGENT_FAMILIES } = await import('../../src/ops/AgentFamilies.ts');
 const { CIMD_PROFILE_AGENT_TYPE, OAUTH_CIMD_PROFILES_KIND, CIMD_PROFILE_KIND } =
   await import('../../src/ops/CIMDProfileConfigOps.ts');
 const {
@@ -166,4 +167,23 @@ describe('the messages', () => {
         `they are pushed by "frodo config-manager push oauth-cimd-profiles".`
     );
   });
+});
+
+describe('the table of the agent families', () => {
+  it('has the two families that split oauth2-agents, and no other', () => {
+    expect(Object.keys(AGENT_FAMILIES).sort()).toEqual([
+      'agents',
+      'oauth-clients',
+    ]);
+  });
+
+  it.each(Object.entries(AGENT_FAMILIES))(
+    'names a command with a pull and a push command for %s',
+    (family, { command, plural }) => {
+      expect(command).toBe(family);
+      expect(plural.length).toBeGreaterThan(0);
+      expect(commandNames).toContain(`frodo config-manager pull ${command}`);
+      expect(commandNames).toContain(`frodo config-manager push ${command}`);
+    }
+  );
 });

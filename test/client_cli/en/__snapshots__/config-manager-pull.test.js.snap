@@ -18,6 +18,7 @@ Runtime Options:
 
 Commands:
   access-config              [Experimental] Export access-config objects.
+  agents                     [Experimental] Export agents, one file per agent.
   all                        [Experimental] Export all config.
   all-static                 [Experimental] Export all static config.
   applications               [Experimental] Export applications, one folder per
@@ -45,11 +46,14 @@ Commands:
   managed-objects            [Experimental] Export managed-objects.
   oauth-cimd-profiles        [Experimental] Export CIMD profiles, one file per
                              profile.
+  oauth-clients              [Experimental] Export OAuth2 clients, one file per
+                             client.
   oauth-issuers              [Experimental] Export trusted JWT issuers, one file
                              per issuer.
   oauth-software-publishers  [Experimental] Export software publishers, one file
                              per publisher.
-  oauth2-agents              [Experimental] Export OAuth2 Agents
+  oauth2-agents              [Deprecated] Deprecated: pulls what "pull
+                             oauth-clients" and "pull agents" pull together.
   org-privileges             [Experimental] Export organization privileges
                              config.
   password-policy            [Experimental] Export password policy.

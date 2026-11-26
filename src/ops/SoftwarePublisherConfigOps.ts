@@ -17,7 +17,7 @@
  *   nothing to pull, push or delete, which is not a failure (with a name it is);
  * - the file is the single read of the publisher in the plain shape (record 0054, rule 6: a
  *   property that is set on the object as its value; nothing for one that is unset or inherited),
- *   the same file that `pull oauth2-agents` writes for the types it handles;
+ *   the same shape of file that `pull agents` writes for the types it handles;
  * - a publisher holds no secret property, but its `jwkSet` is a key set: one that holds private or
  *   secret key material is not written (record 0055): the file has `${<ID>_JWKSET}` in its place,
  *   a warning says so and never prints the key, and a push fills the variable and says what it
@@ -145,7 +145,7 @@ export async function configManagerExportSoftwarePublishers(
 
 /**
  * Import the software publishers of the files `realms/<realm>/realm-config/agents/SoftwarePublisher/<name>.json`
- * (what `pull oauth-software-publishers` and `pull oauth2-agents` write) into the realms they are
+ * (what `pull oauth-software-publishers` writes) into the realms they are
  * in: a publisher that does not exist is created and one that does is replaced by the file. A
  * publisher is a trust anchor (a software statement it signs is accepted when a client registers),
  * so a pull request that changes a file changes who may register clients after the next push: read
