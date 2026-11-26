@@ -496,8 +496,9 @@ async function isSameEntry(a: string, b: string): Promise<boolean> {
  * the same place under another owned folder). If one owned folder is refused, none is cleaned: a pull that
  * cannot say what it owns keeps what was there.
  *
- * A folder that cannot be looked at is a refusal with the error, not a throw: the files are written by now, and the
- * caller needs the result.
+ * The work is in proportion to the files and the folders: the folders that a file went to through a link are found
+ * once, from the files (normally there are none), and each owned folder is looked at once. A folder that cannot be
+ * looked at is a refusal with the error, not a throw: the files are written by now, and the caller needs the result.
  * @param {string} container the real path of the container
  * @param {string[]} ownedFolders the owned folders of the set
  * @param {Map<string, string>} wroteTo the real path of every file that was written, by its path in the set
@@ -511,6 +512,26 @@ async function refusalsOfClean(
   const refusals: { owned: string; error: Error }[] = [];
   const refuse = (owned: string, reason: string) =>
     refusals.push({ owned, error: new Error(reason) });
+  // where the clean looks for each owned folder: the container and the names of the set
+  const ownedAt = new Map<string, string>();
+  for (const owned of ownedFolders) {
+    ownedAt.set(path.join(container, ...owned.split('/')), owned);
+  }
+  // the first file that was written through a link below each owned folder, found once from the files that went elsewhere
+  const reachedBy = new Map<string, string>();
+  for (const [filePath, real] of wroteTo) {
+    if (real === path.join(container, ...filePath.split('/'))) continue;
+    for (
+      let above = path.dirname(real);
+      above !== path.dirname(above);
+      above = path.dirname(above)
+    ) {
+      const owned = ownedAt.get(above);
+      if (owned !== undefined && !reachedBy.has(owned)) {
+        reachedBy.set(owned, filePath);
+      }
+    }
+  }
   for (const owned of ownedFolders) {
     const direct = path.join(container, ...owned.split('/'));
     let walked: Awaited<ReturnType<typeof walk>>;
@@ -534,17 +555,12 @@ async function refusalsOfClean(
       );
       continue;
     }
-    for (const [filePath, real] of wroteTo) {
-      if (
-        real !== path.join(container, ...filePath.split('/')) &&
-        real.startsWith(direct + path.sep)
-      ) {
-        refuse(
-          owned,
-          `The file '${filePath}' is written below it through a link, so it is not cleaned.`
-        );
-        break;
-      }
+    const through = reachedBy.get(owned);
+    if (through !== undefined) {
+      refuse(
+        owned,
+        `The file '${through}' is written below it through a link, so it is not cleaned.`
+      );
     }
   }
   return refusals;

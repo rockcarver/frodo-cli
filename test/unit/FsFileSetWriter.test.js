@@ -1744,6 +1744,38 @@ describe('a clean looks at a folder again right before it cleans it', () => {
   });
 });
 
+describe('a file that went below owned folders through a link refuses every owned folder above it', () => {
+  linkTest('an owned folder and an owned folder inside it are both refused, and the one that is not above the file is cleaned', async () => {
+    put('a/b/old.json', 'old');
+    put('a/b/c/old.json', 'old');
+    put('z/old.json', 'old');
+    link('l', 'a/b');
+
+    const result = await writer.write(set([file('l/x.json', 'X'), file('z/keep.json', 'K')], ['a', 'a/b', 'z']), { clean: true });
+
+    expect(result.written).toEqual(['l/x.json', 'z/keep.json']);
+    expect(result.failed.map((one) => one.path)).toEqual(['a', 'a/b']);
+    expect(result.failed[0].error.getCombinedMessage()).toMatch(/'l\/x.json' is written below it through a link/);
+    expect(result.failed[1].error.getCombinedMessage()).toMatch(/'l\/x.json' is written below it through a link/);
+    // a pull that cannot say what it owns keeps what was there: not even `z` is cleaned
+    expect(result.cleaned).toEqual([]);
+    expect(result.removed).toEqual([]);
+    expect(text('a/b/x.json')).toBe('X');
+    expect(text('z/old.json')).toBe('old');
+  });
+
+  linkTest('the first file that went through a link is the one that the message names', async () => {
+    put('a/b/old.json', 'old');
+    link('l1', 'a/b');
+    link('l2', 'a/b');
+
+    const result = await writer.write(set([file('l1/x.json', 'X'), file('l2/y.json', 'Y')], ['a']), { clean: true });
+
+    expect(result.failed.map((one) => one.path)).toEqual(['a']);
+    expect(result.failed[0].error.getCombinedMessage()).toMatch(/'l1\/x.json' is written below it through a link/);
+  });
+});
+
 describe('after the first byte is written, a write never rejects', () => {
   const FILES = [file('a/own/n1.json', 'N1'), file('a/own/sub/n2.json', 'N2'), file('b/n3.json', 'N3'), file('c.json', 'C')];
   const OWNED = ['a/own', 'c/empty'];
@@ -1839,5 +1871,83 @@ describe('after the first byte is written, a write never rejects', () => {
 
     // some of the failures were in the clean (a refusal to look at a folder, or to list it)
     expect(failedClean).toBeGreaterThan(3);
+  }, 120000);
+});
+
+describe('the check before a clean costs work in proportion to the files and the folders', () => {
+  /**
+   * Counts the calls that a run makes to the functions that look at the disk and to `path.join`.
+   * @param {() => Promise<unknown>} run what to do
+   * @returns {Promise<{ disk: number, joins: number }>} the counts
+   */
+  const countCalls = async (run) => {
+    const counts = { disk: 0, joins: 0 };
+    const restore = [];
+    for (const name of ['lstat', 'realpath', 'readdir', 'stat']) {
+      const original = fs.promises[name];
+      fs.promises[name] = function counted(...args) {
+        counts.disk++;
+        return original.apply(this, args);
+      };
+      restore.push(() => {
+        fs.promises[name] = original;
+      });
+    }
+    const join = path.join;
+    path.join = (...args) => {
+      counts.joins++;
+      return join(...args);
+    };
+    restore.push(() => {
+      path.join = join;
+    });
+    try {
+      await run();
+    } finally {
+      for (const undo of restore) undo();
+    }
+    return counts;
+  };
+
+  /**
+   * What a clean adds to a rewrite of a set that is already on the disk: one owned folder for each `nodes` folder of a journey.
+   * @param {number} folders how many owned folders
+   * @param {number} perFolder how many files in each
+   * @returns {Promise<{ files: number, folders: number, disk: number, joins: number }>} the calls that the clean adds
+   */
+  const whatACleanAdds = async (folders, perFolder) => {
+    fs.rmSync(root, { recursive: true, force: true });
+    fs.mkdirSync(root);
+    const files = [];
+    const owned = [];
+    for (let journey = 0; journey < folders; journey++) {
+      owned.push(`realms/alpha/journeys/j${journey}/nodes`);
+      for (let node = 0; node < perFolder; node++) files.push(file(`realms/alpha/journeys/j${journey}/nodes/n${node}.json`, 'x'));
+    }
+    await writer.write(set(files, owned));
+    const without = await countCalls(() => writer.write(set(files, owned)));
+    let result;
+    const withClean = await countCalls(async () => {
+      result = await writer.write(set(files, owned), { clean: true });
+    });
+    expect(result.failed).toEqual([]);
+    expect(result.cleaned).toHaveLength(folders);
+    expect(result.removed).toEqual([]);
+    return { files: files.length, folders, disk: withClean.disk - without.disk, joins: withClean.joins - without.joins };
+  };
+
+  test('a clean adds a few calls for each folder, not one for each file, and not one for each pair of a folder and a file', async () => {
+    const small = await whatACleanAdds(60, 5);
+    const wide = await whatACleanAdds(60, 10);
+    const long = await whatACleanAdds(120, 5);
+
+    for (const added of [small, wide, long]) {
+      // the look at each folder, and the listing of it; the files that the set lists are not looked at again
+      expect(added.disk).toBeLessThanOrEqual(4 * added.folders + 10);
+      // names that are made from the files and the folders, a few for each; a pair of a folder and a file would be folders times files
+      expect(added.joins).toBeLessThanOrEqual(3 * (added.files + added.folders) + 20);
+    }
+    // twice the files in each folder adds no call that looks at the disk
+    expect(wide.disk).toBeLessThanOrEqual(small.disk + 10);
   }, 120000);
 });
