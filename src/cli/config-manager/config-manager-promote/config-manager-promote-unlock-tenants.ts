@@ -12,7 +12,7 @@ const deploymentTypes = [CLOUD_DEPLOYMENT_TYPE_KEY];
 
 export default function setup() {
   const program = new FrodoCommand(
-    'frodo config-manager promote unlock-tenants',
+    'frodo config-manager promote unlock',
     [],
     deploymentTypes
   );
@@ -27,12 +27,10 @@ export default function setup() {
       'after',
       `Usage Examples:\n` +
         `  Unlock the environments after a promotion and wait until they are unlocked (the promotion ID is read from the lock status):\n` +
+        c.command(`  $ frodo config-manager promote unlock ${s.connId}\n`) +
+        `  Unlock the environments of a specific promotion (the ID is the promotion ID that lock printed):\n` +
         c.command(
-          `  $ frodo config-manager promote unlock-tenants ${s.connId}\n`
-        ) +
-        `  Unlock the environments of a specific promotion (the ID is the promotion ID that lock-tenants printed):\n` +
-        c.command(
-          `  $ frodo config-manager promote unlock-tenants --id 1d9ac1b3-b9a0-46d5-8d8c-0f3f2a1f8a21 ${s.connId}\n`
+          `  $ frodo config-manager promote unlock --id 1d9ac1b3-b9a0-46d5-8d8c-0f3f2a1f8a21 ${s.connId}\n`
         )
     )
     .action(async (host, realm, user, password, options, command) => {

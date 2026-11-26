@@ -580,7 +580,7 @@ suite('config-manager delete connector-mappings (fake tenant)', () => {
 
         expect(code).toBe(1);
         expect(output).toContain(
-          'An application owns the mapping that it names: config-manager delete applications removes both.'
+          'An application owns the mapping that it names: config-manager delete apps removes both.'
         );
         expect(changes()).toEqual([]);
       },

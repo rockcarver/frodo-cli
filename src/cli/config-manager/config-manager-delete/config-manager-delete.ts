@@ -27,10 +27,18 @@ export default function setup() {
   const program = new FrodoStubCommand('delete').description(
     'Delete configuration optimized for CI/CD pipelines (format compatible with fr-config-manager).'
   );
-  program.addCommand(Applications().name('applications'));
-  program.addCommand(ConnectorDefinitions().name('connector-definitions'));
+  program.addCommand(
+    Applications().name('apps').withAlias('applications', 'transition')
+  );
+  program.addCommand(
+    ConnectorDefinitions()
+      .name('connectors')
+      .withAlias('connector-definitions', 'transition')
+  );
   program.addCommand(ConnectorMappings().name('connector-mappings'));
-  program.addCommand(CustomNodes().name('custom-nodes'));
+  program.addCommand(
+    CustomNodes().name('nodes').withAlias('custom-nodes', 'transition')
+  );
   program.addCommand(Endpoints().name('endpoints'));
   program.addCommand(Scripts().name('scripts'));
   program.addCommand(Themes().name('themes'));
@@ -44,9 +52,17 @@ export default function setup() {
   program.addCommand(
     OauthSoftwarePublishers().name('oauth-software-publishers')
   );
-  program.addCommand(RemoteServers().name('remote-servers'));
+  program.addCommand(
+    RemoteServers()
+      .name('connector-servers')
+      .withAlias('remote-servers', 'transition')
+  );
   program.addCommand(Schedules().name('schedules'));
-  program.addCommand(SecretMappings().name('secret-mappings'));
+  program.addCommand(
+    SecretMappings()
+      .name('secretstore-mappings')
+      .withAlias('secret-mappings', 'transition')
+  );
   program.addCommand(Telemetry().name('telemetry'));
   program.addCommand(TenantConfig().name('tenant-config'));
   program.addCommand(Journeys().name('journeys'));

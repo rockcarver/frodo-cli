@@ -24,7 +24,7 @@ const deploymentTypes = [
 
 export default function setup() {
   const program = new FrodoCommand(
-    'frodo config-manager delete remote-servers',
+    'frodo config-manager delete connector-servers',
     [],
     deploymentTypes
   );
@@ -71,27 +71,27 @@ export default function setup() {
         `Usage Examples:\n` +
         `  Preview the deletion of all connector servers and of what names them:\n` +
         c.command(
-          `  $ frodo config-manager delete remote-servers -d ${s.connId}\n`
+          `  $ frodo config-manager delete connector-servers -d ${s.connId}\n`
         ) +
         `  Delete a connector server (refused if a server cluster or a connector still names it):\n` +
         c.command(
-          `  $ frodo config-manager delete remote-servers -i rcs ${s.connId}\n`
+          `  $ frodo config-manager delete connector-servers -i rcs ${s.connId}\n`
         ) +
         `  Preview the deletion of a connector server and of what names it:\n` +
         c.command(
-          `  $ frodo config-manager delete remote-servers -i rcs -d ${s.connId}\n`
+          `  $ frodo config-manager delete connector-servers -i rcs -d ${s.connId}\n`
         ) +
         `  Delete a connector server that is named, and remove it from the server clusters, without asking:\n` +
         c.command(
-          `  $ frodo config-manager delete remote-servers -i rcs --force -y ${s.connId}\n`
+          `  $ frodo config-manager delete connector-servers -i rcs --force -y ${s.connId}\n`
         ) +
         `  Delete it the same way and leave the server clusters as they are:\n` +
         c.command(
-          `  $ frodo config-manager delete remote-servers -i rcs --force --keep-links -y ${s.connId}\n`
+          `  $ frodo config-manager delete connector-servers -i rcs --force --keep-links -y ${s.connId}\n`
         ) +
         `  Delete all connector servers without prompting:\n` +
         c.command(
-          `  $ frodo config-manager delete remote-servers -y ${s.connId}\n`
+          `  $ frodo config-manager delete connector-servers -y ${s.connId}\n`
         )
     )
     .multiOp()

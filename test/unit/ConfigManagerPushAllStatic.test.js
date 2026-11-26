@@ -110,7 +110,7 @@ const SPEC = {
     call: ['FrConfigMetadataOps', 'configManagerImportMetadata'],
     args: (_realm, options) => [options.metadata],
   },
-  'connector-definitions': {
+  'connectors': {
     call: ['FrConfigConnectorDefinitionsOps', 'configManagerImportConnectors'],
     reads: 'sync/connectors',
   },
@@ -131,7 +131,7 @@ const SPEC = {
     // no policy name (both are pushed), and no flag: a policy that fails is a failed step in the summary
     reads: 'csp/csp.json',
   },
-  'custom-nodes': {
+  'nodes': {
     call: ['FrConfigCustomNodesOps', 'configManagerImportCustomNodes'],
     reads: 'custom-nodes/nodes',
   },
@@ -179,7 +179,7 @@ const SPEC = {
     call: ['RemoteProxyOps', 'configManagerImportRemoteProxies'],
     reads: 'remote-proxies',
   },
-  'remote-servers': {
+  'connector-servers': {
     call: ['FrConfigRemoteServersOps', 'configManagerImportRemoteServers'],
     reads: 'sync/rcs/provisioner.openicf.connectorinfoprovider.json',
   },
@@ -203,7 +203,7 @@ const SPEC = {
     call: ['FrConfigUiConfigOps', 'configManagerImportUiConfig'],
     reads: 'ui/ui-configuration.json',
   },
-  'secret-mappings': {
+  'secretstore-mappings': {
     call: ['FrConfigSecretMappingsOps', 'configManagerImportSecretMappings'],
     // the name of the mapping (none), then the realm
     args: (realm) => [undefined, realm],
@@ -214,7 +214,7 @@ const SPEC = {
     args: (realm) => [realm],
     reads: 'realms/<realm>/scripts/scripts-config',
   },
-  authentication: {
+  authn: {
     call: ['FrConfigAuthenticationOps', 'configManagerImportAuthentication'],
     args: (realm) => [realm],
     reads: 'realms/<realm>/realm-config/authentication.json',
@@ -239,12 +239,12 @@ const GLOBAL_STEPS = {
     'access-config',
     'audit',
     'config-metadata',
-    'connector-definitions',
+    'connectors',
     'connector-mappings',
     'cookie-domains',
     'cors',
     'csp',
-    'custom-nodes',
+    'nodes',
     'email-provider',
     'email-templates',
     'endpoints',
@@ -254,7 +254,7 @@ const GLOBAL_STEPS = {
     'org-privileges',
     'password-policy',
     'remote-proxies',
-    'remote-servers',
+    'connector-servers',
     'schedules',
     'terms-and-conditions',
     'themes',
@@ -264,10 +264,10 @@ const GLOBAL_STEPS = {
     'access-config',
     'audit',
     'config-metadata',
-    'connector-definitions',
+    'connectors',
     'connector-mappings',
     'cors',
-    'custom-nodes',
+    'nodes',
     'email-provider',
     'email-templates',
     'endpoints',
@@ -277,24 +277,24 @@ const GLOBAL_STEPS = {
     'managed-objects',
     'org-privileges',
     'password-policy',
-    'remote-servers',
+    'connector-servers',
     'schedules',
     'terms-and-conditions',
     'themes',
     'ui-config',
   ],
-  classic: ['cors', 'custom-nodes'],
+  classic: ['cors', 'nodes'],
 };
 const REALM_STEPS = {
   cloud: [
-    'secret-mappings',
+    'secretstore-mappings',
     'scripts',
-    'authentication',
+    'authn',
     'services',
     'journeys',
   ],
-  forgeops: ['scripts', 'authentication', 'services', 'journeys'],
-  classic: ['scripts', 'authentication', 'services', 'journeys'],
+  forgeops: ['scripts', 'authn', 'services', 'journeys'],
+  classic: ['scripts', 'authn', 'services', 'journeys'],
 };
 const STEPS = Object.fromEntries(
   Object.keys(GLOBAL_STEPS).map((type) => [
@@ -395,8 +395,8 @@ describe('the table of `push all-static`', () => {
       for (const name of GLOBAL_STEPS[type]) {
         expect(index(name)).toBeLessThan(first);
       }
-      expect(index('scripts')).toBeLessThan(index('authentication'));
-      expect(index('authentication')).toBeLessThan(index('services'));
+      expect(index('scripts')).toBeLessThan(index('authn'));
+      expect(index('authn')).toBeLessThan(index('services'));
       expect(index('services')).toBeLessThan(index('journeys'));
     }
   );
@@ -413,7 +413,7 @@ describe('the table of `push all-static`', () => {
     expect(pushed('forgeops')).not.toContain('csp');
     expect(pushed('classic')).toEqual([
       'cors',
-      'custom-nodes',
+      'nodes',
       ...REALM_STEPS.classic,
     ]);
   });
@@ -659,7 +659,7 @@ describe('a tree that holds some of the folders', () => {
     ['themes', 'themes', 'other'],
     ['scripts', 'scripts/scripts-config', 'scripts/scripts-content'],
     [
-      'authentication',
+      'authn',
       'realm-config/authentication.json',
       'realm-config/other.json',
     ],

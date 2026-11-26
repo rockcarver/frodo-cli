@@ -1,10 +1,10 @@
 // Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
-exports[`CLI help interface for 'config-manager promote check-promotion-reports' should be expected english 1`] = `
-"Usage: frodo config-manager promote check-promotion-reports [options] [host] [realm] [username] [password]
+exports[`CLI help interface for 'config-manager promote report' should be expected english 1`] = `
+"Usage: frodo config-manager promote report [options] [host] [realm] [username] [password]
 
 [Experimental] [Cloud-only] Retrieve promotion reports. Defaults to the latest
-report if no option is specified.
+report if no option is specified. (formerly: check-promotion-reports)
 
 Arguments:
   host                    AM base URL, e.g.: https://cdk.iam.example.com/am. To

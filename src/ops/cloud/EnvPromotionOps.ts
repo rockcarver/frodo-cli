@@ -169,14 +169,14 @@ function commandLine(verb: string, options = ''): string {
 }
 
 /** The command that shows the lock state, on a line of its own. */
-const checkLockCommand = () => commandLine('check-locked-status');
+const checkLockCommand = () => commandLine('lock-status');
 
 /** The command that shows where the promotion stands, on a line of its own. */
-const checkStatusCommand = () => commandLine('check-promotion-status');
+const checkStatusCommand = () => commandLine('status');
 
 /** The command that releases the lock of a promotion by its id, on a line of its own. */
 const unlockCommand = (lockId: string) =>
-  commandLine('unlock-tenants', ` --id ${lockId}`);
+  commandLine('unlock', ` --id ${lockId}`);
 
 /** The ids of the locks that a lock status names, without repeats. */
 function lockIdsOf(lock: LockStatus): string[] {

@@ -12,7 +12,7 @@ import {
 } from '@jest/globals';
 
 /**
- * `frodo config-manager pull applications` (decision record 0042, slice S2 of
+ * `frodo config-manager pull apps` (decision record 0042, slice S2 of
  * frodo-cli#1101): one folder per application with the record and the objects it
  * owns, the shared pieces at the paths of their own kinds, one summary of the
  * applications that failed (record 0040), a named application that cannot be read
@@ -858,7 +858,7 @@ describe('the layout of the tree decides', () => {
     ['realms/alpha/realm-config/agents'],
     ['realms/alpha/realm-config/saml'],
   ])(
-    'a tree that holds %s without a marker keeps the kind-path layout: pull applications refuses and names the migration, the pull all step skips with a warning',
+    'a tree that holds %s without a marker keeps the kind-path layout: pull apps refuses and names the migration, the pull all step skips with a warning',
     async (existing) => {
       fs.mkdirSync(path.join(tmp, existing), { recursive: true });
       world.apps.alpha = [app('One')];
@@ -866,7 +866,7 @@ describe('the layout of the tree decides', () => {
       expect(await configManagerExportApplications(undefined, 'alpha')).toBe(
         false
       );
-      expect(messages()).toMatch(/config-manager migrate applications/);
+      expect(messages()).toMatch(/config-manager migrate apps/);
       expect(exists('frodo-config-manager.json')).toBe(false);
       expect(exists(`${APPS('alpha')}`)).toBe(false);
 
@@ -1225,10 +1225,10 @@ describe('the step of pull all', () => {
 
   test('is the last step of the Cloud and of the ForgeOps map, and not a step of Classic', () => {
     expect(Object.keys(maps).sort()).toEqual(['CLASSIC', 'CLOUD', 'FORGEOPS']);
-    expect(maps.CLASSIC).not.toContain('applications');
+    expect(maps.CLASSIC).not.toContain('apps');
     for (const key of ['CLOUD', 'FORGEOPS']) {
-      expect(maps[key].at(-1)).toBe('applications');
-      expect(maps[key].filter((n) => n === 'applications')).toHaveLength(1);
+      expect(maps[key].at(-1)).toBe('apps');
+      expect(maps[key].filter((n) => n === 'apps')).toHaveLength(1);
     }
   });
 
@@ -1250,11 +1250,11 @@ describe('the step of pull all', () => {
     );
     // only for a map that has the step
     expect(runner).toMatch(
-      /steps\.some\(\(s\) => s\.name === 'applications'\)/
+      /steps\.some\(\(s\) => s\.name === 'apps'\)/
     );
   });
 
   test('is not a step of pull all-static', () => {
-    expect(fromStatic).not.toMatch(/'applications'/);
+    expect(fromStatic).not.toMatch(/'apps'/);
   });
 });

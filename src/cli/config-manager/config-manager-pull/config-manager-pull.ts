@@ -56,18 +56,28 @@ export default function setup() {
   program.addCommand(AllStatic().name('all-static'));
   program.addCommand(AccessConfig().name('access-config'));
   program.addCommand(Agents().name('agents'));
-  program.addCommand(Applications().name('applications'));
+  program.addCommand(
+    Applications().name('apps').withAlias('applications', 'transition')
+  );
   program.addCommand(Audit().name('audit'));
-  program.addCommand(Authentication().name('authentication'));
+  program.addCommand(
+    Authentication().name('authn').withAlias('authentication', 'transition')
+  );
   program.addCommand(AuthzPolicies().name('authz-policies'));
   program.addCommand(OauthCimdProfiles().name('oauth-cimd-profiles'));
   program.addCommand(OauthClients().name('oauth-clients'));
-  program.addCommand(ConnectorDefinitions().name('connector-definitions'));
+  program.addCommand(
+    ConnectorDefinitions()
+      .name('connectors')
+      .withAlias('connector-definitions', 'transition')
+  );
   program.addCommand(ConnectorMappings().name('connector-mappings'));
   program.addCommand(CookieDomains().name('cookie-domains'));
   program.addCommand(CORS().name('cors'));
   program.addCommand(CSP().name('csp'));
-  program.addCommand(CustomNodes().name('custom-nodes'));
+  program.addCommand(
+    CustomNodes().name('nodes').withAlias('custom-nodes', 'transition')
+  );
   program.addCommand(EmailProvider().name('email-provider'));
   program.addCommand(EmailTemplates().name('email-templates'));
   program.addCommand(Endpoints().name('endpoints'));
@@ -83,12 +93,20 @@ export default function setup() {
   program.addCommand(PasswordPolicy().name('password-policy'));
   program.addCommand(Raw().name('raw'));
   program.addCommand(RemoteProxies().name('remote-proxies'));
-  program.addCommand(RemoteServers().name('remote-servers'));
+  program.addCommand(
+    RemoteServers()
+      .name('connector-servers')
+      .withAlias('remote-servers', 'transition')
+  );
   program.addCommand(Schedules().name('schedules'));
   program.addCommand(Saml().name('saml'));
   program.addCommand(Scripts().name('scripts'));
   program.addCommand(Secrets().name('secrets'));
-  program.addCommand(SecretMappings().name('secret-mappings'));
+  program.addCommand(
+    SecretMappings()
+      .name('secretstore-mappings')
+      .withAlias('secret-mappings', 'transition')
+  );
   program.addCommand(ServiceObjects().name('service-objects'));
   program.addCommand(Services().name('services'));
   program.addCommand(Themes().name('themes'));

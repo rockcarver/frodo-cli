@@ -56,9 +56,9 @@ describe('the config-manager delete commands and the bulk-delete guard', () => {
     const names = deleteCommands.map((command) => command.name());
     expect(names).toEqual(
       expect.arrayContaining([
-        'applications',
+        'apps',
         'oauth-cimd-profiles',
-        'custom-nodes',
+        'nodes',
         'email-templates',
         'endpoints',
         'locales',
@@ -69,7 +69,7 @@ describe('the config-manager delete commands and the bulk-delete guard', () => {
         'oauth-issuers',
         'oauth-software-publishers',
         'schedules',
-        'secret-mappings',
+        'secretstore-mappings',
         'telemetry',
         'variables',
       ])
@@ -109,10 +109,15 @@ describe('the config-manager delete commands and the bulk-delete guard', () => {
     );
     expect(guarded.length).toBeGreaterThan(0);
     for (const command of guarded) {
-      const file = new URL(
-        `config-manager-delete-${command.name()}.ts`,
-        commandDirectory
-      );
+      // the file of a command is named after the name it had first: a renamed command keeps its file, and its old name is its alias
+      const file =
+        [command.name(), ...command.aliases()]
+          .map(
+            (name) =>
+              new URL(`config-manager-delete-${name}.ts`, commandDirectory)
+          )
+          .find((candidate) => fs.existsSync(candidate)) ??
+        new URL(`config-manager-delete-${command.name()}.ts`, commandDirectory);
       expect({ command: command.name(), exists: fs.existsSync(file) }).toEqual({
         command: command.name(),
         exists: true,
@@ -147,12 +152,14 @@ describe('the config-manager delete commands and the bulk-delete guard', () => {
     );
     for (const command of guarded) {
       const name = command.name();
+      // the guard test types the name or, for a renamed command, its old name: the alias runs the same command
+      const typed = `(?:${[name, ...command.aliases()].join('|')})`;
       const line = (suffix) =>
-        new RegExp(`'frodo config-manager delete ${name}( [^']*)?${suffix}'`);
+        new RegExp(`'frodo config-manager delete ${typed}( [^']*)?${suffix}'`);
       expect({
         name,
         refused: new RegExp(
-          `^\\s*'frodo config-manager delete ${name}( [^']*)?',$`,
+          `^\\s*'frodo config-manager delete ${typed}( [^']*)?',$`,
           'm'
         ).test(refusedBlock),
       }).toEqual({ name, refused: true });

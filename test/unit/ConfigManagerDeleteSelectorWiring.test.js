@@ -39,14 +39,14 @@ import { EXPECTED_SELECTORS } from './ConfigManagerSelectorRows.js';
  */
 
 const WIRING = {
-  applications: {
+  apps: {
     module: 'ops/ApplicationConfigDeleteOps',
     fn: 'configManagerDeleteApplications',
     others: ['showApplicationDeletePlan'],
     id: 4,
     name: 0,
   },
-  'connector-definitions': {
+  connectors: {
     module: 'configManagerOps/FrConfigConnectorDefinitionsOps',
     fn: 'configManagerDeleteConnectorDefinitions',
     id: 0,
@@ -64,7 +64,7 @@ const WIRING = {
     id: 0,
     name: null,
   },
-  'custom-nodes': {
+  nodes: {
     module: 'configManagerOps/FrConfigCustomNodesOps',
     fn: 'configManagerDeleteCustomNodes',
     id: 3,
@@ -146,7 +146,7 @@ const WIRING = {
     id: 0,
     name: null,
   },
-  'remote-servers': {
+  'connector-servers': {
     module: 'configManagerOps/FrConfigRemoteServersOps',
     fn: 'configManagerDeleteRemoteServers',
     id: 0,
@@ -164,7 +164,7 @@ const WIRING = {
     id: 0,
     name: null,
   },
-  'secret-mappings': {
+  'secretstore-mappings': {
     module: 'configManagerOps/FrConfigSecretMappingsOps',
     fn: 'configManagerDeleteSecretMappings',
     id: 0,
@@ -249,6 +249,8 @@ jest.unstable_mockModule('../../src/utils/interactive/PromptGateState', () => ({
 jest.unstable_mockModule('@inquirer/confirm', () => ({ default: confirm }));
 
 const typeOf = (row) => row.command.split(' ').pop();
+// the file of a command is named after the name it had first: a renamed command keeps its file
+const fileOf = (row) => (row.formerly ?? row.command).split(' ').pop();
 const deleteRows = EXPECTED_SELECTORS.filter((r) =>
   r.command.includes(' delete ')
 );
@@ -257,7 +259,7 @@ for (const row of deleteRows) {
   const type = typeOf(row);
   setups[type] = (
     await import(
-      `../../src/cli/config-manager/config-manager-delete/config-manager-delete-${type}`
+      `../../src/cli/config-manager/config-manager-delete/config-manager-delete-${fileOf(row)}`
     )
   ).default;
 }
@@ -444,7 +446,7 @@ describe('the delete commands: an empty selector is refused before anything, a b
 
   /** The commands that check a value of blanks themselves: they say so in their own words and go no further. */
   const REFUSES_BLANKS = new Set([
-    'connector-definitions',
+    'connectors',
     'connector-mappings',
     'cors',
     'secrets',
@@ -452,9 +454,9 @@ describe('the delete commands: an empty selector is refused before anything, a b
     'oauth-issuers',
     'oauth-software-publishers',
     'locales',
-    'remote-servers',
+    'connector-servers',
     'schedules',
-    'secret-mappings',
+    'secretstore-mappings',
     'services',
     'telemetry',
   ]);

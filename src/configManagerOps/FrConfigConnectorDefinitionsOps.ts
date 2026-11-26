@@ -43,7 +43,7 @@ const {
  * the connectors, or a named connector that does not exist, ends the command whatever
  * `--allow-failures` says.
  * In a tree that uses the application layout (decision record 0042) a connector that an
- * application owns is not exported here: `pull applications` writes it into the folder of the
+ * application owns is not exported here: `pull apps` writes it into the folder of the
  * application. It is named and skipped, which is not a failure. Connectors belong to the tenant,
  * not to a realm, so the applications of every realm are asked; if they cannot be read the command
  * fails.
@@ -118,7 +118,7 @@ export async function configManagerExportConnectorDefinitions(
  * library cannot import are named in the summary too. A folder without connector files, and a
  * named connector without a file, end the command whatever `--allow-failures` says.
  * In a tree that uses the application layout (decision record 0042) a connector that an
- * application owns is not imported here: `push applications` imports it from the folder of the
+ * application owns is not imported here: `push apps` imports it from the folder of the
  * application. A connector file that an application folder of any realm owns is named and skipped,
  * which is not a failure, and no file of the tree is changed. Connectors belong to the tenant, not
  * to a realm, so the application folders of every realm are asked; if one cannot be read the
@@ -538,7 +538,7 @@ async function deleteNamedConnectorDefinition(
   if (found.length > 0 && !force) {
     // an application owns the connector definition that it names
     const owner = found.some((reference) => reference.source === 'application')
-      ? '\nAn application owns the connector definition that it names: config-manager delete applications removes both.'
+      ? '\nAn application owns the connector definition that it names: config-manager delete apps removes both.'
       : '';
     printMessage(
       `${dryRun ? 'Dry run: the delete would be refused. ' : ''}Connector definition '${target}' is still named by:\n${namedByLines(found).join('\n')}${owner}\nNothing was deleted. --force deletes it anyway: it deletes the connector definition and nothing else, every object above is left as it is and names a connector definition that does not exist afterwards.`,

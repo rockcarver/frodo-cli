@@ -69,15 +69,23 @@ export default function setup() {
   program.addCommand(Agents().name('agents'));
   program.addCommand(ManagedObjects().name('managed-objects'));
   program.addCommand(AccessConfig().name('access-config'));
-  program.addCommand(Applications().name('applications'));
+  program.addCommand(
+    Applications().name('apps').withAlias('applications', 'transition')
+  );
   program.addCommand(Audit().name('audit'));
   program.addCommand(Metadata().name('config-metadata'));
   program.addCommand(CookieDomains().name('cookie-domains'));
   program.addCommand(ServiceObjects().name('service-objects'));
   program.addCommand(Telemetry().name('telemetry'));
   program.addCommand(UiConfig().name('ui-config'));
-  program.addCommand(Authentication().name('authentication'));
-  program.addCommand(ConnectorDefinitions().name('connector-definitions'));
+  program.addCommand(
+    Authentication().name('authn').withAlias('authentication', 'transition')
+  );
+  program.addCommand(
+    ConnectorDefinitions()
+      .name('connectors')
+      .withAlias('connector-definitions', 'transition')
+  );
   program.addCommand(ConnectorMappings().name('connector-mappings'));
   program.addCommand(Cors().name('cors'));
   program.addCommand(OauthCimdProfiles().name('oauth-cimd-profiles'));
@@ -86,9 +94,19 @@ export default function setup() {
     OauthSoftwarePublishers().name('oauth-software-publishers')
   );
   program.addCommand(RemoteProxies().name('remote-proxies'));
-  program.addCommand(RemoteServers().name('remote-servers'));
-  program.addCommand(SecretMappings().name('secret-mappings'));
-  program.addCommand(CustomNodes().name('custom-nodes'));
+  program.addCommand(
+    RemoteServers()
+      .name('connector-servers')
+      .withAlias('remote-servers', 'transition')
+  );
+  program.addCommand(
+    SecretMappings()
+      .name('secretstore-mappings')
+      .withAlias('secret-mappings', 'transition')
+  );
+  program.addCommand(
+    CustomNodes().name('nodes').withAlias('custom-nodes', 'transition')
+  );
   program.addCommand(CSP().name('csp'));
   program.addCommand(Restart().name('restart'));
   program.addCommand(Journeys().name('journeys'));

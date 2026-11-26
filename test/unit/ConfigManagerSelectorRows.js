@@ -12,7 +12,10 @@
  *   change) and the spellings the option with the alias answers to (`['-n',
  *   '--name']` on `-i`, `['--name']` on `-n`; none for a command that took no
  *   `--name` before). The steps C4a (pull), C4b (push) and C4c (delete) of
- *   cli#1264 add their rows (pull, push and delete are in).
+ *   cli#1264 add their rows (pull, push and delete are in). A row of a command
+ *   that was renamed carries `formerly`, the old name that stays as its alias:
+ *   the table of MIGRATION.md and the e2e tests, which keep typing the old name,
+ *   are matched by either name.
  * - STRAY_SELECTOR_OPTIONS: an option with the letter `-i` or `-n` on a command
  *   of the group that no row names, because it selects something else.
  * - PENDING_VERBS: verbs whose commands have not been given their rows yet;
@@ -30,7 +33,8 @@
 
 export const EXPECTED_SELECTORS = [
   {
-    command: 'frodo config-manager pull applications',
+    command: 'frodo config-manager pull apps',
+    formerly: 'frodo config-manager pull applications',
     id: '--app-id',
     name: '--app-name',
     aliases: ['--name'],
@@ -42,7 +46,8 @@ export const EXPECTED_SELECTORS = [
     aliases: ['-n', '--name'],
   },
   {
-    command: 'frodo config-manager pull connector-definitions',
+    command: 'frodo config-manager pull connectors',
+    formerly: 'frodo config-manager pull connector-definitions',
     id: '--connector-id',
     name: null,
     aliases: ['-n', '--name'],
@@ -54,7 +59,8 @@ export const EXPECTED_SELECTORS = [
     aliases: [],
   },
   {
-    command: 'frodo config-manager pull custom-nodes',
+    command: 'frodo config-manager pull nodes',
+    formerly: 'frodo config-manager pull custom-nodes',
     id: '--node-id',
     name: '--node-name',
     aliases: ['--name'],
@@ -126,7 +132,8 @@ export const EXPECTED_SELECTORS = [
     aliases: [],
   },
   {
-    command: 'frodo config-manager pull secret-mappings',
+    command: 'frodo config-manager pull secretstore-mappings',
+    formerly: 'frodo config-manager pull secret-mappings',
     id: '--secret-mapping-id',
     name: null,
     aliases: ['-n', '--name'],
@@ -204,13 +211,15 @@ export const EXPECTED_SELECTORS = [
     aliases: [],
   },
   {
-    command: 'frodo config-manager push applications',
+    command: 'frodo config-manager push apps',
+    formerly: 'frodo config-manager push applications',
     id: '--app-id',
     name: '--app-name',
     aliases: ['--name'],
   },
   {
-    command: 'frodo config-manager push connector-definitions',
+    command: 'frodo config-manager push connectors',
+    formerly: 'frodo config-manager push connector-definitions',
     id: '--connector-id',
     name: null,
     aliases: ['-n', '--name'],
@@ -222,7 +231,8 @@ export const EXPECTED_SELECTORS = [
     aliases: ['-n', '--name'],
   },
   {
-    command: 'frodo config-manager push custom-nodes',
+    command: 'frodo config-manager push nodes',
+    formerly: 'frodo config-manager push custom-nodes',
     id: '--node-id',
     name: '--node-name',
     aliases: ['--name'],
@@ -318,7 +328,8 @@ export const EXPECTED_SELECTORS = [
     aliases: ['--name'],
   },
   {
-    command: 'frodo config-manager push secret-mappings',
+    command: 'frodo config-manager push secretstore-mappings',
+    formerly: 'frodo config-manager push secret-mappings',
     id: '--secret-mapping-id',
     name: null,
     aliases: ['-n', '--name'],
@@ -354,13 +365,15 @@ export const EXPECTED_SELECTORS = [
     aliases: ['-n', '--name'],
   },
   {
-    command: 'frodo config-manager delete applications',
+    command: 'frodo config-manager delete apps',
+    formerly: 'frodo config-manager delete applications',
     id: '--app-id',
     name: '--app-name',
     aliases: ['--name'],
   },
   {
-    command: 'frodo config-manager delete connector-definitions',
+    command: 'frodo config-manager delete connectors',
+    formerly: 'frodo config-manager delete connector-definitions',
     id: '--connector-id',
     name: null,
     aliases: ['-n', '--name'],
@@ -378,7 +391,8 @@ export const EXPECTED_SELECTORS = [
     aliases: ['-n', '--name'],
   },
   {
-    command: 'frodo config-manager delete custom-nodes',
+    command: 'frodo config-manager delete nodes',
+    formerly: 'frodo config-manager delete custom-nodes',
     id: '--node-id',
     name: '--node-name',
     aliases: ['--name'],
@@ -456,7 +470,8 @@ export const EXPECTED_SELECTORS = [
     aliases: ['-n', '--name'],
   },
   {
-    command: 'frodo config-manager delete remote-servers',
+    command: 'frodo config-manager delete connector-servers',
+    formerly: 'frodo config-manager delete remote-servers',
     id: '--server-id',
     name: null,
     aliases: ['-n', '--name'],
@@ -468,7 +483,8 @@ export const EXPECTED_SELECTORS = [
     aliases: ['-n', '--name'],
   },
   {
-    command: 'frodo config-manager delete secret-mappings',
+    command: 'frodo config-manager delete secretstore-mappings',
+    formerly: 'frodo config-manager delete secret-mappings',
     id: '--secret-mapping-id',
     name: null,
     aliases: ['-n', '--name'],
@@ -489,12 +505,12 @@ export const EXPECTED_SELECTORS = [
 
 export const STRAY_SELECTOR_OPTIONS = [
   {
-    command: 'frodo config-manager promote unlock-tenants',
+    command: 'frodo config-manager promote unlock',
     long: '--id',
     why: 'the id of the promotion to unlock the tenants of, not an object of a type',
   },
   {
-    command: 'frodo config-manager promote check-promotion-reports',
+    command: 'frodo config-manager promote report',
     long: '--report-id',
     why: 'the id of a promotion report, not an object of a type',
   },

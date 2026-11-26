@@ -6,10 +6,7 @@ import { FrodoCommand } from '../../FrodoCommand';
 import { selectorOption } from '../../SelectorOption';
 
 export default function setup() {
-  const program = new FrodoCommand(
-    'frodo config-manager push custom-nodes',
-    []
-  );
+  const program = new FrodoCommand('frodo config-manager push nodes', []);
 
   program
     .description('Import custom nodes.')

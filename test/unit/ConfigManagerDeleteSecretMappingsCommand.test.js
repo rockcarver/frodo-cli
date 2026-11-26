@@ -9,7 +9,7 @@ import {
 import { Command } from 'commander';
 
 /**
- * The command `config-manager delete secret-mappings` (records 0037, 0040 and
+ * The command `config-manager delete secretstore-mappings` (records 0037, 0040 and
  * 0041): it adds the shared `--allow-failures` option (`.multiOp()`), runs for
  * Cloud only, refuses a delete of all secret mappings that nobody can be asked
  * about before it logs in, asks after the login (with the dry run of all
@@ -125,13 +125,13 @@ afterEach(() => {
 
 const WHAT = 'all secret mappings in the selected realms';
 
-describe('frodo config-manager delete secret-mappings', () => {
+describe('frodo config-manager delete secretstore-mappings', () => {
   test('is a multi-operation command that takes a realm, for Cloud only', async () => {
     const program = await run('-y', 'matrix');
 
     expect(program.multiOpCalled).toBe(true);
     expect(program.usesRealmCalled).toBe(true);
-    expect(constructed[0]).toBe('frodo config-manager delete secret-mappings');
+    expect(constructed[0]).toBe('frodo config-manager delete secretstore-mappings');
     expect(constructed[2]).toEqual(['cloud']);
   });
 
@@ -157,7 +157,7 @@ describe('frodo config-manager delete secret-mappings', () => {
     const examples = help
       .split('\n')
       .filter((line) =>
-        line.includes('$ frodo config-manager delete secret-mappings')
+        line.includes('$ frodo config-manager delete secretstore-mappings')
       );
     expect(examples).toHaveLength(4);
     // every example that can delete more than one mapping carries -y or --dry-run

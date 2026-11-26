@@ -13,6 +13,44 @@ listed here, is decided by
 
 ### From 4.x
 
+**The `config-manager` commands for applications, authentication, custom nodes, connector definitions, secret mappings, connector servers and the promotion have new names, and the old names print a notice**: the new names are shorter and say what the command does. The old name of each command still works: it runs the same command with the same options, the same output on stdout and the same exit code, and it prints one line on stderr, once per process (`'applications' is now called 'apps'. The old name still works and will be removed in a future major release.`). The help of the new name ends with `(formerly: <old name>)`, and `-h` of the old name shows the page of the new name. The old names are transition aliases ([the old name of a renamed command stays as a transition alias](https://github.com/rockcarver/frodo-cli/blob/main/docs/decisions/0049-an-alias-is-named-in-the-description-and-the-old-name-of-a-renamed-command-stays-as-a-transition-alias.md)), and a future major release removes them ([a major release may change commands](https://github.com/rockcarver/frodo-cli/blob/main/docs/decisions/0048-a-major-release-may-change-commands-a-minor-or-patch-release-does-not-break-them.md)).
+
+| Old name                                               | New name                                           | The old name                    |
+| ------------------------------------------------------ | -------------------------------------------------- | ------------------------------- |
+| `frodo config-manager pull applications`               | `frodo config-manager pull apps`                   | still accepted, prints a notice |
+| `frodo config-manager push applications`               | `frodo config-manager push apps`                   | still accepted, prints a notice |
+| `frodo config-manager delete applications`             | `frodo config-manager delete apps`                 | still accepted, prints a notice |
+| `frodo config-manager migrate applications`            | `frodo config-manager migrate apps`                | still accepted, prints a notice |
+| `frodo config-manager pull authentication`             | `frodo config-manager pull authn`                  | still accepted, prints a notice |
+| `frodo config-manager push authentication`             | `frodo config-manager push authn`                  | still accepted, prints a notice |
+| `frodo config-manager pull custom-nodes`               | `frodo config-manager pull nodes`                  | still accepted, prints a notice |
+| `frodo config-manager push custom-nodes`               | `frodo config-manager push nodes`                  | still accepted, prints a notice |
+| `frodo config-manager delete custom-nodes`             | `frodo config-manager delete nodes`                | still accepted, prints a notice |
+| `frodo config-manager pull connector-definitions`      | `frodo config-manager pull connectors`             | still accepted, prints a notice |
+| `frodo config-manager push connector-definitions`      | `frodo config-manager push connectors`             | still accepted, prints a notice |
+| `frodo config-manager delete connector-definitions`    | `frodo config-manager delete connectors`           | still accepted, prints a notice |
+| `frodo config-manager pull secret-mappings`            | `frodo config-manager pull secretstore-mappings`   | still accepted, prints a notice |
+| `frodo config-manager push secret-mappings`            | `frodo config-manager push secretstore-mappings`   | still accepted, prints a notice |
+| `frodo config-manager delete secret-mappings`          | `frodo config-manager delete secretstore-mappings` | still accepted, prints a notice |
+| `frodo config-manager pull remote-servers`             | `frodo config-manager pull connector-servers`      | still accepted, prints a notice |
+| `frodo config-manager push remote-servers`             | `frodo config-manager push connector-servers`      | still accepted, prints a notice |
+| `frodo config-manager delete remote-servers`           | `frodo config-manager delete connector-servers`    | still accepted, prints a notice |
+| `frodo config-manager promote check-locked-status`     | `frodo config-manager promote lock-status`         | still accepted, prints a notice |
+| `frodo config-manager promote lock-tenants`            | `frodo config-manager promote lock`                | still accepted, prints a notice |
+| `frodo config-manager promote unlock-tenants`          | `frodo config-manager promote unlock`              | still accepted, prints a notice |
+| `frodo config-manager promote check-promotion-status`  | `frodo config-manager promote status`              | still accepted, prints a notice |
+| `frodo config-manager promote check-promotion-reports` | `frodo config-manager promote report`              | still accepted, prints a notice |
+| `frodo config-manager promote run-promotion`           | `frodo config-manager promote run`                 | still accepted, prints a notice |
+| `frodo config-manager promote run-dryrun-promotion`    | `frodo config-manager promote dry-run`             | still accepted, prints a notice |
+
+- **Nothing else changes on these commands**: the options (`-i, --app-id`, `-n, --app-name`, `-i, --node-id`, and the others), the output and the exit codes are as before. `rollback` keeps its name.
+- **The seven promotion commands are renamed like the others**: each old name (`check-locked-status`, `lock-tenants`, `unlock-tenants`, `check-promotion-status`, `check-promotion-reports`, `run-promotion`, `run-dryrun-promotion`) still works and prints the notice once per process, and a future major release removes it.
+- **What a script sees on stderr of an old name**: the notice, and the line `Experimental feature in use: 'frodo config-manager push nodes'` names the new name, not the one that was typed. A script that looks for the old name in stderr has to look for the new one.
+- **The steps of `pull all`, `pull all-static` and `push all-static` carry the new names**: the warnings that name a step that was skipped and the summary of the steps that failed name the step by the name of its command, so `Skipping nodes: ...` replaces `Skipping custom-nodes: ...`. A script that reads those lines has to read the new names.
+- **The files on disk are not renamed**: the commands read and write the same folders and files as before (`custom-nodes/nodes/`, `realms/<realm>/secret-mappings/`, `realms/<realm>/applications/<name>/`, `sync/connectors/`, `realm-config/authentication.json`, and the layout marker with its `applications` entry), so a tree that was pulled with an old name can be pushed with the new one and the other way round.
+- **The notice of the deprecated `frodo promote`** names `frodo config-manager promote run` as the command that replaces it for the platform promotion.
+- **What to change**: type the new names in scripts, pipelines and documentation; nothing has to change before a major release removes the old names.
+
 **`frodo config-manager pull oauth2-agents` and `push oauth2-agents` are split into `oauth-clients` and `agents`, and stay as deprecated commands that run both**: the OAuth2 clients have a pair of commands and the agents have another, so that a pipeline can pull or push the one without the other, and each pair has its own selector and help. The old commands keep working as they did, in the same order of requests, with the same options, files and exit codes; the only difference a run shows is the notice on stderr, `Deprecated feature in use: 'frodo config-manager pull oauth2-agents'. ...` (it said `Experimental feature in use` before), which names the two new commands and says that a future major release removes the old one ([a major release may change commands](https://github.com/rockcarver/frodo-cli/blob/main/docs/decisions/0048-a-major-release-may-change-commands-a-minor-or-patch-release-does-not-break-them.md)). `frodo config-manager pull all` is unchanged: it keeps one step named `oauth2-agents`, which reads `oauth2-agents.json` and pulls both.
 
 | Command                           | Handles                                                                                                                                                      | Takes                                                                |

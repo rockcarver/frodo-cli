@@ -403,7 +403,7 @@ describe('a named delete is refused while something names the mapping', () => {
       .filter((line) => line.startsWith('  - '));
     expect(lines).toHaveLength(4);
     expect(output()).toContain(
-      'An application owns the mapping that it names: config-manager delete applications removes both.'
+      'An application owns the mapping that it names: config-manager delete apps removes both.'
     );
     // the sentence that a user reads when deciding on --force says what it does, and no more than that
     expect(output()).toContain(
@@ -417,7 +417,7 @@ describe('a named delete is refused while something names the mapping', () => {
 
     await configManagerDeleteMappings('mapA');
 
-    expect(output()).not.toContain('delete applications');
+    expect(output()).not.toContain('delete apps');
   });
 
   test('a dry run is refused the same way, and says that it is a dry run', async () => {

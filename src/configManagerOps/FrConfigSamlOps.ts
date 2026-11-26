@@ -251,7 +251,7 @@ async function everythingOfSaml(
  * entity id or the id of a circle of trust narrows that to the one object, in a single realm. With a
  * file, the file selects what is exported and the realm is not used.
  * In a tree that uses the application layout (decision record 0042) a provider that an
- * application owns is not exported here: `pull applications` writes it into the folder of the
+ * application owns is not exported here: `pull apps` writes it into the folder of the
  * application. It is named and skipped, which is not a failure, and the config file is not
  * changed. The circles of trust are shared and are always exported. A realm whose applications
  * cannot be read is one failed operation, and its providers are not exported.
@@ -424,7 +424,7 @@ export async function configManagerExportSaml(
 
 /**
  * Import one SAML provider from the content of a file of config-manager format
- * (`{ config, metadata }`, as `pull saml` and `pull applications` write it).
+ * (`{ config, metadata }`, as `pull saml` and `pull apps` write it).
  * Shared by the commands that push a provider because an application owns it.
  * @param {Saml2PullExportInterface} file the configuration of the provider and its metadata
  * @param {'hosted' | 'remote'} location where the provider lives
@@ -504,7 +504,7 @@ export async function importCircleOfTrustFromFile(
 /**
  * Import SAML configuration that was exported in config-manager format
  * In a tree that uses the application layout (decision record 0042) a provider that an application
- * owns is not imported here: `push applications` imports it from the folder of the application. The
+ * owns is not imported here: `push apps` imports it from the folder of the application. The
  * application folders of the realm tell which providers those are; a provider file that one of them
  * owns is named and skipped, which is not a failure (a named entity that is skipped for that reason
  * counts as found), and no file of the tree is changed. The circles of trust are shared and are

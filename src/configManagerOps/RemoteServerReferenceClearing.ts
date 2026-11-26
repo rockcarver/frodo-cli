@@ -8,7 +8,7 @@ import {
 } from './ReferenceDelete';
 
 /**
- * What `config-manager delete remote-servers` does for each object that still
+ * What `config-manager delete connector-servers` does for each object that still
  * names a connector server: the one table of the command (`HOLDER_RULES`), the
  * pure functions that plan the delete and word it, and the one write that
  * removes the connector server and its name in the server clusters.

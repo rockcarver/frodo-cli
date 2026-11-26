@@ -21,7 +21,7 @@ const deploymentTypes = [
  */
 export const PROMOTE_DEPRECATION_MESSAGE =
   'This command does not run a platform promotion and will be removed in 5.0.0. ' +
-  "For the platform's promotion use 'frodo config-manager promote run-promotion'; " +
+  "For the platform's promotion use 'frodo config-manager promote run'; " +
   "to bring a tenant to a tree of files use 'frodo config import -A -D <master> <connection>' " +
   "(add --static for what a promotion carries) or the 'frodo config-manager push' commands; " +
   "to delete what was removed from a tree use 'frodo config-manager delete <kind> -n <name>'.";
@@ -39,7 +39,7 @@ export default function setup() {
 
   program
     .description(
-      'Deprecated: this command does not run a platform promotion; use frodo config-manager promote run-promotion. Will be removed in 5.0.0.'
+      'Deprecated: this command does not run a platform promotion; use frodo config-manager promote run. Will be removed in 5.0.0.'
     )
     .withStability('deprecated', undefined, PROMOTE_DEPRECATION_MESSAGE)
     .addHelpText(
@@ -50,7 +50,7 @@ export default function setup() {
         'that is frodo config-manager promote. It will be removed in 5.0.0.\n' +
         '\n' +
         'Replacements:\n' +
-        '  the platform promotion:            frodo config-manager promote run-promotion\n' +
+        '  the platform promotion:            frodo config-manager promote run\n' +
         '  bring a tenant to a tree of files: frodo config import -A -D <master> <connection> (add --static for what a promotion carries), or the frodo config-manager push commands\n' +
         '  delete what left the tree:         frodo config-manager delete <kind> -n <name>\n' +
         'No replacement yet: the automatic delete of the files that disappeared from the tree, and the report of the differences.\n' +

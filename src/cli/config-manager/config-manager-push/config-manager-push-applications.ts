@@ -19,7 +19,7 @@ const deploymentTypes = [
 
 export default function setup() {
   const program = new FrodoCommand(
-    'frodo config-manager push applications',
+    'frodo config-manager push apps',
     [],
     deploymentTypes
   );
@@ -29,7 +29,7 @@ export default function setup() {
       'Import applications, one folder per application with the objects it owns.'
     )
     .description(
-      'Import applications from the folders realms/<realm>/applications/<name>/ that "pull applications" writes. For each application the scripts it uses, its connector and mappings, its OAuth2 client and its SAML providers are imported first, then the circles of trust the providers are members of, and the application itself last. An application is matched by its name: the tenant\'s application of that name is updated in place, and a new one is created if there is none. The secret of an OAuth2 client is read from the environment variable named in its file (APP_<NAME>_CLIENT_SECRET); an application whose variable is not set is not imported. ' +
+      'Import applications from the folders realms/<realm>/applications/<name>/ that "pull apps" writes. For each application the scripts it uses, its connector and mappings, its OAuth2 client and its SAML providers are imported first, then the circles of trust the providers are members of, and the application itself last. An application is matched by its name: the tenant\'s application of that name is updated in place, and a new one is created if there is none. The secret of an OAuth2 client is read from the environment variable named in its file (APP_<NAME>_CLIENT_SECRET); an application whose variable is not set is not imported. ' +
         APPLICATION_KEY_SET_PUSH_SENTENCE +
         ' Members, owners and roles of an application, and the glossary values and request forms of Identity Governance tenants, are never changed.'
     )
@@ -50,14 +50,14 @@ export default function setup() {
       'after',
       `Usage Examples:\n` +
         `  Push all applications of all realm folders from realms/<realm>/applications/<name>/:\n` +
-        c.command(`  $ frodo config-manager push applications ${s.connId}\n`) +
+        c.command(`  $ frodo config-manager push apps ${s.connId}\n`) +
         `  Push all applications of one realm:\n` +
         c.command(
-          `  $ frodo config-manager push applications ${s.connId} ${s.realm}\n`
+          `  $ frodo config-manager push apps ${s.connId} ${s.realm}\n`
         ) +
         `  Push one application of a realm:\n` +
         c.command(
-          `  $ frodo config-manager push applications -n "${s.pullApplicationName}" ${s.connId} ${s.realm}\n`
+          `  $ frodo config-manager push apps -n "${s.pullApplicationName}" ${s.connId} ${s.realm}\n`
         )
     )
     .multiOp()

@@ -49,7 +49,7 @@ describe('frodo promote is deprecated', () => {
         'Deprecated: this command does not run a platform promotion'
       )
     ).toBe(true);
-    expect(description).toContain('frodo config-manager promote run-promotion');
+    expect(description).toContain('frodo config-manager promote run. Will');
     expect(description).toContain('removed in 5.0.0');
   });
 
@@ -92,7 +92,7 @@ describe('frodo promote is deprecated', () => {
   it('4: the notice names the three replacements and the version of the removal', () => {
     expect(PROMOTE_DEPRECATION_MESSAGE).toContain('will be removed in 5.0.0');
     expect(PROMOTE_DEPRECATION_MESSAGE).toContain(
-      "'frodo config-manager promote run-promotion'"
+      "'frodo config-manager promote run'"
     );
     expect(PROMOTE_DEPRECATION_MESSAGE).toContain(
       "'frodo config import -A -D <master> <connection>'"
@@ -136,7 +136,7 @@ describe('the replacements that the notice names exist', () => {
 
   it('5: the notice names the commands we expect (a command dropped from the notice fails here)', () => {
     expect(named).toEqual([
-      'frodo config-manager promote run-promotion',
+      'frodo config-manager promote run',
       'frodo config import -A -D <master> <connection>',
       'frodo config-manager push',
       'frodo config-manager delete <kind> -n <name>',

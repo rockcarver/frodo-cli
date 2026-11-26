@@ -254,12 +254,12 @@ const ALPHA = '/am/json/realms/root/realms/alpha';
 const FIRST_WRITES = [
   ['access-config', 'PUT', '/openidm/config/access'],
   ['audit', 'PUT', '/openidm/config/audit'],
-  ['connector-definitions', 'PUT', '/openidm/config/provisioner.openicf/c1'],
+  ['connectors', 'PUT', '/openidm/config/provisioner.openicf/c1'],
   ['connector-mappings', 'PUT', '/openidm/config/sync'],
   ['cookie-domains', 'PUT', '/environment/cookie-domains'],
   ['cors', 'PUT', '/openidm/config/servletfilter/cors'],
   ['csp', 'PUT', '/environment/content-security-policy/enforced'],
-  ['custom-nodes', 'POST', '/am/json/node-designer/node-type'],
+  ['nodes', 'POST', '/am/json/node-designer/node-type'],
   ['email-provider', 'PUT', '/openidm/config/external.email'],
   ['email-templates', 'PUT', '/openidm/config/emailTemplate/t1'],
   ['endpoints', 'PUT', '/openidm/config/endpoint/e1'],
@@ -270,7 +270,7 @@ const FIRST_WRITES = [
   ['password-policy', 'PUT', '/openidm/config/fieldPolicy/alpha_user'],
   ['remote-proxies', 'PUT', '/openidm/config/external.idm/p1'],
   [
-    'remote-servers',
+    'connector-servers',
     'PUT',
     '/openidm/config/provisioner.openicf.connectorinfoprovider',
   ],
@@ -279,12 +279,12 @@ const FIRST_WRITES = [
   ['themes', 'PUT', '/openidm/config/ui/themerealm'],
   ['ui-config', 'PUT', '/openidm/config/ui/configuration'],
   [
-    'secret-mappings',
+    'secretstore-mappings',
     'PUT',
     `${ALPHA}/realm-config/secrets/stores/GoogleSecretManagerSecretStoreProvider/ESV/mappings/am.services.example`,
   ],
   ['scripts', 'PUT', `${ALPHA}/scripts/s1-alpha`],
-  ['authentication', 'PUT', `${ALPHA}/realm-config/authentication`],
+  ['authn', 'PUT', `${ALPHA}/realm-config/authentication`],
   ['services', 'PUT', `${ALPHA}/realm-config/services/baseurl`],
   [
     'journeys',

@@ -2,12 +2,12 @@ import { jest } from '@jest/globals';
 import { Command } from 'commander';
 
 /**
- * `frodo config-manager promote lock-tenants` prints the promotion id it
- * locked for, and `unlock-tenants` takes that id back. What must hold:
+ * `frodo config-manager promote lock` prints the promotion id it
+ * locked for, and `unlock` takes that id back. What must hold:
  *
- * - lock-tenants prints the id under the key `promotionId`, as every other
+ * - lock prints the id under the key `promotionId`, as every other
  *   promotion output does;
- * - unlock-tenants works without `--id`: the library reads the id from the
+ * - unlock works without `--id`: the library reads the id from the
  *   lock status of the environment;
  * - with `--id` the given id is passed on unchanged;
  * - a failed unlock sets the exit code and does not throw.
@@ -73,7 +73,7 @@ beforeEach(() => {
   getTokens.mockResolvedValue(true);
 });
 
-describe('lock-tenants', () => {
+describe('lock', () => {
   test('prints the promotion id under the key promotionId', async () => {
     lockEnvironment.mockResolvedValue({
       result: 'locked',
@@ -90,7 +90,7 @@ describe('lock-tenants', () => {
   });
 });
 
-describe('unlock-tenants', () => {
+describe('unlock', () => {
   test('works without --id and leaves the id to the library', async () => {
     unlockEnvironment.mockResolvedValue({ result: 'unlocked' });
 

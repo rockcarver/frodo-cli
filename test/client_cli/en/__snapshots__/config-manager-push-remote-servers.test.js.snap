@@ -1,9 +1,9 @@
 // Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
-exports[`CLI help interface for 'config-manager push remote-servers' should be expected english 1`] = `
-"Usage: frodo config-manager push remote-servers [options] [host] [realm] [username] [password]
+exports[`CLI help interface for 'config-manager push connector-servers' should be expected english 1`] = `
+"Usage: frodo config-manager push connector-servers [options] [host] [realm] [username] [password]
 
-[Experimental] Import RCS config.
+[Experimental] Import RCS config. (formerly: remote-servers)
 
 Arguments:
   host              AM base URL, e.g.: https://cdk.iam.example.com/am. To use a

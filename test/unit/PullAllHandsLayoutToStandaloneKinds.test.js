@@ -15,8 +15,8 @@ import {
  * `config-manager pull all` decides the layout of the tree once, before its first
  * step, and hands the decision to the four standalone kinds that it concerns
  * (decision record 0042, slice S3 of frodo-cli#1101): in a new tree the marker is
- * written only by the last step, `applications`, so the earlier steps cannot read
- * it. `pull all-static` has no `applications` step and decides nothing: its steps
+ * written only by the last step, `apps`, so the earlier steps cannot read
+ * it. `pull all-static` has no `apps` step and decides nothing: its steps
  * read the marker of the tree.
  *
  * The four exporters are fakes that record how they are called; everything else a
@@ -109,7 +109,11 @@ jest.unstable_mockModule(src('ops/ApplicationConfigOps'), () => ({
   configManagerExportApplications: calls.applications,
 }));
 
-const { deploymentMapAll, deploymentMapAllStatic } = await import(
+const {
+  configManagerExportAllWithConfigFolder,
+  deploymentMapAll,
+  deploymentMapAllStatic,
+} = await import(
   src('configManagerOps/FrConfigAllOps.ts')
 );
 
@@ -158,8 +162,8 @@ describe.each(['cloud', 'forgeops'])('the steps of `pull all` (%s)', (type) => {
     );
   });
 
-  test('connector-definitions and connector-mappings get the layout decision', async () => {
-    await stepNamed(deploymentMapAll, 'connector-definitions').export(
+  test('connectors and connector-mappings get the layout decision', async () => {
+    await stepNamed(deploymentMapAll, 'connectors').export(
       options({ applicationLayout: FOLDERS_NEW })
     );
     await stepNamed(deploymentMapAll, 'connector-mappings').export(
@@ -199,7 +203,7 @@ describe.each(['cloud', 'forgeops'])('the steps of `pull all` (%s)', (type) => {
   });
 
   test('the steps of `pull all-static` are unchanged: they read the marker themselves', async () => {
-    await stepNamed(deploymentMapAllStatic, 'connector-definitions').export(
+    await stepNamed(deploymentMapAllStatic, 'connectors').export(
       options({ applicationLayout: FOLDERS_NEW })
     );
     await stepNamed(deploymentMapAllStatic, 'connector-mappings').export(
@@ -214,16 +218,44 @@ describe.each(['cloud', 'forgeops'])('the steps of `pull all` (%s)', (type) => {
 describe.each(['cloud', 'forgeops'])(
   'the order of the steps of `pull all` (%s)',
   (type) => {
-    test('the four standalone kinds come last, just before applications: the recorded replays hand out their recordings in order', () => {
+    test('the four standalone kinds come last, just before apps: the recorded replays hand out their recordings in order', () => {
       const names = deploymentMapAll[type].map((step) => step.name);
 
       expect(names.slice(-5)).toEqual([
-        'connector-definitions',
+        'connectors',
         'oauth2-agents',
         'connector-mappings',
         'saml',
-        'applications',
+        'apps',
       ]);
     });
   }
 );
+
+describe('the runner of `pull all`', () => {
+  beforeEach(() => {
+    deployment = 'cloud';
+  });
+
+  // The steps above are called one by one, with a decision that the test makes. This one runs the command: the
+  // runner finds the `apps` step by its name, decides the layout of the tree once, before the first step, and hands
+  // the decision to the steps. A runner that looks for another name, or inverts the check, hands none.
+  test('decides the layout of a new tree before the first step and hands it to the steps that need it', async () => {
+    await configManagerExportAllWithConfigFolder({ configFolder: tmp });
+
+    expect(calls.applications).toHaveBeenCalledTimes(1);
+    expect(calls.applications.mock.calls[0][4]).toEqual(FOLDERS_NEW);
+    expect(calls.connectors).toHaveBeenCalledWith(
+      undefined,
+      false,
+      FOLDERS_NEW
+    );
+    expect(calls.mappings).toHaveBeenCalledWith(undefined, false, FOLDERS_NEW);
+    expect(calls.saml).toHaveBeenCalledWith(
+      `${tmp}/saml.json`,
+      false,
+      FOLDERS_NEW,
+      undefined
+    );
+  });
+});

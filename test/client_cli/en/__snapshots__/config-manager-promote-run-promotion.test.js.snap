@@ -1,9 +1,10 @@
 // Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
-exports[`CLI help interface for 'config-manager promote run-promotion' should be expected english 1`] = `
-"Usage: frodo config-manager promote run-promotion [options] [host] [realm] [username] [password]
+exports[`CLI help interface for 'config-manager promote run' should be expected english 1`] = `
+"Usage: frodo config-manager promote run [options] [host] [realm] [username] [password]
 
-[Experimental] [Cloud-only] Run a configuration promotion.
+[Experimental] [Cloud-only] Run a configuration promotion. (formerly:
+run-promotion)
 
 Arguments:
   host                                AM base URL, e.g.:

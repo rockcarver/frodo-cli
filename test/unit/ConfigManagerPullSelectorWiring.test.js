@@ -22,7 +22,7 @@ import { EXPECTED_SELECTORS } from './ConfigManagerSelectorRows.js';
  */
 
 const WIRING = {
-  applications: {
+  apps: {
     module: 'ops/ApplicationConfigOps',
     fn: 'configManagerExportApplications',
     id: 5,
@@ -34,7 +34,7 @@ const WIRING = {
     id: 0,
     name: null,
   },
-  'connector-definitions': {
+  connectors: {
     module: 'configManagerOps/FrConfigConnectorDefinitionsOps',
     fn: 'configManagerExportConnectorDefinitions',
     id: 0,
@@ -46,7 +46,7 @@ const WIRING = {
     id: 0,
     name: null,
   },
-  'custom-nodes': {
+  nodes: {
     module: 'configManagerOps/FrConfigCustomNodesOps',
     fn: 'configManagerExportCustomNodes',
     id: 2,
@@ -118,7 +118,7 @@ const WIRING = {
     id: 3,
     name: null,
   },
-  'secret-mappings': {
+  'secretstore-mappings': {
     module: 'configManagerOps/FrConfigSecretMappingsOps',
     fn: 'configManagerExportSecretMappings',
     id: 0,
@@ -260,6 +260,8 @@ jest.unstable_mockModule('../../src/utils/ColorTheme', () => ({
 }));
 
 const typeOf = (row) => row.command.split(' ').pop();
+// the file of a command is named after the name it had first: a renamed command keeps its file
+const fileOf = (row) => (row.formerly ?? row.command).split(' ').pop();
 const setups = {};
 for (const row of EXPECTED_SELECTORS.filter((r) =>
   r.command.includes(' pull ')
@@ -267,7 +269,7 @@ for (const row of EXPECTED_SELECTORS.filter((r) =>
   const type = typeOf(row);
   setups[type] = (
     await import(
-      `../../src/cli/config-manager/config-manager-pull/config-manager-pull-${type}`
+      `../../src/cli/config-manager/config-manager-pull/config-manager-pull-${fileOf(row)}`
     )
   ).default;
 }

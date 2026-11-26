@@ -180,7 +180,7 @@ function describeProblem(
  * at its root). A new tree gets the marker, with the layout of the per-user
  * setting, before the first file is written; a tree that keeps the objects of an
  * application at the paths of their kinds is never switched here: the command
- * refuses and names `config-manager migrate applications`, and the step of
+ * refuses and names `config-manager migrate apps`, and the step of
  * `pull all` (`quiet`) skips with a warning.
  *
  * Every application is one operation of an {@link OperationRun}: an application
@@ -225,7 +225,7 @@ export async function configManagerExportApplications(
       const reason =
         decision.tree === 'new'
           ? `The layout setting for a new tree is "kind-paths" (frodo settings config-manager-layout), so this tree keeps the objects of an application at the paths of their own kinds.`
-          : `This tree keeps the objects of an application at the paths of their own kinds. Move it to one folder per application with "frodo config-manager migrate applications".`;
+          : `This tree keeps the objects of an application at the paths of their own kinds. Move it to one folder per application with "frodo config-manager migrate apps".`;
       if (quiet) {
         printMessage(`Applications were not pulled. ${reason}`, 'warn');
         return true;
@@ -369,7 +369,7 @@ export function applicationFolderPath(
 /**
  * Pull one application into its folder, as far as it goes: every object is its
  * own step, and what cannot be pulled does not stop the others. Shared by
- * `pull applications` and `migrate applications`.
+ * `pull apps` and `migrate apps`.
  * @param {ApplicationRecord} application the record, as the library reads it
  * @param {string} realm the realm of the application (the current realm of the state)
  * @param {string} folder the folder of the application, relative to the working directory
@@ -759,7 +759,7 @@ function sharedNameText(same: ApplicationRecord[], name: string): string {
 }
 
 /**
- * Push applications from the files that `pull applications` writes (decision
+ * Push applications from the files that `pull apps` writes (decision
  * record 0042): one folder per application,
  * `realms/<realm>/applications/<name>/`. The application is matched BY NAME:
  * a tenant that has an application of that name gets the configuration

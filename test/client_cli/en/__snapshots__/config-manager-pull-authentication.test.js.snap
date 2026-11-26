@@ -1,9 +1,9 @@
 // Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
-exports[`CLI help interface for 'config-manager pull authentication' should be expected english 1`] = `
-"Usage: frodo config-manager pull authentication [options] [host] [realm] [username] [password]
+exports[`CLI help interface for 'config-manager pull authn' should be expected english 1`] = `
+"Usage: frodo config-manager pull authn [options] [host] [realm] [username] [password]
 
-[Experimental] Export authentication settings.
+[Experimental] Export authentication settings. (formerly: authentication)
 
 Arguments:
   host              AM base URL, e.g.: https://cdk.iam.example.com/am. To use a

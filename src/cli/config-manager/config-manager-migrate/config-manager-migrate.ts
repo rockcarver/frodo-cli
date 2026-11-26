@@ -5,6 +5,8 @@ export default function setup() {
   const program = new FrodoStubCommand('migrate').description(
     'Move a config-manager tree to a newer layout.'
   );
-  program.addCommand(Applications().name('applications'));
+  program.addCommand(
+    Applications().name('apps').withAlias('applications', 'transition')
+  );
   return program;
 }

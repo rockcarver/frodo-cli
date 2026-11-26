@@ -1,9 +1,10 @@
 // Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
-exports[`CLI help interface for 'config-manager promote check-locked-status' should be expected english 1`] = `
-"Usage: frodo config-manager promote check-locked-status [options] [host] [realm] [username] [password]
+exports[`CLI help interface for 'config-manager promote lock-status' should be expected english 1`] = `
+"Usage: frodo config-manager promote lock-status [options] [host] [realm] [username] [password]
 
 [Experimental] [Cloud-only] Check the lock status of the environments.
+(formerly: check-locked-status)
 
 Arguments:
   host                   AM base URL, e.g.: https://cdk.iam.example.com/am. To

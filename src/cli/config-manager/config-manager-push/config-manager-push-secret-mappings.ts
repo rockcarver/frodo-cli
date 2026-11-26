@@ -12,7 +12,7 @@ const deploymentTypes = [CLOUD_DEPLOYMENT_TYPE_KEY];
 
 export default function setup() {
   const program = new FrodoCommand(
-    'frodo config-manager push secret-mappings',
+    'frodo config-manager push secretstore-mappings',
     [],
     deploymentTypes
   );

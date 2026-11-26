@@ -397,11 +397,18 @@ function checkMigration(text, expected, problems, checked) {
   checked.dryRunAdded = 0;
   for (const row of expected) {
     const words = commandWords(row.command);
+    // a command that was renamed is named by the line under the name it had when the line was written, or under its new name
+    const names = [
+      words,
+      ...(row.formerly ? [commandWords(row.formerly)] : []),
+    ];
     if (row.was) {
       // the spelling that was removed: `wasLong` when the option had another long name before
       const spelling = `\`${row.was}, ${row.wasLong ?? row.long}\``;
       const found = lines.some(
-        (line) => line.includes(spelling) && line.includes(`\`${words}\``)
+        (line) =>
+          line.includes(spelling) &&
+          names.some((name) => line.includes(`\`${name}\``))
       );
       if (found) checked.spellings += 1;
       else {
@@ -411,7 +418,9 @@ function checkMigration(text, expected, problems, checked) {
       }
     } else if (row.short === '-d') {
       if (
-        announcements.some((paragraph) => paragraph.includes(`\`${words}\``))
+        announcements.some((paragraph) =>
+          names.some((name) => paragraph.includes(`\`${name}\``))
+        )
       ) {
         checked.dryRunAdded += 1;
       } else {
@@ -888,7 +897,8 @@ export function findSelectorProblems(input) {
 
 /**
  * MIGRATION.md lists every command of the rows with its new option in a TABLE
- * ROW, one row for each command, with three cells: the command in backticks
+ * ROW, one row for each command (under its name or, for a renamed command, under
+ * the name in `formerly`), with three cells: the command in backticks
  * (`pull journeys`), the options that select by, exactly the id option as
  * `-i, --<type>-id` and, when the command has one, `, ` and the name option as
  * `-n, --<type>-name`, and the spellings that keep working, each alias spelling
@@ -921,8 +931,15 @@ export function findSelectorMigrationProblems(text, rows) {
   let found = 0;
   for (const row of rows) {
     const words = commandWords(row.command);
+    // a command that was renamed is listed under the name it had when the table was written, or under its new name
+    const wordsOfRow = [
+      words,
+      ...(row.formerly ? [commandWords(row.formerly)] : []),
+    ];
     const sameCommand = tableRows.filter(
-      (cells) => cells.length === 3 && cells[0] === `\`${words}\``
+      (cells) =>
+        cells.length === 3 &&
+        wordsOfRow.some((candidate) => cells[0] === `\`${candidate}\``)
     );
     if (sameCommand.length === 0) {
       problems.push(
@@ -987,10 +1004,16 @@ export function findSelectorMigrationProblems(text, rows) {
 export function findOldSpellingProblems(files, rows, kept) {
   const problems = [];
   const checked = { cmdLines: 0, headerLines: 0, kept: 0 };
+  // the e2e tests of a renamed command keep typing its old name, which is an alias of the command
   const aliased = new Map(
     rows
       .filter((row) => row.name === null)
-      .map((row) => [commandWords(row.command), row])
+      .flatMap((row) =>
+        [row.command, ...(row.formerly ? [row.formerly] : [])].map((name) => [
+          commandWords(name),
+          row,
+        ])
+      )
   );
   const used = new Set();
   const COMMAND = /frodo (?:config-manager|config) ([a-z-]+ [a-z0-9-]+)(?: |$)/;

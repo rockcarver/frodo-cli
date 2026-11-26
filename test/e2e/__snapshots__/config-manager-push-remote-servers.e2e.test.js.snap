@@ -3,6 +3,7 @@
 exports[`frodo config-manager push remote-servers "frodo config-manager push remote-servers -D test/e2e/exports/fr-config-manager/forgeops/ -m forgeops": should import remote-servers into forgeops" 1`] = `""`;
 
 exports[`frodo config-manager push remote-servers "frodo config-manager push remote-servers -D test/e2e/exports/fr-config-manager/forgeops/ -m forgeops": should import remote-servers into forgeops" 2`] = `
-"Experimental feature in use: 'frodo config-manager push remote-servers'. This feature may change without notice.
+"'remote-servers' is now called 'connector-servers'. The old name still works and will be removed in a future major release.
+Experimental feature in use: 'frodo config-manager push connector-servers'. This feature may change without notice.
 "
 `;

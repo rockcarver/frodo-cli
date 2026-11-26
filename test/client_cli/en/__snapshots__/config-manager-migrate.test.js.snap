@@ -16,8 +16,8 @@ Runtime Options:
                     FRODO_NO_PROMPT).
 
 Commands:
-  applications      [Experimental] Move a tree to one folder per application,
-                    with the objects it owns.
+  apps              [Experimental] Move a tree to one folder per application,
+                    with the objects it owns. (formerly: applications)
 
 Utilities:
   help              display help for command

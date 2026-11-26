@@ -9,7 +9,7 @@ import {
 import { Command } from 'commander';
 
 /**
- * The command `config-manager push applications` (record 0040 and 0042): it adds
+ * The command `config-manager push apps` (record 0040 and 0042): it adds
  * the shared `--allow-failures` option (`.multiOp()`), runs for Cloud and ForgeOps,
  * logs in first, hands the name, the realm and the value of `--allow-failures` to
  * the ops function, and exits 1 when the login fails or the ops function reports a
@@ -85,12 +85,12 @@ afterEach(() => {
   process.exitCode = undefined;
 });
 
-describe('frodo config-manager push applications', () => {
+describe('frodo config-manager push apps', () => {
   test('is a multi-operation command, for Cloud and ForgeOps', async () => {
     const program = await run();
 
     expect(program.multiOpCalled).toBe(true);
-    expect(constructed[0]).toBe('frodo config-manager push applications');
+    expect(constructed[0]).toBe('frodo config-manager push apps');
     expect(constructed[2]).toEqual(['cloud', 'forgeops']);
   });
 
