@@ -52,7 +52,11 @@ export default function setup() {
   program.addCommand(
     OauthSoftwarePublishers().name('oauth-software-publishers')
   );
-  program.addCommand(RemoteServers().name('remote-servers'));
+  program.addCommand(
+    RemoteServers()
+      .name('connector-servers')
+      .withAlias('remote-servers', 'transition')
+  );
   program.addCommand(Schedules().name('schedules'));
   program.addCommand(
     SecretMappings()

@@ -306,7 +306,7 @@ export const deploymentMapAll: Record<string, AllStep[]> = {
         optional: true,
       })
     ),
-    step('remote-servers', () => configManagerExportRemoteServers()),
+    step('connector-servers', () => configManagerExportRemoteServers()),
     step('schedules', () => configManagerExportSchedules()),
     step('scripts', (options) =>
       configManagerExportScripts(undefined, options.realm)
@@ -464,7 +464,7 @@ export const deploymentMapAll: Record<string, AllStep[]> = {
     step('remote-proxies', () =>
       configManagerExportRemoteProxies(undefined, true)
     ),
-    step('remote-servers', () => configManagerExportRemoteServers()),
+    step('connector-servers', () => configManagerExportRemoteServers()),
     step('schedules', () => configManagerExportSchedules()),
     step('scripts', (options) =>
       configManagerExportScripts(undefined, options.realm)
@@ -770,7 +770,7 @@ export const deploymentMapAllStatic: Record<string, AllStep[]> = {
       import: (options) => configManagerImportPasswordPolicy(options.realm),
       reads: readsInRealm('password-policy'),
     }),
-    step('remote-servers', {
+    step('connector-servers', {
       export: () => configManagerExportRemoteServers(),
       import: () => configManagerImportRemoteServers(),
       reads: readsPaths(
@@ -917,7 +917,7 @@ export const deploymentMapAllStatic: Record<string, AllStep[]> = {
       import: () => configManagerImportRemoteProxies(),
       reads: readsPaths('remote-proxies'),
     }),
-    step('remote-servers', {
+    step('connector-servers', {
       export: () => configManagerExportRemoteServers(),
       import: () => configManagerImportRemoteServers(),
       reads: readsPaths(

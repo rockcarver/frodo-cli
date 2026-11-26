@@ -35,8 +35,15 @@ export const RENAMES = [
   ['promote', 'run-dryrun-promotion', 'dry-run'],
 ];
 
+/** The three commands of the connector servers, renamed in a commit of their own. */
+export const CONNECTOR_SERVER_RENAMES = [
+  ['pull', 'remote-servers', 'connector-servers'],
+  ['push', 'remote-servers', 'connector-servers'],
+  ['delete', 'remote-servers', 'connector-servers'],
+];
+
 /** Every rename of the pull request. */
-export const ALL_RENAMES = [...RENAMES];
+export const ALL_RENAMES = [...RENAMES, ...CONNECTOR_SERVER_RENAMES];
 
 /** The notice that typing the old name prints on stderr. */
 export const noticeFor = (oldName, newName) =>

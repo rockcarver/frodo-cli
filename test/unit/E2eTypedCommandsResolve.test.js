@@ -42,6 +42,7 @@ const FLOOR = { files: 100, commands: 280 };
 const NOT_TYPED_BY_AN_E2E_TEST = [
   'delete applications',
   'delete connector-definitions',
+  'delete remote-servers',
   'migrate applications',
   'pull applications',
   'push applications',

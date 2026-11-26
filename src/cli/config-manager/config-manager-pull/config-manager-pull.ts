@@ -93,7 +93,11 @@ export default function setup() {
   program.addCommand(PasswordPolicy().name('password-policy'));
   program.addCommand(Raw().name('raw'));
   program.addCommand(RemoteProxies().name('remote-proxies'));
-  program.addCommand(RemoteServers().name('remote-servers'));
+  program.addCommand(
+    RemoteServers()
+      .name('connector-servers')
+      .withAlias('remote-servers', 'transition')
+  );
   program.addCommand(Schedules().name('schedules'));
   program.addCommand(Saml().name('saml'));
   program.addCommand(Scripts().name('scripts'));

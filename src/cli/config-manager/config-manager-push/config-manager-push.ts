@@ -94,7 +94,11 @@ export default function setup() {
     OauthSoftwarePublishers().name('oauth-software-publishers')
   );
   program.addCommand(RemoteProxies().name('remote-proxies'));
-  program.addCommand(RemoteServers().name('remote-servers'));
+  program.addCommand(
+    RemoteServers()
+      .name('connector-servers')
+      .withAlias('remote-servers', 'transition')
+  );
   program.addCommand(
     SecretMappings()
       .name('secretstore-mappings')
