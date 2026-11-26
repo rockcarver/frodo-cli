@@ -146,6 +146,14 @@ describe.each(['pull', 'push'])(
       expect(text).toContain(`"${verb} agents"`);
     });
 
+    if (verb === 'push') {
+      test('says that it does not read the folders of the other agent types, and which command pushes them', () => {
+        expect(text).toContain(
+          'The folders of the other agent types are not read here: "push agents" pushes them.'
+        );
+      });
+    }
+
     test('names none of the eight types of agents as a type it handles', () => {
       for (const agentType of EIGHT) {
         expect(raw).not.toContain(`"${agentType}": [`);
