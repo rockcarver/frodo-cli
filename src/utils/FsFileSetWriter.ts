@@ -12,6 +12,7 @@ import {
   asError,
   codeOf,
   containerOf,
+  resolveRoot,
   spellingOnDisk,
   walk,
 } from './FsFileSetRoot';
@@ -52,20 +53,28 @@ export type FileSetWriter = {
    * the files are written in the order of the set: each into a temporary file in its own folder,
    * which is renamed onto the file, so that a file is never half written and a link at the place of
    * a file is replaced and never followed. A new file has the mode that a file gets by default; a file
-   * that is replaced keeps its mode, but not its owner, its extended attributes or its other hard links
-   * (the new file is a new entry). A folder on the way may be a link only when its real path is
+   * that is replaced keeps its mode (the temporary file is made with it, so the new text is never in a
+   * file that is wider than the file it becomes), but not its owner, its extended attributes or its other
+   * hard links (the new file is a new entry), and a file that is read-only is replaced all the same: the
+   * folder decides, as it does for a rename. A folder on the way may be a link only when its real path is
    * strictly inside the root; otherwise that file fails. A file that fails (no permission, a link that
    * leaves the root, a folder where the file belongs) is in `failed` and the next file is written.
    *
    * On a file system that ignores case, a file that is there under another spelling than the set gives
-   * is replaced under the spelling of the set. On Windows, a file whose path has a part that is a name
-   * of a device (`con`, `nul`, `com1`, ...) or that ends with a dot or a space fails; no name is changed.
+   * is replaced under the spelling of the set (the old entry is removed just before the rename, so a
+   * rename that then fails leaves neither the old file nor the new one, and says so in `failed`).
+   * On Windows, a file whose path has a part that is a name of a device (`con`, `nul`, `com1`, ...) or
+   * that ends with a dot or a space fails; no name is changed.
    *
    * Every owned folder is made, an empty one too. With `clean`, and only when no file and no folder
    * failed, the entries below each owned folder that the set does not list, and that are not a folder on
    * the way to a listed file or to an owned folder, are removed (a link is removed, not followed; the
    * owned folder itself and the root are never removed). The clean runs after every file is written, so
-   * a pull that fails keeps the files that were there.
+   * a pull that fails keeps the files that were there. It looks at an owned folder by the names of the
+   * set, so it runs only where the names are the places: when an owned folder is behind a link, or a file
+   * was written below one through a link (a link to the folder itself, to a folder above it, or to the
+   * same place under another owned folder), nothing is cleaned and each such folder is in `failed` with
+   * the reason; the files are written all the same.
    * @param {VirtualFileSet} fileSet the files, and the folders that the set owns
    * @param {{ clean?: boolean }} options `clean`: remove what an owned folder holds that the set does not list
    * @returns {Promise<FileSetWriteResult>} what was written, what failed, what was removed
@@ -240,9 +249,10 @@ async function ensureFolder(
  * Writes one file: into a temporary file next to it, then renamed onto it.
  * @param {string} container the real path of the container
  * @param {VirtualFile} file the file
+ * @returns {Promise<string>} the real path of the file that was written (the path of the set below the container, unless a link is on the way)
  * @throws {Error} if the file cannot be written
  */
-async function writeOne(container: string, file: VirtualFile): Promise<void> {
+async function writeOne(container: string, file: VirtualFile): Promise<string> {
   const parts = file.path.split('/');
   checkWindowsNames(parts);
   const name = parts[parts.length - 1];
@@ -267,14 +277,31 @@ async function writeOne(container: string, file: VirtualFile): Promise<void> {
     const spelled = await spellingOnDisk(folder, name, existing);
     if (spelled !== name) stale = path.join(folder, spelled);
   }
-  const temporary = path.join(
-    folder,
-    `.frodo-${crypto.randomBytes(4).toString('hex')}.tmp`
-  );
+  // the temporary file is made with the mode that the file will have (the umask still takes bits away), so
+  // that the new text is never in a file that is wider than the file it becomes; `wx` fails for a name that is
+  // taken, and that file is not ours to remove
+  let temporary: string;
+  let handle: fs.promises.FileHandle;
+  for (let attempt = 0; ; attempt++) {
+    temporary = path.join(
+      folder,
+      `.frodo-${crypto.randomBytes(4).toString('hex')}.tmp`
+    );
+    try {
+      handle = await fs.promises.open(
+        temporary,
+        'wx',
+        mode === undefined ? 0o666 : mode & 0o777
+      );
+      break;
+    } catch (error) {
+      if (codeOf(error) !== 'EEXIST' || attempt >= 4) throw error;
+    }
+  }
   try {
-    const handle = await fs.promises.open(temporary, 'wx');
     try {
       await handle.writeFile(Buffer.from(file.content, 'utf8'));
+      // the bits that the umask took away from the mode of the file that is replaced
       if (mode !== undefined) await handle.chmod(mode);
     } finally {
       await handle.close();
@@ -286,6 +313,7 @@ async function writeOne(container: string, file: VirtualFile): Promise<void> {
     await fs.promises.rm(temporary, { force: true }).catch(() => undefined);
     throw error;
   }
+  return target;
 }
 
 /**
@@ -370,12 +398,64 @@ async function isSameEntry(a: string, b: string): Promise<boolean> {
 }
 
 /**
+ * The owned folders that a clean must not touch, with the reason. A clean looks at an owned folder by
+ * the names of the set, so it is safe only where the names are the places: the folder is reached without a
+ * link (its real path is the container and the path of the set), and no file that was written below it
+ * went there through a link under another name (a link to the folder itself, to a folder above it, or to
+ * the same place under another owned folder). If one owned folder is refused, none is cleaned: a pull that
+ * cannot say what it owns keeps what was there.
+ * @param {string} container the real path of the container
+ * @param {string[]} ownedFolders the owned folders of the set
+ * @param {Map<string, string>} wroteTo the real path of every file that was written, by its path in the set
+ * @returns {Promise<{ owned: string; reason: string }[]>} the folders that are refused, none when all can be cleaned
+ */
+async function refusalsOfClean(
+  container: string,
+  ownedFolders: string[],
+  wroteTo: Map<string, string>
+): Promise<{ owned: string; reason: string }[]> {
+  const refusals: { owned: string; reason: string }[] = [];
+  for (const owned of ownedFolders) {
+    const parts = owned.split('/');
+    const direct = path.join(container, ...parts);
+    const walked = await walk(container, parts);
+    if (walked.state !== 'found') {
+      refusals.push({
+        owned,
+        reason: `The folder '${owned}' is not there as the set names it, so it is not cleaned.`,
+      });
+      continue;
+    }
+    if (walked.real !== direct) {
+      refusals.push({
+        owned,
+        reason: `The folder '${owned}' is behind a link, so it is not cleaned.`,
+      });
+      continue;
+    }
+    for (const [filePath, real] of wroteTo) {
+      if (
+        real !== path.join(container, ...filePath.split('/')) &&
+        real.startsWith(direct + path.sep)
+      ) {
+        refusals.push({
+          owned,
+          reason: `The file '${filePath}' is written below it through a link, so it is not cleaned.`,
+        });
+        break;
+      }
+    }
+  }
+  return refusals;
+}
+
+/**
  * The writer of file sets into a folder on the file system.
- * @param {string} root the folder that holds the set; made on the first write if it is not there (a relative path is resolved against the working directory now)
+ * @param {string} root the folder that holds the set; made on the first write if it is not there (a relative path is resolved against the working directory now; an empty name is refused)
  * @returns {FileSetWriter} the writer
  */
 export function fsFileSetWriter(root: string): FileSetWriter {
-  const folder = path.resolve(root);
+  const folder = resolveRoot(root);
   return {
     async write(fileSet, options = {}) {
       checkFileSet(fileSet);
@@ -391,9 +471,11 @@ export function fsFileSetWriter(root: string): FileSetWriter {
           path: filePath,
           error: new FrodoError(`Error ${what} ${filePath}`, asError(error)),
         });
+      // where each file went (a link on the way may make it another place than the path says)
+      const wroteTo = new Map<string, string>();
       for (const file of fileSet.files) {
         try {
-          await writeOne(container, file);
+          wroteTo.set(file.path, await writeOne(container, file));
           result.written.push(file.path);
         } catch (error) {
           failedWith('writing', file.path, error);
@@ -408,6 +490,13 @@ export function fsFileSetWriter(root: string): FileSetWriter {
         } catch (error) {
           failedWith('creating the folder', owned, error);
         }
+      }
+      const refusals =
+        options.clean && result.failed.length === 0
+          ? await refusalsOfClean(container, ownedFolders, wroteTo)
+          : [];
+      for (const { owned, reason } of refusals) {
+        failedWith('cleaning', owned, new Error(reason));
       }
       if (options.clean && result.failed.length === 0) {
         const files = new Set(fileSet.files.map((file) => file.path));

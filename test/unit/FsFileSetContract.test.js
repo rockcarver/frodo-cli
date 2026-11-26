@@ -1,6 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
-import { afterEach, beforeEach, describe, expect, test } from '@jest/globals';
+import { afterAll, afterEach, beforeEach, describe, expect, test } from '@jest/globals';
 import { frodo } from '@rockcarver/frodo-lib';
 import { fsFileSetReader } from '../../src/utils/FsFileSetReader.ts';
 import { fsFileSetWriter } from '../../src/utils/FsFileSetWriter.ts';
@@ -8,6 +8,7 @@ import {
   CONTRACT_ROWS,
   CONTRACT_SET,
   ignoresCase,
+  leftoverFolders,
   entriesOf,
   makeTemporaryFolder,
   removeTemporaryFolder,
@@ -87,6 +88,11 @@ beforeEach(() => {
 });
 afterEach(() => {
   for (const folder of folders) removeTemporaryFolder(folder);
+});
+
+afterAll(() => {
+  // no test, and no product code under test, leaves a folder in the temporary folder of the machine
+  expect(leftoverFolders()).toEqual([]);
 });
 
 /** A new folder for a test. */

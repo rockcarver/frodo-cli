@@ -6,6 +6,7 @@ import { pulledFilePath } from '../../src/utils/ConfigTreePath.ts';
 import { fsFileSetReader } from '../../src/utils/FsFileSetReader.ts';
 import { fsFileSetWriter } from '../../src/utils/FsFileSetWriter.ts';
 import {
+  leftoverFolders,
   makeTemporaryFolder,
   removeTemporaryFolder,
 } from './FsFileSetFixtures.js';
@@ -252,4 +253,9 @@ describe('the adapters refuse what the library refuses, and no more', () => {
     expect(disagreements.slice(0, 5)).toEqual([]);
     expect(fs.existsSync(path.join(folder, 'nothing-here'))).toBe(false);
   });
+});
+
+afterAll(() => {
+  // no test, and no product code under test, leaves a folder in the temporary folder of the machine
+  expect(leftoverFolders()).toEqual([]);
 });

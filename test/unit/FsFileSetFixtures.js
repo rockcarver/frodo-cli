@@ -246,12 +246,17 @@ export function sha256(bytes) {
   return crypto.createHash('sha256').update(bytes).digest('hex');
 }
 
+/** The folders that this file made and has not removed yet (a test file has its own copy of this module, so this is the list of that file). */
+const MADE = new Set();
+
 /**
  * A new folder below the temporary folder of the machine, with a name that is unique.
  * @returns {string} the path of the folder (as the machine names the temporary folder: on macOS it lies below a link)
  */
 export function makeTemporaryFolder() {
-  return fs.mkdtempSync(path.join(os.tmpdir(), 'frodo-fileset-'));
+  const folder = fs.mkdtempSync(path.join(os.tmpdir(), 'frodo-fileset-'));
+  MADE.add(folder);
+  return folder;
 }
 
 /**
@@ -263,6 +268,16 @@ export function removeTemporaryFolder(folder) {
     throw new Error(`Refusing to remove '${folder}': not a temporary folder of these tests.`);
   }
   fs.rmSync(folder, { recursive: true, force: true });
+  MADE.delete(folder);
+}
+
+/**
+ * The folders that `makeTemporaryFolder` made in this test file and that are still there: a test file asks
+ * for none after its last test, so a test or a mutant that leaves a folder in the temporary folder is found.
+ * @returns {string[]} the paths
+ */
+export function leftoverFolders() {
+  return [...MADE].filter((folder) => fs.existsSync(folder));
 }
 
 /**
@@ -282,15 +297,20 @@ export function makeLayout() {
 }
 
 /**
- * Whether the sentinel file of a layout is as it was made, and nothing else is in its folder.
+ * Whether the sentinel file of a layout is as it was made, and nothing else is in its folder. It never throws: a
+ * folder that was removed is a folder that was not left alone.
  * @param {{ outside: string, sentinel: string, sentinelSha: string }} layout the layout
  * @returns {boolean} true if nothing outside the root was changed
  */
 export function outsideIsUntouched(layout) {
-  return (
-    fs.readdirSync(layout.outside).join() === path.basename(layout.sentinel) &&
-    sha256(fs.readFileSync(layout.sentinel)) === layout.sentinelSha
-  );
+  try {
+    return (
+      fs.readdirSync(layout.outside).join() === path.basename(layout.sentinel) &&
+      sha256(fs.readFileSync(layout.sentinel)) === layout.sentinelSha
+    );
+  } catch {
+    return false;
+  }
 }
 
 /**

@@ -3,6 +3,7 @@ import fs from 'node:fs';
 import net from 'node:net';
 import path from 'node:path';
 import {
+  afterAll,
   afterEach,
   beforeEach,
   describe,
@@ -15,6 +16,7 @@ import { fsFileSetReader } from '../../src/utils/FsFileSetReader.ts';
 import {
   BAD_PATHS,
   ignoresCase,
+  leftoverFolders,
   makeLayout,
   makeTemporaryFolder,
   outsideIsUntouched,
@@ -100,9 +102,16 @@ beforeEach(() => {
 
 afterEach(() => {
   jest.restoreAllMocks();
-  const untouched = outsideIsUntouched(layout);
-  removeTemporaryFolder(layout.base);
-  expect(untouched).toBe(true);
+  try {
+    expect(outsideIsUntouched(layout)).toBe(true);
+  } finally {
+    removeTemporaryFolder(layout.base);
+  }
+});
+
+afterAll(() => {
+  // no test, and no product code under test, leaves a folder in the temporary folder of the machine
+  expect(leftoverFolders()).toEqual([]);
 });
 
 describe('what a path has to be', () => {
@@ -182,6 +191,36 @@ describe('the root', () => {
   });
 });
 
+describe('a failure of the file system in the middle of a path', () => {
+  unprivilegedTest('a folder that cannot be searched rejects with an error that names the path and keeps the cause', async () => {
+    put('d/inside/x.json', 'x');
+    fs.chmodSync(path.join(root, 'd'), 0o000);
+    try {
+      const reader = fsFileSetReader(root);
+      const fromRead = await reader.readFile('d/inside/x.json').catch((thrown) => thrown);
+      const fromList = await reader.listDirectory('d/inside').catch((thrown) => thrown);
+
+      for (const error of [fromRead, fromList]) {
+        expect(error).toBeInstanceOf(FrodoError);
+        expect(error.originalErrors[0].code).toBe('EACCES');
+      }
+      expect(fromRead.message).toBe('Error reading d/inside/x.json');
+      expect(fromList.message).toBe('Error reading d/inside');
+    } finally {
+      fs.chmodSync(path.join(root, 'd'), 0o700);
+    }
+  });
+
+  test('a root below a file is a root that is not there', async () => {
+    const file = path.join(layout.base, 'file.txt');
+    fs.writeFileSync(file, 'x');
+    const reader = fsFileSetReader(path.join(file, 'sub'));
+
+    await expect(reader.readFile('a.json')).resolves.toBeUndefined();
+    await expect(reader.listDirectory('a')).resolves.toBeUndefined();
+  });
+});
+
 describe('listing a directory', () => {
   test('lists names as the system gives them: nothing is decoded, cut or hidden', async () => {
     put('d/a%2Fb.json', 'percent');
@@ -243,9 +282,22 @@ describe('listing a directory', () => {
       a < b ? -1 : a > b ? 1 : 0
     );
     expect(names).toEqual(expected);
-    // the order that a locale gives (a, ä, B, é, z) is not this one
+    // the order that a locale gives (a, \u00e4, B, \u00e9, z) is not this one
     expect(names.slice(0, 5)).toEqual(['10', '9', 'B', '_', 'a']);
     expect(names.indexOf('z')).toBeLessThan(names.indexOf('\u00e4'));
+  });
+
+  test('lists in ordinal order whatever order the system gives the names in', async () => {
+    for (const name of ['b', 'a', 'B1', 'c', '_']) put(`d/${name}.json`);
+    const original = fs.promises.readdir.bind(fs.promises);
+    jest.spyOn(fs.promises, 'readdir').mockImplementation(async (...args) => {
+      const entries = await original(...args);
+      return Array.isArray(entries) ? [...entries].reverse() : entries;
+    });
+
+    const names = (await fsFileSetReader(root).listDirectory('d')).map((entry) => entry.name);
+
+    expect(names).toEqual(['B1.json', '_.json', 'a.json', 'b.json', 'c.json']);
   });
 
   test('lists 10,000 entries in less than 2 seconds', async () => {

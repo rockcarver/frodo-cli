@@ -1,6 +1,10 @@
+import { execFileSync } from 'node:child_process';
+import crypto from 'node:crypto';
 import fs from 'node:fs';
+import net from 'node:net';
 import path from 'node:path';
 import {
+  afterAll,
   afterEach,
   beforeEach,
   describe,
@@ -9,10 +13,12 @@ import {
   test,
 } from '@jest/globals';
 import { FrodoError } from '@rockcarver/frodo-lib';
+import { fsFileSetReader } from '../../src/utils/FsFileSetReader.ts';
 import { fsFileSetWriter } from '../../src/utils/FsFileSetWriter.ts';
 import {
   BAD_PATHS,
   ignoresCase,
+  leftoverFolders,
   entriesOf,
   makeLayout,
   makeTemporaryFolder,
@@ -53,8 +59,8 @@ const caseSensitiveTest = CASE_INSENSITIVE ? test.skip : test;
 const UNICODE_INSENSITIVE = (() => {
   const folder = makeTemporaryFolder();
   try {
-    fs.writeFileSync(path.join(folder, 'café'), '');
-    return fs.existsSync(path.join(folder, 'café'));
+    fs.writeFileSync(path.join(folder, 'cafe\u0301'), '');
+    return fs.existsSync(path.join(folder, 'caf\u00e9'));
   } finally {
     removeTemporaryFolder(folder);
   }
@@ -114,21 +120,27 @@ beforeEach(() => {
 
 afterEach(() => {
   jest.restoreAllMocks();
-  const untouched = outsideIsUntouched(layout);
-  const leftOver = fs.existsSync(root) ? temporaryFilesIn(root) : [];
-  removeTemporaryFolder(layout.base);
-  expect(untouched).toBe(true);
-  expect(leftOver).toEqual([]);
+  try {
+    expect(outsideIsUntouched(layout)).toBe(true);
+    expect(fs.existsSync(root) ? temporaryFilesIn(root) : []).toEqual([]);
+  } finally {
+    removeTemporaryFolder(layout.base);
+  }
+});
+
+afterAll(() => {
+  // no test, and no product code under test, leaves a folder in the temporary folder of the machine
+  expect(leftoverFolders()).toEqual([]);
 });
 
 describe('the bytes of a file', () => {
   test.each([
     ['carriage returns', 'a\r\nb\r\n'],
     ['no final newline', 'abc'],
-    ['a byte order mark', '﻿{"a":1}\n'],
-    ['a line separator', 'a b c\n'],
-    ['characters of four bytes', '😀 👍\n'],
-    ['an accent in two forms', 'é é\n'],
+    ['a byte order mark', '\ufeff{"a":1}\n'],
+    ['a line separator', 'a\u2028b\u2029c\n'],
+    ['characters of four bytes', '\ud83d\ude00 \ud83d\udc4d\n'],
+    ['an accent in two forms', '\u00e9 e\u0301\n'],
     ['no content at all', ''],
     ['one megabyte', 'x'.repeat(1024 * 1024)],
     ['a final newline only', '\n'],
@@ -316,7 +328,7 @@ describe('a set that cannot be written is refused before anything is written', (
     await unchanged(set([file('A.json'), file('a.json')]), /A\.json.*a\.json|a\.json.*A\.json/);
     await unchanged(set([file('Realms/x.json'), file('realms/y.json')]), /Realms.*realms|realms.*Realms/);
     await unchanged(set([file('x.json')], ['A', 'a']), /"A".*"a"|"a".*"A"/);
-    await unchanged(set([file('d/é.json'), file('d/é.json')]), /\.json/);
+    await unchanged(set([file('d/\u00e9.json'), file('d/e\u0301.json')]), /\.json/);
   });
 
   test('a path that is a file and a folder', async () => {
@@ -802,6 +814,362 @@ describe('a clean', () => {
   });
 });
 
+describe('a clean through links never removes what lies somewhere else', () => {
+  // the three layouts of the review: an owned folder that is a link inside the root to a place that the set names otherwise
+  linkTest('an owned folder that is a link to an ancestor is not cleaned, and nothing of the ancestor is removed', async () => {
+    put('realms/alpha/precious.json', 'PRECIOUS');
+    put('realms/bravo/other.json', 'OTHER');
+    link('realms/alpha/toys', '..');
+
+    const result = await writer.write(set([file('realms/alpha/toys/a.json', 'A')], ['realms/alpha/toys']), { clean: true });
+
+    expect(result.removed).toEqual([]);
+    expect(result.cleaned).toEqual([]);
+    expect(result.written).toEqual(['realms/alpha/toys/a.json']);
+    expect(result.failed.map((one) => one.path)).toEqual(['realms/alpha/toys']);
+    expect(result.failed[0].error.getCombinedMessage()).toMatch(/behind a link, so it is not cleaned/);
+    expect(text('realms/alpha/precious.json')).toBe('PRECIOUS');
+    expect(text('realms/bravo/other.json')).toBe('OTHER');
+    expect(text('realms/a.json')).toBe('A');
+  });
+
+  linkTest('two owned folders that are one folder under two names are not cleaned, and the files written to them stay', async () => {
+    put('real/old.json', 'old');
+    link('alias', 'real');
+
+    const result = await writer.write(
+      set([file('real/x.json', 'X'), file('alias/y.json', 'Y')], ['real', 'alias']),
+      { clean: true }
+    );
+
+    expect(result.removed).toEqual([]);
+    expect(result.written).toEqual(['real/x.json', 'alias/y.json']);
+    expect(result.failed.map((one) => one.path)).toEqual(['real', 'alias']);
+    expect(result.failed[0].error.getCombinedMessage()).toMatch(/'alias\/y.json' is written below it through a link/);
+    expect(fs.readdirSync(path.join(root, 'real')).sort()).toEqual(['old.json', 'x.json', 'y.json']);
+  });
+
+  linkTest('a link inside an owned folder that leads to the folder itself: the file written through it stays, and nothing is cleaned', async () => {
+    put('own/old.json', 'old');
+    link('own/sub', '.');
+
+    const result = await writer.write(set([file('own/sub/x.json', 'X')], ['own']), { clean: true });
+
+    expect(result.removed).toEqual([]);
+    expect(result.written).toEqual(['own/sub/x.json']);
+    expect(result.failed.map((one) => one.path)).toEqual(['own']);
+    expect(result.failed[0].error.getCombinedMessage()).toMatch(/'own\/sub\/x.json' is written below it through a link/);
+    expect(text('own/x.json')).toBe('X');
+    expect(text('own/old.json')).toBe('old');
+  });
+
+  linkTest('an owned folder that is a link to another folder inside the root is not cleaned', async () => {
+    put('shared/keep.json', 'keep');
+    link('own', 'shared');
+
+    const result = await writer.write(set([file('own/new.json', 'N')], ['own']), { clean: true });
+
+    expect(result.removed).toEqual([]);
+    expect(result.failed.map((one) => one.path)).toEqual(['own']);
+    expect(text('shared/keep.json')).toBe('keep');
+    expect(text('shared/new.json')).toBe('N');
+  });
+
+  linkTest('a link on the way to an owned folder makes it not cleaned', async () => {
+    put('shared/inner/keep.json', 'keep');
+    link('realms', 'shared');
+
+    const result = await writer.write(set([file('realms/inner/new.json', 'N')], ['realms/inner']), { clean: true });
+
+    expect(result.removed).toEqual([]);
+    expect(result.failed.map((one) => one.path)).toEqual(['realms/inner']);
+    expect(text('shared/inner/keep.json')).toBe('keep');
+  });
+
+  linkTest('nothing at all is cleaned when one owned folder is refused: the folders that are fine keep their old files too', async () => {
+    put('fine/stale.json', 'stale');
+    put('real/old.json', 'old');
+    link('alias', 'real');
+
+    const result = await writer.write(set([file('fine/a.json', 'a')], ['fine', 'alias']), { clean: true });
+
+    expect(result.cleaned).toEqual([]);
+    expect(result.removed).toEqual([]);
+    expect(result.failed.map((one) => one.path)).toEqual(['alias']);
+    expect(text('fine/stale.json')).toBe('stale');
+  });
+
+  linkTest('a link that a written file goes through is fine when it leads away from every owned folder', async () => {
+    put('away/there.json', 'there');
+    put('o/stale.json', 'stale');
+    link('o/alias', path.join('..', 'away'));
+
+    const result = await writer.write(set([file('o/alias/x.json', 'X'), file('o/keep.json', 'k')], ['o']), { clean: true });
+
+    expect(result.failed).toEqual([]);
+    expect(result.removed).toEqual(['o/stale.json']);
+    expect(text('away/x.json')).toBe('X');
+    expect(text('away/there.json')).toBe('there');
+  });
+
+  /** A small generator of numbers that is the same on every run. */
+  const generator = (seed) => {
+    let state = seed >>> 0;
+    return () => {
+      state = (state * 1664525 + 1013904223) >>> 0;
+      return state / 2 ** 32;
+    };
+  };
+
+  linkTest('whatever the links are, a clean never removes a file that the same call wrote or anything that no cleaned owned folder names', async () => {
+    const FOLDERS = ['a', 'b', 'c', 'a/x', 'c/y'];
+    const LINK_PLACES = ['l0', 'a/l1', 'b/l2', 'c/l3', 'a/x/l4'];
+    const NAMES = [...FOLDERS, ...LINK_PLACES];
+    let cleanedSomething = 0;
+    let refusedSomething = 0;
+    let removedSomething = 0;
+    let failedAWrite = 0;
+    for (let seed = 1; seed <= 250; seed++) {
+      const next = generator(seed);
+      const pick = (list) => list[Math.floor(next() * list.length)];
+      fs.rmSync(root, { recursive: true, force: true });
+      fs.mkdirSync(root);
+      for (const folder of FOLDERS) {
+        put(`${folder}/keep.json`, `keep ${folder}`);
+        put(`${folder}/stale.json`, `stale ${folder}`);
+      }
+      for (const place of LINK_PLACES) {
+        if (next() < 0.25) continue;
+        const targets = [
+          root,
+          path.dirname(path.join(root, place)),
+          path.join(root, pick(FOLDERS)),
+          path.join(root, place),
+          layout.outside,
+          path.join(root, 'nowhere'),
+          path.join(root, pick(LINK_PLACES)),
+        ];
+        fs.symlinkSync(pick(targets), path.join(root, place));
+      }
+      const files = [];
+      const count = 1 + Math.floor(next() * 4);
+      for (let index = 0; index < count; index++) {
+        files.push(file(`${pick(NAMES)}/new${index}.json`, 'NEW'));
+      }
+      const owned = NAMES.filter(() => next() < 0.35);
+      const before = entriesOf(root);
+
+      const result = await writer.write(set(files, owned), { clean: true });
+      const after = entriesOf(root);
+
+      // every file that was written is there, with the text of the set
+      for (const written of result.written) {
+        expect(fs.readFileSync(path.join(root, ...written.split('/')), 'utf8')).toBe('NEW');
+      }
+      // a folder was cleaned only when it is reached without a link
+      const realRoot = fs.realpathSync(root);
+      for (const folder of result.cleaned) {
+        expect(fs.realpathSync(path.join(root, ...folder.split('/')))).toBe(path.join(realRoot, ...folder.split('/')));
+      }
+      // what is gone was below a cleaned folder (by the name of the set), everything else is as it was
+      const under = (entry) => result.cleaned.some((folder) => entry.startsWith(`${folder}/`));
+      for (const entry of before) {
+        const kept = after.find((one) => one.path === entry.path && one.type === entry.type && one.detail === entry.detail);
+        if (kept === undefined) expect({ seed, gone: entry.path, cleaned: result.cleaned, under: under(entry.path) }).toMatchObject({ under: true });
+      }
+      for (const removed of result.removed) {
+        expect({ seed, removed, under: under(removed) }).toMatchObject({ under: true });
+      }
+      if (result.cleaned.length > 0) cleanedSomething++;
+      if (result.removed.length > 0) removedSomething++;
+      if (result.failed.some((one) => /not cleaned/.test(one.error.getCombinedMessage()))) refusedSomething++;
+      if (result.failed.some((one) => /^Error writing/.test(one.error.message))) failedAWrite++;
+      // the folder outside holds the sentinel and nothing else, after every layout
+      expect(outsideIsUntouched(layout)).toBe(true);
+    }
+
+    // the layouts do cover the cases: some clean, some are refused, some remove, some writes fail
+    expect(cleanedSomething).toBeGreaterThan(15);
+    expect(refusedSomething).toBeGreaterThan(15);
+    expect(removedSomething).toBeGreaterThan(15);
+    expect(failedAWrite).toBeGreaterThan(15);
+  }, 120000);
+});
+
+describe('the temporary file of a write', () => {
+  test('a name that is taken is not used, and the file that was there is not removed', async () => {
+    put('d/.frodo-00000000.tmp', 'somebody else');
+    jest.spyOn(crypto, 'randomBytes').mockReturnValueOnce(Buffer.alloc(4));
+
+    const result = await writer.write(set([file('d/a.json', 'new')]));
+
+    expect(result.failed).toEqual([]);
+    expect(text('d/a.json')).toBe('new');
+    expect(text('d/.frodo-00000000.tmp')).toBe('somebody else');
+    fs.rmSync(path.join(root, 'd', '.frodo-00000000.tmp'));
+  });
+
+  test('a failure after the temporary file is made removes that file, and only that one', async () => {
+    put('d/.frodo-00000000.tmp', 'somebody else');
+    jest.spyOn(crypto, 'randomBytes').mockReturnValueOnce(Buffer.alloc(4));
+    jest.spyOn(fs.promises, 'rename').mockRejectedValueOnce(failure('EIO'));
+
+    const result = await writer.write(set([file('d/a.json', 'new')]));
+
+    expect(result.failed.map((one) => one.path)).toEqual(['d/a.json']);
+    expect(text('d/.frodo-00000000.tmp')).toBe('somebody else');
+    expect(entriesOf(path.join(root, 'd')).map((entry) => entry.path)).toEqual(['.frodo-00000000.tmp']);
+    fs.rmSync(path.join(root, 'd', '.frodo-00000000.tmp'));
+  });
+
+  test('every name taken fails the file, and removes nothing', async () => {
+    put('d/.frodo-00000000.tmp', 'somebody else');
+    jest.spyOn(crypto, 'randomBytes').mockReturnValue(Buffer.alloc(4));
+
+    const result = await writer.write(set([file('d/a.json', 'new'), file('b.json', 'b')]));
+
+    expect(result.failed.map((one) => one.path)).toEqual(['d/a.json']);
+    expect(result.written).toEqual(['b.json']);
+    expect(text('d/.frodo-00000000.tmp')).toBe('somebody else');
+    fs.rmSync(path.join(root, 'd', '.frodo-00000000.tmp'));
+  });
+
+  modeTest('the new text is never in a file that is wider than the file it becomes', async () => {
+    put('secret.json', 'old');
+    fs.chmodSync(path.join(root, 'secret.json'), 0o600);
+    const modesWhenWritten = [];
+    const original = fs.promises.open.bind(fs.promises);
+    jest.spyOn(fs.promises, 'open').mockImplementation(async (...args) => {
+      const handle = await original(...args);
+      const write = handle.writeFile.bind(handle);
+      handle.writeFile = async (...rest) => {
+        modesWhenWritten.push((await handle.stat()).mode & 0o777);
+        return write(...rest);
+      };
+      return handle;
+    });
+    const mask = process.umask(0o022);
+    try {
+      await writer.write(set([file('secret.json', 'new text'), file('open.json', 'new')]));
+    } finally {
+      process.umask(mask);
+    }
+
+    expect(modesWhenWritten).toEqual([0o600, 0o644]);
+    expect(fs.statSync(path.join(root, 'secret.json')).mode & 0o777).toBe(0o600);
+  });
+});
+
+describe('a root that is not a name', () => {
+  test.each([[''], [' '], ['   '], ['\t'], ['\n']])('the empty root %j is refused by the writer and by the reader, and nothing is written in the working directory', (empty) => {
+    const before = fs.readdirSync(process.cwd()).length;
+
+    expect(() => fsFileSetWriter(empty)).toThrow(/needs the path of a folder/);
+    expect(() => fsFileSetReader(empty)).toThrow(/needs the path of a folder/);
+    expect(fs.readdirSync(process.cwd()).length).toBe(before);
+  });
+
+  test.each([[undefined], [null], [42], [{}]])('the root %j that is not a string is refused', (notAString) => {
+    expect(() => fsFileSetWriter(notAString)).toThrow(/needs the path of a folder/);
+    expect(() => fsFileSetReader(notAString)).toThrow(/needs the path of a folder/);
+  });
+});
+
+describe('what a path of the root may meet', () => {
+  modeTest('a file that is read-only is replaced, and keeps its mode: the folder decides, as it does for a rename', async () => {
+    put('ro.json', 'old');
+    fs.chmodSync(path.join(root, 'ro.json'), 0o444);
+
+    const result = await writer.write(set([file('ro.json', 'new')]));
+
+    expect(result.failed).toEqual([]);
+    expect(text('ro.json')).toBe('new');
+    expect(fs.statSync(path.join(root, 'ro.json')).mode & 0o777).toBe(0o444);
+  });
+
+  modeTest('a FIFO at the place of a file fails that file and is kept', async () => {
+    fs.mkdirSync(path.join(root, 'd'));
+    execFileSync('mkfifo', [path.join(root, 'd', 'pipe')]);
+
+    const result = await writer.write(set([file('d/pipe', 'x'), file('d/b.json', 'b')]));
+
+    expect(result.failed.map((one) => one.path)).toEqual(['d/pipe']);
+    expect(result.failed[0].error.getCombinedMessage()).toMatch(/not a regular file/);
+    expect(result.written).toEqual(['d/b.json']);
+    expect(fs.lstatSync(path.join(root, 'd', 'pipe')).isFIFO()).toBe(true);
+  });
+
+  modeTest('a socket at the place of a file fails that file and is kept', async () => {
+    fs.mkdirSync(path.join(root, 'd'));
+    const server = net.createServer();
+    await new Promise((resolve, reject) => {
+      server.once('error', reject);
+      server.listen(path.join(root, 'd', 's'), resolve);
+    });
+    try {
+      const result = await writer.write(set([file('d/s', 'x')]));
+
+      expect(result.failed.map((one) => one.path)).toEqual(['d/s']);
+      expect(result.failed[0].error.getCombinedMessage()).toMatch(/not a regular file/);
+      expect(fs.lstatSync(path.join(root, 'd', 's')).isSocket()).toBe(true);
+    } finally {
+      await new Promise((resolve) => server.close(resolve));
+    }
+  });
+
+  test('a folder that another process made at the same time is found, and the file is written', async () => {
+    const original = fs.promises.mkdir.bind(fs.promises);
+    jest.spyOn(fs.promises, 'mkdir').mockImplementationOnce(async (target, ...rest) => {
+      await original(target, ...rest);
+      throw Object.assign(new Error('EEXIST: made up'), { code: 'EEXIST' });
+    });
+
+    const result = await writer.write(set([file('a/b/c.json', 'c')]));
+
+    expect(result.failed).toEqual([]);
+    expect(text('a/b/c.json')).toBe('c');
+  });
+
+  test('a folder that cannot be made fails the file with the reason, not with a message about a folder that keeps changing', async () => {
+    const original = fs.promises.mkdir.bind(fs.promises);
+    jest.spyOn(fs.promises, 'mkdir').mockImplementation(async (target, ...rest) => {
+      if (String(target).endsWith(`${path.sep}a`)) throw failure('EACCES');
+      return original(target, ...rest);
+    });
+
+    const result = await writer.write(set([file('a/b.json', 'x')]));
+
+    expect(result.failed.map((one) => one.path)).toEqual(['a/b.json']);
+    expect(result.failed[0].error.originalErrors[0].code).toBe('EACCES');
+    expect(result.failed[0].error.getCombinedMessage()).not.toMatch(/keeps changing/);
+  });
+
+  test('a missing folder below a folder that is there, one level down, is made', async () => {
+    put('a/x', 'inside');
+    put('n/m/old.json', 'old');
+
+    const result = await writer.write(set([file('n/m/p/q.json', 'q'), file('n/r.json', 'r')]));
+
+    expect(result.failed).toEqual([]);
+    expect(text('n/m/p/q.json')).toBe('q');
+    expect(text('n/m/old.json')).toBe('old');
+    expect(text('a/x')).toBe('inside');
+  });
+
+  test('the entries of a folder are cleaned in the order of their names, whatever order the system lists them in', async () => {
+    for (const name of ['b.json', 'a.json', 'c.json', 'B1.json']) put(`o/${name}`);
+    const original = fs.promises.readdir.bind(fs.promises);
+    jest.spyOn(fs.promises, 'readdir').mockImplementation(async (...args) => {
+      const entries = await original(...args);
+      return Array.isArray(entries) ? [...entries].reverse() : entries;
+    });
+
+    const result = await writer.write(set([file('o/keep.json')], ['o']), { clean: true });
+
+    expect(result.removed).toEqual(['o/B1.json', 'o/a.json', 'o/b.json', 'o/c.json']);
+  });
+});
+
 describe('the spelling of a name on the disk', () => {
   caseInsensitiveTest('a file that is there under another spelling is replaced by the spelling of the set', async () => {
     put('d/a.json', 'old');
@@ -823,13 +1191,13 @@ describe('the spelling of a name on the disk', () => {
   });
 
   unicodeInsensitiveTest('a file that is there in another Unicode form is replaced by the form of the set', async () => {
-    put('d/café.json', 'old');
+    put('d/cafe\u0301.json', 'old');
 
-    await writer.write(set([file('d/café.json', 'new')]));
+    await writer.write(set([file('d/caf\u00e9.json', 'new')]));
 
     expect(fs.readdirSync(path.join(root, 'd'))).toEqual([expect.stringMatching(/^caf/)]);
-    expect(fs.readdirSync(path.join(root, 'd'))[0].normalize('NFC')).toBe('café.json');
-    expect(fs.readdirSync(path.join(root, 'd'))[0]).toBe('café.json');
+    expect(fs.readdirSync(path.join(root, 'd'))[0].normalize('NFC')).toBe('caf\u00e9.json');
+    expect(fs.readdirSync(path.join(root, 'd'))[0]).toBe('caf\u00e9.json');
     expect(fs.readdirSync(path.join(root, 'd'))).toHaveLength(1);
   });
 

@@ -132,9 +132,10 @@ const ALLOWED = [
     call: 'fs.promises.rm(full, { recursive: true, force: true })',
     via: [
       'if (options.clean && result.failed.length === 0) {',
+      'if (walked.real !== direct) {',
       'frodo.utils.assertFileSetPath(folder);',
     ],
-    why: 'an entry found by listing an owned folder of the set that the set does not list, only when a clean is asked for and no file failed; the owned folder passed the gate of the library and was walked from the root of the set, the entry is a name that the listing gave, and rm does not follow a link',
+    why: 'an entry found by listing an owned folder of the set that the set does not list, only when a clean is asked for, no file failed, the owned folder is reached without a link (its real path is the container and the path of the set) and no file was written below it through a link; the entry is a name that the listing gave, and rm does not follow a link',
   },
   {
     module: 'src/ops/ConfigOps.ts',

@@ -50,6 +50,21 @@ export function asError(error: unknown): Error {
 }
 
 /**
+ * The folder of an adapter as the caller named it, resolved against the working directory. An empty
+ * name, or one that is only white space, is refused: `path.resolve('')` is the working directory, and a
+ * caller that forgot to set the folder would write (and with a clean, remove) there.
+ * @param {unknown} root the folder, as the caller gave it
+ * @returns {string} the absolute path of the folder
+ * @throws {Error} if the root is not a string with a name in it
+ */
+export function resolveRoot(root: unknown): string {
+  if (typeof root !== 'string' || root.trim() === '') {
+    throw new Error('A file set needs the path of a folder.');
+  }
+  return path.resolve(root);
+}
+
+/**
  * The folder that holds a file set: the real path of the folder that the caller named. The folder
  * itself may be a link, or lie below one (`/var` is a link on macOS): that is the caller's choice,
  * and what is inside the container is checked from here.

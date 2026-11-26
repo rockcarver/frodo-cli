@@ -7,7 +7,14 @@ import {
   type FileSetReader,
 } from '@rockcarver/frodo-lib';
 import { assertInside } from './ConfigTreePath';
-import { asError, codeOf, containerOf, walk } from './FsFileSetRoot';
+import {
+  asError,
+  codeOf,
+  containerOf,
+  resolveRoot,
+  walk,
+  type Walked,
+} from './FsFileSetRoot';
 
 /**
  * The file-system reader of a file set: the `FileSetReader` that a push is given when its files
@@ -32,11 +39,11 @@ import { asError, codeOf, containerOf, walk } from './FsFileSetRoot';
  * disk and is empty lists as `[]` even when no set owns it (the disk knows no ownership), and a root
  * that is not there makes every path `undefined`. The reader never writes, never caches, reads no
  * state and takes no name apart: a name is a name.
- * @param {string} root the folder that holds the set (a relative path is resolved against the working directory when it is made)
+ * @param {string} root the folder that holds the set (a relative path is resolved against the working directory when it is made; an empty name is refused)
  * @returns {FileSetReader} the reader
  */
 export function fsFileSetReader(root: string): FileSetReader {
-  const folder = path.resolve(root);
+  const folder = resolveRoot(root);
   let container: string | undefined;
 
   /** The real path of the folder, kept after the first success. */
@@ -50,7 +57,7 @@ export function fsFileSetReader(root: string): FileSetReader {
       frodo.utils.assertFileSetPath(setPath);
       const base = await containerOfCall();
       if (base === undefined) return undefined;
-      const walked = await walk(base, setPath.split('/'));
+      const walked = await walkOf(base, setPath);
       if (walked.state !== 'found') return undefined;
       let dirents: fs.Dirent[];
       try {
@@ -88,7 +95,7 @@ export function fsFileSetReader(root: string): FileSetReader {
       frodo.utils.assertFileSetPath(setPath);
       const base = await containerOfCall();
       if (base === undefined) return undefined;
-      const walked = await walk(base, setPath.split('/'));
+      const walked = await walkOf(base, setPath);
       if (walked.state !== 'found') return undefined;
       let bytes: Buffer;
       try {
@@ -137,6 +144,23 @@ export function fsFileSetReader(root: string): FileSetReader {
       }
     },
   };
+}
+
+/**
+ * The walk of a path, where a failure of the file system is an error that names the path and keeps the
+ * cause, as every other failure to read is. What the walk says about a link has no code of the system and is
+ * thrown as it is.
+ * @param {string} container the real path of the container
+ * @param {string} setPath the path in the set
+ * @returns {Promise<Walked>} what the walk found
+ */
+async function walkOf(container: string, setPath: string): Promise<Walked> {
+  try {
+    return await walk(container, setPath.split('/'));
+  } catch (error) {
+    if (codeOf(error) === undefined) throw error;
+    throw new FrodoError(`Error reading ${setPath}`, asError(error));
+  }
 }
 
 /**
