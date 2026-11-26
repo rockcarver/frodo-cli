@@ -24,7 +24,7 @@ const deploymentTypes = [
 
 export default function setup() {
   const program = new FrodoCommand(
-    'frodo config-manager delete connector-definitions',
+    'frodo config-manager delete connectors',
     [],
     deploymentTypes
   );
@@ -65,23 +65,23 @@ export default function setup() {
         `Usage Examples:\n` +
         `  Delete all connector definitions without asking, which is required without a terminal (without -y a terminal is asked first):\n` +
         c.command(
-          `  $ frodo config-manager delete connector-definitions -y ${s.connId}\n`
+          `  $ frodo config-manager delete connectors -y ${s.connId}\n`
         ) +
         `  Preview the deletion of all connector definitions and what names them:\n` +
         c.command(
-          `  $ frodo config-manager delete connector-definitions -d ${s.connId}\n`
+          `  $ frodo config-manager delete connectors -d ${s.connId}\n`
         ) +
         `  Delete a connector definition (refused if other objects still name it):\n` +
         c.command(
-          `  $ frodo config-manager delete connector-definitions -i ${s.connectorId} ${s.connId}\n`
+          `  $ frodo config-manager delete connectors -i ${s.connectorId} ${s.connId}\n`
         ) +
         `  Preview the deletion of a connector definition and what names it:\n` +
         c.command(
-          `  $ frodo config-manager delete connector-definitions -i ${s.connectorId} -d ${s.connId}\n`
+          `  $ frodo config-manager delete connectors -i ${s.connectorId} -d ${s.connId}\n`
         ) +
         `  Delete a connector definition that other objects name, and leave them as they are, without asking:\n` +
         c.command(
-          `  $ frodo config-manager delete connector-definitions -i ${s.connectorId} --force -y ${s.connId}\n`
+          `  $ frodo config-manager delete connectors -i ${s.connectorId} --force -y ${s.connId}\n`
         )
     )
     .multiOp()

@@ -5,7 +5,7 @@ import { realmOfRun } from '../../../utils/interactive/PositionalArgs';
 import { FrodoCommand } from '../../FrodoCommand';
 
 export default function setup() {
-  const program = new FrodoCommand('frodo config-manager pull authentication');
+  const program = new FrodoCommand('frodo config-manager pull authn');
 
   program
     .description('Export authentication settings.')

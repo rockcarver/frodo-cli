@@ -266,7 +266,7 @@ async function everythingOfAgents(
  * {@link everythingOfAgents}); an id narrows that to the one agent or OAuth2 client, in a single
  * realm. With a file, the file selects what is exported and the realm is not used.
  * In a tree that uses the application layout (decision record 0042) an OAuth2 client that an
- * application owns is not exported here: `pull applications` writes it into the folder of the
+ * application owns is not exported here: `pull apps` writes it into the folder of the
  * application. It is named and skipped, which is not a failure, and the config file is not
  * changed. A realm whose applications cannot be read is one failed operation, and its OAuth2 clients
  * are not exported (the other agents of the realm are).
@@ -450,7 +450,7 @@ function countJsonFiles(folder: string): number {
 /**
  * Import all agent configurations.
  * In a tree that uses the application layout (decision record 0042) an OAuth2 client that an
- * application owns is not imported here: `push applications` imports it from the folder of the
+ * application owns is not imported here: `push apps` imports it from the folder of the
  * application. The application folders of the realm tell which clients those are; an OAuth2 client
  * file that one of them owns is named and skipped, which is not a failure, and no file of the tree
  * is changed. A realm whose application folders cannot be read is one failed operation, and its

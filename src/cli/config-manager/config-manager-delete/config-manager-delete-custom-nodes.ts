@@ -12,7 +12,7 @@ import { FrodoCommand } from '../../FrodoCommand';
 import { selectorOption } from '../../SelectorOption';
 
 export default function setup() {
-  const program = new FrodoCommand('frodo config-manager delete custom-nodes');
+  const program = new FrodoCommand('frodo config-manager delete nodes');
   program
     .description('Delete custom nodes.')
     .addOption(
@@ -44,24 +44,20 @@ export default function setup() {
       'after',
       `Usage Examples:\n` +
         `  Delete all custom nodes without asking, which is required without a terminal (without -y a terminal is asked first):\n` +
-        c.command(
-          `  $ frodo config-manager delete custom-nodes -y ${s.connId} /\n`
-        ) +
+        c.command(`  $ frodo config-manager delete nodes -y ${s.connId} /\n`) +
         `  Preview the deletion of all custom nodes:\n` +
-        c.command(
-          `  $ frodo config-manager delete custom-nodes -d ${s.connId} /\n`
-        ) +
+        c.command(`  $ frodo config-manager delete nodes -d ${s.connId} /\n`) +
         `  Delete a custom node by display name:\n` +
         c.command(
-          `  $ frodo config-manager delete custom-nodes -n 'Example Node' ${s.connId} /\n`
+          `  $ frodo config-manager delete nodes -n 'Example Node' ${s.connId} /\n`
         ) +
         `  Preview deletion of a custom node by display name:\n` +
         c.command(
-          `  $ frodo config-manager delete custom-nodes -n 'Example Node' -d ${s.connId} /\n`
+          `  $ frodo config-manager delete nodes -n 'Example Node' -d ${s.connId} /\n`
         ) +
         `  Delete a custom node by id:\n` +
         c.command(
-          `  $ frodo config-manager delete custom-nodes -i ExampleNode-1 ${s.connId} /\n`
+          `  $ frodo config-manager delete nodes -i ExampleNode-1 ${s.connId} /\n`
         )
     )
     .multiOp()

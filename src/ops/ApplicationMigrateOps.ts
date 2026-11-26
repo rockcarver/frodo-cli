@@ -348,7 +348,7 @@ function holdsProvider(file: string, entityId: string): boolean {
 /**
  * The files that the kind-path layout keeps an object in, as far as they exist:
  * the OAuth2 client of `pull oauth2-agents`, the provider of `pull saml`, the
- * connector of `pull connector-definitions` and the files of the mapping of
+ * connector of `pull connectors` and the files of the mapping of
  * `pull connector-mappings`. Shared pieces are not objects of an application
  * and are never looked for. An OAuth2 client or SAML provider of a realm that
  * is not a folder name of the tree has no files.
@@ -494,7 +494,7 @@ function planRemovals(
  * layout has no application records), so the command reads it: the applications
  * of each realm and the ownership of their OAuth2 clients, SAML providers,
  * connectors and mappings. Then, in this order:
- * 1. every application is written to its folder, exactly as `pull applications`
+ * 1. every application is written to its folder, exactly as `pull apps`
  *    writes it (the same function), with the scripts and circles of trust it
  *    shares at the paths of their own kinds;
  * 2. the file of every object an application owns is removed from the kind path
@@ -516,7 +516,7 @@ function planRemovals(
  * A tree whose marker already says `folders` is left alone. A marker that cannot
  * be read, or that says `kind-paths`, fails the command. A tree without kind-path
  * content is a new tree: the folders and the marker are written as a first
- * `pull applications` would write them.
+ * `pull apps` would write them.
  *
  * Every application and every removal is one operation of an
  * {@link OperationRun}: one that fails is named in one summary, the others are
@@ -566,7 +566,7 @@ export async function configManagerMigrateApplications(
 
     if (!hasKindPathContent(treeDir)) {
       printMessage(
-        `${dryRun ? 'Dry run: this' : 'This'} tree has no objects at the paths of the kind-path layout yet, so there is nothing to move: the application folders and the layout marker are written as a first "pull applications" would write them.`
+        `${dryRun ? 'Dry run: this' : 'This'} tree has no objects at the paths of the kind-path layout yet, so there is nothing to move: the application folders and the layout marker are written as a first "pull apps" would write them.`
       );
     } else {
       printMessage(
@@ -665,7 +665,7 @@ export async function configManagerMigrateApplications(
     } else {
       writeTreeMarker(treeDir, 'folders');
       printMessage(
-        `Wrote ${TREE_LAYOUT_MARKER_FILE}: this tree now keeps one folder per application. "pull oauth2-agents", "pull saml", "pull connector-definitions" and "pull connector-mappings" leave what an application owns to the folder of the application.`
+        `Wrote ${TREE_LAYOUT_MARKER_FILE}: this tree now keeps one folder per application. "pull oauth2-agents", "pull saml", "pull connectors" and "pull connector-mappings" leave what an application owns to the folder of the application.`
       );
     }
     return run.finish();

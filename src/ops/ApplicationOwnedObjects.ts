@@ -35,7 +35,7 @@ const KIND_LABEL: Record<OwnedKind, string> = {
 
 /**
  * Whether the standalone pull kinds (`oauth-clients`, `saml`,
- * `connector-definitions`, `connector-mappings`) leave out what an application
+ * `connectors`, `connector-mappings`) leave out what an application
  * owns (decision record 0042): only in a tree that uses the application layout.
  * `pull all` decides the layout of the tree once, before its first step, and
  * hands the decision to the steps; any other command reads the marker of the
@@ -99,7 +99,7 @@ export function objectNameInFile(
 
 /**
  * The application records of one realm folder of a tree: every
- * `realms/<realm>/applications/<folder>/application.json`, as `pull applications`
+ * `realms/<realm>/applications/<folder>/application.json`, as `pull apps`
  * writes it. A folder whose record cannot be read, is not a JSON object or has
  * no name is a problem, not a record: what it owns cannot be known.
  * @param {string} treeDir the root of the tree

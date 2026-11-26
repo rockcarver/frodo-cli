@@ -15,7 +15,7 @@ const deploymentTypes = [
 
 export default function setup() {
   const program = new FrodoCommand(
-    'frodo config-manager push authentication',
+    'frodo config-manager push authn',
     [],
     deploymentTypes
   );

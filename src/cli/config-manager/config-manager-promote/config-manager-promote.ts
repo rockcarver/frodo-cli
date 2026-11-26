@@ -12,13 +12,35 @@ export default function setup() {
   const program = new FrodoStubCommand('promote').description(
     'Promote configuration optimized for CI/CD pipelines (format compatible with fr-config-manager).'
   );
-  program.addCommand(CheckPromotionStatus().name('check-promotion-status'));
-  program.addCommand(CheckPromotionReports().name('check-promotion-reports'));
-  program.addCommand(LockTenants().name('lock-tenants'));
-  program.addCommand(UnlockTenants().name('unlock-tenants'));
+  program.addCommand(
+    CheckPromotionStatus()
+      .name('status')
+      .withAlias('check-promotion-status', 'transition')
+  );
+  program.addCommand(
+    CheckPromotionReports()
+      .name('report')
+      .withAlias('check-promotion-reports', 'transition')
+  );
+  program.addCommand(
+    LockTenants().name('lock').withAlias('lock-tenants', 'transition')
+  );
+  program.addCommand(
+    UnlockTenants().name('unlock').withAlias('unlock-tenants', 'transition')
+  );
   program.addCommand(Rollback().name('rollback'));
-  program.addCommand(RunDryrunPromotion().name('run-dryrun-promotion'));
-  program.addCommand(RunPromotion().name('run-promotion'));
-  program.addCommand(CheckLockedStatus().name('check-locked-status'));
+  program.addCommand(
+    RunDryrunPromotion()
+      .name('dry-run')
+      .withAlias('run-dryrun-promotion', 'transition')
+  );
+  program.addCommand(
+    RunPromotion().name('run').withAlias('run-promotion', 'transition')
+  );
+  program.addCommand(
+    CheckLockedStatus()
+      .name('lock-status')
+      .withAlias('check-locked-status', 'transition')
+  );
   return program;
 }

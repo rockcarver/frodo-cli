@@ -268,7 +268,7 @@ export const deploymentMapAll: Record<string, AllStep[]> = {
   [FORGEOPS_DEPLOYMENT_TYPE_KEY]: [
     step('access-config', () => configManagerExportAccessConfig()),
     step('audit', () => configManagerExportAudit()),
-    step('authentication', (options) =>
+    step('authn', (options) =>
       configManagerExportAuthentication(options.realm)
     ),
     step(
@@ -281,7 +281,7 @@ export const deploymentMapAll: Record<string, AllStep[]> = {
       )
     ),
     step('cors', () => configManagerExportCors()),
-    step('custom-nodes', () => configManagerExportCustomNodes()),
+    step('nodes', () => configManagerExportCustomNodes()),
     step('email-provider', () =>
       configManagerExportEmailProviderConfiguration()
     ),
@@ -366,7 +366,7 @@ export const deploymentMapAll: Record<string, AllStep[]> = {
     // applications: the layout of the tree is decided before the first step runs (see runSteps), so their position
     // does not matter for that, and the requests they add (the ownership of the applications) come after those of
     // the steps before them (the recorded replays of `pull all` hand out their recordings in order).
-    step('connector-definitions', (options) =>
+    step('connectors', (options) =>
       configManagerExportConnectorDefinitions(
         undefined,
         false,
@@ -402,7 +402,7 @@ export const deploymentMapAll: Record<string, AllStep[]> = {
       )
     ),
     // The last step: it writes the marker of a new tree.
-    step('applications', (options) =>
+    step('apps', (options) =>
       configManagerExportApplications(
         undefined,
         options.realm,
@@ -415,7 +415,7 @@ export const deploymentMapAll: Record<string, AllStep[]> = {
   [CLOUD_DEPLOYMENT_TYPE_KEY]: [
     step('access-config', () => configManagerExportAccessConfig()),
     step('audit', () => configManagerExportAudit()),
-    step('authentication', (options) =>
+    step('authn', (options) =>
       configManagerExportAuthentication(options.realm)
     ),
     step(
@@ -434,7 +434,7 @@ export const deploymentMapAll: Record<string, AllStep[]> = {
         existingConfigFile(options.configFolder, 'csp-overrides.json')
       )
     ),
-    step('custom-nodes', () => configManagerExportCustomNodes()),
+    step('nodes', () => configManagerExportCustomNodes()),
     step('email-provider', () =>
       configManagerExportEmailProviderConfiguration()
     ),
@@ -470,7 +470,7 @@ export const deploymentMapAll: Record<string, AllStep[]> = {
       configManagerExportScripts(undefined, options.realm)
     ),
     step('secrets', () => configManagerExportSecrets()),
-    step('secret-mappings', (options) =>
+    step('secretstore-mappings', (options) =>
       configManagerExportSecretMappings(undefined, options.realm)
     ),
     step(
@@ -529,7 +529,7 @@ export const deploymentMapAll: Record<string, AllStep[]> = {
     // applications: the layout of the tree is decided before the first step runs (see runSteps), so their position
     // does not matter for that, and the requests they add (the ownership of the applications) come after those of
     // the steps before them (the recorded replays of `pull all` hand out their recordings in order).
-    step('connector-definitions', (options) =>
+    step('connectors', (options) =>
       configManagerExportConnectorDefinitions(
         undefined,
         false,
@@ -565,7 +565,7 @@ export const deploymentMapAll: Record<string, AllStep[]> = {
       )
     ),
     // The last step: it writes the marker of a new tree.
-    step('applications', (options) =>
+    step('apps', (options) =>
       configManagerExportApplications(
         undefined,
         options.realm,
@@ -576,7 +576,7 @@ export const deploymentMapAll: Record<string, AllStep[]> = {
     ),
   ],
   [CLASSIC_DEPLOYMENT_TYPE_KEY]: [
-    step('authentication', (options) =>
+    step('authn', (options) =>
       configManagerExportAuthentication(options.realm)
     ),
     step(
@@ -603,7 +603,7 @@ export const deploymentMapAll: Record<string, AllStep[]> = {
       )
     ),
     step('cors', () => configManagerExportCors()),
-    step('custom-nodes', () => configManagerExportCustomNodes()),
+    step('nodes', () => configManagerExportCustomNodes()),
     step('journeys', (options) =>
       configManagerExportJourneys(undefined, options.realm, false)
     ),
@@ -682,8 +682,8 @@ export const deploymentMapAll: Record<string, AllStep[]> = {
  *
  * The order below is the one that `push all-static` was first written with: the configuration of the tenant first, then the
  * configuration of the realm, starting with the scripts that the other realm steps refer to, and `scripts` before
- * `authentication`, `services` and `journeys`. Two pairs of it are not verified: `connector-mappings` is pushed before
- * `managed-objects` (a mapping names managed types, so the reference runs the other way) and `authentication` before
+ * `authn`, `services` and `journeys`. Two pairs of it are not verified: `connector-mappings` is pushed before
+ * `managed-objects` (a mapping names managed types, so the reference runs the other way) and `authn` before
  * `journeys`. The order is kept, and whether a tenant accepts it was not tried against a tenant. `pull all-static` runs
  * its steps in this order too.
  */
@@ -704,7 +704,7 @@ export const deploymentMapAllStatic: Record<string, AllStep[]> = {
       import: (options) => configManagerImportMetadata(options.metadata),
       when: metadataWasGiven,
     }),
-    step('connector-definitions', {
+    step('connectors', {
       export: () => configManagerExportConnectorDefinitions(),
       import: () => configManagerImportConnectors(),
       reads: readsPaths('sync/connectors'),
@@ -719,7 +719,7 @@ export const deploymentMapAllStatic: Record<string, AllStep[]> = {
       import: () => configManagerImportCors(),
       reads: readsPaths('cors/cors-config.json'),
     }),
-    step('custom-nodes', {
+    step('nodes', {
       export: () => configManagerExportCustomNodes(),
       import: () => configManagerImportCustomNodes(),
       reads: readsPaths('custom-nodes/nodes'),
@@ -803,7 +803,7 @@ export const deploymentMapAllStatic: Record<string, AllStep[]> = {
       import: (options) => configManagerImportScripts(options.realm),
       reads: readsInRealm('scripts/scripts-config'),
     }),
-    step('authentication', {
+    step('authn', {
       export: (options) => configManagerExportAuthentication(options.realm),
       import: (options) => configManagerImportAuthentication(options.realm),
       reads: readsInRealm('realm-config/authentication.json'),
@@ -838,7 +838,7 @@ export const deploymentMapAllStatic: Record<string, AllStep[]> = {
       import: (options) => configManagerImportMetadata(options.metadata),
       when: metadataWasGiven,
     }),
-    step('connector-definitions', {
+    step('connectors', {
       export: () => configManagerExportConnectorDefinitions(),
       import: () => configManagerImportConnectors(),
       reads: readsPaths('sync/connectors'),
@@ -866,7 +866,7 @@ export const deploymentMapAllStatic: Record<string, AllStep[]> = {
       import: () => configManagerImportCsp(),
       reads: readsPaths('csp/csp.json'),
     }),
-    step('custom-nodes', {
+    step('nodes', {
       export: () => configManagerExportCustomNodes(),
       import: () => configManagerImportCustomNodes(),
       reads: readsPaths('custom-nodes/nodes'),
@@ -945,7 +945,7 @@ export const deploymentMapAllStatic: Record<string, AllStep[]> = {
       reads: readsPaths('ui/ui-configuration.json'),
     }),
     // Realm configurations after global configurations, starting with scripts since they are used as dependencies for other configurations
-    step('secret-mappings', {
+    step('secretstore-mappings', {
       export: (options) =>
         configManagerExportSecretMappings(undefined, options.realm),
       import: (options) =>
@@ -957,7 +957,7 @@ export const deploymentMapAllStatic: Record<string, AllStep[]> = {
       import: (options) => configManagerImportScripts(options.realm),
       reads: readsInRealm('scripts/scripts-config'),
     }),
-    step('authentication', {
+    step('authn', {
       export: (options) => configManagerExportAuthentication(options.realm),
       import: (options) => configManagerImportAuthentication(options.realm),
       reads: readsInRealm('realm-config/authentication.json'),
@@ -983,7 +983,7 @@ export const deploymentMapAllStatic: Record<string, AllStep[]> = {
       import: () => configManagerImportCors(),
       reads: readsPaths('cors/cors-config.json'),
     }),
-    step('custom-nodes', {
+    step('nodes', {
       export: () => configManagerExportCustomNodes(),
       import: () => configManagerImportCustomNodes(),
       reads: readsPaths('custom-nodes/nodes'),
@@ -994,7 +994,7 @@ export const deploymentMapAllStatic: Record<string, AllStep[]> = {
       import: (options) => configManagerImportScripts(options.realm),
       reads: readsInRealm('scripts/scripts-config'),
     }),
-    step('authentication', {
+    step('authn', {
       export: (options) => configManagerExportAuthentication(options.realm),
       import: (options) => configManagerImportAuthentication(options.realm),
       reads: readsInRealm('realm-config/authentication.json'),
@@ -1221,14 +1221,14 @@ function withConfigFolderCheck(
 
 /**
  * Decide the layout of the tree before any step writes into it, for the steps
- * that need it (the `applications` step). A marker that cannot be read is left
+ * that need it (the `apps` step). A marker that cannot be read is left
  * for the step to report.
  */
 function withApplicationLayout(
   steps: AllStep[],
   options: ConfigManagerAllOptions
 ): ConfigManagerAllOptions {
-  if (!steps.some((s) => s.name === 'applications')) return options;
+  if (!steps.some((s) => s.name === 'apps')) return options;
   try {
     return {
       ...options,

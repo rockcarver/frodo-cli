@@ -123,7 +123,7 @@ async function readSyncConfig(): Promise<any | undefined> {
  * the sync configuration, or a named mapping that does not exist, ends the command whatever
  * `--allow-failures` says.
  * In a tree that uses the application layout (decision record 0042) a mapping that an
- * application owns is not exported here: `pull applications` writes it into the folder of the
+ * application owns is not exported here: `pull apps` writes it into the folder of the
  * application. It is named and skipped, which is not a failure. Mappings belong to the tenant,
  * not to a realm, so the applications of every realm are asked; if they cannot be read the
  * command fails.
@@ -220,7 +220,7 @@ function getConnectorMappingImportData(file: string): object {
 /**
  * Import all mappings in fr-config-manager format
  * In a tree that uses the application layout (decision record 0042) a mapping that an application
- * owns is not imported here: `push applications` imports it from the folder of the application. A
+ * owns is not imported here: `push apps` imports it from the folder of the application. A
  * mapping that an application folder of any realm owns is named and skipped, which is not a
  * failure, and no file of the tree is changed. Mappings belong to the tenant, not to a realm, so the
  * application folders of every realm are asked; if one cannot be read the command fails and nothing
@@ -299,7 +299,7 @@ export async function configManagerImportMappings(
 /**
  * Read one mapping from its directory, `<dir>/<name>.json` with the script
  * sources that it refers to put back in (the format `pull connector-mappings`
- * and `pull applications` write). Shared by the commands that push a mapping
+ * and `pull apps` write). Shared by the commands that push a mapping
  * because an application owns it.
  * @param {string} mappingPath the directory of the mapping (relative to the working directory)
  * @param {string} name the name of the mapping
@@ -658,7 +658,7 @@ async function deleteNamedMapping(
   if (found.length > 0 && !force) {
     // an application owns the mapping that it names
     const owner = found.some((reference) => reference.source === 'application')
-      ? '\nAn application owns the mapping that it names: config-manager delete applications removes both.'
+      ? '\nAn application owns the mapping that it names: config-manager delete apps removes both.'
       : '';
     printMessage(
       `${dryRun ? 'Dry run: the delete would be refused. ' : ''}Mapping '${printable(name)}' is still named by:\n${namedByLines(found).join('\n')}${owner}\nNothing was deleted. --force deletes it anyway: it deletes the mapping and clears no reference itself, and every object above names a mapping that does not exist afterwards.`,
