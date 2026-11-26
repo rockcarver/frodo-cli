@@ -45,6 +45,8 @@ const runFrodo = (extraEnv, args) =>
           PATH: process.env.PATH,
           HOME: home,
           FRODO_NO_UPDATE_CHECK: '1',
+          // a new HOME for every file: a compile cache would fill for nothing
+          FRODO_NO_COMPILE_CACHE: '1',
           NO_COLOR: '1',
           ...extraEnv,
         },

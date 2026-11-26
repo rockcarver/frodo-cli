@@ -1,4 +1,8 @@
 #!/usr/bin/env node
+import { mkdirSync } from 'node:fs';
+import { enableCompileCache } from 'node:module';
+import { homedir } from 'node:os';
+import { join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 /*
@@ -33,12 +37,49 @@ if (
   process.setSourceMapsEnabled(true);
 }
 
-// 2. The app saw its own file as `process.argv[1]` when this entry started it
+// 2. Node's compile cache: Node keeps what V8 compiled for every file that is
+// loaded after this call and gives it back on the next start, which saves part
+// of every start after the first (docs/BUILD-ENV.md section 2.4). Like the
+// source maps it applies to code loaded later, so it comes before the app. The
+// folder is `compile-cache` in the config folder (FRODO_CONFIG_PATH, else
+// `.frodo` in the home folder, as everywhere in the CLI), made for the owner
+// only. It is off where it cannot pay: in a CI run, in a test run, when
+// FRODO_NO_COMPILE_CACHE asks (the values of the source maps switch above),
+// when Node itself is told not to (NODE_DISABLE_COMPILE_CACHE) and when the
+// user chose a cache of their own (NODE_COMPILE_CACHE, which Node has already
+// switched on). It is an optimisation and never a reason not to start: a
+// folder that cannot be made or used leaves the start as it would be without
+// it, with nothing printed.
+const isSet = (value: string | undefined): boolean =>
+  !['', '0', 'false'].includes((value ?? '').toLowerCase());
+if (
+  !isSet(process.env.CI) &&
+  !isSet(process.env.FRODO_TEST) &&
+  !isSet(process.env.FRODO_MOCK) &&
+  !['1', 'true', 'yes', 'on'].includes(
+    (process.env.FRODO_NO_COMPILE_CACHE ?? '').toLowerCase()
+  ) &&
+  process.env.NODE_DISABLE_COMPILE_CACHE === undefined &&
+  !process.env.NODE_COMPILE_CACHE
+) {
+  try {
+    const folder = resolve(
+      process.env.FRODO_CONFIG_PATH || join(homedir(), '.frodo'),
+      'compile-cache'
+    );
+    mkdirSync(folder, { recursive: true, mode: 0o700 });
+    enableCompileCache(folder);
+  } catch {
+    // no cache: the start goes on without it
+  }
+}
+
+// 3. The app saw its own file as `process.argv[1]` when this entry started it
 // as a child process, and the library tells a test run from a normal run by
 // that name. Keep it that way.
 process.argv[1] = app;
 
-// 3. Run the app. A variable, not a string literal, so that the build leaves
+// 4. Run the app. A variable, not a string literal, so that the build leaves
 // the call alone instead of bundling the app into this file. `require` is the
 // one call here that has to be synchronous and has to load a CommonJS file.
 // eslint-disable-next-line @typescript-eslint/no-require-imports
