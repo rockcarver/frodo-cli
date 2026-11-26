@@ -643,10 +643,64 @@ describe('a tree that holds some of the folders', () => {
     expect(warnings()).toContain(
       `Skipping scripts: 'realms/*/scripts/scripts-config' not found in '${workingDirectory}'.`
     );
-    expect(warnings()).not.toContain(
-      expect.stringContaining('Skipping themes')
+    // `toContain` compares whole elements, so look at the text of each warning
+    expect(warnings().filter((w) => w.startsWith('Skipping themes'))).toEqual(
+      []
     );
   });
+
+  /**
+   * Without a realm every realm folder of the tree counts, one after the other: a step is pushed when ANY of them
+   * holds its path, also when the first one does not, and it is skipped, with the warning that names every realm as
+   * `*`, only when none does. Each row: the step, the path it reads inside a realm folder, and what the first realm
+   * folder holds instead (the path itself would make the first folder enough).
+   */
+  describe.each([
+    ['themes', 'themes', 'other'],
+    ['scripts', 'scripts/scripts-config', 'scripts/scripts-content'],
+    [
+      'authentication',
+      'realm-config/authentication.json',
+      'realm-config/other.json',
+    ],
+    ['journeys', 'journeys', 'services'],
+  ])(
+    'without a realm, the step %s looks at every realm folder',
+    (step, inRealm, instead) => {
+      test('is pushed when only the second realm folder holds its path', async () => {
+        workingDirectory = treeWith(
+          `realms/alpha/${instead}`,
+          `realms/bravo/${inRealm}`
+        );
+
+        expect(await configManagerImportAllStatic({})).toBe(true);
+
+        expect(namesCalled('cloud')).toContain(step);
+        expect(importOf(step)).toHaveBeenCalledTimes(1);
+        expect(
+          warnings().filter((w) => w.startsWith(`Skipping ${step}:`))
+        ).toEqual([]);
+        expect(errors()).toEqual([]);
+      });
+
+      test('is skipped, with the warning, when neither realm folder holds its path', async () => {
+        workingDirectory = treeWith(
+          `realms/alpha/${instead}`,
+          `realms/bravo/${instead}`,
+          // another step finds its folder, so the tree is not an empty one
+          'cors/cors-config.json'
+        );
+
+        expect(await configManagerImportAllStatic({})).toBe(true);
+
+        expect(importOf(step)).not.toHaveBeenCalled();
+        expect(warnings()).toContain(
+          `Skipping ${step}: 'realms/*/${inRealm}' not found in '${workingDirectory}'.`
+        );
+        expect(importOf('cors')).toHaveBeenCalledTimes(1);
+      });
+    }
+  );
 
   test('with a realm, only the folder of that realm counts', async () => {
     workingDirectory = treeWith('realms/bravo/themes', 'cors/cors-config.json');

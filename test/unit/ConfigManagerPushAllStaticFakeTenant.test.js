@@ -320,21 +320,29 @@ suite('push all-static against a fake tenant', () => {
   /**
    * Starts the fake, which takes every write, and runs the CLI once against it, without a terminal. The host
    * of the fake is the word `{host}` of `args`; without one the host, the realm (`realm`, none when it is
-   * null) and the deployment type are added after `args`.
+   * null) and the deployment type are added after `args`. With `unreachable` no fake is started and the host is
+   * one that nothing listens on (the port of the tcpmux service, which no development machine serves), so the login
+   * fails.
    */
-  async function runAgainst(args, { realm = 'alpha', failRequests } = {}) {
-    fakeAm = await startFakeAm({
-      journey: 'service-account',
-      recordPath: record,
-      acceptWrites: true,
-      // the lists that a push reads are empty, the realms of the tenant are alpha and bravo, and the
-      // theme document of the tenant is there to be updated
-      emptyCollections: true,
-      realms: ['alpha', 'bravo'],
-      idmEntities: { 'ui/themerealm': { _id: 'ui/themerealm', realm: {} } },
-      ...(failRequests ? { failRequests } : {}),
-    });
-    const host = `http://127.0.0.1:${fakeAm.port}/am`;
+  async function runAgainst(
+    args,
+    { realm = 'alpha', failRequests, unreachable = false } = {}
+  ) {
+    if (!unreachable)
+      fakeAm = await startFakeAm({
+        journey: 'service-account',
+        recordPath: record,
+        acceptWrites: true,
+        // the lists that a push reads are empty, the realms of the tenant are alpha and bravo, and the
+        // theme document of the tenant is there to be updated
+        emptyCollections: true,
+        realms: ['alpha', 'bravo'],
+        idmEntities: { 'ui/themerealm': { _id: 'ui/themerealm', realm: {} } },
+        ...(failRequests ? { failRequests } : {}),
+      });
+    const host = unreachable
+      ? 'http://127.0.0.1:1/am'
+      : `http://127.0.0.1:${fakeAm.port}/am`;
     const argv = args.includes('{host}')
       ? args.map((arg) => (arg === '{host}' ? host : arg))
       : [...args, host, ...(realm === null ? [] : [realm]), '--type', 'cloud'];
@@ -742,6 +750,23 @@ suite('push all-static against a fake tenant', () => {
       TIMEOUT
     );
   });
+
+  it(
+    'a login that fails exits 1 before the first step: nothing is pushed and the run does not start',
+    async () => {
+      write(cloudTree());
+
+      const { code, output } = await push(['-D', work], { unreachable: true });
+
+      expect(code).toBe(1);
+      expect(output).toContain('Error getting tokens');
+      expect(output).not.toContain('Importing from');
+      expect(output).not.toContain('steps failed');
+      // no fake tenant was there to receive anything
+      expect(writes()).toEqual([]);
+    },
+    TIMEOUT
+  );
 
   it.each(['-d', '-y'])(
     '%s is an unknown option: the command has no dry run and asks no question',
