@@ -104,6 +104,8 @@ process.getuid = () => real() + 1;
 `,
   relativeHomedir: `require('node:os').homedir = () => 'relative-home';
 `,
+  groupWritableUmask: `process.umask(0o002);
+`,
 };
 
 /**
@@ -567,11 +569,14 @@ describe('a CLI that another test starts runs without the compile cache', () => 
   );
 });
 
-describe('an existing compile-cache is used only when it is a real folder of the user that nobody else can write to', () => {
+describe('an existing compile-cache is used only when it is a real folder of the user that nobody else can enter', () => {
   // A V8 cache entry is run as code, and Node checks an entry for corruption
   // only: not for who wrote it. A folder that someone else can write to, a link
   // into such a folder or a folder of another user would run their entries as
-  // this user, so the cache stays off then. Nothing is changed or made.
+  // this user, so the cache stays off then. A folder that the group or others
+  // can enter at all stays off too (mode 0700 only): Node makes the version
+  // folder inside it with the umask of the process, which can leave that folder
+  // group-writable. Nothing is changed or made.
   const posixOnly = testif(hasDist && posix);
 
   /** What a folder is and its mode, to see that the entry changed neither. */
@@ -582,7 +587,7 @@ describe('an existing compile-cache is used only when it is a real folder of the
       : stat.isDirectory()
         ? 'folder'
         : 'file';
-    return `${type} ${(stat.mode & 0o777).toString(8)}`;
+    return `${type} ${(stat.mode & 0o7777).toString(8)}`;
   };
 
   /** Runs with a compile-cache that was made by `make(cache, home)` and checks that the cache is off and nothing moved. */
@@ -606,6 +611,14 @@ describe('an existing compile-cache is used only when it is a real folder of the
     ['0770 (group can write)', 0o770],
     ['0757 (others can write)', 0o757],
     ['0707 (others can write)', 0o707],
+    ['0750 (the group can read)', 0o750],
+    ['0755 (group and others can read)', 0o755],
+    ['0705 (others can read)', 0o705],
+    ['0710 (the group can enter)', 0o710],
+    ['0701 (others can enter)', 0o701],
+    ['1777 (sticky, others can write)', 0o1777],
+    ['2755 (setgid, group and others can read)', 0o2755],
+    ['1755 (sticky, group and others can read)', 0o1755],
   ])(
     'a folder with mode %s: cache off, mode kept, nothing written',
     (_, mode) => {
@@ -617,22 +630,43 @@ describe('an existing compile-cache is used only when it is a real folder of the
     }
   );
 
-  posixOnly.each([
-    ['0700', 0o700],
-    ['0750 (the group can read)', 0o750],
-    ['0755 (others can read)', 0o755],
-  ])(
-    'a folder of the user with mode %s is used and keeps its mode',
-    (_, mode) => {
+  posixOnly('a folder with mode 0700 is used and keeps its mode', () => {
+    const home = newHome();
+    const cache = cacheOf(home);
+    fs.mkdirSync(cache, { recursive: true });
+    fs.chmodSync(cache, 0o700);
+    const { status, stderr, seen } = runFake(home);
+    expect(status).toBe(0);
+    expect(stderr).toBe('');
+    expect(usesCacheIn(seen, cache)).toBe(true);
+    expect(fs.statSync(cache).mode & 0o7777).toBe(0o700);
+  });
+
+  // The reason for the stricter rule: with a group-writable umask Node makes
+  // the version folder inside an existing folder group-writable, and a folder
+  // that the group can enter would let its members write there.
+  posixOnly(
+    'under a group-writable umask a folder with mode 0755 stays off and one with mode 0700 is used and stays 0700',
+    () => {
+      const open = expectOff((folder) => {
+        fs.mkdirSync(folder);
+        fs.chmodSync(folder, 0o755);
+        return { env: preload('groupWritableUmask') };
+      });
+      expect(fs.readdirSync(open.cache)).toEqual([]);
+
       const home = newHome();
       const cache = cacheOf(home);
       fs.mkdirSync(cache, { recursive: true });
-      fs.chmodSync(cache, mode);
-      const { status, stderr, seen } = runFake(home);
+      fs.chmodSync(cache, 0o700);
+      const { status, stderr, seen } = runFake(
+        home,
+        preload('groupWritableUmask')
+      );
       expect(status).toBe(0);
       expect(stderr).toBe('');
       expect(usesCacheIn(seen, cache)).toBe(true);
-      expect(fs.statSync(cache).mode & 0o777).toBe(mode);
+      expect(fs.statSync(cache).mode & 0o7777).toBe(0o700);
     }
   );
 

@@ -54,17 +54,21 @@ if (
 // Two guards. The config folder has to be an absolute path: an empty home
 // folder (HOME set but empty) or a `~` that nobody expanded would put the
 // folder into the current directory. And an existing `compile-cache` is used
-// only when it is a real directory (not a link) of the current user that
-// neither the group nor others can write to, because V8 runs a cache entry as
-// code and Node checks an entry for corruption only, not for who wrote it. A
-// folder that is not that is left as it is (its mode is never changed) and the
-// cache stays off. Windows has no such owner and mode.
+// only when it is a real directory (not a link) of the current user that the
+// group and others cannot enter at all (mode 0700, which is what this entry
+// makes), because V8 runs a cache entry as code and Node checks an entry for
+// corruption only, not for who wrote it. Node makes the version folder inside
+// with the umask of the process, so a folder that others can enter could get a
+// group-writable one. A folder that is not that is left as it is (its mode is
+// never changed) and the cache stays off. Windows has no such owner and mode.
+// The folder name is joined to the config folder as text, so a `..` after a
+// link in FRODO_CONFIG_PATH reads as the path says, not as the link would.
 const isSet = (value: string | undefined): boolean =>
   !['', '0', 'false'].includes((value ?? '').toLowerCase());
 const isTheUsersOwn = (folder: Stats): boolean =>
   folder.isDirectory() &&
   (process.platform === 'win32' ||
-    ((folder.mode & 0o022) === 0 &&
+    ((folder.mode & 0o077) === 0 &&
       (typeof process.getuid !== 'function' ||
         folder.uid === process.getuid())));
 if (
