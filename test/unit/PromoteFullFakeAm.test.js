@@ -15,7 +15,7 @@ const {
 } = require('../e2e/utils/FrodoBinary.cjs');
 
 /**
- * `--full` of `config-manager promote run`, `dry-run`
+ * `--full` of `config promote run`, `dry-run`
  * and `rollback`, and the question that these commands ask first, through the
  * REAL CLI and the real library of this checkout against the fake tenant of
  * test/utils/FakeAm.mjs in a separate process, with no tenant and no recording.
@@ -70,7 +70,7 @@ const ENCRYPTED = {
   ],
 };
 
-suite('config-manager promote --full through the CLI', () => {
+suite('config promote --full through the CLI', () => {
   let home;
   let work;
   let logDir;
@@ -113,7 +113,7 @@ suite('config-manager promote --full through the CLI', () => {
   }
 
   /**
-   * Runs `frodo config-manager promote <command> <args>` against the fake,
+   * Runs `frodo config promote <command> <args>` against the fake,
    * without a terminal, and answers its exit code and both outputs. A command
    * that is still running after MAX_RUN_MS is killed with its launcher (the exit
    * code is then null).
@@ -123,7 +123,7 @@ suite('config-manager promote --full through the CLI', () => {
       const child = cp.spawn(
         binaryPath,
         [
-          'config-manager',
+          'config',
           'promote',
           command,
           ...args,
@@ -260,7 +260,7 @@ suite('config-manager promote --full through the CLI', () => {
             : command === 'dry-run'
         );
         expect(stderr).toContain(`lock id ${LOCK_ID}`);
-        expect(stderr).toContain('frodo config-manager promote unlock');
+        expect(stderr).toContain('frodo config promote unlock');
         expect(stderr).toMatch(/Lock: done\. .*: done\. Unlock: done\./);
         expect(code).toBe(0);
         expect(await lockNow(server)).toBe('unlocked');

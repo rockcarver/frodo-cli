@@ -180,7 +180,7 @@ function describeProblem(
  * at its root). A new tree gets the marker, with the layout of the per-user
  * setting, before the first file is written; a tree that keeps the objects of an
  * application at the paths of their kinds is never switched here: the command
- * refuses and names `config-manager migrate apps`, and the step of
+ * refuses and names `config migrate apps`, and the step of
  * `pull all` (`quiet`) skips with a warning.
  *
  * Every application is one operation of an {@link OperationRun}: an application
@@ -225,7 +225,7 @@ export async function configManagerExportApplications(
       const reason =
         decision.tree === 'new'
           ? `The layout setting for a new tree is "kind-paths" (frodo settings config-manager-layout), so this tree keeps the objects of an application at the paths of their own kinds.`
-          : `This tree keeps the objects of an application at the paths of their own kinds. Move it to one folder per application with "frodo config-manager migrate apps".`;
+          : `This tree keeps the objects of an application at the paths of their own kinds. Move it to one folder per application with "frodo config migrate apps".`;
       if (quiet) {
         printMessage(`Applications were not pulled. ${reason}`, 'warn');
         return true;

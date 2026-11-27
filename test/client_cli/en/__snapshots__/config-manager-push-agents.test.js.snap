@@ -1,7 +1,7 @@
 // Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
-exports[`CLI help interface for 'config-manager push agents' should be expected english 1`] = `
-"Usage: frodo config-manager push agents [options] [host] [realm] [username] [password]
+exports[`CLI help interface for 'config push agents' should be expected english 1`] = `
+"Usage: frodo config push agents [options] [host] [realm] [username] [password]
 
 [Experimental] Import the agents (the gateway, Java, web and policy agents and
 the other agent types listed below, but not the OAuth2 clients) from the files

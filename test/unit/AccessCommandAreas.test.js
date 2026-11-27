@@ -93,10 +93,13 @@ describe('which areas a command needs', () => {
   });
 
   test('5: the longest entry wins: a command of a general group can still need a service account', () => {
-    expect(commandNeeds('config-manager pull journeys')).toBe('general');
-    expect(commandNeeds('config-manager pull csp')).toEqual([
+    expect(commandNeeds('config pull journeys')).toBe('general');
+    expect(commandNeeds('config pull csp')).toEqual([
       'content-security-policy',
     ]);
+    // config export and config import are in the same group and need no area; the promotion commands need one
+    expect(commandNeeds('config export')).toBe('general');
+    expect(commandNeeds('config promote run')).toEqual(['promotion']);
     expect(
       commandNeeds('admin list-oauth2-clients-with-admin-privileges')
     ).toBe('general');
@@ -114,23 +117,23 @@ describe('which areas a command needs', () => {
         'admin federation export',
         'admin federation import',
         'admin federation list',
-        'config-manager delete telemetry',
-        'config-manager promote dry-run',
-        'config-manager promote lock',
-        'config-manager promote lock-status',
-        'config-manager promote report',
-        'config-manager promote rollback',
-        'config-manager promote run',
-        'config-manager promote status',
-        'config-manager promote unlock',
-        'config-manager pull cookie-domains',
-        'config-manager pull csp',
-        'config-manager pull iga-workflows',
-        'config-manager pull telemetry',
-        'config-manager push cookie-domains',
-        'config-manager push csp',
-        'config-manager push iga-workflows',
-        'config-manager push telemetry',
+        'config delete telemetry',
+        'config promote dry-run',
+        'config promote lock',
+        'config promote lock-status',
+        'config promote report',
+        'config promote rollback',
+        'config promote run',
+        'config promote status',
+        'config promote unlock',
+        'config pull cookie-domains',
+        'config pull csp',
+        'config pull iga-workflows',
+        'config pull telemetry',
+        'config push cookie-domains',
+        'config push csp',
+        'config push iga-workflows',
+        'config push telemetry',
         'dcc session abort',
         'dcc session apply',
         'dcc session init',

@@ -6,7 +6,7 @@ import { FrodoCommand } from '../../FrodoCommand';
 import { selectorOption } from '../../SelectorOption';
 
 export default function setup() {
-  const program = new FrodoCommand('frodo config-manager pull services');
+  const program = new FrodoCommand('frodo config pull services');
 
   program
     .description('Export authentication services.')

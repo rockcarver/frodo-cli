@@ -3,6 +3,7 @@
 exports[`frodo config-manager push service-objects "frodo config-manager push service-objects -E SERVICE_OBJECT_GIVEN_NAME=testName -D test/e2e/exports/fr-config-manager/forgeops -m forgeops": should import the service objects into forgeops" 1`] = `""`;
 
 exports[`frodo config-manager push service-objects "frodo config-manager push service-objects -E SERVICE_OBJECT_GIVEN_NAME=testName -D test/e2e/exports/fr-config-manager/forgeops -m forgeops": should import the service objects into forgeops" 2`] = `
-"Experimental feature in use: 'frodo config-manager push service-objects'. This feature may change without notice.
+"'config-manager' is now called 'config'. The old name still works and will be removed in a future major release.
+Experimental feature in use: 'frodo config push service-objects'. This feature may change without notice.
 "
 `;

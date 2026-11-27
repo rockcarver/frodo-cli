@@ -16,7 +16,7 @@ import { selectorOption } from '../../SelectorOption';
 const { DEFAULT_REALM_KEY } = frodo.utils.constants;
 
 export default function setup() {
-  const program = new FrodoCommand('frodo config-manager delete services');
+  const program = new FrodoCommand('frodo config delete services');
 
   program
     .description('Delete realm services.')
@@ -42,24 +42,22 @@ export default function setup() {
     .addHelpText(
       'after',
       `A realm service is a setting of the realm (session, base URL, OAuth 2.0 provider, identity stores, and so on); deleting it removes it with its next descendents. Without -i every service that pull services covers is deleted in the selected realms (every realm without a realm argument), DataStoreService excepted. Services that other objects use are not looked up: a journey, client or user that needs a deleted service fails when it runs. Global services are not touched.\n` +
-        `A delete of all services names the services that a realm commonly depends on (the identity stores, the OAuth 2.0 provider, the social identity providers, the email service, the PingOne connection, the self-service journeys, the session settings, the base URL and the valid goto URLs) in its plan, and says what goes with them. It does not refuse to delete them: AM accepts every one of these deletions, and what a realm does without one has not been observed by this command. A service that was deleted by mistake can be created again with config-manager push services from a pull services made before, as far as pull services exports it: it never exports DataStoreService, which a delete that names it can still delete.\n` +
+        `A delete of all services names the services that a realm commonly depends on (the identity stores, the OAuth 2.0 provider, the social identity providers, the email service, the PingOne connection, the self-service journeys, the session settings, the base URL and the valid goto URLs) in its plan, and says what goes with them. It does not refuse to delete them: AM accepts every one of these deletions, and what a realm does without one has not been observed by this command. A service that was deleted by mistake can be created again with config push services from a pull services made before, as far as pull services exports it: it never exports DataStoreService, which a delete that names it can still delete.\n` +
         `A service that is not in the realm exits with code 1, also with --dry-run and --allow-failures. Every service is one operation of the summary, named realm/service (root/service in the root realm); a realm whose services cannot be listed is one operation named realm followed by its name, so the summary counts it as one. --allow-failures keeps the exit code at 0 for a service that could not be read or deleted and for a realm that could not be listed, but never for a service that is not there. A service whose id, or the type or id of one of its next descendents, is not a plain name (no slash, backslash, question mark, hash, percent sign, double dot or control character) is never deleted: no request is sent for it and it counts as failed. With -i only the named service counts: another service of the realm that cannot be read is a warning.\n` +
         `Usage Examples:\n` +
         `  Delete all services of every realm without asking, which is required without a terminal (without -y a terminal is asked first):\n` +
-        c.command(`  $ frodo config-manager delete services -y ${s.connId}\n`) +
+        c.command(`  $ frodo config delete services -y ${s.connId}\n`) +
         `  Preview the deletion of all services of every realm:\n` +
-        c.command(`  $ frodo config-manager delete services -d ${s.connId}\n`) +
+        c.command(`  $ frodo config delete services -d ${s.connId}\n`) +
         `  Delete all services of the alpha realm without asking:\n` +
-        c.command(
-          `  $ frodo config-manager delete services -y ${s.connId} alpha\n`
-        ) +
+        c.command(`  $ frodo config delete services -y ${s.connId} alpha\n`) +
         `  Delete one service of the alpha realm:\n` +
         c.command(
-          `  $ frodo config-manager delete services -i email ${s.connId} alpha\n`
+          `  $ frodo config delete services -i email ${s.connId} alpha\n`
         ) +
         `  Preview the deletion of one service of the alpha realm:\n` +
         c.command(
-          `  $ frodo config-manager delete services -i email -d ${s.connId} alpha\n`
+          `  $ frodo config delete services -i email -d ${s.connId} alpha\n`
         )
     )
     .multiOp()

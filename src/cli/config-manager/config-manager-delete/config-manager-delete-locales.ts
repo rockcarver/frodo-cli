@@ -22,7 +22,7 @@ const deploymentTypes = [
 
 export default function setup() {
   const program = new FrodoCommand(
-    'frodo config-manager delete locales',
+    'frodo config delete locales',
     [],
     deploymentTypes
   );
@@ -49,17 +49,13 @@ export default function setup() {
       'after',
       `Usage Examples:\n` +
         `  Delete all locales without asking, which is required without a terminal (without -y a terminal is asked first):\n` +
-        c.command(`  $ frodo config-manager delete locales -y ${s.connId}\n`) +
+        c.command(`  $ frodo config delete locales -y ${s.connId}\n`) +
         `  Preview the deletion of all locales:\n` +
-        c.command(`  $ frodo config-manager delete locales -d ${s.connId}\n`) +
+        c.command(`  $ frodo config delete locales -d ${s.connId}\n`) +
         `  Delete a locale by id:\n` +
-        c.command(
-          `  $ frodo config-manager delete locales -i en ${s.connId}\n`
-        ) +
+        c.command(`  $ frodo config delete locales -i en ${s.connId}\n`) +
         `  Preview deletion of a locale by id:\n` +
-        c.command(
-          `  $ frodo config-manager delete locales -i en -d ${s.connId}\n`
-        )
+        c.command(`  $ frodo config delete locales -i en -d ${s.connId}\n`)
     )
     .multiOp()
     .action(async (host, realm, user, password, options, command) => {

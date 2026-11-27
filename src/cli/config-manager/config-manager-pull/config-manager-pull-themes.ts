@@ -16,7 +16,7 @@ const deploymentTypes = [
 
 export default function setup() {
   const program = new FrodoCommand(
-    'frodo config-manager pull themes',
+    'frodo config pull themes',
     [],
     deploymentTypes
   );

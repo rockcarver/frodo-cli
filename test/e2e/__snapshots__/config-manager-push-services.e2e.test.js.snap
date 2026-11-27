@@ -3,7 +3,8 @@
 exports[`frodo config-manager push services "frodo config-manager push services --name id-repositories -D test/e2e/exports/fr-config-manager/forgeops -m forgeops": should import a specific service by realm into forgeops" 1`] = `""`;
 
 exports[`frodo config-manager push services "frodo config-manager push services --name id-repositories -D test/e2e/exports/fr-config-manager/forgeops -m forgeops": should import a specific service by realm into forgeops" 2`] = `
-"Experimental feature in use: 'frodo config-manager push services'. This feature may change without notice.
+"'config-manager' is now called 'config'. The old name still works and will be removed in a future major release.
+Experimental feature in use: 'frodo config push services'. This feature may change without notice.
 ✔ Service import completed.
 "
 `;
@@ -11,7 +12,8 @@ exports[`frodo config-manager push services "frodo config-manager push services 
 exports[`frodo config-manager push services "frodo config-manager push services -D test/e2e/exports/fr-config-manager/forgeops -m forgeops": should import all services into forgeops" 1`] = `""`;
 
 exports[`frodo config-manager push services "frodo config-manager push services -D test/e2e/exports/fr-config-manager/forgeops -m forgeops": should import all services into forgeops" 2`] = `
-"Experimental feature in use: 'frodo config-manager push services'. This feature may change without notice.
+"'config-manager' is now called 'config'. The old name still works and will be removed in a future major release.
+Experimental feature in use: 'frodo config push services'. This feature may change without notice.
 ✔ Service import completed.
 "
 `;
@@ -19,7 +21,8 @@ exports[`frodo config-manager push services "frodo config-manager push services 
 exports[`frodo config-manager push services "frodo config-manager push services -n id-repositories -D test/e2e/exports/fr-config-manager/forgeops -m forgeops": should import a specific service by name into forgeops" 1`] = `""`;
 
 exports[`frodo config-manager push services "frodo config-manager push services -n id-repositories -D test/e2e/exports/fr-config-manager/forgeops -m forgeops": should import a specific service by name into forgeops" 2`] = `
-"Experimental feature in use: 'frodo config-manager push services'. This feature may change without notice.
+"'config-manager' is now called 'config'. The old name still works and will be removed in a future major release.
+Experimental feature in use: 'frodo config push services'. This feature may change without notice.
 ✔ Service import completed.
 "
 `;

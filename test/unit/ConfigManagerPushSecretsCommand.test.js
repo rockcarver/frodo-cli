@@ -9,7 +9,7 @@ import {
 import { Command } from 'commander';
 
 /**
- * The command `config-manager push secrets` (records 0037, 0040 and 0041), the
+ * The command `config push secrets` (records 0037, 0040 and 0041), the
  * part that `--prune` adds: a prune deletes versions of secrets for good, so it
  * is refused before the login when nobody can be asked and `--yes` was not
  * given, it shows the versions it would delete and asks (after the login, with
@@ -142,12 +142,12 @@ afterEach(() => {
   process.exitCode = undefined;
 });
 
-describe('frodo config-manager push secrets', () => {
+describe('frodo config push secrets', () => {
   test('is a multi-operation command, for Cloud only', async () => {
     await run();
 
     expect(program.multiOpCalled).toBe(true);
-    expect(constructed[0]).toBe('frodo config-manager push secrets');
+    expect(constructed[0]).toBe('frodo config push secrets');
     expect(constructed[2]).toEqual(['cloud']);
   });
 

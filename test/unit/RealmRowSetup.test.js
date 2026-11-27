@@ -45,14 +45,16 @@ const { realmOfRun, positionalValue } = await import(
 
 /** A parsed leaf with a host and a realm positional. */
 async function leaf(group = 'journey', name = 'list') {
+  // the group may be a path of words, `config pull`
+  const words = group.split(' ');
   const program = new Command('frodo');
-  const command = program
-    .command(group)
+  const command = words
+    .reduce((parent, word) => parent.command(word), program)
     .command(name)
     .argument('[host]')
     .argument('[realm]', 'Realm.', SENTINEL)
     .action(async () => {});
-  await program.parseAsync(['node', 'frodo', group, name, 'matrix']);
+  await program.parseAsync(['node', 'frodo', ...words, name, 'matrix']);
   return command;
 }
 
@@ -114,7 +116,7 @@ describe('realmRowSetup', () => {
   });
 
   test('a command that uses its realm has All realms first and as the default', async () => {
-    const command = await leaf('config-manager', 'journeys');
+    const command = await leaf('config pull', 'journeys');
     declareRealmUse(command, { tenantWide: false });
     const row = await realmRowSetup(command);
     expect(row.choices.map((choice) => choice.name)).toEqual([
@@ -128,7 +130,7 @@ describe('realmRowSetup', () => {
   });
 
   test('says that a realm limits the realm-specific part only for a command that also covers the tenant', async () => {
-    const command = await leaf('config-manager', 'all');
+    const command = await leaf('config pull', 'all');
     declareRealmUse(command, { tenantWide: true });
     const row = await realmRowSetup(command);
     expect(row.message).toBe(
@@ -139,7 +141,7 @@ describe('realmRowSetup', () => {
 
 describe('realmForPreview', () => {
   test('shows All realms as the sentinel and any other realm as itself', async () => {
-    const command = await leaf('config-manager', 'journeys');
+    const command = await leaf('config pull', 'journeys');
     declareRealmUse(command, { tenantWide: false });
     const row = await realmRowSetup(command);
     expect(realmForPreview(row.defaultValue)).toBe(SENTINEL);
@@ -175,7 +177,7 @@ describe('applyRealmRowChoice', () => {
   });
 
   test('a command that uses its realm: All realms writes nothing, the deployment default narrows the run', async () => {
-    const command = await leaf('config-manager', 'journeys');
+    const command = await leaf('config pull', 'journeys');
     declareRealmUse(command, { tenantWide: false });
     const row = await realmRowSetup(command);
     applyRealmRowChoice(command, row, row.choices[0].value);

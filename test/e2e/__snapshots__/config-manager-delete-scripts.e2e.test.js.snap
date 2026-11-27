@@ -3,7 +3,8 @@
 exports[`frodo config-manager delete scripts "frodo config-manager delete scripts --dry-run -m forgeops": should dry-run delete all eligible scripts across realms 1`] = `""`;
 
 exports[`frodo config-manager delete scripts "frodo config-manager delete scripts --dry-run -m forgeops": should dry-run delete all eligible scripts across realms 2`] = `
-"Experimental feature in use: 'frodo config-manager delete scripts'. This feature may change without notice.
+"'config-manager' is now called 'config'. The old name still works and will be removed in a future major release.
+Experimental feature in use: 'frodo config delete scripts'. This feature may change without notice.
 Dry run: Deleting script Debug (9b75654f-2553-4627-9938-b14a5f62ce81) in realm /
 Dry run: Deleting script FrodoDeleteByName (6c698adf-a990-4084-8ad8-c47625bf7490) in realm /
 Dry run: Deleting script Test Next Gen (3d27b6d3-0f41-410a-9975-2e9df43d885e) in realm /
@@ -16,7 +17,8 @@ Dry run: Deleting script Test Next Gen (3d27b6d3-0f41-410a-9975-2e9df43d885e) in
 exports[`frodo config-manager delete scripts "frodo config-manager delete scripts -d -n FrodoDeleteByName -m forgeops": should dry-run delete a specific script by name 1`] = `""`;
 
 exports[`frodo config-manager delete scripts "frodo config-manager delete scripts -d -n FrodoDeleteByName -m forgeops": should dry-run delete a specific script by name 2`] = `
-"Experimental feature in use: 'frodo config-manager delete scripts'. This feature may change without notice.
+"'config-manager' is now called 'config'. The old name still works and will be removed in a future major release.
+Experimental feature in use: 'frodo config delete scripts'. This feature may change without notice.
 Dry run: Deleting script FrodoDeleteByName (a2ed93ac-ac7b-4ee5-8a5e-0e2ffb3a35d4) in realm /alpha
 "
 `;
@@ -24,7 +26,8 @@ Dry run: Deleting script FrodoDeleteByName (a2ed93ac-ac7b-4ee5-8a5e-0e2ffb3a35d4
 exports[`frodo config-manager delete scripts "frodo config-manager delete scripts -n FrodoDeleteByName -m forgeops": should delete a specific script by name 1`] = `""`;
 
 exports[`frodo config-manager delete scripts "frodo config-manager delete scripts -n FrodoDeleteByName -m forgeops": should delete a specific script by name 2`] = `
-"Experimental feature in use: 'frodo config-manager delete scripts'. This feature may change without notice.
+"'config-manager' is now called 'config'. The old name still works and will be removed in a future major release.
+Experimental feature in use: 'frodo config delete scripts'. This feature may change without notice.
 Successfully deleted script FrodoDeleteByName (0342f5f7-d33f-496d-8f12-1e1021fae8a9) in realm /alpha
 "
 `;
@@ -32,7 +35,8 @@ Successfully deleted script FrodoDeleteByName (0342f5f7-d33f-496d-8f12-1e1021fae
 exports[`frodo config-manager delete scripts "frodo config-manager delete scripts -p FrodoDeletePrefix -y -m forgeops": should delete scripts matching the prefix 1`] = `""`;
 
 exports[`frodo config-manager delete scripts "frodo config-manager delete scripts -p FrodoDeletePrefix -y -m forgeops": should delete scripts matching the prefix 2`] = `
-"Experimental feature in use: 'frodo config-manager delete scripts'. This feature may change without notice.
+"'config-manager' is now called 'config'. The old name still works and will be removed in a future major release.
+Experimental feature in use: 'frodo config delete scripts'. This feature may change without notice.
 Successfully deleted script FrodoDeletePrefixOne (770ae490-3c2b-4f34-a7b4-b75a09c0de55) in realm /alpha
 Successfully deleted script FrodoDeletePrefixTwo (30f741d7-da0f-4123-a391-20139566caa8) in realm /alpha
 "

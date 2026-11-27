@@ -13,7 +13,7 @@ const {
 } = require('../e2e/utils/FrodoBinary.cjs');
 
 /**
- * The commands `frodo config-manager pull|push oauth-clients` and `pull|push agents`, which split
+ * The commands `frodo config pull|push oauth-clients` and `pull|push agents`, which split
  * the deprecated `pull|push oauth2-agents`, driven as the real CLI of this checkout against a fake
  * AM (test/utils/FakeAm.mjs, journey `password`, in a separate process), through the real library:
  * what the unit tests of the ops stub (ConfigManagerAgentsSplitOps.test.js), this checks end to
@@ -175,10 +175,8 @@ suite('config-manager oauth-clients and agents against a fake tenant', () => {
     Object.keys(treeOf(dir))
       .filter((file) => file.startsWith('realms/'))
       .sort();
-  const pull = (run, word, ...more) =>
-    run(['config-manager', 'pull', word, ...more]);
-  const push = (run, word, ...more) =>
-    run(['config-manager', 'push', word, ...more]);
+  const pull = (run, word, ...more) => run(['config', 'pull', word, ...more]);
+  const push = (run, word, ...more) => run(['config', 'push', word, ...more]);
 
   describe('pull', () => {
     it(
@@ -320,11 +318,11 @@ suite('config-manager oauth-clients and agents against a fake tenant', () => {
         expect(code).toBe(0);
         expect(
           stderr.match(
-            /Deprecated feature in use: 'frodo config-manager pull oauth2-agents'/g
+            /Deprecated feature in use: 'frodo config pull oauth2-agents'/g
           )
         ).toHaveLength(1);
         expect(stderr).toContain(
-          'It does what "frodo config-manager pull oauth-clients" and "frodo config-manager pull agents" do together; use them instead.'
+          'It does what "frodo config pull oauth-clients" and "frodo config pull agents" do together; use them instead.'
         );
         expect(files()).toEqual([...CLIENT_FILES, ...AGENT_FILES].sort());
       },
@@ -428,10 +426,10 @@ suite('config-manager oauth-clients and agents against a fake tenant', () => {
         expect(clients.code).toBe(0);
         expect(files()).toEqual([CLIENT_FILES[1]]);
         expect(clients.output).toContain(
-          `Skipping 1 WebAgent entry of realm 'alpha' (web-a): agents are pulled by "frodo config-manager pull agents".`
+          `Skipping 1 WebAgent entry of realm 'alpha' (web-a): agents are pulled by "frodo config pull agents".`
         );
         expect(clients.output).toContain(
-          'pulled by "frodo config-manager pull oauth-software-publishers"'
+          'pulled by "frodo config pull oauth-software-publishers"'
         );
 
         const agents = await pull(
@@ -446,7 +444,7 @@ suite('config-manager oauth-clients and agents against a fake tenant', () => {
           'realms/alpha/realm-config/agents/WebAgent/web-a.json',
         ]);
         expect(agents.output).toContain(
-          `Skipping 1 OAuth2Client entry of realm 'alpha' (zion-client): OAuth2 clients are pulled by "frodo config-manager pull oauth-clients".`
+          `Skipping 1 OAuth2Client entry of realm 'alpha' (zion-client): OAuth2 clients are pulled by "frodo config pull oauth-clients".`
         );
         expect(fs.readFileSync(configFile).equals(before)).toBe(true);
 
@@ -596,7 +594,7 @@ suite('config-manager oauth-clients and agents against a fake tenant', () => {
         expect(agentPuts).toEqual(objectsOf(AGENT_FILES));
         expect(agents.output).toContain('Agents import completed.');
         expect(agents.output).toContain(
-          `Skipping the 1 SoftwarePublisher file(s) of realm 'alpha': they are pushed by "frodo config-manager push oauth-software-publishers".`
+          `Skipping the 1 SoftwarePublisher file(s) of realm 'alpha': they are pushed by "frodo config push oauth-software-publishers".`
         );
       },
       TIMEOUT
@@ -614,7 +612,7 @@ suite('config-manager oauth-clients and agents against a fake tenant', () => {
           objectsOf([...CLIENT_FILES, ...AGENT_FILES])
         );
         expect(stderr).toContain(
-          "Deprecated feature in use: 'frodo config-manager push oauth2-agents'."
+          "Deprecated feature in use: 'frodo config push oauth2-agents'."
         );
       },
       TIMEOUT

@@ -8,7 +8,7 @@ import { FrodoCommand } from '../../FrodoCommand';
 import { refuseEmptySelector, selectorOption } from '../../SelectorOption';
 
 export default function setup() {
-  const program = new FrodoCommand('frodo config-manager pull authz-policies');
+  const program = new FrodoCommand('frodo config pull authz-policies');
 
   program
     .description('Export authorization policies.')
@@ -36,7 +36,7 @@ export default function setup() {
       'after',
       'HELP MESSAGE:\n' +
         'Without a config file, every policy set of every realm is pulled, or of the realm that is given. To pull one policy (-i) or one policy set (--set-id), name the realm too. To pull only some policy sets, create a config file such as authz-policies.json and pass it with --config-file.\n' +
-        `Example command: frodo config-manager pull authz-policies --config-file authz-policies.json -D policiesDir ${s.connId}\n\n` +
+        `Example command: frodo config pull authz-policies --config-file authz-policies.json -D policiesDir ${s.connId}\n\n` +
         `Config file example:\n` +
         '-----------------------  Example authz policies export config for authz-policies.json file ------------------------\n' +
         '{\n' +

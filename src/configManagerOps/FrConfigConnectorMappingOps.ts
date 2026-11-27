@@ -706,7 +706,7 @@ async function deleteNamedMapping(
   if (found.length > 0 && !force) {
     // an application owns the mapping that it names
     const owner = found.some((reference) => reference.source === 'application')
-      ? '\nAn application owns the mapping that it names: config-manager delete apps removes both.'
+      ? '\nAn application owns the mapping that it names: config delete apps removes both.'
       : '';
     printMessage(
       `${dryRun ? 'Dry run: the delete would be refused. ' : ''}Mapping '${printable(name)}' is still named by:\n${namedByLines(found).join('\n')}${owner}\nNothing was deleted. --force deletes it anyway: it deletes the mapping and clears no reference itself, and every object above names a mapping that does not exist afterwards.`,

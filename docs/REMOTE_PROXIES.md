@@ -46,7 +46,7 @@ The steps need each other: the secret the client gets is the one the ESV secret 
 
 ## Why the URLs are placeholders
 
-A promotion carries IDM configuration from one environment to the next, so it carries a remote proxy. A proxy that names its receiving tenant in a URL would point the next environment at the same receiver. `setup` therefore writes the host as an ESV placeholder (`https://&{esv.remote.proxy.zion.host}/openidm/`), and the secret as one too. Set the ESV variable and the ESV secret in each environment, and each one reaches its own receiver. `frodo config-manager pull remote-proxies` warns about a proxy that still names a host in a URL.
+A promotion carries IDM configuration from one environment to the next, so it carries a remote proxy. A proxy that names its receiving tenant in a URL would point the next environment at the same receiver. `setup` therefore writes the host as an ESV placeholder (`https://&{esv.remote.proxy.zion.host}/openidm/`), and the secret as one too. Set the ESV variable and the ESV secret in each environment, and each one reaches its own receiver. `frodo config pull remote-proxies` warns about a proxy that still names a host in a URL.
 
 ## Check a proxy
 

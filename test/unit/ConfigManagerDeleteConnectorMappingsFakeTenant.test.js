@@ -14,7 +14,7 @@ const {
 } = require('../e2e/utils/FrodoBinary.cjs');
 
 /**
- * `config-manager delete connector-mappings`, the REAL CLI of this checkout
+ * `config delete connector-mappings`, the REAL CLI of this checkout
  * against a fake tenant (test/utils/FakeAm.mjs, in a separate process, with the
  * IDM store of its configuration objects and the application records of two
  * realms) and the real library. What the unit tests stub, this shows in the log
@@ -129,7 +129,7 @@ const APPLICATIONS = {
   ],
 };
 
-suite('config-manager delete connector-mappings (fake tenant)', () => {
+suite('config delete connector-mappings (fake tenant)', () => {
   let home;
   let work;
   let record;
@@ -165,7 +165,7 @@ suite('config-manager delete connector-mappings (fake tenant)', () => {
     });
   }
 
-  /** Runs `frodo config-manager delete connector-mappings <args>` once against the running tenant, without a terminal. */
+  /** Runs `frodo config delete connector-mappings <args>` once against the running tenant, without a terminal. */
   function runCli(args, { deployment = 'cloud', before = [] } = {}) {
     const login =
       deployment === 'cloud'
@@ -176,7 +176,7 @@ suite('config-manager delete connector-mappings (fake tenant)', () => {
         binaryPath,
         [
           ...before,
-          'config-manager',
+          'config',
           'delete',
           'connector-mappings',
           ...args,
@@ -580,7 +580,7 @@ suite('config-manager delete connector-mappings (fake tenant)', () => {
 
         expect(code).toBe(1);
         expect(output).toContain(
-          'An application owns the mapping that it names: config-manager delete apps removes both.'
+          'An application owns the mapping that it names: config delete apps removes both.'
         );
         expect(changes()).toEqual([]);
       },
@@ -1112,7 +1112,7 @@ suite('config-manager delete connector-mappings (fake tenant)', () => {
     function examples() {
       const help = cp.spawnSync(
         binaryPath,
-        ['config-manager', 'delete', 'connector-mappings', '-hhh'],
+        ['config', 'delete', 'connector-mappings', '-hhh'],
         {
           env: { ...process.env, HOME: home, NO_COLOR: '1', NODE_OPTIONS: '' },
           encoding: 'utf8',
@@ -1122,11 +1122,11 @@ suite('config-manager delete connector-mappings (fake tenant)', () => {
         .split('\n')
         .map((line) => line.trim())
         .filter((line) =>
-          line.startsWith('$ frodo config-manager delete connector-mappings ')
+          line.startsWith('$ frodo config delete connector-mappings ')
         )
         .map((line) =>
           line
-            .replace('$ frodo config-manager delete connector-mappings ', '')
+            .replace('$ frodo config delete connector-mappings ', '')
             .replace(/ matrix$/, '')
             .split(' ')
         );

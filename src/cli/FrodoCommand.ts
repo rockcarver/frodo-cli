@@ -1026,7 +1026,7 @@ const envFileOption = withHelpGroup(
 const forceUpdateOption = withHelpGroup(
   new Option(
     '-F, --force-update',
-    'When used, will force imports/updates to occur even if there are no changes made. Supported commands: authz, esv, script, config for configurations of the previous commands, and the config-manager equivalents of previous commands.'
+    'When used, will force imports/updates to occur even if there are no changes made. Supported commands: authz, esv, script, config for configurations of the previous commands, and the config push equivalents of previous commands.'
   ).default(false),
   RUNTIME_OPTIONS_HEADING,
   OptionCategory.Runtime
@@ -4212,7 +4212,7 @@ export class FrodoCommand extends FrodoStubCommand {
    * from the environment variables of the process when `-E/--env` and
    * `--env-file` hold no value for the name (frodo-lib#1109: the switch of the
    * library's state is off unless a command turns it on). Used for the
-   * config-manager push commands, where a pipeline hands its values over as
+   * config push commands, where a pipeline hands its values over as
    * environment variables. No other command reads the process environment for a
    * placeholder: a file that names a variable copies the value of that variable
    * into whatever it is pushed to, so it is a decision per command family. The
@@ -4344,7 +4344,7 @@ export class FrodoCommand extends FrodoStubCommand {
     }
 
     // The library reads the environment variables of the process for a
-    // placeholder only when its state says so: the config-manager push commands
+    // placeholder only when its state says so: the config push commands
     // say so, no other command does. The answer is set on every call, so that a
     // command never inherits the switch of another one that ran before it in
     // the same process (tests do that).

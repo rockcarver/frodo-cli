@@ -538,7 +538,7 @@ async function deleteNamedConnectorDefinition(
   if (found.length > 0 && !force) {
     // an application owns the connector definition that it names
     const owner = found.some((reference) => reference.source === 'application')
-      ? '\nAn application owns the connector definition that it names: config-manager delete apps removes both.'
+      ? '\nAn application owns the connector definition that it names: config delete apps removes both.'
       : '';
     printMessage(
       `${dryRun ? 'Dry run: the delete would be refused. ' : ''}Connector definition '${target}' is still named by:\n${namedByLines(found).join('\n')}${owner}\nNothing was deleted. --force deletes it anyway: it deletes the connector definition and nothing else, every object above is left as it is and names a connector definition that does not exist afterwards.`,

@@ -52,13 +52,13 @@ describe('the help says where the values come from', () => {
   // the push commands whose files hold ${NAME} placeholders say where the values come from
   // (push oauth2-agents: the passwords of the agents that have one, frodo-cli#1342)
   const KINDS = [
-    'frodo config-manager pull oauth-issuers',
-    'frodo config-manager push oauth-issuers',
-    'frodo config-manager pull oauth-cimd-profiles',
-    'frodo config-manager push oauth-cimd-profiles',
-    'frodo config-manager pull oauth-software-publishers',
-    'frodo config-manager push oauth-software-publishers',
-    'frodo config-manager push oauth2-agents',
+    'frodo config pull oauth-issuers',
+    'frodo config push oauth-issuers',
+    'frodo config pull oauth-cimd-profiles',
+    'frodo config push oauth-cimd-profiles',
+    'frodo config pull oauth-software-publishers',
+    'frodo config push oauth-software-publishers',
+    'frodo config push oauth2-agents',
   ];
   const originalArgv = process.argv;
   const helps = new Map();
@@ -110,7 +110,7 @@ describe('the help says where the values come from', () => {
   });
 });
 
-describe('only the config-manager push commands let a placeholder fall back to the process environment', () => {
+describe('only the config push commands let a placeholder fall back to the process environment', () => {
   const originalArgv = process.argv;
   let leaves;
 
@@ -128,8 +128,7 @@ describe('only the config-manager push commands let a placeholder fall back to t
   });
 
   it('every push command turns the switch on and no other command does', () => {
-    const isPush = (leaf) =>
-      fullName(leaf).startsWith('frodo config-manager push ');
+    const isPush = (leaf) => fullName(leaf).startsWith('frodo config push ');
     const push = leaves.filter(isPush);
     const other = leaves.filter((leaf) => !isPush(leaf));
     expect(push.length).toBeGreaterThan(30);
@@ -263,10 +262,7 @@ suite('push and pull oauth-issuers against a fake tenant', () => {
   const pushedValues = () =>
     new Set(puts().map((r) => JSON.parse(r.body).issuer?.value));
   const push = (run, extra = [], env = {}) =>
-    run(
-      ['config-manager', 'push', 'oauth-issuers', ...extra, ...target()],
-      env
-    );
+    run(['config', 'push', 'oauth-issuers', ...extra, ...target()], env);
 
   describe('push', () => {
     it(
@@ -407,7 +403,7 @@ suite('push and pull oauth-issuers against a fake tenant', () => {
 
         const { code, output } = await run(
           [
-            'config-manager',
+            'config',
             'pull',
             'oauth-issuers',
             '--config-file',

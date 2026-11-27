@@ -11,7 +11,7 @@ const deploymentTypes = [CLOUD_DEPLOYMENT_TYPE_KEY];
 
 export default function setup() {
   const program = new FrodoCommand(
-    'frodo config-manager push telemetry',
+    'frodo config push telemetry',
     [],
     deploymentTypes
   );

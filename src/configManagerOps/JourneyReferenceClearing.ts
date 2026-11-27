@@ -11,7 +11,7 @@ import {
 export { unreadableSources } from './ReferenceDelete';
 
 /**
- * What `config-manager delete journeys --force` does for each holder that still
+ * What `config delete journeys --force` does for each holder that still
  * names the journey: the one table of the command (`HOLDER_RULES`), the pure
  * functions that plan the delete and word it, and the writes that clear a
  * holder or remove the journey from a theme.

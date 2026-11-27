@@ -25,7 +25,7 @@ const deploymentTypes = [CLOUD_DEPLOYMENT_TYPE_KEY];
 
 export default function setup() {
   const program = new FrodoCommand(
-    'frodo config-manager push secrets',
+    'frodo config push secrets',
     [],
     deploymentTypes
   );
@@ -62,19 +62,17 @@ export default function setup() {
       'after',
       `Usage Examples:\n` +
         `  Import all secrets:\n` +
-        c.command(`  $ frodo config-manager push secrets ${s.connId}\n`) +
+        c.command(`  $ frodo config push secrets ${s.connId}\n`) +
         `  Import one secret:\n` +
         c.command(
-          `  $ frodo config-manager push secrets -i esv-example ${s.connId}\n`
+          `  $ frodo config push secrets -i esv-example ${s.connId}\n`
         ) +
         `  Show which old versions pruning would delete, without deleting or importing anything:\n` +
         c.command(
-          `  $ frodo config-manager push secrets --prune --dry-run ${s.connId}\n`
+          `  $ frodo config push secrets --prune --dry-run ${s.connId}\n`
         ) +
         `  Import all secrets and delete their old versions that are still enabled. Deleted versions cannot be recovered. Without -y a terminal is asked first if more than one version would be deleted; -y is required without a terminal:\n` +
-        c.command(
-          `  $ frodo config-manager push secrets --prune -y ${s.connId}\n`
-        )
+        c.command(`  $ frodo config push secrets --prune -y ${s.connId}\n`)
     )
     .multiOp()
     .action(async (host, realm, user, password, options, command) => {

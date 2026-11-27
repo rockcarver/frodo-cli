@@ -24,7 +24,7 @@ const deploymentTypes = [
 
 export default function setup() {
   const program = new FrodoCommand(
-    'frodo config-manager delete connector-mappings',
+    'frodo config delete connector-mappings',
     [],
     deploymentTypes
   );
@@ -61,28 +61,28 @@ export default function setup() {
     .addHelpText(
       'after',
       `Only the connector mappings of the sync configuration are covered, as in pull and push connector-mappings: a mapping that is stored as mapping/<name> is not deleted, and pull, push and delete of those will likely be added later. What names a connector mapping is looked up in the sync configuration, in the mapping/<name> configurations, in the schedules and in the applications of every realm.\n` +
-        `Without --force, a connector mapping that a schedule (invokeContext.mapping), another mapping (links or syncAfter) or an application (mappingNames) still names is not deleted, the command says which and exits with code 1. An application owns the mappings that it names: config-manager delete apps removes both. --allow-failures keeps the exit code at 0 for a delete that failed, but never for a refusal, for a connector mapping that does not exist or for a list of connector mappings that cannot be read. An answer that nothing names it is not proof that it is unused: a connector mapping that a script or an endpoint calls, that has links in a link table or that a running or past reconciliation used is not seen.\n` +
+        `Without --force, a connector mapping that a schedule (invokeContext.mapping), another mapping (links or syncAfter) or an application (mappingNames) still names is not deleted, the command says which and exits with code 1. An application owns the mappings that it names: config delete apps removes both. --allow-failures keeps the exit code at 0 for a delete that failed, but never for a refusal, for a connector mapping that does not exist or for a list of connector mappings that cannot be read. An answer that nothing names it is not proof that it is unused: a connector mapping that a script or an endpoint calls, that has links in a link table or that a running or past reconciliation used is not seen.\n` +
         `Deleting all connector mappings deletes every one of them, one write each, and does not refuse for what names them. The plan that -d shows, and the plan before the question on a terminal, list what names each of them (at most 20 for each connector mapping), from one lookup for all; a delete with -y looks up nothing.\n` +
         `Usage Examples:\n` +
         `  Delete all connector mappings without asking, which is required without a terminal (without -y a terminal is asked first):\n` +
         c.command(
-          `  $ frodo config-manager delete connector-mappings -y ${s.connId}\n`
+          `  $ frodo config delete connector-mappings -y ${s.connId}\n`
         ) +
         `  Preview the deletion of all connector mappings and what names them:\n` +
         c.command(
-          `  $ frodo config-manager delete connector-mappings -d ${s.connId}\n`
+          `  $ frodo config delete connector-mappings -d ${s.connId}\n`
         ) +
         `  Delete a connector mapping (refused if other objects still name it):\n` +
         c.command(
-          `  $ frodo config-manager delete connector-mappings -i ${s.mappingId} ${s.connId}\n`
+          `  $ frodo config delete connector-mappings -i ${s.mappingId} ${s.connId}\n`
         ) +
         `  Preview the deletion of a connector mapping and what names it:\n` +
         c.command(
-          `  $ frodo config-manager delete connector-mappings -i ${s.mappingId} -d ${s.connId}\n`
+          `  $ frodo config delete connector-mappings -i ${s.mappingId} -d ${s.connId}\n`
         ) +
         `  Delete a connector mapping that other objects name, and clear no reference, without asking:\n` +
         c.command(
-          `  $ frodo config-manager delete connector-mappings -i ${s.mappingId} --force -y ${s.connId}\n`
+          `  $ frodo config delete connector-mappings -i ${s.mappingId} --force -y ${s.connId}\n`
         )
     )
     .multiOp()

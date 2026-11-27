@@ -12,7 +12,7 @@ const deploymentTypes = [CLOUD_DEPLOYMENT_TYPE_KEY];
 
 export default function setup() {
   const program = new FrodoCommand(
-    'frodo config-manager promote lock',
+    'frodo config promote lock',
     [],
     deploymentTypes
   );
@@ -23,7 +23,7 @@ export default function setup() {
       'after',
       `Usage Examples:\n` +
         `  Lock the environments before a promotion and wait until they are locked. The output holds the promotion ID that unlock needs:\n` +
-        c.command(`  $ frodo config-manager promote lock ${s.connId}\n`)
+        c.command(`  $ frodo config promote lock ${s.connId}\n`)
     )
     .action(async (host, realm, user, password, options, command) => {
       command.handleDefaultArgsAndOpts(

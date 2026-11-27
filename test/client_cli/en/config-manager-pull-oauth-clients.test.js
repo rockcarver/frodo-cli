@@ -2,10 +2,10 @@ import cp from 'child_process';
 import { promisify } from 'util';
 
 const exec = promisify(cp.exec);
-const CMD = 'frodo config-manager pull oauth-clients --help';
+const CMD = 'frodo config pull oauth-clients --help';
 const { stdout } = await exec(CMD);
 
-test("CLI help interface for 'config-manager pull oauth-clients' should be expected english", async () => {
+test("CLI help interface for 'config pull oauth-clients' should be expected english", async () => {
     expect(stdout).toMatchSnapshot();
 });
 

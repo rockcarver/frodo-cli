@@ -1,5 +1,5 @@
 /**
- * What `config-manager pull journeys` and `pull all` print when a journey
+ * What `config pull journeys` and `pull all` print when a journey
  * cannot be exported because some of its nodes cannot be read. The library
  * reports such a journey with one error that nests one error per node, and the
  * default printout of that error repeats the title of the journey and shows a

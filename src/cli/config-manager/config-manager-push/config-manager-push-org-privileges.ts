@@ -15,7 +15,7 @@ const deploymentTypes = [
 
 export default function setup() {
   const program = new FrodoCommand(
-    'frodo config-manager push org-privileges',
+    'frodo config push org-privileges',
     [],
     deploymentTypes
   );

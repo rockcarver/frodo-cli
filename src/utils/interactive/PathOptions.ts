@@ -109,9 +109,9 @@ export const NOT_FILE_SYSTEM_PATHS: Readonly<Record<string, string>> = {
     'A dot-path to a property nested inside a schema object, not a location in the file system.',
   '--clear':
     'The path of a frodo command (journey list), whose saved defaults are cleared.',
-  'config-manager pull raw --path':
+  'config pull raw --path':
     'The API path of a service object configuration, such as realms/alpha/..., not a location in the file system.',
-  'config-manager push raw --path':
+  'config push raw --path':
     'The path of a service object configuration inside the raw folder of the working directory, such as realms/alpha/..., not a location in the file system.',
 };
 
@@ -120,7 +120,7 @@ export const WRITE_VERBS: readonly string[] = ['export', 'pull'];
 
 /**
  * The names of the command and its parents, without the program name:
- * `['config-manager', 'pull', 'saml']`. The program is the root, named
+ * `['config', 'pull', 'saml']`. The program is the root, named
  * `frodo`; a tree of command groups built without it (the tests do) starts at
  * the group.
  */

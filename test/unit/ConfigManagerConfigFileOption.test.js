@@ -7,9 +7,10 @@ import {
   loadLeafCommands,
   renderFullHelp,
 } from '../utils/CommandExamples.js';
+import { isGroupLeaf } from '../utils/OptionLetters.js';
 
 /**
- * The config file of the `config-manager pull` commands is `--config-file <file>`, with no short
+ * The config file of the `config pull` commands is `--config-file <file>`, with no short
  * form and no other spelling, on the eleven commands that take one:
  * https://github.com/rockcarver/frodo-cli/blob/main/docs/decisions/0057-options-of-the-configuration-commands.md
  * (options of the configuration commands). Six of them took `-f, --file` (`pull raw`: `-f,
@@ -63,7 +64,7 @@ const originalArgv = process.argv;
 let leaves = [];
 let helpOf = new Map();
 const leafOf = (verb) =>
-  leaves.find((leaf) => fullName(leaf) === `frodo config-manager pull ${verb}`);
+  leaves.find((leaf) => fullName(leaf) === `frodo config pull ${verb}`);
 const configFileOf = (verb) =>
   leafOf(verb).options.find((option) => option.long === '--config-file');
 
@@ -73,7 +74,7 @@ beforeAll(async () => {
   leaves = await loadLeafCommands();
   helpOf = new Map(
     leaves
-      .filter((leaf) => fullName(leaf).startsWith('frodo config-manager '))
+      .filter((leaf) => isGroupLeaf(fullName(leaf)))
       .map((leaf) => [fullName(leaf), renderFullHelp(leaf)])
   );
 }, 120000);
@@ -105,9 +106,7 @@ describe('the config file of the pull commands', () => {
   );
 
   test('no command of the group has -f any more', () => {
-    const groupLeaves = leaves.filter((leaf) =>
-      fullName(leaf).startsWith('frodo config-manager ')
-    );
+    const groupLeaves = leaves.filter((leaf) => isGroupLeaf(fullName(leaf)));
     expect(groupLeaves.length).toBeGreaterThanOrEqual(100);
     expect(
       groupLeaves.flatMap((leaf) =>
@@ -199,7 +198,7 @@ describe('the config file of the pull commands', () => {
   test.each(SIX)(
     'the help of pull %s names no -f and no --file, and its examples type --config-file',
     (verb) => {
-      const text = helpOf.get(`frodo config-manager pull ${verb}`);
+      const text = helpOf.get(`frodo config pull ${verb}`);
 
       expect(text).not.toMatch(/(^|\s)-f[\s,]/);
       expect(text).not.toMatch(/--file\b/);

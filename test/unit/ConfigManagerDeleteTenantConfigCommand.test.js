@@ -9,7 +9,7 @@ import {
 import { Command } from 'commander';
 
 /**
- * The command `config-manager delete tenant-config`, which deletes all ESV
+ * The command `config delete tenant-config`, which deletes all ESV
  * secrets and all ESV variables of a Cloud tenant and nothing else. It follows
  * https://github.com/rockcarver/frodo-cli/blob/main/docs/decisions/0037-a-command-that-can-delete-more-than-the-one-object-it-names-asks-first.md
  * (a delete of more than the one object it names asks first) and
@@ -140,12 +140,12 @@ afterEach(() => {
   process.exitCode = undefined;
 });
 
-describe('frodo config-manager delete tenant-config', () => {
+describe('frodo config delete tenant-config', () => {
   test('is a multi-operation command, for Cloud only', async () => {
     const program = await run('-y');
 
     expect(program.multiOpCalled).toBe(true);
-    expect(constructed[0]).toBe('frodo config-manager delete tenant-config');
+    expect(constructed[0]).toBe('frodo config delete tenant-config');
     expect(constructed[2]).toEqual(['cloud']);
   });
 
@@ -208,11 +208,11 @@ describe('the command line', () => {
     const examples = help
       .split('\n')
       .map((line) => line.trim())
-      .filter((line) => line.startsWith('$ frodo config-manager delete'));
+      .filter((line) => line.startsWith('$ frodo config delete'));
     expect(examples.length).toBe(2);
     for (const example of examples) {
       expect(example).toMatch(
-        /^\$ frodo config-manager delete tenant-config (-y|--dry-run) /
+        /^\$ frodo config delete tenant-config (-y|--dry-run) /
       );
     }
     expect(examples.some((example) => example.includes(' -y '))).toBe(true);

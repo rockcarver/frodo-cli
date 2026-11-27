@@ -10,7 +10,7 @@ import { FrodoCommand } from '../../FrodoCommand';
 import { refuseEmptySelector, selectorOption } from '../../SelectorOption';
 
 export default function setup() {
-  const program = new FrodoCommand('frodo config-manager pull agents');
+  const program = new FrodoCommand('frodo config pull agents');
 
   program
     .summary('Export agents, one file per agent.')
@@ -35,26 +35,22 @@ export default function setup() {
       'after',
       `Usage Examples:\n` +
         `  Pull every agent of every realm to realms/<realm>/realm-config/agents/<type>/<id>.json in the working directory:\n` +
-        c.command(`  $ frodo config-manager pull agents ${s.connId}\n`) +
+        c.command(`  $ frodo config pull agents ${s.connId}\n`) +
         `  Pull the agents of one realm:\n` +
-        c.command(
-          `  $ frodo config-manager pull agents ${s.connId} ${s.realm}\n`
-        ) +
+        c.command(`  $ frodo config pull agents ${s.connId} ${s.realm}\n`) +
         `  Pull one agent of a realm:\n` +
         c.command(
-          `  $ frodo config-manager pull agents -i ${s.agentId} ${s.connId} ${s.realm}\n`
+          `  $ frodo config pull agents -i ${s.agentId} ${s.connId} ${s.realm}\n`
         ) +
         `  Pull the agents that ${s.oauth2AgentsConfigFile} lists, for the realms of the file:\n` +
         c.command(
-          `  $ frodo config-manager pull agents --config-file ${s.oauth2AgentsConfigFile} ${s.connId}\n`
+          `  $ frodo config pull agents --config-file ${s.oauth2AgentsConfigFile} ${s.connId}\n`
         ) +
         `  Pull to a config directory other than the working directory:\n` +
-        c.command(
-          `  $ frodo config-manager pull agents -D ./config ${s.connId}\n`
-        ) +
+        c.command(`  $ frodo config pull agents -D ./config ${s.connId}\n`) +
         `  Succeed although some agents could not be pulled (the failures are still summarised):\n` +
         c.command(
-          `  $ frodo config-manager pull agents --config-file ${s.oauth2AgentsConfigFile} --allow-failures ${s.connId}\n`
+          `  $ frodo config pull agents --config-file ${s.oauth2AgentsConfigFile} --allow-failures ${s.connId}\n`
         )
     )
     .addHelpText(
@@ -120,8 +116,8 @@ export default function setup() {
     .addHelpText(
       'after',
       '\nAgent types: IdentityGatewayAgent, J2EEAgent, WebAgent, 2.2_Agent and SharedAgent (these have a password: use an override with a placeholder, as in the example), RemoteConsentAgent, SoapSTSAgent (it exists only in classic deployments) and OAuth2Thing (it exists only where the deployment has enabled it).\n' +
-        'The OAuth2 clients are pulled by "frodo config-manager pull oauth-clients". An OAuth2Client entry in the config file is skipped here with a warning; its overrides are not applied and the file is not changed. Move the entry to the config file of that command (--config-file).\n' +
-        'The agent types CIMDProfile, TrustedJwtIssuer and SoftwarePublisher have a command of their own: "frodo config-manager pull oauth-cimd-profiles", "frodo config-manager pull oauth-issuers" and "frodo config-manager pull oauth-software-publishers". An entry of one of these types in the config file is skipped here with a warning, too.\n' +
+        'The OAuth2 clients are pulled by "frodo config pull oauth-clients". An OAuth2Client entry in the config file is skipped here with a warning; its overrides are not applied and the file is not changed. Move the entry to the config file of that command (--config-file).\n' +
+        'The agent types CIMDProfile, TrustedJwtIssuer and SoftwarePublisher have a command of their own: "frodo config pull oauth-cimd-profiles", "frodo config pull oauth-issuers" and "frodo config pull oauth-software-publishers". An entry of one of these types in the config file is skipped here with a warning, too.\n' +
         `${KEY_SET_PULL_SENTENCE} The type with a key set is RemoteConsentAgent.\n` +
         'An entry you write is a request: if the deployment cannot serve its type (for example OAuth2Thing where it is not enabled), that entry fails with the text of the server, the other entries are still pulled, and the command exits with 1 unless --allow-failures is given.\n'
     )

@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, jest, test } from '@jest/globals';
 
 /**
- * `config-manager delete connector-mappings`: the operation behind the command
+ * `config delete connector-mappings`: the operation behind the command
  * (`configManagerDeleteMappings` in
  * src/configManagerOps/FrConfigConnectorMappingOps.ts), with the library
  * replaced by a stub. The run tracker, the cause helper, the helpers for the
@@ -403,7 +403,7 @@ describe('a named delete is refused while something names the mapping', () => {
       .filter((line) => line.startsWith('  - '));
     expect(lines).toHaveLength(4);
     expect(output()).toContain(
-      'An application owns the mapping that it names: config-manager delete apps removes both.'
+      'An application owns the mapping that it names: config delete apps removes both.'
     );
     // the sentence that a user reads when deciding on --force says what it does, and no more than that
     expect(output()).toContain(

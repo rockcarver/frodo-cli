@@ -19,7 +19,7 @@ import {
 } from '../utils/ConfigManagerRenames.js';
 
 /**
- * The old name of every renamed config-manager command is a transition alias
+ * The old name of every renamed command of `frodo config pull|push|delete|migrate|promote` is a transition alias
  * (https://github.com/rockcarver/frodo-cli/blob/main/docs/decisions/0049-an-alias-is-named-in-the-description-and-the-old-name-of-a-renamed-command-stays-as-a-transition-alias.md,
  * the old name of a renamed command stays as a transition alias): it finds the
  * command of the new name, the help ends with `(formerly: old)`, and typing it
@@ -51,34 +51,34 @@ function allCommands(command) {
 }
 
 const label = ([verb, oldName, newName]) =>
-  `config-manager ${verb} ${oldName} -> ${newName}`;
+  `config ${verb} ${oldName} -> ${newName}`;
 
-describe('the renamed config-manager commands', () => {
+describe('the renamed commands of the config group', () => {
   let groups;
-  let configManager;
+  let configGroup;
   const originalArgv = process.argv;
 
   beforeAll(async () => {
     // the usage examples are only rendered for -hhh (see FrodoCommand.addHelpText)
     process.argv = [...originalArgv, '--help-all'];
     ({ groups } = await loadCommandTree());
-    configManager = groups.find((group) => group.name() === 'config-manager');
+    configGroup = groups.find((group) => group.name() === 'config');
   });
 
   afterAll(() => {
     process.argv = originalArgv;
   });
 
-  /** The leaf of `frodo config-manager <verb> <word>` by name or alias. */
+  /** The leaf of `frodo config <verb> <word>` by name or alias. */
   const find = (verb, word) =>
-    resolveCommand(groups, ['frodo', 'config-manager', verb, word])?.command;
+    resolveCommand(groups, ['frodo', 'config', verb, word])?.command;
 
   it('are found where the table looks: the tree has the commands of every verb', () => {
     // so the checks below cannot silently run over nothing
-    expect(configManager).toBeDefined();
+    expect(configGroup).toBeDefined();
     expect(ALL_RENAMES.length).toBeGreaterThanOrEqual(22);
     for (const verb of ['pull', 'push', 'delete', 'migrate', 'promote']) {
-      expect(configManager.commands.some((c) => c.name() === verb)).toBe(true);
+      expect(configGroup.commands.some((c) => c.name() === verb)).toBe(true);
     }
   });
 
@@ -88,7 +88,7 @@ describe('the renamed config-manager commands', () => {
       it('(a) finds the command of the new name when the old name is typed', () => {
         const typed = find(verb, oldName);
         expect(typed).toBeDefined();
-        expect(fullName(typed)).toBe(`frodo config-manager ${verb} ${newName}`);
+        expect(fullName(typed)).toBe(`frodo config ${verb} ${newName}`);
         expect(find(verb, newName)).toBe(typed);
         expect(typed.commands).toHaveLength(0);
       });
@@ -115,12 +115,12 @@ describe('the renamed config-manager commands', () => {
           new RegExp(`^ {2}${newName} {2,}.*\\(formerly: ${oldName}\\)$`, 'm')
         );
         expect(renderHelp(command)).toContain(
-          `Usage: config-manager ${verb} ${newName} `
+          `Usage: config ${verb} ${newName} `
         );
       });
 
       it('(d) leaves no command of the group with the old name as its name', () => {
-        const group = configManager.commands.find((c) => c.name() === verb);
+        const group = configGroup.commands.find((c) => c.name() === verb);
         expect(group.commands.map((c) => c.name())).not.toContain(oldName);
         expect(group.commands.map((c) => c.name())).toContain(newName);
       });
@@ -148,7 +148,7 @@ describe('the renamed config-manager commands', () => {
           return true;
         });
         try {
-          // the group under config-manager is a stub that dispatches by the word typed
+          // the group under config is a stub that dispatches by the word typed
           await group._dispatchSubcommand(oldName, [], []);
           await group._dispatchSubcommand(oldName, [], []);
           expect(ran).toEqual([newName, newName]);
@@ -188,7 +188,7 @@ describe('the renamed config-manager commands', () => {
 
   it('(g) lists no other command as renamed than the table says', () => {
     const found = [];
-    for (const command of leafCommands(configManager)) {
+    for (const command of leafCommands(configGroup)) {
       for (const alias of command.aliases()) {
         if (getAliasKind(command, alias) === 'transition') {
           found.push(`${command.parent.name()} ${alias} -> ${command.name()}`);

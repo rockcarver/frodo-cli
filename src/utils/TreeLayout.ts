@@ -11,7 +11,7 @@ import {
 /**
  * The layout of a config-manager tree (decision record 0042).
  *
- * A tree is the directory that `config-manager pull` writes and `push` reads.
+ * A tree is the directory that `config pull` writes and `push` reads.
  * It records how it keeps the objects that belong to an application in a small
  * marker file at its root, so that everybody and every pipeline that uses the
  * tree follows the same layout. The per-user setting only decides the layout of

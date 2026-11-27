@@ -20,7 +20,7 @@
  *
  * Only a command that ALWAYS needs an area no interactive login reaches gets the
  * note in its help. A command that touches many sections (`config export`,
- * `config-manager pull all`) is `general`: no single area is the answer, and a
+ * `config pull all`) is `general`: no single area is the answer, and a
  * section that the credential cannot reach is reported by name when it runs.
  */
 
@@ -75,7 +75,7 @@ export type CommandNeeds = AccessAreaId[] | 'general' | 'local';
 
 /**
  * What each command needs, by the path of the command or of its group without
- * `frodo` (`iga workflow`, `config-manager push csp`). The longest
+ * `frodo` (`iga workflow`, `config push csp`). The longest
  * prefix that matches a command wins, so an entry for a group covers its commands
  * unless a longer entry names one of them.
  */
@@ -85,16 +85,16 @@ export const COMMAND_AREAS: Record<string, CommandNeeds> = {
   promote: ['promotion'],
   dcc: ['direct-configuration'],
   'admin federation': ['admin-federation'],
-  'config-manager promote': ['promotion'],
-  'config-manager pull iga-workflows': ['governance'],
-  'config-manager push iga-workflows': ['governance'],
-  'config-manager pull cookie-domains': ['cookie-domains'],
-  'config-manager push cookie-domains': ['cookie-domains'],
-  'config-manager pull csp': ['content-security-policy'],
-  'config-manager push csp': ['content-security-policy'],
-  'config-manager pull telemetry': ['telemetry'],
-  'config-manager push telemetry': ['telemetry'],
-  'config-manager delete telemetry': ['telemetry'],
+  'config promote': ['promotion'],
+  'config pull iga-workflows': ['governance'],
+  'config push iga-workflows': ['governance'],
+  'config pull cookie-domains': ['cookie-domains'],
+  'config push cookie-domains': ['cookie-domains'],
+  'config pull csp': ['content-security-policy'],
+  'config push csp': ['content-security-policy'],
+  'config pull telemetry': ['telemetry'],
+  'config push telemetry': ['telemetry'],
+  'config delete telemetry': ['telemetry'],
   // the rest of the groups: Access Management, Identity Management and the
   // environment secrets and variables, or sections that name themselves when
   // the credential lacks a scope
@@ -105,7 +105,6 @@ export const COMMAND_AREAS: Record<string, CommandNeeds> = {
   authn: 'general',
   authz: 'general',
   config: 'general',
-  'config-manager': 'general',
   conn: 'local',
   'conn service-account': 'general',
   'conn test': 'general',

@@ -14,6 +14,7 @@ exports[`frodo config-manager pull config-metadata "frodo config-manager pull co
 `;
 
 exports[`frodo config-manager pull config-metadata "frodo config-manager pull config-metadata -m forgeops ": should export the config-metadata in fr-config-manager style" 2`] = `
-"Experimental feature in use: 'frodo config-manager pull config-metadata'. This feature may change without notice.
+"'config-manager' is now called 'config'. The old name still works and will be removed in a future major release.
+Experimental feature in use: 'frodo config pull config-metadata'. This feature may change without notice.
 "
 `;

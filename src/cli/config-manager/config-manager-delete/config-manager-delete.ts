@@ -24,9 +24,11 @@ import TermsConditions from './config-manager-delete-terms-and-conditions';
 import Variables from './config-manager-delete-variables';
 
 export default function setup() {
-  const program = new FrodoStubCommand('delete').description(
-    'Delete configuration optimized for CI/CD pipelines (format compatible with fr-config-manager).'
-  );
+  const program = new FrodoStubCommand('delete')
+    .withStability('experimental')
+    .description(
+      'Delete configuration optimized for CI/CD pipelines (format compatible with fr-config-manager).'
+    );
   program.addCommand(
     Applications().name('apps').withAlias('applications', 'transition')
   );

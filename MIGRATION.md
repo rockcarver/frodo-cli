@@ -13,6 +13,25 @@ listed here, is decided by
 
 ### From 4.x
 
+**`frodo config-manager` is now `frodo config`: one group hosts the JSON export and import and the commands that work on a tree of files, one file per object**: `pull`, `push`, `delete`, `migrate` and `promote`, with all their commands, moved from `frodo config-manager` to `frodo config`, next to `export` and `import`, as [the record of the configuration command group](https://github.com/rockcarver/frodo-cli/blob/main/docs/decisions/0056-the-configuration-command-group.md) decided. `config-manager` stays as a transition alias of `config` ([an alias is named in the description and the old name of a renamed command stays as a transition alias](https://github.com/rockcarver/frodo-cli/blob/main/docs/decisions/0049-an-alias-is-named-in-the-description-and-the-old-name-of-a-renamed-command-stays-as-a-transition-alias.md)): a command line that starts with the old word runs the same command with the same options, the same output on stdout and the same exit code, and prints one line on stderr, once per process (`'config-manager' is now called 'config'. The old name still works and will be removed in a future major release.`). A command that was renamed as well, such as `frodo config-manager pull applications`, prints two lines, the one of the group first. The help of `frodo` and of `frodo config` ends the description of the group with `(formerly: config-manager)`.
+
+| Old name                                | New name                           | The old name                    |
+| --------------------------------------- | ---------------------------------- | ------------------------------- |
+| `frodo config-manager pull <command>`    | `frodo config pull <command>`      | still accepted, prints a notice |
+| `frodo config-manager push <command>`    | `frodo config push <command>`      | still accepted, prints a notice |
+| `frodo config-manager delete <command>`  | `frodo config delete <command>`    | still accepted, prints a notice |
+| `frodo config-manager migrate <command>` | `frodo config migrate <command>`   | still accepted, prints a notice |
+| `frodo config-manager promote <command>` | `frodo config promote <command>`   | still accepted, prints a notice |
+
+- **`frodo config export` and `frodo config import` do not change**: the options, the output, the exit codes and the stability are as before. The one line that differs is in `-hh` and `-hhh`, and on every command that has the option, `script import` and `journey import` too: the description of the shared `-F, --force-update` says "the config push equivalents of previous commands" where it said "the config-manager equivalents". The `-h` page of both commands is the same byte for byte. Because the old group word is an alias of the whole group, `frodo config-manager export` and `frodo config-manager import` now reach them too and print the notice; that is a side effect of the join, not a way to type them.
+- **The five verb groups stay experimental**: every command under `pull`, `push`, `delete`, `migrate` and `promote` keeps its `[Experimental]` label in the lists and on its page, and the line `Experimental feature in use: 'frodo config pull cors'` names the new group (the deprecated `oauth2-agents` pair stays deprecated). The label sits on the five verbs, not on `config`, so `export` and `import` stay stable.
+- **Where the group is listed**: `frodo -h` lists `config` under `Continuous integration:`, next to `dcc` and `promote`, and no longer under `Commands:`; the JSON export and import appear under that heading too. The `config-manager` row is gone.
+- **What a script sees on stderr of the old word**: the notice of the group first, then the notice of a renamed command if there is one, then the line `Experimental feature in use: ...`, which names the new spelling. A script that looks for `config-manager` in stderr has to look for `config`.
+- **Saved defaults are not carried over**: defaults saved with `--prompt --save-defaults` are kept per command path, so those saved for `config-manager pull ...` do not apply to `config pull ...`; save them again (`frodo settings defaults --clear 'frodo config-manager pull all'` removes an old one).
+- **The older entries of this guide**, and the notice and the `Experimental feature in use` line that two of their bullets quote (the deprecated `frodo promote` names `frodo config-manager promote run`, and `push nodes` prints `Experimental feature in use: 'frodo config-manager push nodes'`), say `frodo config-manager <verb>`: read `frodo config <verb>`; the deprecated `frodo promote` now names `frodo config promote run`, and the line names `frodo config push nodes`.
+- **Not renamed**: the folders and files on disk, `frodo settings config-manager-layout`, the layout file `frodo-config-manager.json`, and `fr-config-manager`, the tool whose format the commands write.
+- **What to change**: type `frodo config <verb> ...` in scripts, pipelines and documentation; nothing has to change before a major release removes the old word.
+
 **The `config-manager` commands for applications, authentication, custom nodes, connector definitions, secret mappings, connector servers and the promotion have new names, and the old names print a notice**: the new names are shorter and say what the command does. The old name of each command still works: it runs the same command with the same options, the same output on stdout and the same exit code, and it prints one line on stderr, once per process (`'applications' is now called 'apps'. The old name still works and will be removed in a future major release.`). The help of the new name ends with `(formerly: <old name>)`, and `-h` of the old name shows the page of the new name. The old names are transition aliases ([the old name of a renamed command stays as a transition alias](https://github.com/rockcarver/frodo-cli/blob/main/docs/decisions/0049-an-alias-is-named-in-the-description-and-the-old-name-of-a-renamed-command-stays-as-a-transition-alias.md)), and a future major release removes them ([a major release may change commands](https://github.com/rockcarver/frodo-cli/blob/main/docs/decisions/0048-a-major-release-may-change-commands-a-minor-or-patch-release-does-not-break-them.md)).
 
 | Old name                                               | New name                                           | The old name                    |
@@ -296,7 +315,7 @@ automation, and give `import` its `-f` or `-A`. The generic commands (`frodo
 agent list`, `agent export` and the others) still handle AI agents as before.
 Defaults saved with `--prompt --save-defaults` are kept per command, so those
 saved for `agent ai ...` do not apply to `aiagent ...`; save them again (`frodo
-settings defaults --clear 'agent ai list'` removes the old ones).
+settings defaults --clear 'frodo agent ai list'` removes the old ones).
 
 **Journey import validation**: journey imports, full configuration imports,
 config-manager journey pushes, and `frodo promote` now validate journey
@@ -1038,7 +1057,7 @@ editor writes the value that the typed flag gives, `false`, and the run is the
 command that the preview shows. A default that an older version saved with
 `--save-defaults` for such an option holds `true`: when the command runs it still
 does nothing, but the preview now shows it as if the flag was picked. Clear it
-with `frodo settings defaults --clear '<command path>'` (that clears every saved
+with `frodo settings defaults --clear 'frodo <command path>'` (that clears every saved
 default of the command) and save the flag again; `--no-deps` on `pull journeys`
 and `push journeys` is new, so only the older `--no-` options can have one. The
 editor no longer adds `(default: true)` to the description of these options.

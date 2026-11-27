@@ -3,7 +3,9 @@
 exports[`CLI help interface for 'config' should be expected english 1`] = `
 "Usage: frodo config [options] [command]
 
-Manage full cloud configuration.
+Manage configuration: export and import it as JSON, or pull, push, delete and
+promote it as one file per object for CI/CD pipelines (format compatible with
+fr-config-manager). (formerly: config-manager)
 
 Options:
   -h, --help        Help
@@ -16,6 +18,8 @@ Runtime Options:
                     FRODO_NO_PROMPT).
 
 Commands:
+  delete            [Experimental] Delete configuration optimized for CI/CD
+                    pipelines (format compatible with fr-config-manager).
   export            Export full cloud configuration.
                     By default, it only exports importable config (i.e. config
                     that is not read-only) for the current deployment (e.g. if
@@ -28,6 +32,14 @@ Commands:
                     many other flags to customize the export. Use the -h or
                     --help to see them all and to also see usage examples.
   import            Import full cloud configuration.
+  migrate           [Experimental] Move a config-manager tree to a newer layout.
+  promote           [Experimental] [Cloud-only] Promote configuration optimized
+                    for CI/CD pipelines (format compatible with
+                    fr-config-manager).
+  pull              [Experimental] Export configuration optimized for CI/CD
+                    pipelines (format compatible with fr-config-manager).
+  push              [Experimental] Import configuration optimized for CI/CD
+                    pipelines (format compatible with fr-config-manager).
 
 Utilities:
   help              display help for command

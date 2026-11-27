@@ -11,7 +11,7 @@ import { FrodoCommand } from '../../FrodoCommand';
 import { refuseEmptySelector, selectorOption } from '../../SelectorOption';
 
 export default function setup() {
-  const program = new FrodoCommand('frodo config-manager pull oauth-clients');
+  const program = new FrodoCommand('frodo config pull oauth-clients');
 
   program
     .summary('Export OAuth2 clients, one file per client.')
@@ -36,26 +36,26 @@ export default function setup() {
       'after',
       `Usage Examples:\n` +
         `  Pull every OAuth2 client of every realm to realms/<realm>/realm-config/agents/OAuth2Client/<id>.json in the working directory:\n` +
-        c.command(`  $ frodo config-manager pull oauth-clients ${s.connId}\n`) +
+        c.command(`  $ frodo config pull oauth-clients ${s.connId}\n`) +
         `  Pull the OAuth2 clients of one realm:\n` +
         c.command(
-          `  $ frodo config-manager pull oauth-clients ${s.connId} ${s.realm}\n`
+          `  $ frodo config pull oauth-clients ${s.connId} ${s.realm}\n`
         ) +
         `  Pull one OAuth2 client of a realm:\n` +
         c.command(
-          `  $ frodo config-manager pull oauth-clients -i ${s.oauth2ClientId} ${s.connId} ${s.realm}\n`
+          `  $ frodo config pull oauth-clients -i ${s.oauth2ClientId} ${s.connId} ${s.realm}\n`
         ) +
         `  Pull the OAuth2 clients that ${s.oauth2AgentsConfigFile} lists, for the realms of the file:\n` +
         c.command(
-          `  $ frodo config-manager pull oauth-clients --config-file ${s.oauth2AgentsConfigFile} ${s.connId}\n`
+          `  $ frodo config pull oauth-clients --config-file ${s.oauth2AgentsConfigFile} ${s.connId}\n`
         ) +
         `  Pull to a config directory other than the working directory:\n` +
         c.command(
-          `  $ frodo config-manager pull oauth-clients -D ./config ${s.connId}\n`
+          `  $ frodo config pull oauth-clients -D ./config ${s.connId}\n`
         ) +
         `  Succeed although some OAuth2 clients could not be pulled (the failures are still summarised):\n` +
         c.command(
-          `  $ frodo config-manager pull oauth-clients --config-file ${s.oauth2AgentsConfigFile} --allow-failures ${s.connId}\n`
+          `  $ frodo config pull oauth-clients --config-file ${s.oauth2AgentsConfigFile} --allow-failures ${s.connId}\n`
         )
     )
     .addHelpText(

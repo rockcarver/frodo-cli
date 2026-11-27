@@ -16,7 +16,7 @@ const deploymentTypes = [
 
 export default function setup() {
   const program = new FrodoCommand(
-    'frodo config-manager pull service-objects',
+    'frodo config pull service-objects',
     [],
     deploymentTypes
   );
@@ -33,7 +33,7 @@ export default function setup() {
       'after',
       'HELP MESSAGE:\n' +
         'Make sure to create the export config file: service-objects.json to run this command.\n' +
-        `Example command: frodo config-manager pull service-objects --config-file service-objects.json -D ../testDir ${s.connId}\n\n` +
+        `Example command: frodo config pull service-objects --config-file service-objects.json -D ../testDir ${s.connId}\n\n` +
         `Config file example:\n` +
         '------------  Example service object export config for service-objects.json file -----------\n' +
         '{\n' +

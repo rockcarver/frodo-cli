@@ -38,10 +38,10 @@ export const SHARED_LETTERS = {
 
 /**
  * A leaf of the configuration group: pull, push, delete, migrate or promote
- * under `frodo config-manager` or `frodo config` (the group is called
- * config-manager now and config later). The export and import commands of
+ * under `frodo config` (and under `frodo config-manager`, the old name of the
+ * group, which a recorded test still types). The export and import commands of
  * `config` and `frodo promote` are heritage commands.
- * @param {string} name the full command, `frodo config-manager pull cors`
+ * @param {string} name the full command, `frodo config pull cors`
  * @returns {boolean} true for a leaf of the group
  */
 export function isGroupLeaf(name) {
@@ -392,7 +392,11 @@ function checkMigration(text, expected, problems, checked) {
     .filter((paragraph) => paragraph.includes('`-d, --dry-run`'))
     .map((paragraph) => paragraph.replace(/\s+/g, ' '));
   const commandWords = (command) =>
-    command.replace(/^frodo (?:config-manager )?/, '');
+    // the words after the group: `config` is the group of the five verbs, but `config export` and `config import` keep their group word
+    command.replace(
+      /^frodo (?:(?:config-manager|config) (?=(?:pull|push|delete|migrate|promote) ))?/,
+      ''
+    );
   checked.spellings = 0;
   checked.dryRunAdded = 0;
   for (const row of expected) {
@@ -588,7 +592,7 @@ export function findLetterProblems(input) {
 const ID_LONG = /^--(?:[a-z]+-)*id$/;
 const NAME_LONG = /^--(?:[a-z]+-)*name$/;
 
-/** The words of a command after `frodo config-manager` or `frodo config`. */
+/** The words of a command after `frodo config` or `frodo config-manager`. */
 const commandWords = (command) =>
   command.replace(/^frodo (?:config-manager|config) /, '');
 

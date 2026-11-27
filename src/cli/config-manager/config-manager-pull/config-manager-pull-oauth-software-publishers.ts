@@ -14,7 +14,7 @@ import { selectorOption } from '../../SelectorOption';
 
 export default function setup() {
   const program = new FrodoCommand(
-    'frodo config-manager pull oauth-software-publishers'
+    'frodo config pull oauth-software-publishers'
   );
 
   program
@@ -42,19 +42,19 @@ export default function setup() {
       `Usage Examples:\n` +
         `  Pull all software publishers of all realms to realms/<realm>/realm-config/agents/SoftwarePublisher/<name>.json:\n` +
         c.command(
-          `  $ frodo config-manager pull oauth-software-publishers ${s.connId}\n`
+          `  $ frodo config pull oauth-software-publishers ${s.connId}\n`
         ) +
         `  Pull the software publishers of one realm:\n` +
         c.command(
-          `  $ frodo config-manager pull oauth-software-publishers ${s.connId} ${s.realm}\n`
+          `  $ frodo config pull oauth-software-publishers ${s.connId} ${s.realm}\n`
         ) +
         `  Pull one software publisher of a realm:\n` +
         c.command(
-          `  $ frodo config-manager pull oauth-software-publishers -i ${s.softwarePublisherId} ${s.connId} ${s.realm}\n`
+          `  $ frodo config pull oauth-software-publishers -i ${s.softwarePublisherId} ${s.connId} ${s.realm}\n`
         ) +
         `  Replace values that differ between environments with placeholders from a file:\n` +
         c.command(
-          `  $ frodo config-manager pull oauth-software-publishers --config-file ${s.softwarePublishersOverridesFile} ${s.connId}\n`
+          `  $ frodo config pull oauth-software-publishers --config-file ${s.softwarePublishersOverridesFile} ${s.connId}\n`
         )
     )
     .addHelpText(

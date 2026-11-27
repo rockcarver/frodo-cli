@@ -58,7 +58,7 @@ function pushApiVersionProblem(value: unknown): string | undefined {
 }
 
 export default function setup() {
-  const program = new FrodoCommand('frodo config-manager pull raw');
+  const program = new FrodoCommand('frodo config pull raw');
 
   program
     .description('Export raw configurations from the tenant.')
@@ -94,7 +94,7 @@ export default function setup() {
       'after',
       'HELP MESSAGE:\n' +
         'Make sure to create an export config file: raw.json to run this command, or name one API path with --path.\n' +
-        `Example command: frodo config-manager pull raw --config-file raw.json -D ../testDir ${s.connId}\n\n` +
+        `Example command: frodo config pull raw --config-file raw.json -D ../testDir ${s.connId}\n\n` +
         `Config file example:\n` +
         '------------  Example raw export config file raw.json -----------\n' +
         '[\n' +
@@ -116,27 +116,27 @@ export default function setup() {
       `Usage Examples:\n` +
         `  Pull the raw configurations that a config file lists, to the working directory:\n` +
         c.command(
-          `  $ frodo config-manager pull raw --config-file raw.json ${s.connId}\n`
+          `  $ frodo config pull raw --config-file raw.json ${s.connId}\n`
         ) +
         `  Pull them to a config directory other than the working directory:\n` +
         c.command(
-          `  $ frodo config-manager pull raw --config-file raw.json -D ./config ${s.connId}\n`
+          `  $ frodo config pull raw --config-file raw.json -D ./config ${s.connId}\n`
         ) +
         `  Pull one raw configuration by its API path, without a config file:\n` +
         c.command(
-          `  $ frodo config-manager pull raw --path /openidm/config/authentication ${s.connId}\n`
+          `  $ frodo config pull raw --path /openidm/config/authentication ${s.connId}\n`
         ) +
         `  Pull the item of the config file that lists the path, with its overrides and push API version:\n` +
         c.command(
-          `  $ frodo config-manager pull raw --config-file raw.json --path /am/json/realms/root/realms/alpha/realm-config/webhooks/test-webhook ${s.connId}\n`
+          `  $ frodo config pull raw --config-file raw.json --path /am/json/realms/root/realms/alpha/realm-config/webhooks/test-webhook ${s.connId}\n`
         ) +
         `  Record the API version that a push of the pulled file sends:\n` +
         c.command(
-          `  $ frodo config-manager pull raw --path /am/json/realms/root/realms/alpha/realm-config/webhooks/test-webhook -V protocol=2.1 -V resource=1.0 ${s.connId}\n`
+          `  $ frodo config pull raw --path /am/json/realms/root/realms/alpha/realm-config/webhooks/test-webhook -V protocol=2.1 -V resource=1.0 ${s.connId}\n`
         ) +
         `  Print one raw configuration as JSON and push it to another tenant:\n` +
         c.command(
-          `  $ frodo config-manager pull raw --path /openidm/config/authentication --stdout ${s.connId} | frodo config-manager push raw --path /openidm/config/authentication --stdin ${s.connId2}\n`
+          `  $ frodo config pull raw --path /openidm/config/authentication --stdout ${s.connId} | frodo config push raw --path /openidm/config/authentication --stdin ${s.connId2}\n`
         )
     )
     .multiOp()

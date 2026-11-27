@@ -3,13 +3,15 @@
 exports[`frodo config-manager push org-privileges "frodo config-manager push org-privileges -D test/e2e/exports/fr-config-manager/forgeops -m forgeops": should import the org-privileges into forgeops" 1`] = `""`;
 
 exports[`frodo config-manager push org-privileges "frodo config-manager push org-privileges -D test/e2e/exports/fr-config-manager/forgeops -m forgeops": should import the org-privileges into forgeops" 2`] = `
-"Experimental feature in use: 'frodo config-manager push org-privileges'. This feature may change without notice.
+"'config-manager' is now called 'config'. The old name still works and will be removed in a future major release.
+Experimental feature in use: 'frodo config push org-privileges'. This feature may change without notice.
 "
 `;
 
 exports[`frodo config-manager push org-privileges "frodo config-manager push org-privileges -n alphaOrgPrivileges -D test/e2e/exports/fr-config-manager/forgeops -m forgeops": should import a specific org-privilege by name into forgeops" 1`] = `""`;
 
 exports[`frodo config-manager push org-privileges "frodo config-manager push org-privileges -n alphaOrgPrivileges -D test/e2e/exports/fr-config-manager/forgeops -m forgeops": should import a specific org-privilege by name into forgeops" 2`] = `
-"Experimental feature in use: 'frodo config-manager push org-privileges'. This feature may change without notice.
+"'config-manager' is now called 'config'. The old name still works and will be removed in a future major release.
+Experimental feature in use: 'frodo config push org-privileges'. This feature may change without notice.
 "
 `;

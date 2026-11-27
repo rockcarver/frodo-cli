@@ -8,9 +8,7 @@ import { FrodoCommand } from '../../FrodoCommand';
 import { selectorOption } from '../../SelectorOption';
 
 export default function setup() {
-  const program = new FrodoCommand(
-    'frodo config-manager push oauth-cimd-profiles'
-  );
+  const program = new FrodoCommand('frodo config push oauth-cimd-profiles');
 
   program
     .summary('Import CIMD profiles from the files written by pull.')
@@ -28,20 +26,18 @@ export default function setup() {
       'after',
       `Usage Examples:\n` +
         `  Push all CIMD profile files of all realms from the working directory to the tenant:\n` +
-        c.command(
-          `  $ frodo config-manager push oauth-cimd-profiles ${s.connId}\n`
-        ) +
+        c.command(`  $ frodo config push oauth-cimd-profiles ${s.connId}\n`) +
         `  Push the CIMD profile files of one realm:\n` +
         c.command(
-          `  $ frodo config-manager push oauth-cimd-profiles ${s.connId} ${s.realm}\n`
+          `  $ frodo config push oauth-cimd-profiles ${s.connId} ${s.realm}\n`
         ) +
         `  Push one CIMD profile of a realm:\n` +
         c.command(
-          `  $ frodo config-manager push oauth-cimd-profiles -i ${s.cimdProfileId} ${s.connId} ${s.realm}\n`
+          `  $ frodo config push oauth-cimd-profiles -i ${s.cimdProfileId} ${s.connId} ${s.realm}\n`
         ) +
         `  Push from a config directory other than the working directory:\n` +
         c.command(
-          `  $ frodo config-manager push oauth-cimd-profiles -D ./config ${s.connId}\n`
+          `  $ frodo config push oauth-cimd-profiles -D ./config ${s.connId}\n`
         )
     )
     .multiOp()

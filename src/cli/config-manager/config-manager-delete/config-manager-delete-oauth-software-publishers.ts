@@ -17,7 +17,7 @@ import { selectorOption } from '../../SelectorOption';
 
 export default function setup() {
   const program = new FrodoCommand(
-    'frodo config-manager delete oauth-software-publishers'
+    'frodo config delete oauth-software-publishers'
   );
 
   program
@@ -49,19 +49,19 @@ export default function setup() {
       `Usage Examples:\n` +
         `  Preview the deletion of all software publishers of a realm:\n` +
         c.command(
-          `  $ frodo config-manager delete oauth-software-publishers --dry-run ${s.connId} ${s.realm}\n`
+          `  $ frodo config delete oauth-software-publishers --dry-run ${s.connId} ${s.realm}\n`
         ) +
         `  Delete all software publishers of a realm without asking, which is required without a terminal (without -y a terminal is asked first). Registrations that present a software statement signed by these publishers are rejected afterwards:\n` +
         c.command(
-          `  $ frodo config-manager delete oauth-software-publishers -y ${s.connId} ${s.realm}\n`
+          `  $ frodo config delete oauth-software-publishers -y ${s.connId} ${s.realm}\n`
         ) +
         `  Delete one software publisher of a realm:\n` +
         c.command(
-          `  $ frodo config-manager delete oauth-software-publishers -i ${s.softwarePublisherId} ${s.connId} ${s.realm}\n`
+          `  $ frodo config delete oauth-software-publishers -i ${s.softwarePublisherId} ${s.connId} ${s.realm}\n`
         ) +
         `  Preview the deletion of one software publisher:\n` +
         c.command(
-          `  $ frodo config-manager delete oauth-software-publishers -i ${s.softwarePublisherId} --dry-run ${s.connId} ${s.realm}\n`
+          `  $ frodo config delete oauth-software-publishers -i ${s.softwarePublisherId} --dry-run ${s.connId} ${s.realm}\n`
         )
     )
     .multiOp()

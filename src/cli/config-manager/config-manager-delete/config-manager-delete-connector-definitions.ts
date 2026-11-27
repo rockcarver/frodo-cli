@@ -24,7 +24,7 @@ const deploymentTypes = [
 
 export default function setup() {
   const program = new FrodoCommand(
-    'frodo config-manager delete connectors',
+    'frodo config delete connectors',
     [],
     deploymentTypes
   );
@@ -64,24 +64,20 @@ export default function setup() {
         `Deleting all connector definitions deletes every one of them, and does not refuse for what names them. The plan that -d shows, and the plan before the question on a terminal, list what names each of them (at most 20 for each connector definition), from one lookup for all; a delete with -y looks up nothing.\n` +
         `Usage Examples:\n` +
         `  Delete all connector definitions without asking, which is required without a terminal (without -y a terminal is asked first):\n` +
-        c.command(
-          `  $ frodo config-manager delete connectors -y ${s.connId}\n`
-        ) +
+        c.command(`  $ frodo config delete connectors -y ${s.connId}\n`) +
         `  Preview the deletion of all connector definitions and what names them:\n` +
-        c.command(
-          `  $ frodo config-manager delete connectors -d ${s.connId}\n`
-        ) +
+        c.command(`  $ frodo config delete connectors -d ${s.connId}\n`) +
         `  Delete a connector definition (refused if other objects still name it):\n` +
         c.command(
-          `  $ frodo config-manager delete connectors -i ${s.connectorId} ${s.connId}\n`
+          `  $ frodo config delete connectors -i ${s.connectorId} ${s.connId}\n`
         ) +
         `  Preview the deletion of a connector definition and what names it:\n` +
         c.command(
-          `  $ frodo config-manager delete connectors -i ${s.connectorId} -d ${s.connId}\n`
+          `  $ frodo config delete connectors -i ${s.connectorId} -d ${s.connId}\n`
         ) +
         `  Delete a connector definition that other objects name, and leave them as they are, without asking:\n` +
         c.command(
-          `  $ frodo config-manager delete connectors -i ${s.connectorId} --force -y ${s.connId}\n`
+          `  $ frodo config delete connectors -i ${s.connectorId} --force -y ${s.connId}\n`
         )
     )
     .multiOp()

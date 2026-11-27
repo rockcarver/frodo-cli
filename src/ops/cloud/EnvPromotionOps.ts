@@ -165,7 +165,7 @@ function mayStart(
 
 /** A command of the promotion group for a message, on a line of its own. */
 function commandLine(verb: string, options = ''): string {
-  return `  ${c.command(`frodo config-manager promote ${verb}${options} ${state.getHost()}`)}`;
+  return `  ${c.command(`frodo config promote ${verb}${options} ${state.getHost()}`)}`;
 }
 
 /** The command that shows the lock state, on a line of its own. */

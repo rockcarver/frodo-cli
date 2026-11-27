@@ -21,7 +21,6 @@ Commands:
   authn             Manage authentication settings.
   authz             Manage authorization policies, policy sets, and resource
                     types.
-  config            Manage full cloud configuration.
   connector         Manage IDM connectors.
   email             Manage email templates and configuration.
   esv               [Cloud-only] Manage environment secrets and variables
@@ -64,13 +63,15 @@ Utilities:
                     serve the same console as a local web page.
 
 Continuous integration:
-  config-manager    [Experimental] Manage configuration optimized for CI/CD
+  config            Manage configuration: export and import it as JSON, or pull,
+                    push, delete and promote it as one file per object for CI/CD
                     pipelines (format compatible with fr-config-manager).
+                    (formerly: config-manager)
   dcc               [Preview] [Cloud-only] Direct Configuration Control (DCC)
                     commands.
   promote           [Deprecated] Deprecated: this command does not run a
-                    platform promotion; use frodo config-manager promote run.
-                    Will be removed in 5.0.0.
+                    platform promotion; use frodo config promote run. Will be
+                    removed in 5.0.0.
 
 
 Run without a sub-command to enter interactive mode."

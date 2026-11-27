@@ -135,7 +135,8 @@ esv-trinity-phone,"In the opening of The Matrix (1999), the phone number Trinity
 `;
 
 exports[`frodo config-manager pull variables "frodo config-manager pull variables -r": should report all variables as a csv table report in fr-config-manager style" 2`] = `
-"Experimental feature in use: 'frodo config-manager pull variables'. This feature may change without notice.
+"'config-manager' is now called 'config'. The old name still works and will be removed in a future major release.
+Experimental feature in use: 'frodo config pull variables'. This feature may change without notice.
 ✔ Successfully retrieved 17 variables
 "
 `;
@@ -162,7 +163,8 @@ ESV_TRINITY_PHONE='(312)-555-0690'
 `;
 
 exports[`frodo config-manager pull variables "frodo config-manager pull variables -u -D variableDumpDir": should dump all variables into the console" 2`] = `
-"Experimental feature in use: 'frodo config-manager pull variables'. This feature may change without notice.
+"'config-manager' is now called 'config'. The old name still works and will be removed in a future major release.
+Experimental feature in use: 'frodo config pull variables'. This feature may change without notice.
 ✔ Successfully retrieved 17 variables
 • 17 variables exported
 "

@@ -17,8 +17,8 @@ import { startFakeAm } from '../utils/StartFakeAm.js';
  *
  *   exports/  imports/{alpha.json,beta.txt}  config/  my files/  notes.txt  .hidden/
  *
- * The picker opens for a mandatory option that is missing (`config-manager
- * pull all` without -C), for the member of a one-of group the user chose (`journey
+ * The picker opens for a mandatory option that is missing (`config pull all`
+ * without -C), for the member of a one-of group the user chose (`journey
  * import`: -f), and for the value step of the invocation editor (--prompt). It
  * never opens for a complete command line.
  */
@@ -146,9 +146,9 @@ suite('the file system picker, on a real terminal', () => {
     });
   }
 
-  /** `config-manager pull all` without -C: the config folder is a mandatory folder to read. */
+  /** `config pull all` without -C: the config folder is a mandatory folder to read. */
   const pullAll = (actions, options) =>
-    run(['config-manager', 'pull', 'all', host()], actions, options);
+    run(['config', 'pull', 'all', host()], actions, options);
 
   const toPicker = [
     { type: 'wait_plain', regex: 'Choose the folder for', timeoutMs: 30000 },
@@ -183,12 +183,12 @@ suite('the file system picker, on a real terminal', () => {
       expect(page).not.toContain('notes.txt');
       // the footer is the command with what the cursor is on: the folder it is in
       expect(footer(page)).toContain(
-        `config-manager pull all ${host()} --type classic --config-folder .`
+        `config pull all ${host()} --type classic --config-folder .`
       );
       // on a row that is no pick it is the command as it stands
       const up = lastFrame(result.captures.up.plain);
       expect(cursorOf(up)).toBe('..');
-      expect(footer(up)).toContain('config-manager pull all');
+      expect(footer(up)).toContain('config pull all');
       expect(footer(up)).not.toContain('--config-folder');
       // the keys: Enter says next, Escape ends the pick
       expect(page).toContain('[ENTER] next');
@@ -378,7 +378,7 @@ suite('the file system picker, on a real terminal', () => {
       // (`pull saml` needs no file any more and pulls everything without a prompt, and `pull raw` asks first whether
       // to give the file or a path)
       const result = run(
-        ['config-manager', 'pull', 'service-objects', host()],
+        ['config', 'pull', 'service-objects', host()],
         [
           {
             type: 'wait_plain',
@@ -728,7 +728,7 @@ suite('the file system picker, on a real terminal', () => {
 
     test('opens no picker, however many path options it has: the command runs', () => {
       const result = runToEnd([
-        'config-manager',
+        'config',
         'pull',
         'all',
         host(),
