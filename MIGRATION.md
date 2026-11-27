@@ -1263,8 +1263,9 @@ finds the file by the id with a character that a file name cannot hold written a
 with such a character left as it is (`a*b.json` for the id `a*b`) is no longer
 found: rename it `ab.json`. A file that was named by hand for a name that Windows
 reserves (`con.json` for the id `con`) is no longer found either: the id `con` is
-the file `.json`. An id of more than 250 bytes is found by its name cut at 250
-bytes.
+the file `.json`. An id that does not fit in a file name is found by its shortened
+name (the start of the id, `~` and a checksum, see the entry on what a pull writes
+below).
 
 A realm that is not `/`, a name or a path of names such as `/parent/child` (for
 example `..`, `../alpha`, `a\b`, or a name with `?`, `#` or `%`) is refused with
@@ -1348,11 +1349,43 @@ value is now one name, so it cannot lead out of the config folder:
   it: `a:b.onCreate.js` is written as `a%3Ab.onCreate.js`, because a reference
   that starts like a drive letter is refused, so what a pull wrote could not be
   pushed.
+- A name, an id or a key that does not fit in a file name (255 bytes with its
+  extension, so an id of 251 bytes is already too long for `.json`) is no longer
+  refused, and no longer cut without a word (the agent types cut an id at 250
+  bytes): it is written as the start of its name, `~` and a checksum, the first 8
+  hexadecimal characters of the SHA-256 of the complete id
+  ([a name that does not fit in a file name is shortened and ends with a checksum](https://github.com/rockcarver/frodo-cli/blob/main/docs/decisions/core/0027-a-name-that-does-not-fit-in-a-file-name-is-shortened-and-ends-with-a-checksum.md),
+  the same rule as in frodo-lib). An id of 300 `n` is 241 `n`, `~` and
+  `cd5124b3`, and two long ids that start alike have two names. A name that was a
+  valid file name keeps it, byte for byte. Only three groups of names change: an id
+  of 251 to 255 bytes (refused, or cut at 250 bytes by the agent types), an id of
+  more than 255 bytes (refused, or cut), and an id that holds a raw U+007F or a lone
+  surrogate, which a pull wrote as it was typed and now writes with U+FFFD and the
+  checksum. An object whose files have different endings (`.json`, `.js`,
+  `.groovy`, `.<language>.html`, `.<key>.js`, a relationship schema) has one name
+  that leaves room for its longest ending, so names of about 244 to 250 bytes that
+  were refused before are shortened for such an object. The files that an older pull
+  wrote are not moved: pull again and delete the old file (an id that an agent type
+  pull cut at 250 bytes is no longer found by `-i`). Two ids can still share a name,
+  when they share the start and the 8 characters of the checksum (or an id is
+  written like a shortened name); the later one is reported and not pulled.
+- The id of an object is the id that its file holds, never the name of its file or
+  folder, so a push finds the same objects whatever the files are called. This
+  changes what a push reads in these places: a file of `oauth-cimd-profiles`,
+  `oauth-issuers` or `oauth-software-publishers` without an `_id` used to be pushed
+  under its decoded file name and is now a named failure of that file (the other
+  files are still pushed); a journey is sent under the `_id` of its file, and the
+  object of a relationship schema under the `name` of its object file, where both
+  were the name of a folder; the property of a relationship schema file is the
+  property of the object whose name in a file name is the one of the file (a file
+  that names no property keeps the decoded name); the files of the password policy
+  and of the organization privileges of a realm with a very long name are found
+  under the same name that a pull gave them. `-i` and `-n` still look for the file
+  by the name that the id has, so an object whose name was shortened for a longer
+  ending than `.json` may not be found by name; it is found by listing.
 - A name that is `.`, `..` or empty, a realm that is not `/`, a name or a path of
   names (a part that is `.` or `..`, or one that holds a backslash, `C:`, a
-  control character, `%`, `?` or `#`), a file name of more than 255 bytes with its
-  extension (`.json`, `.js`, `.html`), so a name of 251 bytes is too long (the name
-  is not cut), two names that become one file name in one pull (`a/b` and `a%2Fb`
+  control character, `%`, `?` or `#`), two names that become one file name in one pull (`a/b` and `a%2Fb`
   are both `a%2Fb`, and the names `a*b` and `ab` of two scripts are both `ab`: the
   later one) and two names that are one file on a file system
   that ignores case or Unicode form (`A` and `a`, `\u00e9` and `e\u0301`: the later
