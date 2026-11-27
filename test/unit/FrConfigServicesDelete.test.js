@@ -82,7 +82,16 @@ jest.unstable_mockModule('../../src/utils/ConfigTreePath', () => ({
   nameInFolder: jest.fn(),
   pulledFilePath: jest.fn(),
   PulledPaths: class {},
-  realmFolderOf: jest.fn(),
+  // what the real one does for the realms of these tests: a part that is `..` is no realm name
+  realmFolderOf: jest.fn((realm) => {
+    const parts = realm.split('/').filter((part) => part !== '');
+    if (realm !== '/' && (parts.length === 0 || parts.includes('..'))) {
+      throw new Error(
+        `The realm '${realm}' is not '/', a name or a path of names.`
+      );
+    }
+    return realm === '/' ? 'root' : parts.join('/');
+  }),
 }));
 jest.unstable_mockModule('../../src/utils/FrConfig', () => ({ realmList }));
 
@@ -804,26 +813,51 @@ describe('a next descendent that is not a plain name stops the delete of its ser
       ]);
       expect(output()).toContain('1 of 3 services failed:');
       expect(output()).toContain(
-        `- alpha/email/${shown(descendent)}: its type or its id is not a plain name`
+        `- alpha/email: its next descendent ${shown(descendent)} has a type or an id that is not a plain name`
       );
     }
   );
 
-  test('every unsafe next descendent of a service is one failure, named by the service and the descendent', async () => {
+  test('a service with several unsafe next descendents is one failure of the run, and every one of them is named', async () => {
     store.alpha = [
       service('email', [
         ['smtpTransports', '../../session'],
         ['smtpTransports', 'a#b'],
         ['smtpTransports', 'SMTP'],
       ]),
+      service('custom'),
     ];
 
     expect(await configManagerDeleteServices(undefined, 'alpha')).toBe(false);
 
-    expect(deleteFullService).not.toHaveBeenCalled();
-    expect(output()).toContain('2 of 2 services failed:');
-    expect(output()).toContain('- alpha/email/smtpTransports/../../session');
-    expect(output()).toContain('- alpha/email/smtpTransports/a#b');
+    expect(deleted).toEqual(['alpha/custom']);
+    expect(deleteFullService.mock.calls.map(([id]) => id)).toEqual(['custom']);
+    // one service failed, whatever number of next descendents made it so
+    expect(output()).toContain('1 of 2 services failed:');
+    expect(output()).not.toContain('2 of');
+    expect(output()).toContain(
+      '- alpha/email: its next descendents smtpTransports/../../session, smtpTransports/a#b have a type or an id that is not a plain name'
+    );
+    // each one has its own line of explanation above the summary
+    expect(output()).toContain(
+      "Next descendent 'smtpTransports/../../session' of service 'email'"
+    );
+    expect(output()).toContain(
+      "Next descendent 'smtpTransports/a#b' of service 'email'"
+    );
+  });
+
+  test('a service with an id that is not plain and unsafe next descendents is still one failure, for its own id', async () => {
+    store.alpha = [
+      service('a/b', [['smtpTransports', 'a#b']]),
+      service('custom'),
+    ];
+
+    expect(await configManagerDeleteServices(undefined, 'alpha')).toBe(false);
+
+    expect(deleted).toEqual(['alpha/custom']);
+    expect(output()).toContain('1 of 2 services failed:');
+    expect(output()).toContain('- alpha/a/b: its id is not a plain name');
   });
 
   test('a dry run of all services fails like the real run, names the descendents in the plan, and does not list the service as deletable', async () => {
@@ -998,5 +1032,168 @@ describe('what a delete says about the services that a realm depends on', () => 
     expect(output()).toContain(
       'DataStoreService is never deleted by a delete of all services.'
     );
+  });
+});
+
+describe('a service whose id is also a property name of an object', () => {
+  // the notes about the services that a realm commonly depends on are looked up by id: an id that an
+  // object has as a property of its own (constructor, toString, __proto__) is no service with a note
+  const PROPERTY_NAMES = [
+    'constructor',
+    'toString',
+    'valueOf',
+    'hasOwnProperty',
+    '__proto__',
+  ];
+
+  test.each(PROPERTY_NAMES)(
+    '%s is listed in a plan and in a dry run of all services like any service, with no note',
+    async (id) => {
+      store.alpha = [service(id), service('email')];
+
+      expect(await configManagerDeleteServices(undefined, 'alpha', true)).toBe(
+        true
+      );
+
+      const lines = output().split('\n');
+      expect(lines).toContain(`    - ${id}`);
+      // the note of email is there, and nothing of an object is
+      expect(output()).toContain(
+        '- email: the sender address and the mail transports of the realm go with it'
+      );
+      expect(output()).not.toMatch(/\[object|function |native code/);
+    }
+  );
+
+  test.each(PROPERTY_NAMES)(
+    'a named dry run of %s says nothing about what a realm commonly depends on',
+    async (id) => {
+      store.alpha = [service(id)];
+
+      expect(await configManagerDeleteServices(id, 'alpha', true)).toBe(true);
+
+      expect(output()).toContain(`Dry run: Deleting service '${id}'`);
+      expect(output()).not.toContain('commonly depends');
+      expect(output()).not.toMatch(/\[object|function |native code/);
+    }
+  );
+});
+
+describe('a realm that the tenant lists with a name that is not a realm name', () => {
+  test('is one failed operation named realm followed by its name: no request goes to it, and the other realms are processed', async () => {
+    realmList.mockResolvedValue(['alpha', '../beta', 'bravo']);
+    const realmsRead = [];
+    getFullServices.mockReset().mockImplementation(async () => {
+      realmsRead.push(realmNow);
+      return structuredClone(store[realmNow] ?? []);
+    });
+
+    expect(await configManagerDeleteServices()).toBe(false);
+
+    expect(realmsRead).toEqual(['alpha', 'bravo']);
+    expect(setRealm.mock.calls.map(([realm]) => realm)).not.toContain(
+      '../beta'
+    );
+    expect(deleted).toEqual([
+      'alpha/email',
+      'alpha/id-repositories',
+      'alpha/session',
+      'bravo/session',
+      'bravo/validation',
+    ]);
+    expect(output()).toContain(
+      "The realm '../beta' is not '/', a name or a path of names."
+    );
+    expect(output()).toContain('1 of 6 services failed:');
+    expect(output()).toContain(
+      "- realm ../beta: The realm '../beta' is not '/', a name or a path of names."
+    );
+    expect(levelOf('1 of 6 services failed')).toBe('error');
+  });
+
+  test('--allow-failures keeps the exit at 0 for it, as for any failed operation', async () => {
+    realmList.mockResolvedValue(['../beta', 'alpha']);
+
+    expect(
+      await configManagerDeleteServices(undefined, undefined, false, true)
+    ).toBe(true);
+
+    expect(deleted).toEqual([
+      'alpha/email',
+      'alpha/id-repositories',
+      'alpha/session',
+    ]);
+    expect(output()).toContain('- realm ../beta:');
+  });
+
+  test('a dry run says how the real run would end: the realm is a failure there too, and no request goes to it', async () => {
+    realmList.mockResolvedValue(['../beta', 'alpha']);
+    const realmsRead = [];
+    getFullServices.mockReset().mockImplementation(async () => {
+      realmsRead.push(realmNow);
+      return structuredClone(store[realmNow] ?? []);
+    });
+
+    expect(await configManagerDeleteServices(undefined, undefined, true)).toBe(
+      false
+    );
+
+    expect(realmsRead).toEqual(['alpha']);
+    expect(output()).toContain('- realm ../beta:');
+    expect(deleteFullService).not.toHaveBeenCalled();
+  });
+});
+
+describe('a plan with ids that are not plain names, shown before a question', () => {
+  const plan = { plan: true };
+
+  test('says that the delete stops here, that nothing was asked or deleted, and what can still be done', async () => {
+    store.alpha = [service('email'), service('x/y'), service('custom')];
+
+    expect(
+      await configManagerDeleteServices(undefined, 'alpha', true, false, plan)
+    ).toBe(false);
+
+    expect(deleteFullService).not.toHaveBeenCalled();
+    const explained = printMessage.mock.calls.filter(([message]) =>
+      String(message).startsWith('Nothing was asked')
+    );
+    expect(explained).toHaveLength(1);
+    expect(explained[0][1]).toBe('error');
+    expect(explained[0][0]).toContain('alpha/x/y');
+    expect(explained[0][0]).toContain('nothing was deleted');
+    expect(explained[0][0]).toContain('-y');
+    expect(explained[0][0]).toContain('-i');
+    // the plan itself is as it was: the ids that are not plain names are named, the others are listed
+    expect(output()).toContain(
+      'Plan: 2 services in 1 realm (alpha) would be deleted'
+    );
+    expect(output()).toContain('1 of 3 services failed:');
+  });
+
+  test('says it once for every service that is refused, naming each', async () => {
+    store.alpha = [
+      service('x/y'),
+      service('custom', [['smtpTransports', 'a#b']]),
+      service('session'),
+    ];
+
+    await configManagerDeleteServices(undefined, 'alpha', true, false, plan);
+
+    const explained = printMessage.mock.calls.filter(([message]) =>
+      String(message).startsWith('Nothing was asked')
+    );
+    expect(explained).toHaveLength(1);
+    expect(explained[0][0]).toContain('alpha/x/y');
+    expect(explained[0][0]).toContain('alpha/custom/smtpTransports/a#b');
+  });
+
+  test('is not said for a plan without such an id, nor for a dry run, which asks nothing in any case', async () => {
+    store.alpha = [service('email')];
+    await configManagerDeleteServices(undefined, 'alpha', true, false, plan);
+    store.alpha = [service('email'), service('x/y')];
+    await configManagerDeleteServices(undefined, 'alpha', true);
+
+    expect(output()).not.toContain('Nothing was asked');
   });
 });

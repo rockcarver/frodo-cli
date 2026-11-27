@@ -559,7 +559,7 @@ suite('config-manager delete services (fake tenant)', () => {
         ]);
         expect(output).toContain('1 of 3 services failed:');
         expect(output).toContain(
-          `- alpha/email/${descendent[0]}/${descendent[1]}`
+          `- alpha/email: its next descendent ${descendent[0]}/${descendent[1]} has a type or an id that is not a plain name`
         );
         expect(output).toContain('is listed in realm');
       },
@@ -598,7 +598,72 @@ suite('config-manager delete services (fake tenant)', () => {
         expect(code).toBe(1);
         expect(changes()).toEqual([]);
         expect(output).toContain('1 of 3 services failed:');
-        expect(output).toContain('- alpha/email/smtpTransports/../../session');
+        expect(output).toContain('- alpha/email: its next descendent');
+        expect(output).toContain('smtpTransports/../../session');
+      },
+      TIMEOUT
+    );
+
+    test(
+      'a service with two of them is one failed service, and the tenant is asked to delete only the others',
+      async () => {
+        await startTenant({
+          store: {
+            realms: {
+              alpha: [
+                service('custom'),
+                service('email', [
+                  ['smtpTransports', '../../session'],
+                  ['smtpTransports', 'a#b'],
+                ]),
+                service('session'),
+              ],
+            },
+          },
+          realms: ['alpha'],
+        });
+
+        const { code, output } = await runCli(['-y'], { realm: 'alpha' });
+
+        expect(code).toBe(1);
+        expect(deletes()).toEqual([
+          'DELETE /json/realms/root/realms/alpha/realm-config/services/custom',
+          'DELETE /json/realms/root/realms/alpha/realm-config/services/session',
+        ]);
+        expect(output).toContain('1 of 3 services failed:');
+        expect(output).not.toContain('2 of 3 services failed');
+        expect(output).toContain(
+          '- alpha/email: its next descendents smtpTransports/../../session, smtpTransports/a#b have a type or an id that is not a plain name'
+        );
+      },
+      TIMEOUT
+    );
+  });
+
+  describe('a realm that the tenant lists with a name that is not a realm name', () => {
+    test(
+      'is one failed operation, no request carries it, and the services of the other realm are deleted',
+      async () => {
+        await startTenant({
+          store: {
+            realms: {
+              alpha: [service('custom')],
+              beta: [service('session')],
+            },
+          },
+          realms: ['alpha', '../beta'],
+        });
+
+        const { code, output } = await runCli(['-y']);
+
+        expect(code).toBe(1);
+        expect(output).toContain('- realm ../beta:');
+        expect(output).toContain('1 of 2 services failed:');
+        expect(deletes()).toEqual([
+          'DELETE /json/realms/root/realms/alpha/realm-config/services/custom',
+        ]);
+        // nothing at all went to a path of that realm: not a read, not a delete
+        expect(requests().some(({ url }) => url.includes('beta'))).toBe(false);
       },
       TIMEOUT
     );
@@ -950,16 +1015,17 @@ ptySuite('config-manager delete services, on a real terminal', () => {
   });
 
   /** Runs the command on a terminal with the given answers and says what happened. */
-  function onTerminal(actions) {
+  function onTerminal(actions, { realm } = {}) {
     return runShellScenario({
       homeDir: home,
       allowPrompting: true,
       env: { FRODO_SA_ID: 'test-account', FRODO_SA_JWK: serviceAccountJwk },
       args: [
-        'config-manager',
+        'config',
         'delete',
         'services',
         `http://127.0.0.1:${fakeAm.port}/am`,
+        ...(realm ? [realm] : []),
         '--type',
         'cloud',
       ],
@@ -1001,6 +1067,85 @@ ptySuite('config-manager delete services, on a real terminal', () => {
         )
       );
       expect(plain).toContain('Delete aborted.');
+      expect(deletesSent()).toEqual([]);
+      expect(result.exitCode).toBe(1);
+    },
+    TIMEOUT
+  );
+
+  test(
+    'the question of a run over every realm names the realms of the plan and no realm of its own',
+    () => {
+      const result = onTerminal([
+        QUESTION,
+        { type: 'send_line', text: 'n' },
+        ENDED,
+      ]);
+
+      const question = result.plainOutput
+        .split('\n')
+        .find((line) =>
+          line.includes(
+            'This permanently deletes all services in the selected realms'
+          )
+        );
+      expect(question).toMatch(/from http:\/\/127\.0\.0\.1:\d+\/am\.\s*$/);
+      expect(question).not.toContain('(realm');
+      expect(deletesSent()).toEqual([]);
+    },
+    TIMEOUT
+  );
+
+  test(
+    'the question of a run over one realm names that realm',
+    () => {
+      const result = onTerminal(
+        [QUESTION, { type: 'send_line', text: 'n' }, ENDED],
+        { realm: 'alpha' }
+      );
+
+      const question = result.plainOutput
+        .split('\n')
+        .find((line) =>
+          line.includes(
+            'This permanently deletes all services in the selected realms'
+          )
+        );
+      expect(question).toMatch(/\(realm alpha\)\.\s*$/);
+      expect(result.plainOutput).toContain(
+        'Plan: 2 services in 1 realm (alpha) would be deleted'
+      );
+    },
+    TIMEOUT
+  );
+
+  test(
+    'a plan with an id that is not a plain name stops before the question, and says so: nothing is asked, nothing is deleted, exit 1',
+    async () => {
+      fakeAm.stop();
+      fakeAm = await startFakeAm({
+        journey: 'service-account',
+        recordPath,
+        realms: ['alpha'],
+        realmServices: {
+          realms: {
+            alpha: [service('email'), service('x/y'), service('session')],
+          },
+        },
+      });
+
+      const result = onTerminal([{ type: 'wait_exit', timeoutMs: 60000 }]);
+
+      const plain = result.plainOutput;
+      expect(plain).toContain(
+        'Plan: 2 services in 1 realm (alpha) would be deleted'
+      );
+      // the refused id is named, and the one sentence says what stops the delete and what to do
+      expect(plain).toContain('alpha/x/y');
+      expect(plain).toContain('Nothing was asked');
+      expect(plain).toContain('nothing was deleted');
+      expect(plain).not.toContain('Continue?');
+      expect(plain).not.toContain('This permanently deletes');
       expect(deletesSent()).toEqual([]);
       expect(result.exitCode).toBe(1);
     },

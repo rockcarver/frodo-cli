@@ -725,8 +725,11 @@ a value that is written as a path (`-i ../x`) is a service that does not exist
 and an id that the realm lists for a service, or a type or an id that it lists
 for one of its next descendents, that is not a plain name (a slash, a `..`, a
 `?`, a `#`, a `%`, or a control or format character in it) is never sent to the
-tenant: the service is not deleted, and it counts as failed, also in a dry run.
-A service that is not in the realm exits with code 1, also with
+tenant: the service is not deleted, and it counts as one failed service,
+however many of its next descendents are not plain, also in a dry run.
+`--allow-failures` forgives that in a delete of all services, and never in a
+delete that names the service with `-i`. A service that is not in the realm
+exits with code 1, also with
 `--dry-run` and `--allow-failures`, because the id names one service. A service
 that Cloud does not offer is not read, as in `pull services`, so it is not found
 on Cloud either. A named delete asks nothing and prints what went with the
@@ -739,9 +742,10 @@ realm skipped on Cloud as `pull services` and `push services` skip it.
 `DataStoreService`, which `pull services` never exports, is left alone (a delete
 that names it deletes it, and says that `push services` cannot bring it back). It asks
 first, as every delete of more than one object does, and without a terminal it is
-refused before the login unless you pass `-y` (or `-d`). The question follows a
-plan that names the realms, the number of services and of next descendents of
-each, and the services that a realm commonly depends on: the identity stores
+refused before the login unless you pass `-y` (or `-d`). The question names the
+realm when one was given, and none otherwise. It follows a plan that names the
+realms, the number of services and of next descendents of each, and the
+services that a realm commonly depends on: the identity stores
 (`id-repositories`), the OAuth 2.0 provider (`oauth-oidc`), the social identity
 providers, the email service, the PingOne connection, the self-service journeys,
 the session settings, the base URL and the valid goto URLs. **The command does not
@@ -752,11 +756,17 @@ runs. A service that was deleted by mistake can be created again with
 `config-manager push services` from a `pull services` made before, as far as
 `pull services` exports it: it never exports `DataStoreService`.
 
+A plan that shows an id that is not a plain name stops before the question,
+and says that nothing was asked and nothing was deleted: `-y` deletes the other
+services and counts these as failed, and `-i` deletes one service.
+
 Every service is one operation, named `<realm>/<service>` (`root/<service>` in
 the root realm): one that cannot be read or deleted does not stop the others, the
 command prints one summary of what failed and exits with code 1 if any failed. A
 realm whose services cannot be listed is one operation too, named `realm <name>`,
-so the summary counts it as one. `--allow-failures` keeps the exit code at 0 for a
+so the summary counts it as one, and so is a realm that the tenant lists with a
+name that is not a realm name (`../beta`): no request is sent for it, and the
+other realms go on. `--allow-failures` keeps the exit code at 0 for a
 service that could not be read or deleted and for a realm that could not be
 listed, but never for a service that is not there
 ([a command that runs many operations runs them all, then fails if any failed](https://github.com/rockcarver/frodo-cli/blob/main/docs/decisions/0040-a-command-that-runs-many-operations-runs-them-all-then-fails-if-any-failed.md)).
