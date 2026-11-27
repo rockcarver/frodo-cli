@@ -79,6 +79,7 @@ jest.unstable_mockModule('../../src/utils/ColorTheme', () => ({
 const ops = async (file) => import(`../../src/configManagerOps/${file}.ts`);
 const managedObjects = await ops('FrConfigManagedObjectsOps');
 const scripts = await ops('FrConfigScriptOps');
+const endpoints = await ops('FrConfigEndpointsOps');
 
 let root;
 let tree;
@@ -291,5 +292,47 @@ describe('the longest ending of the files of an object decides where its name is
         expect(Buffer.byteLength(part)).toBeLessThanOrEqual(255);
       }
     }
+  });
+
+  test('endpoints: a groovy script ends with `.groovy`, which is longer than `.json`: 248 bytes keep their name and 249 are shortened, and the two files of the endpoint have one name', async () => {
+    const fits = 'a'.repeat(248);
+    const over = 'a'.repeat(249);
+    // a script of JavaScript ends with `.js`, which is shorter than `.json`: the file of the endpoint decides, 250 bytes fit
+    const javascript = 'a'.repeat(250);
+    const javascriptOver = 'a'.repeat(251);
+    facade.idm.config.readConfigEntitiesByType.mockResolvedValue([
+      { _id: `endpoint/${fits}`, type: 'groovy', source: 'fits()' },
+      { _id: `endpoint/${over}`, type: 'groovy', source: 'over()' },
+      {
+        _id: `endpoint/${javascript}`,
+        type: 'text/javascript',
+        source: 'js()',
+      },
+      {
+        _id: `endpoint/${javascriptOver}`,
+        type: 'text/javascript',
+        source: 'jsOver()',
+      },
+    ]);
+
+    expect(await endpoints.configManagerExportEndpoints()).toBe(true);
+
+    const shortGroovy = vector('nameInFolder', over, '.groovy');
+    const shortJavascript = vector('nameInFolder', javascriptOver, '.json');
+    expect(listed('endpoints')).toEqual(
+      [fits, shortGroovy, javascript, shortJavascript].sort()
+    );
+    expect(listed(`endpoints/${shortGroovy}`)).toEqual([
+      `${shortGroovy}.groovy`,
+      `${shortGroovy}.json`,
+    ]);
+    expect(listed(`endpoints/${fits}`)).toEqual([
+      `${fits}.groovy`,
+      `${fits}.json`,
+    ]);
+    expect(listed(`endpoints/${shortJavascript}`)).toEqual([
+      `${shortJavascript}.js`,
+      `${shortJavascript}.json`,
+    ]);
   });
 });
