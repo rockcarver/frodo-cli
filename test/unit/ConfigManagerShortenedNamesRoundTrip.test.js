@@ -1045,8 +1045,8 @@ describe('every file and folder of a pull can be renamed: the push sends the sam
       sent: entities,
     },
     {
+      // a realm has no folder here (`org-privileges/<realm>OrgPrivileges.json`), so a realm of any length makes a file name
       family: 'organization privileges (a realm)',
-      onlyIds: ['252 bytes'],
       arrange: (id = LONG) => {
         facade.realm.readRealms.mockResolvedValue([{ name: id }]);
         facade.idm.config.readConfigEntity.mockImplementation(
@@ -1247,7 +1247,7 @@ describe('every file and folder of a pull can be renamed: the push sends the sam
     'raw: a raw path is a path by design, and a name of more than 255 bytes in it fails that item'
   );
   test.todo(
-    'realm folders, the type of a service object and the category of telemetry: a realm and a type are names of the server, not ids of objects (a realm folder is written as typed, so the password policy and the organization privileges have the row of a realm of 252 bytes only)'
+    'realm folders, the type of a service object and the category of telemetry: a realm and a type are names of the server, not ids of objects (a realm folder is written as typed, so the password policy has the row of a realm of 252 bytes only; the organization privileges have no realm folder and have all three rows)'
   );
   test.todo(
     'push apps: the lookup of an owned mapping derives its folder with `.json` and misses a mapping whose name was shortened for a longer ending; the push of the other owned objects reads fixed names (the follow-up on the lookups by name)'
