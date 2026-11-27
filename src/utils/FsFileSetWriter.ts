@@ -85,7 +85,10 @@ export type FileSetWriter = {
    * the reason; the files are written all the same. The check is made once for every owned folder, and each folder is
    * looked at again right before it is listed and right before each removal in it: a folder that was swapped for a link
    * in between is not cleaned further and is in `failed`. What a removal does to an entry is told at the function that
-   * does it; one window stays, between the last look and the removal of one entry, which no call of Node can close.
+   * does it. One window stays for each removal, between the last look at the folder and the removal of one entry of it,
+   * which no call of Node can close: if another process swaps the folder for a link inside that window, the removal acts
+   * on the entry with the same name in the folder that the link leads to, and removes it with everything it holds. That is
+   * the worst case; it needs another process that changes the folder inside that window, and nothing else can be removed.
    * Once a file is written, nothing that concerns one folder or one file rejects the call: it is a line of `failed`.
    * @param {VirtualFileSet} fileSet the files, and the folders that the set owns
    * @param {{ clean?: boolean }} options `clean`: remove what an owned folder holds that the set does not list
@@ -401,9 +404,15 @@ async function assertStillThere(real: string, inSet: string): Promise<void> {
  * with `rm`, which looks at the entry itself (`lstat`) and does not follow what it finds: a file, a FIFO, a socket
  * and a link (of a file, of a folder, or to nothing) are unlinked, so a link is removed and what it leads to is left
  * alone, and a folder is emptied the same way, entry by entry. An entry that became a link after the listing is removed
- * as a link. What stays open is the time between the last look at the folder and the removal of one entry: no call of
- * Node removes relative to a folder that is held open, so a person who can swap the folder itself for a link in that
- * time can still win the race.
+ * as a link.
+ *
+ * What stays open is one window for each removal, between the last look at the folder and the `rm` of one entry of it.
+ * No call of Node removes relative to a folder that is held open, so if another process swaps the folder (or a folder
+ * above it) for a link inside that window, `rm` works on the path through the link: it removes the entry that has the name
+ * being removed, with everything that entry holds (a file, or a whole folder), in the folder that the link leads to, inside
+ * the root or outside it. That is the worst case. It needs another process that changes the folder inside that window, and
+ * nothing else can be removed: the next look ends the clean of that folder, and a swap that meets a look, a listing, a
+ * `mkdir` or a `stat` removes nothing.
  * @param {object} context what the clean knows
  * @param {string} context.container the real path of the container
  * @param {Set<string>} context.files the paths of the listed files
