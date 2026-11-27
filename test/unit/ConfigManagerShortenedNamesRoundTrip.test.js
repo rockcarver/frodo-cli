@@ -89,6 +89,15 @@ const internalRoles = await ops('FrConfigInternalRolesOps');
 const secretMappings = await ops('FrConfigSecretMappingsOps');
 const connectorDefinitions = await ops('FrConfigConnectorDefinitionsOps');
 const services = await ops('FrConfigServiceOps');
+const themes = await ops('FrConfigThemeOps');
+const authz = await ops('FrConfigAuthzPoliciesOps');
+const telemetry = await ops('FrConfigTelemetryOps');
+const serviceObjects = await ops('FrConfigServiceObjectsOps');
+const oauth2Agents = await ops('FrConfigOauth2AgentOps');
+const saml = await ops('FrConfigSamlOps');
+const terms = await ops('FrConfigTermsAndConditionsOps');
+const journeys = await ops('FrConfigJourneysOps');
+const agentKind = await import('../../src/ops/ConfigManagerAgentKind.ts');
 const igaWorkflows = await ops('FrConfigIgaWorkflowsOps');
 
 let root;
@@ -459,16 +468,34 @@ describe('every file and folder of a pull can be renamed: the push sends the sam
     }
   };
 
+  /** What a push of terms and conditions sent: the versions with their translations, as one text each. */
+  const termsSent = () =>
+    facade.idm.config.importConfigEntities.mock.calls
+      .flatMap(([data]) => data.idm['selfservice.terms'].versions)
+      .map((version) =>
+        JSON.stringify([version.version, version.termsTranslations])
+      )
+      .sort();
+
   const importEntities = async (_data, _id, _options, callback) => {
     for (const _item of Object.keys(_data.idm)) callback?.(undefined, {});
   };
 
+  // the agent types push every file of their folder, and read the id from the file
+  const AGENT_SPEC = {
+    agentType: 'TestAgent',
+    label: 'test agent',
+    plural: 'test agents',
+  };
+  let agentId = LONG;
+  const pushedAgents = [];
+
   const FAMILIES = [
     {
       family: 'locales',
-      arrange: () =>
+      arrange: (id = LONG) =>
         facade.idm.config.readConfigEntitiesByType.mockResolvedValue([
-          { _id: `uilocale/${LONG}` },
+          { _id: `uilocale/${id}` },
           { _id: 'uilocale/en' },
         ]),
       pull: () => locales.configManagerExportLocales(),
@@ -478,10 +505,10 @@ describe('every file and folder of a pull can be renamed: the push sends the sam
     },
     {
       family: 'endpoints',
-      arrange: () =>
+      arrange: (id = LONG) =>
         facade.idm.config.readConfigEntitiesByType.mockResolvedValue([
           {
-            _id: `endpoint/${LONG}`,
+            _id: `endpoint/${id}`,
             type: 'text/javascript',
             source: 'run();',
           },
@@ -494,10 +521,10 @@ describe('every file and folder of a pull can be renamed: the push sends the sam
     },
     {
       family: 'schedules',
-      arrange: () =>
+      arrange: (id = LONG) =>
         facade.idm.config.readConfigEntitiesByType.mockResolvedValue([
           {
-            _id: `schedule/${LONG}`,
+            _id: `schedule/${id}`,
             invokeService: 'script',
             invokeContext: { script: { source: 'run();' } },
           },
@@ -509,10 +536,10 @@ describe('every file and folder of a pull can be renamed: the push sends the sam
     },
     {
       family: 'email templates',
-      arrange: () =>
+      arrange: (id = LONG) =>
         facade.email.template.readEmailTemplates.mockResolvedValue([
           {
-            _id: `emailTemplate/${LONG}`,
+            _id: `emailTemplate/${id}`,
             html: { en: '<p>html</p>' },
             message: { en: 'message' },
             styles: 'css',
@@ -529,9 +556,9 @@ describe('every file and folder of a pull can be renamed: the push sends the sam
     },
     {
       family: 'custom nodes',
-      arrange: () =>
+      arrange: (id = LONG) =>
         facade.authn.node.readCustomNodes.mockResolvedValue([
-          { _id: 'n1', displayName: LONG, script: 'node();' },
+          { _id: 'n1', displayName: id, script: 'node();' },
         ]),
       pull: () => customNodes.configManagerExportCustomNodes(),
       push: (name) => customNodes.configManagerImportCustomNodes(name),
@@ -545,11 +572,11 @@ describe('every file and folder of a pull can be renamed: the push sends the sam
     },
     {
       family: 'scripts',
-      arrange: () =>
+      arrange: (id = LONG) =>
         facade.script.readScripts.mockResolvedValue([
           {
-            _id: `id-${LONG}`,
-            name: LONG,
+            _id: `id-${id}`,
+            name: id,
             context: 'AUTHENTICATION_TREE_DECISION_NODE',
             language: 'JAVASCRIPT',
             script: Buffer.from('x();').toString('base64'),
@@ -573,9 +600,9 @@ describe('every file and folder of a pull can be renamed: the push sends the sam
     },
     {
       family: 'secret mappings',
-      arrange: () =>
+      arrange: (id = LONG) =>
         facade.secretStore.readSecretStoreMappings.mockResolvedValue([
-          { _id: LONG },
+          { _id: id },
           { _id: 'plain' },
         ]),
       pull: () =>
@@ -590,9 +617,9 @@ describe('every file and folder of a pull can be renamed: the push sends the sam
     },
     {
       family: 'connector definitions',
-      arrange: () =>
+      arrange: (id = LONG) =>
         facade.idm.connector.readConnectors.mockResolvedValue([
-          { _id: `provisioner.openicf/${LONG}` },
+          { _id: `provisioner.openicf/${id}` },
           { _id: 'provisioner.openicf/plain' },
         ]),
       pull: () =>
@@ -609,11 +636,11 @@ describe('every file and folder of a pull can be renamed: the push sends the sam
     },
     {
       family: 'services',
-      arrange: () =>
+      arrange: (id = LONG) =>
         facade.service.getFullServices.mockResolvedValue([
           {
-            _id: LONG,
-            _type: { _id: LONG },
+            _id: id,
+            _type: { _id: id },
             nextDescendents: [{ _id: 'child' }],
           },
           { _id: 'plain', _type: { _id: 'plain' }, nextDescendents: [] },
@@ -644,13 +671,13 @@ describe('every file and folder of a pull can be renamed: the push sends the sam
     },
     {
       family: 'iga workflows',
-      arrange: () =>
+      arrange: (id = LONG) =>
         facade.cloud.iga.workflow.readWorkflows.mockResolvedValue([
           {
             id: 'w-1',
-            name: LONG,
+            name: id,
             mutable: true,
-            steps: [{ displayName: LONG, name: 'step1', type: 'approvalTask' }],
+            steps: [{ displayName: id, name: 'step1', type: 'approvalTask' }],
           },
           { id: 'w-2', name: 'Plain', mutable: true, steps: [] },
         ]),
@@ -680,9 +707,9 @@ describe('every file and folder of a pull can be renamed: the push sends the sam
     },
     {
       family: 'internal roles',
-      arrange: () =>
+      arrange: (id = LONG) =>
         facade.role.readInternalRoles.mockResolvedValue([
-          { _id: 'id-1', name: LONG, privileges: [{}] },
+          { _id: 'id-1', name: id, privileges: [{}] },
         ]),
       pull: () => internalRoles.configManagerExportInternalRoles(),
       push: (name) => internalRoles.configManagerImportInternalRoles(name),
@@ -692,6 +719,340 @@ describe('every file and folder of a pull can be renamed: the push sends the sam
           .map(([id, role]) => JSON.stringify([id, role]))
           .sort(),
       rename: () => renameFiles('internal-roles'),
+    },
+    {
+      family: 'managed objects',
+      arrange: (id = LONG) =>
+        facade.idm.config.readConfigEntity.mockResolvedValue({
+          objects: [
+            {
+              name: id,
+              onCreate: { type: 'text/javascript', source: 'create();' },
+              schema: { properties: {} },
+            },
+          ],
+        }),
+      pull: () => managedObjects.configManagerExportManagedObjects(),
+      push: (name) => managedObjects.configManagerImportManagedObjects(name),
+      sent: () =>
+        [
+          ...facade.idm.config.importConfigEntities.mock.calls.flatMap(
+            ([data]) => data.idm.managed.objects
+          ),
+          ...facade.idm.config.importSubConfigEntity.mock.calls.map(
+            ([, data]) => data
+          ),
+        ]
+          .map((object) => JSON.stringify([object.name, object.onCreate]))
+          .sort(),
+      // a push by name derives the name with `.json`, and the object has a longer ending (`.onCreate.js`)
+      byName: false,
+    },
+    {
+      family: 'connector mappings',
+      arrange: (id = LONG) =>
+        facade.idm.config.readConfigEntity.mockResolvedValue({
+          mappings: [
+            {
+              name: id,
+              onCreate: { type: 'text/javascript', source: 'create();' },
+            },
+          ],
+        }),
+      pull: () => connectorMappings.configManagerExportMappings(),
+      push: (name) => connectorMappings.configManagerImportMappings(name),
+      sent: () =>
+        facade.idm.config.importConfigEntities.mock.calls
+          .flatMap(([data]) => data.idm.sync.mappings)
+          .map((mapping) => JSON.stringify([mapping.name, mapping.onCreate]))
+          .sort(),
+      // the same: the mapping has a script, so its name is made for `.onCreate.js`
+      byName: false,
+    },
+    {
+      family: 'journeys',
+      arrange: (id = LONG) => {
+        facade.authn.journey.exportJourneys.mockResolvedValue({
+          trees: {
+            [id]: {
+              tree: { _id: id, nodes: {} },
+              nodes: {},
+              innerNodes: {},
+              scripts: {},
+            },
+          },
+        });
+        facade.authn.journey.createSingleTreeExportTemplate.mockImplementation(
+          () => ({ tree: {}, nodes: {}, innerNodes: {}, scripts: {} })
+        );
+      },
+      pull: () => journeys.configManagerExportJourneys(undefined, 'alpha'),
+      push: (name) => journeys.configManagerImportJourneys(name, 'alpha'),
+      sent: () =>
+        facade.authn.journey.importJourneys.mock.calls
+          .flatMap(([data]) => Object.entries(data.trees))
+          .map(([key, data]) => JSON.stringify([key, data.tree._id]))
+          .sort(),
+    },
+    {
+      family: 'themes',
+      arrange: (id = LONG) =>
+        facade.theme.readThemes.mockResolvedValue([
+          {
+            _id: `id-${id}`,
+            name: id,
+            accountFooter: '<p>footer</p>',
+            journeyHeader: { en: '<p>header</p>' },
+          },
+        ]),
+      pull: () => themes.configManagerExportThemes('alpha'),
+      push: (name) =>
+        themes.configManagerImportThemes('alpha', false, undefined, name),
+      sent: () =>
+        facade.theme.importThemes.mock.calls
+          .flatMap(([data]) => Object.entries(data.theme))
+          .map(([key, theme]) => JSON.stringify([key, theme.name]))
+          .sort(),
+      rename: () => renameFolders('realms/alpha/themes'),
+    },
+    {
+      family: 'authz policy sets',
+      arrange: (id = LONG) => {
+        facade.authz.policySet.readPolicySets.mockResolvedValue([
+          { name: 'set0' },
+        ]);
+        facade.authz.policySet.readPolicySet.mockResolvedValue({ name: id });
+        facade.authz.policy.readPoliciesByPolicySet.mockResolvedValue([]);
+      },
+      pull: () =>
+        authz.configManagerExportAuthzPolicySets(null, false, 'alpha'),
+      push: () => authz.configManagerImportAuthzPolicies(),
+      sent: () =>
+        facade.authz.policySet.importPolicySets.mock.calls
+          .flatMap(([data]) => Object.entries(data.policyset))
+          .map(([key, set]) => JSON.stringify([key, set.name]))
+          .sort(),
+      rename: () => renameFolders('realms/alpha/authorization/policy-sets'),
+    },
+    {
+      family: 'authz policies',
+      arrange: (id = LONG) => {
+        facade.authz.policySet.readPolicySets.mockResolvedValue([
+          { name: 'ps' },
+        ]);
+        facade.authz.policySet.readPolicySet.mockResolvedValue({ name: 'ps' });
+        facade.authz.policy.readPoliciesByPolicySet.mockResolvedValue([
+          {
+            _id: `id-${id}`,
+            name: id,
+            applicationName: 'ps',
+            resourceTypeUuid: 'rt',
+          },
+        ]);
+        facade.authz.resourceType.readResourceType.mockResolvedValue({
+          uuid: 'rt',
+          name: 'type',
+        });
+      },
+      pull: () =>
+        authz.configManagerExportAuthzPolicySets(null, false, 'alpha'),
+      push: () => authz.configManagerImportAuthzPolicies(),
+      sent: () =>
+        facade.authz.policy.importPolicies.mock.calls
+          .flatMap(([data]) => Object.entries(data.policy))
+          .map(([key, policy]) => JSON.stringify([key, policy.name]))
+          .sort(),
+      rename: () =>
+        renameFiles('realms/alpha/authorization/policy-sets/ps/policies'),
+    },
+    {
+      family: 'authz resource types',
+      arrange: (id = LONG) => {
+        facade.authz.policySet.readPolicySets.mockResolvedValue([
+          { name: 'ps' },
+        ]);
+        facade.authz.policySet.readPolicySet.mockResolvedValue({ name: 'ps' });
+        facade.authz.policy.readPoliciesByPolicySet.mockResolvedValue([
+          {
+            _id: 'p0',
+            name: 'policy0',
+            applicationName: 'ps',
+            resourceTypeUuid: 'rt0',
+          },
+        ]);
+        facade.authz.resourceType.readResourceType.mockResolvedValue({
+          uuid: 'rt0',
+          name: id,
+        });
+      },
+      pull: () =>
+        authz.configManagerExportAuthzPolicySets(null, false, 'alpha'),
+      push: () => authz.configManagerImportAuthzPolicies(),
+      sent: () =>
+        facade.authz.resourceType.importResourceTypes.mock.calls
+          .flatMap(([data]) => Object.entries(data.resourcetype))
+          .map(([key, type]) => JSON.stringify([key, type.name]))
+          .sort(),
+      rename: () => renameFiles('realms/alpha/authorization/resource-types'),
+    },
+    {
+      family: 'telemetry',
+      arrange: (id = LONG) =>
+        facade.cloud.telemetry.exportTelemetry.mockResolvedValue({
+          telemetry: { otlp: [{ id }] },
+        }),
+      pull: () => telemetry.configManagerExportTelemetry(),
+      push: (name) => telemetry.configManagerImportTelemetry(undefined, name),
+      sent: () =>
+        facade.cloud.telemetry.importTelemetry.mock.calls
+          .flatMap(([data]) => data.telemetry.otlp)
+          .map((exporter) => JSON.stringify(exporter))
+          .sort(),
+      rename: () => renameFiles('telemetry/otlp'),
+      // an exporter that is named on the command line is looked for by the name that its id has
+      byNameAfterRename: false,
+    },
+    {
+      family: 'oauth2 agents',
+      arrange: (id = LONG) => {
+        facade.agent.readAgentByTypeAndId.mockImplementation(
+          async (type, agentId) => ({ _id: agentId, _type: { _id: type } })
+        );
+        fs.writeFileSync(
+          path.join(root, 'agents.json'),
+          JSON.stringify({ alpha: { WebAgent: [{ id }] } })
+        );
+      },
+      pull: () =>
+        oauth2Agents.configManagerExportOAuth2Agents(
+          path.join(root, 'agents.json')
+        ),
+      push: () => oauth2Agents.configManagerImportAgents(),
+      sent: () =>
+        facade.agent.importAgent.mock.calls
+          .map(([agentId, data]) =>
+            JSON.stringify([agentId, Object.keys(data.agent)])
+          )
+          .sort(),
+      rename: () => renameFiles('realms/alpha/realm-config/agents/WebAgent'),
+    },
+    {
+      family: 'saml',
+      arrange: (id = LONG) => {
+        facade.saml2.entityProvider.exportSaml2Provider.mockImplementation(
+          async (entityId) => ({
+            saml: {
+              hosted: {},
+              remote: { [entityId]: { entityId } },
+              metadata: { [entityId]: '<md/>' },
+            },
+          })
+        );
+        fs.writeFileSync(
+          path.join(root, 'saml.json'),
+          JSON.stringify({
+            alpha: { samlProviders: [{ entityId: id }], circlesOfTrust: [] },
+          })
+        );
+      },
+      pull: () => saml.configManagerExportSaml(path.join(root, 'saml.json')),
+      push: (name) => saml.configManagerImportSaml('alpha', name),
+      sent: () =>
+        facade.saml2.entityProvider.importSaml2Providers.mock.calls
+          .map(([data]) => JSON.stringify(Object.keys(data.saml.remote)))
+          .sort(),
+      rename: () => renameFiles('realms/alpha/realm-config/saml/remote'),
+    },
+    {
+      family: 'service objects',
+      arrange: (id = LONG) => {
+        facade.idm.managed.queryManagedObjects.mockResolvedValue([
+          { _id: 'one' },
+        ]);
+        fs.writeFileSync(
+          path.join(root, 'service-objects.json'),
+          JSON.stringify({
+            alpha_user: [{ searchField: 'userName', searchValue: id }],
+          })
+        );
+      },
+      pull: () =>
+        serviceObjects.configManagerExportServiceObjectsFromFile(
+          path.join(root, 'service-objects.json')
+        ),
+      push: () => serviceObjects.configManagerImportServiceObjects(),
+      sent: () =>
+        facade.idm.managed.updateManagedObject.mock.calls.map(
+          ([type, objectId]) => JSON.stringify([type, objectId])
+        ),
+      // the long value only names the file: the object that is sent is the one that the file holds
+      idInSent: false,
+      rename: () => renameFiles('service-objects/alpha_user'),
+    },
+    {
+      family: 'terms and conditions (a version)',
+      arrange: (id = LONG) =>
+        facade.idm.config.readConfigEntity.mockResolvedValue({
+          _id: 'selfservice.terms',
+          versions: [
+            { version: id, termsTranslations: { en: '<p>terms</p>' } },
+          ],
+        }),
+      pull: () => terms.configManagerExportTermsAndConditions(),
+      push: () => terms.configManagerImportTermsAndConditions(),
+      sent: () => termsSent(),
+    },
+    {
+      family: 'terms and conditions (a language)',
+      arrange: (id = LONG) =>
+        facade.idm.config.readConfigEntity.mockResolvedValue({
+          _id: 'selfservice.terms',
+          versions: [
+            { version: '1.0', termsTranslations: { [id]: '<p>terms</p>' } },
+          ],
+        }),
+      pull: () => terms.configManagerExportTermsAndConditions(),
+      push: () => terms.configManagerImportTermsAndConditions(),
+      sent: () => termsSent(),
+    },
+    {
+      // the code that the commands for CIMD profiles, trusted JWT issuers and software publishers share
+      family:
+        'agent types (CIMD profiles, trusted JWT issuers, software publishers)',
+      arrange: (id = LONG) => {
+        agentId = id;
+        pushedAgents.length = 0;
+      },
+      pull: () =>
+        agentKind.pullAgentKind(
+          AGENT_SPEC,
+          {
+            items: async () => [
+              { id: agentId, read: async () => ({ _id: agentId, n: 1 }) },
+            ],
+          },
+          { realm: 'alpha' }
+        ),
+      push: (name) =>
+        agentKind.pushAgentKind(
+          AGENT_SPEC,
+          {
+            importRealm: async (items, { run }) => {
+              for (const item of items) {
+                pushedAgents.push(item.id);
+                run.recordSuccess();
+              }
+            },
+          },
+          { name, realm: 'alpha' }
+        ),
+      sent: () => pushedAgents.map((agent) => JSON.stringify(agent)),
+      forget: () => {
+        pushedAgents.length = 0;
+      },
+      // a file that is named on the command line is looked for by the name that its id has
+      byNameAfterRename: false,
+      rename: () => renameFiles('realms/alpha/realm-config/agents/TestAgent'),
     },
   ];
 
@@ -710,9 +1071,28 @@ describe('every file and folder of a pull can be renamed: the push sends the sam
     facade.service.importServices.mockResolvedValue(undefined);
     facade.cloud.iga.workflow.updateWorkflow.mockResolvedValue({});
     facade.secretStore.updateSecretStoreMapping.mockResolvedValue({});
+    facade.theme.importThemes.mockResolvedValue(undefined);
+    facade.authz.resourceType.importResourceTypes.mockResolvedValue([]);
+    facade.authz.policySet.importPolicySets.mockResolvedValue([]);
+    facade.authz.policy.importPolicies.mockResolvedValue([]);
+    facade.cloud.telemetry.importTelemetry.mockResolvedValue(undefined);
+    facade.agent.importAgent.mockResolvedValue({});
+    facade.saml2.entityProvider.importSaml2Providers.mockResolvedValue([]);
+    facade.idm.managed.updateManagedObject.mockResolvedValue({});
+    facade.authn.journey.importJourneys.mockImplementation(
+      async (_data, _options, callback) => callback?.(undefined, {})
+    );
+    facade.idm.config.importSubConfigEntity.mockResolvedValue(undefined);
+    facade.idm.managed.schema.updateManagedObjectSchemaProperty.mockResolvedValue(
+      undefined
+    );
   });
 
-  test.each(FAMILIES.map((f) => [f.family, f]))(
+  test.each(
+    FAMILIES.filter(
+      (f) => f.rename && f.byName !== false && f.idInSent !== false
+    ).map((f) => [f.family, f])
+  )(
     '%s: a long id is written under a shortened name, and the push of a tree with every name changed sends the same, by listing and by name',
     async (_family, family) => {
       family.arrange();
@@ -727,6 +1107,7 @@ describe('every file and folder of a pull can be renamed: the push sends the sam
       }
       const forgetCalls = () => {
         for (const stub of stubs) stub.mockClear();
+        family.forget?.();
       };
 
       expect(await family.push()).toBe(true);
@@ -748,6 +1129,88 @@ describe('every file and folder of a pull can be renamed: the push sends the sam
       expect(await family.push(LONG)).toBe(true);
       expect(family.sent()).toEqual(byName);
     }
+  );
+
+  // the ids of the table: one that fits no file name by a few bytes, one that fits no file name by far, and one that is not text
+  const TABLE_IDS = [
+    ['252 bytes', 'a'.repeat(252)],
+    ['300 bytes', 'b'.repeat(300)],
+    ['a lone surrogate', 'x\ud800y'],
+  ];
+
+  test.each(
+    FAMILIES.flatMap((family) =>
+      TABLE_IDS.map(([label, id]) => [family.family, label, family, id])
+    )
+  )(
+    '%s with an id of %s: the real pull, the real push of its folder (by listing, and by name where the name leads to the file) and a pull twice',
+    async (_name, _label, family, id) => {
+      family.arrange(id);
+      printed.length = 0;
+      expect(await family.pull()).toBe(true);
+      // no name is longer than a file name can be, and nothing was refused for its length
+      for (const file of filesBelow(tree)) {
+        for (const part of file.split('/')) {
+          expect(Buffer.byteLength(part)).toBeLessThanOrEqual(255);
+        }
+      }
+      expect(printed.join('\n')).not.toMatch(
+        /ENOENT|ENAMETOOLONG|longer than 255 bytes|leaves no room|does not name an object/
+      );
+      const contents = () =>
+        Object.fromEntries(
+          filesBelow(tree).map((file) => [
+            file,
+            fs.readFileSync(path.join(tree, file), 'utf8'),
+          ])
+        );
+      const first = contents();
+      expect(Object.keys(first).length).toBeGreaterThan(0);
+
+      // the push of the folder carries the complete id, whatever the name of a file is
+      const escaped = JSON.stringify(id).slice(1, -1);
+      expect(await family.push()).toBe(true);
+      expect(printed.join('\n')).not.toMatch(
+        /ENOENT|ENAMETOOLONG|longer than 255 bytes|leaves no room|does not name an object/
+      );
+      if (family.idInSent !== false) {
+        expect(family.sent().some((entry) => entry.includes(escaped))).toBe(
+          true
+        );
+      } else {
+        expect(family.sent().length).toBeGreaterThan(0);
+      }
+      // by name, where the name leads to the file (a lone surrogate is no name that a person types)
+      if (family.byName !== false && id === id.toWellFormed()) {
+        for (const stub of stubs) stub.mockClear();
+        family.forget?.();
+        expect(await family.push(id)).toBe(true);
+        if (family.idInSent !== false) {
+          expect(family.sent().some((entry) => entry.includes(escaped))).toBe(
+            true
+          );
+        }
+      }
+
+      // a pull twice is the same tree (the tenant hands out new objects: a pull changes the ones it is given)
+      family.arrange(id);
+      expect(await family.pull()).toBe(true);
+      expect(contents()).toEqual(first);
+    }
+  );
+
+  // the families that a long id cannot reach, by the rules of the server or of the type
+  test.todo(
+    'secrets and variables: the name of an ESV is at most about 124 characters, so no id of 252 bytes exists'
+  );
+  test.todo(
+    'remote proxies: the library accepts only names of 100 ASCII characters'
+  );
+  test.todo(
+    'raw: a raw path is a path by design, and a name of more than 255 bytes in it fails that item'
+  );
+  test.todo(
+    'realm folders, the type of a service object and the category of telemetry: a realm and a type are names of the server, not ids of objects'
   );
 
   test.each(['locales', 'endpoints', 'email templates'])(

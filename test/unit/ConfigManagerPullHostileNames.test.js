@@ -154,8 +154,7 @@ const NO_DATA = {};
 /**
  * What a name that does not fit is written as, for the longest suffix of its type: the start of the name, `~` and the
  * first 8 characters of the checksum of the complete id. Made by the independent implementation of `FileNameVectors.js`
- * (Python, hashlib), not by the functions under test: `golden.py` of the library work, with the three names below and
- * the suffixes `.json` (the default), `.js` (a script), `.en.html` (an email template with an English page) and
+ * (Python, hashlib), not by the functions under test, for the three names below and the suffixes `.json` (the default), `.js` (a script), `.en.html` (an email template with an English page) and
  * `.onCreate.js` (a managed object or a mapping with a script).
  */
 const SHORTENED = {

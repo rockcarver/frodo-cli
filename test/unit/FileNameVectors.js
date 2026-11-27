@@ -9,11 +9,13 @@
  *
  * - GOLDEN is copied unchanged (the rows, not their indentation) from the table of the library: frodo-lib at commit
  *   3ca63e9f7 (the merge of pull request 1158), file `src/utils/FileSetPathUtils.unit.test.ts`, the block "a name that does
- *   not fit gets a checksum", constant `GOLDEN`, 427 rows. The generator is `golden.py` of the library work (not committed).
- *   The command line must give byte-identical names for every row.
+ *   not fit gets a checksum", constant `GOLDEN`, 427 rows. The command line must give byte-identical names for every row.
  * - CLI_ONLY has the rows that only the command line needs: the suffixes that its types put after a name (`.js`, `.groovy`,
  *   `.correlationQuery.js`, `.actions.onCreate.js`, `.zh-CN.html`, `.schema.manager.json`) and the ids of its own traps. They
- *   are made by the same implementation (`golden-cli.py` imports `golden.py`; not committed).
+ *   are made by the same implementation.
+ *
+ * The table is the artefact, not the script that made it: a reader can check any row by hand with the recipe above (the
+ * checksum with `hashlib`, the cut at a whole character, the two steps of the guard), and the library holds the same 427 rows.
  *
  * A row whose name is `undefined` is a value that leaves no name: `fileNameOf` gives an empty name and the other functions
  * refuse it.
