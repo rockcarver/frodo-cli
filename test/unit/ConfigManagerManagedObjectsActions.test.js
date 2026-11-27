@@ -32,6 +32,7 @@ jest.unstable_mockModule('../../src/utils/Config', () => ({
   extractFrConfigDataToFile,
 }));
 jest.unstable_mockModule('../../src/utils/Console', () => ({
+  debugMessage: jest.fn(),
   printError: jest.fn(),
   printMessage: jest.fn(),
 }));

@@ -13,7 +13,7 @@ import {
   PulledPaths,
   referencedFilePath,
 } from '../utils/ConfigTreePath';
-import { printError, printMessage } from '../utils/Console';
+import { debugMessage, printError, printMessage } from '../utils/Console';
 import { causeOf } from '../utils/ErrorCause';
 import { OperationRun } from '../utils/OperationRun';
 import { printable } from '../utils/PlainName';
@@ -275,7 +275,8 @@ interface RelationshipSchemaFile {
   object: string;
   fileName: string;
   property: string;
-  body: object;
+  /** What the file holds: a JSON object for a schema, anything else is refused when it is written. */
+  body: unknown;
 }
 
 /**
@@ -321,16 +322,25 @@ function schemaFilesOf(
   if (!fs.existsSync(schemaFolder)) return [];
   const prefix = `${path.basename(objectFolder)}.schema.`;
   const suffix = '.json';
-  return fs
-    .readdirSync(schemaFolder, { withFileTypes: true })
-    .filter((entry) => entry.isFile())
+  const isSchemaFile = (entry: fs.Dirent): boolean =>
+    entry.isFile() &&
+    entry.name.startsWith(prefix) &&
+    entry.name.endsWith(suffix) &&
+    entry.name.length >= prefix.length + suffix.length;
+  const entries = fs.readdirSync(schemaFolder, { withFileTypes: true });
+  // what is not a relationship schema file is left alone: say so at debug level, which no run prints by default
+  const ignored = entries
+    .filter((entry) => !isSchemaFile(entry))
+    .map((entry) => printable(entry.name))
+    .sort();
+  if (ignored.length > 0) {
+    debugMessage(
+      `Ignored in ${printable(path.basename(objectFolder))}/schema, which are not files named ${printable(prefix)}<property>${suffix}: ${ignored.join(', ')}`
+    );
+  }
+  return entries
+    .filter(isSchemaFile)
     .map((entry) => entry.name)
-    .filter(
-      (name) =>
-        name.startsWith(prefix) &&
-        name.endsWith(suffix) &&
-        name.length >= prefix.length + suffix.length
-    )
     .sort()
     .map((fileName) => {
       const encoded = fileName.slice(
@@ -362,6 +372,18 @@ async function pushRelationshipSchemas(
   schemas: RelationshipSchemaFile[]
 ): Promise<void> {
   for (const { object, fileName, property, body } of schemas) {
+    // a file that holds JSON but no object (`null`, a list, a text) is no schema to write
+    if (body === null || typeof body !== 'object' || Array.isArray(body)) {
+      printMessage(
+        `The file ${printable(fileName)} of the managed object ${printable(object)} is not pushed: it does not hold a JSON object.`,
+        'error'
+      );
+      run.recordFailure(
+        printable(`${object}/schema/${fileName}`),
+        'the file does not hold a JSON object'
+      );
+      continue;
+    }
     if (!isRequestSegment(object) || !isRequestSegment(property)) {
       printMessage(
         `The file ${printable(fileName)} of the managed object ${printable(object)} is not pushed: the name of the object or of the property is empty, '.' or '..', or holds one of / \\ ? # % or a control character.`,
@@ -409,6 +431,14 @@ export async function configManagerImportManagedObjects(
     const names = objectName
       ? [objectName]
       : fs.readdirSync(managedObjectsPath, 'utf-8');
+    if (names.length === 0) {
+      // writing the list of an empty folder would remove every managed object of the tenant
+      printMessage(
+        'The managed-objects folder holds no managed object: nothing was sent, because pushing it would write an empty list of managed objects to the tenant.',
+        'error'
+      );
+      return false;
+    }
     const objects: IdObjectSkeletonInterface[] = [];
     const schemas: RelationshipSchemaFile[] = [];
     for (const name of names) {
@@ -426,12 +456,28 @@ export async function configManagerImportManagedObjects(
       }
     }
 
-    if (objectName) {
-      await importSubConfigEntity('managed', objects[0] as any);
-    } else {
-      await importConfigEntities({
-        idm: { managed: { _id: 'managed', objects } },
-      });
+    try {
+      if (objectName) {
+        await importSubConfigEntity('managed', objects[0] as any);
+      } else {
+        await importConfigEntities({
+          idm: { managed: { _id: 'managed', objects } },
+        });
+      }
+    } catch (error) {
+      printError(error, `Error importing IDM managed objects`);
+      // the files are not tried: say which, as a command that runs many operations does
+      if (schemas.length > 0) {
+        printMessage(
+          `The managed configuration was not written, so these relationship schema files were not attempted: ${schemas
+            .map(({ object, fileName }) =>
+              printable(`${object}/schema/${fileName}`)
+            )
+            .join(', ')}.`,
+          'error'
+        );
+      }
+      return false;
     }
     // the properties belong to objects that exist now: the configuration is written first
     await pushRelationshipSchemas(run, schemas);

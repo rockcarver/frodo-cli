@@ -139,13 +139,13 @@ suite('config-manager delete services (fake tenant)', () => {
     });
   }
 
-  /** Runs `frodo config-manager delete services <args>` once against the running tenant, without a terminal. */
+  /** Runs `frodo config delete services <args>` once against the running tenant, without a terminal. */
   function runCli(args, { mode = 'forgeops', realm } = {}) {
     return new Promise((resolve, reject) => {
       const child = cp.spawn(
         binaryPath,
         [
-          'config-manager',
+          'config',
           'delete',
           'services',
           ...args,

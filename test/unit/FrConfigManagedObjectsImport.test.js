@@ -36,6 +36,8 @@ function recordWrites() {
 }
 const printed = [];
 const messages = () => printed.map((entry) => entry.msg).join('\n');
+/** What was said at debug level: it never reaches the console of a run, so it has its own list. */
+const debugged = [];
 
 jest.unstable_mockModule('@rockcarver/frodo-lib', () => ({
   frodo: {
@@ -63,6 +65,7 @@ jest.unstable_mockModule('@rockcarver/frodo-lib', () => ({
   FrodoError: realLib.FrodoError,
 }));
 jest.unstable_mockModule('../../src/utils/Console', () => ({
+  debugMessage: (msg) => debugged.push(String(msg)),
   printMessage: (msg, type) => printed.push({ msg: String(msg), type }),
   printError: (error, message) =>
     printed.push({
@@ -169,6 +172,7 @@ beforeEach(() => {
   realLib.state.setEnvs({}, true);
   writes.length = 0;
   printed.length = 0;
+  debugged.length = 0;
   recordWrites();
 });
 
@@ -235,12 +239,40 @@ describe('push managed-objects, every object', () => {
     expect(messages()).toBe('');
   });
 
-  test('a folder that holds no object is not a failure, and no property is written', async () => {
+  test('a folder that holds no object sends nothing: it would write an empty list of managed objects, so the command says so and fails', async () => {
     fs.mkdirSync(path.join(tree, 'managed-objects'));
+
+    expect(await configManagerImportManagedObjects()).toBe(false);
+
+    // not the configuration and not a property: an empty list would remove the managed objects of the tenant
+    expect(writes).toEqual([]);
+    expect(importConfigEntities).not.toHaveBeenCalled();
+    expect(importSubConfigEntity).not.toHaveBeenCalled();
+    expect(updateManagedObjectSchemaProperty).not.toHaveBeenCalled();
+    expect(messages()).toContain(
+      'The managed-objects folder holds no managed object: nothing was sent'
+    );
+    expect(
+      printed.find(({ msg }) => msg.includes('holds no managed')).type
+    ).toBe('error');
+  });
+
+  test('an empty folder fails whatever --allow-failures says: it is no operation that can be forgiven', async () => {
+    fs.mkdirSync(path.join(tree, 'managed-objects'));
+
+    expect(await configManagerImportManagedObjects(undefined, true)).toBe(
+      false
+    );
+
+    expect(writes).toEqual([]);
+  });
+
+  test('a folder with one object is still written: the check is for none at all', async () => {
+    write(objectFile('alpha_role'));
 
     expect(await configManagerImportManagedObjects()).toBe(true);
 
-    expect(propertyWrites()).toEqual([]);
+    expect(writes.map(({ step }) => step)).toEqual(['config']);
   });
 });
 
@@ -337,6 +369,59 @@ describe('which files of the schema folder are relationship schemas', () => {
     expect(propertyWrites().map(({ property }) => property)).toEqual([
       'manager',
     ]);
+  });
+
+  test('what is ignored is said at debug level, by the name it has in its folder, and never on the console', async () => {
+    write({
+      ...objectFile('alpha_user'),
+      ...schemaFile('alpha_user', 'manager'),
+      'managed-objects/alpha_user/schema/alpha_role.schema.members.json':
+        schemaOf('alpha_role', 'members', 'x'),
+      'managed-objects/alpha_user/schema/README.md': 'not a schema',
+      'managed-objects/alpha_user/schema/alpha_user.schema.folder.json/inside.json':
+        schemaOf('alpha_user', 'inside', 'x'),
+    });
+
+    expect(await configManagerImportManagedObjects()).toBe(true);
+
+    expect(debugged).toHaveLength(1);
+    expect(debugged[0]).toContain('alpha_user/schema');
+    expect(debugged[0]).toContain('README.md');
+    expect(debugged[0]).toContain('alpha_role.schema.members.json');
+    expect(debugged[0]).toContain('alpha_user.schema.folder.json');
+    // the file that is a relationship schema is not among them
+    expect(debugged[0]).not.toContain('alpha_user.schema.manager.json');
+    expect(messages()).toBe('');
+  });
+
+  test('a schema folder in which every file is a relationship schema says nothing, and so does a tree without one', async () => {
+    write({ ...TWO_OBJECTS, ...objectFile('alpha_group') });
+
+    expect(await configManagerImportManagedObjects()).toBe(true);
+
+    expect(debugged).toEqual([]);
+  });
+
+  test('a property that is literally named `a%20b` is never pushed as `a b`: the object file holds its name, which a request cannot carry, so the file is one failed operation', async () => {
+    write({
+      ...objectFile('alpha_user', {
+        schema: {
+          type: 'object',
+          properties: { 'a%20b': { type: 'relationship' } },
+        },
+      }),
+      // a pull writes a percent sign as it is: this file name is also the encoding of `a b`
+      ...schemaFile('alpha_user', 'a%20b'),
+    });
+
+    expect(await configManagerImportManagedObjects('alpha_user')).toBe(false);
+
+    // the property of the file is the one that the object holds, and no write names `a b`
+    expect(propertyWrites()).toEqual([]);
+    expect(messages()).toContain('1 of 1 relationship schema failed:');
+    expect(messages()).toContain(
+      'alpha_user/schema/alpha_user.schema.a%20b.json'
+    );
   });
 
   test('the property is the name in the file name, decoded: `a%20b` is `a b`', async () => {
@@ -507,6 +592,72 @@ describe('a file whose name cannot be written is one failed operation that names
   });
 });
 
+describe('a schema file that holds JSON that is not an object is one failed operation that names the file', () => {
+  test.each([
+    ['null', 'null'],
+    ['[1,2]', 'an array'],
+    ['[]', 'an empty array'],
+    ['"text"', 'a string'],
+    ['7', 'a number'],
+    ['true', 'a boolean'],
+  ])(
+    '%s (%s): nothing is sent for it, the others are, the summary names the file, the command fails',
+    async (content) => {
+      write({
+        ...objectFile('alpha_user'),
+        ...schemaFile('alpha_user', 'manager'),
+        ...schemaFile('alpha_user', 'broken', content),
+        ...schemaFile('alpha_user', 'reports'),
+      });
+
+      expect(await configManagerImportManagedObjects()).toBe(false);
+
+      // the canary: no write carries the property of the file that is not an object
+      expect(propertyWrites().map(({ property }) => property)).toEqual([
+        'manager',
+        'reports',
+      ]);
+      expect(messages()).toContain('1 of 3 relationship schemas failed:');
+      expect(messages()).toContain(
+        'alpha_user/schema/alpha_user.schema.broken.json: the file does not hold a JSON object'
+      );
+      expect(messages()).toContain(
+        'The file alpha_user.schema.broken.json of the managed object alpha_user is not pushed: it does not hold a JSON object.'
+      );
+    }
+  );
+
+  test('--allow-failures keeps the exit at 0 for it, as for any failed file, and says so', async () => {
+    write({
+      ...objectFile('alpha_user'),
+      ...schemaFile('alpha_user', 'manager'),
+      ...schemaFile('alpha_user', 'broken', 'null'),
+    });
+
+    expect(await configManagerImportManagedObjects(undefined, true)).toBe(true);
+
+    expect(propertyWrites().map(({ property }) => property)).toEqual([
+      'manager',
+    ]);
+    expect(messages()).toContain(
+      'The exit code stays 0 because --allow-failures was given.'
+    );
+  });
+
+  test('an object is a JSON object whatever it holds: an empty one is pushed as it is', async () => {
+    write({
+      ...objectFile('alpha_user'),
+      ...schemaFile('alpha_user', 'manager', '{}'),
+    });
+
+    expect(await configManagerImportManagedObjects()).toBe(true);
+
+    expect(propertyWrites()).toEqual([
+      expect.objectContaining({ property: 'manager', body: {} }),
+    ]);
+  });
+});
+
 describe('placeholders', () => {
   test('are filled in an object and in a schema file', async () => {
     realLib.state.setEnv('OBJECT_DESCRIPTION', 'from the environment');
@@ -660,7 +811,65 @@ describe('failures', () => {
 
     expect(updateManagedObjectSchemaProperty).not.toHaveBeenCalled();
     expect(messages()).toContain('Error importing IDM managed objects');
-    expect(messages()).not.toContain('relationship schema');
+    // no summary of failed files: none was tried
+    expect(messages()).not.toContain('relationship schemas failed');
+    expect(messages()).not.toContain('relationship schema failed');
+  });
+
+  test('a failed configuration write names the schema files that were not attempted, one by its name in the tree, in the order they would have been written', async () => {
+    write(THREE);
+    importConfigEntities.mockRejectedValue(
+      new Error('the configuration was refused')
+    );
+
+    expect(await configManagerImportManagedObjects()).toBe(false);
+
+    const said = printed.find(({ msg }) => msg.includes('not attempted'));
+    expect(said.type).toBe('error');
+    expect(said.msg).toContain(
+      'The managed configuration was not written, so these relationship schema files were not attempted:'
+    );
+    expect(said.msg).toContain(
+      'alpha_user/schema/alpha_user.schema.manager.json'
+    );
+    expect(said.msg).toContain(
+      'alpha_user/schema/alpha_user.schema.middle.json'
+    );
+    expect(said.msg).toContain(
+      'alpha_user/schema/alpha_user.schema.reports.json'
+    );
+    expect(said.msg.indexOf('manager')).toBeLessThan(
+      said.msg.indexOf('middle')
+    );
+    expect(said.msg.indexOf('middle')).toBeLessThan(
+      said.msg.indexOf('reports')
+    );
+  });
+
+  test('so does a failed write of one object with -i, and an object without schema files has nothing to name', async () => {
+    write({ ...THREE, ...objectFile('alpha_role') });
+    importSubConfigEntity.mockRejectedValue(
+      new Error('the configuration was refused')
+    );
+
+    expect(await configManagerImportManagedObjects('alpha_user')).toBe(false);
+    expect(messages()).toContain('alpha_user.schema.manager.json');
+
+    printed.length = 0;
+    expect(await configManagerImportManagedObjects('alpha_role')).toBe(false);
+    expect(messages()).not.toContain('not attempted');
+  });
+
+  test('a read that fails before anything is written names no file: none was going to be written yet', async () => {
+    write({
+      ...objectFile('alpha_user'),
+      ...schemaFile('alpha_user', 'manager', '{ not json'),
+    });
+
+    expect(await configManagerImportManagedObjects()).toBe(false);
+
+    expect(writes).toEqual([]);
+    expect(messages()).not.toContain('not attempted');
   });
 
   test('a failed configuration write does not print the summary of the files that were never tried', async () => {
