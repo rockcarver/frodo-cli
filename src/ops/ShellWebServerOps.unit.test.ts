@@ -1354,6 +1354,21 @@ describe('why a tab engine did not come up', () => {
     // times as long throws at once, so that no pattern ever gets to run on a line
     // of 4,000,000 characters.
     const TOO_LONG = 10 * REASON_INPUT_LIMIT;
+    // The patterns must also be cheap on the 2000 characters that they are given. That is checked
+    // by the number of times that a pattern is run (a pattern that is run again for every
+    // character of the text it reads is quadratic however fast the machine is), and by the CPU
+    // time of the process, with a bound a thousand times what 2000 characters cost and far under
+    // what a pattern that backtracks takes. A regular expression cannot be interrupted, so a
+    // pattern that backtracks without end holds the test until its timeout, and the bound is
+    // checked when it has ended.
+    const MAX_RUNS = 10 * REASON_INPUT_LIMIT;
+    const CPU_LIMIT_MS = 5000;
+    const cpuMilliseconds = (work: () => void): number => {
+      const before = process.cpuUsage();
+      work();
+      const used = process.cpuUsage(before);
+      return (used.user + used.system) / 1000;
+    };
     let longest = 0;
     let runs = 0;
     let spy: ReturnType<typeof jest.spyOn> | undefined;
@@ -1388,9 +1403,13 @@ describe('why a tab engine did not come up', () => {
     ];
 
     it('gives the patterns no more than the limit for a line of thirty thousand characters, and of repeated keywords', () => {
-      for (const line of small) engineStartFailureReason([line]);
+      const milliseconds = cpuMilliseconds(() => {
+        for (const line of small) engineStartFailureReason([line]);
+      });
       expect(runs).toBeGreaterThan(0);
       expect(longest).toBeLessThanOrEqual(REASON_INPUT_LIMIT);
+      expect(runs).toBeLessThanOrEqual(MAX_RUNS);
+      expect(milliseconds).toBeLessThan(CPU_LIMIT_MS);
     });
 
     const shapes: [string, string][] = [
@@ -1408,18 +1427,27 @@ describe('why a tab engine did not come up', () => {
     it.each(shapes)(
       'gives the patterns no more than the limit, however long the line is: %s',
       (_name, filler) => {
-        const reason = engineStartFailureReason([`Error: ${filler}`]);
+        let reason = '';
+        const milliseconds = cpuMilliseconds(() => {
+          reason = engineStartFailureReason([`Error: ${filler}`]);
+        });
         expect(runs).toBeGreaterThan(0);
         expect(longest).toBeLessThanOrEqual(REASON_INPUT_LIMIT);
+        expect(runs).toBeLessThanOrEqual(MAX_RUNS);
+        expect(milliseconds).toBeLessThan(CPU_LIMIT_MS);
         expect(reason.length).toBeLessThanOrEqual(200);
         expect(reason.startsWith('Error:')).toBe(true);
       }
     );
 
     it('gives the patterns no more than the limit when the line is the whole text handed to safeEngineReason', () => {
-      safeEngineReason('password'.repeat(500_000), ['abcdefghijklmnop']);
+      const milliseconds = cpuMilliseconds(() => {
+        safeEngineReason('password'.repeat(500_000), ['abcdefghijklmnop']);
+      });
       expect(runs).toBeGreaterThan(0);
       expect(longest).toBeLessThanOrEqual(REASON_INPUT_LIMIT);
+      expect(runs).toBeLessThanOrEqual(MAX_RUNS);
+      expect(milliseconds).toBeLessThan(CPU_LIMIT_MS);
     });
 
     it('looks at no more than REASON_INPUT_LIMIT characters', () => {
