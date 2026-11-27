@@ -105,9 +105,13 @@ describe('aliases in the command tree', () => {
     const withAliases = commands.filter((c) => c.aliases().length > 0);
     expect(withAliases.length).toBeGreaterThan(0);
     for (const command of withAliases) {
-      const inList = command.parent.createHelp().subcommandDescription(command);
+      // a group is built on its own here and has no parent: its row in the list of the root is read in
+      // ConfigGroupAlias.test.js and by the snapshot of the root page
+      const inList = command.parent
+        ?.createHelp()
+        .subcommandDescription(command);
       const onPage = command.createHelp().commandDescription(command);
-      for (const description of [inList, onPage]) {
+      for (const description of [inList, onPage].filter(Boolean)) {
         expect(description).toMatch(NOTE);
         for (const alias of command.aliases()) {
           expect(description).toContain(alias);
@@ -451,11 +455,9 @@ describe('a transition alias in a nested tree', () => {
  * The old words of the renames of cli#1264. The old words of the types and of the
  * promotion commands (`applications`, `authentication`, `custom-nodes`,
  * `connector-definitions`, `secret-mappings`, `remote-servers`, and the seven
- * promotion names) are transition aliases now, and their rows below are real
- * tests of the real tree. The group word `config-manager`, which becomes a
- * transition alias of `config`, is not renamed yet: its words are still the real
- * names, and the `it.todo` of that group stay for the step that renames it. Each
- * row says what has to stay true, in two parts:
+ * promotion names) and the old group word `config-manager` are transition
+ * aliases now, and their rows below are real tests of the real tree. Each row
+ * says what has to stay true, in two parts:
  *
  * - a real test that the old word still leads to a command (`resolveCommand`
  *   finds a command by name or by alias). It fails if a rename drops the word,
@@ -463,9 +465,8 @@ describe('a transition alias in a nested tree', () => {
  *   spelling;
  * - for the renamed types, a real test of the transition contract: `getAliasKind`
  *   is `transition`, the help ends `(formerly: old)`, and the old word leads to
- *   the command of the new name. For the group word, an `it.todo` that the step
- *   which adds the alias turns into a test: the first use prints one notice on
- *   stderr, and the help is the one of the new name.
+ *   the command of the new name. For the group word, the same on the group
+ *   `config`, and a test that the first use prints one notice on stderr.
  *
  * The notice and help of a transition alias are proven on a small tree above and,
  * for every renamed command of the real tree, in
@@ -492,7 +493,7 @@ describe('the old words of the planned renames (cli#1264)', () => {
     expect(leafOf('no-such-group', 'pull', 'cors')).toBeUndefined();
   });
 
-  describe('the group word config-manager, which becomes a transition alias of config', () => {
+  describe('the group word config-manager, a transition alias of config', () => {
     // one command of every verb of the group
     const verbs = [
       ['pull', 'cors'],
@@ -512,23 +513,110 @@ describe('the old words of the planned renames (cli#1264)', () => {
       expect(leafOf('config', 'import')).toBeDefined();
     });
 
-    it.todo(
-      'config-manager is a transition alias of config (getAliasKind), the help of frodo ends the config row with (formerly: config-manager), and config-manager -h shows the help of config'
+    it('config-manager is the only alias of config, a transition alias, and no group of the tree is named config-manager', () => {
+      const config = groups.find((group) => group.name() === 'config');
+      expect(config).toBeDefined();
+      expect(groups.some((group) => group.name() === 'config-manager')).toBe(
+        false
+      );
+      expect(config.aliases()).toEqual(['config-manager']);
+      expect(getAliasKind(config, 'config-manager')).toBe('transition');
+      expect(resolveCommand(groups, ['frodo', 'config-manager'])?.command).toBe(
+        config
+      );
+    });
+
+    it('the description of config ends with (formerly: config-manager), and its page and its usage line name config', () => {
+      const config = groups.find((group) => group.name() === 'config');
+      expect(
+        config
+          .createHelp()
+          .commandDescription(config)
+          .endsWith('(formerly: config-manager)')
+      ).toBe(true);
+      const page = renderHelp(config).replace(/\n {10,}(?=\S)/g, ' ');
+      expect(page).toContain('Usage: config [options] [command]');
+      expect(page).not.toContain('Usage: config-manager');
+      // the list of the group names the verbs under their one name
+      expect(config.commands.map((c) => c.name()).sort()).toEqual([
+        'delete',
+        'export',
+        'import',
+        'migrate',
+        'promote',
+        'pull',
+        'push',
+      ]);
+    });
+
+    it('typing config-manager prints one notice on stderr, once per process, and then dispatches to config; typing config prints none', async () => {
+      const { groups: fresh } = await loadCommandTree();
+      const config = fresh.find((group) => group.name() === 'config');
+      const root = new FrodoStubCommand('frodo');
+      root.addCommand(config);
+      // a probe in place of the group's own parsing: the registration, the alias and the dispatch of the real group are used
+      const ran = [];
+      const original = config._parseCommand;
+      config._parseCommand = () => {
+        ran.push(config.name());
+      };
+      const errors = [];
+      const exitCode = process.exitCode;
+      jest.spyOn(console, 'error').mockImplementation((...args) => {
+        errors.push(args.join(' '));
+      });
+      try {
+        await root._dispatchSubcommand('config-manager', ['pull', 'cors'], []);
+        await root._dispatchSubcommand('config-manager', ['pull', 'cors'], []);
+        expect(ran).toEqual(['config', 'config']);
+        expect(errors.map((line) => line.replace(ANSI, ''))).toEqual([
+          "'config-manager' is now called 'config'. The old name still works and will be removed in a future major release.",
+        ]);
+        await root._dispatchSubcommand('config', ['pull', 'cors'], []);
+        expect(ran).toEqual(['config', 'config', 'config']);
+        expect(errors).toHaveLength(1);
+        expect(process.exitCode).toBe(exitCode);
+      } finally {
+        config._parseCommand = original;
+        jest.restoreAllMocks();
+      }
+    });
+
+    // the join puts export and import next to pull and push, so the old group word reaches them too
+    it.each(['export', 'import'])(
+      'config-manager %s leads to the same command as config %s (a side effect of the join, documented in MIGRATION.md)',
+      (verb) => {
+        const viaOld = resolveCommand(groups, [
+          'frodo',
+          'config-manager',
+          verb,
+        ]);
+        const viaNew = resolveCommand(groups, ['frodo', 'config', verb]);
+        expect(viaOld?.command).toBeDefined();
+        expect(viaOld.command).toBe(viaNew.command);
+        expect(fullName(viaOld.command)).toBe(`frodo config ${verb}`);
+      }
     );
-    it.todo(
-      'typing config-manager before any verb prints one notice on stderr, once per process, and then runs the command of that verb; typing config prints none'
-    );
-    // the group merge puts export and import next to pull and push, so the old group word reaches them too
-    it.todo(
-      'config-manager export leads to the same command as config export (a side effect of the merge: config-manager has no export today), and the side effect is documented'
-    );
-    it.todo(
-      'config-manager import leads to the same command as config import (a side effect of the merge: config-manager has no import today), and the side effect is documented'
-    );
-    // the experimental stability of the merged group moves onto the leaves that are new, so export and import keep theirs
-    it.todo(
-      'config export and config import stay stable (not experimental) after the merge'
-    );
+
+    // the experimental label sits on the five verb groups, so export and import keep being stable
+    it('config export and config import stay stable (no label); the five verb groups and every leaf under them are experimental or deprecated', () => {
+      const config = groups.find((group) => group.name() === 'config');
+      for (const verb of ['export', 'import']) {
+        const command = config.commands.find((c) => c.name() === verb);
+        expect(renderHelp(command)).not.toMatch(
+          /\[(Experimental|Deprecated)\]/
+        );
+      }
+      for (const verb of ['pull', 'push', 'delete', 'migrate', 'promote']) {
+        const group = config.commands.find((c) => c.name() === verb);
+        expect(renderHelp(group)).toMatch(/\[Experimental\]/);
+        for (const leaf of allCommands(group).filter(
+          (c) => c.commands.length === 0
+        )) {
+          expect(renderHelp(leaf)).toMatch(/\[(Experimental|Deprecated)\]/);
+        }
+      }
+    });
   });
 
   describe('the words of the types that get a shorter name, each kept as a transition alias in every verb that has it', () => {

@@ -6,7 +6,8 @@
  *
  * Most commands run in ONE realm: the realm positional (or the deployment's
  * default) names it, and the post-auth realm picker offers the realms of the
- * system with the default highlighted. The `config-manager` commands that use
+ * system with the default highlighted. The commands of `frodo config pull`,
+ * `push`, `delete`, `migrate` and `promote` (the config-manager family) that use
  * their realm positional are different: no realm means EVERY realm, because
  * the operations read the sentinel default as "all". Such a command declares
  * itself with `FrodoCommand.usesRealm()`:
@@ -18,7 +19,7 @@
  * - the command reads the realm after login (`realmOfRun`), because the picker
  *   runs inside `getTokens()`, after the action has bound its parameters.
  *
- * A `config-manager` command that does NOT declare it ignores the realm
+ * A command of that family that does NOT declare it ignores the realm
  * (cors, secrets, promote, ...): the picker would offer a choice that changes
  * nothing, so it does not open.
  *
@@ -66,21 +67,45 @@ export function realmUseOf(command: Command): RealmUse | undefined {
   return declaredRealmUse.get(command);
 }
 
+/** The verbs of `frodo config` that work on a tree of files (`export` and `import` do not). */
+const CONFIG_TREE_VERBS: readonly string[] = [
+  'pull',
+  'push',
+  'delete',
+  'migrate',
+  'promote',
+];
+
 /**
- * Whether the command is one of the `frodo config-manager` commands.
+ * Whether the command is one of the commands of `frodo config` that work on a
+ * tree of files (`pull`, `push`, `delete`, `migrate` and `promote`, formerly
+ * the `config-manager` group). `config export` and `config import` are not:
+ * they share the group name, so the group name alone does not tell.
  * @param command the command
- * @returns true if the command, or one of its ancestors, is named `config-manager`
+ * @returns true if the command sits below `config pull|push|delete|migrate|promote`, or carries such a full name
  */
 export function isConfigManagerCommand(command: Command): boolean {
+  let below: Command | undefined;
   for (
     let cursor: Command | null | undefined = command;
     cursor;
-    cursor = cursor.parent
+    below = cursor, cursor = cursor.parent
   ) {
     const name = cursor.name();
-    // the group is named `config-manager`; a leaf may carry its full
-    // `frodo config-manager ...` name
-    if (name === 'config-manager' || name.startsWith('frodo config-manager')) {
+    // a leaf may carry its full `frodo config pull ...` name
+    if (
+      new RegExp(`^frodo config (${CONFIG_TREE_VERBS.join('|')})( |$)`).test(
+        name
+      )
+    ) {
+      return true;
+    }
+    // the group is named `config`; the word right below it names the verb
+    if (
+      name === 'config' &&
+      below &&
+      CONFIG_TREE_VERBS.includes(below.name())
+    ) {
       return true;
     }
   }
@@ -89,7 +114,7 @@ export function isConfigManagerCommand(command: Command): boolean {
 
 /**
  * Whether the realm picker must stay closed for the command: a
- * `config-manager` command that does not use its realm positional.
+ * command of `config pull|push|delete|migrate|promote` that does not use its realm positional.
  * @param command the command
  * @returns true if the picker would offer a choice that changes nothing
  */

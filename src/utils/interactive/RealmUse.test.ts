@@ -17,20 +17,24 @@ import {
 
 const SENTINEL = '__default__realm__';
 
-/** A parsed leaf under `frodo config-manager pull`, with the realm positional. */
+/**
+ * A parsed leaf under `frodo <group> <verb>`, with the realm positional: by default `frodo config pull journeys`.
+ * `config export` shares the group name with the commands that work on a tree of files, so the verb decides.
+ */
 async function leaf(
   args: string[],
-  group = 'config-manager'
+  group = 'config',
+  verb = 'pull'
 ): Promise<Command> {
   const root = new Command('frodo');
   const groupCommand = root.command(group);
-  const pull = groupCommand.command('pull');
-  const command = pull
+  const verbCommand = groupCommand.command(verb);
+  const command = verbCommand
     .command('journeys')
     .argument('[host]')
     .argument('[realm]', 'Realm.', SENTINEL)
     .action(async () => {});
-  await root.parseAsync(['node', 'frodo', group, 'pull', 'journeys', ...args]);
+  await root.parseAsync(['node', 'frodo', group, verb, 'journeys', ...args]);
   return command;
 }
 
@@ -62,31 +66,65 @@ describe('what a command declares about its realm', () => {
 });
 
 describe('isConfigManagerCommand and ignoresRealm', () => {
-  it('knows a command under config-manager by its group', async () => {
-    expect(isConfigManagerCommand(await leaf(['matrix']))).toBe(true);
+  it('knows a command under config pull, push, delete, migrate or promote by its group and verb', async () => {
+    for (const verb of ['pull', 'push', 'delete', 'migrate', 'promote']) {
+      expect(
+        isConfigManagerCommand(await leaf(['matrix'], 'config', verb))
+      ).toBe(true);
+    }
     expect(isConfigManagerCommand(await leaf(['matrix'], 'journey'))).toBe(
       false
     );
   });
 
-  it('knows a leaf that carries its full name', () => {
+  it('knows no command under config export or config import, which share the group name', async () => {
     expect(
-      isConfigManagerCommand(new Command('frodo config-manager pull all'))
-    ).toBe(true);
-    expect(isConfigManagerCommand(new Command('frodo journey list'))).toBe(
+      isConfigManagerCommand(await leaf(['matrix'], 'config', 'export'))
+    ).toBe(false);
+    expect(
+      isConfigManagerCommand(await leaf(['matrix'], 'config', 'import'))
+    ).toBe(false);
+    expect(ignoresRealm(await leaf(['matrix'], 'config', 'export'))).toBe(
       false
     );
   });
 
-  it('ignores the realm of a config-manager command that did not declare it', async () => {
+  it('does not take the old group name for the group any more', async () => {
+    expect(
+      isConfigManagerCommand(await leaf(['matrix'], 'config-manager'))
+    ).toBe(false);
+  });
+
+  it('knows a leaf that carries its full name', () => {
+    expect(isConfigManagerCommand(new Command('frodo config pull all'))).toBe(
+      true
+    );
+    expect(isConfigManagerCommand(new Command('frodo journey list'))).toBe(
+      false
+    );
+    expect(isConfigManagerCommand(new Command('frodo config export'))).toBe(
+      false
+    );
+    expect(isConfigManagerCommand(new Command('frodo config import'))).toBe(
+      false
+    );
+  });
+
+  it('ignores the realm of a command of config pull, push, delete, migrate or promote that did not declare it', async () => {
     const command = await leaf(['matrix']);
     expect(ignoresRealm(command)).toBe(true);
     declareRealmUse(command);
     expect(ignoresRealm(command)).toBe(false);
   });
 
-  it('never ignores the realm of a command outside config-manager', async () => {
+  it('never ignores the realm of a command outside them: another group, config export, config import', async () => {
     expect(ignoresRealm(await leaf(['matrix'], 'journey'))).toBe(false);
+    expect(ignoresRealm(await leaf(['matrix'], 'config', 'export'))).toBe(
+      false
+    );
+    expect(ignoresRealm(await leaf(['matrix'], 'config', 'import'))).toBe(
+      false
+    );
   });
 });
 
@@ -110,7 +148,7 @@ describe('realmOfRun', () => {
   });
 
   it('falls back to the parameter for a command without a realm positional', () => {
-    const command = new Command('frodo config-manager pull cors');
+    const command = new Command('frodo config pull cors');
     expect(realmOfRun(command, 'alpha')).toBe('alpha');
     expect(realmOfRun(command, undefined)).toBeUndefined();
   });
@@ -121,7 +159,7 @@ describe('the command as the preview prints it', () => {
     setDeploymentTypeForPreview('cloud');
     const command = await leaf(['matrix']);
     expect(serializeCommand(command)).toBe(
-      'frodo config-manager pull journeys matrix alpha'
+      'frodo config pull journeys matrix alpha'
     );
   });
 
@@ -129,9 +167,7 @@ describe('the command as the preview prints it', () => {
     setDeploymentTypeForPreview('cloud');
     const command = await leaf(['matrix']);
     declareRealmUse(command);
-    expect(serializeCommand(command)).toBe(
-      'frodo config-manager pull journeys matrix'
-    );
+    expect(serializeCommand(command)).toBe('frodo config pull journeys matrix');
   });
 
   it('prints a realm that was picked, for a command that uses its realm', async () => {
@@ -140,7 +176,7 @@ describe('the command as the preview prints it', () => {
     declareRealmUse(command);
     command.processedArgs[1] = 'bravo';
     expect(serializeCommand(command)).toBe(
-      'frodo config-manager pull journeys matrix bravo'
+      'frodo config pull journeys matrix bravo'
     );
   });
 
@@ -148,7 +184,7 @@ describe('the command as the preview prints it', () => {
     const command = await leaf(['matrix', 'alpha']);
     declareRealmUse(command);
     expect(serializeCommand(command)).toBe(
-      'frodo config-manager pull journeys matrix alpha'
+      'frodo config pull journeys matrix alpha'
     );
   });
 });
@@ -213,7 +249,7 @@ describe('a realm picker that needs an option', () => {
     expect(realmPickerWanted(other)).toBe(true);
   });
 
-  it('does not make a config-manager command use or ignore its realm', async () => {
+  it('does not make a command use or ignore its realm', async () => {
     const command = await exportLeaf(['matrix']);
     declareRealmPickerOnlyWith(command, 'realmOnly');
     expect(realmUseOf(command)).toBeUndefined();

@@ -18,7 +18,7 @@ const deploymentTypes = [CLOUD_DEPLOYMENT_TYPE_KEY];
 
 export default function setup() {
   const program = new FrodoCommand(
-    'frodo config-manager delete telemetry',
+    'frodo config delete telemetry',
     [],
     deploymentTypes
   );
@@ -54,20 +54,16 @@ export default function setup() {
       'after',
       `Usage Examples:\n` +
         `  Delete all telemetry exporters without prompting:\n` +
-        c.command(
-          `  $ frodo config-manager delete telemetry -y ${s.connId}\n`
-        ) +
+        c.command(`  $ frodo config delete telemetry -y ${s.connId}\n`) +
         `  Preview deletion of all telemetry exporters:\n` +
-        c.command(
-          `  $ frodo config-manager delete telemetry -d ${s.connId}\n`
-        ) +
+        c.command(`  $ frodo config delete telemetry -d ${s.connId}\n`) +
         `  Delete all OTLP exporters without prompting:\n` +
         c.command(
-          `  $ frodo config-manager delete telemetry -c otlp -y ${s.connId}\n`
+          `  $ frodo config delete telemetry -c otlp -y ${s.connId}\n`
         ) +
         `  Delete a specific OTLP exporter by id:\n` +
         c.command(
-          `  $ frodo config-manager delete telemetry -c otlp -i test-otlp ${s.connId}\n`
+          `  $ frodo config delete telemetry -c otlp -i test-otlp ${s.connId}\n`
         )
     )
     .multiOp()

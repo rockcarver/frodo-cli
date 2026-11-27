@@ -146,13 +146,13 @@ describe('the path options of the command tree', () => {
     expect(accessOf(['journey', 'list'], '--directory')).toBe('read');
   });
 
-  test('10: the config-manager commands read their config folder and files, and write to the working directory', () => {
+  test('10: the config pull, push and migrate commands read their config folder and files, and write to the working directory', () => {
     const at = (path, long) => pathOptionAt(path, long);
-    expect(at(['config-manager', 'pull', 'all'], '--config-folder')).toEqual({
+    expect(at(['config', 'pull', 'all'], '--config-folder')).toEqual({
       kind: 'directory',
       access: 'read',
     });
-    expect(at(['config-manager', 'pull', 'all'], '--directory')).toEqual({
+    expect(at(['config', 'pull', 'all'], '--directory')).toEqual({
       kind: 'directory',
       access: 'write',
     });
@@ -170,19 +170,24 @@ describe('the path options of the command tree', () => {
       'saml',
       'service-objects',
     ]) {
-      expect(at(['config-manager', 'pull', verb], '--config-file')).toEqual({
+      expect(at(['config', 'pull', verb], '--config-file')).toEqual({
         kind: 'file',
         access: 'read',
         extensions: ['.json'],
       });
     }
     expect(
-      at(['config-manager', 'migrate', 'applications'], '--config-folder')
+      at(['config', 'migrate', 'applications'], '--config-folder')
     ).toEqual({ kind: 'directory', access: 'read' });
-    expect(at(['config-manager', 'push', 'all'], '--directory')).toEqual({
+    expect(at(['config', 'push', 'all'], '--directory')).toEqual({
       kind: 'directory',
       access: 'read',
     });
+    // config export and config import share the group name with the commands above and keep their own verbs
+    expect(defaultAccess(['config', 'export'])).toBe('write');
+    expect(defaultAccess(['config', 'import'])).toBe('read');
+    expect(at(['config', 'export'], '--file')?.access).toBe('write');
+    expect(at(['config', 'import'], '--file')?.access).toBe('read');
   });
 
   test('10b: the dot files are shown for the option whose usual value is one, and for no other', () => {
@@ -204,9 +209,9 @@ describe('the path options of the command tree', () => {
 
   test('12: the verbs that write are the export and pull verbs and nothing else', () => {
     expect(defaultAccess(['journey', 'export'])).toBe('write');
-    expect(defaultAccess(['config-manager', 'pull', 'saml'])).toBe('write');
-    expect(defaultAccess(['config-manager', 'push', 'saml'])).toBe('read');
-    expect(defaultAccess(['config-manager', 'delete', 'scripts'])).toBe('read');
+    expect(defaultAccess(['config', 'pull', 'saml'])).toBe('write');
+    expect(defaultAccess(['config', 'push', 'saml'])).toBe('read');
+    expect(defaultAccess(['config', 'delete', 'scripts'])).toBe('read');
     expect(defaultAccess([])).toBe('read');
   });
 

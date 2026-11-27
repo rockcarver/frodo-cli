@@ -14,16 +14,18 @@ const {
 } = require('../e2e/utils/FrodoBinary.cjs');
 
 /**
- * The messages that the renamed config-manager commands print while they run name the NEW names. A command that
- * is renamed keeps its old name as a transition alias, which prints a notice when it is typed: a message that
- * tells the user to run `pull applications` sends them to the alias. The help pages are checked in
+ * The messages that the commands of `frodo config` print while they run name the NEW names, the new group
+ * word included. A command that is renamed keeps its old name as a transition alias, and the group keeps its old
+ * name `config-manager` as one: each prints a notice when it is typed, so a message that tells the user to run
+ * `pull applications` or `frodo config-manager pull cors` sends them to the alias. The help pages are checked in
  * ConfigManagerTransitionAliases.test.js; this file runs the real CLI of this checkout against a fake tenant in the
  * situations that print a hint (an object that an application owns, a tree of the old layout, a folder that is
  * not there, an object that is not found, a step that failed, `pull all`) and reads everything the commands print
  * (stdout and stderr) for the name of a renamed command, the old one. The table of the renames is
  * test/utils/ConfigManagerRenames.js.
  *
- * An old name may appear only in the one notice line of an alias that the case types itself. The folders on disk
+ * An old name, and the old group word before a verb, may appear only in the one notice line of an alias that the
+ * case types itself. The folders on disk
  * (`custom-nodes/nodes`, `secret-mappings`, ...) are not command names and are not looked for: only an old name
  * after a verb (`pull applications`) or, for the promotion commands, the word of the old name.
  *
@@ -41,10 +43,11 @@ const NOTICE = /^'[^']+' is now called '[^']+'\. The old name still works/;
 
 /**
  * The renamed commands, in the old name, that a text names: `pull applications` (with or without `frodo
- * config-manager` before it) for the types, and the word of the old name for the promotion commands. A line that
- * is the notice of an alias is not looked at.
+ * config` before it) for the types, and the word of the old name for the promotion commands; and the old group
+ * word before a verb, `config-manager pull` or `frodo config-manager export`. A line that is the notice of an
+ * alias is not looked at.
  * @param {string} text what a command printed
- * @returns {string[]} the old names found, as `<verb> <old name>`
+ * @returns {string[]} the old names found, as `<verb> <old name>`, and `config-manager <verb>` for the group word
  */
 export function oldNamesIn(text) {
   const lines = text.split('\n').filter((line) => !NOTICE.test(line.trim()));
@@ -56,6 +59,11 @@ export function oldNamesIn(text) {
           ? new RegExp(`(?<![\\w/.-])${oldName}(?![\\w/.-])`)
           : new RegExp(`(?<![\\w-])${verb} ${oldName}(?![\\w/.-])`);
       if (pattern.test(line)) found.add(`${verb} ${oldName}`);
+    }
+    for (const match of line.matchAll(
+      /(?<![\w-])config-manager (pull|push|delete|migrate|promote|export|import)(?![\w-])/g
+    )) {
+      found.add(`config-manager ${match[1]}`);
     }
   }
   return [...found];
@@ -192,11 +200,16 @@ const CASES = [
   // the old names, typed on purpose: the notice is the one place that names them
   ['promote run-promotion --full after a lock request that was refused with the lock taken (the old name)', ['promote', 'run-promotion', '--full', '-y'], { tree: 'none', realm: false, old: true, fake: { promotion: { lockId: 'lock-1', lockRequest: 'refuse-but-lock' } } }],
   ['pull applications (the old name)', ['pull', 'applications'], { tree: 'empty', old: true }],
+  // the old group word, typed on purpose: the notice of the group is the one place that names it
+  ['pull cors (the old group word)', ['pull', 'cors'], { tree: 'empty', old: true, oldGroup: true }],
+  ['push connectors from such a tree (the old group word)', ['push', 'connectors'], { tree: 'apps', old: true, oldGroup: true }],
+  ['promote lock-status (the old group word)', ['promote', 'lock-status'], { tree: 'none', realm: false, old: true, oldGroup: true, fake: { promotion: { lockId: 'lock-1' } } }],
+  ['pull applications on a tree of the old layout (the old group word and the old name)', ['pull', 'applications'], { tree: 'old', old: true, oldGroup: true }],
   ['pull connector-definitions on a tree with one folder per application (the old name)', ['pull', 'connector-definitions'], { tree: 'apps', old: true }],
   ['push connector-definitions from such a tree (the old name)', ['push', 'connector-definitions'], { tree: 'apps', old: true }],
 ];
 
-suite('what the renamed config-manager commands print while they run', () => {
+suite('what the commands of the config group print while they run', () => {
   let home;
   let work;
   let record;
@@ -245,8 +258,11 @@ suite('what the renamed config-manager commands print while they run', () => {
     }
   };
 
-  /** Runs `frodo config-manager <args>` once against the fake tenant, and gives everything that it printed. */
-  async function run(args, { tree = 'none', fake = {}, realm = true } = {}) {
+  /** Runs `frodo config <args>` (or `frodo config-manager <args>` when asked) once against the fake tenant, and gives everything that it printed. */
+  async function run(
+    args,
+    { tree = 'none', fake = {}, realm = true, oldGroup = false } = {}
+  ) {
     fakeAm = await startFakeAm({
       ...FAKE,
       ...fake,
@@ -257,7 +273,7 @@ suite('what the renamed config-manager commands print while they run', () => {
     if (tree === 'apps') writeTree(treeDir, APP_TREE);
     if (tree === 'old') writeTree(treeDir, OLD_LAYOUT_TREE);
     const argv = [
-      'config-manager',
+      oldGroup ? 'config-manager' : 'config',
       ...args,
       ...(tree === 'none' ? [] : ['-D', treeDir]),
       `http://127.0.0.1:${fakeAm.port}/am`,
@@ -301,14 +317,32 @@ suite('what the renamed config-manager commands print while they run', () => {
         oldNamesIn('a connector is pulled by "pull applications".')
       ).toEqual(['pull applications']);
       expect(
-        oldNamesIn('see frodo config-manager push connector-definitions -h')
+        oldNamesIn('see frodo config push connector-definitions -h')
       ).toEqual(['push connector-definitions']);
+      // the old group word before a verb, with or without frodo, is found too
+      expect(oldNamesIn('see frodo config-manager pull cors -h')).toEqual([
+        'config-manager pull',
+      ]);
+      expect(oldNamesIn('use config-manager export')).toEqual([
+        'config-manager export',
+      ]);
+      // the layout setting, the tool and the layout file keep the word
+      expect(
+        oldNamesIn(
+          'frodo settings config-manager-layout; fr-config-manager pull; frodo-config-manager.json; a config-manager tree'
+        )
+      ).toEqual([]);
       expect(oldNamesIn('release it with promote unlock-tenants --id x')).toEqual(
         ['promote unlock-tenants']
       );
       expect(
         oldNamesIn(
           "'applications' is now called 'apps'. The old name still works and will be removed in a future major release."
+        )
+      ).toEqual([]);
+      expect(
+        oldNamesIn(
+          "'config-manager' is now called 'config'. The old name still works and will be removed in a future major release."
         )
       ).toEqual([]);
       // the folders of the tree are not command names
@@ -320,13 +354,17 @@ suite('what the renamed config-manager commands print while they run', () => {
 
   it.each(CASES)(
     '%s: no message names an old command',
-    async (_label, args, { tree, fake, old, realm }) => {
-      const { output, code } = await run(args, { tree, fake, realm });
+    async (_label, args, { tree, fake, old, realm, oldGroup }) => {
+      const { output, code } = await run(args, { tree, fake, realm, oldGroup });
 
       expect(oldNamesIn(output)).toEqual([]);
       // a case that types an old name prints its one notice, so that the check above is not a check of nothing
       if (old) expect(output).toMatch(/is now called '/);
       else expect(output).not.toMatch(/is now called '/);
+      // the old group word prints its notice once, and only where the case types it
+      expect(
+        output.split("'config-manager' is now called 'config'.").length - 1
+      ).toBe(oldGroup ? 1 : 0);
       // a run that did not start would print nothing that could name a command
       expect(code === null || typeof code === 'number').toBe(true);
       expect(output.length).toBeGreaterThan(0);

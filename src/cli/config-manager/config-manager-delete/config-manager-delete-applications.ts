@@ -26,7 +26,7 @@ const deploymentTypes = [
 
 export default function setup() {
   const program = new FrodoCommand(
-    'frodo config-manager delete apps',
+    'frodo config delete apps',
     [],
     deploymentTypes
   );
@@ -65,24 +65,20 @@ export default function setup() {
       'after',
       `Usage Examples:\n` +
         `  Preview the deletion of all applications of a realm and the objects they own:\n` +
-        c.command(
-          `  $ frodo config-manager delete apps -d ${s.connId} ${s.realm}\n`
-        ) +
+        c.command(`  $ frodo config delete apps -d ${s.connId} ${s.realm}\n`) +
         `  Delete all applications of a realm without asking, which is required without a terminal (without -y a terminal is asked first):\n` +
-        c.command(
-          `  $ frodo config-manager delete apps -y ${s.connId} ${s.realm}\n`
-        ) +
+        c.command(`  $ frodo config delete apps -y ${s.connId} ${s.realm}\n`) +
         `  Delete one application and the objects it owns:\n` +
         c.command(
-          `  $ frodo config-manager delete apps -n "${s.pullApplicationName}" ${s.connId} ${s.realm}\n`
+          `  $ frodo config delete apps -n "${s.pullApplicationName}" ${s.connId} ${s.realm}\n`
         ) +
         `  Preview the deletion of one application:\n` +
         c.command(
-          `  $ frodo config-manager delete apps -n "${s.pullApplicationName}" -d ${s.connId} ${s.realm}\n`
+          `  $ frodo config delete apps -n "${s.pullApplicationName}" -d ${s.connId} ${s.realm}\n`
         ) +
         `  Delete one application by the id that it has on the tenant:\n` +
         c.command(
-          `  $ frodo config-manager delete apps -i 9c2e5a14-7f60-4b3d-a8e1-0d4c6b2f9a57 ${s.connId} ${s.realm}\n`
+          `  $ frodo config delete apps -i 9c2e5a14-7f60-4b3d-a8e1-0d4c6b2f9a57 ${s.connId} ${s.realm}\n`
         )
     )
     .multiOp()

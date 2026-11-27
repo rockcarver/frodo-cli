@@ -12,7 +12,7 @@ const deploymentTypes = [CLOUD_DEPLOYMENT_TYPE_KEY];
 
 export default function setup() {
   const program = new FrodoCommand(
-    'frodo config-manager promote status',
+    'frodo config promote status',
     [],
     deploymentTypes
   );
@@ -23,7 +23,7 @@ export default function setup() {
       'after',
       `Usage Examples:\n` +
         `  Check whether a promotion is running, ready or has failed (the connection profile is the tenant you promote to):\n` +
-        c.command(`  $ frodo config-manager promote status ${s.connId}\n`)
+        c.command(`  $ frodo config promote status ${s.connId}\n`)
     )
     .action(async (host, realm, user, password, options, command) => {
       command.handleDefaultArgsAndOpts(

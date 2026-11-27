@@ -6,7 +6,7 @@ import { FrodoCommand, ListOption } from '../../FrodoCommand';
 import { refuseEmptySelector, selectorOption } from '../../SelectorOption';
 
 export default function setup() {
-  const program = new FrodoCommand('frodo config-manager pull scripts');
+  const program = new FrodoCommand('frodo config pull scripts');
 
   program
     .description('Export AM scripts.')

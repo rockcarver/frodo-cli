@@ -9,7 +9,7 @@ import { FrodoCommand } from '../../FrodoCommand';
 import { selectorOption } from '../../SelectorOption';
 
 export default function setup() {
-  const program = new FrodoCommand('frodo config-manager push oauth-issuers');
+  const program = new FrodoCommand('frodo config push oauth-issuers');
 
   program
     .summary('Import trusted JWT issuers from the files written by pull.')
@@ -29,18 +29,18 @@ export default function setup() {
       'after',
       `Usage Examples:\n` +
         `  Push all trusted JWT issuer files of all realms from the working directory to the tenant:\n` +
-        c.command(`  $ frodo config-manager push oauth-issuers ${s.connId}\n`) +
+        c.command(`  $ frodo config push oauth-issuers ${s.connId}\n`) +
         `  Push the trusted JWT issuer files of one realm:\n` +
         c.command(
-          `  $ frodo config-manager push oauth-issuers ${s.connId} ${s.realm}\n`
+          `  $ frodo config push oauth-issuers ${s.connId} ${s.realm}\n`
         ) +
         `  Push one trusted JWT issuer of a realm:\n` +
         c.command(
-          `  $ frodo config-manager push oauth-issuers -i ${s.trustedJwtIssuerId} ${s.connId} ${s.realm}\n`
+          `  $ frodo config push oauth-issuers -i ${s.trustedJwtIssuerId} ${s.connId} ${s.realm}\n`
         ) +
         `  Push from a config directory other than the working directory:\n` +
         c.command(
-          `  $ frodo config-manager push oauth-issuers -D ./config ${s.connId}\n`
+          `  $ frodo config push oauth-issuers -D ./config ${s.connId}\n`
         )
     )
     .multiOp()

@@ -6,7 +6,7 @@ import { realmOfRun } from '../../../utils/interactive/PositionalArgs';
 import { FrodoCommand } from '../../FrodoCommand';
 
 export default function setup() {
-  const program = new FrodoCommand('frodo config-manager pull all');
+  const program = new FrodoCommand('frodo config pull all');
   program
     .description('Export all config.')
     .multiOp()
@@ -46,7 +46,7 @@ export default function setup() {
         'Each config file must be named after the command it applies to. For example,\n' +
         'the config file for "authz-policies" should be named "authz-policies.json".\n' +
         'Please refer to the help message of each command to see an example config file by running:\n' +
-        '"frodo config-manager pull <entity-name> -h"'
+        '"frodo config pull <entity-name> -h"'
     )
     .usesRealm({ tenantWide: true })
     .action(async (host, realm, user, password, options, command) => {

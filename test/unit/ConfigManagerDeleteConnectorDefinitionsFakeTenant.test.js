@@ -14,7 +14,7 @@ const {
 } = require('../e2e/utils/FrodoBinary.cjs');
 
 /**
- * `config-manager delete connector-definitions`, the REAL CLI of this checkout
+ * `config delete connector-definitions`, the REAL CLI of this checkout
  * against a fake tenant (test/utils/FakeAm.mjs, in a separate process, with the
  * IDM store of its configuration objects and the application records of two
  * realms) and the real library. What the unit tests stub, this shows in the log
@@ -119,7 +119,7 @@ const APPLICATIONS = {
   ],
 };
 
-suite('config-manager delete connector-definitions (fake tenant)', () => {
+suite('config delete connector-definitions (fake tenant)', () => {
   let home;
   let work;
   let record;
@@ -155,7 +155,7 @@ suite('config-manager delete connector-definitions (fake tenant)', () => {
     });
   }
 
-  /** Runs `frodo config-manager delete connector-definitions <args>` once against the running tenant, without a terminal. */
+  /** Runs `frodo config delete connector-definitions <args>` once against the running tenant, without a terminal. */
   function runCli(args, { deployment = 'cloud', before = [] } = {}) {
     const login =
       deployment === 'cloud'
@@ -166,7 +166,7 @@ suite('config-manager delete connector-definitions (fake tenant)', () => {
         binaryPath,
         [
           ...before,
-          'config-manager',
+          'config',
           'delete',
           'connector-definitions',
           ...args,
@@ -1097,7 +1097,7 @@ suite('config-manager delete connector-definitions (fake tenant)', () => {
 
         expect(code).toBe(1);
         expect(output).toContain(
-          'An application owns the connector definition that it names: config-manager delete apps removes both.'
+          'An application owns the connector definition that it names: config delete apps removes both.'
         );
         expect(changes()).toEqual([]);
       },

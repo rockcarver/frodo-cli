@@ -2,7 +2,7 @@ import { jest } from '@jest/globals';
 import { Command } from 'commander';
 
 /**
- * `frodo config-manager promote lock` prints the promotion id it
+ * `frodo config promote lock` prints the promotion id it
  * locked for, and `unlock` takes that id back. What must hold:
  *
  * - lock prints the id under the key `promotionId`, as every other

@@ -88,7 +88,7 @@ jest.unstable_mockModule('../../src/utils/Console', () => ({
  */
 const COMMANDS = [
   {
-    name: 'config-manager pull oauth-cimd-profiles',
+    name: 'config pull oauth-cimd-profiles',
     file: 'config-manager-pull/config-manager-pull-oauth-cimd-profiles',
     fn: 'configManagerExportCIMDProfiles',
     options: {
@@ -105,14 +105,14 @@ const COMMANDS = [
     ],
   },
   {
-    name: 'config-manager push oauth-cimd-profiles',
+    name: 'config push oauth-cimd-profiles',
     file: 'config-manager-push/config-manager-push-oauth-cimd-profiles',
     fn: 'configManagerImportCIMDProfiles',
     options: { profileId: 'zion-agents' },
     args: (allowFailures) => ['zion-agents', 'alpha', allowFailures],
   },
   {
-    name: 'config-manager pull oauth-issuers',
+    name: 'config pull oauth-issuers',
     file: 'config-manager-pull/config-manager-pull-oauth-issuers',
     fn: 'configManagerExportTrustedJwtIssuers',
     options: { issuerId: 'zion-issuer', configFile: 'oauth-issuers.json' },
@@ -126,14 +126,14 @@ const COMMANDS = [
     ],
   },
   {
-    name: 'config-manager push oauth-issuers',
+    name: 'config push oauth-issuers',
     file: 'config-manager-push/config-manager-push-oauth-issuers',
     fn: 'configManagerImportTrustedJwtIssuers',
     options: { issuerId: 'zion-issuer' },
     args: (allowFailures) => ['zion-issuer', 'alpha', allowFailures],
   },
   {
-    name: 'config-manager pull oauth-software-publishers',
+    name: 'config pull oauth-software-publishers',
     file: 'config-manager-pull/config-manager-pull-oauth-software-publishers',
     fn: 'configManagerExportSoftwarePublishers',
     options: {
@@ -150,7 +150,7 @@ const COMMANDS = [
     ],
   },
   {
-    name: 'config-manager push oauth-software-publishers',
+    name: 'config push oauth-software-publishers',
     file: 'config-manager-push/config-manager-push-oauth-software-publishers',
     fn: 'configManagerImportSoftwarePublishers',
     options: { softwarePublisherId: 'zion-publisher' },

@@ -13,7 +13,7 @@ import { FrodoCommand } from '../../FrodoCommand';
 import { selectorOption } from '../../SelectorOption';
 
 export default function setup() {
-  const program = new FrodoCommand('frodo config-manager delete cors');
+  const program = new FrodoCommand('frodo config delete cors');
 
   program
     .description('Delete CORS configurations.')
@@ -49,25 +49,17 @@ export default function setup() {
         `A configuration that is not in the list exits with code 1, also with --dry-run and --allow-failures. The id that the tenant lists is what is deleted, so a value that is written as a path is a configuration that does not exist, and a listed id that is not a plain name (no slash, backslash, question mark, hash, percent sign, double dot or control character) is never sent: it counts as failed. Every configuration, and the reset of the filter, is one operation of the summary: one that fails does not stop the others, the command prints one summary and exits with code 1 if any failed; --allow-failures keeps the exit code at 0 for them.\n` +
         `Usage Examples:\n` +
         `  Delete all named CORS configurations without asking, which is required without a terminal (without -y a terminal is asked first):\n` +
-        c.command(`  $ frodo config-manager delete cors -y ${s.connId}\n`) +
+        c.command(`  $ frodo config delete cors -y ${s.connId}\n`) +
         `  Preview that:\n` +
-        c.command(`  $ frodo config-manager delete cors -d ${s.connId}\n`) +
+        c.command(`  $ frodo config delete cors -d ${s.connId}\n`) +
         `  Delete one CORS configuration:\n` +
-        c.command(
-          `  $ frodo config-manager delete cors -i cors ${s.connId}\n`
-        ) +
+        c.command(`  $ frodo config delete cors -i cors ${s.connId}\n`) +
         `  Preview that:\n` +
-        c.command(
-          `  $ frodo config-manager delete cors -i cors -d ${s.connId}\n`
-        ) +
+        c.command(`  $ frodo config delete cors -i cors -d ${s.connId}\n`) +
         `  Delete all named CORS configurations and reset the IDM CORS filter to its default values (nothing is deleted by --deep):\n` +
-        c.command(
-          `  $ frodo config-manager delete cors --deep -y ${s.connId}\n`
-        ) +
+        c.command(`  $ frodo config delete cors --deep -y ${s.connId}\n`) +
         `  Preview what --deep would reset:\n` +
-        c.command(
-          `  $ frodo config-manager delete cors --deep -d ${s.connId}\n`
-        )
+        c.command(`  $ frodo config delete cors --deep -d ${s.connId}\n`)
     )
     .multiOp()
     .action(async (host, realm, user, password, options, command) => {

@@ -754,9 +754,9 @@ describe('a config file that lists entries of the other family', () => {
       CLIENT_FILES
     );
     expect(warnings()).toEqual([
-      `WARN Skipping 1 WebAgent entry of realm 'alpha' (web-a): agents are pulled by "frodo config-manager pull agents". Its overrides are not applied here: move them to the overrides file of that command (--config-file).`,
-      `WARN Skipping 1 TrustedJwtIssuer entry of realm 'alpha' (zion-issuer): trusted JWT issuers are pulled by "frodo config-manager pull oauth-issuers".`,
-      `WARN Skipping 1 WebAgent entry of realm 'bravo' (web-b): agents are pulled by "frodo config-manager pull agents".`,
+      `WARN Skipping 1 WebAgent entry of realm 'alpha' (web-a): agents are pulled by "frodo config pull agents". Its overrides are not applied here: move them to the overrides file of that command (--config-file).`,
+      `WARN Skipping 1 TrustedJwtIssuer entry of realm 'alpha' (zion-issuer): trusted JWT issuers are pulled by "frodo config pull oauth-issuers".`,
+      `WARN Skipping 1 WebAgent entry of realm 'bravo' (web-b): agents are pulled by "frodo config pull agents".`,
     ]);
     expect(calls.some((c) => c.includes('WebAgent'))).toBe(false);
   });
@@ -785,9 +785,9 @@ describe('a config file that lists entries of the other family', () => {
       ).description
     ).toBe('from the file');
     expect(warnings()).toEqual([
-      `WARN Skipping 2 OAuth2Client entries of realm 'alpha' (zion-client, matrix-client): OAuth2 clients are pulled by "frodo config-manager pull oauth-clients".`,
-      `WARN Skipping 1 TrustedJwtIssuer entry of realm 'alpha' (zion-issuer): trusted JWT issuers are pulled by "frodo config-manager pull oauth-issuers".`,
-      `WARN Skipping 1 OAuth2Client entry of realm 'bravo' (bravo-client): OAuth2 clients are pulled by "frodo config-manager pull oauth-clients".`,
+      `WARN Skipping 2 OAuth2Client entries of realm 'alpha' (zion-client, matrix-client): OAuth2 clients are pulled by "frodo config pull oauth-clients".`,
+      `WARN Skipping 1 TrustedJwtIssuer entry of realm 'alpha' (zion-issuer): trusted JWT issuers are pulled by "frodo config pull oauth-issuers".`,
+      `WARN Skipping 1 OAuth2Client entry of realm 'bravo' (bravo-client): OAuth2 clients are pulled by "frodo config pull oauth-clients".`,
     ]);
     expect(readOAuth2Clients).not.toHaveBeenCalled();
   });
@@ -844,7 +844,7 @@ describe('a config file that lists entries of the other family', () => {
     ).toBe(true);
     // bravo's client entry is the only entry of the other family
     expect(warnings()).toEqual([
-      `WARN Skipping 1 OAuth2Client entry of realm 'bravo' (bravo-client): OAuth2 clients are pulled by "frodo config-manager pull oauth-clients".`,
+      `WARN Skipping 1 OAuth2Client entry of realm 'bravo' (bravo-client): OAuth2 clients are pulled by "frodo config pull oauth-clients".`,
     ]);
 
     printed = [];
@@ -859,7 +859,7 @@ describe('a config file that lists entries of the other family', () => {
       )
     ).toBe(true);
     expect(warnings()).toEqual([
-      `WARN Skipping 1 WebAgent entry of realm 'alpha' (web-a): agents are pulled by "frodo config-manager pull agents".`,
+      `WARN Skipping 1 WebAgent entry of realm 'alpha' (web-a): agents are pulled by "frodo config pull agents".`,
     ]);
   });
 
@@ -997,8 +997,8 @@ describe('push', () => {
       'INDICATOR success Oauth2 Agents import completed.'
     );
     expect(warnings()).toEqual([
-      'WARN Skipping the 1 TrustedJwtIssuer file(s) of realm \'alpha\': they are pushed by "frodo config-manager push oauth-issuers".',
-      'WARN Skipping the 1 CIMDProfile file(s) of realm \'bravo\': they are pushed by "frodo config-manager push oauth-cimd-profiles".',
+      'WARN Skipping the 1 TrustedJwtIssuer file(s) of realm \'alpha\': they are pushed by "frodo config push oauth-issuers".',
+      'WARN Skipping the 1 CIMDProfile file(s) of realm \'bravo\': they are pushed by "frodo config push oauth-cimd-profiles".',
     ]);
   });
 

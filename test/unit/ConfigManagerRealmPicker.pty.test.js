@@ -14,14 +14,15 @@ import {
 import { startFakeAm } from '../utils/StartFakeAm.js';
 
 /**
- * The realm picker of the config-manager commands, on a real terminal.
+ * The realm picker of the commands of `config pull`, `push`, `delete`, `migrate` and `promote`, on a real terminal.
  *
- * A config-manager command that uses its realm reads "no realm" as every
+ * One of these commands that uses its realm reads "no realm" as every
  * realm, so its picker has an `All realms` row first, that row is the default,
  * and a realm that is picked really narrows the run (the picker runs inside
  * getTokens(), after the action has bound its `realm` parameter, so the
- * command reads the pick back with realmOfRun). A config-manager command that
- * ignores the realm gets no picker; every other command keeps its picker.
+ * command reads the pick back with realmOfRun). One that ignores the realm
+ * gets no picker; every other command keeps its picker, `config export` and
+ * `config import` included.
  *
  * Logins, the realm list and the journey and script lists go to a fake AM with
  * the realms alpha and bravo. What a run asked for is read from the request
@@ -58,7 +59,7 @@ const lastFrame = (plain) => plain.split('┌ Navigate').pop();
 const footer = (frame) => frame.split('└').pop();
 
 suite(
-  'the realm picker of the config-manager commands, on a real terminal',
+  'the realm picker of the config pull, push, delete, migrate and promote commands, on a real terminal',
   () => {
     let home;
     let outDir;
@@ -116,7 +117,7 @@ suite(
       ].sort();
 
     /**
-     * `frodo config-manager <command> --type cloud` with no host: the host is
+     * `frodo config <command> --type cloud` with no host: the host is
      * asked for, the pass logs in, and the connection page opens with the realm
      * row (record 0046): it needs the login, which the pass makes, so it comes
      * before the Ready step, which is answered with Run.
@@ -185,7 +186,7 @@ suite(
     };
 
     describe('a command that uses its realm: pull journeys', () => {
-      const command = ['config-manager', 'pull', 'journeys'];
+      const command = ['config', 'pull', 'journeys'];
       const BRAVO_JOURNEYS = /realms\/bravo\/.*authenticationtrees\/trees/;
       const ALPHA_JOURNEYS = /realms\/alpha\/.*authenticationtrees\/trees/;
 
@@ -209,7 +210,7 @@ suite(
         ]);
         expect(rows[0][1]).toBe('›');
         // the footer is the command as the default would run it: no realm token
-        expect(footer(frame)).toContain('frodo config-manager pull journeys');
+        expect(footer(frame)).toContain('frodo config pull journeys');
         expect(footer(frame)).not.toMatch(/\s(alpha|bravo)(\s|$)/);
       });
 
@@ -218,7 +219,7 @@ suite(
         expect(realmsAsked(JOURNEYS)).toEqual(['alpha', 'bravo']);
         const line = commandAsRun(
           run.captures.after.plain,
-          'config-manager pull journeys'
+          'config pull journeys'
         );
         expect(line).toBeDefined();
         expect(line).not.toMatch(/\s(alpha|bravo)(\s|$)/);
@@ -238,7 +239,7 @@ suite(
         expect(realmsAsked(JOURNEYS)).toEqual(['alpha']);
         const line = commandAsRun(
           run.captures.after.plain,
-          'config-manager pull journeys'
+          'config pull journeys'
         );
         expect(line).toMatch(/\salpha(\s|$)/);
       });
@@ -252,7 +253,7 @@ suite(
         expect(realmsAsked(JOURNEYS)).toEqual(['bravo']);
         const line = commandAsRun(
           run.captures.after.plain,
-          'config-manager pull journeys'
+          'config pull journeys'
         );
         expect(line).toMatch(/\sbravo(\s|$)/);
       });
@@ -296,7 +297,7 @@ suite(
     });
 
     describe('a command that uses its realm: pull scripts', () => {
-      const command = ['config-manager', 'pull', 'scripts'];
+      const command = ['config', 'pull', 'scripts'];
 
       test('Enter on All realms pulls every realm', () => {
         pick({
@@ -318,7 +319,7 @@ suite(
     });
 
     describe('pull all, which also covers the tenant', () => {
-      const command = ['config-manager', 'pull', 'all', '-C', 'CONFIG'];
+      const command = ['config', 'pull', 'all', '-C', 'CONFIG'];
       const withConfig = () =>
         command.map((token) => (token === 'CONFIG' ? configDir : token));
 
@@ -354,7 +355,7 @@ suite(
     });
 
     describe('commands that keep their picker, or have none', () => {
-      test('a command outside config-manager keeps its picker: the default realm is highlighted and there is no All realms row', () => {
+      test('a command outside config pull, push, delete, migrate and promote keeps its picker: the default realm is highlighted and there is no All realms row', () => {
         const run = pick({
           command: ['journey', 'list'],
           choose: [ENTER],
@@ -365,7 +366,7 @@ suite(
         expect(picker).not.toContain('All realms');
       });
 
-      test('a config-manager command that ignores the realm opens no picker', () => {
+      test('a config pull command that ignores the realm opens no picker', () => {
         const run = runShellScenario({
           homeDir: home,
           allowPrompting: true,
@@ -374,7 +375,7 @@ suite(
             FRODO_CONNECTION_PROFILES_PATH: path.join(home, 'Connections.json'),
           },
           args: [
-            'config-manager',
+            'config',
             'pull',
             'cors',
             '-D',

@@ -48,9 +48,11 @@ import UiConfig from './config-manager-push-ui-config';
 import Variables from './config-manager-push-variables';
 
 export default function setup() {
-  const program = new FrodoStubCommand('push').description(
-    'Import configuration optimized for CI/CD pipelines (format compatible with fr-config-manager).'
-  );
+  const program = new FrodoStubCommand('push')
+    .withStability('experimental')
+    .description(
+      'Import configuration optimized for CI/CD pipelines (format compatible with fr-config-manager).'
+    );
   program.addCommand(Themes().name('themes'));
   program.addCommand(TermsAndConditions().name('terms-and-conditions'));
   program.addCommand(PasswordPolicy().name('password-policy'));

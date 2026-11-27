@@ -5,7 +5,7 @@ import { printMessage, verboseMessage } from '../../../utils/Console';
 import { FrodoCommand } from '../../FrodoCommand';
 
 export default function setup() {
-  const program = new FrodoCommand('frodo config-manager push raw');
+  const program = new FrodoCommand('frodo config push raw');
 
   program
     .description('Import raw configurations.')

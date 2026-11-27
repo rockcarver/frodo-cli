@@ -12,7 +12,7 @@ const deploymentTypes = [CLOUD_DEPLOYMENT_TYPE_KEY];
 
 export default function setup() {
   const program = new FrodoCommand(
-    'frodo config-manager promote lock-status',
+    'frodo config promote lock-status',
     [],
     deploymentTypes
   );
@@ -27,12 +27,10 @@ export default function setup() {
       'after',
       `Usage Examples:\n` +
         `  Check the lock status of both environments:\n` +
-        c.command(
-          `  $ frodo config-manager promote lock-status ${s.connId}\n`
-        ) +
+        c.command(`  $ frodo config promote lock-status ${s.connId}\n`) +
         `  Check only the lock status of the environment you are connected to:\n` +
         c.command(
-          `  $ frodo config-manager promote lock-status --local-lock-only ${s.connId}\n`
+          `  $ frodo config promote lock-status --local-lock-only ${s.connId}\n`
         )
     )
     .action(async (host, realm, user, password, options, command) => {

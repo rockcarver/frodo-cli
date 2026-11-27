@@ -12,7 +12,7 @@ import {
 } from '@jest/globals';
 
 /**
- * `frodo config-manager pull apps` (decision record 0042, slice S2 of
+ * `frodo config pull apps` (decision record 0042, slice S2 of
  * frodo-cli#1101): one folder per application with the record and the objects it
  * owns, the shared pieces at the paths of their own kinds, one summary of the
  * applications that failed (record 0040), a named application that cannot be read
@@ -866,7 +866,7 @@ describe('the layout of the tree decides', () => {
       expect(await configManagerExportApplications(undefined, 'alpha')).toBe(
         false
       );
-      expect(messages()).toMatch(/config-manager migrate apps/);
+      expect(messages()).toMatch(/config migrate apps/);
       expect(exists('frodo-config-manager.json')).toBe(false);
       expect(exists(`${APPS('alpha')}`)).toBe(false);
 

@@ -9,7 +9,7 @@ import { FrodoCommand } from '../../FrodoCommand';
 import { refuseEmptySelector, selectorOption } from '../../SelectorOption';
 
 export default function setup() {
-  const program = new FrodoCommand('frodo config-manager pull saml');
+  const program = new FrodoCommand('frodo config pull saml');
 
   program
     .description('Export saml.')
@@ -37,7 +37,7 @@ export default function setup() {
       'after',
       'HELP MESSAGE:\n' +
         'Without a config file, every SAML provider and every circle of trust of every realm is pulled, or of the realm that is given. To pull one provider (-i) or one circle of trust (--cot-id), name the realm too. To pull only some of them, or to replace values, create a config file such as saml.json and pass it with --config-file.\n' +
-        `Example command: frodo config-manager pull saml --config-file saml.json -D ../testDir ${s.connId}\n\n` +
+        `Example command: frodo config pull saml --config-file saml.json -D ../testDir ${s.connId}\n\n` +
         `Config file example:\n` +
         '-----------------------  Example SAML export config for saml.json file ------------------------\n' +
         '{\n' +

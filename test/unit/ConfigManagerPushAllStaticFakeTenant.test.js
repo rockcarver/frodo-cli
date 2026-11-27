@@ -14,7 +14,7 @@ const {
 } = require('../e2e/utils/FrodoBinary.cjs');
 
 /**
- * `frodo config-manager push all-static`, the REAL CLI of this checkout against a fake AM
+ * `frodo config push all-static`, the REAL CLI of this checkout against a fake AM
  * (test/utils/FakeAm.mjs, in a separate process, which accepts every write it is sent), through the real
  * library. The log of the requests that the tenant received says what a push would have done: which steps
  * wrote and in which order, what the metadata write holds, and that a tree that cannot be pushed writes
@@ -374,7 +374,7 @@ suite('push all-static against a fake tenant', () => {
   }
 
   const push = (args = [], options) =>
-    runAgainst(['config-manager', 'push', 'all-static', ...args], options);
+    runAgainst(['config', 'push', 'all-static', ...args], options);
 
   /** Writes the files of a tree below the working directory (or below a folder of it). */
   const write = (files, folder = '') => {
@@ -797,7 +797,7 @@ suite('push all-static against a fake tenant', () => {
         const stdout = await new Promise((resolve, reject) =>
           cp.execFile(
             binaryPath,
-            ['config-manager', 'push', 'all-static', '-hhh'],
+            ['config', 'push', 'all-static', '-hhh'],
             {
               env: {
                 ...process.env,
@@ -813,7 +813,7 @@ suite('push all-static against a fake tenant', () => {
         examples = stdout
           .split('\n')
           .filter((line) =>
-            line.trim().startsWith('$ frodo config-manager push all-static')
+            line.trim().startsWith('$ frodo config push all-static')
           )
           .map((line) => line.trim().slice('$ frodo '.length));
       } finally {

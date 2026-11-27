@@ -9,7 +9,7 @@ import {
 import { Command } from 'commander';
 
 /**
- * The command `config-manager delete secrets` (records 0037, 0040 and 0041):
+ * The command `config delete secrets` (records 0037, 0040 and 0041):
  * it adds the shared `--allow-failures` option (`.multiOp()`), runs for Cloud
  * only, refuses a delete of all secrets that nobody can be asked about before
  * it logs in, asks after the login (with the plan from the ops function) before
@@ -114,12 +114,12 @@ afterEach(() => {
   process.exitCode = undefined;
 });
 
-describe('frodo config-manager delete secrets', () => {
+describe('frodo config delete secrets', () => {
   test('is a multi-operation command, for Cloud only', async () => {
     const program = await run('-y');
 
     expect(program.multiOpCalled).toBe(true);
-    expect(constructed[0]).toBe('frodo config-manager delete secrets');
+    expect(constructed[0]).toBe('frodo config delete secrets');
     expect(constructed[2]).toEqual(['cloud']);
   });
 

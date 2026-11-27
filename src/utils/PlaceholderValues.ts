@@ -5,7 +5,7 @@
  * and that it is still true: the library fills a placeholder from the values
  * that `-E/--env` and `--env-file` put into its state and, for a push, last from
  * the environment variable of the process (the switch of the library's state
- * that the config-manager push commands turn on, see
+ * that the config push commands turn on, see
  * `FrodoCommand.fillsPlaceholdersFromProcessEnvironment`).
  */
 export const PLACEHOLDER_VALUES_RULE =

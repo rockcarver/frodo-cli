@@ -10,7 +10,7 @@ const deploymentTypes = [CLOUD_DEPLOYMENT_TYPE_KEY];
 
 export default function setup() {
   const program = new FrodoCommand(
-    'frodo config-manager push cookie-domains',
+    'frodo config push cookie-domains',
     [],
     deploymentTypes
   );

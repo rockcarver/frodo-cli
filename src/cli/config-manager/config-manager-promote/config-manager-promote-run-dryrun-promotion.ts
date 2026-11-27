@@ -15,7 +15,7 @@ const deploymentTypes = [CLOUD_DEPLOYMENT_TYPE_KEY];
 
 export default function setup() {
   const program = new FrodoCommand(
-    'frodo config-manager promote dry-run',
+    'frodo config promote dry-run',
     [],
     deploymentTypes
   );
@@ -76,21 +76,17 @@ export default function setup() {
       'after',
       `Usage Examples:\n` +
         `  Run a dry-run promotion without waiting for completion:\n` +
-        c.command(
-          `  $ frodo config-manager promote dry-run --yes ${s.connId}\n`
-        ) +
+        c.command(`  $ frodo config promote dry-run --yes ${s.connId}\n`) +
         `  Run a dry-run promotion and wait up to 30 minutes for completion:\n` +
         c.command(
-          `  $ frodo config-manager promote dry-run --wait --timeout 1800 --yes ${s.connId}\n`
+          `  $ frodo config promote dry-run --wait --timeout 1800 --yes ${s.connId}\n`
         ) +
         `  Run a dry-run promotion that ignores encrypted secrets:\n` +
         c.command(
-          `  $ frodo config-manager promote dry-run --ignore-encrypted-secrets --yes ${s.connId}\n`
+          `  $ frodo config promote dry-run --ignore-encrypted-secrets --yes ${s.connId}\n`
         ) +
         `  Lock both environments, run a dry-run promotion, wait for it and unlock the environments again, in one command:\n` +
-        c.command(
-          `  $ frodo config-manager promote dry-run --full --yes ${s.connId}\n`
-        )
+        c.command(`  $ frodo config promote dry-run --full --yes ${s.connId}\n`)
     )
     .action(async (host, realm, user, password, options, command) => {
       command.handleDefaultArgsAndOpts(

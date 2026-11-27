@@ -19,7 +19,7 @@ const deploymentTypes = [
 
 export default function setup() {
   const program = new FrodoCommand(
-    'frodo config-manager migrate apps',
+    'frodo config migrate apps',
     [],
     deploymentTypes
   );
@@ -47,19 +47,13 @@ export default function setup() {
       'after',
       `Usage Examples:\n` +
         `  See what moving the tree in the current directory would do, without changing anything:\n` +
-        c.command(`  $ frodo config-manager migrate apps -d ${s.connId}\n`) +
+        c.command(`  $ frodo config migrate apps -d ${s.connId}\n`) +
         `  Move the tree in a directory:\n` +
-        c.command(
-          `  $ frodo config-manager migrate apps -D ../testDir ${s.connId}\n`
-        ) +
+        c.command(`  $ frodo config migrate apps -D ../testDir ${s.connId}\n`) +
         `  Move it, and report the entries of the config files of "pull oauth2-agents" and "pull saml" that name objects an application owns:\n` +
-        c.command(
-          `  $ frodo config-manager migrate apps -C ../config ${s.connId}\n`
-        ) +
+        c.command(`  $ frodo config migrate apps -C ../config ${s.connId}\n`) +
         `  Move the applications of one realm only (the tree is not marked until the whole tree is moved):\n` +
-        c.command(
-          `  $ frodo config-manager migrate apps ${s.connId} ${s.realm}\n`
-        )
+        c.command(`  $ frodo config migrate apps ${s.connId} ${s.realm}\n`)
     )
     .multiOp()
     .usesRealm()

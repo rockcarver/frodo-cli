@@ -20,7 +20,7 @@ const deploymentTypes = [CLOUD_DEPLOYMENT_TYPE_KEY];
 
 export default function setup() {
   const program = new FrodoCommand(
-    'frodo config-manager delete tenant-config',
+    'frodo config delete tenant-config',
     [],
     deploymentTypes
   );
@@ -46,12 +46,10 @@ export default function setup() {
       `Usage Examples:\n` +
         `  Preview the deletion of all ESV secrets and all ESV variables:\n` +
         c.command(
-          `  $ frodo config-manager delete tenant-config --dry-run ${s.connId}\n`
+          `  $ frodo config delete tenant-config --dry-run ${s.connId}\n`
         ) +
         `  Delete all ESV secrets and all ESV variables without asking, which is required without a terminal (without -y a terminal is asked first). The values of a deleted secret cannot be recovered, and nothing else is deleted:\n` +
-        c.command(
-          `  $ frodo config-manager delete tenant-config -y ${s.connId}\n`
-        )
+        c.command(`  $ frodo config delete tenant-config -y ${s.connId}\n`)
     )
     .multiOp()
     .action(async (host, realm, user, password, options, command) => {

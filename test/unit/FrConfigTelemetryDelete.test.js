@@ -1,5 +1,5 @@
 /**
- * Unit tests for `config-manager delete telemetry`, without a tenant: the ops
+ * Unit tests for `config delete telemetry`, without a tenant: the ops
  * function configManagerDeleteTelemetry (src/configManagerOps/FrConfigTelemetryOps.ts)
  * and the command that wraps it
  * (src/cli/config-manager/config-manager-delete/config-manager-delete-telemetry.ts).
@@ -625,7 +625,7 @@ describe('configManagerDeleteTelemetry: a dry run', () => {
   });
 });
 
-describe('frodo config-manager delete telemetry (the command)', () => {
+describe('frodo config delete telemetry (the command)', () => {
   const run = async (...args) => {
     const program = setup();
     await program.parseAsync(args, { from: 'user' });
@@ -636,7 +636,7 @@ describe('frodo config-manager delete telemetry (the command)', () => {
     const program = await run('-d');
 
     expect(program.multiOpCalled).toBe(true);
-    expect(constructed[0]).toBe('frodo config-manager delete telemetry');
+    expect(constructed[0]).toBe('frodo config delete telemetry');
     expect(constructed[2]).toEqual(['cloud']);
   });
 

@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, jest, test } from '@jest/globals';
 
 /**
- * `config-manager delete connector-definitions`: the operation behind the
+ * `config delete connector-definitions`: the operation behind the
  * command (`configManagerDeleteConnectorDefinitions` in
  * src/configManagerOps/FrConfigConnectorDefinitionsOps.ts), with the library
  * replaced by a stub. The run tracker, the cause helper, the helpers for the
@@ -1046,7 +1046,7 @@ describe('an application that names the connector definition owns it', () => {
     expect(await configManagerDeleteConnectorDefinitions('Azure')).toBe(false);
 
     expect(output()).toContain(
-      'An application owns the connector definition that it names: config-manager delete apps removes both.'
+      'An application owns the connector definition that it names: config delete apps removes both.'
     );
     // the sentence comes after the list of holders and before the refusal
     expect(output().indexOf("application 'Azure'")).toBeLessThan(

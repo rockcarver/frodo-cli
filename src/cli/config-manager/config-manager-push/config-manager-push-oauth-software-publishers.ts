@@ -13,7 +13,7 @@ import { selectorOption } from '../../SelectorOption';
 
 export default function setup() {
   const program = new FrodoCommand(
-    'frodo config-manager push oauth-software-publishers'
+    'frodo config push oauth-software-publishers'
   );
 
   program
@@ -36,19 +36,19 @@ export default function setup() {
       `Usage Examples:\n` +
         `  Push all software publisher files of all realms from the working directory to the tenant:\n` +
         c.command(
-          `  $ frodo config-manager push oauth-software-publishers ${s.connId}\n`
+          `  $ frodo config push oauth-software-publishers ${s.connId}\n`
         ) +
         `  Push the software publisher files of one realm:\n` +
         c.command(
-          `  $ frodo config-manager push oauth-software-publishers ${s.connId} ${s.realm}\n`
+          `  $ frodo config push oauth-software-publishers ${s.connId} ${s.realm}\n`
         ) +
         `  Push one software publisher of a realm:\n` +
         c.command(
-          `  $ frodo config-manager push oauth-software-publishers -i ${s.softwarePublisherId} ${s.connId} ${s.realm}\n`
+          `  $ frodo config push oauth-software-publishers -i ${s.softwarePublisherId} ${s.connId} ${s.realm}\n`
         ) +
         `  Push from a config directory other than the working directory:\n` +
         c.command(
-          `  $ frodo config-manager push oauth-software-publishers -D ./config ${s.connId}\n`
+          `  $ frodo config push oauth-software-publishers -D ./config ${s.connId}\n`
         )
     )
     .multiOp()

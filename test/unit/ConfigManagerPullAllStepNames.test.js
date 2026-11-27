@@ -2,9 +2,9 @@ import { describe, expect, it } from '@jest/globals';
 import { fullName, loadLeafCommands } from '../utils/CommandExamples.js';
 
 /**
- * The steps of `config-manager pull all` and `pull all-static` are named in the
+ * The steps of `config pull all` and `pull all-static` are named in the
  * summary of failed steps (decision record 0040). A name is the name of the
- * `config-manager pull` command that does the same, so the user can run that
+ * `config pull` command that does the same, so the user can run that
  * command to see the error again.
  */
 
@@ -12,7 +12,7 @@ const leaves = await loadLeafCommands();
 const { deploymentMapAll, deploymentMapAllStatic } =
   await import('../../src/configManagerOps/FrConfigAllOps.ts');
 
-const PREFIX = 'frodo config-manager pull ';
+const PREFIX = 'frodo config pull ';
 const pullCommands = new Set(
   leaves
     .map(fullName)

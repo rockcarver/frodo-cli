@@ -22,7 +22,7 @@ const deploymentTypes = [
 
 export default function setup() {
   const program = new FrodoCommand(
-    'frodo config-manager delete schedules',
+    'frodo config delete schedules',
     [],
     deploymentTypes
   );
@@ -52,20 +52,16 @@ export default function setup() {
       'after',
       `Usage Examples:\n` +
         `  Delete all schedules without asking, which is required without a terminal (without -y a terminal is asked first):\n` +
-        c.command(
-          `  $ frodo config-manager delete schedules -y ${s.connId}\n`
-        ) +
+        c.command(`  $ frodo config delete schedules -y ${s.connId}\n`) +
         `  Preview the deletion of all schedules:\n` +
-        c.command(
-          `  $ frodo config-manager delete schedules --dry-run ${s.connId}\n`
-        ) +
+        c.command(`  $ frodo config delete schedules --dry-run ${s.connId}\n`) +
         `  Delete a schedule by id:\n` +
         c.command(
-          `  $ frodo config-manager delete schedules -i taskscan_activate ${s.connId}\n`
+          `  $ frodo config delete schedules -i taskscan_activate ${s.connId}\n`
         ) +
         `  Preview deletion of a schedule by id:\n` +
         c.command(
-          `  $ frodo config-manager delete schedules -i taskscan_activate --dry-run ${s.connId}\n`
+          `  $ frodo config delete schedules -i taskscan_activate --dry-run ${s.connId}\n`
         )
     )
     .multiOp()

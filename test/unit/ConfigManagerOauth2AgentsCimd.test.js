@@ -12,7 +12,7 @@ import {
 } from '@jest/globals';
 
 /**
- * How the generic `config-manager pull|push oauth2-agents` kind treats an agent
+ * How the generic `config pull|push oauth2-agents` kind treats an agent
  * type that has a config-manager kind of its own: `CIMDProfile`
  * (`oauth-cimd-profiles`, frodo-cli#1249) and `TrustedJwtIssuer`
  * (`oauth-issuers`, frodo-cli#1259).
@@ -292,7 +292,7 @@ const OTHER_AGENT = (id, type = 'RemoteConsentAgent') => ({
 describe.each(SKIPPED)(
   'pull oauth2-agents leaves $agentType to $kind',
   ({ agentType, plural, kind, make }) => {
-    const command = `"frodo config-manager pull ${kind}"`;
+    const command = `"frodo config pull ${kind}"`;
 
     test('an entry is neither read nor written, and one warning names the realm, the id and the command', async () => {
       readAgentByTypeAndId.mockResolvedValue(make('zion-agents'));
@@ -700,7 +700,7 @@ describe('pull oauth2-agents still handles the other types as before', () => {
 describe.each(SKIPPED)(
   'push oauth2-agents leaves $agentType to $kind',
   ({ agentType, kind, make }) => {
-    const command = `"frodo config-manager push ${kind}"`;
+    const command = `"frodo config push ${kind}"`;
 
     test('the files of the folder are not imported, and one warning counts them and names the command', async () => {
       write(AGENT_PATH(agentType, 'zion-one'), make('zion-one'));

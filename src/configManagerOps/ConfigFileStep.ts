@@ -74,7 +74,7 @@ export function existingConfigFile(
 }
 
 /**
- * A step of `config-manager pull all` that reads a file from the config folder
+ * A step of `config pull all` that reads a file from the config folder
  * to know what to export. These are the dynamic items (authz policy sets,
  * OAuth2 clients, SAML entity providers, service objects) and raw config, whose
  * file lists what to pull. The file is found by its name, not asked for, so a

@@ -21,7 +21,7 @@ const deploymentTypes = [CLOUD_DEPLOYMENT_TYPE_KEY];
 
 export default function setup() {
   const program = new FrodoCommand(
-    'frodo config-manager delete secrets',
+    'frodo config delete secrets',
     [],
     deploymentTypes
   );
@@ -52,16 +52,16 @@ export default function setup() {
       `Usage Examples:\n` +
         `  Delete a secret by id:\n` +
         c.command(
-          `  $ frodo config-manager delete secrets -i esv-example ${s.connId}\n`
+          `  $ frodo config delete secrets -i esv-example ${s.connId}\n`
         ) +
         `  Preview deletion of a secret by id:\n` +
         c.command(
-          `  $ frodo config-manager delete secrets -i esv-example -d ${s.connId}\n`
+          `  $ frodo config delete secrets -i esv-example -d ${s.connId}\n`
         ) +
         `  Preview the deletion of all secrets:\n` +
-        c.command(`  $ frodo config-manager delete secrets -d ${s.connId}\n`) +
+        c.command(`  $ frodo config delete secrets -d ${s.connId}\n`) +
         `  Delete all secrets without asking, which is required without a terminal (without -y a terminal is asked first). The values of a deleted secret cannot be recovered:\n` +
-        c.command(`  $ frodo config-manager delete secrets -y ${s.connId}\n`)
+        c.command(`  $ frodo config delete secrets -y ${s.connId}\n`)
     )
     .multiOp()
     .action(async (host, realm, user, password, options, command) => {

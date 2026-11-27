@@ -49,7 +49,7 @@ describe('frodo promote is deprecated', () => {
         'Deprecated: this command does not run a platform promotion'
       )
     ).toBe(true);
-    expect(description).toContain('frodo config-manager promote run. Will');
+    expect(description).toContain('frodo config promote run. Will');
     expect(description).toContain('removed in 5.0.0');
   });
 
@@ -92,16 +92,16 @@ describe('frodo promote is deprecated', () => {
   it('4: the notice names the three replacements and the version of the removal', () => {
     expect(PROMOTE_DEPRECATION_MESSAGE).toContain('will be removed in 5.0.0');
     expect(PROMOTE_DEPRECATION_MESSAGE).toContain(
-      "'frodo config-manager promote run'"
+      "'frodo config promote run'"
     );
     expect(PROMOTE_DEPRECATION_MESSAGE).toContain(
       "'frodo config import -A -D <master> <connection>'"
     );
     expect(PROMOTE_DEPRECATION_MESSAGE).toContain(
-      "'frodo config-manager push'"
+      "'frodo config push'"
     );
     expect(PROMOTE_DEPRECATION_MESSAGE).toContain(
-      "'frodo config-manager delete <kind> -n <name>'"
+      "'frodo config delete <kind> -n <name>'"
     );
   });
 });
@@ -136,10 +136,10 @@ describe('the replacements that the notice names exist', () => {
 
   it('5: the notice names the commands we expect (a command dropped from the notice fails here)', () => {
     expect(named).toEqual([
-      'frodo config-manager promote run',
+      'frodo config promote run',
       'frodo config import -A -D <master> <connection>',
-      'frodo config-manager push',
-      'frodo config-manager delete <kind> -n <name>',
+      'frodo config push',
+      'frodo config delete <kind> -n <name>',
     ]);
   });
 
@@ -151,7 +151,7 @@ describe('the replacements that the notice names exist', () => {
         line,
         found: true,
       });
-      // an option on a command group is an option of every command of the group (config-manager delete <kind> -n),
+      // an option on a command group is an option of every command of the group (config delete <kind> -n),
       // except the commands that are no `<kind>` that the notice names and take no name or id on purpose: `test`, and
       // `tenant-config`, which deletes all ESV secrets and all ESV variables
       const withoutSelector = ['test', 'tenant-config'];

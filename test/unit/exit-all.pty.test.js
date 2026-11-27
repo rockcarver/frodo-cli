@@ -256,7 +256,7 @@ describe('double-ESC exit-all', () => {
   );
 
   test(
-    'ESC in a nested sub-command picker climbs ONE tree level (config-manager -> root)',
+    'ESC in a nested sub-command picker climbs ONE tree level (config -> root)',
     async () => {
       const homeDir = createShellTestHome();
       try {
@@ -276,13 +276,11 @@ describe('double-ESC exit-all', () => {
             { type: 'send', text: 'config' },
             { type: 'wait_plain', regex: 'query: config', timeoutMs: 15000 },
             { type: 'sleep', ms: 300 },
-            { type: 'key', name: 'down' },
-            { type: 'sleep', ms: 300 },
             { type: 'key', name: 'enter' },
-            // config-manager's picker.
+            // config's picker.
             {
               type: 'wait_plain',
-              regex: "Choose a sub-command for 'config-manager'",
+              regex: "Choose a sub-command for 'config'",
               timeoutMs: 30000,
             },
             { type: 'sleep', ms: 500 },
@@ -304,7 +302,7 @@ describe('double-ESC exit-all', () => {
           )
         );
         // The root picker re-offered its commands: the climb worked.
-        expect(back).toMatch(/config-manager/);
+        expect(back).toMatch(/config/);
         // No help-exit text (the old single-ESC behavior would have
         // ended the session with the usage dump).
         expect(back).not.toMatch(/Usage: frodo \[options\]/);
@@ -326,7 +324,7 @@ describe('double-ESC exit-all', () => {
           args: [],
           env: ENV,
           actions: [
-            // Root picker -> config-manager's picker.
+            // Root picker -> config's picker.
             {
               type: 'wait_plain',
               regex: "Choose a sub-command for 'frodo'",
@@ -336,12 +334,10 @@ describe('double-ESC exit-all', () => {
             { type: 'send', text: 'config' },
             { type: 'wait_plain', regex: 'query: config', timeoutMs: 15000 },
             { type: 'sleep', ms: 300 },
-            { type: 'key', name: 'down' },
-            { type: 'sleep', ms: 300 },
             { type: 'key', name: 'enter' },
             {
               type: 'wait_plain',
-              regex: "Choose a sub-command for 'config-manager'",
+              regex: "Choose a sub-command for 'config'",
               timeoutMs: 30000,
             },
             { type: 'sleep', ms: 400 },

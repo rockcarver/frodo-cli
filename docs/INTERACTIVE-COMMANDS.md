@@ -233,8 +233,8 @@ frodo journey list https://openam-matrix.example.com/am someone ********
   then the page opens again with the outcome.
 - **The Realm row.** With several realms the page opens again with
   `Connected as <who>` and the row, which shows the default (the realm the
-  deployment type maps to, or `All realms` for a `config-manager` command that
-  uses its realm) with the note `default` until the user chooses. `<enter>` on
+  deployment type maps to, or `All realms` for a `config pull`, `push`, `delete`, `migrate` or `promote`
+  command that uses its realm) with the note `default` until the user chooses. `<enter>` on
   it opens the realms in a box under the page (type to filter, `<enter>` picks,
   `<esc>` keeps what the row had); the footer follows the highlighted realm. The
   cursor is on Done: `<enter>` keeps the default and goes on. With one realm
@@ -301,7 +301,7 @@ its own, and its Enter says `next`:
   `getTokens` wrapper of a command whose pass made no login) is still the
   standalone prompt.
 
-  **`config-manager` commands** differ, because they read "no realm" as every
+  **`config pull`, `push`, `delete`, `migrate` and `promote` commands** differ, because they read "no realm" as every
   realm. A command that uses its realm declares `.usesRealm()`
   (`FrodoCommand`; `RealmUse.ts`): its picker has an `All realms` row first
   and makes it the default, Enter, Escape and that row leave the realm unset
@@ -312,7 +312,7 @@ its own, and its Enter says `next`:
   tenant that no realm limits, and the prompt says so). The picker runs in the
   pass, but the action binds its `realm` parameter from the arguments, so such a
   command passes `realmOfRun(command, realm)` (`PositionalArgs.ts`) to its
-  operation after login, not the parameter. A `config-manager` command that
+  operation after login, not the parameter. A command of those groups that
   does not declare it ignores the realm and gets no realm picker.
   `test/unit/ConfigManagerRealmUse.test.js` lists the commands that declare
   it and reads the source of every one, so a new command has to choose.
@@ -607,7 +607,7 @@ underneath), one `escapableSelect` page per folder, with the text prompt for a
 name.
 
 **Where it opens.** Only where the pass would ask for the option's value as
-text: a mandatory path option that is missing (`frodo config-manager pull all`
+text: a mandatory path option that is missing (`frodo config pull all`
 without `-C`), the path option the user chose in a one-of group (`frodo journey
 import`: `-f`), and the value step of the invocation editor (`--prompt`,
 guided mode). The editor opens it once the options page is
@@ -630,12 +630,12 @@ with overrides per command (`app template download --file`): a **file** or a
 **directory**, read or written, and optionally the extensions to show
 (`.json`; folders are always shown). Read or written follows the verb of the
 command's path (`export` and `pull` write, every other verb reads) unless the
-table says otherwise: `-C` of `config-manager pull all` is only read, and its
+table says otherwise: `-C` of `config pull all` is only read, and its
 `-D` is written. `test/unit/PathOptionsCoverage.test.js` walks the command tree
 and fails for an option that takes a value and looks like a path (its long name
 or placeholder has "file", "dir", "folder" or "path" in it) and is neither
 classified nor listed in `NOT_FILE_SYSTEM_PATHS` with a reason (`--path` of
-`config-manager push raw` is a place inside a configuration, `--filename-filter`
+`config push raw` is a place inside a configuration, `--filename-filter`
 is a pattern), and for an entry that matches no option. A new command with a
 path option therefore needs one line in `PathOptions.ts`, and no code.
 
@@ -714,7 +714,8 @@ exception is a negated option that has a positive twin sharing its attribute
 the two rows apart and commits `true` for either, as it always did
 (`test/unit/InvocationEditorNegatedOptions.test.js` pins it). Realm
 sentinels never display — the deployment type's realm prints instead
-when known, except for a `config-manager` command that uses its realm
+when known, except for a `config pull`, `push`, `delete`, `migrate` or
+`promote` command that uses its realm
 (`.usesRealm()`): there the sentinel means every realm, so no realm prints.
 
 ## Erase-on-conclude
@@ -820,7 +821,7 @@ nested sub-command picker backs out ONE level — the parent's picker
 re-opens with the child still filterable — instead of ending the
 session. Only the ROOT picker's Esc exits (help-exit), and the
 double-ESC exit-all works from any depth (`Esc` `Esc` inside the
-config-manager picker, for example, lands straight back at the shell).
+config picker, for example, lands straight back at the shell).
 
 The unwind is a thrown symbol (`EXIT_ALL_SIGNAL`), not a threaded
 return value: every EXIT_ALL consumer throws it, and the signal

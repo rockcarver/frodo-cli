@@ -4,7 +4,7 @@ import { promisify } from 'util';
 const exec = promisify(cp.exec);
 
 /**
- * `config-manager pull|push oauth-clients` and `pull|push agents` replace `oauth2-agents`: the
+ * `config pull|push oauth-clients` and `pull|push agents` replace `oauth2-agents`: the
  * OAuth2 clients have a pair of commands and the other agent types have one. Their full help
  * (-hhh) says which agent types each pair handles and where the others go, so that a user who
  * finds an entry or a folder skipped, or who wonders why a type is missing, reads it here. The
@@ -28,7 +28,7 @@ const DEDICATED = ['CIMDProfile', 'TrustedJwtIssuer', 'SoftwarePublisher'];
 
 /** The help of a command, whitespace collapsed, and as it is printed. */
 async function helpOf(verb, word) {
-  const { stdout } = await exec(`frodo config-manager ${verb} ${word} -hhh`);
+  const { stdout } = await exec(`frodo config ${verb} ${word} -hhh`);
   return { text: stdout.replace(/\s+/g, ' '), raw: stdout };
 }
 
@@ -40,7 +40,7 @@ const listOf = (text, start, end) => {
 };
 
 describe.each(['pull', 'push'])(
-  "'config-manager %s agents' full help",
+  "'config %s agents' full help",
   (verb) => {
     let text;
     let raw;
@@ -66,13 +66,13 @@ describe.each(['pull', 'push'])(
     });
 
     test('names the command that handles the OAuth2 clients', () => {
-      expect(text).toContain(`"frodo config-manager ${verb} oauth-clients"`);
+      expect(text).toContain(`"frodo config ${verb} oauth-clients"`);
     });
 
     test('does not teach the deprecated command', async () => {
       expect(text).not.toContain(`${verb} oauth2-agents`);
       const { stdout } = await exec(
-        `frodo config-manager ${verb} agents --help`
+        `frodo config ${verb} agents --help`
       );
       expect(stdout.replace(/\s+/g, ' ')).not.toContain('oauth2-agents"');
     });
@@ -80,25 +80,25 @@ describe.each(['pull', 'push'])(
     test('names the three agent types that have a command of their own and the command of each', () => {
       expect(text).toContain(
         `The agent types CIMDProfile, TrustedJwtIssuer and SoftwarePublisher have a command of their own: ` +
-          `"frodo config-manager ${verb} oauth-cimd-profiles", "frodo config-manager ${verb} oauth-issuers" and "frodo config-manager ${verb} oauth-software-publishers".`
+          `"frodo config ${verb} oauth-cimd-profiles", "frodo config ${verb} oauth-issuers" and "frodo config ${verb} oauth-software-publishers".`
       );
       expect(text).toContain('skipped here with a warning');
     });
 
     test('has a Usage Examples block with the command, a config directory and --allow-failures', () => {
       expect(text).toContain('Usage Examples:');
-      expect(text).toContain(`$ frodo config-manager ${verb} agents`);
+      expect(text).toContain(`$ frodo config ${verb} agents`);
       expect(text).toContain('-D ./config');
       // one example line, so that the option in a sentence below does not count
       expect(raw).toMatch(
         new RegExp(
-          `^\\s*\\$ frodo config-manager ${verb} agents .*--allow-failures`,
+          `^\\s*\\$ frodo config ${verb} agents .*--allow-failures`,
           'm'
         )
       );
       if (verb === 'pull') {
         expect(text).toContain(
-          '$ frodo config-manager pull agents -i zion-gateway matrix /alpha'
+          '$ frodo config pull agents -i zion-gateway matrix /alpha'
         );
       }
     });
@@ -139,7 +139,7 @@ describe.each(['pull', 'push'])(
 );
 
 describe.each(['pull', 'push'])(
-  "'config-manager %s oauth-clients' full help",
+  "'config %s oauth-clients' full help",
   (verb) => {
     let text;
     let raw;
@@ -161,7 +161,7 @@ describe.each(['pull', 'push'])(
         );
         expect(text).toContain(
           'The agent types CIMDProfile, TrustedJwtIssuer and SoftwarePublisher have a command of their own: ' +
-            '"frodo config-manager push oauth-cimd-profiles", "frodo config-manager push oauth-issuers" and "frodo config-manager push oauth-software-publishers". ' +
+            '"frodo config push oauth-cimd-profiles", "frodo config push oauth-issuers" and "frodo config push oauth-software-publishers". ' +
             'The folders of those types are skipped here with a warning; no file in them is read or changed.'
         );
       });
@@ -170,7 +170,7 @@ describe.each(['pull', 'push'])(
     test('does not teach the deprecated command, and does not call the types with a command of their own agents of "agents"', async () => {
       expect(text).not.toContain(`${verb} oauth2-agents`);
       const { stdout } = await exec(
-        `frodo config-manager ${verb} oauth-clients --help`
+        `frodo config ${verb} oauth-clients --help`
       );
       const page = stdout.replace(/\s+/g, ' ');
       expect(page).not.toContain('oauth2-agents"');
@@ -189,25 +189,25 @@ describe.each(['pull', 'push'])(
 
     test('has a Usage Examples block with the command, a config directory and --allow-failures', () => {
       expect(text).toContain('Usage Examples:');
-      expect(text).toContain(`$ frodo config-manager ${verb} oauth-clients`);
+      expect(text).toContain(`$ frodo config ${verb} oauth-clients`);
       expect(text).toContain('-D ./config');
       // one example line, so that the option in a sentence below does not count
       expect(raw).toMatch(
         new RegExp(
-          `^\\s*\\$ frodo config-manager ${verb} oauth-clients .*--allow-failures`,
+          `^\\s*\\$ frodo config ${verb} oauth-clients .*--allow-failures`,
           'm'
         )
       );
       if (verb === 'pull') {
         expect(text).toContain(
-          '$ frodo config-manager pull oauth-clients -i zion-portal-client matrix /alpha'
+          '$ frodo config pull oauth-clients -i zion-portal-client matrix /alpha'
         );
       }
     });
 
     test('says what it leaves out in a tree that uses one folder per application', () => {
       expect(text).toContain(
-        `In a tree that uses one folder per application (see frodo config-manager ${verb} apps), OAuth2 clients that an application owns are not ${verb === 'pull' ? 'pulled' : 'pushed'} here`
+        `In a tree that uses one folder per application (see frodo config ${verb} apps), OAuth2 clients that an application owns are not ${verb === 'pull' ? 'pulled' : 'pushed'} here`
       );
     });
 
@@ -232,7 +232,7 @@ describe.each(['pull', 'push'])(
 );
 
 describe.each(['pull', 'push'])(
-  "'config-manager %s oauth2-agents' full help names its replacements",
+  "'config %s oauth2-agents' full help names its replacements",
   (verb) => {
     test('says in its description which two commands do what it does together', async () => {
       const { text } = await helpOf(verb, 'oauth2-agents');
@@ -244,14 +244,14 @@ describe.each(['pull', 'push'])(
 );
 
 describe('the help of the commands that still name oauth2-agents says that it is deprecated and pulls both', () => {
-  test("'config-manager pull all' says that its step pulls the OAuth2 clients and the other agents, and that the command is deprecated", async () => {
+  test("'config pull all' says that its step pulls the OAuth2 clients and the other agents, and that the command is deprecated", async () => {
     const { text } = await helpOf('pull', 'all');
     expect(text).toContain(
       'The command "pull oauth2-agents" is deprecated, but its step here still pulls both the OAuth2 clients ("pull oauth-clients") and the other agents ("pull agents").'
     );
   });
 
-  test("'config-manager migrate apps' says that the command whose config file it reads is deprecated and still pulls both", async () => {
+  test("'config migrate apps' says that the command whose config file it reads is deprecated and still pulls both", async () => {
     const { text } = await helpOf('migrate', 'apps');
     expect(text).toContain(
       'The command "pull oauth2-agents" is deprecated; it still pulls both the OAuth2 clients and the other agents.'

@@ -18,7 +18,7 @@ import { selectorOption } from '../../SelectorOption';
 const { DEFAULT_REALM_KEY } = frodo.utils.constants;
 
 export default function setup() {
-  const program = new FrodoCommand('frodo config-manager delete journeys');
+  const program = new FrodoCommand('frodo config delete journeys');
 
   program
     .description(
@@ -61,24 +61,24 @@ export default function setup() {
         `Deleting all journeys deletes the journeys that the realm uses for login too, and every orphaned node of the realm. A dry run lists the orphaned nodes that exist now.\n` +
         `Usage Examples:\n` +
         `  Delete all journeys and clean up orphaned nodes in the selected realms without prompting:\n` +
-        c.command(`  $ frodo config-manager delete journeys -y ${s.connId}\n`) +
+        c.command(`  $ frodo config delete journeys -y ${s.connId}\n`) +
         `  Preview the deletion of all journeys:\n` +
-        c.command(`  $ frodo config-manager delete journeys -d ${s.connId}\n`) +
+        c.command(`  $ frodo config delete journeys -d ${s.connId}\n`) +
         `  Delete a journey in the alpha realm (refused if other objects still name it):\n` +
         c.command(
-          `  $ frodo config-manager delete journeys -i '${s.journeyId}' ${s.connId} alpha\n`
+          `  $ frodo config delete journeys -i '${s.journeyId}' ${s.connId} alpha\n`
         ) +
         `  Preview the deletion of a journey and what names it:\n` +
         c.command(
-          `  $ frodo config-manager delete journeys -i '${s.journeyId}' -d ${s.connId} alpha\n`
+          `  $ frodo config delete journeys -i '${s.journeyId}' -d ${s.connId} alpha\n`
         ) +
         `  Delete a journey that other objects name, after clearing it in them, without asking:\n` +
         c.command(
-          `  $ frodo config-manager delete journeys -i '${s.journeyId}' --force -y ${s.connId} alpha\n`
+          `  $ frodo config delete journeys -i '${s.journeyId}' --force -y ${s.connId} alpha\n`
         ) +
         `  Delete it the same way and leave the links of the themes as they are:\n` +
         c.command(
-          `  $ frodo config-manager delete journeys -i '${s.journeyId}' --force --keep-links -y ${s.connId} alpha\n`
+          `  $ frodo config delete journeys -i '${s.journeyId}' --force --keep-links -y ${s.connId} alpha\n`
         )
     )
     .multiOp()

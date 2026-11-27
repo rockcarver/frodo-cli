@@ -12,7 +12,7 @@ const {
 } = require('../e2e/utils/FrodoBinary.cjs');
 
 /**
- * The commands `frodo config-manager pull|push|delete oauth-issuers` driven
+ * The commands `frodo config pull|push|delete oauth-issuers` driven
  * as the real CLI of this checkout against a fake AM (test/utils/FakeAm.mjs,
  * journey `password`, in a separate process), through the real library: what the
  * unit tests of the ops stub, this checks end to end. The fake holds trusted JWT
@@ -115,7 +115,7 @@ suite('config-manager oauth-issuers against a fake tenant', () => {
         fs.writeFileSync(path.join(work, 'overrides.json'), '{"alpha":[]}');
 
         const short = await run([
-          'config-manager',
+          'config',
           'pull',
           'oauth-issuers',
           '-f',
@@ -126,7 +126,7 @@ suite('config-manager oauth-issuers against a fake tenant', () => {
         expect(requests()).toEqual([]);
 
         const long = await run([
-          'config-manager',
+          'config',
           'pull',
           'oauth-issuers',
           '--config-file',
@@ -147,7 +147,7 @@ suite('config-manager oauth-issuers against a fake tenant', () => {
         });
 
         const { code, output } = await run([
-          'config-manager',
+          'config',
           'pull',
           'oauth-issuers',
         ]);
@@ -187,7 +187,7 @@ suite('config-manager oauth-issuers against a fake tenant', () => {
         });
 
         const { code } = await run([
-          'config-manager',
+          'config',
           'pull',
           'oauth-issuers',
           '-n',
@@ -212,7 +212,7 @@ suite('config-manager oauth-issuers against a fake tenant', () => {
         const run = await tenant({ oauthIssuers: ['zion-issuer'] });
 
         const { code, output } = await run([
-          'config-manager',
+          'config',
           'pull',
           'oauth-issuers',
           '-n',
@@ -241,7 +241,7 @@ suite('config-manager oauth-issuers against a fake tenant', () => {
         const before = fs.readFileSync(configFile);
 
         const generic = await run([
-          'config-manager',
+          'config',
           'pull',
           'oauth2-agents',
           '--config-file',
@@ -251,14 +251,14 @@ suite('config-manager oauth-issuers against a fake tenant', () => {
 
         expect(generic.code).toBe(0);
         expect(generic.output).toContain(
-          `Skipping 1 TrustedJwtIssuer entry of realm 'alpha' (zion-issuer): trusted JWT issuers are pulled by "frodo config-manager pull oauth-issuers".`
+          `Skipping 1 TrustedJwtIssuer entry of realm 'alpha' (zion-issuer): trusted JWT issuers are pulled by "frodo config pull oauth-issuers".`
         );
         expect(fs.existsSync(path.join(work, 'realms'))).toBe(false);
         expect(fs.readFileSync(configFile).equals(before)).toBe(true);
 
         // the dedicated kind writes the file where the generic kind used to write it
         const dedicated = await run([
-          'config-manager',
+          'config',
           'pull',
           'oauth-issuers',
           ...target(),
@@ -282,7 +282,7 @@ suite('config-manager oauth-issuers against a fake tenant', () => {
         const run = await tenant({ oauthIssuers: [] });
 
         const { code, output } = await run([
-          'config-manager',
+          'config',
           'pull',
           'oauth-issuers',
           ...target(),
@@ -321,7 +321,7 @@ suite('config-manager oauth-issuers against a fake tenant', () => {
         issuerFile('alpha', 'zion-old', sparse('zion-old'));
 
         const { code, output } = await run([
-          'config-manager',
+          'config',
           'push',
           'oauth-issuers',
           ...target(),
@@ -341,7 +341,7 @@ suite('config-manager oauth-issuers against a fake tenant', () => {
 
         // what the tenant holds now is what the file said: pull it back
         const pulled = await run([
-          'config-manager',
+          'config',
           'pull',
           'oauth-issuers',
           '-n',
@@ -370,7 +370,7 @@ suite('config-manager oauth-issuers against a fake tenant', () => {
         issuerFile('alpha', 'zion-new', sparse('zion-new'));
 
         const { code, output } = await run([
-          'config-manager',
+          'config',
           'push',
           'oauth-issuers',
           ...target(),
@@ -385,7 +385,7 @@ suite('config-manager oauth-issuers against a fake tenant', () => {
         expect(puts().map(idOf)).toContain('zion-new');
 
         const allowed = await run([
-          'config-manager',
+          'config',
           'push',
           'oauth-issuers',
           '--allow-failures',
@@ -404,7 +404,7 @@ suite('config-manager oauth-issuers against a fake tenant', () => {
         issuerFile('alpha', 'zion-old', { ...sparse('zion-old'), _rev: '-9' });
 
         const { code, output } = await run([
-          'config-manager',
+          'config',
           'push',
           'oauth-issuers',
           ...target(),
@@ -432,7 +432,7 @@ suite('config-manager oauth-issuers against a fake tenant', () => {
         issuerFile('alpha', 'zion-whole', sparse('zion-whole'));
         const push = (...extra) =>
           run([
-            'config-manager',
+            'config',
             'push',
             'oauth-issuers',
             ...extra,
@@ -466,7 +466,7 @@ suite('config-manager oauth-issuers against a fake tenant', () => {
 
         // what the tenant holds is the file without the attribute (the pull overwrites the file of the working directory, so it comes last)
         const pulled = await run([
-          'config-manager',
+          'config',
           'pull',
           'oauth-issuers',
           '-n',
@@ -489,7 +489,7 @@ suite('config-manager oauth-issuers against a fake tenant', () => {
         const run = await tenant({ oauthIssuers: [] });
 
         const noTree = await run([
-          'config-manager',
+          'config',
           'push',
           'oauth-issuers',
           ...target(),
@@ -499,7 +499,7 @@ suite('config-manager oauth-issuers against a fake tenant', () => {
 
         issuerFile('alpha', 'zion-other', sparse('zion-other'));
         const missing = await run([
-          'config-manager',
+          'config',
           'push',
           'oauth-issuers',
           '-n',
@@ -524,7 +524,7 @@ suite('config-manager oauth-issuers against a fake tenant', () => {
         const run = await tenant({ oauthIssuers: ['zion-issuer'] });
 
         const { code, output } = await run([
-          'config-manager',
+          'config',
           'delete',
           'oauth-issuers',
           ...target(),
@@ -546,7 +546,7 @@ suite('config-manager oauth-issuers against a fake tenant', () => {
         });
 
         const preview = await run([
-          'config-manager',
+          'config',
           'delete',
           'oauth-issuers',
           '--dry-run',
@@ -559,7 +559,7 @@ suite('config-manager oauth-issuers against a fake tenant', () => {
         expect(deletes()).toEqual([]);
 
         const done = await run([
-          'config-manager',
+          'config',
           'delete',
           'oauth-issuers',
           '-y',
@@ -577,7 +577,7 @@ suite('config-manager oauth-issuers against a fake tenant', () => {
         ).toEqual(['zion-issuer', 'zion-other']);
 
         const again = await run([
-          'config-manager',
+          'config',
           'delete',
           'oauth-issuers',
           '-y',
@@ -599,7 +599,7 @@ suite('config-manager oauth-issuers against a fake tenant', () => {
         });
 
         const one = await run([
-          'config-manager',
+          'config',
           'delete',
           'oauth-issuers',
           '-n',
@@ -611,7 +611,7 @@ suite('config-manager oauth-issuers against a fake tenant', () => {
         expect(deletes()[0].url).toContain('/TrustedJwtIssuer/zion-issuer');
 
         const missing = await run([
-          'config-manager',
+          'config',
           'delete',
           'oauth-issuers',
           '-n',
@@ -657,10 +657,10 @@ suite('config-manager oauth-issuers against a fake tenant', () => {
     const file = () => path.join(issuersOf('alpha'), 'zion-issuer.json');
     const puts = () => requests().filter((r) => r.method === 'PUT');
     const pullIt = (run) =>
-      run(['config-manager', 'pull', 'oauth-issuers', ...target()]);
+      run(['config', 'pull', 'oauth-issuers', ...target()]);
     const pushIt = (run, extra = [], environment = {}) =>
       run(
-        ['config-manager', 'push', 'oauth-issuers', ...extra, ...target()],
+        ['config', 'push', 'oauth-issuers', ...extra, ...target()],
         environment
       );
 
