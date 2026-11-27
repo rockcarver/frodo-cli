@@ -293,6 +293,7 @@ jest.unstable_mockModule(
   src('configManagerOps/FrConfigConnectorMappingOps'),
   () => ({
     exportMappingToDirectory: jest.fn(),
+    mappingFolderName: (mapping) => mapping.name,
     readMappingFromDirectory: shared.readMappingFromDirectory,
   })
 );

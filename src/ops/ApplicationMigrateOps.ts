@@ -2,7 +2,11 @@ import fs from 'fs';
 import path from 'path';
 import { frodo, state } from '@rockcarver/frodo-lib';
 import { existingConfigFile } from '../configManagerOps/ConfigFileStep';
-import { pulledFilePath, realmFolderOf } from '../utils/ConfigTreePath';
+import {
+  nameInFolder,
+  pulledFilePath,
+  realmFolderOf,
+} from '../utils/ConfigTreePath';
 import { printError, printMessage, verboseMessage } from '../utils/Console';
 import { causeOf } from '../utils/ErrorCause';
 import { realmList, safeFileNameUnderscore } from '../utils/FrConfig';
@@ -311,9 +315,62 @@ function ownedConfigEntries(
 // the files of the kind-path layout
 // ---------------------------------------------------------------------------
 
-/** A name that is one path segment, so that it cannot lead out of the folder it is joined to. */
-function isSingleSegment(name: string): boolean {
-  return name !== '' && name !== '.' && name !== '..' && !/[\\/\0]/.test(name);
+/**
+ * The names of the folders of a folder, sorted.
+ * @param {string} dir the folder
+ * @returns {string[]} the names, none if the folder does not exist
+ */
+function foldersOf(dir: string): string[] {
+  try {
+    return fs
+      .readdirSync(dir, { withFileTypes: true })
+      .filter((entry) => entry.isDirectory())
+      .map((entry) => entry.name)
+      .sort();
+  } catch {
+    return [];
+  }
+}
+
+/**
+ * The name that a pull gives the file of an object of this id (`<name>.json`), as the pull makes it: the id as it is when it is
+ * one name, a name with its path characters written as `%XX` otherwise, and a shortened name for an id that does not fit.
+ * @param {string} id the id of the object
+ * @returns {string | undefined} the name, or nothing for an id that leaves no name (`..`) and has no file
+ */
+function pulledNameOf(id: string): string | undefined {
+  try {
+    return nameInFolder(id);
+  } catch {
+    return undefined;
+  }
+}
+
+/**
+ * Whether the folder of a mapping holds the mapping of this name: the name inside its file decides, because a pull names the
+ * folder of a mapping after the longest ending of its files, which this function does not know.
+ * @param {string} mappingsDir the folder of the mappings
+ * @param {string} folder the name of the folder to look at
+ * @param {string} name the name of the mapping
+ * @returns {boolean} true if the folder holds the mapping
+ */
+function folderHoldsMapping(
+  mappingsDir: string,
+  folder: string,
+  name: string
+): boolean {
+  try {
+    return (
+      JSON.parse(
+        fs.readFileSync(
+          path.join(mappingsDir, folder, `${folder}.json`),
+          'utf8'
+        )
+      )?.name === name
+    );
+  } catch {
+    return false;
+  }
 }
 
 function filesOf(dir: string): string[] {
@@ -372,13 +429,14 @@ function kindPathFiles(treeDir: string, object: OwnedObject): string[] {
     }
   }
   switch (object.kind) {
-    case 'oauth2Client':
-      if (isSingleSegment(object.id)) {
-        add(
-          `realms/${realmDir}/realm-config/agents/OAuth2Client/${object.id}.json`
-        );
+    case 'oauth2Client': {
+      // the name that a pull gives the id is one name inside the folder, whatever the id holds (`a/b` is `a%2Fb`)
+      const name = pulledNameOf(object.id);
+      if (name !== undefined) {
+        add(`realms/${realmDir}/realm-config/agents/OAuth2Client/${name}.json`);
       }
       break;
+    }
     case 'saml2Provider':
       for (const location of ['hosted', 'remote']) {
         const dir = `realms/${realmDir}/realm-config/saml/${location}`;
@@ -392,23 +450,37 @@ function kindPathFiles(treeDir: string, object: OwnedObject): string[] {
         }
       }
       break;
-    case 'connector':
-      if (isSingleSegment(object.id)) add(`sync/connectors/${object.id}.json`);
+    case 'connector': {
+      const name = pulledNameOf(object.id);
+      if (name !== undefined) add(`sync/connectors/${name}.json`);
       break;
-    case 'mapping':
-      if (isSingleSegment(object.id)) {
-        const dir = `sync/mappings/${object.id}`;
+    }
+    case 'mapping': {
+      const mappingsDir = path.join(treeDir, 'sync/mappings');
+      // the folder that `pull connector-mappings` made: named after the mapping when that is one name, and a shortened
+      // name for a name that does not fit (made for the longest ending of its files); the name in the file decides
+      const folders = new Set<string>();
+      const named = pulledNameOf(object.id);
+      if (named !== undefined) folders.add(named);
+      for (const folder of foldersOf(mappingsDir)) {
+        if (folderHoldsMapping(mappingsDir, folder, object.id)) {
+          folders.add(folder);
+        }
+      }
+      for (const folder of folders) {
+        const dir = `sync/mappings/${folder}`;
         // the mapping, and the script files that `pull connector-mappings` extracts from it
         for (const file of filesOf(path.join(treeDir, dir))) {
           if (
-            file === `${object.id}.json` ||
-            (file.startsWith(`${object.id}.`) && file.endsWith('.js'))
+            file === `${folder}.json` ||
+            (file.startsWith(`${folder}.`) && file.endsWith('.js'))
           ) {
             found.push(`${dir}/${file}`);
           }
         }
       }
       break;
+    }
   }
   return found;
 }

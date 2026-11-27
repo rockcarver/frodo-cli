@@ -54,7 +54,8 @@ export function exportScriptToFiles(
   // the tenant names the realm, the id, the context and the script: each is one name here, never a path
   const realmDir = realmFolderOf(realm);
   if (pulledPaths) pulledPaths.owner = script._id;
-  const scriptName = encodedName(script.name);
+  // the name of a script is the start of the name of its content file, which ends with `.js`
+  const scriptName = encodedName(script.name, '.js');
   const relScriptPath = `scripts-content/${nameInFolder(script.context)}/${scriptName}.js`;
   const fileObj = { file: relScriptPath };
   const configFile = pulledFilePath(

@@ -134,7 +134,8 @@ export async function configManagerImportTelemetry(
       const files = fs
         .readdirSync(catDir)
         .filter((f) => f.toLowerCase().endsWith('.json'))
-        .filter((f) => !name || f === `${name}.json`);
+        // the file of an exporter has the name that a pull made of its id
+        .filter((f) => !name || f === `${nameInFolder(name)}.json`);
       for (const file of files) {
         const filePath = `${catDir}/${file}`;
         try {

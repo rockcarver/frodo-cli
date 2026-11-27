@@ -149,8 +149,8 @@ export async function configManagerExportSoftwarePublishers(
  * in: a publisher that does not exist is created and one that does is replaced by the file. A
  * publisher is a trust anchor (a software statement it signs is accepted when a client registers),
  * so a pull request that changes a file changes who may register clients after the next push: read
- * the files before pushing them. Nothing is ever deleted. The id is the `_id` of the file,
- * otherwise its name; `${NAME}` is filled from `-E/--env`, else from `--env-file`, else from the
+ * the files before pushing them. Nothing is ever deleted. The id is the `_id` of the file (a file
+ * without one fails: an id is never read from the name of a file); `${NAME}` is filled from `-E/--env`, else from `--env-file`, else from the
  * environment variable of the process (see `src/utils/PlaceholderValues.ts`); a file of another
  * `_type` is refused before anything is sent for it, and a file without `_type` is accepted.
  *

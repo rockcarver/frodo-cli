@@ -92,6 +92,26 @@ describe('configManagerImportPasswordPolicy', () => {
     });
   });
 
+  it('finds the file of a realm whose name is so long that the name of the file does not fit: the shortened name that a pull wrote', async () => {
+    // the realm is a folder of 240 bytes, and `<realm>_user-password-policy` is 261: the start of that name, `~` and the checksum
+    // of the whole name (the independent implementation of FileNameVectors.js made it)
+    const realm = 'r'.repeat(240);
+    const dir = path.join(root, `realms/${realm}/password-policy`);
+    fs.mkdirSync(dir, { recursive: true });
+    const id = `fieldPolicy/${realm}_user`;
+    fs.writeFileSync(
+      path.join(dir, `${'r'.repeat(240)}_~2ee4c998.json`),
+      JSON.stringify({ ...policy, _id: id })
+    );
+
+    expect(await configManagerImportPasswordPolicy(realm)).toBe(true);
+
+    expect(importConfigEntities).toHaveBeenCalledWith({
+      idm: { [id]: { ...policy, _id: id } },
+    });
+    expect(printError).not.toHaveBeenCalled();
+  });
+
   it('reports a file that is neither, and imports nothing', async () => {
     writePolicy({ passwordAttribute: 'password' });
     expect(await configManagerImportPasswordPolicy('alpha')).toBe(false);

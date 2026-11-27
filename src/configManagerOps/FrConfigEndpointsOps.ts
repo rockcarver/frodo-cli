@@ -58,10 +58,13 @@ export async function configManagerExportEndpoints(
       try {
         // the tenant names the endpoint: its name is the name of its folder and its files here, never a path
         pulledPaths.owner = endpointName;
-        const folderName = nameInFolder(endpointName);
+        // the name is made once, with the longest ending of the two files: `.json`, or `.groovy` for a script of Groovy
+        const extension = endpoint.type === 'groovy' ? 'groovy' : 'js';
+        const ending = extension === 'groovy' ? '.groovy' : '.json';
+        const folderName = nameInFolder(endpointName, ending);
         const endpointDir = `endpoints/${folderName}`;
         // the reference starts with the name, so a leading drive letter is written as `%3A`
-        const scriptFilename = `${nameInStem(endpointName)}.${endpoint.type === 'groovy' ? 'groovy' : 'js'}`;
+        const scriptFilename = `${nameInStem(endpointName, ending)}.${extension}`;
         const endpointFilename = `${endpointDir}/${folderName}.json`;
         // both files are checked before the first one is written
         pulledFilePath(`${endpointDir}/${scriptFilename}`, pulledPaths);

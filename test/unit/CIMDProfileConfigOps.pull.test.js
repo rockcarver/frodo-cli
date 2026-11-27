@@ -626,22 +626,47 @@ describe('the names of the files', () => {
     expect(read(P('a%2Fb'))._id).toBe('a/b');
   });
 
-  test('that are too long for a file name are cut so that the file can be written, and two that are cut to the same name are a collision', async () => {
+  test('that are too long for a file name get a shortened name, so two long ids that start alike get two files', async () => {
     const first = `${'x'.repeat(300)}-1`;
     const second = `${'x'.repeat(300)}-2`;
     world.profiles.alpha = [profile(first), profile(second)];
 
+    expect(await configManagerExportCIMDProfiles()).toBe(true);
+
+    const folder = path.join(tmp, path.dirname(P('x')));
+    const files = fs.readdirSync(folder).sort();
+    // the start of the name, `~` and the checksum of the complete id: 250 bytes, which leaves room for `.json`
+    expect(files).toEqual([
+      `${'x'.repeat(241)}~001fbd52.json`,
+      `${'x'.repeat(241)}~bed1c36e.json`,
+    ]);
+    for (const file of files) {
+      expect(Buffer.byteLength(file)).toBeLessThanOrEqual(255);
+    }
+    // each file holds the complete id of its profile: that id, not the name, is what a push uses
+    expect(
+      files.map(
+        (file) =>
+          JSON.parse(fs.readFileSync(path.join(folder, file), 'utf8'))._id
+      )
+    ).toEqual([second, first]);
+  });
+
+  test('that share a name even with the checksum are a collision: the first id is pulled, the second is a named failure', async () => {
+    // two ids that share the start and the 8 characters of the checksum (about one pair in four billion that shares a start)
+    const first = `${'a'.repeat(300)}22501`;
+    const second = `${'a'.repeat(300)}7449`;
+    world.profiles.alpha = [profile(second), profile(first)];
+
     expect(await configManagerExportCIMDProfiles()).toBe(false);
 
     expect(output()).toContain('1 of 2 CIMD profiles failed');
-    const files = fs.readdirSync(path.join(tmp, path.dirname(P('x'))));
-    expect(files).toHaveLength(1);
-    // 255 bytes at most, the extension included
-    expect(Buffer.byteLength(files[0])).toBeLessThanOrEqual(255);
+    expect(output()).toContain('its file name collides with');
+    const folder = path.join(tmp, path.dirname(P('x')));
+    const files = fs.readdirSync(folder);
+    expect(files).toEqual([`${'a'.repeat(241)}~5b2c45dc.json`]);
     expect(
-      JSON.parse(
-        fs.readFileSync(path.join(tmp, path.dirname(P('x')), files[0]), 'utf8')
-      )._id
+      JSON.parse(fs.readFileSync(path.join(folder, files[0]), 'utf8'))._id
     ).toBe(first);
   });
 

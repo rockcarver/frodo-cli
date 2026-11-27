@@ -319,7 +319,10 @@ describe('Cloud: realms alpha and bravo', () => {
 
 describe('the files', () => {
   test('a file without _type gets the _type of a software publisher, so that the library can route it', async () => {
-    write(P('small'), { issuer: { value: 'https://small.example.com' } });
+    write(P('small'), {
+      _id: 'small',
+      issuer: { value: 'https://small.example.com' },
+    });
     world.publishers.alpha = ['small'];
 
     expect(await configManagerImportSoftwarePublishers()).toBe(true);
@@ -340,6 +343,19 @@ describe('the files', () => {
     expect(await configManagerImportSoftwarePublishers()).toBe(true);
 
     expect(sentIn('alpha')[0].object._type.name).toBe('Own name');
+  });
+
+  test('a file without _id is a named failure of that file, whatever its name says: the id is the id that the file holds, and the other files are still pushed', async () => {
+    write(P('a%3Ab'), { issuer: { inherited: false, value: 'https://a' } });
+    write(P('named-differently'), publisherObject('zion-real-id'));
+    world.publishers.alpha = ['zion-real-id'];
+
+    expect(await configManagerImportSoftwarePublishers()).toBe(false);
+
+    expect(sentIn('alpha').map((sent) => sent.id)).toEqual(['zion-real-id']);
+    expect(output()).toContain('1 of 2 software publishers failed');
+    expect(output()).toContain('alpha/a%3Ab.json');
+    expect(output()).toContain("it has no '_id'");
   });
 
   test('a file of another _type is refused before anything is sent for it, and the others are still pushed', async () => {

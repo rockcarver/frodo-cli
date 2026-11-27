@@ -1298,8 +1298,9 @@ finds the file by the id with a character that a file name cannot hold written a
 with such a character left as it is (`a*b.json` for the id `a*b`) is no longer
 found: rename it `ab.json`. A file that was named by hand for a name that Windows
 reserves (`con.json` for the id `con`) is no longer found either: the id `con` is
-the file `.json`. An id of more than 250 bytes is found by its name cut at 250
-bytes.
+the file `.json`. An id that does not fit in a file name is found by its shortened
+name (the start of the id, `~` and a checksum, see the entry on what a pull writes
+below).
 
 A realm that is not `/`, a name or a path of names such as `/parent/child` (for
 example `..`, `../alpha`, `a\b`, or a name with `?`, `#` or `%`) is refused with
@@ -1383,11 +1384,59 @@ value is now one name, so it cannot lead out of the config folder:
   it: `a:b.onCreate.js` is written as `a%3Ab.onCreate.js`, because a reference
   that starts like a drive letter is refused, so what a pull wrote could not be
   pushed.
+- A name, an id or a key that does not fit in a file name (255 bytes with its
+  extension, so an id of 251 bytes is already too long for `.json`) is no longer
+  refused, and no longer cut without a word (the agent types cut an id at 250
+  bytes): it is written as the start of its name, `~` and a checksum, the first 8
+  hexadecimal characters of the SHA-256 of the complete id
+  ([a name that does not fit in a file name is shortened and ends with a checksum](https://github.com/rockcarver/frodo-cli/blob/main/docs/decisions/core/0027-a-name-that-does-not-fit-in-a-file-name-is-shortened-and-ends-with-a-checksum.md),
+  the same rule as in frodo-lib). An id of 300 `n` is 241 `n`, `~` and
+  `cd5124b3`, and two long ids that start alike have two names. A name that was a
+  valid file name keeps it, byte for byte. Four groups of names change: an id of
+  251 to 255 bytes (refused, or cut at 250 bytes by the agent types), a name of
+  more than 255 bytes once its path characters are written as `%XX` (an id of 100
+  `/` is a name of 300 bytes; refused, or cut), an id that holds a raw U+007F (it
+  was refused, as a control character) or a lone surrogate (it was written as it
+  was typed), which a pull now writes with U+FFFD and the checksum, and a name of
+  251 to 255 bytes in a place that is only a folder (the
+  version of terms and conditions, the category of telemetry, the type of a service
+  object, an agent type, the context of a script): it was written as typed and is
+  now shortened like the others, because a folder leaves room for `.json` too. An
+  object whose files have different endings (`.json`, `.js`,
+  `.groovy`, `.<language>.html`, `.<key>.js`, a relationship schema) has one name
+  that leaves room for its longest ending, so names of about 244 to 250 bytes that
+  were refused before are shortened for such an object. The files that an older pull
+  wrote are not moved: pull again and delete the old file (an id that an agent type
+  pull cut at 250 bytes is no longer found by `-i`). Two ids can still share a name,
+  when they share the start and the 8 characters of the checksum (or an id is
+  written like a shortened name); the later one is reported and not pulled.
+- The id of an object is the id that its file holds, never the name of its file or
+  folder, so a push finds the same objects whatever the files are called. This
+  changes what a push reads in these places: a file of `oauth-cimd-profiles`,
+  `oauth-issuers` or `oauth-software-publishers` without an `_id` used to be pushed
+  under its decoded file name and is now a named failure of that file (the other
+  files are still pushed); a journey is sent under the `_id` of its file (a journey
+  file without an `_id` is a named failure of that journey), and the
+  object of a relationship schema under the `name` of its object file, where both
+  were the name of a folder; the property of a relationship schema file is the
+  property of the object whose name in a file name is the one of the file (a file
+  that names no property keeps the decoded name); the files of the password policy
+  and of the organization privileges of a realm with a very long name are found
+  under the same name that a pull gave them; `push terms-and-conditions` reads the
+  file that the terms refer to, which a pull wrote under the shortened name of the
+  version, and not a name made again from the version; `apps migrate` finds the old
+  files of an owned OAuth2 client, connector and mapping under the name that a pull
+  gave them, and `push telemetry -n` looks for the file by the name that a pull
+  gives the id (it compared the typed name with the name of the file). `-i` and
+  `-n` find a file by the name that the id has with the ending `.json`. A name that
+  does not fit and belongs to an object whose files have a longer ending (a managed
+  object with a script or a relationship schema, a mapping with a script) is
+  shortened for that longer ending, so it is a different name: `push managed-objects -n`, `push
+  connector-mappings -n` and the push of an application do not find such an object
+  by its name, while the push of the whole folder does.
 - A name that is `.`, `..` or empty, a realm that is not `/`, a name or a path of
   names (a part that is `.` or `..`, or one that holds a backslash, `C:`, a
-  control character, `%`, `?` or `#`), a file name of more than 255 bytes with its
-  extension (`.json`, `.js`, `.html`), so a name of 251 bytes is too long (the name
-  is not cut), two names that become one file name in one pull (`a/b` and `a%2Fb`
+  control character, `%`, `?` or `#`), two names that become one file name in one pull (`a/b` and `a%2Fb`
   are both `a%2Fb`, and the names `a*b` and `ab` of two scripts are both `ab`: the
   later one) and two names that are one file on a file system
   that ignores case or Unicode form (`A` and `a`, `\u00e9` and `e\u0301`: the later

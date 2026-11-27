@@ -1261,6 +1261,92 @@ describe('S22 the language of terms and conditions, which names a file of the fo
   );
 });
 
+describe('S22 the reference to the file of a translation of terms and conditions, which a pull wrote', () => {
+  test.each([
+    ['../decoy-4.html'],
+    ['../../decoy-5.html'],
+    ['..\\..\\decoy-6.html'],
+  ])(
+    'the reference %j is refused: the decoy is never opened and nothing it holds is sent',
+    async (reference) => {
+      write({
+        'terms-conditions/terms-conditions.json': {
+          _id: 'selfservice.terms',
+          versions: [
+            { version: '0.1', termsTranslations: { en: { file: reference } } },
+          ],
+        },
+      });
+      const decoy = path.resolve(
+        tree,
+        'terms-conditions',
+        reference.replaceAll('\\', '/')
+      );
+      fs.mkdirSync(path.dirname(decoy), { recursive: true });
+      fs.writeFileSync(decoy, MARKER);
+
+      const outcome = await attempt(() =>
+        configManagerImportTermsAndConditions()
+      );
+
+      expect(outcome).toEqual({ value: false });
+      expect(touched.filter(inDecoys([decoy]))).toEqual([]);
+      expect(sent()).not.toContain(MARKER);
+      expect(shown(outcome)).toContain(refused(reference));
+    }
+  );
+
+  test('a reference to a file under a shortened name is read: the names are not made again from the version and the language', async () => {
+    // the version of 300 characters, written by a pull as the start of the version, `~` and a checksum (what the checksum is does
+    // not matter here: the reference names the folder)
+    const version = 'v'.repeat(300);
+    const folder = `${'v'.repeat(241)}~${'00000000'}`;
+    write({
+      'terms-conditions/terms-conditions.json': {
+        _id: 'selfservice.terms',
+        versions: [
+          {
+            version,
+            termsTranslations: { en: { file: `${folder}/en.html` } },
+          },
+        ],
+      },
+      [`terms-conditions/${folder}/en.html`]: '<p>kept</p>',
+    });
+
+    const outcome = await attempt(() =>
+      configManagerImportTermsAndConditions()
+    );
+
+    expect(outcome).toEqual({ value: true });
+    expect(sent()).toContain('<p>kept</p>');
+  });
+});
+
+describe('S22 a translation of terms and conditions that is an object but not a reference', () => {
+  test.each([[{}], [{ file: 5 }], [{ file: null }], [{ text: 'x' }], [null]])(
+    'the translation %j is not a reference: the file is looked for by the version and the language, as for a text',
+    async (translation) => {
+      write({
+        'terms-conditions/terms-conditions.json': {
+          _id: 'selfservice.terms',
+          versions: [
+            { version: '0.1', termsTranslations: { en: translation } },
+          ],
+        },
+        'terms-conditions/0.1/en.html': '<p>derived</p>',
+      });
+
+      const outcome = await attempt(() =>
+        configManagerImportTermsAndConditions()
+      );
+
+      expect(outcome).toEqual({ value: true });
+      expect(sent()).toContain('<p>derived</p>');
+    }
+  );
+});
+
 describe('S22 a version of terms and conditions that is not text', () => {
   test.each([[1], [0.1], [null], [{ name: '1' }]])(
     'the version %j is refused: a version is a name of a folder, and the tenant writes it as text',

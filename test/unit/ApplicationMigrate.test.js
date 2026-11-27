@@ -193,9 +193,10 @@ const shared = {
       JSON.stringify({ name: script.name })
     );
   }),
+  // the file of a mapping has the name of its folder, as `exportMappingToDirectory` writes it
   exportMappingToDirectory: jest.fn((mapping, mappingPath) => {
     fs.writeFileSync(
-      dir(`${mappingPath}/${mapping.name}.json`),
+      dir(`${mappingPath}/${path.basename(mappingPath)}.json`),
       JSON.stringify(mapping)
     );
   }),
@@ -215,10 +216,13 @@ jest.unstable_mockModule(
   src('configManagerOps/FrConfigConnectorMappingOps'),
   () => ({
     exportMappingToDirectory: shared.exportMappingToDirectory,
+    // the folder of a mapping: its name, shortened when it does not fit in a file name
+    mappingFolderName: (mapping) => nameInFolder(mapping.name),
     readMappingFromDirectory: jest.fn(),
   })
 );
 
+const { nameInFolder } = await import(src('utils/ConfigTreePath.ts'));
 const { configManagerMigrateApplications } = await import(
   src('ops/ApplicationMigrateOps.ts')
 );
@@ -426,6 +430,117 @@ afterEach(() => {
 // ---- the move ---------------------------------------------------------------
 
 describe('moving a kind-path tree', () => {
+  test('finds the files of an owned object whose id did not fit in a file name: a pull wrote them under the shortened name', async () => {
+    // ids of 300 characters (the independent implementation of FileNameVectors.js made the names): the start of the id, `~` and
+    // the checksum of the whole id; a mapping with a script has the name made for `.source.js`
+    const CLIENT = 'c'.repeat(300);
+    const CONNECTOR = 'k'.repeat(300);
+    const MAPPING = 'm'.repeat(300);
+    const CLIENT_NAME = `${'c'.repeat(241)}~9d1ca9bc`;
+    const CONNECTOR_NAME = `${'k'.repeat(241)}~327d1292`;
+    const MAPPING_NAME = `${'m'.repeat(236)}~b709f6f2`;
+    const LONG = app('Long', {
+      templateName: 'azure.ad',
+      connectorId: CONNECTOR,
+      mappingNames: [MAPPING],
+    });
+    world.apps.alpha = [LONG];
+    refs(LONG, [
+      owned('oauth2Client', CLIENT, 'ssoEntities.oidcId'),
+      owned('connector', CONNECTOR, 'connectorId'),
+      owned('mapping', MAPPING, 'mappingNames'),
+    ]);
+    world.agents[CLIENT] = {
+      _id: CLIENT,
+      coreOAuth2ClientConfig: { clientType: 'Confidential' },
+    };
+    world.connectors[CONNECTOR] = {
+      _id: `provisioner.openicf/${CONNECTOR}`,
+      enabled: true,
+    };
+    world.mappings = [{ _id: `sync/${MAPPING}`, name: MAPPING }];
+    const agents = 'realms/alpha/realm-config/agents';
+    const owned_ = [
+      `${agents}/OAuth2Client/${CLIENT_NAME}.json`,
+      `sync/connectors/${CONNECTOR_NAME}.json`,
+      `sync/mappings/${MAPPING_NAME}/${MAPPING_NAME}.json`,
+      `sync/mappings/${MAPPING_NAME}/${MAPPING_NAME}.source.js`,
+    ];
+    fs.mkdirSync(dir(`${agents}/OAuth2Client`), { recursive: true });
+    fs.mkdirSync(dir('sync/connectors'), { recursive: true });
+    fs.mkdirSync(dir(`sync/mappings/${MAPPING_NAME}`), { recursive: true });
+    put(owned_[0], { _id: CLIENT });
+    put(owned_[1], { _id: `provisioner.openicf/${CONNECTOR}` });
+    put(owned_[2], { name: MAPPING });
+    put(owned_[3], 'return source;');
+    // what no application owns stays
+    fs.mkdirSync(dir('sync/mappings/free'), { recursive: true });
+    put('sync/mappings/free/free.json', { name: 'free' });
+
+    expect(await configManagerMigrateApplications()).toBe(true);
+
+    for (const file of owned_) expect(exists(file)).toBe(false);
+    expect(exists('sync/mappings/free/free.json')).toBe(true);
+    expect(exists(`sync/mappings/${MAPPING_NAME}`)).toBe(false);
+    expect(exists('realms/alpha/applications/Long/application.json')).toBe(
+      true
+    );
+  });
+
+  test('finds the files of an owned object whose id holds a path character: a pull wrote them under the name with %XX, and a file that nobody owns stays', async () => {
+    const CLIENT = 'a/b';
+    const CONNECTOR = 'x\\y';
+    const MAPPING = 'm/n';
+    const SLASH = app('Slash', {
+      templateName: 'azure.ad',
+      connectorId: CONNECTOR,
+      mappingNames: [MAPPING],
+    });
+    world.apps.alpha = [SLASH];
+    refs(SLASH, [
+      owned('oauth2Client', CLIENT, 'ssoEntities.oidcId'),
+      owned('connector', CONNECTOR, 'connectorId'),
+      owned('mapping', MAPPING, 'mappingNames'),
+    ]);
+    world.agents[CLIENT] = {
+      _id: CLIENT,
+      coreOAuth2ClientConfig: { clientType: 'Confidential' },
+    };
+    world.connectors[CONNECTOR] = {
+      _id: `provisioner.openicf/${CONNECTOR}`,
+      enabled: true,
+    };
+    world.mappings = [{ _id: `sync/${MAPPING}`, name: MAPPING }];
+    const clients = 'realms/alpha/realm-config/agents/OAuth2Client';
+    fs.mkdirSync(dir(clients), { recursive: true });
+    fs.mkdirSync(dir('sync/connectors'), { recursive: true });
+    fs.mkdirSync(dir('sync/mappings/m%2Fn'), { recursive: true });
+    fs.mkdirSync(dir('sync/mappings/m'), { recursive: true });
+    const stale = [
+      `${clients}/a%2Fb.json`,
+      'sync/connectors/x%5Cy.json',
+      'sync/mappings/m%2Fn/m%2Fn.json',
+      'sync/mappings/m%2Fn/m%2Fn.src.js',
+    ];
+    put(stale[0], { _id: CLIENT });
+    put(stale[1], { _id: `provisioner.openicf/${CONNECTOR}` });
+    put(stale[2], { name: MAPPING });
+    put(stale[3], 'return source;');
+    // what no application owns stays: the objects whose names are the parts of the ids
+    const kept = [
+      `${clients}/a.json`,
+      `${clients}/b.json`,
+      'sync/connectors/x.json',
+      'sync/mappings/m/m.json',
+    ];
+    for (const file of kept) put(file, { _id: file });
+
+    expect(await configManagerMigrateApplications()).toBe(true);
+
+    for (const file of stale) expect(exists(file)).toBe(false);
+    for (const file of kept) expect(exists(file)).toBe(true);
+  });
+
   test('writes the application folders, removes exactly the owned files, keeps the rest, and marks the tree', async () => {
     tenant();
     legacyTree();
@@ -866,6 +981,72 @@ describe('which files are the objects', () => {
     expect(fs.readFileSync(path.join(tmp, 'realms/victim2.json'), 'utf8')).toBe(
       'keep me too'
     );
+  });
+
+  test('a client, a connector and a mapping whose ids are dots or paths never reach a file outside their kind folder, and are never listed as kept or removed', async () => {
+    const odd = app('Odd');
+    world.apps.alpha = [odd];
+    const ids = ['../../../../../victim3', '..', '.', '../x', 'a/../../b'];
+    refs(
+      odd,
+      ids.flatMap((id) => [
+        owned('oauth2Client', id),
+        owned('connector', id),
+        owned('mapping', id),
+      ])
+    );
+    // the files that a raw id would name: `sync/mappings/..` is the folder `sync`, `sync/mappings/.` the folder of the mappings,
+    // and a mapping `..` or `.` would have `...json` or `..json` as its file and `...x.js` or `..x.js` as a script
+    fs.mkdirSync(dir('sync/mappings'), { recursive: true });
+    const decoys = [
+      'sync/...json',
+      'sync/...x.js',
+      'sync/mappings/..json',
+      'sync/mappings/..x.js',
+      'victim3.json',
+    ];
+    for (const file of decoys) put(file, 'keep me');
+
+    await configManagerMigrateApplications();
+
+    for (const file of decoys) {
+      expect(fs.readFileSync(path.join(tmp, file), 'utf8')).toBe('keep me');
+    }
+    // no file is named as kept or as removed: a raw id would have found a decoy through `sync/mappings/..` or `sync/mappings/.`
+    expect(messages()).not.toMatch(/\bKept\b|\bRemoved\b/);
+  });
+
+  test('the files of an owned mapping are found by the name that a pull gives it also when its file holds no name', async () => {
+    const PLAIN = app('Plain', {
+      templateName: 'azure.ad',
+      connectorId: 'Plain',
+      mappingNames: ['plainmap'],
+    });
+    world.apps.alpha = [PLAIN];
+    refs(PLAIN, [
+      owned('connector', 'Plain', 'connectorId'),
+      owned('mapping', 'plainmap', 'mappingNames'),
+    ]);
+    world.connectors.Plain = {
+      _id: 'provisioner.openicf/Plain',
+      enabled: true,
+    };
+    world.mappings = [{ _id: 'sync/plainmap', name: 'plainmap' }];
+    fs.mkdirSync(dir('sync/mappings/plainmap'), { recursive: true });
+    fs.mkdirSync(dir('sync/mappings/other'), { recursive: true });
+    // the file of the mapping holds no name: only the name of the folder says whose it is
+    put('sync/mappings/plainmap/plainmap.json', {});
+    put('sync/mappings/plainmap/plainmap.src.js', 'return source;');
+    put('sync/mappings/other/other.json', { name: 'other' });
+    // a file of the folder that starts with the name of the mapping but is no script of it is not the mapping's
+    put('sync/mappings/plainmap/plainmap.notes.txt', 'mine');
+
+    expect(await configManagerMigrateApplications()).toBe(true);
+
+    expect(exists('sync/mappings/plainmap/plainmap.json')).toBe(false);
+    expect(exists('sync/mappings/plainmap/plainmap.src.js')).toBe(false);
+    expect(exists('sync/mappings/plainmap/plainmap.notes.txt')).toBe(true);
+    expect(exists('sync/mappings/other/other.json')).toBe(true);
   });
 
   test('shared pieces are never removed: scripts and circles of trust stay at their kind paths', async () => {

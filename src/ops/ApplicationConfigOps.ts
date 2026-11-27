@@ -3,6 +3,7 @@ import fs from 'fs';
 import { frodo, state } from '@rockcarver/frodo-lib';
 import {
   exportMappingToDirectory,
+  mappingFolderName,
   readMappingFromDirectory,
 } from '../configManagerOps/FrConfigConnectorMappingOps';
 import {
@@ -17,7 +18,6 @@ import {
   importScriptFromFiles,
 } from '../configManagerOps/FrConfigScriptOps';
 import {
-  nameInFolder,
   objectFilePath,
   objectFolderPath,
   pulledFilePath,
@@ -502,7 +502,7 @@ export async function pullApplication(
           // the mapping is named by its owner: its name is the name of a folder here, never a path
           exportMappingToDirectory(
             mapping,
-            `${folder}/mappings/${nameInFolder(mappingName)}`,
+            `${folder}/mappings/${mappingFolderName(mapping)}`,
             pulledPaths
           );
         });

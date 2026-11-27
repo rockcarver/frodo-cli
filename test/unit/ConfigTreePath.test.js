@@ -5,6 +5,7 @@ import { describe, expect, it } from '@jest/globals';
 import { frodo, state } from '@rockcarver/frodo-lib';
 import {
   assertInside,
+  encodedName,
   fileNameOf,
   isOneSafeSegment,
   nameInFolder,
@@ -82,14 +83,16 @@ const FILE_NAMES = [
   ['\uff0f', '\uff0f'], // a full width slash is not a separator
   ['\uff0e\uff0e', '\uff0e\uff0e'],
   ['a\u202eb', 'a\u202eb'], // the right-to-left override stays as typed
-  // cut at 250 bytes, which leaves room for `.json` in the 255 that a file name can hold
-  [['a', 300], 'a'.repeat(250)],
-  [['é', 200], 'é'.repeat(125)],
-  [['😀', 70], '😀'.repeat(62)],
-  // what the cut leaves at the end of a name is cut again: a file name does not end with dots or spaces
-  ['a'.repeat(249) + '.b', 'a'.repeat(249)],
-  ['a'.repeat(249) + ' b', 'a'.repeat(249)],
-  ['a'.repeat(248) + '. b', 'a'.repeat(248)],
+  // an id that does not fit in the 255 bytes of a file name with `.json` is cut at 241 bytes, at a whole character, and
+  // gets `~` and the checksum of the complete id: 250 bytes, which leaves room for `.json`
+  [['a', 300], 'a'.repeat(241) + '~e8722168'],
+  [['é', 200], 'é'.repeat(120) + '~bf52c47b'],
+  [['😀', 70], '😀'.repeat(60) + '~4a62e2af'],
+  // a name of 250 bytes fits, and one of 251 does not: what the cut leaves at the end does not matter, the checksum ends the name
+  ['a'.repeat(250), 'a'.repeat(250)],
+  ['a'.repeat(249) + '.b', 'a'.repeat(241) + '~d5d42e11'],
+  ['a'.repeat(249) + ' b', 'a'.repeat(241) + '~5c1f4232'],
+  ['a'.repeat(248) + '. b', 'a'.repeat(241) + '~5d9f484c'],
 ];
 
 describe('safeFileName', () => {
@@ -168,7 +171,8 @@ describe('objectFilePath', () => {
     ['a%2Fb', `${FOLDER}/a%2Fb.json`],
     ['..foo', `${FOLDER}/..foo.json`],
     ['...', `${FOLDER}/....json`],
-    [['a', 300], `${FOLDER}/${'a'.repeat(300)}.json`],
+    // an id that is one name but does not fit in a file name gets a shortened name
+    [['a', 300], `${FOLDER}/${'a'.repeat(241)}~e8722168.json`],
     ['a/b', `${FOLDER}/a%2Fb.json`],
     ['../x', `${FOLDER}/..%2Fx.json`],
     ['../../x', `${FOLDER}/..%2F..%2Fx.json`],
@@ -256,6 +260,19 @@ describe('objectFolderPath', () => {
       );
     }
   );
+
+  it('a name that does not fit gets its shortened name as a folder, and a longer suffix leaves less room for it', () => {
+    expect(objectFolderPath(MAPPINGS, 'a'.repeat(300))).toBe(
+      `${MAPPINGS}/${'a'.repeat(241)}~e8722168`
+    );
+    // a type makes the name once, with the longest suffix of the object, and every file of the object has that name
+    expect(objectFolderPath(MAPPINGS, 'a'.repeat(300), '.onCreate.js')).toBe(
+      `${MAPPINGS}/${'a'.repeat(234)}~e8722168`
+    );
+    expect(objectFilePath(MAPPINGS, 'a'.repeat(300), '.onCreate.js')).toBe(
+      `${MAPPINGS}/${'a'.repeat(234)}~e8722168.json`
+    );
+  });
 
   it('a file in the folder of an object is found with the same name', () => {
     for (const selector of ['x', 'a/b', '../x', 'con', 'a*b']) {
@@ -1299,16 +1316,64 @@ describe('nameInFolder and nameInStem', () => {
     }
   );
 
-  it('does not cut a long name: it fails, naming it, so that two long names never become one', () => {
-    expect(nameInFolder('n'.repeat(300))).toBe('n'.repeat(300));
-    expect(() => nameInFolder(`a/${'n'.repeat(300)}`)).toThrow(
-      'is longer than 255 bytes once encoded, so it cannot be the name of a file.'
-    );
+  it('does not cut a long name silently: it keeps the start and adds the checksum, so that two long names never become one', () => {
+    // one safe name, as typed, of 255 bytes: it fits with no suffix and not with `.json`
+    expect(nameInFolder('n'.repeat(250))).toBe('n'.repeat(250));
+    expect(nameInFolder('n'.repeat(300))).toBe(`${'n'.repeat(241)}~cd5124b3`);
     // a name of 255 bytes that holds a slash is 257 bytes once the slash is written as %2F
-    expect(() => nameInFolder(`a/${'n'.repeat(253)}`)).toThrow(
-      'is longer than 255 bytes once encoded'
+    expect(nameInFolder(`a/${'n'.repeat(253)}`)).toBe(
+      `a%2F${'n'.repeat(237)}~0c8bfa62`
     );
-    expect(nameInFolder(`a/${'n'.repeat(251)}`)).toBe(`a%2F${'n'.repeat(251)}`);
+    // 250 bytes fit, 251 do not
+    expect(nameInFolder(`a/${'n'.repeat(246)}`)).toBe(`a%2F${'n'.repeat(246)}`);
+    expect(nameInFolder(`a/${'n'.repeat(247)}`)).toBe(
+      `a%2F${'n'.repeat(237)}~6878efc3`
+    );
+    // the two ids that the old cut made one name are two names now
+    expect(nameInFolder(`a/${'n'.repeat(251)}`)).not.toBe(
+      nameInFolder(`a/${'n'.repeat(252)}`)
+    );
+  });
+
+  it('counts the bytes of the encoded name, and the `*` that the sanitizer sees before it takes it out', () => {
+    // 126 characters of two bytes and a slash written as %2F: 256 bytes
+    expect(nameInFolder(`a/${'é'.repeat(126)}`)).toBe(
+      `a%2F${'é'.repeat(118)}~86870cac`
+    );
+    // 4 + 123 * 2 = 250 bytes fit
+    expect(nameInFolder(`a/${'é'.repeat(123)}`)).toBe(`a%2F${'é'.repeat(123)}`);
+    // the sanitizer cuts before it removes a `*`, so a `*` counts as a byte when it decides whether anything is cut
+    expect(nameInFolder(`a/${'n'.repeat(251)}*`)).toBe(
+      `a%2F${'n'.repeat(237)}~691e0621`
+    );
+    // the sanitizer cuts nothing of 251 bytes, and what is left of the name is 250 bytes: the name that it had before
+    expect(nameInFolder(`a/${'n'.repeat(246)}*`)).toBe(
+      `a%2F${'n'.repeat(246)}`
+    );
+    expect(nameInFolder(`a/${'n'.repeat(245)}*`)).toBe(
+      `a%2F${'n'.repeat(245)}`
+    );
+  });
+
+  it('shows a control character of a refused name as an escape', () => {
+    let message = '';
+    try {
+      nameInFolder('\u001b[31m');
+      nameInFolder('.');
+    } catch (error) {
+      message = error.message;
+    }
+    expect(message).toBe(
+      "'.' does not name an object: an id or a name is not a path"
+    );
+  });
+
+  it('a long name made of control characters is shortened at a whole escape', () => {
+    const name = nameInFolder(`/${'n\u0001'.repeat(200)}`);
+
+    expect(name).toMatch(/^%2Fn%01n%01.*~[0-9a-f]{8}$/);
+    expect(name).not.toMatch(/%[0-9A-F]?~/);
+    expect(Buffer.byteLength(name)).toBeLessThanOrEqual(250);
   });
 
   it('turns a number into its text, as a template does', () => {
@@ -1349,6 +1414,53 @@ describe('nameInFolder and nameInStem', () => {
 
       expect(() => referencedFilePath('/w/folder', reference)).not.toThrow();
     }
+  });
+});
+
+describe('encodedName', () => {
+  it.each([
+    ['Login', 'Login'],
+    ['My Script', 'My Script'],
+    ['a/b', 'a%2Fb'],
+    ['a:b', 'a%3Ab'],
+    ['a?b', 'a%3Fb'],
+    ['a*b', 'ab'],
+    ['a\u0000b', 'a%00b'],
+    ['é', 'é'],
+    ['..foo', '..foo'],
+  ])(
+    'the file name of %j is %j: every character of a path is written as %%XX',
+    (selector, expected) => {
+      expect(encodedName(selector)).toBe(expected);
+    }
+  );
+
+  it.each([[''], ['.'], ['..'], ['...'], ['con'], ['CON'], ['nul.txt']])(
+    '%j leaves no name: it is refused, naming it',
+    (selector) => {
+      expect(() => encodedName(selector)).toThrow(
+        `'${selector}' does not name an object: an id or a name is not a path`
+      );
+    }
+  );
+
+  it('does not cut a name silently: 250 bytes fit with `.json`, more get a checksum', () => {
+    expect(encodedName('n'.repeat(250))).toBe('n'.repeat(250));
+    expect(encodedName('n'.repeat(251))).toBe(`${'n'.repeat(241)}~3720803a`);
+    expect(encodedName('n'.repeat(256))).toBe(`${'n'.repeat(241)}~fda476ec`);
+    // bytes, not characters
+    expect(encodedName('é'.repeat(125))).toBe('é'.repeat(125));
+    expect(encodedName('é'.repeat(128))).toBe(`${'é'.repeat(120)}~79c2c47d`);
+    // a slash is three bytes once encoded
+    expect(encodedName(`a/${'n'.repeat(253)}`)).toBe(
+      `a%2F${'n'.repeat(237)}~0c8bfa62`
+    );
+  });
+
+  it('is nameInFolder for a name that is not one safe name, and differs for one that is (it always encodes)', () => {
+    expect(encodedName('a/b')).toBe(nameInFolder('a/b'));
+    expect(encodedName('Login:SSO')).toBe('Login%3ASSO');
+    expect(nameInFolder('Login:SSO')).toBe('Login:SSO');
   });
 });
 

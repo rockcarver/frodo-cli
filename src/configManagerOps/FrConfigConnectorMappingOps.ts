@@ -34,6 +34,58 @@ const { readConfigEntity, importConfigEntities, importSubConfigEntity } =
   frodo.idm.config;
 
 /**
+ * The keys of the values of a mapping that are written to a file of their own: the script values.
+ * @param {any} mapping the mapping
+ * @returns {string[]} the keys
+ */
+function scriptKeysOf(mapping: any): string[] {
+  return Object.entries(mapping)
+    .filter(([, value]: [string, any]) => isScript(value))
+    .map(([key]) => key);
+}
+
+/**
+ * Whether a value of a mapping is a script that a pull writes to a file of its own.
+ * @param {any} value the value
+ * @returns {boolean} true for a script with a source
+ */
+function isScript(value: any): boolean {
+  return (
+    value &&
+    typeof value === 'object' &&
+    value.type === 'text/javascript' &&
+    !!value.source
+  );
+}
+
+/**
+ * The longest ending that a file of one mapping has after the name of the mapping: `.json` for the file of the mapping, and
+ * `.<key>.js` for each script of it.
+ * @param {any} mapping the mapping, as the tenant has it
+ * @returns {string} the longest ending
+ */
+function longestEnding(mapping: any): string {
+  return [
+    '.json',
+    ...scriptKeysOf(mapping).map((k) => `.${nameInFolder(k)}.js`),
+  ].reduce((longest, ending) =>
+    Buffer.byteLength(ending) > Buffer.byteLength(longest) ? ending : longest
+  );
+}
+
+/**
+ * The name of the folder of a mapping, which is the name of every file in it: the name of the mapping, made once with the
+ * longest ending of its files, so that the folder, the file of the mapping and its scripts have one name. The commands that pull
+ * a mapping, and the applications that own one, all take the folder from here.
+ * @param {any} mapping the mapping, as the tenant has it (with its `name` and its scripts)
+ * @returns {string} the name of the folder
+ * @throws {Error} if the name leaves no name, or a script has a key that leaves no name
+ */
+export function mappingFolderName(mapping: any): string {
+  return nameInFolder(mapping.name, longestEnding(mapping));
+}
+
+/**
  * Write one mapping in fr-config-manager format: the script sources of the mapping
  * become files next to it (`<name>.<key>.js`, referenced by `file`) and the rest is
  * `<name>.json`, all in one directory. Shared by `pull connector-mappings` and by the
@@ -51,7 +103,8 @@ export function exportMappingToDirectory(
   pulledPaths?: PulledPaths
 ): void {
   // the tenant names the mapping and its properties: each is one name here, never a path
-  const mappingName = nameInFolder(mapping.name);
+  const ending = longestEnding(mapping);
+  const mappingName = nameInFolder(mapping.name, ending);
   const fileName = `${mappingPath}/${mappingName}.json`;
   const own = (owner: string) => {
     if (pulledPaths) pulledPaths.owner = owner;
@@ -59,17 +112,12 @@ export function exportMappingToDirectory(
   const scripts: { key: string; value: any; filename: string; text: string }[] =
     [];
   Object.entries(mapping).forEach(([key, value]: [string, any]) => {
-    if (
-      value &&
-      typeof value === 'object' &&
-      value.type === 'text/javascript' &&
-      value.source
-    ) {
+    if (isScript(value)) {
       scripts.push({
         key,
         value,
         // the reference starts with this name, so a leading drive letter is written as `%3A`
-        filename: `${nameInStem(mapping.name)}.${nameInFolder(key)}.js`,
+        filename: `${nameInStem(mapping.name, ending)}.${nameInFolder(key)}.js`,
         text: Array.isArray(value.source)
           ? value.source.join('\n')
           : value.source,
@@ -169,7 +217,7 @@ export async function configManagerExportMappings(
       await run.run(mapping.name, () => {
         exportMappingToDirectory(
           mapping,
-          `${fileDir}/${nameInFolder(mapping.name)}`,
+          `${fileDir}/${mappingFolderName(mapping)}`,
           pulledPaths
         );
       });
