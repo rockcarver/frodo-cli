@@ -2437,6 +2437,19 @@ alphabetical order of their names. It runs the same steps with the same
 requests, so the files it writes are the same; only the order of its progress
 lines and of its summary of failed steps differs.
 
+**A `${` that a pull wrote as `\${` is read back as `${` in every file**: a
+pull writes each `${` of the tenant with a backslash in front, and a push takes
+the backslash off when it reads the file. Until the library 5.0.0-57 it did
+that only when the file held a complete placeholder such as `${KEY}` somewhere:
+in any other file a value such as `open ${ never closed` was pushed as
+`open \${ never closed`, with a backslash added. It is pushed as the tenant had
+it now. This concerns what a pull writes for OAuth2 clients, agents, SAML
+providers, service objects, variables and applications, and the commands that
+read it back: every `config push` command, `push apps` and
+`push remote-proxies`. `config import` and `service import` do not read their
+files this way and are not affected, nor are the files that are read with
+placeholders off (the `--config-file` of a pull).
+
 ### Node.js version matrix changes in 5.x
 
 - 5.x is tested on Node.js 26 only, and building frodo from source (the npm
