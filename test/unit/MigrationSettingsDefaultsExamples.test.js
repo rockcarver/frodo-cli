@@ -37,6 +37,16 @@ const examples = [
   ...migration.matchAll(/`frodo settings defaults --clear '([^']+)'`/g),
 ].map((match) => match[1]);
 
+/**
+ * The examples that the guide is expected to hold. Dropping one fails the test; a new example is
+ * checked by the same rules (the path starts with the root word, and the command runs).
+ */
+const EXPECTED_EXAMPLES = [
+  'frodo config-manager pull all',
+  'frodo agent ai list',
+  'frodo <command path>',
+];
+
 suite('the saved-defaults commands of MIGRATION.md', () => {
   let home;
 
@@ -81,10 +91,15 @@ suite('the saved-defaults commands of MIGRATION.md', () => {
   const readStore = () => JSON.parse(fs.readFileSync(storeFile(), 'utf8'));
 
   it('finds the examples of the guide, so the checks below cannot run over nothing', () => {
-    expect(examples).toContain('frodo config-manager pull all');
-    expect(examples).toContain('frodo agent ai list');
-    expect(examples.length).toBeGreaterThanOrEqual(2);
+    expect(examples).toEqual(expect.arrayContaining(EXPECTED_EXAMPLES));
   });
+
+  it.each(examples)(
+    "the path of the example '%s' starts with the root word: the keys of the store carry it",
+    (key) => {
+      expect(key).toMatch(/^frodo /);
+    }
+  );
 
   it.each(examples)(
     "frodo settings defaults --clear '%s' exits 0 and removes the key it names",
