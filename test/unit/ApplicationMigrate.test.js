@@ -983,6 +983,69 @@ describe('which files are the objects', () => {
     );
   });
 
+  test('a client, a connector and a mapping whose ids are dots or paths never reach a file outside their kind folder, and are never listed as kept or removed', async () => {
+    const odd = app('Odd');
+    world.apps.alpha = [odd];
+    const ids = ['../../../../../victim3', '..', '.', '../x', 'a/../../b'];
+    refs(
+      odd,
+      ids.flatMap((id) => [
+        owned('oauth2Client', id),
+        owned('connector', id),
+        owned('mapping', id),
+      ])
+    );
+    // the files that a raw id would name: `sync/mappings/..` is the folder `sync`, `sync/mappings/.` the folder of the mappings,
+    // and a mapping `..` or `.` would have `...json` or `..json` as its file and `...x.js` or `..x.js` as a script
+    fs.mkdirSync(dir('sync/mappings'), { recursive: true });
+    const decoys = [
+      'sync/...json',
+      'sync/...x.js',
+      'sync/mappings/..json',
+      'sync/mappings/..x.js',
+      'victim3.json',
+    ];
+    for (const file of decoys) put(file, 'keep me');
+
+    await configManagerMigrateApplications();
+
+    for (const file of decoys) {
+      expect(fs.readFileSync(path.join(tmp, file), 'utf8')).toBe('keep me');
+    }
+    // no file is named as kept or as removed: a raw id would have found a decoy through `sync/mappings/..` or `sync/mappings/.`
+    expect(messages()).not.toMatch(/\bKept\b|\bRemoved\b/);
+  });
+
+  test('the files of an owned mapping are found by the name that a pull gives it also when its file holds no name', async () => {
+    const PLAIN = app('Plain', {
+      templateName: 'azure.ad',
+      connectorId: 'Plain',
+      mappingNames: ['plainmap'],
+    });
+    world.apps.alpha = [PLAIN];
+    refs(PLAIN, [
+      owned('connector', 'Plain', 'connectorId'),
+      owned('mapping', 'plainmap', 'mappingNames'),
+    ]);
+    world.connectors.Plain = {
+      _id: 'provisioner.openicf/Plain',
+      enabled: true,
+    };
+    world.mappings = [{ _id: 'sync/plainmap', name: 'plainmap' }];
+    fs.mkdirSync(dir('sync/mappings/plainmap'), { recursive: true });
+    fs.mkdirSync(dir('sync/mappings/other'), { recursive: true });
+    // the file of the mapping holds no name: only the name of the folder says whose it is
+    put('sync/mappings/plainmap/plainmap.json', {});
+    put('sync/mappings/plainmap/plainmap.src.js', 'return source;');
+    put('sync/mappings/other/other.json', { name: 'other' });
+
+    expect(await configManagerMigrateApplications()).toBe(true);
+
+    expect(exists('sync/mappings/plainmap/plainmap.json')).toBe(false);
+    expect(exists('sync/mappings/plainmap/plainmap.src.js')).toBe(false);
+    expect(exists('sync/mappings/other/other.json')).toBe(true);
+  });
+
   test('shared pieces are never removed: scripts and circles of trust stay at their kind paths', async () => {
     tenant();
     legacyTree();
