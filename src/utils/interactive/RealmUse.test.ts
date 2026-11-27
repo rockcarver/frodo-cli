@@ -95,6 +95,21 @@ describe('isConfigManagerCommand and ignoresRealm', () => {
     ).toBe(false);
   });
 
+  it('does not throw and says no for the group itself: the stub has no verb below it', () => {
+    const root = new Command('frodo');
+    const group = root.command('config');
+    group.command('pull');
+    expect(isConfigManagerCommand(group)).toBe(false);
+    expect(ignoresRealm(group)).toBe(false);
+  });
+
+  it('knows a verb stub that carries its full name and nothing after it', () => {
+    expect(isConfigManagerCommand(new Command('frodo config push'))).toBe(true);
+    expect(isConfigManagerCommand(new Command('frodo config pushed'))).toBe(
+      false
+    );
+  });
+
   it('knows a leaf that carries its full name', () => {
     expect(isConfigManagerCommand(new Command('frodo config pull all'))).toBe(
       true
