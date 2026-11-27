@@ -193,9 +193,10 @@ const shared = {
       JSON.stringify({ name: script.name })
     );
   }),
+  // the file of a mapping has the name of its folder, as `exportMappingToDirectory` writes it
   exportMappingToDirectory: jest.fn((mapping, mappingPath) => {
     fs.writeFileSync(
-      dir(`${mappingPath}/${mapping.name}.json`),
+      dir(`${mappingPath}/${path.basename(mappingPath)}.json`),
       JSON.stringify(mapping)
     );
   }),
@@ -215,12 +216,13 @@ jest.unstable_mockModule(
   src('configManagerOps/FrConfigConnectorMappingOps'),
   () => ({
     exportMappingToDirectory: shared.exportMappingToDirectory,
-    // the folder of a mapping with an ordinary name is its name
-    mappingFolderName: (mapping) => mapping.name,
+    // the folder of a mapping: its name, shortened when it does not fit in a file name
+    mappingFolderName: (mapping) => nameInFolder(mapping.name),
     readMappingFromDirectory: jest.fn(),
   })
 );
 
+const { nameInFolder } = await import(src('utils/ConfigTreePath.ts'));
 const { configManagerMigrateApplications } = await import(
   src('ops/ApplicationMigrateOps.ts')
 );
@@ -428,6 +430,63 @@ afterEach(() => {
 // ---- the move ---------------------------------------------------------------
 
 describe('moving a kind-path tree', () => {
+  test('finds the files of an owned object whose id did not fit in a file name: a pull wrote them under the shortened name', async () => {
+    // ids of 300 characters (the independent implementation of FileNameVectors.js made the names): the start of the id, `~` and
+    // the checksum of the whole id; a mapping with a script has the name made for `.source.js`
+    const CLIENT = 'c'.repeat(300);
+    const CONNECTOR = 'k'.repeat(300);
+    const MAPPING = 'm'.repeat(300);
+    const CLIENT_NAME = `${'c'.repeat(241)}~9d1ca9bc`;
+    const CONNECTOR_NAME = `${'k'.repeat(241)}~327d1292`;
+    const MAPPING_NAME = `${'m'.repeat(236)}~b709f6f2`;
+    const LONG = app('Long', {
+      templateName: 'azure.ad',
+      connectorId: CONNECTOR,
+      mappingNames: [MAPPING],
+    });
+    world.apps.alpha = [LONG];
+    refs(LONG, [
+      owned('oauth2Client', CLIENT, 'ssoEntities.oidcId'),
+      owned('connector', CONNECTOR, 'connectorId'),
+      owned('mapping', MAPPING, 'mappingNames'),
+    ]);
+    world.agents[CLIENT] = {
+      _id: CLIENT,
+      coreOAuth2ClientConfig: { clientType: 'Confidential' },
+    };
+    world.connectors[CONNECTOR] = {
+      _id: `provisioner.openicf/${CONNECTOR}`,
+      enabled: true,
+    };
+    world.mappings = [{ _id: `sync/${MAPPING}`, name: MAPPING }];
+    const agents = 'realms/alpha/realm-config/agents';
+    const owned_ = [
+      `${agents}/OAuth2Client/${CLIENT_NAME}.json`,
+      `sync/connectors/${CONNECTOR_NAME}.json`,
+      `sync/mappings/${MAPPING_NAME}/${MAPPING_NAME}.json`,
+      `sync/mappings/${MAPPING_NAME}/${MAPPING_NAME}.source.js`,
+    ];
+    fs.mkdirSync(dir(`${agents}/OAuth2Client`), { recursive: true });
+    fs.mkdirSync(dir('sync/connectors'), { recursive: true });
+    fs.mkdirSync(dir(`sync/mappings/${MAPPING_NAME}`), { recursive: true });
+    put(owned_[0], { _id: CLIENT });
+    put(owned_[1], { _id: `provisioner.openicf/${CONNECTOR}` });
+    put(owned_[2], { name: MAPPING });
+    put(owned_[3], 'return source;');
+    // what no application owns stays
+    fs.mkdirSync(dir('sync/mappings/free'), { recursive: true });
+    put('sync/mappings/free/free.json', { name: 'free' });
+
+    expect(await configManagerMigrateApplications()).toBe(true);
+
+    for (const file of owned_) expect(exists(file)).toBe(false);
+    expect(exists('sync/mappings/free/free.json')).toBe(true);
+    expect(exists(`sync/mappings/${MAPPING_NAME}`)).toBe(false);
+    expect(exists('realms/alpha/applications/Long/application.json')).toBe(
+      true
+    );
+  });
+
   test('writes the application folders, removes exactly the owned files, keeps the rest, and marks the tree', async () => {
     tenant();
     legacyTree();
