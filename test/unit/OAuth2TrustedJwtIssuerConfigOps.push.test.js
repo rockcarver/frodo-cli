@@ -346,17 +346,27 @@ describe('the files of the tree', () => {
     });
   });
 
-  test('a file without _id gets the file name as its id, decoded; a file whose _id differs from its name is pushed under the _id', async () => {
-    world.issuers.alpha = [{ _id: 'a:b' }, { _id: 'zion-real-id' }];
-    write(P('a%3Ab'), { issuer: { inherited: false, value: 'https://a' } });
+  test('a file whose _id differs from its name is pushed under the _id', async () => {
+    world.issuers.alpha = [{ _id: 'zion-real-id' }];
     write(P('named-differently'), issuerObject('zion-real-id'));
 
     expect(await configManagerImportTrustedJwtIssuers()).toBe(true);
 
-    expect(Object.keys(importedIn('alpha')[0]).sort()).toEqual([
-      'a:b',
-      'zion-real-id',
-    ]);
+    expect(Object.keys(importedIn('alpha')[0])).toEqual(['zion-real-id']);
+  });
+
+  test('a file without _id is a named failure of that file, whatever its name says: the id is the id that the file holds, and the other files are still pushed', async () => {
+    world.issuers.alpha = [{ _id: 'zion-real-id' }];
+    write(P('a%3Ab'), { issuer: { inherited: false, value: 'https://a' } });
+    write(P('100%'), { issuer: { inherited: false, value: 'https://b' } });
+    write(P('named-differently'), issuerObject('zion-real-id'));
+
+    expect(await configManagerImportTrustedJwtIssuers()).toBe(false);
+
+    expect(Object.keys(importedIn('alpha')[0])).toEqual(['zion-real-id']);
+    expect(output()).toContain('2 of 3 trusted JWT issuers failed');
+    expect(output()).toContain('alpha/a%3Ab.json');
+    expect(output()).toContain("it has no '_id'");
   });
 
   test('a file that a pull wrote is pushed back as it was pulled (round trip)', async () => {

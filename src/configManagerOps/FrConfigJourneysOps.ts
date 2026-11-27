@@ -201,7 +201,7 @@ async function processNodeExport(
     pulledPaths.owner = script._id;
     script.script = extractFrConfigDataToFile(
       script.script,
-      `scripts-content/${nameInFolder(String(script.context))}/${encodedName(String(script.name))}.js`,
+      `scripts-content/${nameInFolder(String(script.context))}/${encodedName(String(script.name), '.js')}.js`,
       scriptsDir,
       pulledPaths
     ) as any;
@@ -447,14 +447,15 @@ function readNodeScript(
 }
 /**
  * Process a journey directory for configManagerImportJourneys
- * @param {string} journeyName name of the journey
+ * @param {string} journeyName the id of the journey, or the name of its folder (a listing gives the name of the folder, a node or a person gives the id: both are found by the same folder)
  * @param {boolean} pushInnerJourneys if true processes innner journers
  * @param {boolean} pushScripts if true processes scripts
  * @param {string} journeysBaseDir base directory containing all journeys for the realm
  * @param {string} realmDir path to the realm the journey
- * @param {Set<string>} processedJourneys set of already-processed journey names to prevent processing the same journey multiple times
+ * @param {Set<string>} processedJourneys set of the folder names of the journeys already processed, to prevent processing the same journey multiple times
  * @param {string} neededBy the journey that has this one as an inner journey, if this is read as an inner journey
- * @returns {Record<string, SingleTreeExportInterface>} map of journey names to their import data
+ * @returns {Record<string, SingleTreeExportInterface>} map of journey ids (the `_id` that the file of each holds) to their import data
+ * @throws {Error} if the file of a journey holds no `_id`
  * @throws {MissingDependencyError} if a script, a content file or an inner journey that a journey needs is not there
  */
 function processJourneyImport(
@@ -466,12 +467,14 @@ function processJourneyImport(
   processedJourneys: Set<string> = new Set(),
   neededBy?: string
 ): Record<string, SingleTreeExportInterface> {
-  if (processedJourneys.has(journeyName)) {
+  const journeyDir = objectFolderPath(journeysBaseDir, journeyName);
+  // a journey is found by its folder, whether it is listed (its folder name) or named by a node or by a person (its id)
+  const folderName = path.basename(journeyDir);
+  if (processedJourneys.has(folderName)) {
     return {};
   }
-  processedJourneys.add(journeyName);
+  processedJourneys.add(folderName);
 
-  const journeyDir = objectFolderPath(journeysBaseDir, journeyName);
   const journeyFile = objectFilePath(journeyDir, journeyName);
   if (neededBy !== undefined && !fs.existsSync(journeyFile)) {
     throw missingDependency(
@@ -483,6 +486,13 @@ function processJourneyImport(
     );
   }
   const tree = readJsonFile(journeyFile) as TreeSkeleton;
+  // the id of a journey is the id that its file holds: the name of its folder is the name that a pull gave it, which is a
+  // shortened name for an id that does not fit in a file name
+  if (typeof tree?._id !== 'string' || tree._id === '') {
+    throw new Error(
+      `The file '${journeyFile}' holds no '_id': the id of a journey is the id that its file holds, not the name of its folder.`
+    );
+  }
 
   const journeyData = createSingleTreeExportTemplate();
   journeyData.tree = tree;
@@ -533,7 +543,7 @@ function processJourneyImport(
   }
 
   const trees: Record<string, SingleTreeExportInterface> = {
-    [journeyName]: journeyData,
+    [tree._id]: journeyData,
   };
 
   for (const innerTreeName of innerTreeNames) {

@@ -76,6 +76,59 @@ function extractScripts(
 }
 
 /**
+ * The keys of the values that {@link extractScripts} writes to a file of their own: the script values of an object (or, with a hook,
+ * of the hook of each property).
+ * @param {object} obj the object, or the properties
+ * @param {string} hook Optional. The hook of each property that holds the script
+ * @returns {string[]} the keys
+ */
+function scriptKeys(obj: object, hook?: string): string[] {
+  return (Object.entries(obj) as [string, any][])
+    .filter(([, value]) => {
+      const script = hook && value[hook] ? value[hook] : value;
+      return (
+        script &&
+        typeof script === 'object' &&
+        script.type === 'text/javascript' &&
+        script.source
+      );
+    })
+    .map(([key]) => key);
+}
+
+/**
+ * The longest ending that a file of one managed object has after the name of the object: `.json` for the object file, and the
+ * end of each script file and of each relationship schema file that the pull is going to write. The name of the object is made
+ * once with it and is the name of every file of the object.
+ * @param {any} managedObject the managed object, as the tenant has it
+ * @param {string[]} customRelationships the properties whose schema files are written
+ * @returns {string} the longest ending
+ */
+function longestEnding(
+  managedObject: any,
+  customRelationships: string[]
+): string {
+  const endings = [
+    '.json',
+    ...scriptKeys(managedObject).map((k) => `.${nameInFolder(k)}.js`),
+    ...(managedObject.actions
+      ? scriptKeys(managedObject.actions).map(
+          (k) => `.actions.${nameInFolder(k)}.js`
+        )
+      : []),
+    ...SCRIPT_HOOKS.flatMap((hook) =>
+      scriptKeys(managedObject.schema.properties, hook).map(
+        (k) => `.${nameInFolder(k)}.${hook}.js`
+      )
+    ),
+    ...customRelationships.map((r) => `.schema.${nameInFolder(r)}.json`),
+  ];
+  return endings.reduce((longest, ending) =>
+    Buffer.byteLength(ending) > Buffer.byteLength(longest) ? ending : longest
+  );
+}
+
+/**
  * Export IDM managed objects in fr-config-manager format.
  * Every managed object is one operation of an {@link OperationRun}: an object whose files cannot be
  * written is printed and named in one summary, and the others are still written. A failure to read
@@ -112,9 +165,14 @@ export async function configManagerExportManagedObjects(
     for (const managedObject of selected) {
       await run.run(managedObject.name, async () => {
         // the tenant names the object and its properties: each is one name here, never a path
-        const objectName = nameInFolder(managedObject.name);
+        const customRelationships = pullCustomRelationships
+          ? getCustomRelationships(managedObject, repoMapping)
+          : [];
+        // the name of the object is made once, with the longest ending of its files, and is the name of every one of them
+        const ending = longestEnding(managedObject, customRelationships);
+        const objectName = nameInFolder(managedObject.name, ending);
         // a file reference starts with the name of the object, so it is the stem of the names of the scripts
-        const stem = nameInStem(managedObject.name);
+        const stem = nameInStem(managedObject.name, ending);
         const objectPath = `managed-objects/${objectName}`;
         pulledPaths.owner = managedObject.name;
         pulledFilePath(`${objectPath}/${objectName}.json`, pulledPaths);
@@ -146,10 +204,6 @@ export async function configManagerExportManagedObjects(
           );
         });
         if (pullCustomRelationships) {
-          const customRelationships = getCustomRelationships(
-            managedObject,
-            repoMapping
-          );
           for (const customRelationship of customRelationships) {
             const schemaData = await readManagedObjectSchemaProperty(
               managedObject.name,
@@ -235,14 +289,32 @@ function isRequestSegment(name: string): boolean {
 }
 
 /**
+ * The name that a pull gives a property in the name of its schema file, or nothing for a property that has none.
+ * @param {string} property the property
+ * @returns {string | undefined} the name, which is the property with its path characters written as `%XX`, and shortened when it does not fit
+ */
+function schemaNameOf(property: string): string | undefined {
+  try {
+    return nameInFolder(property);
+  } catch {
+    return undefined;
+  }
+}
+
+/**
  * The files of the `schema` folder of a managed object that hold the custom relationship schema of
  * a property, as a pull writes them: `<name of the folder>.schema.<property>.json`, the property
- * with its path characters written as `%XX`. Any other file or folder in it is not one.
+ * with its path characters written as `%XX`. Any other file or folder in it is not one. The property
+ * of a file is the property of the object whose name in a file name is the one of the file: a pull
+ * writes a name that does not fit as a shortened name, and the object file holds the property. A file that
+ * names no property of the object has the property of its name as it is written, decoded.
  * @param {string} objectFolder The folder of the managed object
- * @returns {{ fileName: string, property: string }[]} The files in name order, with the property each names (decoded; not checked)
+ * @param {string[]} properties The properties that the object file holds
+ * @returns {{ fileName: string, property: string }[]} The files in name order, with the property each names (not checked)
  */
 function schemaFilesOf(
-  objectFolder: string
+  objectFolder: string,
+  properties: string[]
 ): { fileName: string; property: string }[] {
   const schemaFolder = path.join(objectFolder, 'schema');
   if (!fs.existsSync(schemaFolder)) return [];
@@ -264,6 +336,10 @@ function schemaFilesOf(
         prefix.length,
         fileName.length - suffix.length
       );
+      const named = properties.find(
+        (property) => schemaNameOf(property) === encoded
+      );
+      if (named !== undefined) return { fileName, property: named };
       try {
         return { fileName, property: decodeURIComponent(encoded) };
       } catch {
@@ -336,10 +412,16 @@ export async function configManagerImportManagedObjects(
     const schemas: RelationshipSchemaFile[] = [];
     for (const name of names) {
       const folder = objectFolderPath(managedObjectsPath, name);
-      objects.push(getManagedObjectImportData(objectFilePath(folder, name)));
-      for (const { fileName, property } of schemaFilesOf(folder)) {
+      const data = getManagedObjectImportData(objectFilePath(folder, name));
+      objects.push(data);
+      // the object and its properties are the ones that the object file holds: the name of a folder is the name that a pull gave it
+      const objectNamed = typeof data.name === 'string' ? data.name : '';
+      const properties = Object.keys(
+        (data as { schema?: { properties?: object } }).schema?.properties ?? {}
+      );
+      for (const { fileName, property } of schemaFilesOf(folder, properties)) {
         const body = readJsonFile(path.join(folder, 'schema', fileName));
-        schemas.push({ object: name, fileName, property, body });
+        schemas.push({ object: objectNamed, fileName, property, body });
       }
     }
 

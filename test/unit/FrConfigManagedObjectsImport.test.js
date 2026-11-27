@@ -373,6 +373,77 @@ describe('which files of the schema folder are relationship schemas', () => {
   });
 });
 
+describe('the names that a pull shortened are not read back as names', () => {
+  test('the object of a relationship schema is the name that the object file holds, not the name of its folder', async () => {
+    write({
+      ...objectFile('renamed-folder', { name: 'alpha_user' }),
+      ...schemaFile('renamed-folder', 'manager'),
+    });
+
+    expect(await configManagerImportManagedObjects()).toBe(true);
+
+    expect(
+      propertyWrites().map(({ object, property }) => [object, property])
+    ).toEqual([['alpha_user', 'manager']]);
+  });
+
+  test('the object of a relationship schema is found when its folder has the shortened name of a long name', async () => {
+    // the shortened name of a name of 305 characters for the longest ending of its files, `.schema.manager.json` (the independent
+    // implementation of FileNameVectors.js made the checksum): 226 bytes of the name, `~` and the checksum of the whole name
+    const name = `User-${'u'.repeat(300)}`;
+    const folder = `User-${'u'.repeat(221)}~7782c47b`;
+    write({
+      ...objectFile(folder, { name }),
+      [`managed-objects/${folder}/schema/${folder}.schema.manager.json`]:
+        schemaOf(name, 'manager', 'x'),
+    });
+
+    expect(await configManagerImportManagedObjects()).toBe(true);
+
+    expect(
+      propertyWrites().map(({ object, property }) => [object, property])
+    ).toEqual([[name, 'manager']]);
+    // the object that the configuration holds is the one of the file too
+    expect(writes[0].data.idm.managed.objects.map((o) => o.name)).toEqual([
+      name,
+    ]);
+  });
+
+  test('the property of a file is the property that the object file holds when the file names it', async () => {
+    write({
+      ...objectFile('alpha_user', {
+        schema: { type: 'object', properties: { manager: {}, reports: {} } },
+      }),
+      ...schemaFile('alpha_user', 'reports'),
+      ...schemaFile('alpha_user', 'manager'),
+    });
+
+    expect(await configManagerImportManagedObjects()).toBe(true);
+
+    expect(propertyWrites().map(({ property }) => property)).toEqual([
+      'manager',
+      'reports',
+    ]);
+  });
+
+  test('a file that names no property of the object has the property of its name, decoded, as before', async () => {
+    write({
+      ...objectFile('alpha_user', {
+        schema: { type: 'object', properties: { manager: {} } },
+      }),
+      ...schemaFile('alpha_user', 'a%20b'),
+      ...schemaFile('alpha_user', 'manager'),
+    });
+
+    expect(await configManagerImportManagedObjects()).toBe(true);
+
+    expect(propertyWrites().map(({ property }) => property)).toEqual([
+      'a b',
+      'manager',
+    ]);
+  });
+});
+
 describe('a file whose name cannot be written is one failed operation that names the file', () => {
   test.each([
     ['%2E%2E', 'the decoded name is ..'],

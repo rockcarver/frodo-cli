@@ -502,7 +502,7 @@ describe('push journeys -i, the folder of a journey that is not one name', () =>
   });
 });
 
-describe('the agent types: the id of an object is the name of its file', () => {
+describe('the agent types: the id of an object is the id that its file holds, and the file of an id is found by the name that the id has (its shortened name when it does not fit)', () => {
   const spec = {
     agentType: 'TestAgent',
     label: 'test agent',

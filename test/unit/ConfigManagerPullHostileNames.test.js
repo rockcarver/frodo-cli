@@ -29,8 +29,12 @@ import {
  * - `raw`: one name that is a name already (`CON`, `a.`, `..foo`): written as it is, as before;
  * - `noname`: `..`, `.` and the empty name leave no name: the object is not written, the message names
  *   it, the run goes on, and the result is false;
- * - `toolong`: a name over 255 bytes (`.json` is added to a name over 250) is not cut: the object fails
- *   naming it;
+ * - `shortened`: a name that does not fit in a file name (255 bytes with the longest suffix that its type puts
+ *   after it) is written as its shortened name, the start of the name, `~` and a checksum
+ *   (https://github.com/rockcarver/frodo-cli/blob/main/docs/decisions/core/0027-a-name-that-does-not-fit-in-a-file-name-is-shortened-and-ends-with-a-checksum.md);
+ *   the expected names come from the independent implementation of `FileNameVectors.js` (`SHORTENED` below);
+ * - `toolong`: a name that is part of the suffix of another object (a property, a language) and leaves no room for
+ *   the name of that object: the object fails naming it; so does a path of the `raw` family over 255 bytes;
  * - `pair`: two objects whose files are one file on a file system that ignores case or Unicode form:
  *   the later one fails, the first is written.
  *
@@ -148,8 +152,78 @@ async function pullAnApplication() {
 const NO_DATA = {};
 
 /**
+ * What a name that does not fit is written as, for the longest suffix of its type: the start of the name, `~` and the
+ * first 8 characters of the checksum of the complete id. Made by the independent implementation of `FileNameVectors.js`
+ * (Python, hashlib), not by the functions under test, for the three names below and the suffixes `.json` (the default), `.js` (a script), `.en.html` (an email template with an English page) and
+ * `.onCreate.js` (a managed object or a mapping with a script).
+ */
+const SHORTENED = {
+  n300: {
+    '.json': 'n'.repeat(241) + '~cd5124b3',
+    '.js': 'n'.repeat(243) + '~cd5124b3',
+    '.en.html': 'n'.repeat(238) + '~cd5124b3',
+    '.onCreate.js': 'n'.repeat(234) + '~cd5124b3',
+  },
+  n255: {
+    '.json': 'n'.repeat(241) + '~411f8937',
+    '.js': 'n'.repeat(243) + '~411f8937',
+    '.en.html': 'n'.repeat(238) + '~411f8937',
+    '.onCreate.js': 'n'.repeat(234) + '~411f8937',
+  },
+  // the sanitizer cuts the encoded name at 255 bytes before it takes the asterisks out: the name that is left is cut, so
+  // the id does not fit
+  stars: {
+    '.json': '%2F' + 'n'.repeat(52) + '~8c43b367',
+    '.js': '%2F' + 'n'.repeat(52) + '~8c43b367',
+    '.en.html': '%2F' + 'n'.repeat(52) + '~8c43b367',
+    '.onCreate.js': '%2F' + 'n'.repeat(52) + '~8c43b367',
+  },
+  // the file of the password policy of a realm of 255 bytes: `<realm>_user-password-policy`
+  policy255: {
+    '.json': 'n'.repeat(241) + '~49a021ce',
+  },
+};
+
+/**
+ * The same for a name that the pull makes of the name of the tenant and a fixed end (`<name> - s1` for the folder of a
+ * step, `<realm>OrgPrivileges` for the id of the privileges of a realm): the whole text is shortened, so the shortened
+ * name is not the name with an end added. The key is the key of the name, then the end.
+ */
+const SHORTENED_WITH_END = {
+  'n300 - s1': 'n'.repeat(241) + '~33394f7f',
+  'n255 - s1': 'n'.repeat(241) + '~19e77a09',
+  'stars - s1': '%2F' + 'n'.repeat(52) + '~db04189b',
+  n300OrgPrivileges: 'n'.repeat(241) + '~ad60e3ca',
+  n255OrgPrivileges: 'n'.repeat(241) + '~90d4c5e1',
+  starsOrgPrivileges: '%2F' + 'n'.repeat(52) + '~7c96a34a',
+};
+
+/**
+ * What two lone surrogates are written as: a lone surrogate is not text, so it is written as U+FFFD and the name ends with
+ * the checksum of the id as it is. Two of them are two names, where a file system took them for one name before.
+ */
+const SURROGATE_NAMES_WITH_END = {
+  '\ud800 - s1': '\ufffd - s1~a4bcccd5',
+  '\ud801 - s1': '\ufffd - s1~108dd7cd',
+  '\udc00 - s1': '\ufffd - s1~df0740ce',
+  '\udc01 - s1': '\ufffd - s1~fcdd4f06',
+  '\ud800OrgPrivileges': '\ufffdOrgPrivileges~aa0c5f03',
+  '\ud801OrgPrivileges': '\ufffdOrgPrivileges~bb06e160',
+  '\udc00OrgPrivileges': '\ufffdOrgPrivileges~ad63783b',
+  '\udc01OrgPrivileges': '\ufffdOrgPrivileges~6abe5170',
+};
+
+const SURROGATE_NAMES = {
+  '\ud800': '\ufffd~205022e3',
+  '\ud801': '\ufffd~4a986896',
+  '\udc00': '\ufffd~d63ddb2b',
+  '\udc01': '\ufffd~2e350f8e',
+};
+
+/**
  * The names. `how` is what a pull does with the name: `encoded` and `raw` are written (the encoded
- * file name in `as`), `noname`, `toolong` and `pair` fail.
+ * file name in `as`), `shortened` is written as its shortened name (`key` of `SHORTENED`), `noname`,
+ * `toolong` and `pair` fail.
  */
 const NAMES = [
   { label: 'dot dot', value: '..', how: 'noname' },
@@ -191,8 +265,18 @@ const NAMES = [
   { label: 'holds NUL', value: 'a\u0000b', how: 'encoded', as: 'a%00b' },
   { label: 'holds a newline', value: 'a\nb', how: 'encoded', as: 'a%0Ab' },
   { label: 'holds a tab', value: 'a\tb', how: 'encoded', as: 'a%09b' },
-  { label: '300 characters', value: 'n'.repeat(300), how: 'toolong' },
-  { label: '255 bytes', value: 'n'.repeat(255), how: 'toolong' },
+  {
+    label: '300 characters',
+    value: 'n'.repeat(300),
+    how: 'shortened',
+    key: 'n300',
+  },
+  {
+    label: '255 bytes',
+    value: 'n'.repeat(255),
+    how: 'shortened',
+    key: 'n255',
+  },
   { label: 'is a device name of Windows', value: 'CON', how: 'raw' },
   { label: 'is a device name with a suffix', value: 'nul.txt', how: 'raw' },
   { label: 'ends with a dot', value: 'a.', how: 'raw' },
@@ -200,29 +284,28 @@ const NAMES = [
   { label: 'is %2e%2e', value: '%2e%2e', how: 'raw' },
   { label: 'starts with two dots', value: '..foo', how: 'raw' },
   {
-    // the function that makes a file name cuts at 255 bytes before it drops the asterisks: such a name would be cut silently
+    // the function that makes a file name cuts at 255 bytes before it drops the asterisks: such a name used to be cut silently
     label: 'holds asterisks that make it too long for a file name',
     value: `/${'*'.repeat(200)}${'n'.repeat(100)}`,
-    how: 'toolong',
+    how: 'shortened',
+    key: 'stars',
   },
   { label: 'differs in case', value: ['A', 'a'], how: 'pair' },
   {
-    label: 'is two lone surrogates, which a file system writes alike',
+    // a lone surrogate is written as U+FFFD with the checksum of the id: two of them are two names, not one
+    label: 'is two lone surrogates, which are two names now',
     value: ['\ud800', '\ud801'],
-    how: 'pair',
-    pairAs: ['\ufffd', '\ufffd'],
+    how: 'distinct',
   },
   {
     label: 'is two lone low surrogates',
     value: ['\udc00', '\udc01'],
-    how: 'pair',
-    pairAs: ['\ufffd', '\ufffd'],
+    how: 'distinct',
   },
   {
     label: 'is a lone high and a lone low surrogate',
     value: ['\ud800', '\udc00'],
-    how: 'pair',
-    pairAs: ['\ufffd', '\ufffd'],
+    how: 'distinct',
   },
   {
     // the families whose id is split at the first `/` have no row for `a/b`: this pair holds a backslash
@@ -362,8 +445,8 @@ const json = (file, content) => {
 /**
  * The families. `names` is how the tenant is arranged for the names of one slot (`values` is the
  * list of names to put in the slot, one object each), `run` the command, `under` the folder that
- * every file must be below, and `files(encoded)` the files that a written name has. `folderOnly`
- * marks a slot that is only the name of a folder, where 255 bytes is a name.
+ * every file must be below, and `files(encoded)` the files that a written name has. `suffix` is the longest
+ * ending of the files of an object after its name (`.json` when none is longer).
  */
 const FAMILIES = [
   {
@@ -410,6 +493,8 @@ const FAMILIES = [
   },
   {
     family: 'scripts',
+    // the name of a script is the start of the name of its content file, `<name>.js`
+    suffix: '.js',
     under: 'realms/alpha/scripts',
     arrange: (values) =>
       facade.script.readScripts.mockResolvedValue(
@@ -432,7 +517,6 @@ const FAMILIES = [
   {
     family: 'scripts (a context)',
     under: 'realms/alpha/scripts',
-    folderOnly: true,
     arrange: (values) =>
       facade.script.readScripts.mockResolvedValue(
         values.map((context, index) => ({
@@ -620,10 +704,11 @@ const FAMILIES = [
     },
     run: () => agents.configManagerExportOAuth2Agents(ctx.agents),
     files: (n) => [`realms/alpha/realm-config/agents/${n}/one.json`],
-    folderOnly: true,
   },
   {
     family: 'email templates',
+    // the longest of the files of a template: `<name>.en.html`
+    suffix: '.en.html',
     under: 'email-templates',
     arrange: (values) =>
       facade.email.template.readEmailTemplates.mockResolvedValue(
@@ -647,6 +732,12 @@ const FAMILIES = [
   },
   {
     family: 'email templates (a language)',
+    // a name of this slot is part of the suffix of the other object: once it fills a whole name, nothing is left for the
+    // name of the object, and the object fails
+    override: {
+      '300 characters': { how: 'toolong' },
+      '255 bytes': { how: 'toolong' },
+    },
     under: 'email-templates',
     arrange: (values) =>
       facade.email.template.readEmailTemplates.mockResolvedValue([
@@ -678,6 +769,8 @@ const FAMILIES = [
   },
   {
     family: 'managed objects',
+    // the longest of the files of an object: `<name>.onCreate.js`
+    suffix: '.onCreate.js',
     under: 'managed-objects',
     arrange: (values) =>
       facade.idm.config.readConfigEntity.mockResolvedValue({
@@ -693,6 +786,12 @@ const FAMILIES = [
   },
   {
     family: 'managed objects (a property)',
+    // a name of this slot is part of the suffix of the other object: once it fills a whole name, nothing is left for the
+    // name of the object, and the object fails
+    override: {
+      '300 characters': { how: 'toolong' },
+      '255 bytes': { how: 'toolong' },
+    },
     under: 'managed-objects',
     arrange: (values) =>
       facade.idm.config.readConfigEntity.mockResolvedValue({
@@ -750,6 +849,8 @@ const FAMILIES = [
   },
   {
     family: 'connector mappings',
+    // the longest of the files of a mapping: `<name>.onCreate.js`
+    suffix: '.onCreate.js',
     under: 'sync/mappings',
     arrange: (values) =>
       facade.idm.config.readConfigEntity.mockResolvedValue({
@@ -764,6 +865,12 @@ const FAMILIES = [
   },
   {
     family: 'connector mappings (a property)',
+    // a name of this slot is part of the suffix of the other object: once it fills a whole name, nothing is left for the
+    // name of the object, and the object fails
+    override: {
+      '300 characters': { how: 'toolong' },
+      '255 bytes': { how: 'toolong' },
+    },
     under: 'sync/mappings',
     arrange: (values) =>
       facade.idm.config.readConfigEntity.mockResolvedValue({
@@ -911,7 +1018,6 @@ const FAMILIES = [
   {
     family: 'telemetry (a category)',
     under: 'telemetry',
-    folderOnly: true,
     arrange: (values) =>
       facade.cloud.telemetry.exportTelemetry.mockResolvedValue({
         telemetry: Object.fromEntries(
@@ -924,7 +1030,6 @@ const FAMILIES = [
   {
     family: 'terms and conditions (a version)',
     under: 'terms-conditions',
-    folderOnly: true,
     arrange: (values) =>
       facade.idm.config.readConfigEntity.mockResolvedValue({
         _id: 'selfservice.terms',
@@ -990,6 +1095,9 @@ const FAMILIES = [
     },
     run: () => orgPrivileges.configManagerExportOrgPrivileges(),
     files: (n) => [`org-privileges/${n}OrgPrivileges.json`],
+    // the id of the privileges is the realm and `OrgPrivileges`: the id is shortened as a whole
+    fixedEnd: 'OrgPrivileges',
+    shortenedFiles: (name) => [`org-privileges/${name}.json`],
     others: ['org-privileges/privilegeAssignments.json'],
     // the realm is only a part of an id there, so a name that leaves no name is a name with the suffix
     override: {
@@ -1000,13 +1108,19 @@ const FAMILIES = [
   },
   {
     family: 'applications (an owned mapping)',
+    // the mapping has a script: the name is the one of `pull connector-mappings`, `<name>.onCreate.js` is the longest ending
+    suffix: '.onCreate.js',
     under: 'realms/alpha/applications/App',
     arrange: (values) => {
       facade.app.readApplicationReferences.mockResolvedValue({
         references: values.map((id) => reference('owned', 'mapping', id)),
         problems: [],
       });
-      ctx.mappings = values.map((name) => ({ name, _id: `sync/${name}` }));
+      ctx.mappings = values.map((name) => ({
+        name,
+        _id: `sync/${name}`,
+        onCreate: { type: 'text/javascript', source: 'create();' },
+      }));
     },
     run: () => pullAnApplication(),
     files: (n) => [`realms/alpha/applications/App/mappings/${n}/${n}.json`],
@@ -1014,6 +1128,7 @@ const FAMILIES = [
   },
   {
     family: 'applications (a shared script)',
+    suffix: '.js',
     under: 'realms/alpha',
     arrange: (values) => {
       facade.app.readApplicationReferences.mockResolvedValue({
@@ -1078,6 +1193,9 @@ const FAMILIES = [
       ]),
     run: () => igaWorkflows.configManagerExportIgaWorkflows(),
     files: (n) => [`iga/workflows/W/steps/${n} - s1/${n} - s1.json`],
+    // the folder of a step is named after `<name> - <step name>`: that text is shortened as a whole
+    fixedEnd: ' - s1',
+    shortenedFiles: (name) => [`iga/workflows/W/steps/${name}/${name}.json`],
     others: ['iga/workflows/Other/Other.json'],
     // a step is called `<name> - <name of the step>`: a name that is only dots is a name with the suffix, and a
     // device name of Windows with a suffix is not (the whole text is reserved)
@@ -1226,8 +1344,11 @@ const REALM_FAMILIES = [
     files: (realm, raw) => [
       `realms/${realm}/password-policy/${(raw ?? realm).replaceAll('/', '%2F')}_user-password-policy.json`,
     ],
-    // a realm of 255 bytes is a folder, and the name of its file is longer than a file name can be
-    toolongAlso: ['n'.repeat(255)],
+    // a realm of 255 bytes is a folder, and the name of its file does not fit: it is shortened
+    shortenedAlso: ['n'.repeat(255)],
+    shortenedFiles: (realm) => [
+      `realms/${realm}/password-policy/${SHORTENED.policy255['.json']}.json`,
+    ],
   },
   {
     family: 'secret mappings',
@@ -1284,15 +1405,11 @@ describe.each(FAMILIES.filter((family) => family.family !== 'raw'))(
         const values = valuesOf(name.value);
         family.arrange(values);
         const before = outside();
-        // a name that is only the name of a folder holds 255 bytes; one that a file system cannot have leaves no name
+        // a name that a file system cannot have leaves no name
         const overridden = family.override?.[name.label];
         const how =
           overridden?.how ??
-          (family.folderOnly && name.label === '255 bytes'
-            ? 'raw'
-            : family.nonames?.includes(name.value)
-              ? 'noname'
-              : name.how);
+          (family.nonames?.includes(name.value) ? 'noname' : name.how);
         const classed = overridden ? { ...name, ...overridden } : name;
 
         const result = await family.run();
@@ -1312,6 +1429,41 @@ describe.each(FAMILIES.filter((family) => family.family !== 'raw'))(
           )) {
             expect(written).toContain(file);
           }
+        } else if (how === 'distinct') {
+          // two names that are not text are two names: each is written as U+FFFD and its own checksum, and no object fails
+          expect(result).toBe(true);
+          expect(printed.join('\n')).not.toMatch(
+            /is the same as|two names that become one file name/
+          );
+          for (const value of values) {
+            const distinct = family.fixedEnd
+              ? SURROGATE_NAMES_WITH_END[`${value}${family.fixedEnd}`]
+              : SURROGATE_NAMES[value];
+            const expectedFiles = family.shortenedFiles
+              ? family.shortenedFiles(distinct)
+              : family.files(distinct, distinct);
+            for (const file of expectedFiles) {
+              expect(written).toContain(file);
+            }
+          }
+        } else if (how === 'shortened') {
+          // the name that does not fit is written as its shortened name, and no object fails
+          expect(result).toBe(true);
+          const shortened = family.fixedEnd
+            ? SHORTENED_WITH_END[`${name.key}${family.fixedEnd}`]
+            : SHORTENED[name.key][family.suffix ?? '.json'];
+          expect(shortened).toBeDefined();
+          const expectedFiles = family.shortenedFiles
+            ? family.shortenedFiles(shortened)
+            : family.files(shortened, shortened);
+          for (const file of expectedFiles) {
+            expect(written).toContain(file);
+          }
+          for (const file of written) {
+            for (const part of file.split('/')) {
+              expect(Buffer.byteLength(part)).toBeLessThanOrEqual(255);
+            }
+          }
         } else {
           // a name that leaves no name, a name that is too long, and the later of two names that are one file: the
           // run goes on and fails
@@ -1319,7 +1471,9 @@ describe.each(FAMILIES.filter((family) => family.family !== 'raw'))(
           if (how === 'noname') {
             expect(said).toContain('does not name an object');
           } else if (how === 'toolong') {
-            expect(said).toMatch(/longer than 255 bytes|ENAMETOOLONG/);
+            expect(said).toMatch(
+              /longer than 255 bytes|ENAMETOOLONG|leaves no room for a name/
+            );
           } else {
             expect(said).toMatch(
               /is the same as .* on a file system that ignores case|two names that become one file name/
@@ -1451,10 +1605,16 @@ describe.each(REALM_FAMILIES)(
       for (const file of family.files('bravo', 'bravo')) {
         expect(written).toContain(file);
       }
-      const how = family.toolongAlso?.includes(realm.value)
-        ? 'toolong'
+      const how = family.shortenedAlso?.includes(realm.value)
+        ? 'shortened'
         : realm.how;
-      if (how === 'written') {
+      if (how === 'shortened') {
+        // the realm is a folder of 255 bytes, and the name of its file is shortened
+        expect(result).toBe(true);
+        for (const file of family.shortenedFiles(realm.as)) {
+          expect(written).toContain(file);
+        }
+      } else if (how === 'written') {
         expect(result).toBe(true);
         for (const file of family.files(realm.as, realm.value)) {
           expect(written).toContain(file);

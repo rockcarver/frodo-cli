@@ -2,6 +2,7 @@ import fs from 'fs';
 import { frodo, state } from '@rockcarver/frodo-lib';
 import {
   nameInFolder,
+  objectFilePath,
   pulledFilePath,
   PulledPaths,
   realmFolderOf,
@@ -111,8 +112,12 @@ export async function configManagerImportPasswordPolicy(
         continue;
       }
       const objectName = `${currentRealm === '/' ? '' : `${currentRealm}_`}user`;
+      // the file has the name that a pull gave it, which is a shortened name for a realm with a very long name
       const filePath = getFilePath(
-        `realms/${currentRealm === '/' ? 'root' : currentRealm}/password-policy/${objectName}-password-policy.json`
+        objectFilePath(
+          `realms/${currentRealm === '/' ? 'root' : currentRealm}/password-policy`,
+          `${objectName}-password-policy`
+        )
       );
       if (!fs.existsSync(filePath)) {
         if (named) {

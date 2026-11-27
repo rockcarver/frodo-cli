@@ -543,6 +543,85 @@ suite('config-manager oauth-cimd-profiles against a fake tenant', () => {
       TIMEOUT
     );
   });
+  describe('an id that does not fit in a file name', () => {
+    // two ids that start alike: a pull used to cut both at 250 bytes to one name, write one file and fail
+    const FIRST = `${'x'.repeat(300)}-1`;
+    const SECOND = `${'x'.repeat(300)}-2`;
+    // the start of the id, `~` and the checksum of the complete id (the independent implementation of FileNameVectors.js
+    // made them)
+    const FIRST_FILE = `${'x'.repeat(241)}~bed1c36e.json`;
+    const SECOND_FILE = `${'x'.repeat(241)}~001fbd52.json`;
+    const TARGET = (port) => `http://127.0.0.1:${port}/am`;
+
+    it(
+      'is written under its shortened name, a pull twice writes the same files, and a push of files that were all renamed sends the complete ids',
+      async () => {
+        const run = await tenant({ oauthCimdProfiles: [FIRST, SECOND] });
+        const pull = () =>
+          run([
+            'config-manager',
+            'pull',
+            'oauth-cimd-profiles',
+            TARGET(fakeAm.port),
+            'alpha',
+          ]);
+
+        const first = await pull();
+
+        expect(first.output).not.toMatch(/Error|failed/);
+        expect(first.code).toBe(0);
+        expect(fs.readdirSync(profilesOf('alpha')).sort()).toEqual(
+          [FIRST_FILE, SECOND_FILE].sort()
+        );
+        const before = Object.fromEntries(
+          fs
+            .readdirSync(profilesOf('alpha'))
+            .map((file) => [
+              file,
+              fs.readFileSync(path.join(profilesOf('alpha'), file), 'utf8'),
+            ])
+        );
+        expect((await pull()).code).toBe(0);
+        expect(
+          Object.fromEntries(
+            fs
+              .readdirSync(profilesOf('alpha'))
+              .map((file) => [
+                file,
+                fs.readFileSync(path.join(profilesOf('alpha'), file), 'utf8'),
+              ])
+          )
+        ).toEqual(before);
+
+        // every file gets a neutral name: the id is the one that the file holds
+        fs.renameSync(
+          path.join(profilesOf('alpha'), FIRST_FILE),
+          path.join(profilesOf('alpha'), 'neutral-1.json')
+        );
+        fs.renameSync(
+          path.join(profilesOf('alpha'), SECOND_FILE),
+          path.join(profilesOf('alpha'), 'neutral-2.json')
+        );
+        const sent = await run([
+          'config-manager',
+          'push',
+          'oauth-cimd-profiles',
+          TARGET(fakeAm.port),
+          'alpha',
+        ]);
+
+        expect(sent.output).not.toMatch(/Error|failed/);
+        expect(sent.code).toBe(0);
+        const ids = requests()
+          .filter((r) => r.method === 'PUT')
+          .map((r) => decodeURIComponent(r.url.split('/').pop()))
+          .sort();
+        expect(ids).toEqual([FIRST, SECOND].sort());
+      },
+      TIMEOUT
+    );
+  });
+
   describe('delete', () => {
     const deletes = () => requests().filter((r) => r.method === 'DELETE');
     const target = () => [`http://127.0.0.1:${fakeAm.port}/am`, 'alpha'];

@@ -128,8 +128,8 @@ const UNUSUAL_ID_CHARACTERS = /[ [\]|]/;
  * Import the CIMD profiles of the files `realms/<realm>/realm-config/agents/CIMDProfile/<name>.json`
  * (what `pull oauth-cimd-profiles` writes) into the realms they are in: a profile that does not exist is
  * created and one that does is replaced by exactly what the file holds (what the file leaves out is
- * removed). A profile is never deleted. The id is the `_id` of the file, otherwise its name;
- * `${NAME}` is filled from `-E/--env`, else from `--env-file`, else from the environment variable of
+ * removed). A profile is never deleted. The id is the `_id` of the file (a file without one fails:
+ * an id is never read from the name of a file); `${NAME}` is filled from `-E/--env`, else from `--env-file`, else from the environment variable of
  * the process (see `src/utils/PlaceholderValues.ts`); plain and wrapped values are sent as they are. The
  * library refuses an id the server cannot hold and a file of another `_type`, and writes a created
  * profile a second time when the server completed it with its defaults, so that it equals the file.

@@ -65,6 +65,19 @@ export async function configManagerExportTermsAndConditions(): Promise<boolean> 
 }
 
 /**
+ * Whether a translation of the terms is a reference to a file, as a pull writes it (`{ "file": "<version>/<language>.html" }`).
+ * @param {unknown} translation the translation
+ * @returns {boolean} true if it is an object that has a text as `file`
+ */
+function isReference(translation: unknown): translation is { file: string } {
+  return (
+    typeof translation === 'object' &&
+    translation !== null &&
+    typeof (translation as { file?: unknown }).file === 'string'
+  );
+}
+
+/**
  * Import terms and conditions from fr-config-manager export
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
@@ -74,12 +87,22 @@ export async function configManagerImportTermsAndConditions(): Promise<boolean> 
       getFilePath('terms-conditions/terms-conditions.json')
     ) as any;
     for (const version of termsAndConditions.versions) {
-      for (const [language] of Object.entries(version.termsTranslations)) {
+      for (const [language, translation] of Object.entries(
+        version.termsTranslations
+      )) {
         const directoryName = `terms-conditions`;
-        // the version is a folder of the terms, the language a file of that folder
-        const versionDir = referencedFilePath(directoryName, version.version);
+        // the file of the terms refers to the file of the translation, which a pull wrote under the name that it made of the
+        // version and of the language (a shortened name for one that does not fit in a file name): that reference names it,
+        // and the names are not made again from the version and the language of the tenant
         const fileDir = getFilePath(
-          referencedFilePath(versionDir, `${language}.html`)
+          isReference(translation)
+            ? referencedFilePath(directoryName, translation.file)
+            : // a translation that is not a reference (the text itself, written by hand): the version is a folder of the terms,
+              // the language a file of that folder
+              referencedFilePath(
+                referencedFilePath(directoryName, version.version),
+                `${language}.html`
+              )
         );
         version.termsTranslations[language] = fs.readFileSync(fileDir, 'utf8');
       }

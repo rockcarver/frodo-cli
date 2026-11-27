@@ -158,13 +158,12 @@ const HOSTILE = [
 describe.each(['name', 'context', '_id'])(
   'a script whose %s is a hostile name',
   (field) => {
-    // a name that leaves no name for a file (`.`, `..`) or that no file name can hold (more than 255
-    // bytes) is not written: the journey fails, and nothing is written outside the config folder
+    // a name that leaves no name for a file (`.`, `..`) is not written: the journey fails, and nothing is
+    // written outside the config folder; a name that does not fit in a file name is written shortened
     // the name of a script is written as the file name of a name, which is empty for any run of dots
     const REFUSED = [
       'is only dots',
       'is one dot',
-      'is very long',
       ...(field === 'name' ? ['is three dots'] : []),
     ];
     const names = HOSTILE.filter(([what]) => !REFUSED.includes(what));
@@ -228,6 +227,36 @@ describe.each(['name', 'context', '_id'])(
     );
   }
 );
+
+describe('a script with a name that does not fit in a file name', () => {
+  // the start of the name, `~` and the checksum of the complete id of 400 characters (the independent implementation of
+  // FileNameVectors.js made them): a content file has `.js` after its name, the others have `.json` or nothing
+  const CHECKSUM = '2ae64155';
+
+  test.each([
+    ['name', 'scripts-content', `${CONTEXT}/${'n'.repeat(243)}~${CHECKSUM}.js`],
+    ['context', 'scripts-content', `${'n'.repeat(241)}~${CHECKSUM}/S1.js`],
+    ['_id', 'scripts-config', `${'n'.repeat(241)}~${CHECKSUM}.json`],
+  ])(
+    'the %s is written as its shortened name, which the config file names back',
+    async (field, folder, file) => {
+      tenantScript({ [field]: 'n'.repeat(400) });
+
+      expect(await pull()).toBe(true);
+
+      const scripts = path.join(configFolder, 'realms', 'alpha', 'scripts');
+      expect(fs.existsSync(path.join(scripts, folder, file))).toBe(true);
+      const config = path.join(scripts, 'scripts-config');
+      const [configFile] = fs.readdirSync(config);
+      const written = JSON.parse(
+        fs.readFileSync(path.join(config, configFile), 'utf8')
+      );
+      // the file holds the complete name, context and id: they are not read back from the name of a file
+      expect(written[field]).toBe('n'.repeat(400));
+      expect(fs.existsSync(path.join(scripts, written.script.file))).toBe(true);
+    }
+  );
+});
 
 describe('a script with ordinary names', () => {
   test('is written where it always was', async () => {
