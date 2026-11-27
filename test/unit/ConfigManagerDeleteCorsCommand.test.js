@@ -223,7 +223,7 @@ describe('the options', () => {
     );
     // the rule for a listed id, with the characters that a terminal does not show
     expect(help).toContain(
-      '(no slash, backslash, question mark, hash, percent sign, double dot, control character or format character)'
+      '(no slash, backslash, question mark, hash, percent sign, double dot, control character, text direction control or invisible separator)'
     );
     // no word that belongs to the library, and no promise of a later change
     expect(help).not.toMatch(

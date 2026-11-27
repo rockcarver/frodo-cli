@@ -10,38 +10,51 @@
 
 /** What a plain name is, in the words of a message about an id that is not one. */
 export const PLAIN_NAME_RULE =
-  'a plain name is not blank, is not just a dot, and has no /, \\, ?, #, %, .. or control or format character';
+  'a plain name is not blank, is not just a dot, and has no /, \\, ?, #, %, .., control character, text direction control or invisible separator';
+
+/**
+ * The format characters that make a name look like another one or hide in it, which no name holds: the text
+ * direction controls (U+202A to U+202E, U+2066 to U+2069) reorder what a terminal shows, so that one name reads
+ * as another ("Trojan Source"), and the zero width space (U+200B), the word joiner (U+2060) and the byte order
+ * mark (U+FEFF) are invisible separators. Every other format character (a zero width joiner or non-joiner, a
+ * left-to-right or right-to-left mark, a tag character, a soft hyphen) is part of the spelling of a language or
+ * of an emoji sequence, so a name may hold it.
+ */
+const SPOOFING_CHARACTER = /[\u202A-\u202E\u2066-\u2069\u200B\u2060\uFEFF]/u;
 
 /**
  * Whether a listed id is a plain name. The library puts the id into the path of the request as it is given,
  * so an id with a slash, a `..` segment, a `?` or a `#` in it would name another object than the one that was
- * listed, whatever the tenant lists. Such an id is never sent to the tenant.
+ * listed, whatever the tenant lists. Such an id is never sent to the tenant. An id with a text direction
+ * control or an invisible separator is not sent either: what is shown for it would not be what it is.
  * @param {string} name the listed id, without any type prefix
- * @returns {boolean} true if the name is safe to put into a path
+ * @returns {boolean} true if the name is safe to put into a path and to show
  */
 export function isPlainName(name: string): boolean {
   return (
     name.trim() !== '' &&
     name !== '.' &&
     !name.includes('..') &&
-    !/[/\\?#%\p{Cc}\p{Cf}]/u.test(name)
+    !/[/\\?#%\p{Cc}]/u.test(name) &&
+    !SPOOFING_CHARACTER.test(name)
   );
 }
 
 /**
  * Text that the tenant gave, as a message shows it: every control character and every format character
- * (a right-to-left override, a zero width space, a byte order mark) written out as `\uXXXX`, so that it
- * cannot change what the terminal shows or hide in a name. The text of a value that is not text, which a
- * listing can hold, is written out the same way instead of failing.
+ * (a right-to-left override, a zero width space, a joiner, a mark, a tag character) written out as `\uXXXX`
+ * (`\u{XXXXX}` beyond U+FFFF), so that it cannot change what the terminal shows or hide in a name. This is for
+ * the display only: a name that holds a joiner is a plain name and is sent as it is. The text of a value that
+ * is not text, which a listing can hold, is written out the same way instead of failing.
  * @param {string} text the text
  * @returns {string} the text without a raw control or format character
  */
 export function printable(text: string): string {
-  return String(text).replace(
-    /[\p{Cc}\p{Cf}]/gu,
-    (character) =>
-      `\\u${(character.codePointAt(0) as number).toString(16).padStart(4, '0')}`
-  );
+  return String(text).replace(/[\p{Cc}\p{Cf}]/gu, (character) => {
+    const code = character.codePointAt(0) as number;
+    const hex = code.toString(16);
+    return code > 0xffff ? `\\u{${hex}}` : `\\u${hex.padStart(4, '0')}`;
+  });
 }
 
 /**

@@ -876,3 +876,55 @@ describe('--deep: the IDM CORS filter', () => {
     expectNoEntryWriteAndNoFilterDelete();
   });
 });
+
+describe('a configuration whose id holds a format character that a name may hold', () => {
+  // the spelling of many languages and every emoji sequence hold such a character: `config pull` and `config push`
+  // accept the id, so a delete must be able to name it; what a message shows of it is written out
+  const LEGIT = [
+    ['a‌b', 'a zero width non-joiner'],
+    ['a‍b', 'a zero width joiner'],
+    ['\u{1F468}‍\u{1F469}‍\u{1F467}', 'an emoji sequence'],
+    ['\u{1F3F4}\u{E0067}\u{E0062}\u{E007F}', 'tag characters'],
+    ['של‏', 'a right-to-left mark'],
+    ['co­op', 'a soft hyphen'],
+  ];
+  /** What a message shows of a text: every format character as `\uXXXX`, `\u{XXXXX}` beyond U+FFFF. */
+  const written = (text) =>
+    text.replace(/\p{Cf}/gu, (character) => {
+      const code = character.codePointAt(0);
+      return code > 0xffff
+        ? `\\u{${code.toString(16)}}`
+        : `\\u${code.toString(16).padStart(4, '0')}`;
+    });
+
+  test.each(LEGIT)(
+    '%j (%s) is deleted by a delete of all and by a named delete, and no message shows it raw',
+    async (id) => {
+      store = [configuration('cors'), configuration(id)];
+
+      expect(await configManagerDeleteCors()).toBe(true);
+      expect(deleted).toEqual(['cors', id]);
+      expect(output()).toContain(`Deleted CORS configuration: ${written(id)}`);
+      expect(output()).not.toMatch(/\p{Cf}/u);
+
+      jest.clearAllMocks();
+      deleted.length = 0;
+      expect(await configManagerDeleteCors(id)).toBe(true);
+      expect(deleted).toEqual([id]);
+      expect(output()).not.toMatch(/\p{Cf}/u);
+    }
+  );
+
+  test.each(LEGIT)(
+    '%j (%s) is listed by a dry run, which deletes nothing',
+    async (id) => {
+      store = [configuration(id)];
+
+      expect(await configManagerDeleteCors(undefined, true)).toBe(true);
+
+      expect(deleteServiceNextDescendent).not.toHaveBeenCalled();
+      expect(output()).toContain(written(id));
+      expect(output()).not.toMatch(/\p{Cf}/u);
+    }
+  );
+});

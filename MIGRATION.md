@@ -537,9 +537,14 @@ reconciliation or a client of the REST API names is not seen.
 
 A connector definition that the tenant lists with an id that is not a plain name
 (a name is not blank, is not just a dot, and has no `/`, `\`, `?`, `#`, `%`,
-`..` or control or format character in it) is never sent to the tenant: it is
-skipped with a message, and it counts as a failed delete. The name of every
-other connector definition is percent-encoded in the path of the request.
+`..`, control character, text direction control or invisible separator in it) is
+never sent to the tenant: it is skipped with a message, and it counts as a
+failed delete. The text direction controls are U+202A to U+202E and U+2066 to
+U+2069, the invisible separators U+200B, U+2060 and U+FEFF: they make a name
+look like another one. Any other format character (a joiner or non-joiner, a
+mark, a tag character) is part of a name, as it is of the spelling of many
+languages, and a message writes it as `\uXXXX`. The name of every other
+connector definition is percent-encoded in the path of the request.
 
 `--force` (long form only, only with `-i`) deletes the connector definition
 anyway, and **changes nothing else**: every mapping, application, schedule or
@@ -724,8 +729,9 @@ a value that is written as a path (`-i ../x`) is a service that does not exist
 ([a selector is an id or a name, never a path](https://github.com/rockcarver/frodo-cli/blob/main/docs/decisions/0059-a-selector-is-an-id-or-a-name-never-a-path.md)),
 and an id that the realm lists for a service, or a type or an id that it lists
 for one of its next descendents, that is not a plain name (a slash, a `..`, a
-`?`, a `#`, a `%`, or a control or format character in it) is never sent to the
-tenant: the service is not deleted, and it counts as one failed service,
+`?`, a `#`, a `%`, a control character, a text direction control or an invisible
+separator in it: the same as for a connector definition above) is never sent to
+the tenant: the service is not deleted, and it counts as one failed service,
 however many of its next descendents are not plain, also in a dry run.
 `--allow-failures` forgives that in a delete of all services, and never in a
 delete that names the service with `-i`. A service that is not in the realm

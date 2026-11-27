@@ -960,7 +960,7 @@ describe('a listed id that is not a plain name is never sent to the tenant', () 
       'The one connector definition would be deleted: Azure.'
     );
     expect(output()).toContain(
-      `These listed ids are not plain names (a plain name is not blank, is not just a dot, and has no /, \\, ?, #, %, .. or control or format character). No request would be sent for them, and each would count as a failed delete: "${PREFIX}../managed", "${PREFIX}a#b".`
+      `These listed ids are not plain names (a plain name is not blank, is not just a dot, and has no /, \\, ?, #, %, .., control character, text direction control or invisible separator). No request would be sent for them, and each would count as a failed delete: "${PREFIX}../managed", "${PREFIX}a#b".`
     );
     expect(deleteConnector).not.toHaveBeenCalled();
   });
@@ -1089,4 +1089,83 @@ describe('an application that names the connector definition owns it', () => {
 
     expect(output()).not.toContain('owns');
   });
+});
+
+describe('a connector definition whose id holds a format character that a name may hold', () => {
+  // the spelling of many languages and every emoji sequence hold such a character: `config pull` and `config push`
+  // accept the id, so a delete must be able to name it; what a message shows of it is written out
+  const LEGIT = [
+    ['a‌b', 'a zero width non-joiner'],
+    ['a‍b', 'a zero width joiner'],
+    ['\u{1F468}‍\u{1F469}‍\u{1F467}', 'an emoji sequence'],
+    ['\u{1F3F4}\u{E0067}\u{E0062}\u{E007F}', 'tag characters'],
+    ['של‏', 'a right-to-left mark'],
+    ['co­op', 'a soft hyphen'],
+  ];
+  /** What a message shows of a text: every format character as `\uXXXX`, `\u{XXXXX}` beyond U+FFFF. */
+  const written = (text) =>
+    text.replace(/\p{Cf}/gu, (character) => {
+      const code = character.codePointAt(0);
+      return code > 0xffff
+        ? `\\u{${code.toString(16)}}`
+        : `\\u${code.toString(16).padStart(4, '0')}`;
+    });
+
+  test.each(LEGIT)(
+    '%j (%s) is deleted by a delete of all and by a named delete, the id written for a path, and no message shows it raw',
+    async (id) => {
+      readConnectors.mockResolvedValue([
+        { _id: `${PREFIX}Azure` },
+        { _id: `${PREFIX}${id}` },
+      ]);
+
+      expect(await configManagerDeleteConnectorDefinitions()).toBe(true);
+      expect(deleteConnector.mock.calls).toEqual([
+        ['Azure'],
+        [encodeURIComponent(id)],
+      ]);
+      expect(output()).toContain(
+        `Deleted connector definition '${written(id)}'.`
+      );
+      expect(output()).not.toMatch(/\p{Cf}/u);
+
+      jest.clearAllMocks();
+      readConnectors.mockResolvedValue([{ _id: `${PREFIX}${id}` }]);
+      findConnectorReferences.mockResolvedValue([]);
+      expect(await configManagerDeleteConnectorDefinitions(id)).toBe(true);
+      expect(deleteConnector.mock.calls).toEqual([[encodeURIComponent(id)]]);
+      expect(output()).toContain(
+        `Deleted connector definition '${written(id)}'.`
+      );
+      expect(output()).not.toMatch(/\p{Cf}/u);
+    }
+  );
+
+  test.each(LEGIT)(
+    '%j (%s) is named by the plan and by a dry run, and no message shows it raw',
+    async (id) => {
+      readConnectors.mockResolvedValue([{ _id: `${PREFIX}${id}` }]);
+      findConnectorReferences.mockResolvedValue({
+        references: { [id]: [MAPPING] },
+        unreadable: [],
+      });
+
+      expect(
+        await configManagerDeleteConnectorDefinitions(undefined, true)
+      ).toBe(true);
+      expect(output()).toContain(written(id));
+      expect(output()).not.toMatch(/\p{Cf}/u);
+
+      printMessage.mockClear();
+      findConnectorReferences.mockResolvedValue([]);
+      expect(await configManagerDeleteConnectorDefinitions(id, true)).toBe(
+        true
+      );
+      expect(output()).toContain(
+        `would delete connector definition '${written(id)}'.`
+      );
+      expect(output()).not.toMatch(/\p{Cf}/u);
+      expect(deleteConnector).not.toHaveBeenCalled();
+    }
+  );
 });
