@@ -2087,7 +2087,11 @@ describe('a tab engine that cannot start or that ends', () => {
       ]);
       const { session } = await startAndSignIn();
       const waiting = session().catch((e) => e);
-      await new Promise((resolve) => setTimeout(resolve, 500));
+      // the worker has started when its pid is in the log: poll for it (a loaded machine
+      // does not start a Node process in a fixed time), the loop is only the guard
+      for (let i = 0; i < 600 && started() === 0; i++) {
+        await new Promise((resolve) => setTimeout(resolve, 25));
+      }
       const pid = Number(
         fs.readFileSync(spawnLog, 'utf8').trim().split('\n').pop()
       );
