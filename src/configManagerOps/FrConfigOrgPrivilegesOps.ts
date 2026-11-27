@@ -187,7 +187,8 @@ export async function configManagerImportOrgPrivileges(
       return false;
     }
     for (const id of await orgPrivilegesIds()) {
-      const file = getFilePath(`org-privileges/${id}.json`);
+      // the file has the name that a pull gave it, which is a shortened name for a realm with a very long name
+      const file = getFilePath(objectFilePath('org-privileges', id));
       if (!fs.existsSync(file)) {
         if (id === PRIVILEGE_ASSIGNMENTS) {
           printMessage(

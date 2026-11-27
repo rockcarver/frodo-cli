@@ -173,6 +173,26 @@ describe('configManagerImportOrgPrivileges', () => {
     expect(imported()).toEqual([]);
   });
 
+  it('finds the file of a realm whose name is so long that the name of the file does not fit: the shortened name that a pull wrote', async () => {
+    // the id `<realm>OrgPrivileges` is 254 bytes and the file `.json` is more than a file name can be: the start of the id, `~`
+    // and the checksum of the whole id (the independent implementation of FileNameVectors.js made it)
+    const realm = 'r'.repeat(240);
+    const id = `${realm}OrgPrivileges`;
+    readRealms.mockResolvedValue([{ name: '/' }, { name: realm }]);
+    fs.rmSync(path.join(folder, 'org-privileges', 'alphaOrgPrivileges.json'));
+    fs.rmSync(path.join(folder, 'org-privileges', 'bravoOrgPrivileges.json'));
+    write(`${'r'.repeat(240)}O~c561b831`, entity(id));
+
+    expect(await configManagerImportOrgPrivileges()).toBe(true);
+
+    expect(imported()).toEqual(['privilegeAssignments', id]);
+    importConfigEntities.mockClear();
+    // and the file that is named is the same file
+    expect(await configManagerImportOrgPrivileges(id)).toBe(true);
+    expect(imported()).toEqual([id]);
+    expect(printError).not.toHaveBeenCalled();
+  });
+
   it('fails plainly when the named file is not there, and imports nothing', async () => {
     expect(await configManagerImportOrgPrivileges('nosuch')).toBe(false);
     expect(printMessage).toHaveBeenCalledWith(
