@@ -605,6 +605,36 @@ suite('config-manager delete services (fake tenant)', () => {
     );
 
     test(
+      'a dry run counts a service with two of them once too: one failed service of three, and nothing but reads is sent',
+      async () => {
+        await startTenant({
+          store: {
+            realms: {
+              alpha: [
+                service('custom'),
+                service('email', [
+                  ['smtpTransports', '../../session'],
+                  ['smtpTransports', 'a#b'],
+                ]),
+                service('session'),
+              ],
+            },
+          },
+          realms: ['alpha'],
+        });
+
+        const { code, output } = await runCli(['-d'], { realm: 'alpha' });
+
+        expect(code).toBe(1);
+        expect(changes()).toEqual([]);
+        expect(output).toContain('1 of 3 services failed:');
+        expect(output).not.toContain('2 of 3');
+        expect(output).toContain('it would count as one failed delete');
+      },
+      TIMEOUT
+    );
+
+    test(
       'a service with two of them is one failed service, and the tenant is asked to delete only the others',
       async () => {
         await startTenant({

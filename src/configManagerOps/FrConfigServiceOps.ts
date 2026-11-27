@@ -441,7 +441,7 @@ function toDeleteOf(realm: string, service: FullService): ServiceToDelete {
 
 /** The realm as a summary names it: the root realm is `root`, as everywhere in the group. */
 const realmNameInRun = (realm: string): string =>
-  realm === '/' ? 'root' : realm;
+  realm === '/' ? 'root' : printable(realm);
 
 /** What a service is called in the summary of a run: `alpha/email`, `root/session` for the root realm. */
 const nameInRun = (realm: string, id: string): string =>
@@ -473,7 +473,7 @@ function refusalOf(target: ServiceToDelete): Refusal | undefined {
       name,
       reason: 'its id is not a plain name',
       messages: [
-        `Service ${shownIdInSingleQuotes(target.id)} is listed in realm '${target.realm}' with an id that is not a plain name (${PLAIN_NAME_RULE}): it is not deleted, and no request was sent for it.`,
+        `Service ${shownIdInSingleQuotes(target.id)} is listed in realm '${printable(target.realm)}' with an id that is not a plain name (${PLAIN_NAME_RULE}): it is not deleted, and no request was sent for it.`,
       ],
       listed: [name],
     };
@@ -486,7 +486,7 @@ function refusalOf(target: ServiceToDelete): Refusal | undefined {
     reason: `its next descendent${many ? 's' : ''} ${unsafe.join(', ')} ${many ? 'have' : 'has'} a type or an id that is not a plain name`,
     messages: unsafe.map(
       (descendent) =>
-        `Next descendent '${descendent}' of service '${target.id}' is listed in realm '${target.realm}' with a type or an id that is not a plain name (${PLAIN_NAME_RULE}): the service is not deleted, and no request was sent for it.`
+        `Next descendent '${descendent}' of service '${printable(target.id)}' is listed in realm '${printable(target.realm)}' with a type or an id that is not a plain name (${PLAIN_NAME_RULE}): the service is not deleted, and no request was sent for it.`
     ),
     listed: unsafe.map((descendent) => `${name}/${descendent}`),
   };
@@ -510,18 +510,18 @@ function bulkPlanLines(
 ): string[] {
   const total = byRealm.reduce((sum, services) => sum + services.length, 0);
   const realms = byRealm.map((services) => services[0].realm);
-  const what = `${countOf(total, 'service')} in ${countOf(realms.length, 'realm')} (${realms.join(', ')}) would be deleted, each with its next descendents.`;
+  const what = `${countOf(total, 'service')} in ${countOf(realms.length, 'realm')} (${realms.map(printable).join(', ')}) would be deleted, each with its next descendents.`;
   const lines = [
     asPlan ? `Plan: ${what}` : `Dry run: nothing is deleted. ${what}`,
   ];
   for (const services of byRealm) {
     lines.push(
-      `  Realm '${services[0].realm}' (${countOf(services.length, 'service')}):`
+      `  Realm '${printable(services[0].realm)}' (${countOf(services.length, 'service')}):`
     );
     for (const service of services) {
       const note = noteOf(service.id);
       lines.push(
-        `    - ${service.id}${service.descendents.length > 0 ? ` (${countOf(service.descendents.length, 'next descendent')})` : ''}${note ? `: ${note}` : ''}`
+        `    - ${printable(service.id)}${service.descendents.length > 0 ? ` (${countOf(service.descendents.length, 'next descendent')})` : ''}${note ? `: ${note}` : ''}`
       );
     }
   }
@@ -628,7 +628,7 @@ export async function configManagerDeleteServices(
         if (id !== undefined && unread.id !== id) {
           // a named delete is about the service that was named: another one that cannot be read is no failure of it
           printMessage(
-            `Service '${printable(unread.id)}' of realm '${read.realm}' could not be read, and was not named: ${unread.reason}`,
+            `Service '${printable(unread.id)}' of realm '${printable(read.realm)}' could not be read, and was not named: ${unread.reason}`,
             'warn'
           );
           continue;
@@ -667,7 +667,7 @@ export async function configManagerDeleteServices(
         // a named service that is not there fails the command whatever `--allow-failures` says
         if (!reported) {
           printMessage(
-            `Service '${id}' not found in realm '${concreteRealm}'.`,
+            `Service '${printable(id)}' not found in realm '${printable(concreteRealm as string)}'.`,
             'error'
           );
           return false;
@@ -683,7 +683,7 @@ export async function configManagerDeleteServices(
       if (dryRun) {
         printMessage(
           [
-            `Dry run: Deleting service '${target.id}' in realm '${target.realm}'.`,
+            `Dry run: Deleting service '${printable(target.id)}' in realm '${printable(target.realm)}'.`,
             ...(target.descendents.length > 0
               ? [
                   `  Next descendents that go with it: ${target.descendents.join(', ')}`,
@@ -702,7 +702,7 @@ export async function configManagerDeleteServices(
           read.unreadable.length === 0
         ) {
           printMessage(
-            `No services found to delete in realm '${read.realm}'.`,
+            `No services found to delete in realm '${printable(read.realm)}'.`,
             'warn'
           );
         }
@@ -766,14 +766,14 @@ export async function configManagerDeleteServices(
         await deleteFullService(target.id);
         run.recordSuccess();
         printMessage(
-          `Deleted service '${target.id}' in realm '${target.realm}'${target.descendents.length > 0 ? ` (with next descendents: ${target.descendents.join(', ')})` : ''}.`
+          `Deleted service '${printable(target.id)}' in realm '${printable(target.realm)}'${target.descendents.length > 0 ? ` (with next descendents: ${target.descendents.join(', ')})` : ''}.`
         );
         const depends = dependsLine(target.id);
         if (id !== undefined && depends) printMessage(depends, 'warn');
       } catch (error) {
         printError(
           error,
-          `Error deleting service '${target.id}' in realm '${target.realm}'`
+          `Error deleting service '${printable(target.id)}' in realm '${printable(target.realm)}'`
         );
         run.recordFailure(nameInRun(target.realm, target.id), causeOf(error));
       }
