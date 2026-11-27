@@ -850,12 +850,8 @@ const FAMILIES = [
   },
   {
     family: 'connector mappings',
-    // until the site gives the name the longest suffix of its object, a name that fills a whole name has no room for the
-    // longer files of the object (a script of the object): the object fails
-    override: {
-      '300 characters': { how: 'toolong' },
-      '255 bytes': { how: 'toolong' },
-    },
+    // the longest of the files of a mapping: `<name>.onCreate.js`
+    suffix: '.onCreate.js',
     under: 'sync/mappings',
     arrange: (values) =>
       facade.idm.config.readConfigEntity.mockResolvedValue({
@@ -870,6 +866,12 @@ const FAMILIES = [
   },
   {
     family: 'connector mappings (a property)',
+    // a name of this slot is part of the suffix of the other object: once it fills a whole name, nothing is left for the
+    // name of the object, and the object fails
+    override: {
+      '300 characters': { how: 'toolong' },
+      '255 bytes': { how: 'toolong' },
+    },
     under: 'sync/mappings',
     arrange: (values) =>
       facade.idm.config.readConfigEntity.mockResolvedValue({
@@ -1107,13 +1109,19 @@ const FAMILIES = [
   },
   {
     family: 'applications (an owned mapping)',
+    // the mapping has a script: the name is the one of `pull connector-mappings`, `<name>.onCreate.js` is the longest ending
+    suffix: '.onCreate.js',
     under: 'realms/alpha/applications/App',
     arrange: (values) => {
       facade.app.readApplicationReferences.mockResolvedValue({
         references: values.map((id) => reference('owned', 'mapping', id)),
         problems: [],
       });
-      ctx.mappings = values.map((name) => ({ name, _id: `sync/${name}` }));
+      ctx.mappings = values.map((name) => ({
+        name,
+        _id: `sync/${name}`,
+        onCreate: { type: 'text/javascript', source: 'create();' },
+      }));
     },
     run: () => pullAnApplication(),
     files: (n) => [`realms/alpha/applications/App/mappings/${n}/${n}.json`],

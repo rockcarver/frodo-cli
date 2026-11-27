@@ -81,6 +81,7 @@ const managedObjects = await ops('FrConfigManagedObjectsOps');
 const scripts = await ops('FrConfigScriptOps');
 const endpoints = await ops('FrConfigEndpointsOps');
 const emailTemplates = await ops('FrConfigEmailTemplatesOps');
+const connectorMappings = await ops('FrConfigConnectorMappingOps');
 
 let root;
 let tree;
@@ -372,5 +373,37 @@ describe('the longest ending of the files of an object decides where its name is
     );
     expect(template.html['zh-CN'].file).toBe(`${shortened}.zh-CN.html`);
     expect(template._id).toBe(`emailTemplate/${over}`);
+  });
+
+  test('connector mappings: a script of the key `correlationQuery` ends with `.correlationQuery.js`, so 235 bytes keep their name and 236 are shortened, and every file of the mapping has one name', async () => {
+    const fits = 'a'.repeat(235);
+    const over = 'a'.repeat(236);
+    facade.idm.config.readConfigEntity.mockResolvedValue({
+      mappings: [fits, over].map((name) => ({
+        name,
+        correlationQuery: { type: 'text/javascript', source: 'query();' },
+      })),
+    });
+
+    expect(await connectorMappings.configManagerExportMappings()).toBe(true);
+
+    const shortened = vector('nameInFolder', over, '.correlationQuery.js');
+    expect(listed('sync/mappings')).toEqual([fits, shortened].sort());
+    for (const name of [fits, shortened]) {
+      expect(listed(`sync/mappings/${name}`)).toEqual(
+        [`${name}.json`, `${name}.correlationQuery.js`].sort()
+      );
+    }
+    // the file of the mapping refers to the script by the same name, and holds the complete name of the mapping
+    const mapping = JSON.parse(
+      fs.readFileSync(
+        path.join(tree, 'sync/mappings', shortened, `${shortened}.json`),
+        'utf8'
+      )
+    );
+    expect(mapping.correlationQuery.file).toBe(
+      `${shortened}.correlationQuery.js`
+    );
+    expect(mapping.name).toBe(over);
   });
 });
