@@ -161,7 +161,7 @@ function isTextForName(id: string): boolean {
  * @returns {string} the id as text
  */
 function cleanText(id: string): string {
-  return toWellFormed(id).replaceAll('\u007f', '�');
+  return toWellFormed(id).replaceAll('\u007f', '\ufffd');
 }
 
 /**
