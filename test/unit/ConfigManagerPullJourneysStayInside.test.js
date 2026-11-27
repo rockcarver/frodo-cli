@@ -316,20 +316,30 @@ describe('a journey whose id is a hostile name', () => {
     expect(fs.readdirSync(journeys)).toEqual(['Login']);
   });
 
-  test('an id too long for a file name fails that journey, and nothing outside is touched', async () => {
+  test('an id too long for a file name is written under its shortened name, and nothing outside is touched', async () => {
     const sentinels = plantSentinels();
     const id = 'n'.repeat(400);
     tenant({ [id]: journey(id), Login: journey('Login') });
     const before = outside();
 
-    expect(await pull()).toBe(false);
+    expect(await pull()).toBe(true);
 
     for (const file of sentinels) {
       expect(fs.readFileSync(file, 'utf8')).toBe('{"sentinel":true}');
     }
     expect(outside()).toEqual(before);
     const journeys = path.join(configFolder, 'realms', 'alpha', 'journeys');
-    expect(fs.readdirSync(journeys)).toEqual(['Login']);
+    const shortened = `${'n'.repeat(241)}~2ae64155`;
+    expect(fs.readdirSync(journeys).sort()).toEqual(['Login', shortened]);
+    // the file holds the complete id: the name of the folder is not the id
+    expect(
+      JSON.parse(
+        fs.readFileSync(
+          path.join(journeys, shortened, `${shortened}.json`),
+          'utf8'
+        )
+      )._id
+    ).toBe(id);
   });
 
   test('a journey that fails is named in the summary without its control characters', async () => {
@@ -374,7 +384,7 @@ describe('a journey whose id is a hostile name', () => {
     expect(said).toContain('1 of 2 journeys failed');
   });
 
-  test('an id that is longer than a file name can be fails that journey alone, naming it: it is not cut, so two long ids never become one folder', async () => {
+  test('two ids that are longer than a file name can be get two folders, each with its shortened name: a pull twice writes the same tree', async () => {
     const first = `a/${'x'.repeat(300)}`;
     const second = `a/${'x'.repeat(280)}`;
     tenant({
@@ -383,13 +393,33 @@ describe('a journey whose id is a hostile name', () => {
       A: journey('A'),
     });
 
-    expect(await pull()).toBe(false);
+    expect(await pull()).toBe(true);
 
     const journeys = path.join(configFolder, 'realms', 'alpha', 'journeys');
-    expect(fs.readdirSync(journeys)).toEqual(['A']);
-    const said = printed.join('\n');
-    expect(said).toContain('longer than 255 bytes');
-    expect(said).toContain('2 of 3 journeys failed');
+    const names = [
+      'A',
+      `a%2F${'x'.repeat(237)}~bc037c56`,
+      `a%2F${'x'.repeat(237)}~c2565106`,
+    ];
+    expect(fs.readdirSync(journeys).sort()).toEqual(names);
+    expect(printed.join('\n')).not.toContain('longer than 255 bytes');
+    const tree = () => {
+      const found = {};
+      const walk = (folder) => {
+        for (const entry of fs.readdirSync(folder, { withFileTypes: true })) {
+          const file = path.join(folder, entry.name);
+          if (entry.isDirectory()) walk(file);
+          else found[path.relative(journeys, file)] = fs.readFileSync(file, 'utf8');
+        }
+      };
+      walk(journeys);
+      return found;
+    };
+    const once = tree();
+
+    expect(await pull()).toBe(true);
+
+    expect(tree()).toEqual(once);
   });
 
   test('a journey whose tree has another id than its key is written under its key', async () => {
