@@ -146,11 +146,7 @@ suite('config-manager oauth-issuers against a fake tenant', () => {
           oauthIssuers: ['zion-issuer', 'zion-other'],
         });
 
-        const { code, output } = await run([
-          'config',
-          'pull',
-          'oauth-issuers',
-        ]);
+        const { code, output } = await run(['config', 'pull', 'oauth-issuers']);
 
         expect(output).not.toMatch(/Error|failed/);
         expect(code).toBe(0);
@@ -431,13 +427,7 @@ suite('config-manager oauth-issuers against a fake tenant', () => {
         });
         issuerFile('alpha', 'zion-whole', sparse('zion-whole'));
         const push = (...extra) =>
-          run([
-            'config',
-            'push',
-            'oauth-issuers',
-            ...extra,
-            ...target(),
-          ]);
+          run(['config', 'push', 'oauth-issuers', ...extra, ...target()]);
 
         const failed = await push();
 

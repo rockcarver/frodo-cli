@@ -39,104 +39,96 @@ const listOf = (text, start, end) => {
   return from >= 0 && to > from ? text.slice(from, to) : undefined;
 };
 
-describe.each(['pull', 'push'])(
-  "'config %s agents' full help",
-  (verb) => {
-    let text;
-    let raw;
-    beforeAll(async () => {
-      ({ text, raw } = await helpOf(verb, 'agents'));
-    });
+describe.each(['pull', 'push'])("'config %s agents' full help", (verb) => {
+  let text;
+  let raw;
+  beforeAll(async () => {
+    ({ text, raw } = await helpOf(verb, 'agents'));
+  });
 
-    const LIST_START =
-      verb === 'pull'
-        ? 'Agent types: '
-        : 'The folders of these agent types are pushed: ';
-    const OAUTH2_CLIENTS_SENTENCE =
-      verb === 'pull'
-        ? 'The OAuth2 clients are pulled by'
-        : 'The folder of the OAuth2 clients, OAuth2Client, is not read here';
+  const LIST_START =
+    verb === 'pull'
+      ? 'Agent types: '
+      : 'The folders of these agent types are pushed: ';
+  const OAUTH2_CLIENTS_SENTENCE =
+    verb === 'pull'
+      ? 'The OAuth2 clients are pulled by'
+      : 'The folder of the OAuth2 clients, OAuth2Client, is not read here';
 
-    test('lists the eight agent types in one sentence, and not the OAuth2 client', () => {
-      const list = listOf(text, LIST_START, OAUTH2_CLIENTS_SENTENCE);
-      expect(list).toBeDefined();
-      for (const agentType of EIGHT) expect(list).toContain(agentType);
-      expect(list).not.toContain('OAuth2Client');
-      for (const agentType of DEDICATED) expect(list).not.toContain(agentType);
-    });
+  test('lists the eight agent types in one sentence, and not the OAuth2 client', () => {
+    const list = listOf(text, LIST_START, OAUTH2_CLIENTS_SENTENCE);
+    expect(list).toBeDefined();
+    for (const agentType of EIGHT) expect(list).toContain(agentType);
+    expect(list).not.toContain('OAuth2Client');
+    for (const agentType of DEDICATED) expect(list).not.toContain(agentType);
+  });
 
-    test('names the command that handles the OAuth2 clients', () => {
-      expect(text).toContain(`"frodo config ${verb} oauth-clients"`);
-    });
+  test('names the command that handles the OAuth2 clients', () => {
+    expect(text).toContain(`"frodo config ${verb} oauth-clients"`);
+  });
 
-    test('does not teach the deprecated command', async () => {
-      expect(text).not.toContain(`${verb} oauth2-agents`);
-      const { stdout } = await exec(
-        `frodo config ${verb} agents --help`
-      );
-      expect(stdout.replace(/\s+/g, ' ')).not.toContain('oauth2-agents"');
-    });
+  test('does not teach the deprecated command', async () => {
+    expect(text).not.toContain(`${verb} oauth2-agents`);
+    const { stdout } = await exec(`frodo config ${verb} agents --help`);
+    expect(stdout.replace(/\s+/g, ' ')).not.toContain('oauth2-agents"');
+  });
 
-    test('names the three agent types that have a command of their own and the command of each', () => {
+  test('names the three agent types that have a command of their own and the command of each', () => {
+    expect(text).toContain(
+      `The agent types CIMDProfile, TrustedJwtIssuer and SoftwarePublisher have a command of their own: ` +
+        `"frodo config ${verb} oauth-cimd-profiles", "frodo config ${verb} oauth-issuers" and "frodo config ${verb} oauth-software-publishers".`
+    );
+    expect(text).toContain('skipped here with a warning');
+  });
+
+  test('has a Usage Examples block with the command, a config directory and --allow-failures', () => {
+    expect(text).toContain('Usage Examples:');
+    expect(text).toContain(`$ frodo config ${verb} agents`);
+    expect(text).toContain('-D ./config');
+    // one example line, so that the option in a sentence below does not count
+    expect(raw).toMatch(
+      new RegExp(`^\\s*\\$ frodo config ${verb} agents .*--allow-failures`, 'm')
+    );
+    if (verb === 'pull') {
       expect(text).toContain(
-        `The agent types CIMDProfile, TrustedJwtIssuer and SoftwarePublisher have a command of their own: ` +
-          `"frodo config ${verb} oauth-cimd-profiles", "frodo config ${verb} oauth-issuers" and "frodo config ${verb} oauth-software-publishers".`
+        '$ frodo config pull agents -i zion-gateway matrix /alpha'
       );
-      expect(text).toContain('skipped here with a warning');
-    });
+    }
+  });
 
-    test('has a Usage Examples block with the command, a config directory and --allow-failures', () => {
-      expect(text).toContain('Usage Examples:');
-      expect(text).toContain(`$ frodo config ${verb} agents`);
-      expect(text).toContain('-D ./config');
-      // one example line, so that the option in a sentence below does not count
-      expect(raw).toMatch(
-        new RegExp(
-          `^\\s*\\$ frodo config ${verb} agents .*--allow-failures`,
-          'm'
-        )
-      );
-      if (verb === 'pull') {
-        expect(text).toContain(
-          '$ frodo config pull agents -i zion-gateway matrix /alpha'
-        );
+  test('says that an entry or file of a type the deployment cannot serve is a request that fails', () => {
+    expect(text).toContain(
+      verb === 'pull'
+        ? 'An entry you write is a request'
+        : 'A file you push is a request'
+    );
+    expect(text).toContain('unless --allow-failures is given');
+  });
+
+  test('says nothing about a kind, which the commands of the split do not use as a word', () => {
+    expect(raw).not.toMatch(/\bkinds?\b/i);
+  });
+
+  if (verb === 'pull') {
+    test('shows an example config with an entry for every type that exists on every deployment, and none for the OAuth2 client or the types with a command of their own', () => {
+      for (const agentType of EIGHT.filter(
+        (t) => !NOT_IN_EXAMPLE.includes(t)
+      )) {
+        expect(raw).toContain(`"${agentType}": [`);
+      }
+      for (const agentType of ['OAuth2Client', ...DEDICATED]) {
+        expect(raw).not.toContain(`"${agentType}": [`);
       }
     });
 
-    test('says that an entry or file of a type the deployment cannot serve is a request that fails', () => {
+    test('says that an OAuth2Client entry in the config file is skipped with a warning, and that the same file can serve every command', () => {
       expect(text).toContain(
-        verb === 'pull'
-          ? 'An entry you write is a request'
-          : 'A file you push is a request'
+        'An OAuth2Client entry in the config file is skipped here with a warning'
       );
-      expect(text).toContain('unless --allow-failures is given');
+      expect(text).toContain('so that one file can serve them all');
     });
-
-    test('says nothing about a kind, which the commands of the split do not use as a word', () => {
-      expect(raw).not.toMatch(/\bkinds?\b/i);
-    });
-
-    if (verb === 'pull') {
-      test('shows an example config with an entry for every type that exists on every deployment, and none for the OAuth2 client or the types with a command of their own', () => {
-        for (const agentType of EIGHT.filter(
-          (t) => !NOT_IN_EXAMPLE.includes(t)
-        )) {
-          expect(raw).toContain(`"${agentType}": [`);
-        }
-        for (const agentType of ['OAuth2Client', ...DEDICATED]) {
-          expect(raw).not.toContain(`"${agentType}": [`);
-        }
-      });
-
-      test('says that an OAuth2Client entry in the config file is skipped with a warning, and that the same file can serve every command', () => {
-        expect(text).toContain(
-          'An OAuth2Client entry in the config file is skipped here with a warning'
-        );
-        expect(text).toContain('so that one file can serve them all');
-      });
-    }
   }
-);
+});
 
 describe.each(['pull', 'push'])(
   "'config %s oauth-clients' full help",

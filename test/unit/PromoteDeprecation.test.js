@@ -91,15 +91,11 @@ describe('frodo promote is deprecated', () => {
 
   it('4: the notice names the three replacements and the version of the removal', () => {
     expect(PROMOTE_DEPRECATION_MESSAGE).toContain('will be removed in 5.0.0');
-    expect(PROMOTE_DEPRECATION_MESSAGE).toContain(
-      "'frodo config promote run'"
-    );
+    expect(PROMOTE_DEPRECATION_MESSAGE).toContain("'frodo config promote run'");
     expect(PROMOTE_DEPRECATION_MESSAGE).toContain(
       "'frodo config import -A -D <master> <connection>'"
     );
-    expect(PROMOTE_DEPRECATION_MESSAGE).toContain(
-      "'frodo config push'"
-    );
+    expect(PROMOTE_DEPRECATION_MESSAGE).toContain("'frodo config push'");
     expect(PROMOTE_DEPRECATION_MESSAGE).toContain(
       "'frodo config delete <kind> -n <name>'"
     );

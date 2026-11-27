@@ -143,9 +143,7 @@ describe('frodo config delete schedules', () => {
     expect(help).not.toMatch(/eligible/i);
     const examples = help
       .split('\n')
-      .filter((line) =>
-        line.includes('$ frodo config delete schedules')
-      );
+      .filter((line) => line.includes('$ frodo config delete schedules'));
     expect(examples).toHaveLength(4);
     // every example that can delete more than one schedule carries -y or --dry-run
     for (const example of examples.filter((line) => !/ -i /.test(line))) {

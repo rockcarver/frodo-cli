@@ -51,9 +51,7 @@ describe.each(['pull', 'push'])(
     // sentence of the help does not count)
     let list;
     beforeAll(async () => {
-      const { stdout } = await exec(
-        `frodo config ${verb} oauth2-agents -hhh`
-      );
+      const { stdout } = await exec(`frodo config ${verb} oauth2-agents -hhh`);
       text = stdout.replace(/\s+/g, ' ');
       const start = text.indexOf(LIST_STARTS[verb]);
       const end = text.indexOf(DEDICATED_SENTENCE_START, start);

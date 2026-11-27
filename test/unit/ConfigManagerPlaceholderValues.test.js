@@ -128,8 +128,7 @@ describe('only the config push commands let a placeholder fall back to the proce
   });
 
   it('every push command turns the switch on and no other command does', () => {
-    const isPush = (leaf) =>
-      fullName(leaf).startsWith('frodo config push ');
+    const isPush = (leaf) => fullName(leaf).startsWith('frodo config push ');
     const push = leaves.filter(isPush);
     const other = leaves.filter((leaf) => !isPush(leaf));
     expect(push.length).toBeGreaterThan(30);
@@ -263,10 +262,7 @@ suite('push and pull oauth-issuers against a fake tenant', () => {
   const pushedValues = () =>
     new Set(puts().map((r) => JSON.parse(r.body).issuer?.value));
   const push = (run, extra = [], env = {}) =>
-    run(
-      ['config', 'push', 'oauth-issuers', ...extra, ...target()],
-      env
-    );
+    run(['config', 'push', 'oauth-issuers', ...extra, ...target()], env);
 
   describe('push', () => {
     it(

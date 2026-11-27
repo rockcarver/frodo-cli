@@ -175,10 +175,8 @@ suite('config-manager oauth-clients and agents against a fake tenant', () => {
     Object.keys(treeOf(dir))
       .filter((file) => file.startsWith('realms/'))
       .sort();
-  const pull = (run, word, ...more) =>
-    run(['config', 'pull', word, ...more]);
-  const push = (run, word, ...more) =>
-    run(['config', 'push', word, ...more]);
+  const pull = (run, word, ...more) => run(['config', 'pull', word, ...more]);
+  const push = (run, word, ...more) => run(['config', 'push', word, ...more]);
 
   describe('pull', () => {
     it(

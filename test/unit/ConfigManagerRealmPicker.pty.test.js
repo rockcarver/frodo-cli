@@ -374,15 +374,7 @@ suite(
             ...noCredentials,
             FRODO_CONNECTION_PROFILES_PATH: path.join(home, 'Connections.json'),
           },
-          args: [
-            'config',
-            'pull',
-            'cors',
-            '-D',
-            outDir,
-            '--type',
-            'cloud',
-          ],
+          args: ['config', 'pull', 'cors', '-D', outDir, '--type', 'cloud'],
           actions: [
             { type: 'wait_plain', regex: 'AM base URL:', timeoutMs: 60000 },
             { type: 'send_line', text: host() },

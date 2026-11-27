@@ -116,9 +116,7 @@ describe('frodo config delete terms-and-conditions', () => {
     const program = await run('-y');
 
     expect(program.multiOpCalled).toBe(true);
-    expect(constructed[0]).toBe(
-      'frodo config delete terms-and-conditions'
-    );
+    expect(constructed[0]).toBe('frodo config delete terms-and-conditions');
     expect(constructed[2]).toEqual(['cloud', 'forgeops']);
   });
 
