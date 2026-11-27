@@ -30,6 +30,20 @@ async function runMcpCommand(...args) {
     return stdout || stderr;
 }
 
+/**
+ * Polls until the condition holds. The error output of the server is a pipe that is
+ * read by another process (the test reads it a moment after the server wrote it), so
+ * a line that the server logged before it answered may not be in the chunks yet; the
+ * time is only the guard against a hang, and a condition that never holds is left to
+ * the assertion after it, which says what was there.
+ */
+async function waitUntil(condition, timeoutMs = 10000) {
+    const deadline = Date.now() + timeoutMs;
+    while (!condition() && Date.now() < deadline) {
+        await new Promise((resolve) => setTimeout(resolve, 25));
+    }
+}
+
 function parseJsonOutput(stdout) {
     return JSON.parse(stdout.slice(stdout.indexOf('{')));
 }
@@ -360,6 +374,11 @@ test("'mcp server start' emits info logs without routine stderr", async () => {
         );
         expect(stderr.join('')).toContain(
             '[frodo-mcp] info: startup: Experimental feature in use'
+        );
+        await waitUntil(() =>
+            stderr
+                .join('')
+                .includes('[frodo-mcp] info: discovery: tool=frodo_find_skills')
         );
         expect(stderr.join('')).toContain(
             '[frodo-mcp] info: discovery: tool=frodo_find_skills'

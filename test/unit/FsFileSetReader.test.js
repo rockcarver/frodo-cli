@@ -341,20 +341,32 @@ describe('listing a directory', () => {
     expect(names).toEqual(['z.json', `${astral}.json`, '\ue000.json']);
   });
 
-  test('lists 10,000 entries in less than 2 seconds', async () => {
+  test('lists 10,000 entries with a few calls to the file system, not one for each entry', async () => {
     fs.mkdirSync(path.join(root, 'big'));
     for (let index = 0; index < 10000; index++) {
       fs.writeFileSync(path.join(root, 'big', `f${String(index).padStart(5, '0')}.json`), '');
     }
     const reader = fsFileSetReader(root);
+    // the calls are counted, not timed: the time of a listing depends on the machine, the calls do not (a call for each of
+    // the entries is the listing that takes seconds on a slow disk). Every function of the file system that the reader
+    // can reach is counted: all those of `fs.promises`, and the functions of `fs` itself (the synchronous ones and the
+    // ones with a callback), so that no call for each entry gets past.
+    const functionsOf = (object) =>
+      Object.keys(object).filter((name) => /^[a-z]/.test(name) && typeof object[name] === 'function');
+    const spies = [
+      ...functionsOf(fs.promises).map((name) => jest.spyOn(fs.promises, name)),
+      ...functionsOf(fs).map((name) => jest.spyOn(fs, name)),
+    ];
+    const readdir = spies[functionsOf(fs.promises).indexOf('readdir')];
 
-    const started = Date.now();
     const entries = await reader.listDirectory('big');
-    const elapsed = Date.now() - started;
 
+    const calls = spies.reduce((sum, spy) => sum + spy.mock.calls.length, 0);
+    expect(spies.length).toBeGreaterThan(50);
     expect(entries).toHaveLength(10000);
     expect(entries[0].name).toBe('f00000.json');
-    expect(elapsed).toBeLessThan(2000);
+    expect(readdir).toHaveBeenCalledTimes(1);
+    expect(calls).toBeLessThanOrEqual(20);
   });
 
   test('an existing empty folder lists as an empty list: the disk knows no ownership', async () => {
@@ -517,8 +529,9 @@ describe('reading a file', () => {
     async () => {
       fs.mkdirSync(path.join(root, 'd'));
       execFileSync('mkfifo', [path.join(root, 'd', 'pipe')]);
+      // not timed: a FIFO that is opened is what is wrong, so the opens are counted
+      const open = jest.spyOn(fs.promises, 'open');
 
-      const started = Date.now();
       const outcome = await fsFileSetReader(root)
         .readFile('d/pipe')
         .then(
@@ -528,7 +541,7 @@ describe('reading a file', () => {
 
       expect(outcome.error).toBeDefined();
       expect(outcome.error.message).toMatch(/not a regular file/);
-      expect(Date.now() - started).toBeLessThan(2000);
+      expect(open).not.toHaveBeenCalled();
     }
   );
 

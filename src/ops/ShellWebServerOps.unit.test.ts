@@ -6,7 +6,6 @@ import path from 'node:path';
 import vm from 'node:vm';
 import {
   afterEach,
-  beforeAll,
   beforeEach,
   describe,
   expect,
@@ -1345,24 +1344,72 @@ describe('why a tab engine did not come up', () => {
   });
 
   describe('a line that a process makes huge', () => {
-    // What a process writes is hostile input: the time it takes to treat a line
+    // What a process writes is hostile input: the work it takes to treat a line
     // must not depend on how long the line is. A pattern with an open name part
     // takes seconds on a few thousand characters and hours on millions, and a
-    // regular expression cannot be interrupted: so a small line is timed first,
-    // and the big ones are only run when that was quick.
+    // regular expression cannot be interrupted. What is checked is therefore the
+    // text that every pattern is given, not a time (a clock would depend on the
+    // machine): the test records the longest text that a regular expression is run
+    // on, which is REASON_INPUT_LIMIT for each of the lines below, and a text ten
+    // times as long throws at once, so that no pattern ever gets to run on a line
+    // of 4,000,000 characters.
+    const TOO_LONG = 10 * REASON_INPUT_LIMIT;
+    // The patterns must also be cheap on the 2000 characters that they are given. That is checked
+    // by the number of times that a pattern is run (a pattern that is run again for every
+    // character of the text it reads is quadratic however fast the machine is), and by the CPU
+    // time of the process, with a bound a thousand times what 2000 characters cost and far under
+    // what a pattern that backtracks takes. A regular expression cannot be interrupted, so a
+    // pattern that backtracks without end holds the test until its timeout, and the bound is
+    // checked when it has ended.
+    const MAX_RUNS = 10 * REASON_INPUT_LIMIT;
+    const CPU_LIMIT_MS = 5000;
+    const cpuMilliseconds = (work: () => void): number => {
+      const before = process.cpuUsage();
+      work();
+      const used = process.cpuUsage(before);
+      return (used.user + used.system) / 1000;
+    };
+    let longest = 0;
+    let runs = 0;
+    let spy: ReturnType<typeof jest.spyOn> | undefined;
+
+    beforeEach(() => {
+      longest = 0;
+      runs = 0;
+      const execute = RegExp.prototype.exec;
+      spy = jest.spyOn(RegExp.prototype, 'exec').mockImplementation(function (
+        this: RegExp,
+        text: string
+      ) {
+        const length = String(text).length;
+        if (length > TOO_LONG) {
+          throw new Error(
+            `a regular expression is run on a text of ${length} characters (the limit is ${REASON_INPUT_LIMIT})`
+          );
+        }
+        runs++;
+        longest = Math.max(longest, length);
+        return execute.call(this, text);
+      });
+    });
+
+    afterEach(() => {
+      spy?.mockRestore();
+    });
+
     const small = [
       `Error: ${'a'.repeat(30_000)}`,
       `Error: ${'password'.repeat(400)}`,
     ];
-    let quick = false;
-    beforeAll(() => {
-      const started = performance.now();
-      for (const line of small) engineStartFailureReason([line]);
-      quick = performance.now() - started < 250;
-    });
 
-    it('is quick for a line of thirty thousand characters, and of repeated keywords', () => {
-      expect(quick).toBe(true);
+    it('gives the patterns no more than the limit for a line of thirty thousand characters, and of repeated keywords', () => {
+      const milliseconds = cpuMilliseconds(() => {
+        for (const line of small) engineStartFailureReason([line]);
+      });
+      expect(runs).toBeGreaterThan(0);
+      expect(longest).toBeLessThanOrEqual(REASON_INPUT_LIMIT);
+      expect(runs).toBeLessThanOrEqual(MAX_RUNS);
+      expect(milliseconds).toBeLessThan(CPU_LIMIT_MS);
     });
 
     const shapes: [string, string][] = [
@@ -1378,23 +1425,29 @@ describe('why a tab engine did not come up', () => {
     ];
 
     it.each(shapes)(
-      'is treated in well under a second: %s',
+      'gives the patterns no more than the limit, however long the line is: %s',
       (_name, filler) => {
-        if (!quick) throw new Error('not run: the small line was already slow');
-        const started = performance.now();
-        const reason = engineStartFailureReason([`Error: ${filler}`]);
-        const elapsed = performance.now() - started;
-        expect(elapsed).toBeLessThan(250);
+        let reason = '';
+        const milliseconds = cpuMilliseconds(() => {
+          reason = engineStartFailureReason([`Error: ${filler}`]);
+        });
+        expect(runs).toBeGreaterThan(0);
+        expect(longest).toBeLessThanOrEqual(REASON_INPUT_LIMIT);
+        expect(runs).toBeLessThanOrEqual(MAX_RUNS);
+        expect(milliseconds).toBeLessThan(CPU_LIMIT_MS);
         expect(reason.length).toBeLessThanOrEqual(200);
         expect(reason.startsWith('Error:')).toBe(true);
       }
     );
 
-    it('is treated in well under a second when it is the whole text handed to safeEngineReason', () => {
-      if (!quick) throw new Error('not run: the small line was already slow');
-      const started = performance.now();
-      safeEngineReason('password'.repeat(500_000), ['abcdefghijklmnop']);
-      expect(performance.now() - started).toBeLessThan(250);
+    it('gives the patterns no more than the limit when the line is the whole text handed to safeEngineReason', () => {
+      const milliseconds = cpuMilliseconds(() => {
+        safeEngineReason('password'.repeat(500_000), ['abcdefghijklmnop']);
+      });
+      expect(runs).toBeGreaterThan(0);
+      expect(longest).toBeLessThanOrEqual(REASON_INPUT_LIMIT);
+      expect(runs).toBeLessThanOrEqual(MAX_RUNS);
+      expect(milliseconds).toBeLessThan(CPU_LIMIT_MS);
     });
 
     it('looks at no more than REASON_INPUT_LIMIT characters', () => {
@@ -2034,7 +2087,11 @@ describe('a tab engine that cannot start or that ends', () => {
       ]);
       const { session } = await startAndSignIn();
       const waiting = session().catch((e) => e);
-      await new Promise((resolve) => setTimeout(resolve, 500));
+      // the worker has started when its pid is in the log: poll for it (a loaded machine
+      // does not start a Node process in a fixed time), the loop is only the guard
+      for (let i = 0; i < 600 && started() === 0; i++) {
+        await new Promise((resolve) => setTimeout(resolve, 25));
+      }
       const pid = Number(
         fs.readFileSync(spawnLog, 'utf8').trim().split('\n').pop()
       );

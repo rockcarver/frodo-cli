@@ -11,6 +11,9 @@
  * return is interrupted and fails the test), generous, and far under what a step
  * that reads the text again for each of its characters takes (minutes).
  */
+import { execFile as execFileCallback } from 'node:child_process';
+import { promisify } from 'node:util';
+
 import {
   liveSecrets,
   REDACTED,
@@ -19,6 +22,14 @@ import {
   WITHHELD,
 } from '../../src/utils/McpResultScrub.ts';
 import { leastCpuMilliseconds } from '../utils/CpuTime.js';
+import {
+  captureSwallowedError,
+  describeMachine,
+  describeText,
+  largeCases,
+} from '../utils/McpResultScrubLargeCases.js';
+
+const execFile = promisify(execFileCallback);
 
 const MEGABYTE = 1024 * 1024;
 const BOUND_MS = 2000;
@@ -173,81 +184,87 @@ describe('scrubbing a text of an adversarial shape', () => {
 
 describe('scrubbing a text that is many megabytes long', () => {
   const MEBIBYTE = 1024 * 1024;
-  const big = (length, character = 'A') => character.repeat(length);
 
-  // one long run of a sort that a rule reads: the scrub must not throw (a regular
-  // expression keeps an entry per step in a stack of its own and throws when it is
-  // used up), must answer in a time that grows with the length, and must replace what
-  // it is meant to replace
-  const LARGE = [
-    [
-      'a token with a header of 6 MiB and a payload',
-      `eyJ${big(6 * MEBIBYTE)}.abcdefgh`,
-      REDACTED,
-    ],
-    [
-      'a header of 6 MiB behind a word that does not decode as JSON, and a payload: not a token',
-      `x-eyJ${big(6 * MEBIBYTE)}.abcdefgh`,
-      `x-eyJ${big(6 * MEBIBYTE)}.abcdefgh`,
-    ],
-    [
-      'a token with a header of 6 MiB behind a word, whose header decodes',
-      `x-${Buffer.from(JSON.stringify({ a: big(5 * MEBIBYTE) })).toString('base64url')}.abcdefgh`,
-      `x-${REDACTED}`,
-    ],
-    [
-      'a header of 6 MiB and no payload',
-      `eyJ${big(6 * MEBIBYTE)}`,
-      `eyJ${big(6 * MEBIBYTE)}`,
-    ],
-    [
-      'a payload of 6 MiB',
-      `eyJhbGciOiJub25lIn0.${big(6 * MEBIBYTE)}`,
-      REDACTED,
-    ],
-    [
-      'a value of 16 MiB after Bearer',
-      `Bearer ${big(16 * MEBIBYTE, 'a')}`,
-      `Bearer ${REDACTED}`,
-    ],
-    [
-      'a value of 16 MiB after an exchange name',
-      `access_token=${big(16 * MEBIBYTE, 'a')}`,
-      `access_token=${REDACTED}`,
-    ],
-    [
-      'a string of 16 MiB under a quoted key',
-      `{"authorization": "${big(16 * MEBIBYTE, 'a')}"}`,
-      `{"authorization": "${REDACTED}"}`,
-    ],
-    [
-      'a string of 4 million escapes under a quoted key',
-      `{"authorization": "${'\\\\'.repeat(2 * MEBIBYTE)}"}`,
-      `{"authorization": "${REDACTED}"}`,
-    ],
-    [
-      'a line of 16 MiB',
-      `Authorization: ${big(16 * MEBIBYTE, 'a')}`,
-      `Authorization: ${REDACTED}`,
-    ],
-    [
-      'a line of 16 MiB in single quotes',
-      `{ authorization: '${big(16 * MEBIBYTE, 'a')}' }`,
-      `{ authorization: '${REDACTED}' }`,
-    ],
-  ];
+  // One long run of a sort that a rule reads: the scrub must not throw, must answer in a time that
+  // grows with the length, and must replace what it is meant to replace.
+  //
+  // A regular expression that V8 compiles when the process already holds much regular expression
+  // code (a Jest worker that has run many test files before this one) is compiled without
+  // optimization, and an unoptimized `x+` loop keeps one entry per character in the stack of the
+  // engine: a run of about 6 MiB uses it up, the step throws, and the scrub answers the withheld
+  // text. That is its contract (a text that cannot be scrubbed is withheld, never passed on), so in
+  // this process the answer is the scrubbed text OR the withheld text, and never the secret. That a
+  // large legitimate text is scrubbed and not withheld is tested in a fresh process, which does not
+  // hold that much code (the next test). See
+  // https://github.com/rockcarver/frodo-cli/issues/1499
+  const LARGE = largeCases();
+
+  /** The answer is safe: a text, without the secret, that is the scrubbed text or the withheld text. */
+  const expectSafe = ({ name, text, expected, secret }, scrubbed) => {
+    if (typeof scrubbed !== 'string') {
+      throw new Error(`the scrub returned ${describeText(scrubbed)}`);
+    }
+    if (secret !== null && scrubbed.includes(secret)) {
+      throw new Error(
+        `the scrub passed a secret on: it returned ${describeText(scrubbed)}`
+      );
+    }
+    if (scrubbed === WITHHELD) {
+      // allowed, and told: the process is in the state that the comment above describes
+      process.stderr.write(
+        `note: the scrub withheld "${name}" in this process (${captureSwallowedError(scrubKnownValues, text)}; ${describeMachine()})\n`
+      );
+      return;
+    }
+    if (scrubbed !== expected) {
+      throw new Error(
+        `the scrub returned ${describeText(scrubbed)}: neither ${describeText(expected)} nor the withheld text (${describeMachine()})`
+      );
+    }
+  };
 
   test.each(LARGE)(
-    '1: %s is scrubbed, without a throw',
-    (_name, text, expected) => {
+    '1: $name is scrubbed or withheld, without a throw and without the secret',
+    (largeCase) => {
       let scrubbed = '';
       const milliseconds = leastCpuMilliseconds(() => {
-        scrubbed = scrubKnownValues(text);
+        scrubbed = scrubKnownValues(largeCase.text);
       }, BOUND_MS * 4);
-      expect(scrubbed === expected).toBe(true);
+      expectSafe(largeCase, scrubbed);
       expect(milliseconds).toBeLessThan(BOUND_MS * 4);
     }
   );
+
+  // The child process runs the same cases in a process of its own (Node strips the types of the
+  // module, which has no imports): it has compiled only what the cases need, so every case must come
+  // to the scrubbed text. This is the guard against a step that keeps an entry per character of the
+  // run in the stack of the engine, which the group above cannot be, as its process may be unoptimized.
+  test('1: in a fresh process every large case is scrubbed as a whole, none is withheld', async () => {
+    const helper = new URL('../utils/McpResultScrubLargeCases.js', import.meta.url);
+    const { stdout } = await execFile(
+      process.execPath,
+      [
+        '--input-type=module',
+        '-e',
+        'import(process.argv[1]).then((helper) => helper.printWhatTheCasesComeTo())',
+        helper.href,
+      ],
+      { maxBuffer: 10 * MEBIBYTE, timeout: 100000 }
+    );
+    const { machine, results } = JSON.parse(stdout);
+    expect(results).toHaveLength(LARGE.length);
+    const failed = results.filter((result) => !result.same);
+    if (failed.length > 0) {
+      throw new Error(
+        `${failed.length} of ${results.length} large cases are not scrubbed as a whole in a fresh process (${machine}):\n${failed
+          .map(
+            (result) =>
+              `  ${result.name}: returned ${result.returned}, expected ${result.expected}; swallowed: ${result.swallowed}`
+          )
+          .join('\n')}`
+      );
+    }
+  }, 110000);
 
   // a string of millions of escape sequences, of every sort, under a name that a header line or a
   // quoted key reads: the answer is a result, not a withheld text

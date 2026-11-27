@@ -190,24 +190,38 @@ describe('createMcpSessionKeeper', () => {
     });
 
     test('a logout that never finishes holds up the shutdown for the time limit, not longer', async () => {
-      const hung = {
-        login: { dispose: jest.fn(() => new Promise(() => undefined)) },
-      };
-      const { lines, report } = reports();
-      const keeper = createMcpSessionKeeper(hung, { timeoutMs: 100, report });
+      // fake timers: the clock is the test's, so that a machine that is slow to run the
+      // test cannot make it late, and the limit is checked to the millisecond
+      jest.useFakeTimers();
+      try {
+        const hung = {
+          login: { dispose: jest.fn(() => new Promise(() => undefined)) },
+        };
+        const { lines, report } = reports();
+        const keeper = createMcpSessionKeeper(hung, { timeoutMs: 100, report });
 
-      const started = Date.now();
-      const ended = await settlesWithin(keeper.endAll(), 2000);
-      const took = Date.now() - started;
+        let settled = false;
+        const ended = keeper.endAll().then(() => {
+          settled = true;
+        });
 
-      expect(ended).toBe(true);
-      expect(took).toBeGreaterThanOrEqual(90);
-      expect(took).toBeLessThan(1500);
-      expect(lines).toContainEqual({
-        level: 'warn',
-        message:
-          'Ending the sessions took more than 100 ms; shutting down without waiting for it.',
-      });
+        // not before the limit
+        await jest.advanceTimersByTimeAsync(99);
+        expect(settled).toBe(false);
+        expect(lines).toEqual([]);
+
+        // and at the limit
+        await jest.advanceTimersByTimeAsync(1);
+        expect(settled).toBe(true);
+        await ended;
+        expect(lines).toContainEqual({
+          level: 'warn',
+          message:
+            'Ending the sessions took more than 100 ms; shutting down without waiting for it.',
+        });
+      } finally {
+        jest.useRealTimers();
+      }
     });
 
     test('does not wait for the time limit when the logouts finish sooner', async () => {

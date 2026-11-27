@@ -130,11 +130,46 @@ export async function startForwardProxy({ credentials } = {}) {
   };
 }
 
-/** A loopback port nothing listens on: it was free a moment ago and is closed again. */
+/** The ports that `closedPort` has handed out in this process: none is handed out twice. */
+const handedOut = new Set();
+
+/** Whether a connection to the loopback port is refused, which is what a port that nothing listens on does. */
+function refusesConnections(port) {
+  return new Promise((resolve) => {
+    const socket = net.connect(port, '127.0.0.1');
+    socket.once('connect', () => {
+      socket.destroy();
+      resolve(false);
+    });
+    socket.once('error', (error) => {
+      socket.destroy();
+      resolve(error.code === 'ECONNREFUSED');
+    });
+  });
+}
+
+/**
+ * A loopback port nothing listens on: it was free a moment ago and is closed again.
+ * The system may give the same port to two callers one after the other, so a test
+ * that asks for two dead ports (a proxy that is down and a tenant that is down) must
+ * not get the same one twice: a port is handed out once per process. And a port
+ * that something has taken in the meantime is not handed out: it is only returned
+ * when a connection to it is refused.
+ * @returns {Promise<number>} the port
+ */
 export async function closedPort() {
-  const server = net.createServer();
-  await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve));
-  const { port } = server.address();
-  await new Promise((resolve) => server.close(resolve));
-  return port;
+  for (let attempt = 0; attempt < 50; attempt++) {
+    const server = net.createServer();
+    await new Promise((resolve, reject) => {
+      server.once('error', reject);
+      server.listen(0, '127.0.0.1', resolve);
+    });
+    const { port } = server.address();
+    await new Promise((resolve) => server.close(resolve));
+    if (!handedOut.has(port) && (await refusesConnections(port))) {
+      handedOut.add(port);
+      return port;
+    }
+  }
+  throw new Error('no closed loopback port was found in 50 attempts');
 }

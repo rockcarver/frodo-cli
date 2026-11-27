@@ -33,6 +33,30 @@ def strip_ansi(text: str) -> str:
     return ANSI_ESCAPE_CODES.sub("", text).replace("\r", "").replace("\x08", "")
 
 
+def request_logged(path, matcher):
+    """Whether the request log at `path` holds a request whose url the matcher finds.
+
+    The log is a file with one JSON record a line that another process appends to,
+    and it is read while that process writes: the last line can be half there. It
+    does not parse yet, and the next poll finds it whole, so it is skipped and is
+    not an error. A log that is not there yet holds no request.
+    """
+    try:
+        with open(path) as records:
+            for line in records:
+                if not line.strip():
+                    continue
+                try:
+                    url = json.loads(line)["url"]
+                except json.JSONDecodeError:
+                    continue
+                if matcher.search(url):
+                    return True
+    except FileNotFoundError:
+        pass
+    return False
+
+
 class PtyScenarioRunner:
     def __init__(self, scenario):
         self.command = scenario["command"]
@@ -188,15 +212,7 @@ class PtyScenarioRunner:
                 matcher = re.compile(action["regex"])
                 while True:
                     self._read_once()
-                    try:
-                        with open(action["path"]) as records:
-                            matched = any(
-                                matcher.search(json.loads(line)["url"])
-                                for line in records if line.strip()
-                            )
-                    except FileNotFoundError:
-                        matched = False
-                    if matched:
+                    if request_logged(action["path"], matcher):
                         break
                     if time.time() >= deadline:
                         raise TimeoutError(
