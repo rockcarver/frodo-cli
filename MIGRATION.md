@@ -1373,11 +1373,16 @@ value is now one name, so it cannot lead out of the config folder:
   ([a name that does not fit in a file name is shortened and ends with a checksum](https://github.com/rockcarver/frodo-cli/blob/main/docs/decisions/core/0027-a-name-that-does-not-fit-in-a-file-name-is-shortened-and-ends-with-a-checksum.md),
   the same rule as in frodo-lib). An id of 300 `n` is 241 `n`, `~` and
   `cd5124b3`, and two long ids that start alike have two names. A name that was a
-  valid file name keeps it, byte for byte. Only three groups of names change: an id
-  of 251 to 255 bytes (refused, or cut at 250 bytes by the agent types), an id of
-  more than 255 bytes (refused, or cut), and an id that holds a raw U+007F or a lone
-  surrogate, which a pull wrote as it was typed and now writes with U+FFFD and the
-  checksum. An object whose files have different endings (`.json`, `.js`,
+  valid file name keeps it, byte for byte. Four groups of names change: an id of
+  251 to 255 bytes (refused, or cut at 250 bytes by the agent types), a name of
+  more than 255 bytes once its path characters are written as `%XX` (an id of 100
+  `/` is a name of 300 bytes; refused, or cut), an id that holds a raw U+007F or a
+  lone surrogate, which a pull wrote as it was typed and now writes with U+FFFD and
+  the checksum, and a name of 251 to 255 bytes in a place that is only a folder (the
+  version of terms and conditions, the category of telemetry, the type of a service
+  object, an agent type, the context of a script): it was written as typed and is
+  now shortened like the others, because a folder leaves room for `.json` too. An
+  object whose files have different endings (`.json`, `.js`,
   `.groovy`, `.<language>.html`, `.<key>.js`, a relationship schema) has one name
   that leaves room for its longest ending, so names of about 244 to 250 bytes that
   were refused before are shortened for such an object. The files that an older pull
@@ -1390,17 +1395,23 @@ value is now one name, so it cannot lead out of the config folder:
   changes what a push reads in these places: a file of `oauth-cimd-profiles`,
   `oauth-issuers` or `oauth-software-publishers` without an `_id` used to be pushed
   under its decoded file name and is now a named failure of that file (the other
-  files are still pushed); a journey is sent under the `_id` of its file, and the
+  files are still pushed); a journey is sent under the `_id` of its file (a journey
+  file without an `_id` is a named failure of that journey), and the
   object of a relationship schema under the `name` of its object file, where both
   were the name of a folder; the property of a relationship schema file is the
   property of the object whose name in a file name is the one of the file (a file
   that names no property keeps the decoded name); the files of the password policy
   and of the organization privileges of a realm with a very long name are found
-  under the same name that a pull gave them. `-i` and `-n` find a file by the name
-  that the id has with the ending `.json`. A name that does not fit and belongs to
-  an object whose files have a longer ending (a managed object with a script or a
-  relationship schema, a mapping with a script) is shortened for that longer
-  ending, so it is a different name: `push managed-objects -n`, `push
+  under the same name that a pull gave them; `push terms-and-conditions` reads the
+  file that the terms refer to, which a pull wrote under the shortened name of the
+  version, and not a name made again from the version; `apps migrate` finds the old
+  files of an owned OAuth2 client, connector and mapping under the name that a pull
+  gave them, and `push telemetry -n` looks for the file by the name that a pull
+  gives the id (it compared the typed name with the name of the file). `-i` and
+  `-n` find a file by the name that the id has with the ending `.json`. A name that
+  does not fit and belongs to an object whose files have a longer ending (a managed
+  object with a script or a relationship schema, a mapping with a script) is
+  shortened for that longer ending, so it is a different name: `push managed-objects -n`, `push
   connector-mappings -n` and the push of an application do not find such an object
   by its name, while the push of the whole folder does.
 - A name that is `.`, `..` or empty, a realm that is not `/`, a name or a path of
