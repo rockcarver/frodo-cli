@@ -22,10 +22,17 @@ import { isTruthyOptInValue } from '../../src/utils/EnvFlags.ts';
  *   values of every other opt-in) and when Node is told not to
  *   (`NODE_DISABLE_COMPILE_CACHE`); a cache that the user chose with
  *   `NODE_COMPILE_CACHE` is theirs and is left alone;
- * - `FRODO_CONFIG_PATH` moves the folder;
+ * - `FRODO_CONFIG_PATH` moves the folder; a config folder that is not an
+ *   absolute path (an empty home, `~/x`, `x`) leaves the cache off, so that no
+ *   folder is made in the current directory;
+ * - an existing `compile-cache` is used only when it is a real folder of the
+ *   current user that neither the group nor others can write to (a V8 cache
+ *   entry runs as code, so an entry that someone else could write would run as
+ *   this user); the entry never changes the mode of a folder that exists;
  * - a home that cannot be written, a file where a folder should be and a
  *   folder that Node cannot use never change a start: same output, same exit
- *   code, nothing more on stderr.
+ *   code, nothing more on stderr; the exit code, the signal and the handlers
+ *   of the app are the app's with the cache on.
  *
  * The fake-app cases copy the BUILT `dist/launch.cjs` next to a tiny `app.cjs`
  * that reports which cache folder Node gave the process, as in
@@ -52,11 +59,52 @@ const VERSION = JSON.parse(
   fs.readFileSync(path.join(ROOT, 'package.json'), 'utf8')
 ).version;
 
-/** The fake app reports the folder that Node gives the process for its compile cache. */
-const FAKE_APP = `process.stdout.write(JSON.stringify({
-  dir: require('node:module').getCompileCacheDir() ?? null,
-}));
+/**
+ * The fake app. FAKE_APP_MODE selects what it does:
+ * - report (the default): reports the folder that Node gives the process for
+ *   its compile cache
+ * - exit3: sets the exit code 3
+ * - selfkill: sends itself SIGTERM, which no handler catches
+ * - handlers: handles SIGTERM the way the real app does (says so and exits 0),
+ *   says `ready`, and waits
+ */
+const FAKE_APP = `const mode = process.env.FAKE_APP_MODE || 'report';
+if (mode === 'report') {
+  process.stdout.write(JSON.stringify({
+    dir: require('node:module').getCompileCacheDir() ?? null,
+  }));
+} else if (mode === 'exit3') {
+  process.exitCode = 3;
+} else if (mode === 'selfkill') {
+  process.kill(process.pid, 'SIGTERM');
+  setInterval(() => {}, 1000);
+} else if (mode === 'handlers') {
+  process.on('SIGTERM', () => {
+    process.stdout.write('got SIGTERM\\n');
+    process.exit(0);
+  });
+  process.stdout.write('ready\\n');
+  setInterval(() => {}, 1000);
+}
 `;
+
+/**
+ * Files that a case hands to the entry with NODE_OPTIONS (`--require`), to
+ * stand in for what the operating system or the machine decides and a test
+ * cannot make: another owner of a folder (no root here), no `getuid`, a home
+ * folder that is empty or relative.
+ */
+const PRELOADS = {
+  otherUser: `const real = process.getuid.bind(process);
+process.getuid = () => real() + 1;
+`,
+  noGetuid: `process.getuid = undefined;
+`,
+  emptyHomedir: `require('node:os').homedir = () => '';
+`,
+  relativeHomedir: `require('node:os').homedir = () => 'relative-home';
+`,
+};
 
 /**
  * The variables of the runner that change what the entry does or prints. Every
@@ -105,6 +153,9 @@ beforeAll(() => {
   fs.mkdirSync(dir);
   if (hasDist) fs.copyFileSync(LAUNCHER, path.join(dir, 'launch.cjs'));
   fs.writeFileSync(path.join(dir, 'app.cjs'), FAKE_APP);
+  for (const [name, code] of Object.entries(PRELOADS)) {
+    fs.writeFileSync(path.join(base, `${name}.cjs`), code);
+  }
 });
 
 afterAll(() => {
@@ -118,15 +169,38 @@ function newHome() {
   return home;
 }
 
+/** The NODE_OPTIONS that load one of the PRELOADS into the entry's process. */
+const preload = (name) => ({
+  NODE_OPTIONS: `--require ${JSON.stringify(path.join(base, `${name}.cjs`))}`,
+});
+
+/** A new, empty folder to run in: whatever a run makes in its working directory shows there. */
+function newCwd() {
+  const cwd = path.join(base, `cwd-${(counter += 1)}`);
+  fs.mkdirSync(cwd);
+  return cwd;
+}
+
 /** Runs the copied entry with the fake app and returns what spawnSync reports plus what the app saw. */
-function runFake(home, env = {}) {
-  const result = cp.spawnSync(process.execPath, [path.join(dir, 'launch.cjs')], {
-    env: envFor(home, env),
-    encoding: 'utf8',
-  });
+function runFake(home, env = {}, cwd = undefined) {
+  const result = cp.spawnSync(
+    process.execPath,
+    [path.join(dir, 'launch.cjs')],
+    {
+      env: envFor(home, env),
+      encoding: 'utf8',
+      cwd,
+      // an entry or an app that never ends fails the case instead of the run
+      timeout: 60000,
+      killSignal: 'SIGKILL',
+    }
+  );
   return {
     ...result,
-    seen: result.status === 0 ? JSON.parse(result.stdout) : undefined,
+    seen:
+      result.status === 0 && result.stdout.startsWith('{')
+        ? JSON.parse(result.stdout)
+        : undefined,
   };
 }
 
@@ -135,6 +209,8 @@ function runReal(home, env = {}) {
   return cp.spawnSync(process.execPath, [LAUNCHER, '-v'], {
     env: envFor(home, env),
     encoding: 'utf8',
+    timeout: 100000,
+    killSignal: 'SIGKILL',
   });
 }
 
@@ -260,6 +336,13 @@ describe('the compile cache is off, and nothing is created, when it should be', 
     ['FRODO_NO_COMPILE_CACHE=on', { FRODO_NO_COMPILE_CACHE: 'on' }],
     ['FRODO_NO_COMPILE_CACHE=ON', { FRODO_NO_COMPILE_CACHE: 'ON' }],
     ['NODE_DISABLE_COMPILE_CACHE=1', { NODE_DISABLE_COMPILE_CACHE: '1' }],
+    // Node disables its cache for any value, so the entry makes no folder for any
+    ['NODE_DISABLE_COMPILE_CACHE=0', { NODE_DISABLE_COMPILE_CACHE: '0' }],
+    [
+      'NODE_DISABLE_COMPILE_CACHE=false',
+      { NODE_DISABLE_COMPILE_CACHE: 'false' },
+    ],
+    ['NODE_DISABLE_COMPILE_CACHE= (empty)', { NODE_DISABLE_COMPILE_CACHE: '' }],
   ])('%s', (_, env) => {
     const home = newHome();
     const { status, stderr, seen } = runFake(home, env);
@@ -270,16 +353,13 @@ describe('the compile cache is off, and nothing is created, when it should be', 
     expect(fs.readdirSync(home)).toEqual([]);
   });
 
-  testif(hasDist)(
-    'FRODO_CONFIG_PATH does not turn it on in a CI run',
-    () => {
-      const home = newHome();
-      const config = path.join(home, 'config');
-      const { seen } = runFake(home, { CI: 'true', FRODO_CONFIG_PATH: config });
-      expect(seen.dir).toBeNull();
-      expect(fs.existsSync(config)).toBe(false);
-    }
-  );
+  testif(hasDist)('FRODO_CONFIG_PATH does not turn it on in a CI run', () => {
+    const home = newHome();
+    const config = path.join(home, 'config');
+    const { seen } = runFake(home, { CI: 'true', FRODO_CONFIG_PATH: config });
+    expect(seen.dir).toBeNull();
+    expect(fs.existsSync(config)).toBe(false);
+  });
 });
 
 describe('the compile cache stays on for values that do not say yes', () => {
@@ -292,6 +372,8 @@ describe('the compile cache stays on for values that do not say yes', () => {
     ['FRODO_TEST= (empty)', { FRODO_TEST: '' }],
     ['FRODO_MOCK=0', { FRODO_MOCK: '0' }],
     ['FRODO_MOCK= (empty)', { FRODO_MOCK: '' }],
+    // Node ignores an empty NODE_COMPILE_CACHE, and so does the entry
+    ['NODE_COMPILE_CACHE= (empty)', { NODE_COMPILE_CACHE: '' }],
   ])('%s', (_, env) => {
     const home = newHome();
     const { status, stderr, seen } = runFake(home, env);
@@ -482,5 +564,269 @@ describe('a CLI that another test starts runs without the compile cache', () => 
       expect(JSON.parse(result.stdout).dir).toBeNull();
       expect(fs.readdirSync(home)).toEqual([]);
     }
+  );
+});
+
+describe('an existing compile-cache is used only when it is a real folder of the user that nobody else can write to', () => {
+  // A V8 cache entry is run as code, and Node checks an entry for corruption
+  // only: not for who wrote it. A folder that someone else can write to, a link
+  // into such a folder or a folder of another user would run their entries as
+  // this user, so the cache stays off then. Nothing is changed or made.
+  const posixOnly = testif(hasDist && posix);
+
+  /** What a folder is and its mode, to see that the entry changed neither. */
+  const stateOf = (file) => {
+    const stat = fs.lstatSync(file);
+    const type = stat.isSymbolicLink()
+      ? 'link'
+      : stat.isDirectory()
+        ? 'folder'
+        : 'file';
+    return `${type} ${(stat.mode & 0o777).toString(8)}`;
+  };
+
+  /** Runs with a compile-cache that was made by `make(cache, home)` and checks that the cache is off and nothing moved. */
+  function expectOff(make) {
+    const home = newHome();
+    const cache = cacheOf(home);
+    fs.mkdirSync(path.dirname(cache), { recursive: true, mode: 0o700 });
+    const extra = make(cache, home) ?? {};
+    const before = stateOf(cache);
+    const { status, stderr, seen } = runFake(home, extra.env);
+    expect(status).toBe(0);
+    expect(stderr).toBe('');
+    expect(seen.dir).toBeNull();
+    expect(stateOf(cache)).toBe(before);
+    return { home, cache };
+  }
+
+  posixOnly.each([
+    ['0777', 0o777],
+    ['0775 (group can write)', 0o775],
+    ['0770 (group can write)', 0o770],
+    ['0757 (others can write)', 0o757],
+    ['0707 (others can write)', 0o707],
+  ])(
+    'a folder with mode %s: cache off, mode kept, nothing written',
+    (_, mode) => {
+      const { cache } = expectOff((folder) => {
+        fs.mkdirSync(folder);
+        fs.chmodSync(folder, mode);
+      });
+      expect(fs.readdirSync(cache)).toEqual([]);
+    }
+  );
+
+  posixOnly.each([
+    ['0700', 0o700],
+    ['0750 (the group can read)', 0o750],
+    ['0755 (others can read)', 0o755],
+  ])(
+    'a folder of the user with mode %s is used and keeps its mode',
+    (_, mode) => {
+      const home = newHome();
+      const cache = cacheOf(home);
+      fs.mkdirSync(cache, { recursive: true });
+      fs.chmodSync(cache, mode);
+      const { status, stderr, seen } = runFake(home);
+      expect(status).toBe(0);
+      expect(stderr).toBe('');
+      expect(usesCacheIn(seen, cache)).toBe(true);
+      expect(fs.statSync(cache).mode & 0o777).toBe(mode);
+    }
+  );
+
+  posixOnly(
+    'a link to a folder: cache off, the link stays, nothing is written through it',
+    () => {
+      let target;
+      const { cache } = expectOff((link, home) => {
+        target = path.join(home, 'elsewhere');
+        fs.mkdirSync(target, { mode: 0o700 });
+        fs.symlinkSync(target, link);
+      });
+      expect(fs.readlinkSync(cache)).toBe(target);
+      expect(fs.readdirSync(target)).toEqual([]);
+    }
+  );
+
+  posixOnly(
+    'a link to nothing: cache off, the link stays and its target is not made',
+    () => {
+      let target;
+      const { cache } = expectOff((link, home) => {
+        target = path.join(home, 'nowhere');
+        fs.symlinkSync(target, link);
+      });
+      expect(fs.readlinkSync(cache)).toBe(target);
+      expect(fs.existsSync(target)).toBe(false);
+    }
+  );
+
+  posixOnly(
+    'a folder that another user owns (the entry sees another uid): cache off, nothing written',
+    () => {
+      const { cache } = expectOff((folder) => {
+        fs.mkdirSync(folder, { mode: 0o700 });
+        return { env: preload('otherUser') };
+      });
+      expect(fs.readdirSync(cache)).toEqual([]);
+    }
+  );
+
+  posixOnly(
+    'the same folder is used when the entry sees its own uid, which is what the previous case changes',
+    () => {
+      const home = newHome();
+      fs.mkdirSync(cacheOf(home), { recursive: true, mode: 0o700 });
+      const { status, stderr, seen } = runFake(home);
+      expect(status).toBe(0);
+      expect(stderr).toBe('');
+      expect(usesCacheIn(seen, cacheOf(home))).toBe(true);
+    }
+  );
+
+  posixOnly(
+    'where there is no getuid the owner is not tested and the folder is used',
+    () => {
+      const home = newHome();
+      fs.mkdirSync(cacheOf(home), { recursive: true, mode: 0o700 });
+      const { status, stderr, seen } = runFake(home, preload('noGetuid'));
+      expect(status).toBe(0);
+      expect(stderr).toBe('');
+      expect(usesCacheIn(seen, cacheOf(home))).toBe(true);
+    }
+  );
+});
+
+describe('the config folder must be an absolute path', () => {
+  // `os.homedir()` is an empty string when HOME is set but empty, and a literal
+  // `~` is not expanded in a compose file or an env file. Resolved against the
+  // working directory, either would make `.frodo/compile-cache` (or `~/x/...`)
+  // in whatever folder the user happens to be in, on every start.
+
+  /** Runs in a new working directory and checks that nothing was made there or in the HOME, and that the cache is off. */
+  function expectNothingMade(env, { emptyHome = false } = {}) {
+    const home = newHome();
+    const cwd = newCwd();
+    const { status, stderr, seen } = runFake(
+      home,
+      emptyHome ? { HOME: '', USERPROFILE: '', ...env } : env,
+      cwd
+    );
+    expect(status).toBe(0);
+    expect(stderr).toBe('');
+    expect(seen.dir).toBeNull();
+    expect(fs.readdirSync(cwd)).toEqual([]);
+    expect(fs.readdirSync(home)).toEqual([]);
+  }
+
+  // `HOME` unset is not run: Node then asks the system for the home folder, and
+  // this case would fill the compile cache of the real one. An empty HOME and a
+  // home folder that a preload makes empty or relative reach the same code.
+  const emptyHomeGivesNoHome =
+    hasDist &&
+    cp.spawnSync(
+      process.execPath,
+      ['-e', "process.stdout.write(require('node:os').homedir())"],
+      {
+        env: { PATH: process.env.PATH, HOME: '', USERPROFILE: '' },
+        encoding: 'utf8',
+      }
+    ).stdout === '';
+
+  testif(emptyHomeGivesNoHome)('HOME is set but empty', () => {
+    expectNothingMade({}, { emptyHome: true });
+  });
+
+  testif(hasDist)('the home folder is an empty string', () => {
+    expectNothingMade(preload('emptyHomedir'));
+  });
+
+  testif(hasDist)('the home folder is a relative path', () => {
+    expectNothingMade(preload('relativeHomedir'));
+  });
+
+  testif(hasDist).each([
+    ['a literal ~', '~/frodo-config'],
+    ['./x', './frodo-config'],
+    ['a bare name', 'frodo-config'],
+    ['../x', '../frodo-config'],
+  ])('FRODO_CONFIG_PATH is %s', (_, value) => {
+    expectNothingMade({ FRODO_CONFIG_PATH: value });
+  });
+
+  testif(hasDist)(
+    'FRODO_CONFIG_PATH is relative while the home folder is fine: still nothing in the home',
+    () => {
+      const home = newHome();
+      const cwd = newCwd();
+      const { seen } = runFake(home, { FRODO_CONFIG_PATH: 'config' }, cwd);
+      expect(seen.dir).toBeNull();
+      expect(fs.readdirSync(home)).toEqual([]);
+      expect(fs.readdirSync(cwd)).toEqual([]);
+    }
+  );
+});
+
+describe('the exit of the app is the exit of the command with the cache on', () => {
+  // Every other launcher case runs with the cache off (the test setup), and the
+  // exit paths are where a cache that writes at exit could get in the way.
+  const filled = (home) => fs.readdirSync(cacheOf(home)).length > 0;
+
+  testif(hasDist)('the exit code of the app is kept', () => {
+    const home = newHome();
+    const result = runFake(home, { FAKE_APP_MODE: 'exit3' });
+    expect(result.status).toBe(3);
+    expect(result.signal).toBeNull();
+    expect(result.stderr).toBe('');
+    expect(filled(home)).toBe(true);
+  });
+
+  testif(hasDist && posix)(
+    'a death by signal is still a death by signal',
+    () => {
+      const home = newHome();
+      const result = runFake(home, { FAKE_APP_MODE: 'selfkill' });
+      expect(result.signal).toBe('SIGTERM');
+      expect(result.status).toBeNull();
+      expect(result.stderr).toBe('');
+      expect(filled(home)).toBe(true);
+    }
+  );
+
+  testif(hasDist && posix)(
+    'the signal handler of the app runs and ends the process with its own code',
+    async () => {
+      const home = newHome();
+      const child = cp.spawn(process.execPath, [path.join(dir, 'launch.cjs')], {
+        env: envFor(home, { FAKE_APP_MODE: 'handlers' }),
+        stdio: ['ignore', 'pipe', 'pipe'],
+      });
+      try {
+        let output = '';
+        child.stdout.on('data', (data) => (output += data));
+        let errors = '';
+        child.stderr.on('data', (data) => (errors += data));
+        const ended = new Promise((resolve) =>
+          child.once('exit', (code, signal) => resolve({ code, signal }))
+        );
+        const deadline = Date.now() + 15000;
+        while (!output.includes('ready')) {
+          if (Date.now() > deadline || child.exitCode !== null) {
+            throw new Error(`the fake app did not become ready: ${output}`);
+          }
+          await new Promise((resolve) => setTimeout(resolve, 20));
+        }
+        child.kill('SIGTERM');
+        expect(await ended).toEqual({ code: 0, signal: null });
+        expect(output).toContain('got SIGTERM');
+        expect(errors).toBe('');
+        expect(filled(home)).toBe(true);
+      } finally {
+        child.kill('SIGKILL');
+      }
+    },
+    30000
   );
 });

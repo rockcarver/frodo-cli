@@ -1,8 +1,8 @@
 #!/usr/bin/env node
-import { mkdirSync } from 'node:fs';
+import { lstatSync, mkdirSync, type Stats } from 'node:fs';
 import { enableCompileCache } from 'node:module';
 import { homedir } from 'node:os';
-import { join, resolve } from 'node:path';
+import { isAbsolute, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 /*
@@ -43,15 +43,30 @@ if (
 // source maps it applies to code loaded later, so it comes before the app. The
 // folder is `compile-cache` in the config folder (FRODO_CONFIG_PATH, else
 // `.frodo` in the home folder, as everywhere in the CLI), made for the owner
-// only. It is off where it cannot pay: in a CI run, in a test run, when
-// FRODO_NO_COMPILE_CACHE asks (the values of the source maps switch above),
-// when Node itself is told not to (NODE_DISABLE_COMPILE_CACHE) and when the
-// user chose a cache of their own (NODE_COMPILE_CACHE, which Node has already
-// switched on). It is an optimisation and never a reason not to start: a
-// folder that cannot be made or used leaves the start as it would be without
-// it, with nothing printed.
+// only (also every missing folder above it). It is off where it cannot pay: in
+// a CI run, in a test run, when FRODO_NO_COMPILE_CACHE asks (the values of the
+// source maps switch above), when Node itself is told not to
+// (NODE_DISABLE_COMPILE_CACHE) and when the user chose a cache of their own
+// (NODE_COMPILE_CACHE, which Node has already switched on). It is an
+// optimisation and never a reason not to start: whatever cannot be made or
+// used leaves the start as it would be without it, with nothing printed.
+//
+// Two guards. The config folder has to be an absolute path: an empty home
+// folder (HOME set but empty) or a `~` that nobody expanded would put the
+// folder into the current directory. And an existing `compile-cache` is used
+// only when it is a real directory (not a link) of the current user that
+// neither the group nor others can write to, because V8 runs a cache entry as
+// code and Node checks an entry for corruption only, not for who wrote it. A
+// folder that is not that is left as it is (its mode is never changed) and the
+// cache stays off. Windows has no such owner and mode.
 const isSet = (value: string | undefined): boolean =>
   !['', '0', 'false'].includes((value ?? '').toLowerCase());
+const isTheUsersOwn = (folder: Stats): boolean =>
+  folder.isDirectory() &&
+  (process.platform === 'win32' ||
+    ((folder.mode & 0o022) === 0 &&
+      (typeof process.getuid !== 'function' ||
+        folder.uid === process.getuid())));
 if (
   !isSet(process.env.CI) &&
   !isSet(process.env.FRODO_TEST) &&
@@ -63,12 +78,15 @@ if (
   !process.env.NODE_COMPILE_CACHE
 ) {
   try {
-    const folder = resolve(
-      process.env.FRODO_CONFIG_PATH || join(homedir(), '.frodo'),
-      'compile-cache'
-    );
-    mkdirSync(folder, { recursive: true, mode: 0o700 });
-    enableCompileCache(folder);
+    const config = process.env.FRODO_CONFIG_PATH || join(homedir(), '.frodo');
+    if (isAbsolute(config)) {
+      const folder = join(config, 'compile-cache');
+      const existing = lstatSync(folder, { throwIfNoEntry: false });
+      if (existing === undefined || isTheUsersOwn(existing)) {
+        mkdirSync(folder, { recursive: true, mode: 0o700 });
+        enableCompileCache(folder);
+      }
+    }
   } catch {
     // no cache: the start goes on without it
   }
