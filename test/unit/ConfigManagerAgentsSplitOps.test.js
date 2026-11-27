@@ -1039,6 +1039,58 @@ describe('push', () => {
     expect(output()).toContain('INDICATOR success Agents import completed.');
   });
 
+  test('a file without an _id is one failed file, also when an application owns a client that is named like the file: it is not skipped as owned', async () => {
+    writeTree();
+    write('frodo-config-manager.json', {
+      applications: 'folders',
+      formatVersion: 1,
+    });
+    write('realms/alpha/applications/matrix/application.json', {
+      name: 'Matrix Portal',
+      ownedClients: ['matrix-client'],
+    });
+    // the file of the owned client name, without the id that names it
+    write(AGENT_PATH('OAuth2Client', 'matrix-client'), {
+      description: 'a file that holds no id',
+    });
+    write(AGENT_PATH('OAuth2Client', 'extra-client'), { description: 'none' });
+
+    expect(await configManagerImportAgents(false, 'oauth-clients')).toBe(false);
+
+    // nothing was sent for either file, and the file of the owned name is no "owned by an application" skip
+    expect(imported()).toEqual(['alpha/zion-client', 'bravo/bravo-client']);
+    expect(output()).not.toContain('Matrix Portal');
+    expect(output()).toContain('2 of 4 OAuth2 clients failed');
+    expect(output()).toContain('alpha/OAuth2Client/matrix-client.json');
+    expect(output()).toContain('alpha/OAuth2Client/extra-client.json');
+    expect(output()).toContain(
+      "it has no '_id': the id of an object is the id that its file holds, not the name of the file"
+    );
+    // the canary: the id that a missing _id would have become never reaches the library
+    expect(calls.join('\n')).not.toContain('undefined');
+
+    // the same run with --allow-failures succeeds, and still sends nothing for them
+    printed = [];
+    calls = [];
+    expect(await configManagerImportAgents(true, 'oauth-clients')).toBe(true);
+    expect(imported()).toEqual(['alpha/zion-client', 'bravo/bravo-client']);
+  });
+
+  test('a file of the other family without an _id is a failed file too', async () => {
+    writeTree();
+    write(AGENT_PATH('WebAgent', 'no-id'), { description: 'none' });
+
+    expect(await configManagerImportAgents(false, 'agents')).toBe(false);
+
+    expect(imported()).toEqual([
+      'alpha/consent-a',
+      'alpha/thing-a',
+      'alpha/web-a',
+      'bravo/shared-b',
+    ]);
+    expect(output()).toContain('alpha/WebAgent/no-id.json');
+  });
+
   test('oauth-clients does not read the application folders of a realm that holds no client, and agents does not read those of any realm', async () => {
     write('frodo-config-manager.json', {
       applications: 'folders',

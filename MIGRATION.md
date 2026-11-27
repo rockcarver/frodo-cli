@@ -1428,7 +1428,10 @@ value is now one name, so it cannot lead out of the config folder:
   changes what a push reads in these places: a file of `oauth-cimd-profiles`,
   `oauth-issuers` or `oauth-software-publishers` without an `_id` used to be pushed
   under its decoded file name and is now a named failure of that file (the other
-  files are still pushed); a journey is sent under the `_id` of its file (a journey
+  files are still pushed), and so is a file of `oauth-clients` or `agents` without
+  an `_id`, which was sent to an object named `undefined` and counted as pushed
+  (it is not skipped as the client of an application that is named like the file
+  either); a journey is sent under the `_id` of its file (a journey
   file without an `_id` is a named failure of that journey), and the
   object of a relationship schema under the `name` of its object file, where both
   were the name of a folder; the property of a relationship schema file is the
