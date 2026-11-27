@@ -314,6 +314,55 @@ describe('double-ESC exit-all', () => {
   );
 
   test(
+    'the old group word config-manager opens the picker of config: one notice before the first frame, and the picker is titled config',
+    async () => {
+      const homeDir = createShellTestHome();
+      try {
+        const result = runShellScenario({
+          homeDir,
+          allowPrompting: true,
+          args: ['config-manager'],
+          env: ENV,
+          actions: [
+            {
+              type: 'wait_plain',
+              regex: "Choose a sub-command for 'config'",
+              timeoutMs: 30000,
+            },
+            { type: 'sleep', ms: 500 },
+            { type: 'capture', label: 'picker' },
+          ],
+        });
+
+        const plain = result.captures.picker.plain;
+        const notice =
+          "'config-manager' is now called 'config'. The old name still works and will be removed in a future major release.";
+        // the notice is printed once, and before the first frame of the picker
+        expect(plain.split(notice)).toHaveLength(2);
+        expect(plain.indexOf(notice)).toBeLessThan(
+          plain.indexOf("Choose a sub-command for 'config'")
+        );
+        // the picker is the one of the group under its new name, with the seven commands
+        expect(plain).not.toMatch(/Choose a sub-command for 'config-manager'/);
+        for (const command of [
+          'delete',
+          'export',
+          'import',
+          'migrate',
+          'promote',
+          'pull',
+          'push',
+        ]) {
+          expect(plain).toMatch(new RegExp(`\\b${command}\\b`));
+        }
+      } finally {
+        removeShellTestHome(homeDir);
+      }
+    },
+    TIMEOUT
+  );
+
+  test(
     'double-ESC in a NESTED sub-command picker lands at the shell (not the parent picker)',
     async () => {
       const homeDir = createShellTestHome();

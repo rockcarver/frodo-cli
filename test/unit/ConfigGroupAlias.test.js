@@ -1,13 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import {
-  afterAll,
-  beforeAll,
-  describe,
-  expect,
-  it,
-} from '@jest/globals';
+import { afterAll, beforeAll, describe, expect, it } from '@jest/globals';
 import { getAliasKind } from '../../src/cli/FrodoCommand.ts';
 import {
   extractExamples,
@@ -91,9 +85,10 @@ describe('frodo config, the one group', () => {
     expect(config.aliases()).toEqual(['config-manager']);
     expect(getAliasKind(config, 'config-manager')).toBe('transition');
     expect(
-      config.createHelp().commandDescription(config).endsWith(
-        '(formerly: config-manager)'
-      )
+      config
+        .createHelp()
+        .commandDescription(config)
+        .endsWith('(formerly: config-manager)')
     ).toBe(true);
     expect(find(groups, ['config-manager'])).toBe(config);
   });
@@ -108,8 +103,9 @@ describe('frodo config, the one group', () => {
     expect(leaves.length).toBeGreaterThanOrEqual(126);
     for (const verb of VERBS) {
       expect(
-        leaves.filter((leaf) => fullName(leaf).startsWith(`frodo config ${verb} `))
-          .length
+        leaves.filter((leaf) =>
+          fullName(leaf).startsWith(`frodo config ${verb} `)
+        ).length
       ).toBeGreaterThan(0);
     }
   });
@@ -151,7 +147,11 @@ describe('frodo config, the one group', () => {
     for (const verb of VERBS) {
       const group = config.commands.find((c) => c.name() === verb);
       // the row of the verb in the list of config and its own page
-      if (!new RegExp(`^ {2}${verb} {2,}\\[Experimental\\]`, 'm').test(renderHelp(config))) {
+      if (
+        !new RegExp(`^ {2}${verb} {2,}\\[Experimental\\]`, 'm').test(
+          renderHelp(config)
+        )
+      ) {
         unlabelled.push(`row of ${verb}`);
       }
       if (!/^\[Experimental\]/.test(descriptionOf(group))) {
@@ -194,13 +194,37 @@ describe('frodo config, the one group', () => {
     expect(offenders).toEqual([]);
   });
 
+  it('words the option descriptions with the new group: -F, --force-update names config push, and no option names the old group word', () => {
+    const pushJourneys = find(groups, ['config', 'push', 'journeys']);
+    const force = pushJourneys.options.find((o) => o.long === '--force-update');
+    expect(force.description).toContain(
+      'and the config push equivalents of previous commands.'
+    );
+    // the layout family keeps the word: the tool, the layout file, the layout setting and a tree
+    const allowed =
+      /fr-config-manager|frodo-config-manager\.json|config-manager-layout|config-manager trees?/g;
+    const offenders = [];
+    for (const command of allCommands(config)) {
+      for (const option of command.options) {
+        if (
+          option.description.replace(allowed, '').includes('config-manager')
+        ) {
+          offenders.push(`${fullName(command)} ${option.flags}`);
+        }
+      }
+    }
+    expect(offenders).toEqual([]);
+  });
+
   it('teaches no old group spelling on any help page of any command (the layout settings and fr-config-manager are not group spellings)', () => {
     const offenders = [];
     for (const command of allCommands(config)) {
       const help = renderFullHelp(command);
-      for (const match of help.replace(ANSI, '').matchAll(
-        /(?<![\w-])(?:frodo )?config-manager (?:pull|push|delete|migrate|promote|export|import)(?![\w-])/g
-      )) {
+      for (const match of help
+        .replace(ANSI, '')
+        .matchAll(
+          /(?<![\w-])(?:frodo )?config-manager (?:pull|push|delete|migrate|promote|export|import)(?![\w-])/g
+        )) {
         offenders.push(`${fullName(command)}: ${match[0]}`);
       }
     }
@@ -234,7 +258,9 @@ describe('the sources of src', () => {
         .split('\n')
         .forEach((line, index) => {
           if (OLD_SPELLING.test(line)) {
-            offenders.push(`${path.relative(root, file)}:${index + 1}: ${line.trim()}`);
+            offenders.push(
+              `${path.relative(root, file)}:${index + 1}: ${line.trim()}`
+            );
           }
         });
     }
@@ -246,7 +272,9 @@ describe('the sources of src', () => {
     expect(OLD_SPELLING.test('see config-manager push all')).toBe(true);
     // the tool, the layout and the file keep the word
     expect(OLD_SPELLING.test('fr-config-manager pull')).toBe(false);
-    expect(OLD_SPELLING.test('frodo settings config-manager-layout')).toBe(false);
+    expect(OLD_SPELLING.test('frodo settings config-manager-layout')).toBe(
+      false
+    );
     expect(OLD_SPELLING.test('frodo-config-manager.json')).toBe(false);
     expect(OLD_SPELLING.test('a config-manager tree')).toBe(false);
   });
