@@ -10,10 +10,13 @@ import { isSecretOption } from './SecretOptions';
  * land here and become the starting values for FUTURE runs of the same
  * command. Deliberately a sibling of SettingsStore (plain user
  * preferences, not secrets; corrupt file = empty, never a failure):
- * ~/.frodo/Defaults.json, keyed by the command's full path
- * ("journey list"), then by the option's attributeName:
+ * ~/.frodo/Defaults.json, keyed by the command's full path with the root
+ * word ("frodo journey list"), then by the option's attributeName:
  *
- *   { "journey list": { "long": true }, "esv secret list": { "flat": "all" } }
+ *   {
+ *     "frodo journey list": { "long": true },
+ *     "frodo esv secret list": { "flat": "all" }
+ *   }
  *
  * PRECEDENCE (the plan's chain: explicit CLI flag > env var > persisted
  * default > built-in default) is enforced by the RESOLUTION PASS, not
