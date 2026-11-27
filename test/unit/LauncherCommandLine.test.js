@@ -160,14 +160,25 @@ const DECIDED_BY_THE_CASE = [
   'FRODO_SOURCE_MAPS',
 ];
 
-/** The environment of a run: the runner's own, without the variables the cases decide. */
+/**
+ * The environment of a run: the runner's own, without the variables the cases
+ * decide. The compile cache is switched off (`FRODO_NO_COMPILE_CACHE`): these
+ * cases are about how the app is started, run with the HOME of the runner, and
+ * must not write into it. `LauncherCompileCache.test.js` runs the entry with the
+ * cache on, in a HOME of its own.
+ */
 function envFor(mode, env = {}) {
   const rest = Object.fromEntries(
     Object.entries(process.env).filter(
       ([name]) => !DECIDED_BY_THE_CASE.includes(name)
     )
   );
-  return { ...rest, FAKE_APP_MODE: mode, ...env };
+  return {
+    ...rest,
+    FRODO_NO_COMPILE_CACHE: '1',
+    FAKE_APP_MODE: mode,
+    ...env,
+  };
 }
 
 /** Runs the copied entry to its end and returns what spawnSync reports. */
@@ -438,6 +449,23 @@ describe('the build', () => {
       // the one dynamic require is the app, and the file it names is app.cjs
       expect(dynamic).toEqual(['app']);
       expect(source).toContain('"./app.cjs"');
+    }
+  );
+
+  testif(hasDist)(
+    'takes its steps in this order: source maps, compile cache, process.argv[1], the app',
+    () => {
+      // Node applies the source maps and the compile cache to the code that is
+      // loaded after the call, and the app is loaded by the last step
+      const source = fs.readFileSync(LAUNCHER, 'utf8');
+      const steps = [
+        'setSourceMapsEnabled',
+        'enableCompileCache',
+        'process.argv[1] =',
+        'require(app)',
+      ].map((step) => source.indexOf(step));
+      for (const position of steps) expect(position).toBeGreaterThan(-1);
+      expect(steps).toEqual([...steps].sort((a, b) => a - b));
     }
   );
 });
