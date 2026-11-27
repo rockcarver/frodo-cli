@@ -253,15 +253,23 @@ about 120 MB of that back (327 MB), because Node then loads the maps.
 
   An existing `compile-cache` is used only when it is the user's own: a real
   directory (not a link) of the current user that neither the group nor others
-  can write to; the mode of an existing folder is never changed, and a missing
-  config folder is made `0700` together with every missing folder above it (the
-  app makes `~/.frodo` the same way). Otherwise the cache stays off, silently.
-  The reason is that V8 runs a cache entry as code and Node checks an entry for
-  corruption only, not for who wrote it. The trust assumption is that the config
+  can enter at all (mode `0700`, which is what the entry makes); the mode of an
+  existing folder is never changed, and a missing config folder is made `0700`
+  together with every missing folder above it (the app makes `~/.frodo` the same
+  way). Otherwise the cache stays off, silently. The reason is that V8 runs a
+  cache entry as code and Node checks an entry for corruption only, not for who
+  wrote it, and that Node makes its version folder inside the cache folder with
+  the umask of the process: in a folder that others can enter, a group-writable
+  umask would leave that folder group-writable (a folder that the entry makes
+  itself is `0700` and is not affected). The trust assumption is that the config
   folder is as trusted as `Connections.json` in it (whoever can write the config
   folder can already point that file at a host of their own), so the check is
-  defence in depth: it covers the cache folder, not the folders above it, and
-  Windows has neither owner nor mode bits to test.
+  defence in depth: it covers the type, owner and mode of the cache folder, not
+  the folders above it, it does not stop a swap between the check and the use,
+  and Windows has neither owner nor mode bits to test. The name `compile-cache`
+  is joined to the config folder as text, so a `..` that follows a link in
+  `FRODO_CONFIG_PATH` is read as written and not as the link would resolve it
+  (no security effect; the cache then sits beside the real config folder).
 
   It never changes a start: a read-only or missing home, a file where a folder
   should be and a folder that Node cannot use leave the CLI starting as it would
@@ -608,8 +616,11 @@ landed); stage 2 copies only `dist/` and runs `node dist/launch.cjs` (one
 process, PID 1: the MCP server handles `docker stop` itself and shuts down
 gracefully; `docker run --init` or `init: true` in compose puts a small init
 process in front so that SIGTERM also ends frodo while it starts up).
-The image does not use the release binaries and is unaffected by the
-pkg→SEA migration (it builds `dist/` from source).
+The image sets `FRODO_NO_COMPILE_CACHE=1`: its config folder is an anonymous
+volume that a new container does not share, so the compile cache would never be
+reused (2.4); `-e FRODO_NO_COMPILE_CACHE=0` turns it back on for a container
+that mounts its config folder. The image does not use the release binaries and
+is unaffected by the pkg→SEA migration (it builds `dist/` from source).
 
 ---
 
