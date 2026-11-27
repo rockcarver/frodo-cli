@@ -252,6 +252,17 @@ function waitForListening(bindHost, port, deadlineMs = 5000) {
   });
 }
 
+/**
+ * Polls until the condition holds. The time is only the guard against a hang: what
+ * the condition was when it ran out is left to the assertion after the poll.
+ */
+async function pollUntil(condition, deadlineMs = 5000) {
+  const deadline = Date.now() + deadlineMs;
+  while (!condition() && Date.now() < deadline) {
+    await new Promise((resolve) => setTimeout(resolve, 25));
+  }
+}
+
 /** A raw node:http request, bypassing fetch's normalizations. */
 function rawRequest(port, method, path, headers, body) {
   return new Promise((resolve, reject) => {
@@ -3541,7 +3552,8 @@ describe('transport limits (body size + concurrency)', () => {
     // Chunk 1 (40 bytes, over the 32-byte cap by itself).
     const chunk = 'z'.repeat(40);
     socket.write(`${chunk.length.toString(16)}\r\n${chunk}\r\n`);
-    await new Promise((resolve) => setTimeout(resolve, 200));
+    // the answer comes back over the socket: poll for it, do not wait a fixed time
+    await pollUntil(() => got413);
     expect(got413).toBe(true);
     // The socket is destroyed server-side after the 413 (Connection: close).
     socket.destroy();
@@ -4070,7 +4082,8 @@ describe('McpServerLockfile helpers', () => {
       }
     );
     try {
-      await new Promise((resolve) => setTimeout(resolve, 200));
+      // the process is known to the system's process list a moment after it was started
+      await pollUntil(() => lock.verifyMcpProcessIdentity(sleeper.pid).verified);
       const identity = lock.verifyMcpProcessIdentity(sleeper.pid);
       expect(identity.verified).toBe(true);
       expect(identity.looksLikeFrodo).toBe(false);
