@@ -127,7 +127,7 @@
     "@modelcontextprotocol/client": "^2.0.0",
     "@modelcontextprotocol/node": "^2.0.0",
     "@modelcontextprotocol/server": "^2.0.0",
-    "@rockcarver/frodo-lib": "5.0.0-56",
+    "@rockcarver/frodo-lib": "5.0.0-57",
     "@types/fs-extra": "^11.0.1",
     "@types/jest": "30.0.0",
     "@types/node": "^26.6.4",
