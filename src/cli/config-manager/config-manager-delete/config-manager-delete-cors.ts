@@ -1,4 +1,4 @@
-import { state } from '@rockcarver/frodo-lib';
+import { frodo, state } from '@rockcarver/frodo-lib';
 import { Option } from 'commander';
 import { configManagerDeleteCors } from '../../../configManagerOps/FrConfigCorsOps';
 import * as s from '../../../help/SampleData';
@@ -11,6 +11,8 @@ import c from '../../../utils/ColorTheme';
 import { printMessage, verboseMessage } from '../../../utils/Console';
 import { FrodoCommand } from '../../FrodoCommand';
 import { selectorOption } from '../../SelectorOption';
+
+const { CLASSIC_DEPLOYMENT_TYPE_KEY } = frodo.utils.constants;
 
 export default function setup() {
   const program = new FrodoCommand('frodo config delete cors');
@@ -114,11 +116,20 @@ export default function setup() {
           plan: true,
         });
       // the question is about the tenant and not about a realm, which CORS
-      // ignores, and it says what --deep resets in a sentence of its own
-      const warning = `This permanently deletes all CORS configurations from ${state.getHost()}${options.deep ? ' and resets the IDM CORS filter to its default values' : ''}.`;
+      // ignores, and it says what --deep resets in a sentence of its own; a
+      // classic deployment has no IDM CORS filter, so its question leaves the
+      // reset out (the refusal before the login cannot know the deployment)
+      const resets =
+        options.deep &&
+        state.getDeploymentType() !== CLASSIC_DEPLOYMENT_TYPE_KEY;
+      const warning = `This permanently deletes all CORS configurations from ${state.getHost()}${resets ? ' and resets the IDM CORS filter to its default values' : ''}.`;
+      const asked = {
+        ...guardOptions,
+        what: resets ? guardOptions.what : 'all CORS configurations',
+      };
       if (
         !named &&
-        !(await confirmBulkDelete({ ...guardOptions, showPlan, warning }))
+        !(await confirmBulkDelete({ ...asked, showPlan, warning }))
       ) {
         process.exitCode = 1;
         return;

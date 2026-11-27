@@ -319,7 +319,7 @@ describe('a named delete: the id is looked up in what the service lists', () => 
     expect(deleteServiceNextDescendent).not.toHaveBeenCalled();
   });
 
-  test('a delete that fails exits 1 and names the cause, also with --allow-failures: a named delete is one operation of the summary', async () => {
+  test('a delete that fails exits 1 and names the cause; --allow-failures keeps the exit at 0, as a named delete is one operation of the summary', async () => {
     refuse.set('test', new Error('could not delete test'));
 
     expect(await configManagerDeleteCors('test')).toBe(false);

@@ -34,15 +34,22 @@ const configManagerDeleteCors = jest.fn();
 const printMessage = jest.fn();
 const confirm = jest.fn();
 let terminal;
+let deployment;
 const declared = { usesRealm: 0, multiOp: 0, deploymentTypes: undefined };
 
 jest.unstable_mockModule('@rockcarver/frodo-lib', () => ({
   state: {
     getHost: () => 'https://openam-matrix.example.com/am',
     getRealm: () => 'alpha',
+    getDeploymentType: () => deployment,
   },
   frodo: {
-    utils: { constants: { DEFAULT_REALM_KEY: '__default__realm__' } },
+    utils: {
+      constants: {
+        DEFAULT_REALM_KEY: '__default__realm__',
+        CLASSIC_DEPLOYMENT_TYPE_KEY: 'classic',
+      },
+    },
   },
 }));
 jest.unstable_mockModule('../../src/cli/FrodoCommand', () => ({
@@ -107,6 +114,7 @@ const WHAT_DEEP =
 beforeEach(() => {
   jest.clearAllMocks();
   terminal = false;
+  deployment = 'cloud';
   process.exitCode = 0;
   getTokens.mockResolvedValue(true);
   configManagerDeleteCors.mockResolvedValue(true);
@@ -364,6 +372,43 @@ describe('--deep', () => {
       'This permanently deletes all CORS configurations from https://openam-matrix.example.com/am and resets the IDM CORS filter to its default values.'
     );
     expect(process.exitCode).toBe(0);
+  });
+
+  test.each([['cloud'], ['forgeops']])(
+    'on a terminal the question of a %s deployment says that the filter is reset',
+    async (type) => {
+      terminal = true;
+      deployment = type;
+
+      await run(['--deep']);
+
+      expect(confirm.mock.calls[0][0].message).toContain(
+        'reset the IDM CORS filter'
+      );
+      expect(messages().join('\n')).toContain(
+        'and resets the IDM CORS filter to its default values.'
+      );
+    }
+  );
+
+  test('on a terminal the question of a classic deployment leaves the reset out: it has no IDM CORS filter, and the run skips that part', async () => {
+    terminal = true;
+    deployment = 'classic';
+
+    await run(['--deep']);
+
+    expect(confirm.mock.calls[0][0].message).toBe(
+      'Delete all CORS configurations? This cannot be undone. Continue?'
+    );
+    expect(messages()).toContain(
+      'This permanently deletes all CORS configurations from https://openam-matrix.example.com/am.'
+    );
+    expect(messages().join('\n')).not.toMatch(/reset/);
+    // the plan and the delete are still asked for --deep: the operation says what it skips there
+    expect(configManagerDeleteCors.mock.calls).toEqual([
+      [undefined, true, false, { deep: true, plan: true }],
+      [undefined, undefined, undefined, { deep: true }],
+    ]);
   });
 
   test('on a terminal deletes and resets nothing after a no', async () => {

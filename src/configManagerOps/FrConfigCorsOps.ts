@@ -107,9 +107,8 @@ export async function configManagerImportCors(): Promise<boolean> {
  * Cloud tenant (2024-08-09 to 2026-09-23) and 11 more from 2026-10-19, and from the Cloud and
  * ForgeOps fixtures of this repository: the parameters were the same in all of them, only the
  * header list grew once between 2023 and 2024. The filter class (`filterClass`) is NOT part of the
- * default, because the fixtures differ in it, and it first appears in the reads of 2026-10-19 (the
- * reads before that have none, and nothing shows why it appeared): the reset keeps whatever class
- * the tenant has, and every other key too. A test
+ * default, because the reads and the fixtures differ in it (some hold one, some do not): the reset
+ * keeps whatever class the tenant has, and every other key too. A test
  * compares this constant with the fixtures (IdmCorsFilterDefaults.test.js), so that a fixture that
  * is re-recorded with other values fails it. Written 2026-11-24; it moves into the library with
  * the CORS code.
@@ -149,19 +148,13 @@ type IdmFilterOutcome =
 const leadOf = (plan: boolean): string => (plan ? 'Plan: ' : 'Dry run: ');
 
 /**
- * A JSON value as text with the keys of every object in order, so that two values are the same
- * when they hold the same data whatever the order of their keys.
+ * A JSON value as text, so that two values are the same when they hold the same data. No default of
+ * the filter is an object, so the order of keys cannot make two values differ.
  * @param {unknown} value the value
  * @returns {string | undefined} the text, undefined for undefined
  */
 function canonical(value: unknown): string | undefined {
-  return JSON.stringify(value, (_key, item) =>
-    item && typeof item === 'object' && !Array.isArray(item)
-      ? Object.fromEntries(
-          Object.entries(item).sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0))
-        )
-      : item
-  );
+  return JSON.stringify(value);
 }
 
 /**
