@@ -417,7 +417,7 @@ const PLACES = {
     objectFolderPath: 3, // the selector, the folder of an inner journey (S18), and the folder that a pull writes for a journey (ConfigManagerPullJourneysStayInside.test.js)
   },
   'src/configManagerOps/FrConfigTermsAndConditionsOps.ts': {
-    referencedFilePath: 2, // S22: the version, the language
+    referencedFilePath: 3, // S22: the version, the language, the reference that a pull wrote
   },
   'src/configManagerOps/FrConfigSamlOps.ts': {
     objectFilePath: 1, // S21
