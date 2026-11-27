@@ -82,6 +82,14 @@ const scripts = await ops('FrConfigScriptOps');
 const endpoints = await ops('FrConfigEndpointsOps');
 const emailTemplates = await ops('FrConfigEmailTemplatesOps');
 const connectorMappings = await ops('FrConfigConnectorMappingOps');
+const locales = await ops('FrConfigLocalesOps');
+const schedules = await ops('FrConfigSchedulesOps');
+const customNodes = await ops('FrConfigCustomNodesOps');
+const internalRoles = await ops('FrConfigInternalRolesOps');
+const secretMappings = await ops('FrConfigSecretMappingsOps');
+const connectorDefinitions = await ops('FrConfigConnectorDefinitionsOps');
+const services = await ops('FrConfigServiceOps');
+const igaWorkflows = await ops('FrConfigIgaWorkflowsOps');
 
 let root;
 let tree;
@@ -405,5 +413,388 @@ describe('the longest ending of the files of an object decides where its name is
       `${shortened}.correlationQuery.js`
     );
     expect(mapping.name).toBe(over);
+  });
+});
+
+/**
+ * The families whose push lists a folder and reads everything from the files: the pull writes a long id as a shortened name,
+ * every name is changed, and the push sends the same as before, so no id was read from a name.
+ */
+describe('every file and folder of a pull can be renamed: the push sends the same', () => {
+  // an id of 300 characters, which does not fit in a file name, and an ordinary one
+  const LONG = `L${'x'.repeat(299)}`;
+
+  /** What the library was asked to import as configuration entities, sorted. */
+  const entities = () =>
+    facade.idm.config.importConfigEntities.mock.calls
+      .flatMap(([data]) => Object.entries(data.idm))
+      .map(([id, entity]) => JSON.stringify([id, entity]))
+      .sort();
+
+  /** Every `.json` file directly in a folder gets a neutral name. */
+  const renameFiles = (folder) => {
+    let serial = 0;
+    for (const file of listed(folder)) {
+      if (file.endsWith('.json')) {
+        rename(`${folder}/${file}`, `${folder}/neutral-${++serial}.json`);
+      }
+    }
+  };
+
+  /**
+   * Every folder of a folder gets a neutral name, and the files in it that have the name of the folder (`<folder>.json`, and
+   * the other endings that are given) the same one. A file that another file refers to keeps its name: the reference names it.
+   */
+  const renameFolders = (folder, endings = ['.json']) => {
+    let serial = 0;
+    for (const name of listed(folder)) {
+      const neutral = `neutral-${++serial}`;
+      rename(`${folder}/${name}`, `${folder}/${neutral}`);
+      for (const ending of endings) {
+        const file = `${folder}/${neutral}/${name}${ending}`;
+        if (fs.existsSync(path.join(tree, file))) {
+          rename(file, `${folder}/${neutral}/${neutral}${ending}`);
+        }
+      }
+    }
+  };
+
+  const importEntities = async (_data, _id, _options, callback) => {
+    for (const _item of Object.keys(_data.idm)) callback?.(undefined, {});
+  };
+
+  const FAMILIES = [
+    {
+      family: 'locales',
+      arrange: () =>
+        facade.idm.config.readConfigEntitiesByType.mockResolvedValue([
+          { _id: `uilocale/${LONG}` },
+          { _id: 'uilocale/en' },
+        ]),
+      pull: () => locales.configManagerExportLocales(),
+      push: (name) => locales.configManagerImportLocales(name),
+      sent: entities,
+      rename: () => renameFiles('locales'),
+    },
+    {
+      family: 'endpoints',
+      arrange: () =>
+        facade.idm.config.readConfigEntitiesByType.mockResolvedValue([
+          {
+            _id: `endpoint/${LONG}`,
+            type: 'text/javascript',
+            source: 'run();',
+          },
+          { _id: 'endpoint/plain', type: 'groovy', source: 'plain()' },
+        ]),
+      pull: () => endpoints.configManagerExportEndpoints(),
+      push: (name) => endpoints.configManagerImportEndpoints(name),
+      sent: entities,
+      rename: () => renameFolders('endpoints'),
+    },
+    {
+      family: 'schedules',
+      arrange: () =>
+        facade.idm.config.readConfigEntitiesByType.mockResolvedValue([
+          {
+            _id: `schedule/${LONG}`,
+            invokeService: 'script',
+            invokeContext: { script: { source: 'run();' } },
+          },
+        ]),
+      pull: () => schedules.configManagerExportSchedules(),
+      push: (name) => schedules.configManagerImportSchedules(name),
+      sent: entities,
+      rename: () => renameFolders('schedules'),
+    },
+    {
+      family: 'email templates',
+      arrange: () =>
+        facade.email.template.readEmailTemplates.mockResolvedValue([
+          {
+            _id: `emailTemplate/${LONG}`,
+            html: { en: '<p>html</p>' },
+            message: { en: 'message' },
+            styles: 'css',
+          },
+        ]),
+      pull: () => emailTemplates.configManagerExportEmailTemplates(),
+      push: (name) => emailTemplates.configManagerImportEmailTemplates(name),
+      sent: () =>
+        facade.email.template.importEmailTemplates.mock.calls
+          .flatMap(([data]) => Object.entries(data.emailTemplate))
+          .map(([id, template]) => JSON.stringify([id, template]))
+          .sort(),
+      rename: () => renameFolders('email-templates'),
+    },
+    {
+      family: 'custom nodes',
+      arrange: () =>
+        facade.authn.node.readCustomNodes.mockResolvedValue([
+          { _id: 'n1', displayName: LONG, script: 'node();' },
+        ]),
+      pull: () => customNodes.configManagerExportCustomNodes(),
+      push: (name) => customNodes.configManagerImportCustomNodes(name),
+      sent: () =>
+        facade.authn.node.importCustomNodes.mock.calls
+          .flatMap(([, , data]) => Object.entries(data.nodeTypes))
+          .map(([id, node]) => JSON.stringify([id, node]))
+          .sort(),
+      // the script of a node is the file of the folder that has the name of the folder
+      rename: () => renameFolders('custom-nodes/nodes', ['.json', '.js']),
+    },
+    {
+      family: 'scripts',
+      arrange: () =>
+        facade.script.readScripts.mockResolvedValue([
+          {
+            _id: `id-${LONG}`,
+            name: LONG,
+            context: 'AUTHENTICATION_TREE_DECISION_NODE',
+            language: 'JAVASCRIPT',
+            script: Buffer.from('x();').toString('base64'),
+          },
+          {
+            _id: 'plain-id',
+            name: 'Plain',
+            context: 'AUTHENTICATION_TREE_DECISION_NODE',
+            language: 'JAVASCRIPT',
+            script: Buffer.from('y();').toString('base64'),
+          },
+        ]),
+      pull: () => scripts.configManagerExportScripts([], 'alpha'),
+      push: (name) => scripts.configManagerImportScripts('alpha', name),
+      sent: () =>
+        facade.script.updateScript.mock.calls
+          .map(([id, data]) => JSON.stringify([id, data.name, data.script]))
+          .sort(),
+      // the content of a script is a file that the file of the script refers to: it keeps its name
+      rename: () => renameFiles('realms/alpha/scripts/scripts-config'),
+    },
+    {
+      family: 'secret mappings',
+      arrange: () =>
+        facade.secretStore.readSecretStoreMappings.mockResolvedValue([
+          { _id: LONG },
+          { _id: 'plain' },
+        ]),
+      pull: () =>
+        secretMappings.configManagerExportSecretMappings(undefined, 'alpha'),
+      push: (name) =>
+        secretMappings.configManagerImportSecretMappings(name, 'alpha'),
+      sent: () =>
+        facade.secretStore.updateSecretStoreMapping.mock.calls
+          .map(([, , mapping]) => JSON.stringify(mapping))
+          .sort(),
+      rename: () => renameFiles('realms/alpha/secret-mappings'),
+    },
+    {
+      family: 'connector definitions',
+      arrange: () =>
+        facade.idm.connector.readConnectors.mockResolvedValue([
+          { _id: `provisioner.openicf/${LONG}` },
+          { _id: 'provisioner.openicf/plain' },
+        ]),
+      pull: () =>
+        connectorDefinitions.configManagerExportConnectorDefinitions(),
+      push: (name) => connectorDefinitions.configManagerImportConnectors(name),
+      sent: () =>
+        facade.idm.connector.importConnectors.mock.calls
+          .flatMap(([data]) => Object.entries(data.connector))
+          .map(([id, connector]) => JSON.stringify([id, connector]))
+          .sort(),
+      rename: () => renameFiles('sync/connectors'),
+      // a connector that is named on the command line is looked for by the name that its id has
+      byNameAfterRename: false,
+    },
+    {
+      family: 'services',
+      arrange: () =>
+        facade.service.getFullServices.mockResolvedValue([
+          {
+            _id: LONG,
+            _type: { _id: LONG },
+            nextDescendents: [{ _id: 'child' }],
+          },
+          { _id: 'plain', _type: { _id: 'plain' }, nextDescendents: [] },
+        ]),
+      pull: () => services.configManagerExportServices('alpha'),
+      push: (name) => services.configManagerImportServices(name, 'alpha'),
+      sent: () =>
+        facade.service.importServices.mock.calls
+          .flatMap(([data]) => Object.entries(data.service))
+          .map(([id, service]) => JSON.stringify([id, service]))
+          .sort(),
+      // a service file and the folder of its descendants have the same name
+      rename: () => {
+        let serial = 0;
+        for (const file of listed('realms/alpha/services')) {
+          if (!file.endsWith('.json')) continue;
+          const neutral = `neutral-${++serial}`;
+          const folder = `realms/alpha/services/${file.slice(0, -5)}`;
+          if (fs.existsSync(path.join(tree, folder))) {
+            rename(folder, `realms/alpha/services/${neutral}`);
+          }
+          rename(
+            `realms/alpha/services/${file}`,
+            `realms/alpha/services/${neutral}.json`
+          );
+        }
+      },
+    },
+    {
+      family: 'iga workflows',
+      arrange: () =>
+        facade.cloud.iga.workflow.readWorkflows.mockResolvedValue([
+          {
+            id: 'w-1',
+            name: LONG,
+            mutable: true,
+            steps: [{ displayName: LONG, name: 'step1', type: 'approvalTask' }],
+          },
+          { id: 'w-2', name: 'Plain', mutable: true, steps: [] },
+        ]),
+      pull: () => igaWorkflows.configManagerExportIgaWorkflows(),
+      push: (name) => igaWorkflows.configManagerImportIgaWorkflows(name),
+      sent: () =>
+        facade.cloud.iga.workflow.updateWorkflow.mock.calls
+          .map(([id, workflow]) =>
+            JSON.stringify([
+              id,
+              workflow.name,
+              (workflow.steps ?? []).map((step) => step.displayName),
+            ])
+          )
+          .sort(),
+      // the folder of a step and of a workflow have the name of the file in them
+      rename: () => {
+        for (const workflow of listed('iga/workflows')) {
+          if (
+            fs.existsSync(path.join(tree, `iga/workflows/${workflow}/steps`))
+          ) {
+            renameFolders(`iga/workflows/${workflow}/steps`);
+          }
+        }
+        renameFolders('iga/workflows');
+      },
+    },
+    {
+      family: 'internal roles',
+      arrange: () =>
+        facade.role.readInternalRoles.mockResolvedValue([
+          { _id: 'id-1', name: LONG, privileges: [{}] },
+        ]),
+      pull: () => internalRoles.configManagerExportInternalRoles(),
+      push: (name) => internalRoles.configManagerImportInternalRoles(name),
+      sent: () =>
+        facade.role.importInternalRoles.mock.calls
+          .flatMap(([data]) => Object.entries(data.internalRole))
+          .map(([id, role]) => JSON.stringify([id, role]))
+          .sort(),
+      rename: () => renameFiles('internal-roles'),
+    },
+  ];
+
+  beforeEach(() => {
+    facade.idm.config.importConfigEntities.mockImplementation(importEntities);
+    facade.authn.node.importCustomNodes.mockImplementation(
+      async (_a, _b, data, _c, callback) => {
+        callback?.(undefined, {});
+        return data;
+      }
+    );
+    facade.email.template.importEmailTemplates.mockResolvedValue(undefined);
+    facade.role.importInternalRoles.mockResolvedValue(undefined);
+    facade.idm.connector.importConnectors.mockResolvedValue(undefined);
+    facade.script.updateScript.mockResolvedValue({});
+    facade.service.importServices.mockResolvedValue(undefined);
+    facade.cloud.iga.workflow.updateWorkflow.mockResolvedValue({});
+    facade.secretStore.updateSecretStoreMapping.mockResolvedValue({});
+  });
+
+  test.each(FAMILIES.map((f) => [f.family, f]))(
+    '%s: a long id is written under a shortened name, and the push of a tree with every name changed sends the same, by listing and by name',
+    async (_family, family) => {
+      family.arrange();
+      expect(await family.pull()).toBe(true);
+      // the name of an object is a shortened name that fits, and a folder or file of it is never longer than a file name can be
+      const written = filesBelow(tree);
+      expect(written.some((file) => file.includes('~'))).toBe(true);
+      for (const file of written) {
+        for (const part of file.split('/')) {
+          expect(Buffer.byteLength(part)).toBeLessThanOrEqual(255);
+        }
+      }
+      const forgetCalls = () => {
+        for (const stub of stubs) stub.mockClear();
+      };
+
+      expect(await family.push()).toBe(true);
+      const listing = family.sent();
+      forgetCalls();
+      expect(await family.push(LONG)).toBe(true);
+      const byName = family.sent();
+      forgetCalls();
+      // the objects that are sent hold the complete id, not the name of a file
+      expect(listing.some((entry) => entry.includes(LONG))).toBe(true);
+      expect(byName.some((entry) => entry.includes(LONG))).toBe(true);
+
+      family.rename();
+
+      expect(await family.push()).toBe(true);
+      expect(family.sent()).toEqual(listing);
+      if (family.byNameAfterRename === false) return;
+      forgetCalls();
+      expect(await family.push(LONG)).toBe(true);
+      expect(family.sent()).toEqual(byName);
+    }
+  );
+
+  test.each(['locales', 'endpoints', 'email templates'])(
+    '%s: a pull twice writes the same files with the same content',
+    async (title) => {
+      const family = FAMILIES.find((candidate) => candidate.family === title);
+      family.arrange();
+      expect(await family.pull()).toBe(true);
+      const contents = () =>
+        Object.fromEntries(
+          filesBelow(tree).map((file) => [
+            file,
+            fs.readFileSync(path.join(tree, file), 'utf8'),
+          ])
+        );
+      const first = contents();
+
+      // the tenant hands out new objects: a pull changes the ones it is given
+      family.arrange();
+      expect(await family.pull()).toBe(true);
+
+      expect(contents()).toEqual(first);
+      expect(Object.keys(first).length).toBeGreaterThan(1);
+    }
+  );
+
+  test('two ids that share the start and the 8 characters of their checksums are one name: the later one is a named failure, the first is written', async () => {
+    // a pair that was found by trying: both have the checksum `5b2c45dc` (the independent implementation of FileNameVectors.js
+    // gives the same value)
+    const first = `${'a'.repeat(300)}22501`;
+    const second = `${'a'.repeat(300)}7449`;
+    facade.idm.config.readConfigEntitiesByType.mockResolvedValue([
+      { _id: `uilocale/${first}` },
+      { _id: `uilocale/${second}` },
+    ]);
+
+    expect(await locales.configManagerExportLocales()).toBe(false);
+
+    expect(listed('locales')).toEqual([`${'a'.repeat(241)}~5b2c45dc.json`]);
+    expect(
+      JSON.parse(
+        fs.readFileSync(
+          path.join(tree, 'locales', `${'a'.repeat(241)}~5b2c45dc.json`),
+          'utf8'
+        )
+      )._id
+    ).toBe(`uilocale/${first}`);
+    expect(printed.join('\n')).toContain('two names that become one file name');
   });
 });
