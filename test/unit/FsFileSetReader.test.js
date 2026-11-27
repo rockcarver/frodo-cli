@@ -348,15 +348,24 @@ describe('listing a directory', () => {
     }
     const reader = fsFileSetReader(root);
     // the calls are counted, not timed: the time of a listing depends on the machine, the calls do not (a call for each of
-    // the entries is the listing that takes seconds on a slow disk)
-    const spies = ['readdir', 'stat', 'lstat', 'realpath', 'open'].map((name) => jest.spyOn(fs.promises, name));
+    // the entries is the listing that takes seconds on a slow disk). Every function of the file system that the reader
+    // can reach is counted: all those of `fs.promises`, and the functions of `fs` itself (the synchronous ones and the
+    // ones with a callback), so that no kind of call for each entry gets past.
+    const functionsOf = (object) =>
+      Object.keys(object).filter((name) => /^[a-z]/.test(name) && typeof object[name] === 'function');
+    const spies = [
+      ...functionsOf(fs.promises).map((name) => jest.spyOn(fs.promises, name)),
+      ...functionsOf(fs).map((name) => jest.spyOn(fs, name)),
+    ];
+    const readdir = spies[functionsOf(fs.promises).indexOf('readdir')];
 
     const entries = await reader.listDirectory('big');
 
     const calls = spies.reduce((sum, spy) => sum + spy.mock.calls.length, 0);
+    expect(spies.length).toBeGreaterThan(50);
     expect(entries).toHaveLength(10000);
     expect(entries[0].name).toBe('f00000.json');
-    expect(spies[0]).toHaveBeenCalledTimes(1);
+    expect(readdir).toHaveBeenCalledTimes(1);
     expect(calls).toBeLessThanOrEqual(20);
   });
 
