@@ -33,7 +33,8 @@ import {
  * as it was.
  *
  * The tests that need symbolic links, a case-insensitive disk or an unprivileged user say so in
- * their names and are skipped where they cannot run.
+ * their names and are skipped where they cannot run. A few cases are killed only on a disk that ignores
+ * case; the header of FsFileSetWriter.test.js says which.
  */
 
 const WINDOWS = process.platform === 'win32';
@@ -673,6 +674,90 @@ describe('links', () => {
       { name: 'out', isDirectory: false },
       { name: 'x.json', isDirectory: false },
     ]);
+  });
+});
+
+describe('a file that is replaced just before it is opened', () => {
+  // The reader looks at a file (`lstat`), then opens it. These tests put another entry at the place of the file between the
+  // two, by patching `open`, so that the defences of the open (a link is not followed, a FIFO is not waited for, what was opened
+  // is looked at again) are shown without a race: each of them fails the test when it is taken out.
+  const NAME = 'f.json';
+
+  /**
+   * Makes `replace` run on the path of the file just before the reader opens it.
+   * @param {(target: string) => void} replace what puts the other entry at the place of the file
+   */
+  const replaceBeforeOpen = (replace) => {
+    const original = fs.promises.open.bind(fs.promises);
+    jest.spyOn(fs.promises, 'open').mockImplementation(async (target, ...rest) => {
+      if (String(target).endsWith(`${path.sep}${NAME}`)) replace(String(target));
+      return original(target, ...rest);
+    });
+  };
+
+  linkTest('a link put at the place of the file is not followed, and the file outside is not read', async () => {
+    put(NAME, 'INSIDE');
+    replaceBeforeOpen((target) => {
+      fs.rmSync(target);
+      fs.symlinkSync(layout.sentinel, target);
+    });
+
+    const error = await fsFileSetReader(root)
+      .readFile(NAME)
+      .catch((thrown) => thrown);
+
+    expect(error).toBeInstanceOf(FrodoError);
+    expect(error.message).toBe(`Error reading ${NAME}`);
+    expect(error.originalErrors[0].code).toBe('ELOOP');
+  });
+
+  linkTest('a FIFO put at the place of the file is not waited for: the read rejects, and nothing blocks', async () => {
+    put(NAME, 'INSIDE');
+    let fifo;
+    replaceBeforeOpen((target) => {
+      fs.rmSync(target);
+      execFileSync('mkfifo', [target]);
+      fifo = target;
+    });
+    let timer;
+    try {
+      // the limit is a trip wire for an open that waits for ever, not a measure of speed: a read that does not wait answers at once
+      const outcome = await Promise.race([
+        fsFileSetReader(root)
+          .readFile(NAME)
+          .then(
+            (text) => ({ read: text }),
+            (thrown) => ({ rejected: thrown })
+          ),
+        new Promise((resolve) => {
+          timer = setTimeout(() => resolve({ waited: true }), 8000);
+        }),
+      ]);
+
+      expect(outcome.waited).toBeUndefined();
+      expect(outcome.read).toBeUndefined();
+      expect(outcome.rejected.message).toMatch(/is not a regular file/);
+    } finally {
+      clearTimeout(timer);
+      // an open that waits for a writer is let go by one: a FIFO opened for reading and writing never waits
+      if (fifo !== undefined) fs.closeSync(fs.openSync(fifo, fs.constants.O_RDWR));
+    }
+  }, 30000);
+
+  linkTest('what was opened is looked at again: a folder put at the place of the file is refused, not read', async () => {
+    put(NAME, 'INSIDE');
+    replaceBeforeOpen((target) => {
+      fs.rmSync(target);
+      fs.mkdirSync(target);
+    });
+
+    const error = await fsFileSetReader(root)
+      .readFile(NAME)
+      .catch((thrown) => thrown);
+
+    // the answer of the second look, not the failure of a read of a folder
+    expect(error).toBeInstanceOf(Error);
+    expect(error.message).toBe(`The path '${NAME}' is not a regular file.`);
   });
 });
 
