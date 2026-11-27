@@ -9,7 +9,7 @@ import {
 import { Command } from 'commander';
 
 /**
- * The command `config-manager delete terms-and-conditions` (records 0037, 0040
+ * The command `config delete terms-and-conditions` (records 0037, 0040
  * and 0041): it adds the shared `--allow-failures` option (`.multiOp()`), runs
  * for Cloud and ForgeOps, refuses a delete of all versions that nobody can be
  * asked about before it logs in, asks before all versions are deleted (the plan
@@ -111,14 +111,12 @@ afterEach(() => {
   process.exitCode = undefined;
 });
 
-describe('frodo config-manager delete terms-and-conditions', () => {
+describe('frodo config delete terms-and-conditions', () => {
   test('is a multi-operation command, for Cloud and ForgeOps', async () => {
     const program = await run('-y');
 
     expect(program.multiOpCalled).toBe(true);
-    expect(constructed[0]).toBe(
-      'frodo config-manager delete terms-and-conditions'
-    );
+    expect(constructed[0]).toBe('frodo config delete terms-and-conditions');
     expect(constructed[2]).toEqual(['cloud', 'forgeops']);
   });
 

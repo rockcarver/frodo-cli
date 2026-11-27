@@ -15,7 +15,7 @@ const deploymentTypes = [CLOUD_DEPLOYMENT_TYPE_KEY];
 
 export default function setup() {
   const program = new FrodoCommand(
-    'frodo config-manager promote run',
+    'frodo config promote run',
     [],
     deploymentTypes
   );
@@ -74,19 +74,17 @@ export default function setup() {
       'after',
       `Usage Examples:\n` +
         `  Promote the configuration of the lower environment to this one without waiting for completion:\n` +
-        c.command(`  $ frodo config-manager promote run --yes ${s.connId}\n`) +
+        c.command(`  $ frodo config promote run --yes ${s.connId}\n`) +
         `  Promote and wait up to 30 minutes for completion:\n` +
         c.command(
-          `  $ frodo config-manager promote run --wait --timeout 1800 --yes ${s.connId}\n`
+          `  $ frodo config promote run --wait --timeout 1800 --yes ${s.connId}\n`
         ) +
         `  Promote, record who did it and why, and unlock the environments afterwards:\n` +
         c.command(
-          `  $ frodo config-manager promote run --promoter 'Jane Doe' --description 'Release 7' --ticket-reference TKT-1234 --unlock-after --yes ${s.connId}\n`
+          `  $ frodo config promote run --promoter 'Jane Doe' --description 'Release 7' --ticket-reference TKT-1234 --unlock-after --yes ${s.connId}\n`
         ) +
         `  Lock both environments, promote, wait for the promotion and unlock the environments again, in one command:\n` +
-        c.command(
-          `  $ frodo config-manager promote run --full --yes ${s.connId}\n`
-        )
+        c.command(`  $ frodo config promote run --full --yes ${s.connId}\n`)
     )
     .action(async (host, realm, user, password, options, command) => {
       command.handleDefaultArgsAndOpts(

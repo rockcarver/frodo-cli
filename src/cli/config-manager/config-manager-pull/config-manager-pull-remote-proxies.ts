@@ -13,7 +13,7 @@ const deploymentTypes = [CLOUD_DEPLOYMENT_TYPE_KEY];
 
 export default function setup() {
   const program = new FrodoCommand(
-    'frodo config-manager pull remote-proxies',
+    'frodo config pull remote-proxies',
     [],
     deploymentTypes
   );
@@ -33,12 +33,10 @@ export default function setup() {
       'after',
       `Usage Examples:\n` +
         `  Pull all remote proxies to remote-proxies/<name>.json, and say which of their secrets only this tenant can use and which URLs have a fixed host:\n` +
-        c.command(
-          `  $ frodo config-manager pull remote-proxies ${s.connId}\n`
-        ) +
+        c.command(`  $ frodo config pull remote-proxies ${s.connId}\n`) +
         `  Pull one remote proxy:\n` +
         c.command(
-          `  $ frodo config-manager pull remote-proxies -i ${s.remoteProxyId} ${s.connId}\n`
+          `  $ frodo config pull remote-proxies -i ${s.remoteProxyId} ${s.connId}\n`
         )
     )
     .multiOp()

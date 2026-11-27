@@ -14,7 +14,7 @@ const deploymentTypes = [
 
 export default function setup() {
   const program = new FrodoCommand(
-    'frodo config-manager pull config-metadata',
+    'frodo config pull config-metadata',
     [],
     deploymentTypes
   );

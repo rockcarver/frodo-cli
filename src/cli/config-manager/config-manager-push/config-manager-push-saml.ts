@@ -7,7 +7,7 @@ import { FrodoCommand } from '../../FrodoCommand';
 import { selectorOption } from '../../SelectorOption';
 
 export default function setup() {
-  const program = new FrodoCommand('frodo config-manager push saml');
+  const program = new FrodoCommand('frodo config push saml');
   program
     .description('Import saml configuration.')
     .addOption(

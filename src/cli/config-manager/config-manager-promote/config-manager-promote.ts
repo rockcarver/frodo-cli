@@ -9,9 +9,11 @@ import RunPromotion from './config-manager-promote-run-promotion';
 import UnlockTenants from './config-manager-promote-unlock-tenants';
 
 export default function setup() {
-  const program = new FrodoStubCommand('promote').description(
-    'Promote configuration optimized for CI/CD pipelines (format compatible with fr-config-manager).'
-  );
+  const program = new FrodoStubCommand('promote')
+    .withStability('experimental')
+    .description(
+      'Promote configuration optimized for CI/CD pipelines (format compatible with fr-config-manager).'
+    );
   program.addCommand(
     CheckPromotionStatus()
       .name('status')

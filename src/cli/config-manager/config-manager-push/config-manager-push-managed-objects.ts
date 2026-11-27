@@ -17,7 +17,7 @@ const deploymentTypes = [
 
 export default function setup() {
   const program = new FrodoCommand(
-    'frodo config-manager push managed-objects',
+    'frodo config push managed-objects',
     [],
     deploymentTypes
   );
@@ -37,16 +37,14 @@ export default function setup() {
       'after',
       `Usage Examples:\n` +
         `  Import all managed objects and the custom relationship schemas in their schema folders:\n` +
-        c.command(
-          `  $ frodo config-manager push managed-objects ${s.connId}\n`
-        ) +
+        c.command(`  $ frodo config push managed-objects ${s.connId}\n`) +
         `  Import one managed object and its custom relationship schemas:\n` +
         c.command(
-          `  $ frodo config-manager push managed-objects -i ${s.managedObjectType} ${s.connId}\n`
+          `  $ frodo config push managed-objects -i ${s.managedObjectType} ${s.connId}\n`
         ) +
         `  Import all managed objects, and exit with code 0 although some relationship schemas could not be written:\n` +
         c.command(
-          `  $ frodo config-manager push managed-objects --allow-failures ${s.connId}\n`
+          `  $ frodo config push managed-objects --allow-failures ${s.connId}\n`
         )
     )
     .multiOp()

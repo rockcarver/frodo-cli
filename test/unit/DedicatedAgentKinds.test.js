@@ -2,7 +2,7 @@ import { describe, expect, it } from '@jest/globals';
 import { fullName, loadLeafCommands } from '../utils/CommandExamples.js';
 
 /**
- * The agent types that the generic `config-manager pull|push oauth2-agents`
+ * The agent types that the generic `config pull|push oauth2-agents`
  * leaves to a kind of their own (frodo-cli#1249, frodo-cli#1259). The table is
  * written without imports on purpose, so that this test is what keeps it honest:
  * every entry must name a kind that exists, as a `pull` and a `push` command,
@@ -44,8 +44,8 @@ describe('the table of agent types with a kind of their own', () => {
   it.each(Object.entries(DEDICATED_AGENT_KINDS))(
     'names a kind with a pull and a push command for %s',
     (_agentType, { kind }) => {
-      expect(commandNames).toContain(`frodo config-manager pull ${kind}`);
-      expect(commandNames).toContain(`frodo config-manager push ${kind}`);
+      expect(commandNames).toContain(`frodo config pull ${kind}`);
+      expect(commandNames).toContain(`frodo config push ${kind}`);
     }
   );
 
@@ -109,7 +109,7 @@ describe('the messages', () => {
       ])
     ).toBe(
       `Skipping 3 TrustedJwtIssuer entries of realm 'alpha' (testJWT, zion-issuer, matrix-issuer): ` +
-        `trusted JWT issuers are pulled by "frodo config-manager pull oauth-issuers".`
+        `trusted JWT issuers are pulled by "frodo config pull oauth-issuers".`
     );
   });
 
@@ -118,7 +118,7 @@ describe('the messages', () => {
       skippedEntriesMessage('alpha', 'CIMDProfile', [{ id: 'zion-agents' }])
     ).toBe(
       `Skipping 1 CIMDProfile entry of realm 'alpha' (zion-agents): ` +
-        `CIMD profiles are pulled by "frodo config-manager pull oauth-cimd-profiles".`
+        `CIMD profiles are pulled by "frodo config pull oauth-cimd-profiles".`
     );
   });
 
@@ -149,22 +149,22 @@ describe('the messages', () => {
       ])
     ).toBe(
       `Skipping 1 SoftwarePublisher entry of realm 'alpha' (zion-publisher): ` +
-        `software publishers are pulled by "frodo config-manager pull oauth-software-publishers".`
+        `software publishers are pulled by "frodo config pull oauth-software-publishers".`
     );
     expect(skippedFilesMessage('bravo', 'SoftwarePublisher', 2)).toBe(
       `Skipping the 2 SoftwarePublisher file(s) of realm 'bravo': ` +
-        `they are pushed by "frodo config-manager push oauth-software-publishers".`
+        `they are pushed by "frodo config push oauth-software-publishers".`
     );
   });
 
   it('counts the files and names the push command', () => {
     expect(skippedFilesMessage('alpha', 'TrustedJwtIssuer', 3)).toBe(
       `Skipping the 3 TrustedJwtIssuer file(s) of realm 'alpha': ` +
-        `they are pushed by "frodo config-manager push oauth-issuers".`
+        `they are pushed by "frodo config push oauth-issuers".`
     );
     expect(skippedFilesMessage('/', 'CIMDProfile', 1)).toBe(
       `Skipping the 1 CIMDProfile file(s) of realm '/': ` +
-        `they are pushed by "frodo config-manager push oauth-cimd-profiles".`
+        `they are pushed by "frodo config push oauth-cimd-profiles".`
     );
   });
 });
@@ -182,8 +182,8 @@ describe('the table of the agent families', () => {
     (family, { command, plural }) => {
       expect(command).toBe(family);
       expect(plural.length).toBeGreaterThan(0);
-      expect(commandNames).toContain(`frodo config-manager pull ${command}`);
-      expect(commandNames).toContain(`frodo config-manager push ${command}`);
+      expect(commandNames).toContain(`frodo config pull ${command}`);
+      expect(commandNames).toContain(`frodo config push ${command}`);
     }
   );
 });

@@ -7,7 +7,7 @@ import { FrodoCommand } from '../../FrodoCommand';
 import { selectorOption } from '../../SelectorOption';
 
 export default function setup() {
-  const program = new FrodoCommand('frodo config-manager push journeys', []);
+  const program = new FrodoCommand('frodo config push journeys', []);
 
   program
     .description('Import journeys.')

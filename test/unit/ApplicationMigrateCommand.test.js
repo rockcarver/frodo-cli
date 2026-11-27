@@ -9,7 +9,7 @@ import {
 import { Command } from 'commander';
 
 /**
- * The command `config-manager migrate apps` (record 0040 and 0042): it adds
+ * The command `config migrate apps` (record 0040 and 0042): it adds
  * the shared `--allow-failures` option (`.multiOp()`), runs for Cloud and ForgeOps,
  * logs in first, hands the realm, `--dry-run`, the value of `--allow-failures` and
  * the config folder to the ops function, and exits 1 when the login fails or the
@@ -57,7 +57,11 @@ jest.unstable_mockModule('../../src/cli/FrodoCommand', () => ({
       return this.option('--allow-failures');
     }
   },
-  FrodoStubCommand: class extends Command {},
+  FrodoStubCommand: class extends Command {
+    withStability() {
+      return this;
+    }
+  },
 }));
 jest.unstable_mockModule('../../src/utils/ColorTheme', () => ({
   default: { command: (text) => text },
@@ -95,12 +99,12 @@ afterEach(() => {
   process.exitCode = undefined;
 });
 
-describe('frodo config-manager migrate apps', () => {
+describe('frodo config migrate apps', () => {
   test('is a multi-operation command, for Cloud and ForgeOps', async () => {
     const program = await run();
 
     expect(program.multiOpCalled).toBe(true);
-    expect(constructed[0]).toBe('frodo config-manager migrate apps');
+    expect(constructed[0]).toBe('frodo config migrate apps');
     expect(constructed[2]).toEqual(['cloud', 'forgeops']);
   });
 
@@ -156,7 +160,7 @@ describe('frodo config-manager migrate apps', () => {
   });
 });
 
-describe('frodo config-manager migrate', () => {
+describe('frodo config migrate', () => {
   test('is a group with one command: apps', () => {
     const group = setupGroup();
 

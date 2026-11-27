@@ -11,7 +11,7 @@ import { readSync } from 'node:fs';
  * `readSync(0)` then throws EAGAIN whenever no data has arrived yet: at a
  * prompt because the user has not typed, on a pipe because the producer is
  * slower than the CLI (frodo-cli#887 and its sibling,
- * `config-manager push raw --stdin`). So EAGAIN is not an error here, it is
+ * `config push raw --stdin`). So EAGAIN is not an error here, it is
  * "no input yet": wait a moment and ask again. Any other error is real and
  * propagates.
  *

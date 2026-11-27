@@ -3,7 +3,8 @@
 exports[`frodo config-manager push remote-proxies "frodo config-manager push remote-proxies -n zz-e2e-proxy -D test/e2e/exports/fr-config-manager/cloud": should import one remote proxy into cloud" 1`] = `""`;
 
 exports[`frodo config-manager push remote-proxies "frodo config-manager push remote-proxies -n zz-e2e-proxy -D test/e2e/exports/fr-config-manager/cloud": should import one remote proxy into cloud" 2`] = `
-"Experimental feature in use: 'frodo config-manager push remote-proxies'. This feature may change without notice.
+"'config-manager' is now called 'config'. The old name still works and will be removed in a future major release.
+Experimental feature in use: 'frodo config push remote-proxies'. This feature may change without notice.
 These remote proxies address their receiving tenant with a fixed URL, which a promotion carries to the next environment unchanged: zz-e2e-proxy (instanceUrl, tokenEndpoint). Make the host an ESV placeholder such as https://&{esv.zion.proxy.host}/openidm/ to let each environment supply its own receiver.
 "
 `;

@@ -67,13 +67,13 @@ const idWithAlias = (extra = {}) =>
 const leaf = (name, options, oneOf = []) => ({ name, options, oneOf });
 
 const ROW_I = {
-  command: 'frodo config-manager pull journeys',
+  command: 'frodo config pull journeys',
   id: '--journey-id',
   name: null,
   aliases: ['-n', '--name'],
 };
 const ROW_N = {
-  command: 'frodo config-manager pull applications',
+  command: 'frodo config pull applications',
   id: '--app-id',
   name: '--app-name',
   aliases: ['--name'],
@@ -122,7 +122,7 @@ describe('findSelectorProblems on hand-built commands', () => {
 
   it('fails a row whose command does not exist', () => {
     expect(find({ groupLeaves: [] }).rows).toEqual([
-      'frodo config-manager pull journeys :: the command does not exist',
+      'frodo config pull journeys :: the command does not exist',
     ]);
   });
 
@@ -132,7 +132,7 @@ describe('findSelectorProblems on hand-built commands', () => {
     });
 
     expect(rows[0]).toBe(
-      'frodo config-manager pull journeys :: has no -i option, expected -i, --journey-id'
+      'frodo config pull journeys :: has no -i option, expected -i, --journey-id'
     );
   });
 
@@ -142,7 +142,7 @@ describe('findSelectorProblems on hand-built commands', () => {
     });
 
     expect(rows).toContain(
-      'frodo config-manager pull journeys :: -i is --tree-id, expected --journey-id'
+      'frodo config pull journeys :: -i is --tree-id, expected --journey-id'
     );
   });
 
@@ -152,7 +152,7 @@ describe('findSelectorProblems on hand-built commands', () => {
     });
 
     expect(rows).toEqual([
-      'frodo config-manager pull journeys :: --journey-id takes no value',
+      'frodo config pull journeys :: --journey-id takes no value',
     ]);
   });
 
@@ -196,25 +196,25 @@ describe('findSelectorProblems on hand-built commands', () => {
     });
 
     expect(rows).toEqual([
-      "frodo config-manager pull applications :: --app-id does not declare the conflict with --app-name (.conflicts(['appName']))",
+      "frodo config pull applications :: --app-id does not declare the conflict with --app-name (.conflicts(['appName']))",
     ]);
     const other = find({
       groupLeaves: [applications([appId(), appName({ conflicts: [] })])],
       rows: [ROW_N],
     }).rows;
     expect(other).toEqual([
-      "frodo config-manager pull applications :: --app-name does not declare the conflict with --app-id (.conflicts(['appId']))",
+      "frodo config pull applications :: --app-name does not declare the conflict with --app-id (.conflicts(['appId']))",
     ]);
   });
 
   it('fails a conflict with another option that is declared on one side only, naming the side that is missing', () => {
     const scripts = (id, prefix) =>
-      leaf('frodo config-manager pull scripts', [
+      leaf('frodo config pull scripts', [
         opt('-i', '--script-id', { conflicts: id }),
         opt('-p', '--prefix', { conflicts: prefix }),
       ]);
     const row = {
-      command: 'frodo config-manager pull scripts',
+      command: 'frodo config pull scripts',
       id: '--script-id',
       name: null,
       aliases: [],
@@ -227,12 +227,12 @@ describe('findSelectorProblems on hand-built commands', () => {
     expect(
       find({ groupLeaves: [scripts(['prefix'], [])], rows: [row] }).rows
     ).toEqual([
-      "frodo config-manager pull scripts :: --script-id conflicts with --prefix, but --prefix does not declare the conflict back (.conflicts(['scriptId']))",
+      "frodo config pull scripts :: --script-id conflicts with --prefix, but --prefix does not declare the conflict back (.conflicts(['scriptId']))",
     ]);
     expect(
       find({ groupLeaves: [scripts([], ['scriptId'])], rows: [row] }).rows
     ).toEqual([
-      "frodo config-manager pull scripts :: --prefix conflicts with --script-id, but --script-id does not declare the conflict back (.conflicts(['prefix']))",
+      "frodo config pull scripts :: --prefix conflicts with --script-id, but --script-id does not declare the conflict back (.conflicts(['prefix']))",
     ]);
   });
 
@@ -240,12 +240,12 @@ describe('findSelectorProblems on hand-built commands', () => {
     expect(
       find({ groupLeaves: [journeys([idWithAlias({ mandatory: true })])] }).rows
     ).toEqual([
-      'frodo config-manager pull journeys :: --journey-id is mandatory: a selector is a filter, the command works without it',
+      'frodo config pull journeys :: --journey-id is mandatory: a selector is a filter, the command works without it',
     ]);
     expect(
       find({ groupLeaves: [journeys([idWithAlias()], ['journeyId'])] }).rows
     ).toEqual([
-      'frodo config-manager pull journeys :: --journey-id is in a one-of group: a selector is a filter, the command works without it',
+      'frodo config pull journeys :: --journey-id is in a one-of group: a selector is a filter, the command works without it',
     ]);
     // a group that names the option by its long form without the dashes
     expect(
@@ -258,7 +258,7 @@ describe('findSelectorProblems on hand-built commands', () => {
       groupLeaves: [journeys([idWithAlias({ aliases: [] })])],
     }).rows;
     expect(missing).toEqual([
-      'frodo config-manager pull journeys :: --journey-id has the alias [], expected [-n, --name]',
+      'frodo config pull journeys :: --journey-id has the alias [], expected [-n, --name]',
     ]);
     const other = find({
       groupLeaves: [journeys([idWithAlias({ aliases: ['--name'] })])],
@@ -276,7 +276,7 @@ describe('findSelectorProblems on hand-built commands', () => {
     });
 
     expect(rows).toEqual([
-      'frodo config-manager pull journeys :: the description of --journey-id does not end with (alias: -n, --name)',
+      'frodo config pull journeys :: the description of --journey-id does not end with (alias: -n, --name)',
     ]);
   });
 
@@ -323,13 +323,13 @@ describe('findSelectorProblems on hand-built commands', () => {
     });
 
     expect(problems.rows).toEqual([
-      'frodo config-manager pull journeys :: this row stands twice in the expected selectors: one row for each command',
+      'frodo config pull journeys :: this row stands twice in the expected selectors: one row for each command',
     ]);
     expect(checked.rows).toBe(1);
   });
 
   describe('a command of the group that no row names', () => {
-    const stray = leaf('frodo config-manager promote unlock-tenants', [
+    const stray = leaf('frodo config promote unlock-tenants', [
       opt('-i', '--id'),
     ]);
     const base = { groupLeaves: [journeys(), stray] };
@@ -339,7 +339,7 @@ describe('findSelectorProblems on hand-built commands', () => {
 
       expect(strays).toHaveLength(1);
       expect(strays[0]).toContain(
-        'frodo config-manager promote unlock-tenants'
+        'frodo config promote unlock-tenants'
       );
       expect(strays[0]).toContain('-i --id');
     });
@@ -347,7 +347,7 @@ describe('findSelectorProblems on hand-built commands', () => {
     it('fails when only an alias has the letter', () => {
       const { strays } = find({
         groupLeaves: [
-          leaf('frodo config-manager pull other', [
+          leaf('frodo config pull other', [
             opt('-x', '--other-id', { aliases: ['-n', '--name'] }),
           ]),
         ],
@@ -358,7 +358,7 @@ describe('findSelectorProblems on hand-built commands', () => {
 
     it('accepts it when a stray entry says why, and fails the entry when it is not needed', () => {
       const entry = {
-        command: 'frodo config-manager promote unlock-tenants',
+        command: 'frodo config promote unlock-tenants',
         long: '--id',
         why: 'a promotion',
       };
@@ -370,7 +370,7 @@ describe('findSelectorProblems on hand-built commands', () => {
       const unused = find({ groupLeaves: [journeys()], strays: [entry] });
       expect(unused.entries).toHaveLength(1);
       expect(unused.entries[0]).toMatch(
-        /^STRAY_SELECTOR_OPTIONS frodo config-manager promote unlock-tenants --id :: the command has no -i or -n option/
+        /^STRAY_SELECTOR_OPTIONS frodo config promote unlock-tenants --id :: the command has no -i or -n option/
       );
     });
 
@@ -379,19 +379,19 @@ describe('findSelectorProblems on hand-built commands', () => {
         ...base,
         strays: [
           {
-            command: 'frodo config-manager promote unlock-tenants',
+            command: 'frodo config promote unlock-tenants',
             long: '--id',
           },
         ],
       });
 
       expect(entries).toEqual([
-        'STRAY_SELECTOR_OPTIONS frodo config-manager promote unlock-tenants :: entry without why',
+        'STRAY_SELECTOR_OPTIONS frodo config promote unlock-tenants :: entry without why',
       ]);
     });
 
     it('is not looked at when its verb is pending, and the entry fails when the verb has nothing pending', () => {
-      const push = leaf('frodo config-manager push journeys', [
+      const push = leaf('frodo config push journeys', [
         opt('-n', '--name'),
       ]);
       const pending = {
@@ -420,7 +420,7 @@ describe('findSelectorProblems on hand-built commands', () => {
       const { strays } = find({
         groupLeaves: [
           journeys(),
-          leaf('frodo config-manager pull cors', [opt(null, '--dump')]),
+          leaf('frodo config pull cors', [opt(null, '--dump')]),
         ],
       });
 
@@ -489,7 +489,7 @@ describe('findSelectorMigrationProblems', () => {
     );
 
     expect(problems).toEqual([
-      'frodo config-manager pull journeys :: MIGRATION.md has no table row of three cells for `pull journeys`: add the command to the table of the selectors',
+      'frodo config pull journeys :: MIGRATION.md has no table row of three cells for `pull journeys`: add the command to the table of the selectors',
     ]);
   });
 
@@ -503,7 +503,7 @@ describe('findSelectorMigrationProblems', () => {
     );
 
     expect(problems).toEqual([
-      'frodo config-manager pull journeys :: MIGRATION.md has no table row of three cells for `pull journeys`: add the command to the table of the selectors',
+      'frodo config pull journeys :: MIGRATION.md has no table row of three cells for `pull journeys`: add the command to the table of the selectors',
     ]);
   });
 
@@ -526,7 +526,7 @@ describe('findSelectorMigrationProblems', () => {
         ROW_N,
       ]).problems
     ).toEqual([
-      'frodo config-manager pull applications :: the row of MIGRATION.md says `-i, --app-id` in its second cell, expected `-i, --app-id`, `-n, --app-name`',
+      'frodo config pull applications :: the row of MIGRATION.md says `-i, --app-id` in its second cell, expected `-i, --app-id`, `-n, --app-name`',
     ]);
     expect(
       findSelectorMigrationProblems(
@@ -563,7 +563,7 @@ describe('findSelectorMigrationProblems', () => {
     );
 
     expect(problems).toEqual([
-      'frodo config-manager pull journeys :: MIGRATION.md has 2 table rows for `pull journeys`: one row for each command',
+      'frodo config pull journeys :: MIGRATION.md has 2 table rows for `pull journeys`: one row for each command',
     ]);
   });
 
@@ -580,7 +580,7 @@ describe('findOldSpellingProblems', () => {
     text: lines.join('\n'),
   });
   const cmd = (args) =>
-    `    const CMD = \`frodo config-manager pull journeys ${args}\`;`;
+    `    const CMD = \`frodo config pull journeys ${args}\`;`;
 
   it('accepts a line that types the new spelling', () => {
     const { problems, checked } = findOldSpellingProblems(
@@ -614,9 +614,9 @@ describe('findOldSpellingProblems', () => {
 
   it('does not look at a command whose -n is its own option, nor at a line that is not a command', () => {
     const application = file([
-      '    const CMD = `frodo config-manager pull applications -n Zion -D ${dirName}`;',
-      '    // frodo config-manager pull journeys -n Login',
-      '    const other = `frodo config-manager pull journeys -n Login`;',
+      '    const CMD = `frodo config pull applications -n Zion -D ${dirName}`;',
+      '    // frodo config pull journeys -n Login',
+      '    const other = `frodo config pull journeys -n Login`;',
     ]);
 
     const { problems, checked } = findOldSpellingProblems(
@@ -630,7 +630,7 @@ describe('findOldSpellingProblems', () => {
   });
 
   it('accepts a line that is kept on purpose, and fails the entry when no line is left', () => {
-    const line = 'frodo config-manager pull journeys -n Login';
+    const line = 'frodo config pull journeys -n Login';
     const entry = {
       file: 'config-manager-pull-journeys.e2e.test.js',
       cmd: line,
@@ -660,7 +660,7 @@ describe('findOldSpellingProblems', () => {
     const header = (
       args,
       flags = 'FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_TEST_NAME=0_n_D'
-    ) => `${flags} frodo config-manager pull journeys ${args}`;
+    ) => `${flags} frodo config pull journeys ${args}`;
 
     it('accepts a header line that types the new spelling, and counts it', () => {
       const { problems, checked } = findOldSpellingProblems(
@@ -695,14 +695,14 @@ describe('findOldSpellingProblems', () => {
     it('leaves the header line of a command that the file keeps on purpose, and a line that is no record line, and a command with a name of its own', () => {
       const entry = {
         file: 'config-manager-pull-journeys.e2e.test.js',
-        cmd: 'frodo config-manager pull journeys -n Login',
+        cmd: 'frodo config pull journeys -n Login',
         why: 'covers the alias',
       };
       const lines = [
         header('-n Login -D testDir1'),
         cmd('-n Login'),
-        '// frodo config-manager pull journeys -n Login',
-        'FRODO_MOCK=record frodo config-manager pull applications -n Zion',
+        '// frodo config pull journeys -n Login',
+        'FRODO_MOCK=record frodo config pull applications -n Zion',
       ];
 
       const kept = findOldSpellingProblems(
@@ -726,7 +726,7 @@ describe('findOldSpellingProblems', () => {
       [
         {
           file: 'config-manager-pull-journeys.e2e.test.js',
-          cmd: 'frodo config-manager pull journeys -n Login',
+          cmd: 'frodo config pull journeys -n Login',
         },
       ]
     );
@@ -827,7 +827,7 @@ describe('the selectors of the configuration commands', () => {
       const leaf = groupLeaves.find((l) => l.name === name);
       // a command that selects nothing: its options are the ones of every command
       const baseline = groupLeaves.find(
-        (l) => l.name === 'frodo config-manager pull cors'
+        (l) => l.name === 'frodo config pull cors'
       );
 
       expect(entry.why).toMatch(/\S/);
@@ -860,8 +860,8 @@ describe('the selectors of the configuration commands', () => {
 
     expect(names).toEqual(
       expect.arrayContaining([
-        'frodo config-manager push csp',
-        'frodo config-manager push terms-and-conditions',
+        'frodo config push csp',
+        'frodo config push terms-and-conditions',
       ])
     );
     expect(
@@ -872,7 +872,7 @@ describe('the selectors of the configuration commands', () => {
       NO_SELECTOR_COMMANDS.filter((entry) => entry.ownOption).map(
         (entry) => entry.command
       )
-    ).toEqual(['frodo config-manager push csp']);
+    ).toEqual(['frodo config push csp']);
   });
 
   it('has no plain --name option on a command of a verb that has its rows, except the one that push csp keeps', () => {
@@ -991,7 +991,7 @@ describe('the selectors of the configuration commands', () => {
     );
 
     it('refuses an empty prefix of pull scripts, which would match every script, and takes repeated prefixes', () => {
-      const name = 'frodo config-manager pull scripts';
+      const name = 'frodo config pull scripts';
 
       for (const args of [['-p', ''], ['--prefix', ''], ['--prefix=']]) {
         const error = failure(name, args);
@@ -1012,7 +1012,7 @@ describe('the selectors of the configuration commands', () => {
     });
 
     it('refuses an empty prefix of delete scripts, which would match every script, and takes repeated prefixes; -i and -p cannot be combined', () => {
-      const name = 'frodo config-manager delete scripts';
+      const name = 'frodo config delete scripts';
 
       for (const args of [['-p', ''], ['--prefix', ''], ['--prefix=']]) {
         const error = failure(name, args);
@@ -1042,7 +1042,7 @@ describe('the selectors of the configuration commands', () => {
     });
 
     it('declares the conflict of -i and -p of delete scripts on both options, as the record on mutually exclusive options asks', () => {
-      const options = commands.get('frodo config-manager delete scripts').options;
+      const options = commands.get('frodo config delete scripts').options;
       const conflictsOf = (long) =>
         [...(options.find((option) => option.long === long)?.conflictsWith ?? [])].sort();
 
@@ -1052,7 +1052,7 @@ describe('the selectors of the configuration commands', () => {
     });
 
     it('refuses an empty -n of push csp, which would write both policies, and still takes a policy name as it did', () => {
-      const name = 'frodo config-manager push csp';
+      const name = 'frodo config push csp';
 
       for (const args of [['-n', ''], ['--name', ''], ['--name=']]) {
         const error = failure(name, args);

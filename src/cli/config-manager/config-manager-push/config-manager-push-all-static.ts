@@ -7,7 +7,7 @@ import { realmOfRun } from '../../../utils/interactive/PositionalArgs';
 import { FrodoCommand, ObjectOption } from '../../FrodoCommand';
 
 export default function setup() {
-  const program = new FrodoCommand('frodo config-manager push all-static');
+  const program = new FrodoCommand('frodo config push all-static');
   program
     .description('Import all static configuration.')
     .addOption(
@@ -26,19 +26,19 @@ export default function setup() {
       `Usage Examples:\n` +
         `  Push all static configuration from the folder ./config using a connection profile:\n` +
         c.command(
-          `  $ frodo config-manager push all-static -D ./config ${s.connId}\n`
+          `  $ frodo config push all-static -D ./config ${s.connId}\n`
         ) +
         `  Push it for one realm and log in with AM base URL, username, and password:\n` +
         c.command(
-          `  $ frodo config-manager push all-static -D ./config ${s.amBaseUrl} alpha ${s.username} '${s.password}'\n`
+          `  $ frodo config push all-static -D ./config ${s.amBaseUrl} alpha ${s.username} '${s.password}'\n`
         ) +
         `  Stamp the metadata of the tenant in the same run:\n` +
         c.command(
-          `  $ frodo config-manager push all-static -D ./config -M pushedAt=2026-11-26T00:00:00Z -M versionInfo.version=1.0 ${s.connId}\n`
+          `  $ frodo config push all-static -D ./config -M pushedAt=2026-11-26T00:00:00Z -M versionInfo.version=1.0 ${s.connId}\n`
         ) +
         `  Report failed steps but exit with code 0:\n` +
         c.command(
-          `  $ frodo config-manager push all-static -D ./config --allow-failures ${s.connId}\n`
+          `  $ frodo config push all-static -D ./config --allow-failures ${s.connId}\n`
         )
     )
     .usesRealm({ tenantWide: true })

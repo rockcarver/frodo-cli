@@ -29,55 +29,55 @@ import { ALL_RENAMES } from '../utils/ConfigManagerRenames.js';
  * pick. A new config-manager command therefore has to choose.
  */
 const USES_REALM = [
-  'frodo config-manager delete apps',
-  'frodo config-manager delete oauth-cimd-profiles',
-  'frodo config-manager delete scripts',
-  'frodo config-manager delete secretstore-mappings',
-  'frodo config-manager delete themes',
-  'frodo config-manager delete oauth-issuers',
-  'frodo config-manager delete oauth-software-publishers',
-  'frodo config-manager migrate apps',
-  'frodo config-manager pull all',
-  'frodo config-manager pull all-static',
-  'frodo config-manager pull apps',
-  'frodo config-manager pull authn',
-  'frodo config-manager pull oauth-cimd-profiles',
-  'frodo config-manager pull journeys',
-  'frodo config-manager pull org-privileges',
-  'frodo config-manager pull password-policy',
-  'frodo config-manager pull scripts',
-  'frodo config-manager pull secretstore-mappings',
-  'frodo config-manager pull services',
-  'frodo config-manager pull themes',
-  'frodo config-manager pull oauth-issuers',
-  'frodo config-manager pull oauth-software-publishers',
-  'frodo config-manager pull saml',
-  'frodo config-manager pull authz-policies',
-  'frodo config-manager pull oauth2-agents',
-  'frodo config-manager pull oauth-clients',
-  'frodo config-manager pull agents',
-  'frodo config-manager push all-static',
-  'frodo config-manager push apps',
-  'frodo config-manager push authn',
-  'frodo config-manager push oauth-cimd-profiles',
-  'frodo config-manager push journeys',
-  'frodo config-manager push password-policy',
-  'frodo config-manager push saml',
-  'frodo config-manager push scripts',
-  'frodo config-manager push secretstore-mappings',
-  'frodo config-manager push services',
-  'frodo config-manager push themes',
-  'frodo config-manager push oauth-issuers',
-  'frodo config-manager push oauth-software-publishers',
-  'frodo config-manager delete journeys',
-  'frodo config-manager delete services',
+  'frodo config delete apps',
+  'frodo config delete oauth-cimd-profiles',
+  'frodo config delete scripts',
+  'frodo config delete secretstore-mappings',
+  'frodo config delete themes',
+  'frodo config delete oauth-issuers',
+  'frodo config delete oauth-software-publishers',
+  'frodo config migrate apps',
+  'frodo config pull all',
+  'frodo config pull all-static',
+  'frodo config pull apps',
+  'frodo config pull authn',
+  'frodo config pull oauth-cimd-profiles',
+  'frodo config pull journeys',
+  'frodo config pull org-privileges',
+  'frodo config pull password-policy',
+  'frodo config pull scripts',
+  'frodo config pull secretstore-mappings',
+  'frodo config pull services',
+  'frodo config pull themes',
+  'frodo config pull oauth-issuers',
+  'frodo config pull oauth-software-publishers',
+  'frodo config pull saml',
+  'frodo config pull authz-policies',
+  'frodo config pull oauth2-agents',
+  'frodo config pull oauth-clients',
+  'frodo config pull agents',
+  'frodo config push all-static',
+  'frodo config push apps',
+  'frodo config push authn',
+  'frodo config push oauth-cimd-profiles',
+  'frodo config push journeys',
+  'frodo config push password-policy',
+  'frodo config push saml',
+  'frodo config push scripts',
+  'frodo config push secretstore-mappings',
+  'frodo config push services',
+  'frodo config push themes',
+  'frodo config push oauth-issuers',
+  'frodo config push oauth-software-publishers',
+  'frodo config delete journeys',
+  'frodo config delete services',
 ];
 
 /** The commands that also cover configuration of the tenant, which no realm limits. */
 const ALSO_TENANT_WIDE = [
-  'frodo config-manager pull all',
-  'frodo config-manager pull all-static',
-  'frodo config-manager push all-static',
+  'frodo config pull all',
+  'frodo config pull all-static',
+  'frodo config push all-static',
 ];
 
 const HOW_TO_FIX =
@@ -94,7 +94,7 @@ const root = path.resolve(
   '..'
 );
 
-/** The source file of a leaf: `frodo config-manager pull all-static` -> config-manager-pull-all-static.ts */
+/** The source file of a leaf: `frodo config pull all-static` -> config-manager-pull-all-static.ts */
 function sourceOf(name) {
   const [, , group, ...rest] = name.split(' ');
   const word = rest.join('-');
@@ -133,22 +133,26 @@ beforeAll(async () => {
   configManager = leaves.filter((leaf) => isConfigManagerCommand(leaf));
 });
 
-describe('config-manager commands and their realm', () => {
-  it('finds the config-manager commands of the command tree', () => {
+describe('config pull, push, delete, migrate and promote commands and their realm', () => {
+  it('finds the commands of config pull, push, delete, migrate and promote in the command tree', () => {
     const names = configManager.map(fullName);
     expect(names.length).toBeGreaterThan(90);
-    expect(names).toContain('frodo config-manager pull journeys');
-    expect(names).toContain('frodo config-manager pull cors');
-    expect(names).toContain('frodo config-manager promote run');
+    expect(names).toContain('frodo config pull journeys');
+    expect(names).toContain('frodo config pull cors');
+    expect(names).toContain('frodo config promote run');
     expect(
-      names.every((name) => name.startsWith('frodo config-manager '))
+      names.every((name) =>
+        /^frodo config (pull|push|delete|migrate|promote) /.test(name)
+      )
     ).toBe(true);
   });
 
-  it('knows no command outside config-manager as one', () => {
+  it('knows no command outside config pull, push, delete, migrate and promote as one: config export and config import share the group name and are not', () => {
     const others = leaves.filter((leaf) => !isConfigManagerCommand(leaf));
     expect(others.length).toBeGreaterThan(100);
     expect(others.map(fullName)).toContain('frodo journey list');
+    expect(others.map(fullName)).toContain('frodo config export');
+    expect(others.map(fullName)).toContain('frodo config import');
     expect(others.some((leaf) => realmUseOf(leaf))).toBe(false);
     expect(others.some((leaf) => ignoresRealm(leaf))).toBe(false);
   });
@@ -171,7 +175,7 @@ describe('config-manager commands and their realm', () => {
 
   it('declares with a chainable method of the command', () => {
     // a command of its own: the declarations of the tree are checked below
-    const command = new FrodoCommand('frodo config-manager pull sample');
+    const command = new FrodoCommand('frodo config pull sample');
     expect(realmUseOf(command)).toBeUndefined();
     expect(command.usesRealm()).toBe(command);
     expect(realmUseOf(command)).toEqual({ tenantWide: false });

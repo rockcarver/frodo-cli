@@ -3,7 +3,8 @@
 exports[`frodo config-manager push authz-policies "frodo config-manager push authz-policies -D test/e2e/exports/fr-config-manager/forgeops": should not import the authz-policies when no changes are made" 1`] = `""`;
 
 exports[`frodo config-manager push authz-policies "frodo config-manager push authz-policies -D test/e2e/exports/fr-config-manager/forgeops": should not import the authz-policies when no changes are made" 2`] = `
-"Experimental feature in use: 'frodo config-manager push authz-policies'. This feature may change without notice.
+"'config-manager' is now called 'config'. The old name still works and will be removed in a future major release.
+Experimental feature in use: 'frodo config push authz-policies'. This feature may change without notice.
 Importing authorization policies...
 ✔ Imported 0 policy sets, 0 policies, and 1 resource types.
 "
@@ -12,7 +13,8 @@ Importing authorization policies...
 exports[`frodo config-manager push authz-policies "frodo config-manager push authz-policies -FD test/e2e/exports/fr-config-manager/forgeops": should import the authz-policies" 1`] = `""`;
 
 exports[`frodo config-manager push authz-policies "frodo config-manager push authz-policies -FD test/e2e/exports/fr-config-manager/forgeops": should import the authz-policies" 2`] = `
-"Experimental feature in use: 'frodo config-manager push authz-policies'. This feature may change without notice.
+"'config-manager' is now called 'config'. The old name still works and will be removed in a future major release.
+Experimental feature in use: 'frodo config push authz-policies'. This feature may change without notice.
 Importing authorization policies...
 ✔ Imported 5 policy sets, 4 policies, and 2 resource types.
 "

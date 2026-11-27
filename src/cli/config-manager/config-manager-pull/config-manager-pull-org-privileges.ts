@@ -17,7 +17,7 @@ const { constants } = frodo.utils;
 
 export default function setup() {
   const program = new FrodoCommand(
-    'frodo config-manager pull org-privileges',
+    'frodo config pull org-privileges',
     [],
     deploymentTypes
   );

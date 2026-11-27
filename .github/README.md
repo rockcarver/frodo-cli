@@ -124,24 +124,31 @@ own, `frodo aiagent`, with the same commands and options (`import` needs `-f` or
 prints a notice that names the new command; its removal is proposed for 6.0.0.
 See the [Migration Guide](../MIGRATION.md).
 
+**5.0.0 joins `frodo config-manager` into `frodo config`**: `frodo config` hosts
+`export` and `import` (unchanged) next to `pull`, `push`, `delete`, `migrate` and
+`promote`, which moved from `frodo config-manager`. `config-manager` stays as the
+old name of the group: it works as before, prints a notice once per process, and a
+future major release removes it. `frodo -h` lists the group under `Continuous
+integration:`. See the [Migration Guide](../MIGRATION.md).
+
 **5.0.0 removes `frodo config-manager push direct-control-init`, `-apply`,
 `-abort` and `-state`**: direct control has one implementation, `frodo dcc
 session init|apply|abort|state`, which gains `-w, --wait` and prints the state
 on stdout only with `--json`. See the [Migration Guide](../MIGRATION.md).
 
-**5.0.0 names the config file of the `frodo config-manager pull` commands
+**5.0.0 names the config file of the `frodo config pull` commands
 `--config-file`**: `pull authz-policies`, `pull csp`, `pull oauth2-agents`,
 `pull raw`, `pull saml` and `pull service-objects` no longer take `-f` or
 `--file`, and `pull saml`, `pull authz-policies` and `pull oauth2-agents` need no
 file: without one they pull every object of every realm, or of the realm given.
 See the [Migration Guide](../MIGRATION.md).
 
-**5.0.0 splits `frodo config-manager pull|push oauth2-agents`**: the OAuth2 clients
+**5.0.0 splits `frodo config pull|push oauth2-agents`**: the OAuth2 clients
 have `oauth-clients` and the other agent types `agents`, each with `pull` and
 `push`. `oauth2-agents` stays as a deprecated command that does what the two do
 together, and `pull all` is unchanged. See the [Migration Guide](../MIGRATION.md).
 
-**5.0.0 renames 25 `frodo config-manager` commands**: `apps`, `authn`, `nodes`,
+**5.0.0 renames 25 commands of `frodo config`**: `apps`, `authn`, `nodes`,
 `connectors`, `secretstore-mappings` and `connector-servers` replace
 `applications`, `authentication`, `custom-nodes`, `connector-definitions`,
 `secret-mappings` and `remote-servers` in the verbs that have them (`pull`, `push`,
@@ -154,7 +161,7 @@ prints a notice once per process; a future major release removes it. See the
 
 #### `frodo config-manager`
 
-A set of commands and export/import format optimized for CI/CD pipelines and compatible with `fr-config-manager`.
+A set of commands and export/import format optimized for CI/CD pipelines and compatible with `fr-config-manager`. Since 5.0.0 these commands are `frodo config pull`, `push`, `delete`, `migrate` and `promote`; `config-manager` is the old name of the group.
 
 #### `frodo dcc`
 
@@ -197,7 +204,7 @@ which sub-commands each family offers.
 | &emsp;`policy`             | 1.0.0 | Manage authorization policies.                                        | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: |                                           |
 | &emsp;`set`                | 1.0.0 | Manage authorization policy sets.                                     | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: |                                           |
 | &emsp;`type`               | 1.0.0 | Manage authorization resource types.                                  | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: |                                           |
-| `frodo config`             | 2.0.0 | Manage full cloud configuration.                                      |                    |                    | :white_check_mark: | :white_check_mark: |                    |                                           |
+| `frodo config`             | 2.0.0 | Manage configuration: export and import it as JSON (see also the commands for CI/CD below). |                    |                    | :white_check_mark: | :white_check_mark: |                    |                                           |
 | `frodo email`              | 1.0.0 | Manage email templates and configuration.                             |                    |                    |                    |                    |                    |                                           |
 | &emsp;`template`           | 1.0.0 | Manage email templates.                                               | :white_check_mark: |                    | :white_check_mark: | :white_check_mark: | :white_check_mark: |                                           |
 | `frodo idm`                | 1.0.0 | Manage IDM configuration.                                             | :white_check_mark: |                    | :white_check_mark: | :white_check_mark: | :white_check_mark: | `count`                                   |
@@ -242,7 +249,7 @@ which sub-commands each family offers.
 `frodo journey validate` checks journeys in the selected tenant, export file, or
 all-separate directory (`-A -D`); use `-i` to validate one journey, `-a` to
 explicitly select all, and `--strict` to treat warnings as failures. Journey
-imports, config-manager journey pushes, full configuration imports, and
+imports, `config push journeys`, full configuration imports, and
 `frodo promote` validate by default; pass `--no-validate` to skip validation.
 Journey exports always report findings as warnings and are not blocked by them.
 
@@ -296,26 +303,30 @@ gets its own row.
 ### Continuous integration commands
 
 The CI commands integrate frodo into automated pipelines:
-`config-manager` wraps [fr-config-manager](https://github.com/rockcarver/fr-config-manager)
-for pull/push of tenant configuration as code, `dcc` manages staged,
+`config pull`, `push`, `delete`, `migrate` and `promote` work on
+[fr-config-manager](https://github.com/rockcarver/fr-config-manager)
+format: tenant configuration as code, one file per object, `dcc` manages staged,
 session-based configuration changes that can be reviewed and applied (or
 aborted) in one step. The promotion of Advanced Identity Cloud itself
 (dev -> uat -> prod: lock, dry run, promote, status, reports, rollback, unlock) is
-`config-manager promote`. The root `promote` command does not run it: it only
+`config promote`. The root `promote` command does not run it: it only
 compares two local directories of a frodo export and imports and deletes what
 differs; it is deprecated and will be removed in 5.0.0.
 
 | Command                |  Since  | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
 | :--------------------- | :-----: | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `frodo config-manager` | `4.0.0` | [Experimental] Manage cloud configuration using fr-config-manager.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
-| &emsp;`pull`           | `4.0.0` | Export cloud configuration using fr-config-manager, by object type: access-config, all, all-static, audit, authn, authz-policies, connector-mappings, connector-servers, connectors, cookie-domains, cors, csp, email-provider, email-templates, endpoints, internal-roles, journeys, kba, locales, managed-objects, nodes, oauth-cimd-profiles, oauth-issuers, oauth-software-publishers, oauth2-agents, org-privileges, password-policy, raw, saml, schedules, scripts, secrets, secretstore-mappings, service-objects, services, terms-and-conditions, themes, ui-config, variables.                    |
-| &emsp;`push`           | `4.0.0` | Import configuration optimized for CI/CD pipelines (format compatible with fr-config-manager), by object type: access-config, audit, authn, connectors, cookie-domains, email-provider, email-templates, endpoints, internal-roles, kba, locales, managed-objects, oauth-cimd-profiles, oauth-issuers, oauth-software-publishers, org-privileges, password-policy, schedules, service-objects, terms-and-conditions, themes, ui-config.                                                                                                                                               |
+| `frodo config`         | `2.0.0` | Manage configuration. `export` and `import` (above) work on a JSON export; `pull`, `push`, `delete`, `migrate` and `promote` work on one file per object, optimized for CI/CD pipelines (format compatible with fr-config-manager). `frodo config-manager` is the old name of the group. |
+| &emsp;`pull`           | `4.0.0` | [Experimental] Export cloud configuration using fr-config-manager, by object type: access-config, all, all-static, audit, authn, authz-policies, connector-mappings, connector-servers, connectors, cookie-domains, cors, csp, email-provider, email-templates, endpoints, internal-roles, journeys, kba, locales, managed-objects, nodes, oauth-cimd-profiles, oauth-issuers, oauth-software-publishers, oauth2-agents, org-privileges, password-policy, raw, saml, schedules, scripts, secrets, secretstore-mappings, service-objects, services, terms-and-conditions, themes, ui-config, variables.                    |
+| &emsp;`push`           | `4.0.0` | [Experimental] Import configuration optimized for CI/CD pipelines (format compatible with fr-config-manager), by object type: access-config, audit, authn, connectors, cookie-domains, email-provider, email-templates, endpoints, internal-roles, kba, locales, managed-objects, oauth-cimd-profiles, oauth-issuers, oauth-software-publishers, org-privileges, password-policy, schedules, service-objects, terms-and-conditions, themes, ui-config.                                                                                                                                               |
+| &emsp;`delete`         | `5.0.0` | [Experimental] Delete configuration that left a tree of files, by object type. |
+| &emsp;`migrate`        | `5.0.0` | [Experimental] Move a tree of files to a newer layout (`migrate apps`). |
+| &emsp;`promote`        | `5.0.0` | [Experimental] [Cloud-only] Promote configuration between Advanced Identity Cloud environments: lock-status, lock, unlock, status, report, run, dry-run and rollback. |
 | `frodo dcc session`    |  4.0.0  | [Cloud-only] [Preview] Manage direct configuration sessions.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
 | &emsp;`abort`          |  4.0.0  | [Cloud-only] [Preview] Abort a direct configuration session.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
 | &emsp;`apply`          |  4.0.0  | [Cloud-only] [Preview] Apply configuration and end a direct configuration session.                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
 | &emsp;`init`           |  4.0.0  | [Cloud-only] [Preview] Initialize a direct configuration session.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
 | &emsp;`state`          |  4.0.0  | [Preview] Retrieve the state of the direct configuration session.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
-| `frodo promote`        |  3.0.1  | [Deprecated] Compares two local directories of a frodo export and imports and deletes what differs. It does not run a platform promotion (use `frodo config-manager promote`) and will be removed in 5.0.0.                                                                                                                                                                                                                                                                                                                                       |
+| `frodo promote`        |  3.0.1  | [Deprecated] Compares two local directories of a frodo export and imports and deletes what differs. It does not run a platform promotion (use `frodo config promote`) and will be removed in 5.0.0.                                                                                                                                                                                                                                                                                                                                       |
 
 **Key:** `[Cloud-only]` runs only against Identity Cloud.
 
@@ -587,7 +598,7 @@ frodo info example-use1-staging
 
 ### Settings
 
-`frodo settings` manages local frodo CLI preferences -- separate from connection profiles above, and from `frodo config`/`config-manager`, which manage remote Ping/AIC configuration. `theme` is the first settings category, letting you pick a color theme suited to your terminal. A theme is two independent preferences: a **background** (`dark`, `light`, `blue`, `yellow`, or auto-detected from your terminal) and a **contrast** level (`high-contrast`, `regular`, or `vibrant` -- the default, the most colorful option each background supports):
+`frodo settings` manages local frodo CLI preferences -- separate from connection profiles above, and from `frodo config`, which manages remote Ping/AIC configuration. `theme` is the first settings category, letting you pick a color theme suited to your terminal. A theme is two independent preferences: a **background** (`dark`, `light`, `blue`, `yellow`, or auto-detected from your terminal) and a **contrast** level (`high-contrast`, `regular`, or `vibrant` -- the default, the most colorful option each background supports):
 
 ```console
 $ frodo settings theme list

@@ -159,7 +159,7 @@ export type StepRun = (
 ) => Promise<boolean | void>;
 
 /**
- * One step of `config-manager pull all`, `pull all-static` or `push all-static`.
+ * One step of `config pull all`, `pull all-static` or `push all-static`.
  */
 export interface AllStep {
   /**

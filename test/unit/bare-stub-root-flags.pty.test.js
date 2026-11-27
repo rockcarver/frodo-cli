@@ -123,9 +123,8 @@ describe('bare stub invocation with root-exiting options', () => {
                 const widths = lines.map((l) => [...l].length);
                 expect(widths[0]).toBe(widths[2]); // panel top vs bottom
                 expect(widths[1]).toBe(widths[2]); // nav row vs panel bottom
-                // 'config' and 'config-manager' remain the matches.
+                // 'config' remains a match (config-manager is its old name now).
                 expect(frame).toMatch(/› config\s/);
-                expect(frame).toMatch(/config-manager/);
             } finally {
                 removeShellTestHome(homeDir);
             }

@@ -22,7 +22,7 @@ const deploymentTypes = [
 
 export default function setup() {
   const program = new FrodoCommand(
-    'frodo config-manager delete endpoints',
+    'frodo config delete endpoints',
     [],
     deploymentTypes
   );
@@ -52,20 +52,16 @@ export default function setup() {
       'after',
       `Usage Examples:\n` +
         `  Delete all eligible custom endpoints without asking, which is required without a terminal (without -y a terminal is asked first):\n` +
-        c.command(
-          `  $ frodo config-manager delete endpoints -y ${s.connId}\n`
-        ) +
+        c.command(`  $ frodo config delete endpoints -y ${s.connId}\n`) +
         `  Preview the deletion of all eligible custom endpoints:\n` +
-        c.command(
-          `  $ frodo config-manager delete endpoints -d ${s.connId}\n`
-        ) +
+        c.command(`  $ frodo config delete endpoints -d ${s.connId}\n`) +
         `  Delete a custom endpoint by id:\n` +
         c.command(
-          `  $ frodo config-manager delete endpoints -i Javascript ${s.connId}\n`
+          `  $ frodo config delete endpoints -i Javascript ${s.connId}\n`
         ) +
         `  Preview deletion of a custom endpoint without deleting it:\n` +
         c.command(
-          `  $ frodo config-manager delete endpoints -i Javascript -d ${s.connId}\n`
+          `  $ frodo config delete endpoints -i Javascript -d ${s.connId}\n`
         )
     )
     .multiOp()

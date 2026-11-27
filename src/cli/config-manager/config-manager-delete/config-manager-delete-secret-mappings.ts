@@ -19,7 +19,7 @@ const deploymentTypes = [CLOUD_DEPLOYMENT_TYPE_KEY];
 
 export default function setup() {
   const program = new FrodoCommand(
-    'frodo config-manager delete secretstore-mappings',
+    'frodo config delete secretstore-mappings',
     [],
     deploymentTypes
   );
@@ -50,19 +50,19 @@ export default function setup() {
       `Usage Examples:\n` +
         `  Delete all secret mappings of all realms except the root realm without asking, which is required without a terminal (without -y a terminal is asked first):\n` +
         c.command(
-          `  $ frodo config-manager delete secretstore-mappings -y ${s.connId}\n`
+          `  $ frodo config delete secretstore-mappings -y ${s.connId}\n`
         ) +
         `  Preview the deletion of all secret mappings of all realms except the root realm:\n` +
         c.command(
-          `  $ frodo config-manager delete secretstore-mappings --dry-run ${s.connId}\n`
+          `  $ frodo config delete secretstore-mappings --dry-run ${s.connId}\n`
         ) +
         `  Delete a secret mapping by ID in the alpha realm:\n` +
         c.command(
-          `  $ frodo config-manager delete secretstore-mappings -i example.secret.id ${s.connId} alpha\n`
+          `  $ frodo config delete secretstore-mappings -i example.secret.id ${s.connId} alpha\n`
         ) +
         `  Preview the deletion of a secret mapping by ID in the alpha realm:\n` +
         c.command(
-          `  $ frodo config-manager delete secretstore-mappings -i example.secret.id --dry-run ${s.connId} alpha\n`
+          `  $ frodo config delete secretstore-mappings -i example.secret.id --dry-run ${s.connId} alpha\n`
         )
     )
     .multiOp()

@@ -9,7 +9,7 @@ import {
 import { Command } from 'commander';
 
 /**
- * The command `config-manager delete oauth-cimd-profiles` (records 0037, 0040 and
+ * The command `config delete oauth-cimd-profiles` (records 0037, 0040 and
  * 0041, frodo-cli#1251): it adds the shared `--allow-failures` option
  * (`.multiOp()`), names no deployment type, refuses a delete of all CIMD profiles
  * that nobody can be asked about before it logs in, asks after the login (with the
@@ -117,14 +117,14 @@ afterEach(() => {
   process.exitCode = undefined;
 });
 
-describe('frodo config-manager delete oauth-cimd-profiles', () => {
+describe('frodo config delete oauth-cimd-profiles', () => {
   test('is a multi-operation command that uses the realm and names no deployment type', async () => {
     const program = await run('-y');
 
     expect(program.multiOpCalled).toBe(true);
     expect(program.usesRealmCalled).toBe(true);
     expect(constructed).toEqual([
-      'frodo config-manager delete oauth-cimd-profiles',
+      'frodo config delete oauth-cimd-profiles',
     ]);
   });
 

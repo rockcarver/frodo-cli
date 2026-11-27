@@ -11,7 +11,7 @@ import {
 import { startFakeAm } from '../utils/StartFakeAm.js';
 
 /**
- * The two questions of `config-manager promote run`, `rollback` and
+ * The two questions of `config promote run`, `rollback` and
  * `dry-run` that need a real terminal, answered through a
  * pseudo-terminal against the fake tenant:
  *
@@ -79,7 +79,7 @@ suite('promote questions, on a real terminal', () => {
         ...env,
       },
       args: [
-        'config-manager',
+        'config',
         'promote',
         ...args,
         `http://127.0.0.1:${fakeAm.port}/am`,

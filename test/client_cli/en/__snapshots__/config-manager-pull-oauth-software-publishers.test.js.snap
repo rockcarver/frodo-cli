@@ -1,7 +1,7 @@
 // Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
-exports[`CLI help interface for 'config-manager pull oauth-software-publishers' should be expected english 1`] = `
-"Usage: frodo config-manager pull oauth-software-publishers [options] [host] [realm] [username] [password]
+exports[`CLI help interface for 'config pull oauth-software-publishers' should be expected english 1`] = `
+"Usage: frodo config pull oauth-software-publishers [options] [host] [realm] [username] [password]
 
 [Experimental] Export the OAuth2 software publishers (the publishers whose
 signed software statements an OAuth 2.0 provider accepts when a client registers

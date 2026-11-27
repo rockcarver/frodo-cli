@@ -11,7 +11,7 @@ import {
 import { FrodoCommand } from '../../FrodoCommand';
 
 export default function setup() {
-  const program = new FrodoCommand('frodo config-manager push oauth-clients');
+  const program = new FrodoCommand('frodo config push oauth-clients');
 
   program
     .summary('Import OAuth2 clients from the files written by pull.')
@@ -22,20 +22,20 @@ export default function setup() {
       'after',
       `Usage Examples:\n` +
         `  Push every OAuth2 client file of the tree in the working directory (realms/<realm>/realm-config/agents/OAuth2Client/<id>.json) to the tenant:\n` +
-        c.command(`  $ frodo config-manager push oauth-clients ${s.connId}\n`) +
+        c.command(`  $ frodo config push oauth-clients ${s.connId}\n`) +
         `  Push from a config directory other than the working directory:\n` +
         c.command(
-          `  $ frodo config-manager push oauth-clients -D ./config ${s.connId}\n`
+          `  $ frodo config push oauth-clients -D ./config ${s.connId}\n`
         ) +
         `  Succeed although some OAuth2 clients could not be pushed (the failures are still summarised):\n` +
         c.command(
-          `  $ frodo config-manager push oauth-clients --allow-failures ${s.connId}\n`
+          `  $ frodo config push oauth-clients --allow-failures ${s.connId}\n`
         )
     )
     .addHelpText(
       'after',
       '\nThe files in the folder realms/<realm>/realm-config/agents/OAuth2Client are pushed. The folders of the agent types that "push agents" handles are not read here: "push agents" pushes them.\n' +
-        'The agent types CIMDProfile, TrustedJwtIssuer and SoftwarePublisher have a command of their own: "frodo config-manager push oauth-cimd-profiles", "frodo config-manager push oauth-issuers" and "frodo config-manager push oauth-software-publishers". The folders of those types are skipped here with a warning; no file in them is read or changed.\n' +
+        'The agent types CIMDProfile, TrustedJwtIssuer and SoftwarePublisher have a command of their own: "frodo config push oauth-cimd-profiles", "frodo config push oauth-issuers" and "frodo config push oauth-software-publishers". The folders of those types are skipped here with a warning; no file in them is read or changed.\n' +
         `Each \${NAME} in a file ${PLACEHOLDER_VALUES_RULE} The client secret is pulled with an override that holds such a placeholder. ${KEY_SET_PUSH_SENTENCE}\n` +
         'A file you push is a request: if the deployment cannot serve it, that file fails with the text of the library or of the server, the other files are still pushed, and the command exits with 1 unless --allow-failures is given.\n'
     )

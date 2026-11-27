@@ -6,8 +6,9 @@ exports[`frodo config-manager promote unlock-tenants "frodo config-manager promo
 `;
 
 exports[`frodo config-manager promote unlock-tenants "frodo config-manager promote unlock-tenants -i d1d00cc5-127a-485f-b541-68542e0d2a7c": unlock tenants if tenants are locked" 2`] = `
-"'unlock-tenants' is now called 'unlock'. The old name still works and will be removed in a future major release.
-Experimental feature in use: 'frodo config-manager promote unlock'. This feature may change without notice.
+"'config-manager' is now called 'config'. The old name still works and will be removed in a future major release.
+'unlock-tenants' is now called 'unlock'. The old name still works and will be removed in a future major release.
+Experimental feature in use: 'frodo config promote unlock'. This feature may change without notice.
 ✔ Environment unlocked after 10s
 "
 `;

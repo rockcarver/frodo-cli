@@ -3,7 +3,7 @@ import { fileURLToPath } from 'url';
 import { loadCommandTree } from '../utils/CommandExamples.js';
 
 /**
- * Every `config-manager delete` command that can delete more than the one
+ * Every `config delete` command that can delete more than the one
  * object it names asks first (cli record 0037): -y/--yes and -d/--dry-run, a
  * refusal before the login without a terminal, a question after it. The guard
  * itself is checked through the real CLI by
@@ -40,7 +40,7 @@ let deleteCommands;
 
 beforeAll(async () => {
   const { groups } = await loadCommandTree();
-  const group = groups.find((command) => command.name() === 'config-manager');
+  const group = groups.find((command) => command.name() === 'config');
   const deleteGroup = group?.commands.find(
     (command) => command.name() === 'delete'
   );
@@ -51,7 +51,7 @@ beforeAll(async () => {
 
 const optionFlags = (command) => command.options.map((option) => option.long);
 
-describe('the config-manager delete commands and the bulk-delete guard', () => {
+describe('the config delete commands and the bulk-delete guard', () => {
   test('1: the command tree has the delete commands, so the checks below have something to check', () => {
     const names = deleteCommands.map((command) => command.name());
     expect(names).toEqual(
@@ -155,11 +155,11 @@ describe('the config-manager delete commands and the bulk-delete guard', () => {
       // the guard test types the name or, for a renamed command, its old name: the alias runs the same command
       const typed = `(?:${[name, ...command.aliases()].join('|')})`;
       const line = (suffix) =>
-        new RegExp(`'frodo config-manager delete ${typed}( [^']*)?${suffix}'`);
+        new RegExp(`'frodo config delete ${typed}( [^']*)?${suffix}'`);
       expect({
         name,
         refused: new RegExp(
-          `^\\s*'frodo config-manager delete ${typed}( [^']*)?',$`,
+          `^\\s*'frodo config delete ${typed}( [^']*)?',$`,
           'm'
         ).test(refusedBlock),
       }).toEqual({ name, refused: true });

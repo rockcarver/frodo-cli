@@ -1,7 +1,8 @@
 // Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
 exports[`frodo config-manager pull iga-workflows "frodo config-manager pull iga-workflows --name BasicApplicationGrant -D igaTestDir05": should fail because the non-mutable workflow is not found without -i" 1`] = `
-"Experimental feature in use: 'frodo config-manager pull iga-workflows'. This feature may change without notice.
+"'config-manager' is now called 'config'. The old name still works and will be removed in a future major release.
+Experimental feature in use: 'frodo config pull iga-workflows'. This feature may change without notice.
 Workflow BasicApplicationGrant not found
 "
 `;
@@ -13,7 +14,8 @@ exports[`frodo config-manager pull iga-workflows "frodo config-manager pull iga-
 exports[`frodo config-manager pull iga-workflows "frodo config-manager pull iga-workflows -D igaTestDir01": should export the iga workflows in fr-config-manager style" 2`] = `""`;
 
 exports[`frodo config-manager pull iga-workflows "frodo config-manager pull iga-workflows -D igaTestDir01": should export the iga workflows in fr-config-manager style" 3`] = `
-"Experimental feature in use: 'frodo config-manager pull iga-workflows'. This feature may change without notice.
+"'config-manager' is now called 'config'. The old name still works and will be removed in a future major release.
+Experimental feature in use: 'frodo config pull iga-workflows'. This feature may change without notice.
 "
 `;
 
@@ -15723,7 +15725,8 @@ exports[`frodo config-manager pull iga-workflows "frodo config-manager pull iga-
 exports[`frodo config-manager pull iga-workflows "frodo config-manager pull iga-workflows -i -D igaTestDir03": should export all worfklows including immutable ones in fr-config-manager style" 2`] = `""`;
 
 exports[`frodo config-manager pull iga-workflows "frodo config-manager pull iga-workflows -i -D igaTestDir03": should export all worfklows including immutable ones in fr-config-manager style" 3`] = `
-"Experimental feature in use: 'frodo config-manager pull iga-workflows'. This feature may change without notice.
+"'config-manager' is now called 'config'. The old name still works and will be removed in a future major release.
+Experimental feature in use: 'frodo config pull iga-workflows'. This feature may change without notice.
 "
 `;
 
@@ -39218,7 +39221,8 @@ exports[`frodo config-manager pull iga-workflows "frodo config-manager pull iga-
 exports[`frodo config-manager pull iga-workflows "frodo config-manager pull iga-workflows -i -n BasicApplicationGrant -D igaTestDir04": should export a non-mutable workflow when -i is set" 2`] = `""`;
 
 exports[`frodo config-manager pull iga-workflows "frodo config-manager pull iga-workflows -i -n BasicApplicationGrant -D igaTestDir04": should export a non-mutable workflow when -i is set" 3`] = `
-"Experimental feature in use: 'frodo config-manager pull iga-workflows'. This feature may change without notice.
+"'config-manager' is now called 'config'. The old name still works and will be removed in a future major release.
+Experimental feature in use: 'frodo config pull iga-workflows'. This feature may change without notice.
 "
 `;
 

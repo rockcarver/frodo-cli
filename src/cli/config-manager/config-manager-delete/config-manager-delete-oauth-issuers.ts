@@ -16,7 +16,7 @@ import { FrodoCommand } from '../../FrodoCommand';
 import { selectorOption } from '../../SelectorOption';
 
 export default function setup() {
-  const program = new FrodoCommand('frodo config-manager delete oauth-issuers');
+  const program = new FrodoCommand('frodo config delete oauth-issuers');
 
   program
     .summary('Delete trusted JWT issuers.')
@@ -47,19 +47,19 @@ export default function setup() {
       `Usage Examples:\n` +
         `  Preview the deletion of all trusted JWT issuers of a realm:\n` +
         c.command(
-          `  $ frodo config-manager delete oauth-issuers --dry-run ${s.connId} ${s.realm}\n`
+          `  $ frodo config delete oauth-issuers --dry-run ${s.connId} ${s.realm}\n`
         ) +
         `  Delete all trusted JWT issuers of a realm without asking, which is required without a terminal (without -y a terminal is asked first). Grants signed by these issuers are rejected afterwards:\n` +
         c.command(
-          `  $ frodo config-manager delete oauth-issuers -y ${s.connId} ${s.realm}\n`
+          `  $ frodo config delete oauth-issuers -y ${s.connId} ${s.realm}\n`
         ) +
         `  Delete one trusted JWT issuer of a realm:\n` +
         c.command(
-          `  $ frodo config-manager delete oauth-issuers -i ${s.trustedJwtIssuerId} ${s.connId} ${s.realm}\n`
+          `  $ frodo config delete oauth-issuers -i ${s.trustedJwtIssuerId} ${s.connId} ${s.realm}\n`
         ) +
         `  Preview the deletion of one trusted JWT issuer:\n` +
         c.command(
-          `  $ frodo config-manager delete oauth-issuers -i ${s.trustedJwtIssuerId} --dry-run ${s.connId} ${s.realm}\n`
+          `  $ frodo config delete oauth-issuers -i ${s.trustedJwtIssuerId} --dry-run ${s.connId} ${s.realm}\n`
         )
     )
     .multiOp()

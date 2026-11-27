@@ -4,7 +4,7 @@ import { verboseMessage } from '../../../utils/Console';
 import { FrodoCommand } from '../../FrodoCommand';
 
 export default function setup() {
-  const program = new FrodoCommand('frodo config-manager push cors');
+  const program = new FrodoCommand('frodo config push cors');
 
   program
     .description('Import CORS configuration.')

@@ -15,7 +15,7 @@ const deploymentTypes = [CLOUD_DEPLOYMENT_TYPE_KEY];
 
 export default function setup() {
   const program = new FrodoCommand(
-    'frodo config-manager promote rollback',
+    'frodo config promote rollback',
     [],
     deploymentTypes
   );
@@ -70,20 +70,18 @@ export default function setup() {
       'after',
       `Usage Examples:\n` +
         `  Roll back the previous promotion without waiting for completion:\n` +
-        c.command(
-          `  $ frodo config-manager promote rollback --yes ${s.connId}\n`
-        ) +
+        c.command(`  $ frodo config promote rollback --yes ${s.connId}\n`) +
         `  Roll back the previous promotion and wait up to 30 minutes for completion:\n` +
         c.command(
-          `  $ frodo config-manager promote rollback --wait --timeout 1800 --yes ${s.connId}\n`
+          `  $ frodo config promote rollback --wait --timeout 1800 --yes ${s.connId}\n`
         ) +
         `  Roll back the previous promotion, record who did it and why, and unlock the environments afterwards:\n` +
         c.command(
-          `  $ frodo config-manager promote rollback --promoter 'Jane Doe' --description 'Rollback Release 7' --ticket-reference TKT-1234 --unlock-after --yes ${s.connId}\n`
+          `  $ frodo config promote rollback --promoter 'Jane Doe' --description 'Rollback Release 7' --ticket-reference TKT-1234 --unlock-after --yes ${s.connId}\n`
         ) +
         `  Lock both environments, roll back the previous promotion, wait for the rollback and unlock the environments again, in one command:\n` +
         c.command(
-          `  $ frodo config-manager promote rollback --full --yes ${s.connId}\n`
+          `  $ frodo config promote rollback --full --yes ${s.connId}\n`
         )
     )
     .action(async (host, realm, user, password, options, command) => {

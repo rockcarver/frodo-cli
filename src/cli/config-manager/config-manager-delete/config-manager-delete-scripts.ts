@@ -13,7 +13,7 @@ import { FrodoCommand, ListOption } from '../../FrodoCommand';
 import { refuseEmptySelector, selectorOption } from '../../SelectorOption';
 
 export default function setup() {
-  const program = new FrodoCommand('frodo config-manager delete scripts');
+  const program = new FrodoCommand('frodo config delete scripts');
 
   program
     .description('Delete AM scripts. Default scripts are never deleted.')
@@ -58,24 +58,24 @@ export default function setup() {
       'after',
       `Usage Examples:\n` +
         `  Delete all eligible scripts without asking, which is required without a terminal (without -y a terminal is asked first):\n` +
-        c.command(`  $ frodo config-manager delete scripts -y ${s.connId}\n`) +
+        c.command(`  $ frodo config delete scripts -y ${s.connId}\n`) +
         `  Delete the scripts whose names start with a prefix:\n` +
         c.command(
-          `  $ frodo config-manager delete scripts -p 'Example' -y ${s.connId}\n`
+          `  $ frodo config delete scripts -p 'Example' -y ${s.connId}\n`
         ) +
         `  Preview the deletion of all eligible scripts:\n` +
-        c.command(`  $ frodo config-manager delete scripts -d ${s.connId}\n`) +
+        c.command(`  $ frodo config delete scripts -d ${s.connId}\n`) +
         `  Delete a script by name:\n` +
         c.command(
-          `  $ frodo config-manager delete scripts -n 'Example Script' ${s.connId}\n`
+          `  $ frodo config delete scripts -n 'Example Script' ${s.connId}\n`
         ) +
         `  Preview deletion of a script without deleting it:\n` +
         c.command(
-          `  $ frodo config-manager delete scripts -n 'Example Script' -d ${s.connId}\n`
+          `  $ frodo config delete scripts -n 'Example Script' -d ${s.connId}\n`
         ) +
         `  Delete a script by id:\n` +
         c.command(
-          `  $ frodo config-manager delete scripts -i 6b0c0d73-8d3a-4c63-9c1f-3e0f6d5b2a10 ${s.connId}\n`
+          `  $ frodo config delete scripts -i 6b0c0d73-8d3a-4c63-9c1f-3e0f6d5b2a10 ${s.connId}\n`
         )
     )
     .multiOp()

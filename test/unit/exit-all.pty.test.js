@@ -256,7 +256,7 @@ describe('double-ESC exit-all', () => {
   );
 
   test(
-    'ESC in a nested sub-command picker climbs ONE tree level (config-manager -> root)',
+    'ESC in a nested sub-command picker climbs ONE tree level (config -> root)',
     async () => {
       const homeDir = createShellTestHome();
       try {
@@ -276,13 +276,11 @@ describe('double-ESC exit-all', () => {
             { type: 'send', text: 'config' },
             { type: 'wait_plain', regex: 'query: config', timeoutMs: 15000 },
             { type: 'sleep', ms: 300 },
-            { type: 'key', name: 'down' },
-            { type: 'sleep', ms: 300 },
             { type: 'key', name: 'enter' },
-            // config-manager's picker.
+            // config's picker.
             {
               type: 'wait_plain',
-              regex: "Choose a sub-command for 'config-manager'",
+              regex: "Choose a sub-command for 'config'",
               timeoutMs: 30000,
             },
             { type: 'sleep', ms: 500 },
@@ -304,10 +302,59 @@ describe('double-ESC exit-all', () => {
           )
         );
         // The root picker re-offered its commands: the climb worked.
-        expect(back).toMatch(/config-manager/);
+        expect(back).toMatch(/config/);
         // No help-exit text (the old single-ESC behavior would have
         // ended the session with the usage dump).
         expect(back).not.toMatch(/Usage: frodo \[options\]/);
+      } finally {
+        removeShellTestHome(homeDir);
+      }
+    },
+    TIMEOUT
+  );
+
+  test(
+    'the old group word config-manager opens the picker of config: one notice before the first frame, and the picker is titled config',
+    async () => {
+      const homeDir = createShellTestHome();
+      try {
+        const result = runShellScenario({
+          homeDir,
+          allowPrompting: true,
+          args: ['config-manager'],
+          env: ENV,
+          actions: [
+            {
+              type: 'wait_plain',
+              regex: "Choose a sub-command for 'config'",
+              timeoutMs: 30000,
+            },
+            { type: 'sleep', ms: 500 },
+            { type: 'capture', label: 'picker' },
+          ],
+        });
+
+        const plain = result.captures.picker.plain;
+        const notice =
+          "'config-manager' is now called 'config'. The old name still works and will be removed in a future major release.";
+        // the notice is printed once, and before the first frame of the picker
+        expect(plain.split(notice)).toHaveLength(2);
+        expect(plain.indexOf(notice)).toBeLessThan(
+          plain.indexOf("Choose a sub-command for 'config'")
+        );
+        // the picker is the one of the group under its new name, with the seven commands
+        expect(plain).not.toMatch(/Choose a sub-command for 'config-manager'/);
+        for (const command of [
+          'delete',
+          'export',
+          'import',
+          'migrate',
+          'promote',
+          'pull',
+          'push',
+        ]) {
+          expect(plain).toMatch(new RegExp(`\\b${command}\\b`));
+        }
       } finally {
         removeShellTestHome(homeDir);
       }
@@ -326,7 +373,7 @@ describe('double-ESC exit-all', () => {
           args: [],
           env: ENV,
           actions: [
-            // Root picker -> config-manager's picker.
+            // Root picker -> config's picker.
             {
               type: 'wait_plain',
               regex: "Choose a sub-command for 'frodo'",
@@ -336,12 +383,10 @@ describe('double-ESC exit-all', () => {
             { type: 'send', text: 'config' },
             { type: 'wait_plain', regex: 'query: config', timeoutMs: 15000 },
             { type: 'sleep', ms: 300 },
-            { type: 'key', name: 'down' },
-            { type: 'sleep', ms: 300 },
             { type: 'key', name: 'enter' },
             {
               type: 'wait_plain',
-              regex: "Choose a sub-command for 'config-manager'",
+              regex: "Choose a sub-command for 'config'",
               timeoutMs: 30000,
             },
             { type: 'sleep', ms: 400 },

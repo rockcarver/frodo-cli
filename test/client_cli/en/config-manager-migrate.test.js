@@ -2,9 +2,9 @@ import cp from 'child_process';
 import { promisify } from 'util';
 
 const exec = promisify(cp.exec);
-const CMD = 'frodo config-manager migrate --help';
+const CMD = 'frodo config migrate --help';
 const { stdout } = await exec(CMD);
 
-test("CLI help interface for 'config-manager migrate' should be expected english", async () => {
+test("CLI help interface for 'config migrate' should be expected english", async () => {
     expect(stdout).toMatchSnapshot();
 });

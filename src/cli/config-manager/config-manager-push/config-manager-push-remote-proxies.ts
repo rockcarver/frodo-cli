@@ -13,7 +13,7 @@ const deploymentTypes = [CLOUD_DEPLOYMENT_TYPE_KEY];
 
 export default function setup() {
   const program = new FrodoCommand(
-    'frodo config-manager push remote-proxies',
+    'frodo config push remote-proxies',
     [],
     deploymentTypes
   );
@@ -33,12 +33,10 @@ export default function setup() {
       'after',
       `Usage Examples:\n` +
         `  Push all remote proxies from remote-proxies/<name>.json; a warning says when a secret was encrypted by another tenant or a URL has a fixed host:\n` +
-        c.command(
-          `  $ frodo config-manager push remote-proxies ${s.connId}\n`
-        ) +
+        c.command(`  $ frodo config push remote-proxies ${s.connId}\n`) +
         `  Push one remote proxy:\n` +
         c.command(
-          `  $ frodo config-manager push remote-proxies -i ${s.remoteProxyId} ${s.connId}\n`
+          `  $ frodo config push remote-proxies -i ${s.remoteProxyId} ${s.connId}\n`
         )
     )
     .multiOp()

@@ -15,7 +15,7 @@ const deploymentTypes = [
 
 export default function setup() {
   const program = new FrodoCommand(
-    'frodo config-manager pull email-templates',
+    'frodo config pull email-templates',
     [],
     deploymentTypes
   );

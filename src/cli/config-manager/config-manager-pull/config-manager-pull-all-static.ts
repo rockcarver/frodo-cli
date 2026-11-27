@@ -5,7 +5,7 @@ import { realmOfRun } from '../../../utils/interactive/PositionalArgs';
 import { FrodoCommand } from '../../FrodoCommand';
 
 export default function setup() {
-  const program = new FrodoCommand('frodo config-manager pull all-static');
+  const program = new FrodoCommand('frodo config pull all-static');
   program
     .description('Export all static config.')
     .multiOp()

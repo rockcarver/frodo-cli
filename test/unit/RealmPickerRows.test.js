@@ -5,7 +5,7 @@ import { Command } from 'commander';
 
 /**
  * The rows, the default and the effect of the post-auth realm picker for a
- * command that uses its realm (config-manager) and for every other command.
+ * command that uses its realm (`config pull` and the other commands of the tree of files) and for every other command.
  * The prompt, the gate and the realm list are mocked: this pins what the
  * picker offers and writes. A real terminal run of the same cases is
  * ConfigManagerRealmPicker.pty.test.js.
@@ -82,14 +82,19 @@ const { realmOfRun } = await import(
 
 /** A parsed leaf with a host and a realm positional, below the given group. */
 async function leaf(group, name = 'journeys') {
+  // the group may be a path of words, `config pull`
+  const words = group.split(' ');
   const program = new Command('frodo');
-  const groupCommand = program.command(group);
+  const groupCommand = words.reduce(
+    (parent, word) => parent.command(word),
+    program
+  );
   const command = groupCommand
     .command(name)
     .argument('[host]')
     .argument('[realm]', 'Realm.', SENTINEL)
     .action(async () => {});
-  await program.parseAsync(['node', 'frodo', group, name, 'matrix']);
+  await program.parseAsync(['node', 'frodo', ...words, name, 'matrix']);
   return command;
 }
 
@@ -121,7 +126,7 @@ beforeEach(() => {
 
 describe('a command that uses its realm', () => {
   async function declared(tenantWide = false) {
-    const command = await leaf('config-manager', 'journeys');
+    const command = await leaf('config pull', 'journeys');
     declareRealmUse(command, { tenantWide });
     return command;
   }
@@ -210,9 +215,9 @@ describe('a command that uses its realm', () => {
   });
 });
 
-describe('a config-manager command that ignores its realm', () => {
+describe('a config pull command that ignores its realm', () => {
   test('gets no picker', async () => {
-    const command = await leaf('config-manager', 'cors');
+    const command = await leaf('config pull', 'cors');
     await run(command, ESCAPE);
     expect(escapableSelect).not.toHaveBeenCalled();
   });

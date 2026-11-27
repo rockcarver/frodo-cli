@@ -22,7 +22,7 @@ const deploymentTypes = [
 
 export default function setup() {
   const program = new FrodoCommand(
-    'frodo config-manager delete email-templates',
+    'frodo config delete email-templates',
     [],
     deploymentTypes
   );
@@ -52,20 +52,16 @@ export default function setup() {
       'after',
       `Usage Examples:\n` +
         `  Delete all email templates without asking, which is required without a terminal (without -y a terminal is asked first):\n` +
-        c.command(
-          `  $ frodo config-manager delete email-templates -y ${s.connId}\n`
-        ) +
+        c.command(`  $ frodo config delete email-templates -y ${s.connId}\n`) +
         `  Preview the deletion of all email templates:\n` +
-        c.command(
-          `  $ frodo config-manager delete email-templates -d ${s.connId}\n`
-        ) +
+        c.command(`  $ frodo config delete email-templates -d ${s.connId}\n`) +
         `  Delete an email template by id:\n` +
         c.command(
-          `  $ frodo config-manager delete email-templates -i welcome ${s.connId}\n`
+          `  $ frodo config delete email-templates -i welcome ${s.connId}\n`
         ) +
         `  Preview deletion of an email template by id:\n` +
         c.command(
-          `  $ frodo config-manager delete email-templates -i welcome -d ${s.connId}\n`
+          `  $ frodo config delete email-templates -i welcome -d ${s.connId}\n`
         )
     )
     .multiOp()

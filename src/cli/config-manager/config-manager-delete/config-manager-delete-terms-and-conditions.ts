@@ -22,7 +22,7 @@ const deploymentTypes = [
 
 export default function setup() {
   const program = new FrodoCommand(
-    'frodo config-manager delete terms-and-conditions',
+    'frodo config delete terms-and-conditions',
     [],
     deploymentTypes
   );
@@ -52,19 +52,19 @@ export default function setup() {
       `Usage Examples:\n` +
         `  Delete all terms and conditions versions without asking, which is required without a terminal (without -y a terminal is asked first):\n` +
         c.command(
-          `  $ frodo config-manager delete terms-and-conditions -y ${s.connId}\n`
+          `  $ frodo config delete terms-and-conditions -y ${s.connId}\n`
         ) +
         `  Preview the deletion of all terms and conditions versions:\n` +
         c.command(
-          `  $ frodo config-manager delete terms-and-conditions -d ${s.connId}\n`
+          `  $ frodo config delete terms-and-conditions -d ${s.connId}\n`
         ) +
         `  Delete a specific version:\n` +
         c.command(
-          `  $ frodo config-manager delete terms-and-conditions -i 0.1 ${s.connId}\n`
+          `  $ frodo config delete terms-and-conditions -i 0.1 ${s.connId}\n`
         ) +
         `  Preview deletion of a specific version:\n` +
         c.command(
-          `  $ frodo config-manager delete terms-and-conditions -i 0.1 -d ${s.connId}\n`
+          `  $ frodo config delete terms-and-conditions -i 0.1 -d ${s.connId}\n`
         )
     )
     .multiOp()

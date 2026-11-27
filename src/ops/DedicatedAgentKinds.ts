@@ -2,7 +2,7 @@
  * The agent types that have a config-manager kind of their own, and what the generic kind
  * `oauth2-agents` says when it leaves them to it.
  *
- * `config-manager pull|push oauth2-agents` works with any agent type by name and used to write
+ * `config pull|push oauth2-agents` works with any agent type by name and used to write
  * every type it was given. A type that has a kind of its own (`oauth-cimd-profiles`,
  * `oauth-issuers`, `oauth-software-publishers`) gets one writer in a tree, as record 0042 gives an application-owned object one:
  * the generic kind skips the type, says so once per realm and type, and changes nothing else. The
@@ -74,7 +74,7 @@ export function entriesPulledElsewhereMessage(
   const message =
     `Skipping ${entries.length} ${agentType} ${entries.length === 1 ? 'entry' : 'entries'} ` +
     `of realm '${realm}' (${ids}): ${plural} are pulled by ` +
-    `"frodo config-manager pull ${command}".`;
+    `"frodo config pull ${command}".`;
   return entries.some((entry) => entry?.overrides)
     ? `${message} ${entries.length === 1 ? 'Its' : 'Their'} overrides are not applied here: ` +
         `move them to the overrides file of that command (--config-file).`
@@ -113,6 +113,6 @@ export function skippedFilesMessage(
   const { kind } = DEDICATED_AGENT_KINDS[agentType];
   return (
     `Skipping the ${count} ${agentType} file(s) of realm '${realm}': ` +
-    `they are pushed by "frodo config-manager push ${kind}".`
+    `they are pushed by "frodo config push ${kind}".`
   );
 }

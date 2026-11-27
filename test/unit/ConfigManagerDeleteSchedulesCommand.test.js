@@ -9,7 +9,7 @@ import {
 import { Command } from 'commander';
 
 /**
- * The command `config-manager delete schedules` (records 0037, 0040 and 0041):
+ * The command `config delete schedules` (records 0037, 0040 and 0041):
  * it adds the shared `--allow-failures` option (`.multiOp()`), runs for Cloud
  * and ForgeOps, refuses a delete of all schedules that nobody can be asked
  * about before it logs in, asks after the login (with the dry run of all
@@ -115,12 +115,12 @@ afterEach(() => {
   process.exitCode = undefined;
 });
 
-describe('frodo config-manager delete schedules', () => {
+describe('frodo config delete schedules', () => {
   test('is a multi-operation command, for Cloud and ForgeOps', async () => {
     const program = await run('-y');
 
     expect(program.multiOpCalled).toBe(true);
-    expect(constructed[0]).toBe('frodo config-manager delete schedules');
+    expect(constructed[0]).toBe('frodo config delete schedules');
     expect(constructed[2]).toEqual(['cloud', 'forgeops']);
   });
 
@@ -143,9 +143,7 @@ describe('frodo config-manager delete schedules', () => {
     expect(help).not.toMatch(/eligible/i);
     const examples = help
       .split('\n')
-      .filter((line) =>
-        line.includes('$ frodo config-manager delete schedules')
-      );
+      .filter((line) => line.includes('$ frodo config delete schedules'));
     expect(examples).toHaveLength(4);
     // every example that can delete more than one schedule carries -y or --dry-run
     for (const example of examples.filter((line) => !/ -i /.test(line))) {

@@ -4,7 +4,7 @@ import { promisify } from 'util';
 const exec = promisify(cp.exec);
 
 /**
- * The generic `config-manager pull|push oauth2-agents` say, in their full help
+ * The generic `config pull|push oauth2-agents` say, in their full help
  * (-hhh), which agent types they handle and which three they leave to a kind of
  * their own (frodo-cli#1249, frodo-cli#1259, frodo-cli#1343). A user who finds an entry or a
  * folder skipped, or who wonders why a type is missing, reads it here.
@@ -43,7 +43,7 @@ const LIST_STARTS = {
 };
 
 describe.each(['pull', 'push'])(
-  "'config-manager %s oauth2-agents' full help",
+  "'config %s oauth2-agents' full help",
   (verb) => {
     let text;
     // the sentence that lists the types: from its first words to the sentence about the three
@@ -51,9 +51,7 @@ describe.each(['pull', 'push'])(
     // sentence of the help does not count)
     let list;
     beforeAll(async () => {
-      const { stdout } = await exec(
-        `frodo config-manager ${verb} oauth2-agents -hhh`
-      );
+      const { stdout } = await exec(`frodo config ${verb} oauth2-agents -hhh`);
       text = stdout.replace(/\s+/g, ' ');
       const start = text.indexOf(LIST_STARTS[verb]);
       const end = text.indexOf(DEDICATED_SENTENCE_START, start);
@@ -80,7 +78,7 @@ describe.each(['pull', 'push'])(
 
     test('has a Usage Examples block with the command, a config directory and --allow-failures', () => {
       expect(text).toContain('Usage Examples:');
-      expect(text).toContain(`$ frodo config-manager ${verb} oauth2-agents`);
+      expect(text).toContain(`$ frodo config ${verb} oauth2-agents`);
       expect(text).toContain('-D ./config');
       expect(text).toContain('--allow-failures');
     });
@@ -98,15 +96,15 @@ describe.each(['pull', 'push'])(
     test('names the three types that have a kind of their own and the command of each', () => {
       expect(text).toContain(
         `${DEDICATED_SENTENCE_START}: ` +
-          `"frodo config-manager ${verb} oauth-cimd-profiles", "frodo config-manager ${verb} oauth-issuers" and "frodo config-manager ${verb} oauth-software-publishers".`
+          `"frodo config ${verb} oauth-cimd-profiles", "frodo config ${verb} oauth-issuers" and "frodo config ${verb} oauth-software-publishers".`
       );
       expect(text).toContain('skipped here with a warning');
     });
   }
 );
 
-test("'config-manager pull oauth2-agents' full help lists an entry for every type it handles in the example", async () => {
-  const { stdout } = await exec('frodo config-manager pull oauth2-agents -hhh');
+test("'config pull oauth2-agents' full help lists an entry for every type it handles in the example", async () => {
+  const { stdout } = await exec('frodo config pull oauth2-agents -hhh');
   for (const agentType of HANDLED_IN_EXAMPLE) {
     expect(stdout).toContain(`"${agentType}": [`);
   }

@@ -1,7 +1,7 @@
 // Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
-exports[`CLI help interface for 'config-manager pull' should be expected english 1`] = `
-"Usage: frodo config-manager pull [options] [command]
+exports[`CLI help interface for 'config pull' should be expected english 1`] = `
+"Usage: frodo config pull [options] [command]
 
 [Experimental] Export configuration optimized for CI/CD pipelines (format
 compatible with fr-config-manager).

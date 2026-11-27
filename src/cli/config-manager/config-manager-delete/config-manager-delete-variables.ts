@@ -18,7 +18,7 @@ const deploymentTypes = [CLOUD_DEPLOYMENT_TYPE_KEY];
 
 export default function setup() {
   const program = new FrodoCommand(
-    'frodo config-manager delete variables',
+    'frodo config delete variables',
     [],
     deploymentTypes
   );
@@ -48,20 +48,16 @@ export default function setup() {
       'after',
       `Usage Examples:\n` +
         `  Delete all variables without asking, which is required without a terminal (without -y a terminal is asked first):\n` +
-        c.command(
-          `  $ frodo config-manager delete variables -y ${s.connId}\n`
-        ) +
+        c.command(`  $ frodo config delete variables -y ${s.connId}\n`) +
         `  Preview the deletion of all variables:\n` +
-        c.command(
-          `  $ frodo config-manager delete variables -d ${s.connId}\n`
-        ) +
+        c.command(`  $ frodo config delete variables -d ${s.connId}\n`) +
         `  Delete a variable by its id:\n` +
         c.command(
-          `  $ frodo config-manager delete variables -i esv-example ${s.connId}\n`
+          `  $ frodo config delete variables -i esv-example ${s.connId}\n`
         ) +
         `  Preview the deletion of a variable by its id:\n` +
         c.command(
-          `  $ frodo config-manager delete variables -i esv-example -d ${s.connId}\n`
+          `  $ frodo config delete variables -i esv-example -d ${s.connId}\n`
         )
     )
     .multiOp()

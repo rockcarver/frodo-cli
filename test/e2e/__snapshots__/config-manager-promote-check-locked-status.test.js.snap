@@ -6,8 +6,9 @@ exports[`frodo config-manager promote check-locked-status "frodo config-manager 
 `;
 
 exports[`frodo config-manager promote check-locked-status "frodo config-manager promote check-locked-status -l": Will check lock-status for local lock only." 2`] = `
-"'check-locked-status' is now called 'lock-status'. The old name still works and will be removed in a future major release.
-Experimental feature in use: 'frodo config-manager promote lock-status'. This feature may change without notice.
+"'config-manager' is now called 'config'. The old name still works and will be removed in a future major release.
+'check-locked-status' is now called 'lock-status'. The old name still works and will be removed in a future major release.
+Experimental feature in use: 'frodo config promote lock-status'. This feature may change without notice.
 "
 `;
 
@@ -22,7 +23,8 @@ exports[`frodo config-manager promote check-locked-status "frodo config-manager 
 `;
 
 exports[`frodo config-manager promote check-locked-status "frodo config-manager promote check-locked-status": Will check lock-status(should default --local-lock-only to false)" 2`] = `
-"'check-locked-status' is now called 'lock-status'. The old name still works and will be removed in a future major release.
-Experimental feature in use: 'frodo config-manager promote lock-status'. This feature may change without notice.
+"'config-manager' is now called 'config'. The old name still works and will be removed in a future major release.
+'check-locked-status' is now called 'lock-status'. The old name still works and will be removed in a future major release.
+Experimental feature in use: 'frodo config promote lock-status'. This feature may change without notice.
 "
 `;

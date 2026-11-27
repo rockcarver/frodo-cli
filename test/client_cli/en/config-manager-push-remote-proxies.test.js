@@ -2,9 +2,9 @@ import cp from 'child_process';
 import { promisify } from 'util';
 
 const exec = promisify(cp.exec);
-const CMD = 'frodo config-manager push remote-proxies --help';
+const CMD = 'frodo config push remote-proxies --help';
 const { stdout } = await exec(CMD);
 
-test("CLI help interface for 'config-manager push remote-proxies' should be expected english", async () => {
+test("CLI help interface for 'config push remote-proxies' should be expected english", async () => {
     expect(stdout).toMatchSnapshot();
 });

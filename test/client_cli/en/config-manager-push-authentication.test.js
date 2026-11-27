@@ -2,9 +2,9 @@ import cp from 'child_process';
 import { promisify } from 'util';
 
 const exec = promisify(cp.exec);
-const CMD = 'frodo config-manager push authn --help';
+const CMD = 'frodo config push authn --help';
 const { stdout } = await exec(CMD);
 
-test("CLI help interface for 'config-manager push authn' should be expected english", async () => {
+test("CLI help interface for 'config push authn' should be expected english", async () => {
     expect(stdout).toMatchSnapshot();
 });

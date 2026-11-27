@@ -19,7 +19,7 @@ const deploymentTypes = [
 
 export default function setup() {
   const program = new FrodoCommand(
-    'frodo config-manager pull apps',
+    'frodo config pull apps',
     [],
     deploymentTypes
   );
@@ -49,14 +49,12 @@ export default function setup() {
       'after',
       `Usage Examples:\n` +
         `  Pull all applications of all realms to realms/<realm>/applications/<name>/:\n` +
-        c.command(`  $ frodo config-manager pull apps ${s.connId}\n`) +
+        c.command(`  $ frodo config pull apps ${s.connId}\n`) +
         `  Pull all applications of one realm:\n` +
-        c.command(
-          `  $ frodo config-manager pull apps ${s.connId} ${s.realm}\n`
-        ) +
+        c.command(`  $ frodo config pull apps ${s.connId} ${s.realm}\n`) +
         `  Pull one application of a realm:\n` +
         c.command(
-          `  $ frodo config-manager pull apps -n "${s.pullApplicationName}" ${s.connId} ${s.realm}\n`
+          `  $ frodo config pull apps -n "${s.pullApplicationName}" ${s.connId} ${s.realm}\n`
         )
     )
     .multiOp()

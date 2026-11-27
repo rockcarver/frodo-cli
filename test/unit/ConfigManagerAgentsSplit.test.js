@@ -1,7 +1,7 @@
 import { describe, expect, it } from '@jest/globals';
 
 /**
- * The split of `config-manager pull|push oauth2-agents` into `oauth-clients` (the OAuth2 clients)
+ * The split of `config pull|push oauth2-agents` into `oauth-clients` (the OAuth2 clients)
  * and `agents` (every other agent type that has no command of its own): the table that says which
  * of the two handles an agent type. The table is pure and imports nothing but the table of the
  * types that have a command of their own, so that this test keeps it honest: the two families and
@@ -148,7 +148,7 @@ describe('the warning for an entry of the other family', () => {
       ])
     ).toBe(
       `Skipping 2 OAuth2Client entries of realm 'alpha' (zion-client, matrix-client): ` +
-        `OAuth2 clients are pulled by "frodo config-manager pull oauth-clients".`
+        `OAuth2 clients are pulled by "frodo config pull oauth-clients".`
     );
   });
 
@@ -157,7 +157,7 @@ describe('the warning for an entry of the other family', () => {
       skippedOtherFamilyEntriesMessage('bravo', 'WebAgent', [{ id: 'my-web' }])
     ).toBe(
       `Skipping 1 WebAgent entry of realm 'bravo' (my-web): ` +
-        `agents are pulled by "frodo config-manager pull agents".`
+        `agents are pulled by "frodo config pull agents".`
     );
   });
 

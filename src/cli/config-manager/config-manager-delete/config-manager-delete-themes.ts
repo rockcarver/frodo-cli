@@ -22,7 +22,7 @@ const deploymentTypes = [
 
 export default function setup() {
   const program = new FrodoCommand(
-    'frodo config-manager delete themes',
+    'frodo config delete themes',
     [],
     deploymentTypes
   );
@@ -52,20 +52,20 @@ export default function setup() {
       'after',
       `Usage Examples:\n` +
         `  Delete all themes in the selected realms without asking, which is required without a terminal (without -y a terminal is asked first):\n` +
-        c.command(`  $ frodo config-manager delete themes -y ${s.connId}\n`) +
+        c.command(`  $ frodo config delete themes -y ${s.connId}\n`) +
         `  Preview the deletion of all themes in the selected realms:\n` +
-        c.command(`  $ frodo config-manager delete themes -d ${s.connId}\n`) +
+        c.command(`  $ frodo config delete themes -d ${s.connId}\n`) +
         `  Delete a theme by name:\n` +
         c.command(
-          `  $ frodo config-manager delete themes -n 'Example Theme' ${s.connId}\n`
+          `  $ frodo config delete themes -n 'Example Theme' ${s.connId}\n`
         ) +
         `  Preview deletion of a theme by name:\n` +
         c.command(
-          `  $ frodo config-manager delete themes -n 'Example Theme' -d ${s.connId}\n`
+          `  $ frodo config delete themes -n 'Example Theme' -d ${s.connId}\n`
         ) +
         `  Delete a theme by id:\n` +
         c.command(
-          `  $ frodo config-manager delete themes -i a7f3c0de-2b41-4c1e-8d52-6e9b4a1c7f30 ${s.connId}\n`
+          `  $ frodo config delete themes -i a7f3c0de-2b41-4c1e-8d52-6e9b4a1c7f30 ${s.connId}\n`
         )
     )
     .multiOp()

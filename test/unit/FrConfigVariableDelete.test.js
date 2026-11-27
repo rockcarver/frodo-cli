@@ -1,5 +1,5 @@
 /**
- * Unit tests for `config-manager delete variables`, without a tenant: the ops
+ * Unit tests for `config delete variables`, without a tenant: the ops
  * function configManagerDeleteVariables (src/configManagerOps/FrConfigVariableOps.ts)
  * and the command that wraps it
  * (src/cli/config-manager/config-manager-delete/config-manager-delete-variables.ts).
@@ -381,7 +381,7 @@ describe('configManagerDeleteVariables: one variable by its id', () => {
   });
 });
 
-describe('frodo config-manager delete variables (the command)', () => {
+describe('frodo config delete variables (the command)', () => {
   const run = async (...args) => {
     const program = setup();
     await program.parseAsync(args, { from: 'user' });
@@ -392,7 +392,7 @@ describe('frodo config-manager delete variables (the command)', () => {
     const program = await run('-d');
 
     expect(program.multiOpCalled).toBe(true);
-    expect(constructed[0]).toBe('frodo config-manager delete variables');
+    expect(constructed[0]).toBe('frodo config delete variables');
     expect(constructed[2]).toEqual(['cloud']);
   });
 

@@ -14,12 +14,12 @@ const KINDS = [
   ['connector-mappings', 'mappings'],
 ];
 
-describe.each(KINDS)("'config-manager pull %s' full help", (kind, what) => {
+describe.each(KINDS)("'config pull %s' full help", (kind, what) => {
   test(`names ${what} that an application owns and points at 'pull apps'`, async () => {
-    const { stdout } = await exec(`frodo config-manager pull ${kind} -hhh`);
+    const { stdout } = await exec(`frodo config pull ${kind} -hhh`);
     const text = stdout.replace(/\s+/g, ' ');
     expect(text).toContain(
-      `In a tree that uses one folder per application (see frodo config-manager pull apps), ${what} that an application owns are not pulled here`
+      `In a tree that uses one folder per application (see frodo config pull apps), ${what} that an application owns are not pulled here`
     );
   });
 });

@@ -14,7 +14,7 @@ const deploymentTypes = [
 
 export default function setup() {
   const program = new FrodoCommand(
-    'frodo config-manager push idm-authentication',
+    'frodo config push idm-authentication',
     [],
     deploymentTypes
   );

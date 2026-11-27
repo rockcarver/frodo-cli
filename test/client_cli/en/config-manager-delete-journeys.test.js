@@ -2,9 +2,9 @@ import cp from 'child_process';
 import { promisify } from 'util';
 
 const exec = promisify(cp.exec);
-const CMD = 'frodo config-manager delete journeys --help';
+const CMD = 'frodo config delete journeys --help';
 const { stdout } = await exec(CMD);
 
-test("CLI help interface for 'config-manager delete journeys' should be expected english", async () => {
+test("CLI help interface for 'config delete journeys' should be expected english", async () => {
   expect(stdout).toMatchSnapshot();
 });
