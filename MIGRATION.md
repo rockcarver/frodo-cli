@@ -1057,7 +1057,7 @@ editor writes the value that the typed flag gives, `false`, and the run is the
 command that the preview shows. A default that an older version saved with
 `--save-defaults` for such an option holds `true`: when the command runs it still
 does nothing, but the preview now shows it as if the flag was picked. Clear it
-with `frodo settings defaults --clear '<command path>'` (that clears every saved
+with `frodo settings defaults --clear 'frodo <command path>'` (that clears every saved
 default of the command) and save the flag again; `--no-deps` on `pull journeys`
 and `push journeys` is new, so only the older `--no-` options can have one. The
 editor no longer adds `(default: true)` to the description of these options.
