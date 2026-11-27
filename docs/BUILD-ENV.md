@@ -137,13 +137,13 @@ import both expose all 62 exports).
 ### 2.4 The entry runs the app in one process
 
 `dist/launch.cjs` (the npm `bin` entry, `main`, the Docker entrypoint, and
-what the dev-mode test shims run) is a file of about a kilobyte and starts
-nothing: in this process, in this order, it (1) switches source maps on when
-`FRODO_SOURCE_MAPS` is `1`, `true`, `yes` or `on`, (2) turns Node's compile
-cache on, unless one of the switches below says not to, (3) sets
+what the dev-mode test shims run) is a short file (a test pins it under 4 KB)
+and starts nothing: in this process, in this order, it (1) switches source maps
+on when `FRODO_SOURCE_MAPS` is `1`, `true`, `yes` or `on`, (2) turns Node's
+compile cache on, unless one of the switches below says not to, (3) sets
 `process.argv[1]` to the path of `app.cjs`, and (4) `require`s `app.cjs`. It
-leaves process warnings alone (see the bullet on process warnings below). Until 2026-11-21 it
-spawned a second Node process with `--no-warnings --enable-source-maps` and
+leaves process warnings alone (see the bullet on process warnings below). Until
+2026-11-21 it spawned a second Node process with `--no-warnings --enable-source-maps` and
 forwarded signals to it; the second process cost about a quarter of every start
 (`frodo -v`, `-h`, `conn list`: 25 to 26 percent less wall time on a quiet
 machine) and, for an idle MCP HTTP server, about 170 MB (379 MB for the two
@@ -205,25 +205,33 @@ about 120 MB of that back (327 MB), because Node then loads the maps.
   the CLI), made with mode `0700`, before the app loads (Node applies it to the
   code that is loaded after the call, like the source maps). Node then keeps what
   V8 compiled for each file of the bundle and hands it back on the next start.
-  Measured on 2026-11-26 on one shared 8-core machine (load about 10 to 12),
-  Node 26.5.0, the median of 20 runs with a new, empty HOME, CPU time (user and
-  system of the process), the minimum and maximum in brackets (the wall time of
-  a warm start was about 85 ms lower than before as well):
+  Measured on 2026-11-26 on one quiet 8-core machine (1-minute load about 3),
+  Node 26.5.0: the median CPU time (user plus system of the process) of 20 runs
+  of `frodo -v` and 10 runs of `-h` and `conn list`, the variants run in random
+  order, the minimum and maximum in brackets. "No cache" and "warm" ran in a
+  home that had been used before, "cold" in a new, empty one (a new home alone
+  changes the start by 1 to 3 ms):
 
-  | Command           | Before (no cache)   | Cold (first start, empty cache) | Warm (cache filled) |
+  | Command           | No cache            | Cold (first start, empty cache) | Warm (cache filled) |
   | ----------------- | ------------------- | ------------------------------- | ------------------- |
-  | `frodo -v`        | 398 ms [370 to 493] | 462 ms [400 to 547]             | 315 ms [288 to 386] |
-  | `frodo -h`        | 412 ms [377 to 524] | 454 ms [420 to 533]             | 330 ms [304 to 393] |
-  | `frodo conn list` | 404 ms [370 to 451] | 466 ms [411 to 556]             | 329 ms [287 to 371] |
+  | `frodo -v`        | 282 ms [278 to 299] | 318 ms [315 to 347]             | 223 ms [220 to 244] |
+  | `frodo -h`        | 308 ms [292 to 321] | 345 ms [332 to 393]             | 242 ms [234 to 251] |
+  | `frodo conn list` | 303 ms [286 to 319] | 339 ms [327 to 346]             | 240 ms [234 to 250] |
 
-  A warm start is about 75 to 83 ms of CPU time (a fifth) cheaper, the first start
-  after a Node or CLI update about 40 to 65 ms dearer, once. The folder holds
-  about 5.4 MB (14 files) for one Node version and one build of the CLI, whatever
-  commands ran; the entries of a build are named after a hash of the file, so an
-  update adds a set and Node does not remove the old ones. **`rm -rf
-  ~/.frodo/compile-cache` is always safe** (the next start fills it again);
-  there is no pruning code, because the destructive-sites guard keeps deletes out
-  of `src`. The cache is **off**, and the folder is not made, when:
+  A warm start is about 59 to 66 ms of CPU time (about a fifth) cheaper, the first
+  start after a Node or CLI update about 34 to 37 ms dearer, once; wall time moves
+  by the same amount. On a busier machine all of these numbers are higher (about
+  40 percent at a load of 10 to 12). The folder holds about 5.4 MB (14 files) for one Node
+  version and one build of the CLI, whatever commands ran. On Node 26.5 the name
+  of an entry follows the path of the module, so a module whose content changed
+  gets its entry replaced in place; the chunks of a build carry a hash in their
+  names, so a new build adds a set of entries, and Node does not remove the old
+  ones. Removing the folder (`rm -rf ~/.frodo/compile-cache` on Linux and macOS)
+  is always safe: the next start fills it again. There is no pruning code,
+  because the destructive-sites guard keeps deletes out of `src`. A config folder
+  inside a repository (an absolute `FRODO_CONFIG_PATH`) gets these files, so that
+  repository should ignore `compile-cache`. The cache is **off**, and the folder
+  is not made, when:
   - `CI` is set (not empty, not `0`, not `false`): a fresh runner or container
     would pay the first-start cost on every run and never get it back;
   - `FRODO_TEST` or `FRODO_MOCK` is set the same way: the tests start the CLI
@@ -231,10 +239,29 @@ about 120 MB of that back (327 MB), because Node then loads the maps.
     `FRODO_NO_COMPILE_CACHE=1` for every child of the test run, which covers the
     tests that empty `FRODO_TEST` to get the real prompt gate);
   - `FRODO_NO_COMPILE_CACHE` is `1`, `true`, `yes` or `on` (the test of the
-    source maps switch, written out in the entry);
-  - `NODE_DISABLE_COMPILE_CACHE` is set (Node's own switch, any value), or
-    `NODE_COMPILE_CACHE` is set (the user chose a cache, Node has switched it on
-    already, and the entry makes none beside it).
+    source maps switch, written out in the entry). The Docker image sets it to
+    `1`: its config folder is an anonymous volume that a new container does not
+    share, so a container would fill a cache for nothing. `-e
+    FRODO_NO_COMPILE_CACHE=0` turns the cache on again for a container that
+    mounts its config folder;
+  - `NODE_DISABLE_COMPILE_CACHE` is set (Node's own switch, any value, as Node
+    reads it), or `NODE_COMPILE_CACHE` is not empty (the user chose a cache, Node
+    has switched it on already, and the entry makes none beside it);
+  - the config folder is not an absolute path: with `HOME` set but empty, or
+    `FRODO_CONFIG_PATH=~/x` (a compose file or an env file does not expand `~`),
+    a relative folder would be made in the current directory.
+
+  An existing `compile-cache` is used only when it is the user's own: a real
+  directory (not a link) of the current user that neither the group nor others
+  can write to; the mode of an existing folder is never changed, and a missing
+  config folder is made `0700` together with every missing folder above it (the
+  app makes `~/.frodo` the same way). Otherwise the cache stays off, silently.
+  The reason is that V8 runs a cache entry as code and Node checks an entry for
+  corruption only, not for who wrote it. The trust assumption is that the config
+  folder is as trusted as `Connections.json` in it (whoever can write the config
+  folder can already point that file at a host of their own), so the check is
+  defence in depth: it covers the cache folder, not the folders above it, and
+  Windows has neither owner nor mode bits to test.
 
   It never changes a start: a read-only or missing home, a file where a folder
   should be and a folder that Node cannot use leave the CLI starting as it would
@@ -243,13 +270,10 @@ about 120 MB of that back (327 MB), because Node then loads the maps.
   folder is shared between the users of a Linux machine, so that another user
   could plant an entry that this user's process would load, and because the
   operating system cleans it; the config folder is private and is the folder
-  that people mount into a container. The Docker image keeps its config folder in
-  a volume: mount it to keep the cache between runs, or set
-  `FRODO_NO_COMPILE_CACHE=1` for a container that lives for one command. The
-  native binary is not affected: it starts `app.cjs` itself, never runs this
-  entry, and carries a code cache of its own (`useCodeCache` in
-  `sea-config.json`). `test/unit/LauncherCompileCache.test.js` pins all of this
-  and the record is
+  that people mount into a container. The native binary is not affected: it
+  starts `app.cjs` itself, never runs this entry, and carries a code cache of its
+  own (`useCodeCache` in `sea-config.json`). `test/unit/LauncherCompileCache.test.js`
+  pins all of this and the record is
   [the npm entry keeps Node's compile cache in the config folder and turns it off where it cannot pay](https://github.com/rockcarver/frodo-cli/blob/main/docs/decisions/0065-the-npm-entry-keeps-nodes-compile-cache-in-the-config-folder-and-turns-it-off-where-it-cannot-pay.md).
 
 ---
@@ -634,5 +658,5 @@ pkg→SEA migration (it builds `dist/` from source).
 | 2026-11-22 | The console's REST calls (`$` of `frodo shell`) go through the library's request instances (`frodo.factory.generateIdmApi`, `generateAmApi` and `generateReleaseApi`) and the `axios` devDependency is removed with the 24 packages that only it needed (25 lockfile entries). `ShellRestOps.ts` had its own copy of the library's credential handling, one axios instance per call, and was the only importer of the package. Measured before and after on the same base (6297d16ed, before the lodash removal landed): `cat dist/*.cjs \| wc -c` 13,751,823 to 13,275,212 bytes (minus 476,611), `dist-sea/app.cjs` 13,857,363 to 13,379,123 (minus 478,240); the `// node_modules/axios/` markers of the bundle (62 in the shell chunk, 65 in the SEA bundle) are 0. Loading the shell chunk alone costs 234 ms of CPU instead of 273 ms at the minimum, 258 ms instead of 303 ms at the median (15 paired, interleaved runs, machine load about 100); `node dist/launch.cjs --version` (30 paired runs, same load) is 590 ms instead of 606 ms of CPU at the median and equal at the minimum (555 and 556 ms), too noisy at that load to resolve more. |
 | 2026-11-23 | The rule files of Claude Code in `.claude/rules/` are generated from `.github/instructions/` by `tools/generate-claude-rules.mjs` (core 0026), and `test/unit/ClaudeRules.test.js` compares them; `tools/run-guidance-tests.mjs` lists it. `.claude/rules/` is on neither list of the classifier, so a pull request that changes it runs the whole matrix. Required checks unchanged | — |
 | 2026-11-23 | The entry (`src/launch.ts`) no longer removes the `warning` listeners of the process. frodo-lib 5.0.0-51 imports its test recorder only when `FRODO_MOCK` is set, so the `localStorage` ExperimentalWarning that the removal hid on Node 26.5 is gone from a normal start. Measured on Node 26.5.0 with no flag: `frodo -v`, `-h`, `conn list` and a command that asks a fake tenant write the same bytes to stderr as before (no process warning; the one DEP0169 deprecation that a request prints stays silenced by `process.noDeprecation` in `src/app.ts`). `NODE_OPTIONS=--no-warnings` still silences warnings, the native binary keeps `--no-warnings` in `sea-config.json`, and a `FRODO_MOCK` run without that flag prints the `localStorage` line again. See 2.4. | — |
-| 2026-11-26 | The entry (`src/launch.ts`) turns on Node's compile cache in `<config folder>/compile-cache` (`FRODO_CONFIG_PATH`, else `~/.frodo`), unless `CI`, `FRODO_TEST`, `FRODO_MOCK`, `FRODO_NO_COMPILE_CACHE`, `NODE_DISABLE_COMPILE_CACHE` or `NODE_COMPILE_CACHE` says not to. A warm start of `frodo -v`, `-h` and `conn list` takes about 75 to 83 ms less CPU time, the first start about 40 to 65 ms more, once; the folder holds about 5.4 MB for each Node version and CLI build. The global setup of the tests switches it off for the CLIs that tests start. The native binary is unchanged. See 2.4 and the proposed decision record. | this PR                      |
+| 2026-11-26 | The entry (`src/launch.ts`) turns on Node's compile cache in `<config folder>/compile-cache` (`FRODO_CONFIG_PATH`, else `~/.frodo`, only an absolute path, and an existing folder only when it is the user's own), unless `CI`, `FRODO_TEST`, `FRODO_MOCK`, `FRODO_NO_COMPILE_CACHE`, `NODE_DISABLE_COMPILE_CACHE` or `NODE_COMPILE_CACHE` says not to. A warm start of `frodo -v`, `-h` and `conn list` takes about 59 to 66 ms less CPU time, the first start about 34 to 37 ms more, once; the folder holds about 5.4 MB for each Node version and CLI build. The global setup of the tests and the Docker image switch it off. The native binary is unchanged. See 2.4 and the proposed decision record. | #1489                        |
 | planned    | Polly→nock (library repo) — DEFERRED 2026-10-04 (deep record-harness coupling; revisit on Node 28 or real breakage)                                                                                                                                                                                                                                                                                                                                                                                                                                                 | —                            |
