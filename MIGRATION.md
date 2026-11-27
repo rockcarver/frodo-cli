@@ -700,10 +700,10 @@ order of the document, replacing a `syncAfter` that the entry had), and that
 includes the mapping that was just deleted: the written document names the
 deleted mapping in every later entry. A named delete, afterwards, of a mapping
 that stands before others in the document is refused, with those entries as soft
-`syncAfter` holders, until you pass `--force`. `frodo mapping delete` writes the same way today. No schedule,
-application or `mapping/<name>` configuration is written. This is the behaviour
-of the library; the command ships as it is, and the fix is tracked at
-https://github.com/rockcarver/frodo-lib/issues/1153.
+`syncAfter` holders, until you pass `--force`. `frodo mapping delete` writes the
+same way today. No schedule, application or `mapping/<name>` configuration is
+written. This is the behaviour of the library; the command ships as it is, and
+the fix is tracked at https://github.com/rockcarver/frodo-lib/issues/1153.
 
 Only the `sync` configuration is covered, as in `pull connector-mappings` and
 `push connector-mappings`: a mapping that is stored as `mapping/<name>` is neither

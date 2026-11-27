@@ -181,6 +181,16 @@ describe('the options', () => {
       expect(example).not.toContain(' -n ');
     }
     expect(program.description()).toContain('--force');
+    // the one-line description is true for a delete with -i, and says that a delete of all does not refuse
+    expect(program.description()).toContain(
+      'With -i, a connector mapping that other objects still name is not deleted without --force.'
+    );
+    expect(program.description()).toContain(
+      'Deleting all does not refuse for what names them.'
+    );
+    expect(program.description()).not.toContain(
+      ' sync configuration. A connector mapping that other objects still name'
+    );
     expect(help).toContain('is not proof that it is unused');
     // what --allow-failures does not turn into exit code 0 is said in the help of the command itself
     expect(help).toContain(
@@ -191,6 +201,12 @@ describe('the options', () => {
     expect(
       program.options.find((option) => option.long === '--dry-run').description
     ).toContain('at most 20 for each connector mapping');
+    // the example of --force says what the delete leaves alone, in the words of the option (the whole
+    // help is read, so a different sentence in its place is seen)
+    expect(help).toContain(
+      '  Delete a connector mapping that other objects name, and clear no reference, without asking:\n'
+    );
+    expect(help).not.toContain('leave them as they are');
     // -y is needed for the two guarded deletes, and a plain named delete never asks
     expect(
       program.options.find((option) => option.long === '--yes').description
