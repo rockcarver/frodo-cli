@@ -1376,9 +1376,10 @@ value is now one name, so it cannot lead out of the config folder:
   valid file name keeps it, byte for byte. Four groups of names change: an id of
   251 to 255 bytes (refused, or cut at 250 bytes by the agent types), a name of
   more than 255 bytes once its path characters are written as `%XX` (an id of 100
-  `/` is a name of 300 bytes; refused, or cut), an id that holds a raw U+007F or a
-  lone surrogate, which a pull wrote as it was typed and now writes with U+FFFD and
-  the checksum, and a name of 251 to 255 bytes in a place that is only a folder (the
+  `/` is a name of 300 bytes; refused, or cut), an id that holds a raw U+007F (it
+  was refused, as a control character) or a lone surrogate (it was written as it
+  was typed), which a pull now writes with U+FFFD and the checksum, and a name of
+  251 to 255 bytes in a place that is only a folder (the
   version of terms and conditions, the category of telemetry, the type of a service
   object, an agent type, the context of a script): it was written as typed and is
   now shortened like the others, because a folder leaves room for `.json` too. An
