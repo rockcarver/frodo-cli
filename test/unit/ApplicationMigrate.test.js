@@ -487,6 +487,60 @@ describe('moving a kind-path tree', () => {
     );
   });
 
+  test('finds the files of an owned object whose id holds a path character: a pull wrote them under the name with %XX, and a file that nobody owns stays', async () => {
+    const CLIENT = 'a/b';
+    const CONNECTOR = 'x\\y';
+    const MAPPING = 'm/n';
+    const SLASH = app('Slash', {
+      templateName: 'azure.ad',
+      connectorId: CONNECTOR,
+      mappingNames: [MAPPING],
+    });
+    world.apps.alpha = [SLASH];
+    refs(SLASH, [
+      owned('oauth2Client', CLIENT, 'ssoEntities.oidcId'),
+      owned('connector', CONNECTOR, 'connectorId'),
+      owned('mapping', MAPPING, 'mappingNames'),
+    ]);
+    world.agents[CLIENT] = {
+      _id: CLIENT,
+      coreOAuth2ClientConfig: { clientType: 'Confidential' },
+    };
+    world.connectors[CONNECTOR] = {
+      _id: `provisioner.openicf/${CONNECTOR}`,
+      enabled: true,
+    };
+    world.mappings = [{ _id: `sync/${MAPPING}`, name: MAPPING }];
+    const clients = 'realms/alpha/realm-config/agents/OAuth2Client';
+    fs.mkdirSync(dir(clients), { recursive: true });
+    fs.mkdirSync(dir('sync/connectors'), { recursive: true });
+    fs.mkdirSync(dir('sync/mappings/m%2Fn'), { recursive: true });
+    fs.mkdirSync(dir('sync/mappings/m'), { recursive: true });
+    const stale = [
+      `${clients}/a%2Fb.json`,
+      'sync/connectors/x%5Cy.json',
+      'sync/mappings/m%2Fn/m%2Fn.json',
+      'sync/mappings/m%2Fn/m%2Fn.src.js',
+    ];
+    put(stale[0], { _id: CLIENT });
+    put(stale[1], { _id: `provisioner.openicf/${CONNECTOR}` });
+    put(stale[2], { name: MAPPING });
+    put(stale[3], 'return source;');
+    // what no application owns stays: the objects whose names are the parts of the ids
+    const kept = [
+      `${clients}/a.json`,
+      `${clients}/b.json`,
+      'sync/connectors/x.json',
+      'sync/mappings/m/m.json',
+    ];
+    for (const file of kept) put(file, { _id: file });
+
+    expect(await configManagerMigrateApplications()).toBe(true);
+
+    for (const file of stale) expect(exists(file)).toBe(false);
+    for (const file of kept) expect(exists(file)).toBe(true);
+  });
+
   test('writes the application folders, removes exactly the owned files, keeps the rest, and marks the tree', async () => {
     tenant();
     legacyTree();

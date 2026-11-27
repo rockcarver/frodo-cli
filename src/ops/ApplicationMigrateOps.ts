@@ -315,11 +315,6 @@ function ownedConfigEntries(
 // the files of the kind-path layout
 // ---------------------------------------------------------------------------
 
-/** A name that is one path segment, so that it cannot lead out of the folder it is joined to. */
-function isSingleSegment(name: string): boolean {
-  return name !== '' && name !== '.' && name !== '..' && !/[\\/\0]/.test(name);
-}
-
 /**
  * The names of the folders of a folder, sorted.
  * @param {string} dir the folder
@@ -434,16 +429,14 @@ function kindPathFiles(treeDir: string, object: OwnedObject): string[] {
     }
   }
   switch (object.kind) {
-    case 'oauth2Client':
-      if (isSingleSegment(object.id)) {
-        const name = pulledNameOf(object.id);
-        if (name !== undefined) {
-          add(
-            `realms/${realmDir}/realm-config/agents/OAuth2Client/${name}.json`
-          );
-        }
+    case 'oauth2Client': {
+      // the name that a pull gives the id is one name inside the folder, whatever the id holds (`a/b` is `a%2Fb`)
+      const name = pulledNameOf(object.id);
+      if (name !== undefined) {
+        add(`realms/${realmDir}/realm-config/agents/OAuth2Client/${name}.json`);
       }
       break;
+    }
     case 'saml2Provider':
       for (const location of ['hosted', 'remote']) {
         const dir = `realms/${realmDir}/realm-config/saml/${location}`;
@@ -457,39 +450,37 @@ function kindPathFiles(treeDir: string, object: OwnedObject): string[] {
         }
       }
       break;
-    case 'connector':
-      if (isSingleSegment(object.id)) {
-        const name = pulledNameOf(object.id);
-        if (name !== undefined) add(`sync/connectors/${name}.json`);
-      }
+    case 'connector': {
+      const name = pulledNameOf(object.id);
+      if (name !== undefined) add(`sync/connectors/${name}.json`);
       break;
-    case 'mapping':
-      if (isSingleSegment(object.id)) {
-        const mappingsDir = path.join(treeDir, 'sync/mappings');
-        // the folder that `pull connector-mappings` made: named after the mapping when that is one name, and a shortened
-        // name for a name that does not fit (made for the longest ending of its files); the name in the file decides
-        const folders = new Set<string>();
-        const named = pulledNameOf(object.id);
-        if (named !== undefined) folders.add(named);
-        for (const folder of foldersOf(mappingsDir)) {
-          if (folderHoldsMapping(mappingsDir, folder, object.id)) {
-            folders.add(folder);
-          }
+    }
+    case 'mapping': {
+      const mappingsDir = path.join(treeDir, 'sync/mappings');
+      // the folder that `pull connector-mappings` made: named after the mapping when that is one name, and a shortened
+      // name for a name that does not fit (made for the longest ending of its files); the name in the file decides
+      const folders = new Set<string>();
+      const named = pulledNameOf(object.id);
+      if (named !== undefined) folders.add(named);
+      for (const folder of foldersOf(mappingsDir)) {
+        if (folderHoldsMapping(mappingsDir, folder, object.id)) {
+          folders.add(folder);
         }
-        for (const folder of folders) {
-          const dir = `sync/mappings/${folder}`;
-          // the mapping, and the script files that `pull connector-mappings` extracts from it
-          for (const file of filesOf(path.join(treeDir, dir))) {
-            if (
-              file === `${folder}.json` ||
-              (file.startsWith(`${folder}.`) && file.endsWith('.js'))
-            ) {
-              found.push(`${dir}/${file}`);
-            }
+      }
+      for (const folder of folders) {
+        const dir = `sync/mappings/${folder}`;
+        // the mapping, and the script files that `pull connector-mappings` extracts from it
+        for (const file of filesOf(path.join(treeDir, dir))) {
+          if (
+            file === `${folder}.json` ||
+            (file.startsWith(`${folder}.`) && file.endsWith('.js'))
+          ) {
+            found.push(`${dir}/${file}`);
           }
         }
       }
       break;
+    }
   }
   return found;
 }
