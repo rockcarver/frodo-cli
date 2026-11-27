@@ -357,6 +357,18 @@ describe('the files of the tree', () => {
     expect(output()).toContain("it has no '_id'");
   });
 
+  test('a file with an empty _id is a named failure of that file too, and the other files are still pushed', async () => {
+    write(P('empty-id'), { ...profile('x'), _id: '' });
+    write(P('named-differently'), profile('zion-real-id'));
+
+    expect(await configManagerImportCIMDProfiles()).toBe(false);
+
+    expect(Object.keys(importedIn('alpha')[0])).toEqual(['zion-real-id']);
+    expect(output()).toContain('1 of 2 CIMD profiles failed');
+    expect(output()).toContain('alpha/empty-id.json');
+    expect(output()).toContain("it has no '_id'");
+  });
+
   test.each([false, true])(
     'a named file without _id fails whatever --allow-failures says (%s)',
     async (allowFailures) => {

@@ -1038,11 +1038,14 @@ describe('which files are the objects', () => {
     put('sync/mappings/plainmap/plainmap.json', {});
     put('sync/mappings/plainmap/plainmap.src.js', 'return source;');
     put('sync/mappings/other/other.json', { name: 'other' });
+    // a file of the folder that starts with the name of the mapping but is no script of it is not the mapping's
+    put('sync/mappings/plainmap/plainmap.notes.txt', 'mine');
 
     expect(await configManagerMigrateApplications()).toBe(true);
 
     expect(exists('sync/mappings/plainmap/plainmap.json')).toBe(false);
     expect(exists('sync/mappings/plainmap/plainmap.src.js')).toBe(false);
+    expect(exists('sync/mappings/plainmap/plainmap.notes.txt')).toBe(true);
     expect(exists('sync/mappings/other/other.json')).toBe(true);
   });
 

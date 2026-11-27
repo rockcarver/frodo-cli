@@ -1324,7 +1324,7 @@ describe('S22 the reference to the file of a translation of terms and conditions
 });
 
 describe('S22 a translation of terms and conditions that is an object but not a reference', () => {
-  test.each([[{}], [{ file: 5 }], [{ file: null }], [{ text: 'x' }]])(
+  test.each([[{}], [{ file: 5 }], [{ file: null }], [{ text: 'x' }], [null]])(
     'the translation %j is not a reference: the file is looked for by the version and the language, as for a text',
     async (translation) => {
       write({

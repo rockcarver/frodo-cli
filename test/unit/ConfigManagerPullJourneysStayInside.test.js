@@ -751,19 +751,26 @@ describe('a journey whose id does not fit in a file name is pushed under the id 
     expect(pushed()).toEqual(before);
   });
 
-  test('a file whose tree has no _id is a failure of that journey, named: the id is not read from the name of its folder, and the others are pushed', async () => {
-    tenant({ Login: journey('Login'), Other: journey('Other') });
-    expect(await pull()).toBe(true);
-    const file = path.join(journeysFolder(), 'Other', 'Other.json');
-    const tree = JSON.parse(fs.readFileSync(file, 'utf8'));
-    delete tree._id;
-    fs.writeFileSync(file, JSON.stringify(tree));
+  test.each([
+    ['has no _id', undefined],
+    ['has an empty _id', ''],
+  ])(
+    'a file whose tree %s is a failure of that journey, named: the id is not read from the name of its folder, and the others are pushed',
+    async (_what, id) => {
+      tenant({ Login: journey('Login'), Other: journey('Other') });
+      expect(await pull()).toBe(true);
+      const file = path.join(journeysFolder(), 'Other', 'Other.json');
+      const tree = JSON.parse(fs.readFileSync(file, 'utf8'));
+      if (id === undefined) delete tree._id;
+      else tree._id = id;
+      fs.writeFileSync(file, JSON.stringify(tree));
 
-    expect(await configManagerImportJourneys(undefined, 'alpha', true)).toBe(
-      false
-    );
+      expect(await configManagerImportJourneys(undefined, 'alpha', true)).toBe(
+        false
+      );
 
-    expect(pushed()).toEqual([[['Login', 'Login']]]);
-    expect(printed.join('\n')).toContain("holds no '_id'");
-  });
+      expect(pushed()).toEqual([[['Login', 'Login']]]);
+      expect(printed.join('\n')).toContain("holds no '_id'");
+    }
+  );
 });

@@ -394,6 +394,123 @@ describe('the longest ending of the files of an object decides where its name is
     expect(template._id).toBe(`emailTemplate/${over}`);
   });
 
+  test('email templates: the language of a message ends with `.<language>.md`, which can be longer than every page: 236 bytes with a message language of 22 bytes are shortened, and every file has the one name', async () => {
+    const id = 'a'.repeat(236);
+    const language = 'l'.repeat(22);
+    // the start of the name for the ending `.<language>.md` of 26 bytes (220 bytes), `~` and the checksum of the whole id (the
+    // independent implementation of FileNameVectors.js made it); a page of `en` alone (`.en.html`, 8 bytes) would leave the name
+    // as it is and make a file of 262 bytes
+    const shortened = `${'a'.repeat(220)}~6cfb5f1d`;
+    facade.email.template.readEmailTemplates.mockResolvedValue([
+      {
+        _id: `emailTemplate/${id}`,
+        html: { en: '<p>html</p>' },
+        message: { [language]: 'message' },
+      },
+    ]);
+
+    expect(await emailTemplates.configManagerExportEmailTemplates()).toBe(true);
+
+    expect(listed('email-templates')).toEqual([shortened]);
+    expect(listed(`email-templates/${shortened}`)).toEqual(
+      [
+        `${shortened}.json`,
+        `${shortened}.en.html`,
+        `${shortened}.${language}.md`,
+      ].sort()
+    );
+  });
+
+  describe('managed objects: every ending of a script counts, by bytes', () => {
+    // a name of 246 bytes fits with `.json`; the endings below are longer than 9 bytes, so the name is made for them
+    const NAME = 'a'.repeat(246);
+    const arrange = (extra) =>
+      facade.idm.config.readConfigEntity.mockResolvedValue({
+        objects: [{ name: NAME, schema: { properties: {} }, ...extra }],
+      });
+    // a new object for every use: a pull takes the source out of the object that it is given
+    const script = () => ({ type: 'text/javascript', source: 'x();' });
+
+    test('the script of a hook of a property (`.k.onStore.js`, 13 bytes)', async () => {
+      const shortened = `${'a'.repeat(233)}~06bf3523`;
+      arrange({ schema: { properties: { k: { onStore: script() } } } });
+
+      expect(await managedObjects.configManagerExportManagedObjects()).toBe(
+        true
+      );
+
+      expect(listed('managed-objects')).toEqual([shortened]);
+      expect(listed(`managed-objects/${shortened}`)).toEqual(
+        [`${shortened}.json`, `${shortened}.k.onStore.js`].sort()
+      );
+    });
+
+    test('the script of an action (`.actions.k.js`, 13 bytes)', async () => {
+      const shortened = `${'a'.repeat(233)}~06bf3523`;
+      arrange({ actions: { k: script() } });
+
+      expect(await managedObjects.configManagerExportManagedObjects()).toBe(
+        true
+      );
+
+      expect(listed('managed-objects')).toEqual([shortened]);
+      expect(listed(`managed-objects/${shortened}`)).toEqual(
+        [`${shortened}.json`, `${shortened}.actions.k.js`].sort()
+      );
+    });
+
+    test('the key with more bytes and fewer characters is the longest ending (`.ééé.js` is 10 bytes, `.aaaa.js` is 8)', async () => {
+      const shortened = `${'a'.repeat(236)}~06bf3523`;
+      arrange({ ééé: script(), aaaa: script() });
+
+      expect(await managedObjects.configManagerExportManagedObjects()).toBe(
+        true
+      );
+
+      expect(listed('managed-objects')).toEqual([shortened]);
+      expect(listed(`managed-objects/${shortened}`)).toEqual(
+        [
+          `${shortened}.json`,
+          `${shortened}.aaaa.js`,
+          `${shortened}.ééé.js`,
+        ].sort()
+      );
+    });
+  });
+
+  test('connector mappings: the key with more bytes and fewer characters is the longest ending, and a script value without a source is no script', async () => {
+    const shortened = `${'a'.repeat(236)}~06bf3523`;
+    const script = () => ({ type: 'text/javascript', source: 'x();' });
+    const bare = 'b'.repeat(244);
+    facade.idm.config.readConfigEntity.mockResolvedValue({
+      mappings: [
+        { name: 'a'.repeat(246), ééé: script(), aaaa: script() },
+        // a value of the type of a script that holds no source stays in the file of the mapping: it has no file of its own, so
+        // it makes no ending, and 244 bytes keep their name
+        { name: bare, onCreate: { type: 'text/javascript' } },
+      ],
+    });
+
+    expect(await connectorMappings.configManagerExportMappings()).toBe(true);
+
+    expect(listed('sync/mappings')).toEqual([bare, shortened].sort());
+    expect(listed(`sync/mappings/${shortened}`)).toEqual(
+      [
+        `${shortened}.json`,
+        `${shortened}.aaaa.js`,
+        `${shortened}.ééé.js`,
+      ].sort()
+    );
+    expect(listed(`sync/mappings/${bare}`)).toEqual([`${bare}.json`]);
+    const kept = JSON.parse(
+      fs.readFileSync(
+        path.join(tree, 'sync/mappings', bare, `${bare}.json`),
+        'utf8'
+      )
+    );
+    expect(kept.onCreate).toEqual({ type: 'text/javascript' });
+  });
+
   test('connector mappings: a script of the key `correlationQuery` ends with `.correlationQuery.js`, so 235 bytes keep their name and 236 are shortened, and every file of the mapping has one name', async () => {
     const fits = 'a'.repeat(235);
     const over = 'a'.repeat(236);
