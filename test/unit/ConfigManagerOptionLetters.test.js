@@ -1105,7 +1105,7 @@ describe('the options of the configuration commands', () => {
     expect(checked.heritageLeaves).toBeGreaterThanOrEqual(200);
     expect(
       groupLeaves.filter((l) =>
-        l.name.startsWith('frodo config-manager promote ')
+        l.name.startsWith('frodo config promote ')
       ).length
     ).toBeGreaterThanOrEqual(5);
   });
