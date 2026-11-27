@@ -1169,3 +1169,97 @@ describe('a connector definition whose id holds a format character that a name m
     }
   );
 });
+
+describe('every message that shows a listed id writes it out', () => {
+  // one case for each message that names an id of the tenant: a non-joiner in an id is a plain name, and an id with an
+  // override is refused before these messages, so only the text that was typed can hold one
+  const ID = 'a‌b';
+  /** What a message shows of a text: every format character as `\uXXXX`, `\u{XXXXX}` beyond U+FFFF. */
+  const written = (text) =>
+    text.replace(/\p{Cf}/gu, (character) => {
+      const code = character.codePointAt(0);
+      return code > 0xffff
+        ? `\\u{${code.toString(16)}}`
+        : `\\u${code.toString(16).padStart(4, '0')}`;
+    });
+
+  test('the name of a connector definition that could not be deleted is written out in the summary of a delete of all', async () => {
+    readConnectors.mockResolvedValue([
+      { _id: `${PREFIX}Azure` },
+      { _id: `${PREFIX}${ID}` },
+    ]);
+    deleteConnector.mockImplementation(async (sent) => {
+      if (sent === encodeURIComponent(ID)) throw new Error('refused');
+    });
+
+    expect(await configManagerDeleteConnectorDefinitions()).toBe(false);
+
+    expect(output()).toContain(
+      `1 of 2 connectors failed:\n  - ${written(ID)}: refused`
+    );
+    expect(output()).not.toMatch(/\p{Cf}/u);
+  });
+
+  test('and in the summary of a named delete', async () => {
+    readConnectors.mockResolvedValue([{ _id: `${PREFIX}${ID}` }]);
+    deleteConnector.mockRejectedValue(new Error('refused'));
+
+    expect(await configManagerDeleteConnectorDefinitions(ID)).toBe(false);
+
+    expect(output()).toContain(
+      `1 of 1 connector failed:\n  - ${written(ID)}: refused`
+    );
+    expect(output()).not.toMatch(/\p{Cf}/u);
+  });
+
+  test('the plan before a question names a named connector definition written out', async () => {
+    readConnectors.mockResolvedValue([{ _id: `${PREFIX}${ID}` }]);
+
+    expect(
+      await configManagerDeleteConnectorDefinitions(ID, true, false, {
+        plan: true,
+      })
+    ).toBe(true);
+
+    expect(output()).toContain(
+      `Plan: connector definition '${written(ID)}' would be deleted.`
+    );
+    expect(output()).not.toMatch(/\p{Cf}/u);
+  });
+
+  test('the plan of several connector definitions lists every id written out', async () => {
+    readConnectors.mockResolvedValue([
+      { _id: `${PREFIX}Azure` },
+      { _id: `${PREFIX}${ID}` },
+    ]);
+    findConnectorReferences.mockResolvedValue({
+      references: {},
+      unreadable: [],
+    });
+
+    expect(await configManagerDeleteConnectorDefinitions(undefined, true)).toBe(
+      true
+    );
+
+    expect(output()).toContain(
+      `All 2 connector definitions would be deleted: Azure, ${written(ID)}.`
+    );
+    expect(output()).not.toMatch(/\p{Cf}/u);
+  });
+
+  test.each([
+    ['ghost‮', 'a right-to-left override'],
+    ['ghost‌', 'a zero width non-joiner'],
+  ])(
+    'the text that was typed for a connector definition that is not there (%j, %s) is written out',
+    async (typed) => {
+      expect(await configManagerDeleteConnectorDefinitions(typed)).toBe(false);
+
+      expect(output()).toContain(
+        `Connector definition '${written(typed)}' not found.`
+      );
+      expect(output()).not.toMatch(/\p{Cf}/u);
+      expect(deleteConnector).not.toHaveBeenCalled();
+    }
+  );
+});

@@ -1395,3 +1395,132 @@ describe('the name of a realm that a summary shows is written out', () => {
     expect(output()).not.toMatch(/\p{Cf}/u);
   });
 });
+
+describe('every message that shows a listed id or realm writes it out', () => {
+  // one case for each message that names an id or a realm of the tenant: an override or a non-joiner in a realm
+  // name passes the check of the realm (it is no path character), and a non-joiner in an id is a plain name; an id
+  // with an override is refused before most of these messages, so it is tried only where it can reach them
+  const REALMS = [
+    ['ok‮ev', 'a right-to-left override'],
+    ['ok‌ev', 'a zero width non-joiner'],
+  ];
+  const IDS = [
+    ['a‌b', 'a zero width non-joiner'],
+    ['\u{1F468}‍\u{1F469}', 'an emoji sequence'],
+  ];
+  /** What a message shows of a text: every format character as `\uXXXX`, `\u{XXXXX}` beyond U+FFFF. */
+  const written = (text) =>
+    text.replace(/\p{Cf}/gu, (character) => {
+      const code = character.codePointAt(0);
+      return code > 0xffff
+        ? `\\u{${code.toString(16)}}`
+        : `\\u${code.toString(16).padStart(4, '0')}`;
+    });
+
+  test.each(REALMS)(
+    'the realm %j (%s) is written out in the refusal of an id that is not a plain name',
+    async (realm) => {
+      realmList.mockResolvedValue([realm]);
+      store[realm] = [service('email'), service('a/b')];
+
+      expect(await configManagerDeleteServices()).toBe(false);
+
+      expect(output()).toContain(
+        `is listed in realm '${written(realm)}' with an id that is not a plain name`
+      );
+      expect(output()).not.toMatch(/\p{Cf}/u);
+    }
+  );
+
+  test.each(IDS)(
+    'the id %j (%s) of a service is written out in the refusal of its next descendent',
+    async (id) => {
+      store.alpha = [service(id, [['smtpTransports', 'a#b']])];
+
+      expect(await configManagerDeleteServices(undefined, 'alpha')).toBe(false);
+
+      expect(output()).toContain(
+        `of service '${written(id)}' is listed in realm 'alpha' with a type or an id that is not a plain name`
+      );
+      expect(output()).not.toMatch(/\p{Cf}/u);
+    }
+  );
+
+  test.each(REALMS)(
+    'the realm %j (%s) is written out in the plan: in its first line and in the line of its services',
+    async (realm) => {
+      realmList.mockResolvedValue([realm]);
+      store[realm] = [service('email')];
+
+      expect(
+        await configManagerDeleteServices(undefined, undefined, true, false, {
+          plan: true,
+        })
+      ).toBe(true);
+
+      expect(output()).toContain(
+        `in 1 realm (${written(realm)}) would be deleted`
+      );
+      expect(output()).toContain(`Realm '${written(realm)}' (1 service)`);
+      expect(output()).not.toMatch(/\p{Cf}/u);
+    }
+  );
+
+  test.each(REALMS)(
+    'the realm %j (%s) is written out in the line of a realm without a service',
+    async (realm) => {
+      realmList.mockResolvedValue([realm]);
+      store[realm] = [];
+
+      expect(await configManagerDeleteServices(undefined, realm)).toBe(true);
+
+      expect(output()).toContain(
+        `No services found to delete in realm '${written(realm)}'.`
+      );
+      expect(output()).not.toMatch(/\p{Cf}/u);
+    }
+  );
+
+  test.each(REALMS)(
+    'the realm %j (%s) is written out in the warning about a service that was not named and could not be read',
+    async (realm) => {
+      realmList.mockResolvedValue([realm]);
+      store[realm] = [service('a1')];
+      getFullServices
+        .mockReset()
+        .mockImplementation(async (_global, callback) => {
+          callback(
+            new FrodoError("Unable to retrieve data for service 'broken'", [
+              new Error('read failed'),
+            ])
+          );
+          return structuredClone(store[realmNow] ?? []);
+        });
+
+      expect(await configManagerDeleteServices('a1', realm)).toBe(true);
+
+      expect(output()).toContain(
+        `of realm '${written(realm)}' could not be read, and was not named`
+      );
+      expect(output()).not.toMatch(/\p{Cf}/u);
+    }
+  );
+
+  test.each(REALMS)(
+    'the realm %j (%s) and the id of a service that could not be deleted are written out in the error line',
+    async (realm) => {
+      const id = 'a‌b';
+      realmList.mockResolvedValue([realm]);
+      store[realm] = [service(id)];
+      refuse.set(id, new Error('refused'));
+
+      expect(await configManagerDeleteServices()).toBe(false);
+
+      const titles = printError.mock.calls.map(([, title]) => title);
+      expect(titles).toContain(
+        `Error deleting service '${written(id)}' in realm '${written(realm)}'`
+      );
+      expect(titles.join('\n')).not.toMatch(/\p{Cf}/u);
+    }
+  );
+});
