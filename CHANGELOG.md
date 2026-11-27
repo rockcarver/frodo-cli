@@ -7,6 +7,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+## [v5.0.0-36] - 2026-11-27
+
+### Added
+- Introduced a unified `frodo config` command group, consolidating `export`, `import`, `pull`, `push`, `delete`, `migrate`, and `promote` operations. The previous `config-manager` group remains as a transition alias. This change simplifies configuration management by organizing related commands under a single group. (#1492)
+- Implemented a mechanism to shorten file names that do not fit within filesystem limits by appending a checksum. This ensures compatibility with filesystem constraints while maintaining uniqueness. (#1491)
+- Enabled Node's compile cache in the npm entry, improving startup performance by reusing compiled code. The cache is stored in the `compile-cache` directory within the config folder and is disabled in CI environments. (#1489)
+- Added file-system adapters for reading and writing file sets, facilitating the transition of config-manager file logic into the library. These adapters allow for efficient file operations within the configuration management process. (#1487)
+
+### Changed
+- Renamed several `config-manager` commands to more intuitive names, such as `applications` to `apps`. The old names remain as transition aliases, providing backward compatibility with a deprecation notice. (#1486)
+
+### Fixed
+- Corrected the handling of file names in various operations to ensure that the names are consistent and do not exceed filesystem limits. This includes ensuring that names are unique and appropriately truncated with checksums where necessary. (#1491)
+- Addressed issues in the file-system writer and reader of a file set, including race conditions and performance inefficiencies. These improvements enhance the reliability and speed of file operations. (#1490)
+- Fixed multiple issues related to file naming and handling in `apps migrate`, ensuring that files are correctly identified and processed based on their names as given by a `pull` operation. (#78f1dae82, #aa102489d)
+
+### Security
+- Updated `frodo-lib` to version 5.0.0-57, incorporating security enhancements and improvements in handling file sets and other internal operations. (#1496)
+
 ## [v5.0.0-35] - 2026-11-26
 
 ### Added
@@ -3435,6 +3454,7 @@ Frodo CLI 2.x automatically refreshes session and access tokens before they expi
 - Fixed problem with adding connection profiles
 - Miscellaneous bug fixes
 
+[v5.0.0-36]: https://github.com/rockcarver/frodo-cli/compare/v5.0.0-35...v5.0.0-36
 [v5.0.0-35]: https://github.com/rockcarver/frodo-cli/compare/v5.0.0-34...v5.0.0-35
 [v5.0.0-34]: https://github.com/rockcarver/frodo-cli/compare/v5.0.0-33...v5.0.0-34
 [v5.0.0-33]: https://github.com/rockcarver/frodo-cli/compare/v5.0.0-32...v5.0.0-33
