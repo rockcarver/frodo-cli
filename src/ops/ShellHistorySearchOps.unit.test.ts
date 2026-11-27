@@ -223,13 +223,23 @@ function longCorpus(): [string, string][] {
   return pairs;
 }
 
-/** The milliseconds of the quickest of some runs (three, or as many as asked). */
+/**
+ * The CPU milliseconds of the process (user and system) that `run` takes, once.
+ * CPU time and not the wall clock: a pause of the machine (a loaded runner that
+ * does not schedule the test for a while) does not count.
+ */
+function cpuMilliseconds(run: () => void): number {
+  const before = process.cpuUsage();
+  run();
+  const used = process.cpuUsage(before);
+  return (used.user + used.system) / 1000;
+}
+
+/** The CPU milliseconds of the quickest of some runs (three, or as many as asked). */
 function quickest(run: () => void, runs = 3): number {
   let best = Infinity;
   for (let i = 0; i < runs; i++) {
-    const started = performance.now();
-    run();
-    best = Math.min(best, performance.now() - started);
+    best = Math.min(best, cpuMilliseconds(run));
   }
   return best;
 }
@@ -445,16 +455,18 @@ describe('scoreHistoryMatch', () => {
       'b a b a b a',
       `a ${'b'.repeat(2000)}`,
     ];
-    const started = Date.now();
-    for (const line of lines) {
-      for (const query of queries) {
-        const match = scoreHistoryMatch(query, line);
-        expect(match === null || typeof match.score === 'number').toBe(true);
+    const milliseconds = cpuMilliseconds(() => {
+      for (const line of lines) {
+        for (const query of queries) {
+          const match = scoreHistoryMatch(query, line);
+          expect(match === null || typeof match.score === 'number').toBe(true);
+        }
       }
-    }
-    // 20 scorings take a few milliseconds; this only catches a scorer that
-    // is quadratic in the line (or throws), not a slow machine
-    expect(Date.now() - started).toBeLessThan(5000);
+    });
+    // 20 scorings take a few milliseconds of CPU; this only catches a scorer
+    // that is quadratic in the line (or throws), and it is CPU time, not the
+    // time that a loaded machine takes
+    expect(milliseconds).toBeLessThan(5000);
   });
 });
 
@@ -605,10 +617,12 @@ describe('the scorer that reads the query once', () => {
 
   describe('on input made to be slow', () => {
     /**
-     * Quick: under 100 ms, or under 60 times what one pass over the line
-     * costs on this machine at this moment. The scorer's search for a long
-     * word takes about 10 such passes; what indexOf takes for the inputs
-     * below is hundreds of passes and more, however fast the machine is.
+     * Quick: under 100 ms of CPU time, or under 60 times what one pass over
+     * the line costs on this machine at this moment. The scorer's search for a
+     * long word takes about 10 such passes; what indexOf takes for the inputs
+     * below is hundreds of passes and more, however fast the machine is. The
+     * time is CPU time (the quickest of three runs), so that a pause of a
+     * loaded machine does not count.
      */
     function expectQuick(line: string, run: () => void) {
       const pass = quickest(() => line.toLowerCase().indexOf('\u0000'));
