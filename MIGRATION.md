@@ -27,7 +27,7 @@ listed here, is decided by
 - **The five verb groups stay experimental**: every command under `pull`, `push`, `delete`, `migrate` and `promote` keeps its `[Experimental]` label in the lists and on its page, and the line `Experimental feature in use: 'frodo config pull cors'` names the new group (the deprecated `oauth2-agents` pair stays deprecated). The label sits on the five verbs, not on `config`, so `export` and `import` stay stable.
 - **Where the group is listed**: `frodo -h` lists `config` under `Continuous integration:`, next to `dcc` and `promote`, and no longer under `Commands:`; the JSON export and import appear under that heading too. The `config-manager` row is gone.
 - **What a script sees on stderr of the old word**: the notice of the group first, then the notice of a renamed command if there is one, then the line `Experimental feature in use: ...`, which names the new spelling. A script that looks for `config-manager` in stderr has to look for `config`.
-- **Saved defaults are not carried over**: defaults saved with `--prompt --save-defaults` are kept per command path, so those saved for `config-manager pull ...` do not apply to `config pull ...`; save them again (`frodo settings defaults --clear 'config-manager pull all'` removes an old one).
+- **Saved defaults are not carried over**: defaults saved with `--prompt --save-defaults` are kept per command path, so those saved for `config-manager pull ...` do not apply to `config pull ...`; save them again (`frodo settings defaults --clear 'frodo config-manager pull all'` removes an old one).
 - **The older entries of this guide**, and the notice and the `Experimental feature in use` line that two of their bullets quote (the deprecated `frodo promote` names `frodo config-manager promote run`, and `push nodes` prints `Experimental feature in use: 'frodo config-manager push nodes'`), say `frodo config-manager <verb>`: read `frodo config <verb>`; the deprecated `frodo promote` now names `frodo config promote run`, and the line names `frodo config push nodes`.
 - **Not renamed**: the folders and files on disk, `frodo settings config-manager-layout`, the layout file `frodo-config-manager.json`, and `fr-config-manager`, the tool whose format the commands write.
 - **What to change**: type `frodo config <verb> ...` in scripts, pipelines and documentation; nothing has to change before a major release removes the old word.
@@ -315,7 +315,7 @@ automation, and give `import` its `-f` or `-A`. The generic commands (`frodo
 agent list`, `agent export` and the others) still handle AI agents as before.
 Defaults saved with `--prompt --save-defaults` are kept per command, so those
 saved for `agent ai ...` do not apply to `aiagent ...`; save them again (`frodo
-settings defaults --clear 'agent ai list'` removes the old ones).
+settings defaults --clear 'frodo agent ai list'` removes the old ones).
 
 **Journey import validation**: journey imports, full configuration imports,
 config-manager journey pushes, and `frodo promote` now validate journey
