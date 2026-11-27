@@ -9,7 +9,6 @@ import {
   jest,
   test,
 } from '@jest/globals';
-
 /**
  * A pull names the file of an object after its id, and a name that does not fit in a file name is written as its shortened
  * name (https://github.com/rockcarver/frodo-cli/blob/main/docs/decisions/core/0027-a-name-that-does-not-fit-in-a-file-name-is-shortened-and-ends-with-a-checksum.md).
@@ -25,6 +24,8 @@ import {
  *
  * The library is a set of fakes, the file functions are real, and the files are in a temporary folder.
  */
+
+import { CLI_ONLY, GOLDEN } from './FileNameVectors.js';
 
 const realLib = await import('@rockcarver/frodo-lib');
 
@@ -77,6 +78,7 @@ jest.unstable_mockModule('../../src/utils/ColorTheme', () => ({
 
 const ops = async (file) => import(`../../src/configManagerOps/${file}.ts`);
 const managedObjects = await ops('FrConfigManagedObjectsOps');
+const scripts = await ops('FrConfigScriptOps');
 
 let root;
 let tree;
@@ -242,5 +244,52 @@ describe('managed objects', () => {
     );
 
     expect(sent().objects.map(([name]) => name)).toEqual([PLAIN]);
+  });
+});
+
+/**
+ * The name that the independent table of `FileNameVectors.js` gives an id for the longest ending of the files of its type.
+ * @param {string} fn the function of the name
+ * @param {string} id the id
+ * @param {string} ending the longest ending
+ * @returns {string} the name
+ */
+function vector(fn, id, ending) {
+  const row = [...GOLDEN, ...CLI_ONLY].find(
+    ([rowFn, rowId, rowEnding]) =>
+      rowFn === fn && rowId === id && rowEnding === ending
+  );
+  if (!row) throw new Error(`the table has no row for ${fn} ${ending}`);
+  return row[3];
+}
+
+describe('the longest ending of the files of an object decides where its name is shortened', () => {
+  test('scripts: the content file of a script is `<name>.js`, so 252 bytes keep their name and 253 are shortened', async () => {
+    const fits = 'a'.repeat(252);
+    const over = 'a'.repeat(253);
+    facade.script.readScripts.mockResolvedValue(
+      [fits, over].map((name, index) => ({
+        _id: `s${index}`,
+        name,
+        context: 'AUTHENTICATION_TREE_DECISION_NODE',
+        language: 'JAVASCRIPT',
+        script: Buffer.from('x').toString('base64'),
+      }))
+    );
+
+    expect(await scripts.configManagerExportScripts([], 'alpha')).toBe(true);
+
+    expect(
+      listed(
+        'realms/alpha/scripts/scripts-content/AUTHENTICATION_TREE_DECISION_NODE'
+      )
+    ).toEqual(
+      [`${vector('encodedName', over, '.js')}.js`, `${fits}.js`].sort()
+    );
+    for (const file of filesBelow(tree)) {
+      for (const part of file.split('/')) {
+        expect(Buffer.byteLength(part)).toBeLessThanOrEqual(255);
+      }
+    }
   });
 });

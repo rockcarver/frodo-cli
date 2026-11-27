@@ -230,10 +230,11 @@ describe.each(['name', 'context', '_id'])(
 
 describe('a script with a name that does not fit in a file name', () => {
   // the start of the name, `~` and the checksum of the complete id of 400 characters (the independent implementation of
-  // FileNameVectors.js made them)
+  // FileNameVectors.js made them): a content file has `.js` after its name, the others have `.json` or nothing
   const CHECKSUM = '2ae64155';
 
   test.each([
+    ['name', 'scripts-content', `${CONTEXT}/${'n'.repeat(243)}~${CHECKSUM}.js`],
     ['context', 'scripts-content', `${'n'.repeat(241)}~${CHECKSUM}/S1.js`],
     ['_id', 'scripts-config', `${'n'.repeat(241)}~${CHECKSUM}.json`],
   ])(

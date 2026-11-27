@@ -494,6 +494,8 @@ const FAMILIES = [
   },
   {
     family: 'scripts',
+    // the name of a script is the start of the name of its content file, `<name>.js`
+    suffix: '.js',
     under: 'realms/alpha/scripts',
     arrange: (values) =>
       facade.script.readScripts.mockResolvedValue(
@@ -1123,6 +1125,7 @@ const FAMILIES = [
   },
   {
     family: 'applications (a shared script)',
+    suffix: '.js',
     under: 'realms/alpha',
     arrange: (values) => {
       facade.app.readApplicationReferences.mockResolvedValue({

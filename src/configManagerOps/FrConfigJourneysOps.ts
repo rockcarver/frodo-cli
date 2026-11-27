@@ -201,7 +201,7 @@ async function processNodeExport(
     pulledPaths.owner = script._id;
     script.script = extractFrConfigDataToFile(
       script.script,
-      `scripts-content/${nameInFolder(String(script.context))}/${encodedName(String(script.name))}.js`,
+      `scripts-content/${nameInFolder(String(script.context))}/${encodedName(String(script.name), '.js')}.js`,
       scriptsDir,
       pulledPaths
     ) as any;
