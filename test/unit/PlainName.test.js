@@ -53,6 +53,11 @@ describe('isPlainName', () => {
     ['a\u001bb', 'ESC'],
     ['a\u007fb', 'DEL'],
     ['a\u0085b', 'a control character of the second block'],
+    ['a\u202eb', 'a right-to-left override'],
+    ['a\u200bb', 'a zero width space'],
+    ['a\u200db', 'a zero width joiner'],
+    ['\ufeffa', 'a byte order mark'],
+    ['a\u00adb', 'a soft hyphen'],
   ])('%j (%s) is not a plain name', (name) => {
     expect(isPlainName(name)).toBe(false);
   });
@@ -60,7 +65,7 @@ describe('isPlainName', () => {
   test('the rule says what it refuses, in the words of a message', () => {
     expect(PLAIN_NAME_RULE).toContain('a plain name is not blank');
     expect(PLAIN_NAME_RULE).toContain('..');
-    expect(PLAIN_NAME_RULE).toContain('control character');
+    expect(PLAIN_NAME_RULE).toContain('control or format character');
   });
 });
 
@@ -71,6 +76,17 @@ describe('printable', () => {
     expect(printable('a\u0085b')).toBe('a\\u0085b');
     expect(printable("it's a/b ../c")).toBe("it's a/b ../c");
     expect(printable('')).toBe('');
+  });
+
+  test('writes a format character out as well: a right-to-left override, a zero width space and a byte order mark change what a terminal shows without being seen', () => {
+    expect(printable('a\u202eb')).toBe('a\\u202eb');
+    expect(printable('a\u200bb')).toBe('a\\u200bb');
+    expect(printable('\ufeffa')).toBe('\\ufeffa');
+  });
+
+  test('writes the text of anything that is not text, so that a value of another shape in a listing is not a crash', () => {
+    expect(printable(undefined)).toBe('undefined');
+    expect(printable(7)).toBe('7');
   });
 });
 
@@ -84,6 +100,18 @@ describe('shownId', () => {
     expect(shownId('a\u0085b')).toBe('"a\\u0085b"');
   });
 
+  test('writes the format characters out too, like printable does', () => {
+    expect(shownId('a\u202eb')).toBe('"a\\u202eb"');
+    expect(shownId('a\u200bb')).toBe('"a\\u200bb"');
+    expect(shownId('\ufeffa')).toBe('"\\ufeffa"');
+  });
+
+  test('is printable of the JSON text of the id: a quote and a backslash are escaped, every control or format character is written out once', () => {
+    for (const id of ['a"b', 'a\\b', 'a\nb', 'a\u007fb', 'a\u202eb', 'é']) {
+      expect(shownId(id)).toBe(printable(JSON.stringify(id)));
+    }
+  });
+
   test('works as the function of a map, which hands it the position as a second argument', () => {
     expect(['a', 'b'].map(shownId)).toEqual(['"a"', '"b"']);
   });
@@ -94,5 +122,6 @@ describe('shownIdInSingleQuotes', () => {
     expect(shownIdInSingleQuotes('email')).toBe("'email'");
     expect(shownIdInSingleQuotes('a\u001bb')).toBe("'a\\u001bb'");
     expect(shownIdInSingleQuotes('a"b\\c')).toBe("'a\"b\\c'");
+    expect(shownIdInSingleQuotes('a\u202eb')).toBe("'a\\u202eb'");
   });
 });

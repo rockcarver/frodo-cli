@@ -213,6 +213,10 @@ describe('the options', () => {
     expect(help).toContain(
       'A configuration that is not in the list exits with code 1, also with --dry-run and --allow-failures.'
     );
+    // the rule for a listed id, with the characters that a terminal does not show
+    expect(help).toContain(
+      '(no slash, backslash, question mark, hash, percent sign, double dot, control character or format character)'
+    );
     // no word that belongs to the library, and no promise of a later change
     expect(help).not.toMatch(
       /library|deleteServiceNextDescendent|exportService|frodo-lib|updateConfigEntity|\byet\b/

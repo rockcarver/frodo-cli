@@ -204,6 +204,9 @@ describe('the options', () => {
     expect(help).toContain(
       'or the type or id of one of its next descendents, is not a plain name'
     );
+    expect(help).toContain(
+      '(no slash, backslash, question mark, hash, percent sign, double dot, control character or format character)'
+    );
     expect(help).toContain('With -i only the named service counts');
     expect(help).toContain(
       'as far as pull services exports it: it never exports DataStoreService'

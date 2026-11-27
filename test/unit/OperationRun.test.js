@@ -473,3 +473,19 @@ describe('the unit in the summary', () => {
     expect(summary()).toMatch(/^1 of 2 keys failed/);
   });
 });
+
+describe('a name that the tenant gave, in a failure that deriveOrFail records', () => {
+  it('is written out in the summary and in the reason, a control or format character as \\uXXXX, so that it cannot change what the terminal shows', () => {
+    const run = new OperationRun({ unit: 'realm' });
+
+    const derived = run.deriveOrFail('a‮b\u0007', () => {
+      throw new Error('Realm ‮gnp.​ is not a name');
+    });
+
+    expect(derived).toBeUndefined();
+    expect(run.finish()).toBe(false);
+    expect(summary()).toContain('a\\u202eb\\u0007');
+    expect(summary()).toContain('Realm \\u202egnp.\\u200b is not a name');
+    expect(summary()).not.toMatch(/[‮​\u0007]/u);
+  });
+});

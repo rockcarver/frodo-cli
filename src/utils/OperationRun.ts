@@ -1,6 +1,7 @@
 import type { FrodoError } from '@rockcarver/frodo-lib';
 import { printError, printMessage } from './Console';
 import { causeOf } from './ErrorCause';
+import { printable } from './PlainName';
 
 /**
  * Decision record 0040: a command that performs several operations (the items
@@ -47,15 +48,6 @@ interface Failure {
 function reasonOf(error: unknown): string {
   const message = error instanceof Error ? error.message : String(error);
   return message.split('\n')[0].trim();
-}
-
-/** A name as a message shows it: a control character is written as `\u0001`, so that it cannot change what the terminal shows. */
-export function printable(name: string): string {
-  return String(name).replace(
-    /\p{Cc}/gu,
-    (character) =>
-      `\\u${(character.codePointAt(0) as number).toString(16).padStart(4, '0')}`
-  );
 }
 
 /** The unit in the plural when there is not exactly one: policy, policies. */

@@ -15,7 +15,8 @@ import {
 } from '../utils/ConfigTreePath';
 import { printError, printMessage } from '../utils/Console';
 import { causeOf } from '../utils/ErrorCause';
-import { OperationRun, printable } from '../utils/OperationRun';
+import { OperationRun } from '../utils/OperationRun';
+import { printable } from '../utils/PlainName';
 
 const { readConfigEntity, importConfigEntities, importSubConfigEntity } =
   frodo.idm.config;

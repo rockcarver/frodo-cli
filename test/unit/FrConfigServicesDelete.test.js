@@ -661,6 +661,9 @@ describe('a listed id that is not a plain name is never sent', () => {
     ['a\u0001b', 'a control character'],
     ['a\u007fb', 'DEL'],
     ['a\u0085b', 'a control character of the second block'],
+    ['a\u202eb', 'a right-to-left override'],
+    ['a\u200bb', 'a zero width space'],
+    ['\ufeffa', 'a byte order mark'],
     ['  ', 'blanks'],
     ['', 'nothing'],
   ];
@@ -681,6 +684,8 @@ describe('a listed id that is not a plain name is never sent', () => {
       // no control character reaches the terminal
       // eslint-disable-next-line no-control-regex
       expect(output()).not.toMatch(/[\u0000-\u0009\u000b-\u001f\u007f-\u009f]/);
+      // nor a format character, which would change what the terminal shows without being seen
+      expect(output()).not.toMatch(/[\u200b-\u200f\u202a-\u202e\ufeff]/);
     }
   );
 
@@ -749,10 +754,12 @@ describe('a next descendent that is not a plain name stops the delete of its ser
     [['smtpTransports', ''], 'no id'],
     [['', 'SMTP'], 'no type'],
     [['smtpTransports', 'a\u0001b'], 'an id with a control character'],
+    [['smtpTransports', 'a\u202eb'], 'an id with a right-to-left override'],
+    [['smtp\u200bTransports', 'SMTP'], 'a type with a zero width space'],
   ];
   const shown = ([type, id]) =>
     `${type}/${id}`.replace(
-      /\p{Cc}/gu,
+      /[\p{Cc}\p{Cf}]/gu,
       (c) => `\\u${c.codePointAt(0).toString(16).padStart(4, '0')}`
     );
 

@@ -10,7 +10,7 @@
 
 /** What a plain name is, in the words of a message about an id that is not one. */
 export const PLAIN_NAME_RULE =
-  'a plain name is not blank, is not just a dot, and has no /, \\, ?, #, %, .. or control character';
+  'a plain name is not blank, is not just a dot, and has no /, \\, ?, #, %, .. or control or format character';
 
 /**
  * Whether a listed id is a plain name. The library puts the id into the path of the request as it is given,
@@ -24,45 +24,43 @@ export function isPlainName(name: string): boolean {
     name.trim() !== '' &&
     name !== '.' &&
     !name.includes('..') &&
-    !/[/\\?#%\p{Cc}]/u.test(name)
+    !/[/\\?#%\p{Cc}\p{Cf}]/u.test(name)
   );
 }
 
 /**
- * Text that the tenant gave, as a message shows it: every control character written out as `\uXXXX`, so that
- * it cannot change what the terminal shows.
+ * Text that the tenant gave, as a message shows it: every control character and every format character
+ * (a right-to-left override, a zero width space, a byte order mark) written out as `\uXXXX`, so that it
+ * cannot change what the terminal shows or hide in a name. The text of a value that is not text, which a
+ * listing can hold, is written out the same way instead of failing.
  * @param {string} text the text
- * @returns {string} the text without a raw control character
+ * @returns {string} the text without a raw control or format character
  */
 export function printable(text: string): string {
-  return text.replace(
-    /\p{Cc}/gu,
+  return String(text).replace(
+    /[\p{Cc}\p{Cf}]/gu,
     (character) =>
       `\\u${(character.codePointAt(0) as number).toString(16).padStart(4, '0')}`
   );
 }
 
 /**
- * A listed id as a message shows it: quoted, and every control character written out as `\uXXXX`, so that it
- * cannot change what the terminal shows. `JSON.stringify` writes out the characters below U+0020 only; DEL and
- * the controls of U+0080 to U+009F are written out here.
+ * A listed id as a message shows it: quoted, and every control or format character written out as
+ * `\uXXXX`, so that it cannot change what the terminal shows. `JSON.stringify` writes out the characters
+ * below U+0020 only; DEL, the controls of U+0080 to U+009F and the format characters are written out here.
  * @param {string} id the listed id
- * @returns {string} the id as a quoted text without a raw control character
+ * @returns {string} the id as a quoted text without a raw control or format character
  */
 export function shownId(id: string): string {
-  return JSON.stringify(id).replace(
-    /\p{Cc}/gu,
-    (character) =>
-      `\\u${(character.codePointAt(0) as number).toString(16).padStart(4, '0')}`
-  );
+  return printable(JSON.stringify(id));
 }
 
 /**
  * A listed id as a message shows it in single quotes, the way the rest of the message names an object
- * (`Service 'email' ...`), with every control character written out. Unlike {@link shownId} it does not
+ * (`Service 'email' ...`), with every control or format character written out. Unlike {@link shownId} it does not
  * escape a quote or a backslash in the id.
  * @param {string} id the listed id
- * @returns {string} the id in single quotes without a raw control character
+ * @returns {string} the id in single quotes without a raw control or format character
  */
 export function shownIdInSingleQuotes(id: string): string {
   return `'${printable(id)}'`;

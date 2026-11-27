@@ -537,9 +537,9 @@ reconciliation or a client of the REST API names is not seen.
 
 A connector definition that the tenant lists with an id that is not a plain name
 (a name is not blank, is not just a dot, and has no `/`, `\`, `?`, `#`, `%`,
-`..` or control character in it) is never sent to the tenant: it is skipped with
-a message, and it counts as a failed delete. The name of every other connector
-definition is percent-encoded in the path of the request.
+`..` or control or format character in it) is never sent to the tenant: it is
+skipped with a message, and it counts as a failed delete. The name of every
+other connector definition is percent-encoded in the path of the request.
 
 `--force` (long form only, only with `-i`) deletes the connector definition
 anyway, and **changes nothing else**: every mapping, application, schedule or
@@ -724,9 +724,9 @@ a value that is written as a path (`-i ../x`) is a service that does not exist
 ([a selector is an id or a name, never a path](https://github.com/rockcarver/frodo-cli/blob/main/docs/decisions/0059-a-selector-is-an-id-or-a-name-never-a-path.md)),
 and an id that the realm lists for a service, or a type or an id that it lists
 for one of its next descendents, that is not a plain name (a slash, a `..`, a
-`?`, a `#`, a `%` or a control character in it) is never sent to the tenant: the
-service is not deleted, and it counts as failed, also in a dry run. A service that
-is not in the realm exits with code 1, also with
+`?`, a `#`, a `%`, or a control or format character in it) is never sent to the
+tenant: the service is not deleted, and it counts as failed, also in a dry run.
+A service that is not in the realm exits with code 1, also with
 `--dry-run` and `--allow-failures`, because the id names one service. A service
 that Cloud does not offer is not read, as in `pull services`, so it is not found
 on Cloud either. A named delete asks nothing and prints what went with the

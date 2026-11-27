@@ -280,6 +280,8 @@ describe('a named delete: the id is looked up in what the service lists', () => 
     '..',
     'a\\b',
     'a\u0007b',
+    'a\u202eb',
+    'a\u200bb',
   ])(
     'a listed id %j that is not a plain name is never deleted, even when it is typed exactly: exit 1, with -d and --allow-failures too, no request',
     async (id) => {

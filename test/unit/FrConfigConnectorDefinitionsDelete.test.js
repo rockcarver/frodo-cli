@@ -122,10 +122,10 @@ const { configManagerDeleteConnectorDefinitions } =
 const PREFIX = 'provisioner.openicf/';
 const NAMES = ['Azure', 'GoogleApps', 'salesforce'];
 
-/** A listed id as the messages show it: in quotes, every control character (DEL and the second block too) written as \uXXXX. */
+/** A listed id as the messages show it: in quotes, every control or format character (DEL and the second block too) written as \uXXXX. */
 const shownOf = (id) =>
   JSON.stringify(id).replace(
-    /\p{Cc}/gu,
+    /[\p{Cc}\p{Cf}]/gu,
     (character) =>
       `\\u${character.codePointAt(0).toString(16).padStart(4, '0')}`
   );
@@ -810,6 +810,8 @@ const NOT_PLAIN = [
   ['a newline', 'a\nb'],
   ['a delete character', 'a\u007fb'],
   ['a control character of the second block', 'a\u0085b'],
+  ['a right-to-left override', 'a\u202eb'],
+  ['a zero width space', 'a\u200bb'],
   ['nothing after the prefix', ''],
   ['blanks', '   '],
 ];
@@ -958,7 +960,7 @@ describe('a listed id that is not a plain name is never sent to the tenant', () 
       'The one connector definition would be deleted: Azure.'
     );
     expect(output()).toContain(
-      `These listed ids are not plain names (a plain name is not blank, is not just a dot, and has no /, \\, ?, #, %, .. or control character). No request would be sent for them, and each would count as a failed delete: "${PREFIX}../managed", "${PREFIX}a#b".`
+      `These listed ids are not plain names (a plain name is not blank, is not just a dot, and has no /, \\, ?, #, %, .. or control or format character). No request would be sent for them, and each would count as a failed delete: "${PREFIX}../managed", "${PREFIX}a#b".`
     );
     expect(deleteConnector).not.toHaveBeenCalled();
   });

@@ -2,7 +2,7 @@ import type {
   JourneyValidationFinding,
   JourneyValidationNode,
 } from '@rockcarver/frodo-lib';
-import { printable } from '../../utils/OperationRun';
+import { printable } from '../../utils/PlainName';
 
 /**
  * The words of the output of `journey validate`: one line for a finding, one

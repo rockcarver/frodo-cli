@@ -35,6 +35,7 @@ import {
   missingNodesReason,
 } from '../utils/JourneyExportErrors';
 import { OperationRun } from '../utils/OperationRun';
+import { printable } from '../utils/PlainName';
 import {
   clearJourneyReference,
   describeReference,
@@ -341,20 +342,6 @@ class MissingDependencyError extends Error {
     super(message);
     this.journeys = [journey];
   }
-}
-
-/**
- * A name from a file of the config folder as a message shows it: a control character is written as
- * `\u0001`, so that it cannot change what the terminal shows.
- * @param {string} name the name
- * @returns {string} the name without control characters
- */
-function printable(name: string): string {
-  return String(name).replace(
-    /\p{Cc}/gu,
-    (character) =>
-      `\\u${(character.codePointAt(0) as number).toString(16).padStart(4, '0')}`
-  );
 }
 
 /**
