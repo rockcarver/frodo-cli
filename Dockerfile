@@ -39,6 +39,14 @@ USER node
 COPY --from=build --chown=node:node /build/dist ./dist
 
 ENV NODE_ENV=production
+
+# No compile cache in the image (docs/BUILD-ENV.md section 2.4). The entry would
+# keep it in the config folder, which is the anonymous volume below: a new
+# container does not share it, so it would pay the cost of filling the cache on
+# every run and never get that back. A container that mounts its config folder
+# turns the cache on again with `-e FRODO_NO_COMPILE_CACHE=0`.
+ENV FRODO_NO_COMPILE_CACHE=1
+
 # Connection profiles live on a volume the operator mounts (read-only is
 # enough for `mcp server start`; the token cache (a TokenCache directory) and
 # theme files are written to /home/node/.frodo when those features are used).
