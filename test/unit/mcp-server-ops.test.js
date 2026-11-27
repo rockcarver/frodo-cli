@@ -3118,6 +3118,22 @@ describe('mcp server stop (spawned dist)', () => {
     hasDist ? test(name, fn, 60000) : test.skip(name, fn);
 
   /**
+   * Waits for the lockfile of a spawned server. The server writes it inside the
+   * listen callback, after the port accepts connections and after the listening
+   * line is printed, so a test that has seen either can beat the write by a hair:
+   * poll for it (the time is only the guard against a hang), do not assert it at once.
+   */
+  async function waitForLockfile(lockPath, deadlineMs = 5000) {
+    const deadline = Date.now() + deadlineMs;
+    while (!fs.existsSync(lockPath)) {
+      if (Date.now() > deadline) {
+        throw new Error(`lockfile never appeared at ${lockPath}`);
+      }
+      await new Promise((resolve) => setTimeout(resolve, 25));
+    }
+  }
+
+  /**
    * Spawns `dist/launch.cjs mcp server start --transport http` on `port`
    * with a per-cell temp config dir (the lockfile lives at
    * $FRODO_CONFIG_PATH/mcp-http-<port>.pid) and resolves once the listening
@@ -3252,19 +3268,9 @@ describe('mcp server stop (spawned dist)', () => {
         const spawned = await spawnServer(port, tmpDir);
         server = spawned.child;
         const lockPath = path.join(tmpDir, `mcp-http-${port}.pid`);
-        // The server writes the lockfile inside the listen callback, AFTER the
-        // port accepts connections, so the first successful connect (what
-        // waitForListening resolves on) can beat the write by a hair. Wait
-        // for the lockfile instead of asserting it immediately.
-        await (async () => {
-          const deadline = Date.now() + 5000;
-          while (!fs.existsSync(lockPath)) {
-            if (Date.now() > deadline) {
-              throw new Error(`lockfile never appeared at ${lockPath}`);
-            }
-            await new Promise((resolve) => setTimeout(resolve, 25));
-          }
-        })();
+        // Wait for the lockfile instead of asserting it immediately (see
+        // waitForLockfile).
+        await waitForLockfile(lockPath);
         expect(fs.existsSync(lockPath)).toBe(true);
 
         const stop = await runStop(port, tmpDir);
@@ -3377,7 +3383,11 @@ describe('mcp server stop (spawned dist)', () => {
         expect(resolvedPort).toBeGreaterThan(0);
         expect(resolvedPort).not.toBe(6277);
         // Lockfile keyed on the RESOLVED port (not on 'auto' / 0), and
-        // connectable on the printed port.
+        // connectable on the printed port. The listening line can beat the
+        // write of the lockfile by a hair: poll for it.
+        await waitForLockfile(
+          path.join(tmpDir, `mcp-http-${resolvedPort}.pid`)
+        );
         expect(
           fs.existsSync(path.join(tmpDir, `mcp-http-${resolvedPort}.pid`))
         ).toBe(true);
