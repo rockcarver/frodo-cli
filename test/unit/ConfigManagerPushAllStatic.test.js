@@ -553,6 +553,32 @@ describe.each(Object.keys(STEPS))(
         expect(importOf('config-metadata')).not.toHaveBeenCalled();
       }
     });
+
+    test('metadata that was given to a deployment without the metadata step is said to be left out, once, as a warning; a deployment with the step says nothing', async () => {
+      workingDirectory = fullTree(type);
+      const metadata = { pushedAt: '2026-11-26T00:00:00Z' };
+      const said = () =>
+        warnings().filter((message) => message.includes('--metadata'));
+
+      expect(await configManagerImportAllStatic({ metadata })).toBe(true);
+
+      if (STEPS[type].includes('config-metadata')) {
+        expect(said()).toEqual([]);
+      } else {
+        expect(said()).toHaveLength(1);
+        expect(said()[0]).toContain('-M, --metadata');
+        expect(said()[0]).toContain(`${type} deployment`);
+        expect(said()[0]).toContain('not written');
+        // a warning and nothing more: the run goes on and succeeds
+        expect(errors()).toEqual([]);
+      }
+
+      // nothing given, nothing to say
+      jest.clearAllMocks();
+      expect(await configManagerImportAllStatic({ metadata: {} })).toBe(true);
+      expect(await configManagerImportAllStatic({})).toBe(true);
+      expect(said()).toEqual([]);
+    });
   }
 );
 

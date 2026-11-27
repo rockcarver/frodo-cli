@@ -2421,7 +2421,9 @@ default output of `pull raw --config-file` is the same as before.
 
 **`config-manager push all-static` is new**: it pushes what `pull all-static`
 writes, in dependency order, from the folder given with `-D`. It writes the
-metadata of the tenant only when `-M` is given. A type whose folder is absent is
+metadata of the tenant only when `-M` is given; a classic deployment has no
+step that writes it, so there `-M` has no effect and the command warns that the
+metadata was not written. A type whose folder is absent is
 skipped with a warning; a missing or empty tree fails before anything is
 written. Every step runs, one summary lists the failed ones and the exit code is
 1 if any failed; `--allow-failures` keeps it at 0. The two commands share one

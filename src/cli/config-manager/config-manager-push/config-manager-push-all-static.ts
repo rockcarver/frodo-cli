@@ -13,7 +13,7 @@ export default function setup() {
     .addOption(
       new ObjectOption(
         '-M, --metadata <value>',
-        'Configuration metadata written to custom-config.metadata; set properties using dot notation, for example: -M.pushedAt 2026-11-26T00:00:00Z -M.versionInfo.version 1.0 --metadata.versionInfo.stable. Without it the metadata of the tenant is left as it is.'
+        'Configuration metadata written to custom-config.metadata; set properties using dot notation, for example: -M.pushedAt 2026-11-26T00:00:00Z -M.versionInfo.version 1.0 --metadata.versionInfo.stable. Without it the metadata of the tenant is left as it is. A classic deployment has no metadata step: there the option has no effect, and the command says so.'
       )
     )
     .multiOp()
