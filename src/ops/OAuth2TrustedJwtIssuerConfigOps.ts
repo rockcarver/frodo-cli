@@ -118,7 +118,8 @@ export async function configManagerExportTrustedJwtIssuers(
  * issuer that does not exist is created and one that does is replaced by the file. An issuer is a
  * trust anchor (a JWT signed by it is accepted as a grant), so a pull request that changes a file
  * changes who may obtain tokens after the next push: read the files before pushing them. Nothing
- * is ever deleted. The id is the `_id` of the file, otherwise its name; `${NAME}` is filled from
+ * is ever deleted. The id is the `_id` of the file (a file without one fails: an id is never read from
+ * the name of a file); `${NAME}` is filled from
  * `-E/--env`, else from `--env-file`, else from the environment variable of the process (see
  * `src/utils/PlaceholderValues.ts`); a file of another `_type` is refused before anything is sent
  * for it, and a file

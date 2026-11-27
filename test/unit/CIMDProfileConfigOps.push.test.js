@@ -327,29 +327,51 @@ describe('the files of the tree', () => {
     );
   });
 
-  test('a file without _id gets the file name as its id, decoded; a file whose _id differs from its name is pushed under the _id', async () => {
-    write(P('a%3Ab'), {
-      cimdConfig: { cimdClientIdUrlPatterns: ['https://a.example.com/*'] },
-    });
+  test('a file whose _id differs from its name is pushed under the _id', async () => {
     write(P('named-differently'), profile('zion-real-id'));
 
     expect(await configManagerImportCIMDProfiles()).toBe(true);
 
-    expect(Object.keys(importedIn('alpha')[0]).sort()).toEqual([
-      'a:b',
-      'zion-real-id',
-    ]);
+    expect(Object.keys(importedIn('alpha')[0])).toEqual(['zion-real-id']);
   });
 
-  test('a file name that is not valid percent-encoding is the id as it is', async () => {
+  test('a file without _id is a named failure of that file, whatever its name says: the id is the id that the file holds, and the other files are still pushed', async () => {
+    // a name that is a valid encoding, a name that is not, and a name that looks like a shortened name
+    write(P('a%3Ab'), {
+      cimdConfig: { cimdClientIdUrlPatterns: ['https://a.example.com/*'] },
+    });
     write(P('100%'), {
       cimdConfig: { cimdClientIdUrlPatterns: ['https://a.example.com/*'] },
     });
+    write(P(`${'x'.repeat(241)}~001fbd52`), {
+      cimdConfig: { cimdClientIdUrlPatterns: ['https://a.example.com/*'] },
+    });
+    write(P('named-differently'), profile('zion-real-id'));
 
-    expect(await configManagerImportCIMDProfiles()).toBe(true);
+    expect(await configManagerImportCIMDProfiles()).toBe(false);
 
-    expect(Object.keys(importedIn('alpha')[0])).toEqual(['100%']);
+    expect(Object.keys(importedIn('alpha')[0])).toEqual(['zion-real-id']);
+    expect(output()).toContain('3 of 4 CIMD profiles failed');
+    expect(output()).toContain('alpha/a%3Ab.json');
+    expect(output()).toContain('alpha/100%.json');
+    expect(output()).toContain("it has no '_id'");
   });
+
+  test.each([false, true])(
+    'a named file without _id fails whatever --allow-failures says (%s)',
+    async (allowFailures) => {
+      write(P('a%3Ab'), {
+        cimdConfig: { cimdClientIdUrlPatterns: ['https://a.example.com/*'] },
+      });
+
+      expect(
+        await configManagerImportCIMDProfiles('a:b', 'alpha', allowFailures)
+      ).toBe(false);
+
+      expect(output()).toContain("it has no '_id'");
+      expect(importCIMDProfiles).not.toHaveBeenCalled();
+    }
+  );
 
   test('a file that a pull wrote is pushed back as it was pulled (round trip), ${ included', async () => {
     world.profiles.alpha = [

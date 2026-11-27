@@ -134,9 +134,10 @@ export async function realmsToVisit(realm?: string): Promise<string[]> {
 
 /**
  * The file names of objects that are written to one folder. A file name is the id made safe for a
- * file system. Two ids that map to one name, ignoring case because a file system may ignore it,
- * collide (this includes two long ids that are cut to the same name): the first one gets the name
- * and the later ones are reported.
+ * file system, and its shortened name when the id does not fit in a file name. Two ids that map to
+ * one name, ignoring case because a file system may ignore it, collide (two long ids that start alike
+ * have their own names, and share one only when the 8 characters of their checksums are the same too):
+ * the first one gets the name and the later ones are reported.
  * @param {string[]} ids the ids, in the order they are written
  * @returns {{ names: Map<string, string>; collisions: { id: string; firstId: string }[] }} the file name of each id that has one, and the ids that collide with an earlier one
  */
@@ -527,7 +528,7 @@ export async function pullAgentKind(
 
 /** An object of a push: the file it came from and what is sent. */
 export interface PushItem {
-  /** The id the object is pushed under: the `_id` of the file, otherwise the file name. */
+  /** The id the object is pushed under: the `_id` that the file holds, never read from the name of the file. */
   id: string;
   /** The file name with its extension, for the messages. */
   file: string;
@@ -574,23 +575,9 @@ function isDirectory(dir: string): boolean {
 }
 
 /**
- * The id of an object whose file has no `_id`: the file name without the extension, decoded, because
- * the file names of a pull percent-encode what a file system rejects.
- * @param {string} file the file name
- * @returns {string} the id
- */
-function idOfFile(file: string): string {
-  const name = file.replace(/\.json$/, '');
-  try {
-    return decodeURIComponent(name);
-  } catch {
-    return name;
-  }
-}
-
-/**
  * The files of a folder that a push reads: every `*.json`, sorted; with a name only its file, the
- * file name of that id (a name is an id, never a path: `a/b` is the file `a%2Fb.json`).
+ * file name of that id (a name is an id, never a path: `a/b` is the file `a%2Fb.json`; an id that does
+ * not fit in a file name is its shortened name).
  * @param {string} dir the folder of the type in one realm
  * @param {string} name optional name
  * @returns {string[]} the file names, none if the named file does not exist
@@ -611,7 +598,8 @@ function filesToPush(dir: string, name?: string): string[] {
  * realm, or one file).
  *
  * Every file is one operation of an {@link OperationRun}: a file that cannot be read or parsed
- * (an unresolved placeholder included), a second file for an id that an earlier one has (ids are
+ * (an unresolved placeholder included), a file that holds no `_id` (the id of an object is the id that
+ * its file holds, never read from the name of the file), a second file for an id that an earlier one has (ids are
  * compared ignoring case, because the server holds one object for ids that differ only in case),
  * and an object the kind refuses or the library cannot import are named in one summary, and the
  * other files are still pushed. A realm or a deployment that does not offer the type is skipped
@@ -714,10 +702,15 @@ export async function pushAgentKind(
           continue;
         }
         const body = { ...(object as Record<string, unknown>) };
-        const id =
-          typeof body._id === 'string' && body._id !== ''
-            ? body._id
-            : idOfFile(file);
+        // the id of an object is the id that its file holds: a file name that a pull shortened is not an id
+        if (typeof body._id !== 'string' || body._id === '') {
+          const reason = `it has no '_id': the id of an object is the id that its file holds, not the name of the file`;
+          printMessage(`${capital} file ${file}: ${reason}`, 'error');
+          run.recordFailure(label, reason);
+          if (name) namedFailed = true;
+          continue;
+        }
+        const id = body._id;
         clearOperationalAttributes(body);
         const first = seen.get(id.toLowerCase());
         if (first !== undefined) {
