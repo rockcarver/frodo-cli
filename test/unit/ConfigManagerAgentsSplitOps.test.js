@@ -1091,6 +1091,27 @@ describe('push', () => {
     expect(output()).toContain('alpha/WebAgent/no-id.json');
   });
 
+  test.each([['""'], ['7'], ['null'], ['["x"]']])(
+    'a file whose _id is %s is a failed file too: it would be sent to the path of the type, or to an id that is no text',
+    async (id) => {
+      writeTree();
+      write(AGENT_PATH('WebAgent', 'odd-id'), {
+        _id: JSON.parse(id),
+        description: 'an id that names nothing',
+      });
+
+      expect(await configManagerImportAgents(false, 'agents')).toBe(false);
+
+      // the canary: nothing was sent for it, and the others were
+      expect(calls.filter((call) => call.startsWith('import '))).toHaveLength(
+        4
+      );
+      expect(calls.join('\n')).not.toMatch(/import alpha\/(undefined)?$/m);
+      expect(output()).toContain('alpha/WebAgent/odd-id.json');
+      expect(output()).toContain("it has no '_id'");
+    }
+  );
+
   test('oauth-clients does not read the application folders of a realm that holds no client, and agents does not read those of any realm', async () => {
     write('frodo-config-manager.json', {
       applications: 'folders',

@@ -378,6 +378,8 @@ describe('which files of the schema folder are relationship schemas', () => {
       'managed-objects/alpha_user/schema/alpha_role.schema.members.json':
         schemaOf('alpha_role', 'members', 'x'),
       'managed-objects/alpha_user/schema/README.md': 'not a schema',
+      // a name with a character that changes what a terminal shows is written out
+      'managed-objects/alpha_user/schema/note\u202egnp.txt': 'not a schema',
       'managed-objects/alpha_user/schema/alpha_user.schema.folder.json/inside.json':
         schemaOf('alpha_user', 'inside', 'x'),
     });
@@ -385,6 +387,8 @@ describe('which files of the schema folder are relationship schemas', () => {
     expect(await configManagerImportManagedObjects()).toBe(true);
 
     expect(debugged).toHaveLength(1);
+    expect(debugged[0]).toContain('note\\u202egnp.txt');
+    expect(debugged[0]).not.toMatch(/\p{Cf}/u);
     expect(debugged[0]).toContain('alpha_user/schema');
     expect(debugged[0]).toContain('README.md');
     expect(debugged[0]).toContain('alpha_role.schema.members.json');
