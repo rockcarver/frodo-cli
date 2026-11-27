@@ -80,6 +80,7 @@ const ops = async (file) => import(`../../src/configManagerOps/${file}.ts`);
 const managedObjects = await ops('FrConfigManagedObjectsOps');
 const scripts = await ops('FrConfigScriptOps');
 const endpoints = await ops('FrConfigEndpointsOps');
+const emailTemplates = await ops('FrConfigEmailTemplatesOps');
 
 let root;
 let tree;
@@ -334,5 +335,42 @@ describe('the longest ending of the files of an object decides where its name is
       `${shortJavascript}.js`,
       `${shortJavascript}.json`,
     ]);
+  });
+
+  test('email templates: a page of a language ends with `.<language>.html`, so with `zh-CN` 244 bytes keep their name and 245 are shortened, and every file of the template has one name', async () => {
+    const fits = 'a'.repeat(244);
+    const over = 'a'.repeat(245);
+    facade.email.template.readEmailTemplates.mockResolvedValue(
+      [fits, over].map((name) => ({
+        _id: `emailTemplate/${name}`,
+        html: { 'zh-CN': '<p>html</p>' },
+        message: { 'zh-CN': 'message' },
+        styles: 'css',
+      }))
+    );
+
+    expect(await emailTemplates.configManagerExportEmailTemplates()).toBe(true);
+
+    const shortened = vector('nameInFolder', over, '.zh-CN.html');
+    expect(listed('email-templates')).toEqual([fits, shortened].sort());
+    for (const name of [fits, shortened]) {
+      expect(listed(`email-templates/${name}`)).toEqual(
+        [
+          `${name}.json`,
+          `${name}.zh-CN.html`,
+          `${name}.zh-CN.md`,
+          `${name}.css`,
+        ].sort()
+      );
+    }
+    // the file of the template refers to the files by the same name
+    const template = JSON.parse(
+      fs.readFileSync(
+        path.join(tree, 'email-templates', shortened, `${shortened}.json`),
+        'utf8'
+      )
+    );
+    expect(template.html['zh-CN'].file).toBe(`${shortened}.zh-CN.html`);
+    expect(template._id).toBe(`emailTemplate/${over}`);
   });
 });

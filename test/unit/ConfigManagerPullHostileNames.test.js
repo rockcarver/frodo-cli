@@ -708,12 +708,8 @@ const FAMILIES = [
   },
   {
     family: 'email templates',
-    // until the site gives the name the longest suffix of its object, a name that fills a whole name has no room for the
-    // longer files of the object (a script of the object): the object fails
-    override: {
-      '300 characters': { how: 'toolong' },
-      '255 bytes': { how: 'toolong' },
-    },
+    // the longest of the files of a template: `<name>.en.html`
+    suffix: '.en.html',
     under: 'email-templates',
     arrange: (values) =>
       facade.email.template.readEmailTemplates.mockResolvedValue(

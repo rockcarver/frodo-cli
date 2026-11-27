@@ -49,10 +49,12 @@ export async function configManagerExportEmailTemplates(
     for (const template of templates) {
       const templateName = template._id.split('/')[1];
       await run.run(templateName, async () => {
-        // the tenant names the template: its name is the name of its folder and its files here, never a path
-        const folderName = nameInFolder(templateName);
+        // the tenant names the template: its name is the name of its folder and its files here, never a path; the name is
+        // made once, with the longest ending of the files of the template
+        const ending = longestEnding(template);
+        const folderName = nameInFolder(templateName, ending);
         // a file reference starts with the name of the template, so it is the stem of the names of the files
-        const stem = nameInStem(templateName);
+        const stem = nameInStem(templateName, ending);
         const templatePath = `email-templates/${folderName}`;
         const languages = [
           ...plannedLanguages(template.html, stem, 'html'),
@@ -106,6 +108,28 @@ export async function configManagerExportEmailTemplates(
     if (run.hasFailures) run.finish();
   }
   return false;
+}
+
+/**
+ * The longest ending that a file of one email template has after the name of the template: `.json` for the file of the
+ * template, `.<language>.html` and `.<language>.md` for each page and message, and `.css` for the styles.
+ * @param {{ html?: Record<string, unknown>, message?: Record<string, unknown>, styles?: unknown }} template the template, as the tenant has it
+ * @returns {string} the longest ending
+ */
+function longestEnding(template: {
+  html?: Record<string, unknown>;
+  message?: Record<string, unknown>;
+  styles?: unknown;
+}): string {
+  const endings = [
+    '.json',
+    ...(template.styles ? ['.css'] : []),
+    ...Object.keys(template.html ?? {}).map((l) => `.${nameInFolder(l)}.html`),
+    ...Object.keys(template.message ?? {}).map((l) => `.${nameInFolder(l)}.md`),
+  ];
+  return endings.reduce((longest, ending) =>
+    Buffer.byteLength(ending) > Buffer.byteLength(longest) ? ending : longest
+  );
 }
 
 /**
