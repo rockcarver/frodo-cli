@@ -1323,6 +1323,30 @@ describe('S22 the reference to the file of a translation of terms and conditions
   });
 });
 
+describe('S22 a translation of terms and conditions that is an object but not a reference', () => {
+  test.each([[{}], [{ file: 5 }], [{ file: null }], [{ text: 'x' }]])(
+    'the translation %j is not a reference: the file is looked for by the version and the language, as for a text',
+    async (translation) => {
+      write({
+        'terms-conditions/terms-conditions.json': {
+          _id: 'selfservice.terms',
+          versions: [
+            { version: '0.1', termsTranslations: { en: translation } },
+          ],
+        },
+        'terms-conditions/0.1/en.html': '<p>derived</p>',
+      });
+
+      const outcome = await attempt(() =>
+        configManagerImportTermsAndConditions()
+      );
+
+      expect(outcome).toEqual({ value: true });
+      expect(sent()).toContain('<p>derived</p>');
+    }
+  );
+});
+
 describe('S22 a version of terms and conditions that is not text', () => {
   test.each([[1], [0.1], [null], [{ name: '1' }]])(
     'the version %j is refused: a version is a name of a folder, and the tenant writes it as text',
