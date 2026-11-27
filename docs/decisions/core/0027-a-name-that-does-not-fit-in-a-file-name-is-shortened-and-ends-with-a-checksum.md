@@ -18,7 +18,7 @@ issues:
 
 ## Context and problem statement
 
-A pull names the file of an object after its id, and a file name holds 255 bytes with its extension. The servers accept ids of thousands of characters, and some ids are not text (a lone surrogate). When this was decided, on 2026-11-26, such an id was cut silently, so two ids that start alike shared one name and the later object was not pulled, or it was refused, or it failed a whole file set at the gate. A name has to be a pure function of the id, so that a pull twice gives the same tree and a diff in version control stays small. [Core 0024](0024-the-library-turns-configuration-into-file-sets-and-back-and-never-touches-the-file-system.md) says the files of a pull do not change, so the rule for a long name is decided once.
+A pull names the file of an object after its id, and a file name holds 255 bytes with its extension. The servers accept ids of thousands of characters, and some ids are not text (a lone surrogate). When this was decided, on 2026-11-26, such an id was cut silently, so two ids that start alike shared one name and the later object was not pulled, or it was refused, or it failed a whole file set at the gate. A name has to be a pure function of the id, so that a pull twice gives the same tree and a diff in version control stays small. [Core 0028](0028-the-library-turns-configuration-into-file-sets-through-the-types-own-read-and-write.md) keeps the files of a pull as they were except in three cases, and a difference outside them needs a record, so the rule for a long name is decided once.
 
 ## Decision
 
