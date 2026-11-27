@@ -713,6 +713,46 @@ suite('push all-static against a fake tenant', () => {
     );
 
     it(
+      'a realm given as a path (/alpha) pushes what the name (alpha) pushes, the journeys of the realm included',
+      async () => {
+        // a tree without the password policy files: that step names its file by the text of the realm, which is
+        // a matter of its own and is skipped here, as a step whose folder is not in the tree is
+        const tree = Object.fromEntries(
+          Object.entries(cloudTree(['alpha', 'bravo'])).filter(
+            ([file]) => !file.includes('/password-policy/')
+          )
+        );
+        write(tree);
+
+        const named = await push(['-D', work]);
+        const namedWrites = writes().map((w) => `${w.method} ${pathOf(w)}`);
+        // one fake tenant at a time: the next run starts its own
+        fakeAm.stop();
+        fs.rmSync(record, { force: true });
+        const given = await push(['-D', work], { realm: '/alpha' });
+
+        expect(named.code).toBe(0);
+        // the step that compared the folder with the text of the realm found no folder for a path
+        expect(given.output).not.toContain('No journey files found');
+        expect(given.output).not.toContain('- journeys');
+        expect(given.code).toBe(0);
+        expect(
+          wrote(
+            'PUT',
+            `${ALPHA}/realm-config/authentication/authenticationtrees/trees/j1`
+          )
+        ).toBe(true);
+        expect(writes().map((w) => `${w.method} ${pathOf(w)}`)).toEqual(
+          namedWrites
+        );
+        expect(
+          readRequests(record).some(({ url }) => url.includes('/realms/bravo'))
+        ).toBe(false);
+      },
+      TIMEOUT
+    );
+
+    it(
       'without a realm pushes the realms of the tree',
       async () => {
         write(cloudTree(['alpha', 'bravo']));

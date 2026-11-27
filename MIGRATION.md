@@ -1318,7 +1318,10 @@ exit code 1 before the command connects, also when it comes from `FRODO_REALM`,
 on every `config-manager` command that runs in a realm. A realm that is typed
 `/alpha` or `/parent/child` names the folder `realms/alpha` or
 `realms/parent/child` in the messages that print a path; they printed
-`realms//alpha`.
+`realms//alpha`. `config push journeys` (and the journeys step of
+`config push all-static`) with a realm typed `/alpha` pushes the journeys of the
+folder `realms/alpha` as it does for `alpha`; it found no folder for the path,
+said `No journey files found to import.` and exited with code 1.
 
 `delete secret-mappings -i` reads the list of the mappings first and deletes the
 mapping that has exactly that id. An id that is not a mapping, or that differs in

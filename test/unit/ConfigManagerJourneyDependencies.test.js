@@ -260,6 +260,55 @@ afterEach(() => {
   process.exitCode = 0;
 });
 
+describe('push journeys, the realm as the command line gives it', () => {
+  /** The journeys of the folder of alpha, pushed to the realm as it is given. */
+  const pushTo = (realm, name) =>
+    configManagerImportJourneys(name, realm, true, true, false);
+  const filesOfTwoRealms = () => {
+    write(journeyFiles('A'));
+    write({ 'realms/bravo/journeys/Other/Other.json': { _id: 'Other' } });
+  };
+
+  test.each([['alpha'], ['/alpha'], ['alpha/']])(
+    'the realm %j pushes the journeys of the folder alpha, and no other realm',
+    async (realm) => {
+      filesOfTwoRealms();
+
+      expect(await pushTo(realm)).toBe(true);
+
+      expect(importedNames()).toEqual(['A']);
+      expect(importJourneys).toHaveBeenCalledTimes(1);
+      expect(printMessage).not.toHaveBeenCalled();
+    }
+  );
+
+  test('a realm given as a path that has no folder is no journey to push: the command fails and says so', async () => {
+    filesOfTwoRealms();
+
+    expect(await pushTo('/gamma')).toBe(false);
+
+    expect(importJourneys).not.toHaveBeenCalled();
+    expect(printed()).toContain('No journey files found to import.');
+  });
+
+  test('the sentinel of "no realm" pushes the journeys of every realm folder', async () => {
+    filesOfTwoRealms();
+
+    expect(await pushTo('__default__realm__')).toBe(true);
+
+    expect(importedNames().sort()).toEqual(['A', 'Other']);
+  });
+
+  test('a realm that is no realm name fails before anything is read, and sends nothing', async () => {
+    filesOfTwoRealms();
+
+    expect(await pushTo('/../alpha')).toBe(false);
+
+    expect(importJourneys).not.toHaveBeenCalled();
+    expect(printed()).toContain('is not');
+  });
+});
+
 describe('push journeys', () => {
   test('(a) a named journey brings its inner journey and the scripts of both, by default', async () => {
     write({

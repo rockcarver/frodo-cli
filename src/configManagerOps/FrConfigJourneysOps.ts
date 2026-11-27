@@ -588,6 +588,11 @@ export async function configManagerImportJourneys(
     const pushScripts = dependencies;
     const options = { deps: dependencies, reUuid: false, validate };
 
+    // a realm is a name or a path (`alpha`, `/alpha`): it is looked up by the folder it has in the tree, and none
+    // given (or the sentinel for it) is every realm that the tree holds, as in the export
+    const wantedFolder =
+      realm && realm !== DEFAULT_REALM_KEY ? realmFolderOf(realm) : undefined;
+
     const realmsDir = getFilePath('realms');
     if (!fs.existsSync(realmsDir)) {
       printMessage('No journey files found to import.', 'error');
@@ -610,7 +615,7 @@ export async function configManagerImportJourneys(
         (state.getRealm() === '/' &&
           state.getDeploymentType() ===
             frodo.utils.constants.CLOUD_DEPLOYMENT_TYPE_KEY) ||
-        (realm !== DEFAULT_REALM_KEY && state.getRealm() !== realm)
+        (wantedFolder !== undefined && realmDir !== wantedFolder)
       )
         continue;
 
