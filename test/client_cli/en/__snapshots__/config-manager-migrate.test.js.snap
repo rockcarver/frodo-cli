@@ -1,7 +1,7 @@
 // Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
-exports[`CLI help interface for 'config-manager migrate' should be expected english 1`] = `
-"Usage: frodo config-manager migrate [options] [command]
+exports[`CLI help interface for 'config migrate' should be expected english 1`] = `
+"Usage: frodo config migrate [options] [command]
 
 [Experimental] Move a config-manager tree to a newer layout.
 

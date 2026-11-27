@@ -3,15 +3,17 @@
 exports[`frodo config-manager push authentication "FRODO_REALM=alpha frodo config-manager push authentication -D test/e2e/exports/fr-config-manager/forgeops -m forgeops": should import an authentication config by realm into forgeops" 1`] = `""`;
 
 exports[`frodo config-manager push authentication "FRODO_REALM=alpha frodo config-manager push authentication -D test/e2e/exports/fr-config-manager/forgeops -m forgeops": should import an authentication config by realm into forgeops" 2`] = `
-"'authentication' is now called 'authn'. The old name still works and will be removed in a future major release.
-Experimental feature in use: 'frodo config-manager push authn'. This feature may change without notice.
+"'config-manager' is now called 'config'. The old name still works and will be removed in a future major release.
+'authentication' is now called 'authn'. The old name still works and will be removed in a future major release.
+Experimental feature in use: 'frodo config push authn'. This feature may change without notice.
 "
 `;
 
 exports[`frodo config-manager push authentication "frodo config-manager push authentication -D test/e2e/exports/fr-config-manager/forgeops -m forgeops": should import the authentication into forgeops" 1`] = `""`;
 
 exports[`frodo config-manager push authentication "frodo config-manager push authentication -D test/e2e/exports/fr-config-manager/forgeops -m forgeops": should import the authentication into forgeops" 2`] = `
-"'authentication' is now called 'authn'. The old name still works and will be removed in a future major release.
-Experimental feature in use: 'frodo config-manager push authn'. This feature may change without notice.
+"'config-manager' is now called 'config'. The old name still works and will be removed in a future major release.
+'authentication' is now called 'authn'. The old name still works and will be removed in a future major release.
+Experimental feature in use: 'frodo config push authn'. This feature may change without notice.
 "
 `;

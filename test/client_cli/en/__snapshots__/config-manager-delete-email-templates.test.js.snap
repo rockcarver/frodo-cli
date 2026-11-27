@@ -1,7 +1,7 @@
 // Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
-exports[`CLI help interface for 'config-manager delete email-templates' should be expected english 1`] = `
-"Usage: frodo config-manager delete email-templates [options] [host] [realm] [username] [password]
+exports[`CLI help interface for 'config delete email-templates' should be expected english 1`] = `
+"Usage: frodo config delete email-templates [options] [host] [realm] [username] [password]
 
 [Experimental] Delete email template objects.
 

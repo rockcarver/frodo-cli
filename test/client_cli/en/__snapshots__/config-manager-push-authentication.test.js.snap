@@ -1,7 +1,7 @@
 // Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
-exports[`CLI help interface for 'config-manager push authn' should be expected english 1`] = `
-"Usage: frodo config-manager push authn [options] [host] [realm] [username] [password]
+exports[`CLI help interface for 'config push authn' should be expected english 1`] = `
+"Usage: frodo config push authn [options] [host] [realm] [username] [password]
 
 [Experimental] Import authentication objects. (formerly: authentication)
 

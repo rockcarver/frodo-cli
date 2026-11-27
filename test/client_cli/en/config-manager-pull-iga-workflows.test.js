@@ -2,9 +2,9 @@ import cp from 'child_process';
 import { promisify } from 'util';
 
 const exec = promisify(cp.exec);
-const CMD = 'frodo config-manager pull iga-workflows --help';
+const CMD = 'frodo config pull iga-workflows --help';
 const { stdout } = await exec(CMD);
 
-test("CLI help interface for 'config-manager pull iga-workflows' should be expected english", async () => {
+test("CLI help interface for 'config pull iga-workflows' should be expected english", async () => {
     expect(stdout).toMatchSnapshot();
 });

@@ -1,7 +1,8 @@
 // Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
 exports[`frodo config-manager push telemetry "frodo config-manager push telemetry -E TELEMETRY_HEADER_OTLP_TEST_OTLP_API_KEY=all-test -E TELEMETRY_HEADER_OTLP_TEST_OTLP_API_SECRET=all-secret -D test/e2e/exports/fr-config-manager/cloud": should fail to import all telemetry config 1`] = `
-"Experimental feature in use: 'frodo config-manager push telemetry'. This feature may change without notice.
+"'config-manager' is now called 'config'. The old name still works and will be removed in a future major release.
+Experimental feature in use: 'frodo config push telemetry'. This feature may change without notice.
 ✔ Successfully read 2 telemetry exporter(s).
 Error importing telemetry exporter splunk/frodo-test-splunk-1
 Error importing telemetry exporters
@@ -22,7 +23,8 @@ exports[`frodo config-manager push telemetry "frodo config-manager push telemetr
 exports[`frodo config-manager push telemetry "frodo config-manager push telemetry -c otlp --env TELEMETRY_HEADER_OTLP_TEST_OTLP_API_KEY=test-value --env TELEMETRY_HEADER_OTLP_TEST_OTLP_API_SECRET=test-value -D test/e2e/exports/fr-config-manager/cloud": should import otlp telemetry by category and update placeholder values 1`] = `""`;
 
 exports[`frodo config-manager push telemetry "frodo config-manager push telemetry -c otlp --env TELEMETRY_HEADER_OTLP_TEST_OTLP_API_KEY=test-value --env TELEMETRY_HEADER_OTLP_TEST_OTLP_API_SECRET=test-value -D test/e2e/exports/fr-config-manager/cloud": should import otlp telemetry by category and update placeholder values 2`] = `
-"Experimental feature in use: 'frodo config-manager push telemetry'. This feature may change without notice.
+"'config-manager' is now called 'config'. The old name still works and will be removed in a future major release.
+Experimental feature in use: 'frodo config push telemetry'. This feature may change without notice.
 ✔ Successfully read 1 telemetry exporter(s).
 ✔ Successfully imported 1 telemetry exporter(s).
 "
@@ -31,7 +33,8 @@ exports[`frodo config-manager push telemetry "frodo config-manager push telemetr
 exports[`frodo config-manager push telemetry "frodo config-manager push telemetry -c otlp -n test-otlp -E TELEMETRY_HEADER_OTLP_TEST_OTLP_API_KEY=test-value -E TELEMETRY_HEADER_OTLP_TEST_OTLP_API_SECRET=test-value -D test/e2e/exports/fr-config-manager/cloud": should import otlp telemetry by name and update placeholder values 1`] = `""`;
 
 exports[`frodo config-manager push telemetry "frodo config-manager push telemetry -c otlp -n test-otlp -E TELEMETRY_HEADER_OTLP_TEST_OTLP_API_KEY=test-value -E TELEMETRY_HEADER_OTLP_TEST_OTLP_API_SECRET=test-value -D test/e2e/exports/fr-config-manager/cloud": should import otlp telemetry by name and update placeholder values 2`] = `
-"Experimental feature in use: 'frodo config-manager push telemetry'. This feature may change without notice.
+"'config-manager' is now called 'config'. The old name still works and will be removed in a future major release.
+Experimental feature in use: 'frodo config push telemetry'. This feature may change without notice.
 ✔ Successfully read 1 telemetry exporter(s).
 ✔ Successfully imported 1 telemetry exporter(s).
 "
@@ -40,7 +43,8 @@ exports[`frodo config-manager push telemetry "frodo config-manager push telemetr
 exports[`frodo config-manager push telemetry "frodo config-manager push telemetry -c splunk --name test -D test/e2e/exports/fr-config-manager/cloud": should import splunk telemetry by name 1`] = `""`;
 
 exports[`frodo config-manager push telemetry "frodo config-manager push telemetry -c splunk --name test -D test/e2e/exports/fr-config-manager/cloud": should import splunk telemetry by name 2`] = `
-"Experimental feature in use: 'frodo config-manager push telemetry'. This feature may change without notice.
+"'config-manager' is now called 'config'. The old name still works and will be removed in a future major release.
+Experimental feature in use: 'frodo config push telemetry'. This feature may change without notice.
 ✔ Successfully read 1 telemetry exporter(s).
 ✔ Successfully imported 1 telemetry exporter(s).
 "
@@ -49,7 +53,8 @@ exports[`frodo config-manager push telemetry "frodo config-manager push telemetr
 exports[`frodo config-manager push telemetry "frodo config-manager push telemetry -c splunk -D test/e2e/exports/fr-config-manager/cloud": should import splunk telemetry by category 1`] = `""`;
 
 exports[`frodo config-manager push telemetry "frodo config-manager push telemetry -c splunk -D test/e2e/exports/fr-config-manager/cloud": should import splunk telemetry by category 2`] = `
-"Experimental feature in use: 'frodo config-manager push telemetry'. This feature may change without notice.
+"'config-manager' is now called 'config'. The old name still works and will be removed in a future major release.
+Experimental feature in use: 'frodo config push telemetry'. This feature may change without notice.
 ✔ Successfully read 1 telemetry exporter(s).
 ✔ Successfully imported 1 telemetry exporter(s).
 "

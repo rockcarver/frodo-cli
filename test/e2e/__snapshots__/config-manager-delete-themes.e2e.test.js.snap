@@ -3,7 +3,8 @@
 exports[`frodo config-manager delete themes "frodo config-manager delete themes --dry-run -m forgeops": should preview theme deletion across all realms 1`] = `""`;
 
 exports[`frodo config-manager delete themes "frodo config-manager delete themes --dry-run -m forgeops": should preview theme deletion across all realms 2`] = `
-"Experimental feature in use: 'frodo config-manager delete themes'. This feature may change without notice.
+"'config-manager' is now called 'config'. The old name still works and will be removed in a future major release.
+Experimental feature in use: 'frodo config delete themes'. This feature may change without notice.
 Dry run: Deleting theme 'Contrast' in realm '/'
 Dry run: Deleting theme 'ForgeRock Theme' in realm '/'
 Dry run: Deleting theme 'Highlander' in realm '/'
@@ -27,7 +28,8 @@ No themes found to delete in realm 'bravo'.
 exports[`frodo config-manager delete themes "frodo config-manager delete themes -d -n Test -m forgeops": should dry-run delete a specific theme by name in alpha 1`] = `""`;
 
 exports[`frodo config-manager delete themes "frodo config-manager delete themes -d -n Test -m forgeops": should dry-run delete a specific theme by name in alpha 2`] = `
-"Experimental feature in use: 'frodo config-manager delete themes'. This feature may change without notice.
+"'config-manager' is now called 'config'. The old name still works and will be removed in a future major release.
+Experimental feature in use: 'frodo config delete themes'. This feature may change without notice.
 Dry run: Deleting theme 'Test' in realm 'alpha'
 "
 `;
@@ -35,7 +37,8 @@ Dry run: Deleting theme 'Test' in realm 'alpha'
 exports[`frodo config-manager delete themes "frodo config-manager delete themes -y -m forgeops": should delete themes across all realms 1`] = `""`;
 
 exports[`frodo config-manager delete themes "frodo config-manager delete themes -y -m forgeops": should delete themes across all realms 2`] = `
-"Experimental feature in use: 'frodo config-manager delete themes'. This feature may change without notice.
+"'config-manager' is now called 'config'. The old name still works and will be removed in a future major release.
+Experimental feature in use: 'frodo config delete themes'. This feature may change without notice.
 Deleting theme 'Contrast' in realm '/'
 Deleting theme 'ForgeRock Theme' in realm '/'
 Deleting theme 'Highlander' in realm '/'
@@ -66,7 +69,8 @@ Deleting theme 'Zardoz' in realm 'bravo'
 exports[`frodo config-manager delete themes "frodo config-manager delete themes -n Test -m forgeops": should delete a specific theme by name in alpha 1`] = `""`;
 
 exports[`frodo config-manager delete themes "frodo config-manager delete themes -n Test -m forgeops": should delete a specific theme by name in alpha 2`] = `
-"Experimental feature in use: 'frodo config-manager delete themes'. This feature may change without notice.
+"'config-manager' is now called 'config'. The old name still works and will be removed in a future major release.
+Experimental feature in use: 'frodo config delete themes'. This feature may change without notice.
 Deleting theme 'Test' in realm 'alpha'
 "
 `;

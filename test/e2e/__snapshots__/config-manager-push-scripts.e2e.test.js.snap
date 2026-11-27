@@ -3,7 +3,8 @@
 exports[`frodo config-manager push scripts "frodo config-manager push scripts --directory test/e2e/exports/fr-config-manager/forgeops": should not import the scripts when no changes made 1`] = `""`;
 
 exports[`frodo config-manager push scripts "frodo config-manager push scripts --directory test/e2e/exports/fr-config-manager/forgeops": should not import the scripts when no changes made 2`] = `
-"Experimental feature in use: 'frodo config-manager push scripts'. This feature may change without notice.
+"'config-manager' is now called 'config'. The old name still works and will be removed in a future major release.
+Experimental feature in use: 'frodo config push scripts'. This feature may change without notice.
 ✔ Finished importing scripts.
 "
 `;
@@ -11,7 +12,8 @@ exports[`frodo config-manager push scripts "frodo config-manager push scripts --
 exports[`frodo config-manager push scripts "frodo config-manager push scripts --force-update --name testing -D test/e2e/exports/fr-config-manager/forgeops": should import the scripts 1`] = `""`;
 
 exports[`frodo config-manager push scripts "frodo config-manager push scripts --force-update --name testing -D test/e2e/exports/fr-config-manager/forgeops": should import the scripts 2`] = `
-"Experimental feature in use: 'frodo config-manager push scripts'. This feature may change without notice.
+"'config-manager' is now called 'config'. The old name still works and will be removed in a future major release.
+Experimental feature in use: 'frodo config push scripts'. This feature may change without notice.
 ✔ Finished importing scripts.
 "
 `;
@@ -19,7 +21,8 @@ exports[`frodo config-manager push scripts "frodo config-manager push scripts --
 exports[`frodo config-manager push scripts "frodo config-manager push scripts -FD test/e2e/exports/fr-config-manager/forgeops": should import the scripts 1`] = `""`;
 
 exports[`frodo config-manager push scripts "frodo config-manager push scripts -FD test/e2e/exports/fr-config-manager/forgeops": should import the scripts 2`] = `
-"Experimental feature in use: 'frodo config-manager push scripts'. This feature may change without notice.
+"'config-manager' is now called 'config'. The old name still works and will be removed in a future major release.
+Experimental feature in use: 'frodo config push scripts'. This feature may change without notice.
 Warning: no script config defined in realm bravo. Expecting directory test/e2e/exports/fr-config-manager/forgeops/realms/bravo/scripts/scripts-config
 ✔ Finished importing scripts.
 "
@@ -28,7 +31,8 @@ Warning: no script config defined in realm bravo. Expecting directory test/e2e/e
 exports[`frodo config-manager push scripts "frodo config-manager push scripts -Ff 'Debug,~Next' -D test/e2e/exports/fr-config-manager/forgeops": should import the scripts 1`] = `""`;
 
 exports[`frodo config-manager push scripts "frodo config-manager push scripts -Ff 'Debug,~Next' -D test/e2e/exports/fr-config-manager/forgeops": should import the scripts 2`] = `
-"Experimental feature in use: 'frodo config-manager push scripts'. This feature may change without notice.
+"'config-manager' is now called 'config'. The old name still works and will be removed in a future major release.
+Experimental feature in use: 'frodo config push scripts'. This feature may change without notice.
 ✔ Finished importing scripts.
 "
 `;

@@ -1,7 +1,7 @@
 // Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
-exports[`CLI help interface for 'config-manager pull remote-proxies' should be expected english 1`] = `
-"Usage: frodo config-manager pull remote-proxies [options] [host] [realm] [username] [password]
+exports[`CLI help interface for 'config pull remote-proxies' should be expected english 1`] = `
+"Usage: frodo config pull remote-proxies [options] [host] [realm] [username] [password]
 
 [Experimental] [Cloud-only] Export IDM remote proxies: one file
 remote-proxies/<name>.json for each.

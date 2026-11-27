@@ -20,7 +20,8 @@ exports[`frodo config-manager pull raw "frodo config-manager pull raw --config-f
 `;
 
 exports[`frodo config-manager pull raw "frodo config-manager pull raw --config-file test/e2e/fr-config-manager-pull-config/raw.json --stdout --path /environment/release -V.protocol 2.0 -V.resource 1.0": should output the configuration at the specified API path to stdout in fr-config-manager format. 2`] = `
-"Experimental feature in use: 'frodo config-manager pull raw'. This feature may change without notice.
+"'config-manager' is now called 'config'. The old name still works and will be removed in a future major release.
+Experimental feature in use: 'frodo config pull raw'. This feature may change without notice.
 "
 `;
 
@@ -92,7 +93,8 @@ exports[`frodo config-manager pull raw "frodo config-manager pull raw --stdout -
 `;
 
 exports[`frodo config-manager pull raw "frodo config-manager pull raw --stdout --config-file test/e2e/fr-config-manager-pull-config/raw.json -V.protocol 2.0 -V.resource 1.0": should output all configurations listed in the JSON file to stdout in fr-config-manager format, preserving any push API versions. 2`] = `
-"Experimental feature in use: 'frodo config-manager pull raw'. This feature may change without notice.
+"'config-manager' is now called 'config'. The old name still works and will be removed in a future major release.
+Experimental feature in use: 'frodo config pull raw'. This feature may change without notice.
 "
 `;
 
@@ -156,7 +158,8 @@ exports[`frodo config-manager pull raw "frodo config-manager pull raw --stdout -
 `;
 
 exports[`frodo config-manager pull raw "frodo config-manager pull raw --stdout --config-file test/e2e/fr-config-manager-pull-config/raw.json": should output the configurations listed in the JSON file to stdout in fr-config-manager format. 2`] = `
-"Experimental feature in use: 'frodo config-manager pull raw'. This feature may change without notice.
+"'config-manager' is now called 'config'. The old name still works and will be removed in a future major release.
+Experimental feature in use: 'frodo config pull raw'. This feature may change without notice.
 "
 `;
 

@@ -3,8 +3,9 @@
 exports[`frodo config-manager delete custom-nodes "frodo config-manager delete custom-nodes -d": should dry-run delete all the custom-nodes" 1`] = `""`;
 
 exports[`frodo config-manager delete custom-nodes "frodo config-manager delete custom-nodes -d": should dry-run delete all the custom-nodes" 2`] = `
-"'custom-nodes' is now called 'nodes'. The old name still works and will be removed in a future major release.
-Experimental feature in use: 'frodo config-manager delete nodes'. This feature may change without notice.
+"'config-manager' is now called 'config'. The old name still works and will be removed in a future major release.
+'custom-nodes' is now called 'nodes'. The old name still works and will be removed in a future major release.
+Experimental feature in use: 'frodo config delete nodes'. This feature may change without notice.
 Dry run: Deleting node with displayName Has Session AM
 Dry run: Deleting node with displayName ALU
 Dry run: Deleting node with displayName PingOne Recognize Biometric Unenrollment
@@ -23,8 +24,9 @@ Dry run: Deleting node with displayName PingOne Recognize Biometric Web Enrollme
 exports[`frodo config-manager delete custom-nodes "frodo config-manager delete custom-nodes -n ALU --dry-run": should dry-run delete a specific custom node by name" 1`] = `""`;
 
 exports[`frodo config-manager delete custom-nodes "frodo config-manager delete custom-nodes -n ALU --dry-run": should dry-run delete a specific custom node by name" 2`] = `
-"'custom-nodes' is now called 'nodes'. The old name still works and will be removed in a future major release.
-Experimental feature in use: 'frodo config-manager delete nodes'. This feature may change without notice.
+"'config-manager' is now called 'config'. The old name still works and will be removed in a future major release.
+'custom-nodes' is now called 'nodes'. The old name still works and will be removed in a future major release.
+Experimental feature in use: 'frodo config delete nodes'. This feature may change without notice.
 Dry run: Deleting node with displayName ALU
 "
 `;
@@ -32,15 +34,17 @@ Dry run: Deleting node with displayName ALU
 exports[`frodo config-manager delete custom-nodes "frodo config-manager delete custom-nodes -n ALU": should delete a specific custom node by name" 1`] = `""`;
 
 exports[`frodo config-manager delete custom-nodes "frodo config-manager delete custom-nodes -n ALU": should delete a specific custom node by name" 2`] = `
-"'custom-nodes' is now called 'nodes'. The old name still works and will be removed in a future major release.
-Experimental feature in use: 'frodo config-manager delete nodes'. This feature may change without notice.
+"'config-manager' is now called 'config'. The old name still works and will be removed in a future major release.
+'custom-nodes' is now called 'nodes'. The old name still works and will be removed in a future major release.
+Experimental feature in use: 'frodo config delete nodes'. This feature may change without notice.
 Deleting node with displayName: ALU
 "
 `;
 
 exports[`frodo config-manager delete custom-nodes "frodo config-manager delete custom-nodes -y": should continue deleting custom nodes after individual failures and exit unsuccessfully" 1`] = `
-"'custom-nodes' is now called 'nodes'. The old name still works and will be removed in a future major release.
-Experimental feature in use: 'frodo config-manager delete nodes'. This feature may change without notice.
+"'config-manager' is now called 'config'. The old name still works and will be removed in a future major release.
+'custom-nodes' is now called 'nodes'. The old name still works and will be removed in a future major release.
+Experimental feature in use: 'frodo config delete nodes'. This feature may change without notice.
 Error deleting custom node Debug
   Error deleting custom node Debug
     Network error:

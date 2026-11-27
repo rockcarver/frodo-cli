@@ -1,10 +1,11 @@
 // Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
 exports[`CLI help interface for 'config' should be expected english 1`] = `
-"Usage: frodo config-manager [options] [command]
+"Usage: frodo config [options] [command]
 
-[Experimental] Manage configuration optimized for CI/CD pipelines (format
-compatible with fr-config-manager).
+Manage configuration: export and import it as JSON, or pull, push, delete and
+promote it as one file per object for CI/CD pipelines (format compatible with
+fr-config-manager). (formerly: config-manager)
 
 Options:
   -h, --help        Help
@@ -19,6 +20,18 @@ Runtime Options:
 Commands:
   delete            [Experimental] Delete configuration optimized for CI/CD
                     pipelines (format compatible with fr-config-manager).
+  export            Export full cloud configuration.
+                    By default, it only exports importable config (i.e. config
+                    that is not read-only) for the current deployment (e.g. if
+                    exporting from cloud, realm config would NOT be exported
+                    since it can't be imported back into cloud even though it
+                    can be imported into classic deployments). There is a flag
+                    to export all config including read only config.
+                    Additionally, there is a flag to export config for only the
+                    specified realm, a flag to export only global config, and
+                    many other flags to customize the export. Use the -h or
+                    --help to see them all and to also see usage examples.
+  import            Import full cloud configuration.
   migrate           [Experimental] Move a config-manager tree to a newer layout.
   promote           [Experimental] [Cloud-only] Promote configuration optimized
                     for CI/CD pipelines (format compatible with

@@ -1,7 +1,7 @@
 // Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
-exports[`CLI help interface for 'config-manager push oauth-cimd-profiles' should be expected english 1`] = `
-"Usage: frodo config-manager push oauth-cimd-profiles [options] [host] [realm] [username] [password]
+exports[`CLI help interface for 'config push oauth-cimd-profiles' should be expected english 1`] = `
+"Usage: frodo config push oauth-cimd-profiles [options] [host] [realm] [username] [password]
 
 [Experimental] Import CIMD profiles from the files
 realms/<realm>/realm-config/agents/CIMDProfile/<name>.json that "pull
