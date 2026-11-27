@@ -30,7 +30,8 @@ jest.unstable_mockModule('@rockcarver/frodo-lib', () => ({
       },
       getFilePath: (file) => path.join(workingDirectory, file),
       saveJsonToFile: jest.fn(),
-      readJsonFile: jest.fn()
+      // reads what the test wrote (the id of a journey is the `_id` that its file holds)
+      readJsonFile: (file) => JSON.parse(fs.readFileSync(file, 'utf8')),
     },
   },
   state: {

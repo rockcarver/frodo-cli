@@ -455,6 +455,7 @@ function readNodeScript(
  * @param {Set<string>} processedJourneys set of the folder names of the journeys already processed, to prevent processing the same journey multiple times
  * @param {string} neededBy the journey that has this one as an inner journey, if this is read as an inner journey
  * @returns {Record<string, SingleTreeExportInterface>} map of journey ids (the `_id` that the file of each holds) to their import data
+ * @throws {Error} if the file of a journey holds no `_id`
  * @throws {MissingDependencyError} if a script, a content file or an inner journey that a journey needs is not there
  */
 function processJourneyImport(
@@ -485,6 +486,13 @@ function processJourneyImport(
     );
   }
   const tree = readJsonFile(journeyFile) as TreeSkeleton;
+  // the id of a journey is the id that its file holds: the name of its folder is the name that a pull gave it, which is a
+  // shortened name for an id that does not fit in a file name
+  if (typeof tree?._id !== 'string' || tree._id === '') {
+    throw new Error(
+      `The file '${journeyFile}' holds no '_id': the id of a journey is the id that its file holds, not the name of its folder.`
+    );
+  }
 
   const journeyData = createSingleTreeExportTemplate();
   journeyData.tree = tree;
@@ -534,10 +542,8 @@ function processJourneyImport(
     }
   }
 
-  // the id of a journey is the id that its file holds: the name of its folder is the name that a pull gave it, which is a
-  // shortened name for an id that does not fit in a file name (a file without an id keeps the name of its folder, as before)
   const trees: Record<string, SingleTreeExportInterface> = {
-    [tree?._id ?? journeyName]: journeyData,
+    [tree._id]: journeyData,
   };
 
   for (const innerTreeName of innerTreeNames) {
