@@ -1396,9 +1396,13 @@ value is now one name, so it cannot lead out of the config folder:
   property of the object whose name in a file name is the one of the file (a file
   that names no property keeps the decoded name); the files of the password policy
   and of the organization privileges of a realm with a very long name are found
-  under the same name that a pull gave them. `-i` and `-n` still look for the file
-  by the name that the id has, so an object whose name was shortened for a longer
-  ending than `.json` may not be found by name; it is found by listing.
+  under the same name that a pull gave them. `-i` and `-n` find a file by the name
+  that the id has with the ending `.json`. A name that does not fit and belongs to
+  an object whose files have a longer ending (a managed object with a script or a
+  relationship schema, a mapping with a script) is shortened for that longer
+  ending, so it is a different name: `push managed-objects -n`, `push
+  connector-mappings -n` and the push of an application do not find such an object
+  by its name, while the push of the whole folder does.
 - A name that is `.`, `..` or empty, a realm that is not `/`, a name or a path of
   names (a part that is `.` or `..`, or one that holds a backslash, `C:`, a
   control character, `%`, `?` or `#`), two names that become one file name in one pull (`a/b` and `a%2Fb`
