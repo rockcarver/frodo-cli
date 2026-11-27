@@ -772,12 +772,8 @@ const FAMILIES = [
   },
   {
     family: 'managed objects',
-    // until the site gives the name the longest suffix of its object, a name that fills a whole name has no room for the
-    // longer files of the object (a script of the object): the object fails
-    override: {
-      '300 characters': { how: 'toolong' },
-      '255 bytes': { how: 'toolong' },
-    },
+    // the longest of the files of an object: `<name>.onCreate.js`
+    suffix: '.onCreate.js',
     under: 'managed-objects',
     arrange: (values) =>
       facade.idm.config.readConfigEntity.mockResolvedValue({
