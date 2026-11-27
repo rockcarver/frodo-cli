@@ -96,6 +96,8 @@ const serviceObjects = await ops('FrConfigServiceObjectsOps');
 const oauth2Agents = await ops('FrConfigOauth2AgentOps');
 const saml = await ops('FrConfigSamlOps');
 const terms = await ops('FrConfigTermsAndConditionsOps');
+const passwordPolicy = await ops('FrConfigPasswordPolicyOps');
+const orgPrivileges = await ops('FrConfigOrgPrivilegesOps');
 const journeys = await ops('FrConfigJourneysOps');
 const agentKind = await import('../../src/ops/ConfigManagerAgentKind.ts');
 const igaWorkflows = await ops('FrConfigIgaWorkflowsOps');
@@ -476,6 +478,17 @@ describe('every file and folder of a pull can be renamed: the push sends the sam
         JSON.stringify([version.version, version.termsTranslations])
       )
       .sort();
+
+  /**
+   * Whether what a push sent holds the complete id of the object: the id as the text of its JSON, or, for a family whose
+   * long value only names a file, the object that its file holds.
+   */
+  const carries = (family, entries, id) =>
+    family.expectedSent !== undefined
+      ? entries.includes(family.expectedSent)
+      : entries.some((entry) =>
+          entry.includes(JSON.stringify(id).slice(1, -1))
+        );
 
   const importEntities = async (_data, _id, _options, callback) => {
     for (const _item of Object.keys(_data.idm)) callback?.(undefined, {});
@@ -985,8 +998,9 @@ describe('every file and folder of a pull can be renamed: the push sends the sam
         facade.idm.managed.updateManagedObject.mock.calls.map(
           ([type, objectId]) => JSON.stringify([type, objectId])
         ),
-      // the long value only names the file: the object that is sent is the one that the file holds
-      idInSent: false,
+      // the long value only names the file: the object that is sent is the one that the file holds (the id `one` of the fake
+      // query), and not the name of the file
+      expectedSent: JSON.stringify(['alpha_user', 'one']),
       rename: () => renameFiles('service-objects/alpha_user'),
     },
     {
@@ -1014,6 +1028,37 @@ describe('every file and folder of a pull can be renamed: the push sends the sam
       pull: () => terms.configManagerExportTermsAndConditions(),
       push: () => terms.configManagerImportTermsAndConditions(),
       sent: () => termsSent(),
+    },
+    {
+      // the name of the file is made of the realm and a fixed end; a realm is a folder that is written as typed, so only a
+      // realm of 252 bytes can be one
+      family: 'password policy (a realm)',
+      onlyIds: ['252 bytes'],
+      arrange: (id = LONG) => {
+        facade.realm.readRealms.mockResolvedValue([{ name: id }]);
+        facade.idm.config.readConfigEntity.mockImplementation(
+          async (entityId) => ({ _id: entityId })
+        );
+      },
+      pull: () => passwordPolicy.configManagerExportPasswordPolicy(),
+      push: (realm) => passwordPolicy.configManagerImportPasswordPolicy(realm),
+      sent: entities,
+    },
+    {
+      family: 'organization privileges (a realm)',
+      onlyIds: ['252 bytes'],
+      arrange: (id = LONG) => {
+        facade.realm.readRealms.mockResolvedValue([{ name: id }]);
+        facade.idm.config.readConfigEntity.mockImplementation(
+          async (entityId) => ({ _id: entityId })
+        );
+      },
+      pull: () => orgPrivileges.configManagerExportOrgPrivileges(),
+      push: (realm) =>
+        orgPrivileges.configManagerImportOrgPrivileges(
+          realm === undefined ? undefined : `${realm}OrgPrivileges`
+        ),
+      sent: entities,
     },
     {
       // the code that the commands for CIMD profiles, trusted JWT issuers and software publishers share
@@ -1089,9 +1134,10 @@ describe('every file and folder of a pull can be renamed: the push sends the sam
   });
 
   test.each(
-    FAMILIES.filter(
-      (f) => f.rename && f.byName !== false && f.idInSent !== false
-    ).map((f) => [f.family, f])
+    FAMILIES.filter((f) => f.rename && f.byName !== false).map((f) => [
+      f.family,
+      f,
+    ])
   )(
     '%s: a long id is written under a shortened name, and the push of a tree with every name changed sends the same, by listing and by name',
     async (_family, family) => {
@@ -1117,8 +1163,8 @@ describe('every file and folder of a pull can be renamed: the push sends the sam
       const byName = family.sent();
       forgetCalls();
       // the objects that are sent hold the complete id, not the name of a file
-      expect(listing.some((entry) => entry.includes(LONG))).toBe(true);
-      expect(byName.some((entry) => entry.includes(LONG))).toBe(true);
+      expect(carries(family, listing, LONG)).toBe(true);
+      expect(carries(family, byName, LONG)).toBe(true);
 
       family.rename();
 
@@ -1140,7 +1186,9 @@ describe('every file and folder of a pull can be renamed: the push sends the sam
 
   test.each(
     FAMILIES.flatMap((family) =>
-      TABLE_IDS.map(([label, id]) => [family.family, label, family, id])
+      TABLE_IDS.filter(
+        ([label]) => !family.onlyIds || family.onlyIds.includes(label)
+      ).map(([label, id]) => [family.family, label, family, id])
     )
   )(
     '%s with an id of %s: the real pull, the real push of its folder (by listing, and by name where the name leads to the file) and a pull twice',
@@ -1168,28 +1216,17 @@ describe('every file and folder of a pull can be renamed: the push sends the sam
       expect(Object.keys(first).length).toBeGreaterThan(0);
 
       // the push of the folder carries the complete id, whatever the name of a file is
-      const escaped = JSON.stringify(id).slice(1, -1);
       expect(await family.push()).toBe(true);
       expect(printed.join('\n')).not.toMatch(
         /ENOENT|ENAMETOOLONG|longer than 255 bytes|leaves no room|does not name an object/
       );
-      if (family.idInSent !== false) {
-        expect(family.sent().some((entry) => entry.includes(escaped))).toBe(
-          true
-        );
-      } else {
-        expect(family.sent().length).toBeGreaterThan(0);
-      }
+      expect(carries(family, family.sent(), id)).toBe(true);
       // by name, where the name leads to the file (a lone surrogate is no name that a person types)
       if (family.byName !== false && id === id.toWellFormed()) {
         for (const stub of stubs) stub.mockClear();
         family.forget?.();
         expect(await family.push(id)).toBe(true);
-        if (family.idInSent !== false) {
-          expect(family.sent().some((entry) => entry.includes(escaped))).toBe(
-            true
-          );
-        }
+        expect(carries(family, family.sent(), id)).toBe(true);
       }
 
       // a pull twice is the same tree (the tenant hands out new objects: a pull changes the ones it is given)
@@ -1210,7 +1247,10 @@ describe('every file and folder of a pull can be renamed: the push sends the sam
     'raw: a raw path is a path by design, and a name of more than 255 bytes in it fails that item'
   );
   test.todo(
-    'realm folders, the type of a service object and the category of telemetry: a realm and a type are names of the server, not ids of objects'
+    'realm folders, the type of a service object and the category of telemetry: a realm and a type are names of the server, not ids of objects (a realm folder is written as typed, so the password policy and the organization privileges have the row of a realm of 252 bytes only)'
+  );
+  test.todo(
+    'push apps: the lookup of an owned mapping derives its folder with `.json` and misses a mapping whose name was shortened for a longer ending; the push of the other owned objects reads fixed names (the follow-up on the lookups by name)'
   );
 
   test.each(['locales', 'endpoints', 'email templates'])(
