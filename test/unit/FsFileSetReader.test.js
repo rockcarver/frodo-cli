@@ -350,7 +350,7 @@ describe('listing a directory', () => {
     // the calls are counted, not timed: the time of a listing depends on the machine, the calls do not (a call for each of
     // the entries is the listing that takes seconds on a slow disk). Every function of the file system that the reader
     // can reach is counted: all those of `fs.promises`, and the functions of `fs` itself (the synchronous ones and the
-    // ones with a callback), so that no kind of call for each entry gets past.
+    // ones with a callback), so that no call for each entry gets past.
     const functionsOf = (object) =>
       Object.keys(object).filter((name) => /^[a-z]/.test(name) && typeof object[name] === 'function');
     const spies = [
