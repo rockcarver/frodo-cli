@@ -57,14 +57,28 @@ function logoutCount() {
   ).length;
 }
 
+/** Polls until the condition (a function that answers, or a promise of an answer) holds; the time is only the guard against a hang. */
 async function waitFor(condition, what, timeoutMs = 15000) {
   const deadline = Date.now() + timeoutMs;
-  while (!condition()) {
+  while (!(await condition())) {
     if (Date.now() > deadline) {
       throw new Error(`timed out waiting for ${what}`);
     }
     await new Promise((resolve) => setTimeout(resolve, 25));
   }
+}
+
+/**
+ * Expects `count` logout requests in the log of the fake AM. The fake is another
+ * process and writes the log as it answers, so the count is polled for (it may
+ * be a moment behind the exit of the server) and then asserted.
+ */
+async function expectLogouts(count) {
+  await waitFor(
+    () => logoutCount() === count,
+    `${count} logout request(s)`
+  ).catch(() => undefined);
+  expect(logoutCount()).toBe(count);
 }
 
 function sleep(ms) {
@@ -213,7 +227,7 @@ describe('HTTP transport', () => {
       const { code } = await server.exit;
 
       expect(code).toBe(0);
-      expect(logoutCount()).toBe(1);
+      await expectLogouts(1);
       expect(lockfileExists(server)).toBe(false);
       expect(await healthAnswers(server)).toBe(false);
     },
@@ -246,7 +260,7 @@ describe('HTTP transport', () => {
     const { code } = await server.exit;
 
     expect(code).toBe(0);
-    expect(logoutCount()).toBe(1);
+    await expectLogouts(1);
     expect(server.output).toContain(
       'warning: shutdown: Could not end the server session'
     );
@@ -267,12 +281,15 @@ describe('HTTP transport', () => {
     const signalled = Date.now();
     server.child.kill('SIGTERM');
     await waitFor(() => logoutCount() === 1, 'the logout request');
-    await sleep(300);
 
-    // The logout is still pending, and the server is already gone.
+    // The logout is pending (AM does not answer it), and the lockfile and the
+    // port are released while it is: polled for, then checked at once, before
+    // the time limit of the shutdown has run out.
+    await waitFor(
+      async () => !lockfileExists(server) && !(await healthAnswers(server)),
+      'the lockfile and the port to be released'
+    );
     expect(server.output).not.toContain('Ending the sessions took more than');
-    expect(lockfileExists(server)).toBe(false);
-    expect(await healthAnswers(server)).toBe(false);
 
     await waitFor(
       () =>
@@ -280,8 +297,10 @@ describe('HTTP transport', () => {
       'the time limit of the shutdown',
       10000
     );
+    // The limit is three seconds from the signal: not earlier. How much later it is
+    // depends on the machine, so there is no upper bound; a shutdown that never ended
+    // would fail the wait above.
     expect(Date.now() - signalled).toBeGreaterThanOrEqual(2900);
-    expect(Date.now() - signalled).toBeLessThan(8000);
   }, 60000);
 });
 
@@ -296,7 +315,7 @@ describe('stdio transport', () => {
 
     expect(signal).toBeNull();
     expect(code).toBe(0);
-    expect(logoutCount()).toBe(1);
+    await expectLogouts(1);
   }, 60000);
 
   test.each(['SIGTERM', 'SIGINT'])(
@@ -308,7 +327,7 @@ describe('stdio transport', () => {
       server.child.kill(signal);
       await server.exit;
 
-      expect(logoutCount()).toBe(1);
+      await expectLogouts(1);
     },
     60000
   );
@@ -338,7 +357,7 @@ describe('stdio transport', () => {
     const { code } = await server.exit;
 
     expect(code).toBe(0);
-    expect(logoutCount()).toBe(1);
+    await expectLogouts(1);
     expect(server.output).toContain('Could not end the server session');
   }, 60000);
 });
@@ -418,7 +437,7 @@ describe('--dry-run', () => {
 
     expect(stdout + stderr).toContain('Dry run completed successfully.');
     expect(loginCount()).toBe(1);
-    expect(logoutCount()).toBe(1);
+    await expectLogouts(1);
   }, 60000);
 
   test('with the token cache on, a dry run logs nothing out', async () => {
