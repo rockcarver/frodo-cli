@@ -223,6 +223,9 @@ export async function configManagerImportConnectors(
 /** The prefix of the id of a connector definition in the configuration of IDM. */
 const CONNECTOR_PREFIX = 'provisioner.openicf/';
 
+/** Why a listed id that is not a plain name counts as a failed delete, in the dry run and in the real run. */
+const NOT_PLAIN_REASON = 'its id is not a plain name';
+
 /** What a delete of connector definitions needs to know besides the id, the dry run and `--allow-failures`. */
 export type DeleteConnectorDefinitionsOptions = {
   /** Delete a named connector definition although other objects still name it. Nothing but the connector definition is changed. */
@@ -637,7 +640,7 @@ async function deleteAllConnectorDefinitions(
     const run = new OperationRun({ unit: 'connector', allowFailures });
     connectorIds.forEach(() => run.recordSuccess());
     for (const listedId of notPlain) {
-      run.recordFailure(shownId(listedId), 'its id is not a plain name');
+      run.recordFailure(shownId(listedId), NOT_PLAIN_REASON);
     }
     return run.finish();
   }
@@ -648,7 +651,7 @@ async function deleteAllConnectorDefinitions(
         `Connector definition ${shownId(listedId)} is listed with an id that is not a plain name (${PLAIN_NAME_RULE}): it is not deleted, and no request was sent for it.`,
         'error'
       );
-      run.recordFailure(shownId(listedId), 'its id is not a plain name');
+      run.recordFailure(shownId(listedId), NOT_PLAIN_REASON);
       continue;
     }
     const connectorId = listedId.slice(CONNECTOR_PREFIX.length);

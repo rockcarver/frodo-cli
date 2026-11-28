@@ -594,6 +594,27 @@ describe('a delete of all connector definitions', () => {
     expect(findConnectorReferences).not.toHaveBeenCalled();
   });
 
+  test.each([[false], [true]])(
+    'a dry run with nothing to delete is a success with a warning, as the real run is, also with --allow-failures (%s)',
+    async (allowFailures) => {
+      readConnectors.mockResolvedValue([]);
+
+      expect(
+        await configManagerDeleteConnectorDefinitions(
+          undefined,
+          true,
+          allowFailures
+        )
+      ).toBe(true);
+
+      expect(output()).toContain('No connector definitions found to delete.');
+      expect(levelOf('No connector definitions found')).toBe('warn');
+      expect(output()).not.toContain('failed');
+      expect(deleteConnector).not.toHaveBeenCalled();
+      expect(findConnectorReferences).not.toHaveBeenCalled();
+    }
+  );
+
   test('an entry of the list that is not a connector definition is never deleted, and no other object is named by cutting the prefix', async () => {
     readConnectors.mockResolvedValue([
       { _id: `${PREFIX}Azure` },
