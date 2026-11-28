@@ -7,6 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+## [v5.0.0-37] - 2026-11-28
+
+### Changed
+- Improved the `delete services` command to accurately report when no delete request is sent for a refused ID, enhancing clarity in operation feedback. (commit 3b5208f20)
+
+### Fixed
+- Resolved an issue where `push oauth-clients` and `push agents` commands would incorrectly accept files without an `_id`, ensuring proper validation. (commit d15b9a1d9)
+- Corrected the `push all-static` command to indicate that the `-M` flag has no effect on classic deployments, preventing user confusion. (commit 2044a3a16)
+- Enhanced the `push journeys` command to correctly locate the folder of a realm specified as a path, ensuring accurate file operations. (commit d5d3ad81d)
+- Fixed the `push managed-objects` command to reject files that are not objects and to handle empty folders appropriately, providing detailed feedback on unattempted actions. (commit 10c741b90)
+- Updated the `delete cors --deep` command to avoid unnecessary reset prompts on classic deployments, streamlining user interactions. (commit 8e37f9539)
+- Improved the `delete services` command to count services accurately, explain refused plans, and verify listed realms, enhancing operational reliability. (commit b6ca77ff3)
+- Corrected the help text for `settings defaults --clear` to provide the key with its root word, ensuring user guidance is accurate. (commit 7fb48ee0d)
+
 ## [v5.0.0-36] - 2026-11-27
 
 ### Added
@@ -3454,6 +3468,7 @@ Frodo CLI 2.x automatically refreshes session and access tokens before they expi
 - Fixed problem with adding connection profiles
 - Miscellaneous bug fixes
 
+[v5.0.0-37]: https://github.com/rockcarver/frodo-cli/compare/v5.0.0-36...v5.0.0-37
 [v5.0.0-36]: https://github.com/rockcarver/frodo-cli/compare/v5.0.0-35...v5.0.0-36
 [v5.0.0-35]: https://github.com/rockcarver/frodo-cli/compare/v5.0.0-34...v5.0.0-35
 [v5.0.0-34]: https://github.com/rockcarver/frodo-cli/compare/v5.0.0-33...v5.0.0-34
