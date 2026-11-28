@@ -416,7 +416,10 @@ async function readServicesOfRealm(realm: string): Promise<RealmRead> {
     });
     return { realm, services, unreadable };
   } catch (error) {
-    printError(error, `Error reading the services of realm '${realm}'`);
+    printError(
+      error,
+      `Error reading the services of realm '${printable(realm)}'`
+    );
     return { realm, services: [], unreadable, failure: causeOf(error) };
   }
 }
@@ -473,7 +476,7 @@ function refusalOf(target: ServiceToDelete): Refusal | undefined {
       name,
       reason: 'its id is not a plain name',
       messages: [
-        `Service ${shownIdInSingleQuotes(target.id)} is listed in realm '${printable(target.realm)}' with an id that is not a plain name (${PLAIN_NAME_RULE}): it is not deleted, and no request was sent for it.`,
+        `Service ${shownIdInSingleQuotes(target.id)} is listed in realm '${printable(target.realm)}' with an id that is not a plain name (${PLAIN_NAME_RULE}): it is not deleted, and no delete request was sent for it.`,
       ],
       listed: [name],
     };
@@ -486,7 +489,7 @@ function refusalOf(target: ServiceToDelete): Refusal | undefined {
     reason: `its next descendent${many ? 's' : ''} ${unsafe.join(', ')} ${many ? 'have' : 'has'} a type or an id that is not a plain name`,
     messages: unsafe.map(
       (descendent) =>
-        `Next descendent '${descendent}' of service '${printable(target.id)}' is listed in realm '${printable(target.realm)}' with a type or an id that is not a plain name (${PLAIN_NAME_RULE}): the service is not deleted, and no request was sent for it.`
+        `Next descendent '${descendent}' of service '${printable(target.id)}' is listed in realm '${printable(target.realm)}' with a type or an id that is not a plain name (${PLAIN_NAME_RULE}): the service is not deleted, and no delete request was sent for it.`
     ),
     listed: unsafe.map((descendent) => `${name}/${descendent}`),
   };
@@ -538,7 +541,8 @@ function bulkPlanLines(
  * in that list (an exact, case-sensitive match on the id the realm lists) and the LISTED id is what is
  * deleted: the text of the command line never reaches a request, so it cannot be anything but an id. An
  * id that the realm lists for a service, or a type or an id of one of its next descendents, that is not a
- * plain name is never sent to the tenant either: the service is not deleted. A service that other objects
+ * plain name is never deleted: no delete request is sent for it (the realm is still read with the ids as it lists
+ * them, as it always was). A service that other objects
  * use is not refused: nothing in the library says what uses a service, so the plan and the messages say
  * which services a realm commonly depends on and what goes with them.
  *
@@ -728,7 +732,7 @@ export async function configManagerDeleteServices(
           deletable.length > 0 ? bulkPlanLines(deletable, plan) : [];
         if (blocked.length > 0) {
           lines.push(
-            `  These listed ids (of a service, or of a next descendent that goes with it) are not plain names (${PLAIN_NAME_RULE}). No request would be sent for them, the service would not be deleted, and it would count as one failed delete: ${blocked.join(', ')}.`
+            `  These listed ids (of a service, or of a next descendent that goes with it) are not plain names (${PLAIN_NAME_RULE}). No delete request would be sent for them, the service would not be deleted, and it would count as one failed delete: ${blocked.join(', ')}.`
           );
         }
         const dataStore = reads.filter((read) =>

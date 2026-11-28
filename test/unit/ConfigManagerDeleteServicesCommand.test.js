@@ -207,6 +207,11 @@ describe('the options', () => {
     expect(help).toContain(
       '(no slash, backslash, question mark, hash, percent sign, double dot, control character, text direction control or invisible separator)'
     );
+    // only the delete is promised away: the realm is still read, with the ids as it lists them
+    expect(help).toContain(
+      'is never deleted: no delete request is sent for it, and it counts as one failed service'
+    );
+    expect(help).not.toContain('no request is sent for it');
     expect(help).toContain(
       'it counts as one failed service, however many of its next descendents are not plain. --allow-failures forgives that in a delete of all services, and never in a delete that names the service with -i.'
     );

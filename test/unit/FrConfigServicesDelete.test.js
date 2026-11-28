@@ -301,7 +301,9 @@ describe('a named delete: the id is looked up in what the realm lists', () => {
     expect(output()).toContain(
       "Service 'a/b' is listed in realm 'alpha' with an id that is not a plain name"
     );
-    expect(output()).toContain('no request was sent for it');
+    // true of the delete only: the library reads the service and its next descendents with the id as it is listed
+    expect(output()).toContain('no delete request was sent for it');
+    expect(output()).not.toContain('no request was sent');
   });
 
   test('a dry run reads and says what would be deleted, with what goes with it, and deletes nothing', async () => {
@@ -788,8 +790,9 @@ describe('a next descendent that is not a plain name stops the delete of its ser
       );
       expect(output()).toContain('not a plain name');
       expect(output()).toContain(
-        'the service is not deleted, and no request was sent for it'
+        'the service is not deleted, and no delete request was sent for it'
       );
+      expect(output()).not.toContain('no request was sent');
       // eslint-disable-next-line no-control-regex
       expect(output()).not.toMatch(/[\u0000-\u0009\u000b-\u001f\u007f-\u009f]/);
     }
@@ -1325,6 +1328,9 @@ describe('a service with several next descendents that are not plain names count
       expect(output()).toContain(
         'it would count as one failed delete: alpha/email/smtpTransports/../../session, alpha/email/smtpTransports/a#b.'
       );
+      // no delete is sent for it: the words do not promise more, as the library still reads the id as it is listed
+      expect(output()).toContain('No delete request would be sent for them');
+      expect(output()).not.toContain('No request would be sent');
       expect(output()).not.toContain('each would count');
       expect(deleteFullService).not.toHaveBeenCalled();
     }
@@ -1349,6 +1355,29 @@ describe('a realm that is refused is no reason to say that a named service is no
     expect(output()).not.toContain('not found in realm');
     expect(deleteFullService).not.toHaveBeenCalled();
   });
+});
+
+describe('the name of a realm that the error line of a listing shows is written out', () => {
+  test.each([
+    ['ok\u202eev', "Error reading the services of realm 'ok\\u202eev'"],
+    ['ok\u200cev', "Error reading the services of realm 'ok\\u200cev'"],
+  ])(
+    'the realm %j is written out when its services cannot be listed',
+    async (realm, title) => {
+      realmList.mockResolvedValue([realm]);
+      getFullServices.mockReset().mockImplementation(async () => {
+        throw new FrodoError('Error getting realm full service configs', [
+          new Error('listing failed'),
+        ]);
+      });
+
+      expect(await configManagerDeleteServices()).toBe(false);
+
+      const titles = printError.mock.calls.map(([, shown]) => shown);
+      expect(titles).toContain(title);
+      expect(titles.join('\n')).not.toMatch(/\p{Cf}/u);
+    }
+  );
 });
 
 describe('the name of a realm that a summary shows is written out', () => {

@@ -25,8 +25,8 @@ const SPOOFING_CHARACTER = /[\u202A-\u202E\u2066-\u2069\u200B\u2060\uFEFF]/u;
 /**
  * Whether a listed id is a plain name. The library puts the id into the path of the request as it is given,
  * so an id with a slash, a `..` segment, a `?` or a `#` in it would name another object than the one that was
- * listed, whatever the tenant lists. Such an id is never sent to the tenant. An id with a text direction
- * control or an invisible separator is not sent either: what is shown for it would not be what it is.
+ * listed, whatever the tenant lists. A delete never puts such an id into its request. An id with a text direction
+ * control or an invisible separator is not deleted either: what is shown for it would not be what it is.
  * @param {string} name the listed id, without any type prefix
  * @returns {boolean} true if the name is safe to put into a path and to show
  */
