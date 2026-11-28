@@ -416,7 +416,10 @@ async function readServicesOfRealm(realm: string): Promise<RealmRead> {
     });
     return { realm, services, unreadable };
   } catch (error) {
-    printError(error, `Error reading the services of realm '${realm}'`);
+    printError(
+      error,
+      `Error reading the services of realm '${printable(realm)}'`
+    );
     return { realm, services: [], unreadable, failure: causeOf(error) };
   }
 }
@@ -441,36 +444,55 @@ function toDeleteOf(realm: string, service: FullService): ServiceToDelete {
 
 /** The realm as a summary names it: the root realm is `root`, as everywhere in the group. */
 const realmNameInRun = (realm: string): string =>
-  realm === '/' ? 'root' : realm;
+  realm === '/' ? 'root' : printable(realm);
 
 /** What a service is called in the summary of a run: `alpha/email`, `root/session` for the root realm. */
 const nameInRun = (realm: string, id: string): string =>
   `${realmNameInRun(realm)}/${printable(id)}`;
 
+/** Why a service is not deleted: something it names is not a plain name. */
+type Refusal = {
+  /** The service, as the summary names it: `<realm>/<service>`. */
+  name: string;
+  /** The reason, as the summary gives it. */
+  reason: string;
+  /** One line for each id that is not a plain name. */
+  messages: string[];
+  /** The ids that are not plain names, as `<realm>/<service>` or `<realm>/<service>/<type>/<id>`. */
+  listed: string[];
+};
+
 /**
  * What stops a service from being deleted without sending an id that names another object: its own id that
- * is not a plain name, or a next descendent whose type or id is not. Each is one failure of the run, named
- * `<realm>/<service>` or `<realm>/<service>/<next descendent>`.
+ * is not a plain name, or a next descendent whose type or id is not. The service is one failure of the run,
+ * named `<realm>/<service>`, however many of its next descendents are such; each of them has a line of its own.
  * @param {ServiceToDelete} target the service
- * @returns {{ name: string; reason: string; message: string }[]} one entry for each, empty if the service can be deleted
+ * @returns {Refusal | undefined} why it is refused, or undefined if the service can be deleted
  */
-function unsafeNamesOf(
-  target: ServiceToDelete
-): { name: string; reason: string; message: string }[] {
+function refusalOf(target: ServiceToDelete): Refusal | undefined {
+  const name = nameInRun(target.realm, target.id);
   if (!isPlainName(target.id)) {
-    return [
-      {
-        name: nameInRun(target.realm, target.id),
-        reason: 'its id is not a plain name',
-        message: `Service ${shownIdInSingleQuotes(target.id)} is listed in realm '${target.realm}' with an id that is not a plain name (${PLAIN_NAME_RULE}): it is not deleted, and no request was sent for it.`,
-      },
-    ];
+    return {
+      name,
+      reason: 'its id is not a plain name',
+      messages: [
+        `Service ${shownIdInSingleQuotes(target.id)} is listed in realm '${printable(target.realm)}' with an id that is not a plain name (${PLAIN_NAME_RULE}): it is not deleted, and no delete request was sent for it.`,
+      ],
+      listed: [name],
+    };
   }
-  return target.unsafeDescendents.map((descendent) => ({
-    name: `${nameInRun(target.realm, target.id)}/${descendent}`,
-    reason: 'its type or its id is not a plain name',
-    message: `Next descendent '${descendent}' of service '${target.id}' is listed in realm '${target.realm}' with a type or an id that is not a plain name (${PLAIN_NAME_RULE}): the service is not deleted, and no request was sent for it.`,
-  }));
+  const unsafe = target.unsafeDescendents;
+  if (unsafe.length === 0) return undefined;
+  const many = unsafe.length > 1;
+  return {
+    name,
+    reason: `its next descendent${many ? 's' : ''} ${unsafe.join(', ')} ${many ? 'have' : 'has'} a type or an id that is not a plain name`,
+    messages: unsafe.map(
+      (descendent) =>
+        `Next descendent '${descendent}' of service '${printable(target.id)}' is listed in realm '${printable(target.realm)}' with a type or an id that is not a plain name (${PLAIN_NAME_RULE}): the service is not deleted, and no delete request was sent for it.`
+    ),
+    listed: unsafe.map((descendent) => `${name}/${descendent}`),
+  };
 }
 
 /** `1 service` or `3 services`. */
@@ -491,18 +513,18 @@ function bulkPlanLines(
 ): string[] {
   const total = byRealm.reduce((sum, services) => sum + services.length, 0);
   const realms = byRealm.map((services) => services[0].realm);
-  const what = `${countOf(total, 'service')} in ${countOf(realms.length, 'realm')} (${realms.join(', ')}) would be deleted, each with its next descendents.`;
+  const what = `${countOf(total, 'service')} in ${countOf(realms.length, 'realm')} (${realms.map(printable).join(', ')}) would be deleted, each with its next descendents.`;
   const lines = [
     asPlan ? `Plan: ${what}` : `Dry run: nothing is deleted. ${what}`,
   ];
   for (const services of byRealm) {
     lines.push(
-      `  Realm '${services[0].realm}' (${countOf(services.length, 'service')}):`
+      `  Realm '${printable(services[0].realm)}' (${countOf(services.length, 'service')}):`
     );
     for (const service of services) {
       const note = noteOf(service.id);
       lines.push(
-        `    - ${service.id}${service.descendents.length > 0 ? ` (${countOf(service.descendents.length, 'next descendent')})` : ''}${note ? `: ${note}` : ''}`
+        `    - ${printable(service.id)}${service.descendents.length > 0 ? ` (${countOf(service.descendents.length, 'next descendent')})` : ''}${note ? `: ${note}` : ''}`
       );
     }
   }
@@ -519,7 +541,8 @@ function bulkPlanLines(
  * in that list (an exact, case-sensitive match on the id the realm lists) and the LISTED id is what is
  * deleted: the text of the command line never reaches a request, so it cannot be anything but an id. An
  * id that the realm lists for a service, or a type or an id of one of its next descendents, that is not a
- * plain name is never sent to the tenant either: the service is not deleted. A service that other objects
+ * plain name is never deleted: no delete request is sent for it (the realm is still read with the ids as it lists
+ * them, as it always was). A service that other objects
  * use is not refused: nothing in the library says what uses a service, so the plan and the messages say
  * which services a realm commonly depends on and what goes with them.
  *
@@ -575,7 +598,10 @@ export async function configManagerDeleteServices(
       printMessage('No realms found to delete services from.', 'warn');
       return true;
     }
+    // a realm that is refused, or whose services could not be listed, is one failed operation, like any other
+    const run = new OperationRun({ unit: 'service', allowFailures });
     const reads: RealmRead[] = [];
+    let realmsRefused = 0;
     for (const currentRealm of realms) {
       if (
         currentRealm === '/' &&
@@ -584,11 +610,20 @@ export async function configManagerDeleteServices(
         printMessage('The root realm (/) is skipped on a Cloud tenant.');
         continue;
       }
+      // the tenant names the realm: it is a realm name, never a path (`pull services` asks the same)
+      if (
+        run.deriveOrFail(
+          `realm ${currentRealm}`,
+          () => realmFolderOf(currentRealm),
+          'Its services are not deleted.'
+        ) === undefined
+      ) {
+        realmsRefused++;
+        continue;
+      }
       reads.push(await readServicesOfRealm(currentRealm));
     }
 
-    // a realm whose services could not be listed is one failed operation, like any other
-    const run = new OperationRun({ unit: 'service', allowFailures });
     for (const read of reads) {
       if (read.failure !== undefined) {
         run.recordFailure(`realm ${realmNameInRun(read.realm)}`, read.failure);
@@ -597,7 +632,7 @@ export async function configManagerDeleteServices(
         if (id !== undefined && unread.id !== id) {
           // a named delete is about the service that was named: another one that cannot be read is no failure of it
           printMessage(
-            `Service '${printable(unread.id)}' of realm '${read.realm}' could not be read, and was not named: ${unread.reason}`,
+            `Service '${printable(unread.id)}' of realm '${printable(read.realm)}' could not be read, and was not named: ${unread.reason}`,
             'warn'
           );
           continue;
@@ -626,31 +661,33 @@ export async function configManagerDeleteServices(
     if (id !== undefined) {
       const target = found[0];
       if (!target) {
-        const reported = reads.some(
-          (read) =>
-            read.failure !== undefined ||
-            read.unreadable.some((unread) => unread.id === id)
-        );
+        const reported =
+          realmsRefused > 0 ||
+          reads.some(
+            (read) =>
+              read.failure !== undefined ||
+              read.unreadable.some((unread) => unread.id === id)
+          );
         // a named service that is not there fails the command whatever `--allow-failures` says
         if (!reported) {
           printMessage(
-            `Service '${id}' not found in realm '${concreteRealm}'.`,
+            `Service '${printable(id)}' not found in realm '${printable(concreteRealm as string)}'.`,
             'error'
           );
           return false;
         }
         return run.finish();
       }
-      const unsafe = unsafeNamesOf(target);
-      if (unsafe.length > 0) {
-        for (const problem of unsafe) printMessage(problem.message, 'error');
+      const refusal = refusalOf(target);
+      if (refusal) {
+        for (const message of refusal.messages) printMessage(message, 'error');
         return false;
       }
       const depends = dependsLine(target.id);
       if (dryRun) {
         printMessage(
           [
-            `Dry run: Deleting service '${target.id}' in realm '${target.realm}'.`,
+            `Dry run: Deleting service '${printable(target.id)}' in realm '${printable(target.realm)}'.`,
             ...(target.descendents.length > 0
               ? [
                   `  Next descendents that go with it: ${target.descendents.join(', ')}`,
@@ -669,7 +706,7 @@ export async function configManagerDeleteServices(
           read.unreadable.length === 0
         ) {
           printMessage(
-            `No services found to delete in realm '${read.realm}'.`,
+            `No services found to delete in realm '${printable(read.realm)}'.`,
             'warn'
           );
         }
@@ -680,13 +717,14 @@ export async function configManagerDeleteServices(
         const deletable = selected
           .map(({ toDelete }) =>
             toDelete.filter((service) => {
-              const unsafe = unsafeNamesOf(service);
-              for (const problem of unsafe) {
-                run.recordFailure(problem.name, problem.reason);
-                blocked.push(problem.name);
+              const refusal = refusalOf(service);
+              if (refusal) {
+                run.recordFailure(refusal.name, refusal.reason);
+                blocked.push(...refusal.listed);
+              } else {
+                run.recordSuccess();
               }
-              if (unsafe.length === 0) run.recordSuccess();
-              return unsafe.length === 0;
+              return refusal === undefined;
             })
           )
           .filter((services) => services.length > 0);
@@ -694,7 +732,7 @@ export async function configManagerDeleteServices(
           deletable.length > 0 ? bulkPlanLines(deletable, plan) : [];
         if (blocked.length > 0) {
           lines.push(
-            `  These listed ids (of a service, or of a next descendent that goes with it) are not plain names (${PLAIN_NAME_RULE}). No request would be sent for them, the service would not be deleted, and each would count as a failed delete: ${blocked.join(', ')}.`
+            `  These listed ids (of a service, or of a next descendent that goes with it) are not plain names (${PLAIN_NAME_RULE}). No delete request would be sent for them, the service would not be deleted, and it would count as one failed delete: ${blocked.join(', ')}.`
           );
         }
         const dataStore = reads.filter((read) =>
@@ -708,17 +746,23 @@ export async function configManagerDeleteServices(
           );
         }
         if (lines.length > 0) printMessage(lines.join('\n'));
-        return run.finish();
+        const ended = run.finish();
+        // the plan before a question: the question is not asked, and the user is told why and what is left
+        if (plan && blocked.length > 0) {
+          printMessage(
+            `Nothing was asked and nothing was deleted: a delete of all services stops at a plan with ids that are not plain names (${blocked.join(', ')}). With -y the other services are deleted and the ones named here count as failed; with -i one service is deleted.`,
+            'error'
+          );
+        }
+        return ended;
       }
     }
 
     for (const target of found) {
-      const unsafe = unsafeNamesOf(target);
-      if (unsafe.length > 0) {
-        for (const problem of unsafe) {
-          printMessage(problem.message, 'error');
-          run.recordFailure(problem.name, problem.reason);
-        }
+      const refusal = refusalOf(target);
+      if (refusal) {
+        for (const message of refusal.messages) printMessage(message, 'error');
+        run.recordFailure(refusal.name, refusal.reason);
         continue;
       }
       state.setRealm(target.realm);
@@ -726,14 +770,14 @@ export async function configManagerDeleteServices(
         await deleteFullService(target.id);
         run.recordSuccess();
         printMessage(
-          `Deleted service '${target.id}' in realm '${target.realm}'${target.descendents.length > 0 ? ` (with next descendents: ${target.descendents.join(', ')})` : ''}.`
+          `Deleted service '${printable(target.id)}' in realm '${printable(target.realm)}'${target.descendents.length > 0 ? ` (with next descendents: ${target.descendents.join(', ')})` : ''}.`
         );
         const depends = dependsLine(target.id);
         if (id !== undefined && depends) printMessage(depends, 'warn');
       } catch (error) {
         printError(
           error,
-          `Error deleting service '${target.id}' in realm '${target.realm}'`
+          `Error deleting service '${printable(target.id)}' in realm '${printable(target.realm)}'`
         );
         run.recordFailure(nameInRun(target.realm, target.id), causeOf(error));
       }

@@ -35,6 +35,7 @@ import {
   missingNodesReason,
 } from '../utils/JourneyExportErrors';
 import { OperationRun } from '../utils/OperationRun';
+import { printable } from '../utils/PlainName';
 import {
   clearJourneyReference,
   describeReference,
@@ -344,20 +345,6 @@ class MissingDependencyError extends Error {
 }
 
 /**
- * A name from a file of the config folder as a message shows it: a control character is written as
- * `\u0001`, so that it cannot change what the terminal shows.
- * @param {string} name the name
- * @returns {string} the name without control characters
- */
-function printable(name: string): string {
-  return String(name).replace(
-    /\p{Cc}/gu,
-    (character) =>
-      `\\u${(character.codePointAt(0) as number).toString(16).padStart(4, '0')}`
-  );
-}
-
-/**
  * A path of the config folder as the user knows it: below `realms`, with forward slashes, without the folder that the
  * directory option names.
  * @param {string} file a path inside the `realms` folder
@@ -601,6 +588,11 @@ export async function configManagerImportJourneys(
     const pushScripts = dependencies;
     const options = { deps: dependencies, reUuid: false, validate };
 
+    // a realm is a name or a path (`alpha`, `/alpha`): it is looked up by the folder it has in the tree, and none
+    // given (or the sentinel for it) is every realm that the tree holds, as in the export
+    const wantedFolder =
+      realm && realm !== DEFAULT_REALM_KEY ? realmFolderOf(realm) : undefined;
+
     const realmsDir = getFilePath('realms');
     if (!fs.existsSync(realmsDir)) {
       printMessage('No journey files found to import.', 'error');
@@ -623,7 +615,7 @@ export async function configManagerImportJourneys(
         (state.getRealm() === '/' &&
           state.getDeploymentType() ===
             frodo.utils.constants.CLOUD_DEPLOYMENT_TYPE_KEY) ||
-        (realm !== DEFAULT_REALM_KEY && state.getRealm() !== realm)
+        (wantedFolder !== undefined && realmDir !== wantedFolder)
       )
         continue;
 

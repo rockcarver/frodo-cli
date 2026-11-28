@@ -636,6 +636,57 @@ suite('config-manager oauth-clients and agents against a fake tenant', () => {
       TIMEOUT
     );
 
+    it.each([
+      ['oauth-clients', 'OAuth2Client', 'OAuth2 clients', 'matrix-client'],
+      ['agents', 'WebAgent', 'agents', 'web-a'],
+    ])(
+      'push %s: a file without an _id is one failed file that is named, nothing is sent for it, the others are, and the exit is 1 (0 with --allow-failures)',
+      async (word, type, unit, sibling) => {
+        const run = await pulledTree();
+        const folder = path.join(
+          work,
+          `realms/alpha/realm-config/agents/${type}`
+        );
+        fs.writeFileSync(
+          path.join(folder, 'no-id.json'),
+          JSON.stringify({ description: 'this file holds no id' })
+        );
+        // a file that is another object of the type: what the pull wrote for a sibling, with the id of its own
+        fs.writeFileSync(
+          path.join(folder, 'ok-2.json'),
+          JSON.stringify({
+            ...JSON.parse(
+              fs.readFileSync(path.join(folder, `${sibling}.json`), 'utf8')
+            ),
+            _id: 'ok-2',
+          })
+        );
+        const files = word === 'agents' ? AGENT_FILES : CLIENT_FILES;
+
+        const refused = await push(run, word);
+
+        expect(refused.code).toBe(1);
+        // the canary: no request carries the id that a missing _id would have become
+        const sent = puts(taken());
+        expect(sent).toEqual(
+          [...objectsOf(files), `alpha/${type}/ok-2`].sort()
+        );
+        expect(sent.join('\n')).not.toContain('undefined');
+        expect(refused.output).toContain(
+          `1 of ${files.length + 2} ${unit} failed`
+        );
+        expect(refused.output).toContain(`alpha/${type}/no-id.json`);
+        expect(refused.output).toContain(
+          "it has no '_id': the id of an object is the id that its file holds, not the name of the file"
+        );
+
+        const allowed = await push(run, word, '--allow-failures');
+        expect(allowed.code).toBe(0);
+        expect(puts(taken()).join('\n')).not.toContain('undefined');
+      },
+      TIMEOUT
+    );
+
     it(
       'push oauth-clients ends with exit code 1 when the tenant refuses a client, names it in one summary of OAuth2 clients, still sends the other clients, and ends with 0 with --allow-failures',
       async () => {

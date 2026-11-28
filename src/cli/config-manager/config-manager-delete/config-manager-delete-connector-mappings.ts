@@ -31,7 +31,7 @@ export default function setup() {
 
   program
     .description(
-      'Delete one connector mapping by name, or delete all connector mappings of the sync configuration. A connector mapping that other objects still name is not deleted without --force.'
+      'Delete one connector mapping by name, or delete all connector mappings of the sync configuration. With -i, a connector mapping that other objects still name is not deleted without --force. Deleting all does not refuse for what names them.'
     )
     .addOption(
       selectorOption(

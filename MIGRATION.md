@@ -537,9 +537,14 @@ reconciliation or a client of the REST API names is not seen.
 
 A connector definition that the tenant lists with an id that is not a plain name
 (a name is not blank, is not just a dot, and has no `/`, `\`, `?`, `#`, `%`,
-`..` or control character in it) is never sent to the tenant: it is skipped with
-a message, and it counts as a failed delete. The name of every other connector
-definition is percent-encoded in the path of the request.
+`..`, control character, text direction control or invisible separator in it) is
+never sent to the tenant: it is skipped with a message, and it counts as a
+failed delete. The text direction controls are U+202A to U+202E and U+2066 to
+U+2069, the invisible separators U+200B, U+2060 and U+FEFF: they make a name
+look like another one. Any other format character (a joiner or non-joiner, a
+mark, a tag character) is part of a name, as it is of the spelling of many
+languages, and a message writes it as `\uXXXX`. The name of every other
+connector definition is percent-encoded in the path of the request.
 
 `--force` (long form only, only with `-i`) deletes the connector definition
 anyway, and **changes nothing else**: every mapping, application, schedule or
@@ -700,10 +705,10 @@ order of the document, replacing a `syncAfter` that the entry had), and that
 includes the mapping that was just deleted: the written document names the
 deleted mapping in every later entry. A named delete, afterwards, of a mapping
 that stands before others in the document is refused, with those entries as soft
-`syncAfter` holders, until you pass `--force`. `frodo mapping delete` writes the same way today. No schedule,
-application or `mapping/<name>` configuration is written. This is the behaviour
-of the library; the command ships as it is, and the fix is tracked at
-https://github.com/rockcarver/frodo-lib/issues/1153.
+`syncAfter` holders, until you pass `--force`. `frodo mapping delete` writes the
+same way today. No schedule, application or `mapping/<name>` configuration is
+written. This is the behaviour of the library; the command ships as it is, and
+the fix is tracked at https://github.com/rockcarver/frodo-lib/issues/1153.
 
 Only the `sync` configuration is covered, as in `pull connector-mappings` and
 `push connector-mappings`: a mapping that is stored as `mapping/<name>` is neither
@@ -724,10 +729,15 @@ a value that is written as a path (`-i ../x`) is a service that does not exist
 ([a selector is an id or a name, never a path](https://github.com/rockcarver/frodo-cli/blob/main/docs/decisions/0059-a-selector-is-an-id-or-a-name-never-a-path.md)),
 and an id that the realm lists for a service, or a type or an id that it lists
 for one of its next descendents, that is not a plain name (a slash, a `..`, a
-`?`, a `#`, a `%` or a control character in it) is never sent to the tenant: the
-service is not deleted, and it counts as failed, also in a dry run. A service that
-is not in the realm exits with code 1, also with
-`--dry-run` and `--allow-failures`, because the id names one service. A service
+`?`, a `#`, a `%`, a control character, a text direction control or an invisible
+separator in it: the same as for a connector definition above) is never
+deleted: no delete request is sent for it, and it counts as one failed service,
+however many of its next descendents are not plain, also in a dry run. (The
+services of a realm are read as before, with the ids as the realm lists them;
+only the delete is refused.) `--allow-failures` forgives that in a delete of
+all services, and never in a delete that names the service with `-i`. A
+service that is not in the realm exits with code 1, also with `--dry-run` and
+`--allow-failures`, because the id names one service. A service
 that Cloud does not offer is not read, as in `pull services`, so it is not found
 on Cloud either. A named delete asks nothing and prints what went with the
 service: its next descendents. It counts the service that was named only:
@@ -739,9 +749,10 @@ realm skipped on Cloud as `pull services` and `push services` skip it.
 `DataStoreService`, which `pull services` never exports, is left alone (a delete
 that names it deletes it, and says that `push services` cannot bring it back). It asks
 first, as every delete of more than one object does, and without a terminal it is
-refused before the login unless you pass `-y` (or `-d`). The question follows a
-plan that names the realms, the number of services and of next descendents of
-each, and the services that a realm commonly depends on: the identity stores
+refused before the login unless you pass `-y` (or `-d`). The question names the
+realm when one was given, and none otherwise. It follows a plan that names the
+realms, the number of services and of next descendents of each, and the
+services that a realm commonly depends on: the identity stores
 (`id-repositories`), the OAuth 2.0 provider (`oauth-oidc`), the social identity
 providers, the email service, the PingOne connection, the self-service journeys,
 the session settings, the base URL and the valid goto URLs. **The command does not
@@ -752,11 +763,17 @@ runs. A service that was deleted by mistake can be created again with
 `config-manager push services` from a `pull services` made before, as far as
 `pull services` exports it: it never exports `DataStoreService`.
 
+A plan that shows an id that is not a plain name stops before the question,
+and says that nothing was asked and nothing was deleted: `-y` deletes the other
+services and counts these as failed, and `-i` deletes one service.
+
 Every service is one operation, named `<realm>/<service>` (`root/<service>` in
 the root realm): one that cannot be read or deleted does not stop the others, the
 command prints one summary of what failed and exits with code 1 if any failed. A
 realm whose services cannot be listed is one operation too, named `realm <name>`,
-so the summary counts it as one. `--allow-failures` keeps the exit code at 0 for a
+so the summary counts it as one, and so is a realm that the tenant lists with a
+name that is not a realm name (`../beta`): no request is sent for it, and the
+other realms go on. `--allow-failures` keeps the exit code at 0 for a
 service that could not be read or deleted and for a realm that could not be
 listed, but never for a service that is not there
 ([a command that runs many operations runs them all, then fails if any failed](https://github.com/rockcarver/frodo-cli/blob/main/docs/decisions/0040-a-command-that-runs-many-operations-runs-them-all-then-fails-if-any-failed.md)).
@@ -823,7 +840,7 @@ can, prints one summary of what failed with the reason of Access Management, and
 exits with code 1 if any failed; `--allow-failures` keeps the exit code at 0 for
 failed deletes ([a command that runs many operations runs them all, then fails if any failed](https://github.com/rockcarver/frodo-cli/blob/main/docs/decisions/0040-a-command-that-runs-many-operations-runs-them-all-then-fails-if-any-failed.md)).
 
-**`frodo config-manager push managed-objects` also pushes custom relationship schemas (experimental)**: `frodo config-manager push managed-objects` also pushes the custom relationship schema files in the `schema` folder of a managed object (the files that `pull managed-objects --custom-relationships` writes), one write for each file, after the managed configuration. The files are written through the relationship schema API of IDM 7.5 or later; a tenant without it fails each file with its own cause. The command tries every file, prints one summary and exits 1 if any failed; `--allow-failures` keeps the exit code at 0. A file whose property name is empty, `.` or `..`, or holds `/`, `\`, `?`, `#`, `%` or a control character (a name that a request cannot carry) is not pushed: it counts as a failed file and the summary names it, and so does a file of an object whose own name is such a name. Everything is read before anything is written: a schema file that cannot be read or parsed, or that holds a placeholder without a value, ends the command with exit code 1 before anything is sent, the managed configuration included, and so do a configuration that cannot be written (no file is pushed then) and an object that does not exist, in every case also with `--allow-failures`. A tree without `schema` folders is pushed as before. Writing a relationship property can create its reverse side on the other type, as the documentation of the library's call for this API says; that was not tried on a real tenant, so a later pull may show a property that the tree did not hold.
+**`frodo config-manager push managed-objects` also pushes custom relationship schemas (experimental)**: `frodo config-manager push managed-objects` also pushes the custom relationship schema files in the `schema` folder of a managed object (the files that `pull managed-objects --custom-relationships` writes), one write for each file, after the managed configuration. The files are written through the relationship schema API of IDM 7.5 or later; a tenant without it fails each file with its own cause. The command tries every file, prints one summary and exits 1 if any failed; `--allow-failures` keeps the exit code at 0. A file whose property name is empty, `.` or `..`, or holds `/`, `\`, `?`, `#`, `%` or a control character (a name that a request cannot carry) is not pushed: it counts as a failed file and the summary names it, and so does a file of an object whose own name is such a name. A file that holds JSON but no object (`null`, a list, a text) is a failed file too: nothing is sent for it. Everything is read before anything is written: a schema file that cannot be read or parsed, or that holds a placeholder without a value, ends the command with exit code 1 before anything is sent, the managed configuration included, and so do a configuration that cannot be written (no file is pushed then, and the command names the files that were not attempted) and an object that does not exist, in every case also with `--allow-failures`. A tree without `schema` folders is pushed as before. A `managed-objects` folder that holds no managed object is not pushed: the command says so, sends nothing and exits with code 1 (also with `--allow-failures`), because an empty list would remove the managed objects of the tenant. This is the exit code of `push managed-objects` itself: inside `push all-static` the step `managed-objects` fails by name, and `--allow-failures` keeps the exit code of that run at 0, as it does for every step. Writing a relationship property can create its reverse side on the other type, as the documentation of the library's call for this API says; that was not tried on a real tenant, so a later pull may show a property that the tree did not hold.
 
 **`config-manager push secrets --prune` asks before it deletes, and `-p` is
 gone**: `--prune` deletes the old versions of every secret it pushes, and in 4.x
@@ -1308,7 +1325,10 @@ exit code 1 before the command connects, also when it comes from `FRODO_REALM`,
 on every `config-manager` command that runs in a realm. A realm that is typed
 `/alpha` or `/parent/child` names the folder `realms/alpha` or
 `realms/parent/child` in the messages that print a path; they printed
-`realms//alpha`.
+`realms//alpha`. `config push journeys` (and the journeys step of
+`config push all-static`) with a realm typed `/alpha` pushes the journeys of the
+folder `realms/alpha` as it does for `alpha`; it found no folder for the path,
+said `No journey files found to import.` and exited with code 1.
 
 `delete secret-mappings -i` reads the list of the mappings first and deletes the
 mapping that has exactly that id. An id that is not a mapping, or that differs in
@@ -1415,7 +1435,10 @@ value is now one name, so it cannot lead out of the config folder:
   changes what a push reads in these places: a file of `oauth-cimd-profiles`,
   `oauth-issuers` or `oauth-software-publishers` without an `_id` used to be pushed
   under its decoded file name and is now a named failure of that file (the other
-  files are still pushed); a journey is sent under the `_id` of its file (a journey
+  files are still pushed), and so is a file of `oauth-clients` or `agents`
+  without an `_id`, which was sent to an object named `undefined` and counted as
+  pushed (it is not skipped as the client of an application that is named like
+  the file either); a journey is sent under the `_id` of its file (a journey
   file without an `_id` is a named failure of that journey), and the
   object of a relationship schema under the `name` of its object file, where both
   were the name of a folder; the property of a relationship schema file is the
@@ -2408,7 +2431,9 @@ default output of `pull raw --config-file` is the same as before.
 
 **`config-manager push all-static` is new**: it pushes what `pull all-static`
 writes, in dependency order, from the folder given with `-D`. It writes the
-metadata of the tenant only when `-M` is given. A type whose folder is absent is
+metadata of the tenant only when `-M` is given; a classic deployment has no
+step that writes it, so there `-M` has no effect and the command warns that the
+metadata was not written. A type whose folder is absent is
 skipped with a warning; a missing or empty tree fails before anything is
 written. Every step runs, one summary lists the failed ones and the exit code is
 1 if any failed; `--allow-failures` keeps it at 0. The two commands share one
@@ -2418,6 +2443,19 @@ table of steps, so `pull all-static` now runs its steps in the order of the push
 alphabetical order of their names. It runs the same steps with the same
 requests, so the files it writes are the same; only the order of its progress
 lines and of its summary of failed steps differs.
+
+**A `${` that a pull wrote as `\${` is read back as `${` in every file**: a
+pull writes each `${` of the tenant with a backslash in front, and a push takes
+the backslash off when it reads the file. Until the library 5.0.0-57 it did
+that only when the file held a complete placeholder such as `${KEY}` somewhere:
+in any other file a value such as `open ${ never closed` was pushed as
+`open \${ never closed`, with a backslash added. It is pushed as the tenant had
+it now. This concerns what a pull writes for OAuth2 clients, agents, SAML
+providers, service objects, variables and applications, and the commands that
+read it back: every `config push` command, `push apps` and
+`push remote-proxies`. `config import` and `service import` do not read their
+files this way and are not affected, nor are the files that are read with
+placeholders off (the `--config-file` of a pull).
 
 ### Node.js version matrix changes in 5.x
 

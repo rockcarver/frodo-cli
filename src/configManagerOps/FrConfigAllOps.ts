@@ -1285,12 +1285,18 @@ export async function configManagerImportAllStatic(
   options: ConfigManagerAllOptions = {}
 ): Promise<boolean> {
   try {
-    return await runSteps(
-      deploymentMapAllStatic[state.getDeploymentType()],
-      options,
-      'import',
-      true
-    );
+    const steps = deploymentMapAllStatic[state.getDeploymentType()];
+    // a deployment without the step has nowhere to write what was given: say so instead of dropping it unseen
+    if (
+      metadataWasGiven(options) &&
+      !steps.some((s) => s.name === 'config-metadata')
+    ) {
+      printMessage(
+        `The metadata that was given (-M, --metadata) is not written: a ${state.getDeploymentType()} deployment has no step that writes it.`,
+        'warn'
+      );
+    }
+    return await runSteps(steps, options, 'import', true);
   } catch (error) {
     printError(error, 'Error importing all-static in fr-config-manager format');
     return false;

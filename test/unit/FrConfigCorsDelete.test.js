@@ -280,6 +280,8 @@ describe('a named delete: the id is looked up in what the service lists', () => 
     '..',
     'a\\b',
     'a\u0007b',
+    'a\u202eb',
+    'a\u200bb',
   ])(
     'a listed id %j that is not a plain name is never deleted, even when it is typed exactly: exit 1, with -d and --allow-failures too, no request',
     async (id) => {
@@ -317,7 +319,7 @@ describe('a named delete: the id is looked up in what the service lists', () => 
     expect(deleteServiceNextDescendent).not.toHaveBeenCalled();
   });
 
-  test('a delete that fails exits 1 and names the cause, also with --allow-failures: a named delete is one operation of the summary', async () => {
+  test('a delete that fails exits 1 and names the cause; --allow-failures keeps the exit at 0, as a named delete is one operation of the summary', async () => {
     refuse.set('test', new Error('could not delete test'));
 
     expect(await configManagerDeleteCors('test')).toBe(false);
@@ -873,4 +875,56 @@ describe('--deep: the IDM CORS filter', () => {
 
     expectNoEntryWriteAndNoFilterDelete();
   });
+});
+
+describe('a configuration whose id holds a format character that a name may hold', () => {
+  // the spelling of many languages and every emoji sequence hold such a character: `config pull` and `config push`
+  // accept the id, so a delete must be able to name it; what a message shows of it is written out
+  const LEGIT = [
+    ['a‌b', 'a zero width non-joiner'],
+    ['a‍b', 'a zero width joiner'],
+    ['\u{1F468}‍\u{1F469}‍\u{1F467}', 'an emoji sequence'],
+    ['\u{1F3F4}\u{E0067}\u{E0062}\u{E007F}', 'tag characters'],
+    ['של‏', 'a right-to-left mark'],
+    ['co­op', 'a soft hyphen'],
+  ];
+  /** What a message shows of a text: every format character as `\uXXXX`, `\u{XXXXX}` beyond U+FFFF. */
+  const written = (text) =>
+    text.replace(/\p{Cf}/gu, (character) => {
+      const code = character.codePointAt(0);
+      return code > 0xffff
+        ? `\\u{${code.toString(16)}}`
+        : `\\u${code.toString(16).padStart(4, '0')}`;
+    });
+
+  test.each(LEGIT)(
+    '%j (%s) is deleted by a delete of all and by a named delete, and no message shows it raw',
+    async (id) => {
+      store = [configuration('cors'), configuration(id)];
+
+      expect(await configManagerDeleteCors()).toBe(true);
+      expect(deleted).toEqual(['cors', id]);
+      expect(output()).toContain(`Deleted CORS configuration: ${written(id)}`);
+      expect(output()).not.toMatch(/\p{Cf}/u);
+
+      jest.clearAllMocks();
+      deleted.length = 0;
+      expect(await configManagerDeleteCors(id)).toBe(true);
+      expect(deleted).toEqual([id]);
+      expect(output()).not.toMatch(/\p{Cf}/u);
+    }
+  );
+
+  test.each(LEGIT)(
+    '%j (%s) is listed by a dry run, which deletes nothing',
+    async (id) => {
+      store = [configuration(id)];
+
+      expect(await configManagerDeleteCors(undefined, true)).toBe(true);
+
+      expect(deleteServiceNextDescendent).not.toHaveBeenCalled();
+      expect(output()).toContain(written(id));
+      expect(output()).not.toMatch(/\p{Cf}/u);
+    }
+  );
 });

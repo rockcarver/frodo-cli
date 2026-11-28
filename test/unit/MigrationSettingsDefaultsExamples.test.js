@@ -120,6 +120,63 @@ suite('the saved-defaults commands of MIGRATION.md', () => {
     60000
   );
 
+  describe('the example of the help of --clear', () => {
+    /** The example that `frodo settings defaults -h` gives: the quoted path after `e.g.`, whatever the wrapping of the help. */
+    const exampleOfHelp = () => {
+      const help = frodoDefaults(['-h']);
+      expect(help.status).toBe(0);
+      const found = (help.stdout + help.stderr)
+        .replace(/\s+/g, ' ')
+        .match(/e\.g\. "([^"]+)"/);
+      expect(found).not.toBeNull();
+      return found[1];
+    };
+
+    it('starts with the root word, as the keys of the store do', () => {
+      expect(exampleOfHelp()).toMatch(/^frodo /);
+    });
+
+    it('is the full path of a command that exists', () => {
+      const [root, ...path] = exampleOfHelp().split(' ');
+
+      const result = cp.spawnSync(binaryPath, [...path, '-h'], {
+        encoding: 'utf8',
+        env: {
+          ...process.env,
+          HOME: home,
+          USERPROFILE: home,
+          FRODO_TEST: '',
+          FRODO_NO_PROMPT: '1',
+          FRODO_NO_UPDATE_CHECK: '1',
+          NODE_OPTIONS: '',
+          NO_COLOR: '1',
+        },
+      });
+
+      expect(root).toBe('frodo');
+      expect(result.status).toBe(0);
+      expect(result.stdout + result.stderr).toContain(
+        `Usage: ${exampleOfHelp()}`
+      );
+    });
+
+    it('as it is typed, clears what a save of that command wrote, and nothing else', () => {
+      const key = exampleOfHelp();
+      writeStore([key, 'frodo agent ai list']);
+
+      const result = frodoDefaults(['--clear', key]);
+
+      expect({
+        code: result.status,
+        out: result.stdout + result.stderr,
+      }).toEqual({
+        code: 0,
+        out: expect.stringContaining(`Cleared saved defaults for '${key}'.`),
+      });
+      expect(Object.keys(readStore())).toEqual(['frodo agent ai list']);
+    }, 60000);
+  });
+
   it('the path of an example without the root word names nothing: the key carries it', () => {
     writeStore(['frodo config-manager pull all']);
 

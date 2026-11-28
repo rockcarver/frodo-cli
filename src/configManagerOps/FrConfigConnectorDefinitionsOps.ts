@@ -21,7 +21,12 @@ import { printError, printMessage } from '../utils/Console';
 import { causeOf } from '../utils/ErrorCause';
 import { countItems, importItemsOfFile } from '../utils/ImportItems';
 import { OperationRun } from '../utils/OperationRun';
-import { isPlainName, PLAIN_NAME_RULE, shownId } from '../utils/PlainName';
+import {
+  isPlainName,
+  PLAIN_NAME_RULE,
+  printable,
+  shownId,
+} from '../utils/PlainName';
 import type { ApplicationLayoutDecision } from '../utils/TreeLayout';
 import { reasonOf, unreadableSources } from './ReferenceDelete';
 
@@ -302,8 +307,8 @@ function namedPlanLines(
 ): string[] {
   const lines = [
     asPlan
-      ? `Plan: connector definition '${connectorId}' would be deleted.`
-      : `Dry run: would delete connector definition '${connectorId}'.`,
+      ? `Plan: connector definition '${printable(connectorId)}' would be deleted.`
+      : `Dry run: would delete connector definition '${printable(connectorId)}'.`,
   ];
   if (references.length > 0) {
     lines.push(
@@ -372,8 +377,8 @@ function bulkPlanLines(
   const count = connectorIds.length;
   const what =
     count === 1
-      ? `The one connector definition would be deleted: ${connectorIds[0]}.`
-      : `All ${count} connector definitions would be deleted: ${connectorIds.join(', ')}.`;
+      ? `The one connector definition would be deleted: ${printable(connectorIds[0])}.`
+      : `All ${count} connector definitions would be deleted: ${connectorIds.map(printable).join(', ')}.`;
   const lines = [
     asPlan ? `Plan: ${what}` : `Dry run: nothing is deleted. ${what}`,
   ];
@@ -387,11 +392,11 @@ function bulkPlanLines(
     for (const id of named) {
       const holders = lookup.references[id];
       for (const reference of holders.slice(0, MOST_HOLDERS_LISTED)) {
-        lines.push(`    - ${id}: ${holderLine(reference)}`);
+        lines.push(`    - ${printable(id)}: ${holderLine(reference)}`);
       }
       if (holders.length > MOST_HOLDERS_LISTED) {
         lines.push(
-          `    - ${id}: and ${holders.length - MOST_HOLDERS_LISTED} more`
+          `    - ${printable(id)}: and ${holders.length - MOST_HOLDERS_LISTED} more`
         );
       }
     }
@@ -493,7 +498,7 @@ async function deleteNamedConnectorDefinition(
   if (!listed) {
     // a named connector definition that is not there is not an operation that
     // failed among others: it fails the command whatever --allow-failures says
-    printMessage(`Connector definition '${id}' not found.`, 'error');
+    printMessage(`Connector definition '${printable(id)}' not found.`, 'error');
     if (references && references.length > 0) {
       printMessage(
         `Still named by:\n${namedByLines(references).join('\n')}`,
@@ -516,7 +521,7 @@ async function deleteNamedConnectorDefinition(
 
   if (unreadable) {
     printMessage(
-      `Cannot tell what still names connector definition '${target}': these could not be read:\n${unreadable
+      `Cannot tell what still names connector definition '${printable(target)}': these could not be read:\n${unreadable
         .map((line) => `  - ${line}`)
         .join('\n')}`,
       'error'
@@ -541,7 +546,7 @@ async function deleteNamedConnectorDefinition(
       ? '\nAn application owns the connector definition that it names: config delete apps removes both.'
       : '';
     printMessage(
-      `${dryRun ? 'Dry run: the delete would be refused. ' : ''}Connector definition '${target}' is still named by:\n${namedByLines(found).join('\n')}${owner}\nNothing was deleted. --force deletes it anyway: it deletes the connector definition and nothing else, every object above is left as it is and names a connector definition that does not exist afterwards.`,
+      `${dryRun ? 'Dry run: the delete would be refused. ' : ''}Connector definition '${printable(target)}' is still named by:\n${namedByLines(found).join('\n')}${owner}\nNothing was deleted. --force deletes it anyway: it deletes the connector definition and nothing else, every object above is left as it is and names a connector definition that does not exist afterwards.`,
       'error'
     );
     return false;
@@ -555,10 +560,10 @@ async function deleteNamedConnectorDefinition(
   }
 
   const run = new OperationRun({ unit: 'connector', allowFailures });
-  const deleted = await run.run(target, async () => {
+  const deleted = await run.run(printable(target), async () => {
     // the library puts the name into the path as it is given
     await deleteConnector(encodeURIComponent(target));
-    printMessage(`Deleted connector definition '${target}'.`);
+    printMessage(`Deleted connector definition '${printable(target)}'.`);
   });
   if (deleted && found.length > 0) {
     printMessage(
@@ -634,10 +639,10 @@ async function deleteAllConnectorDefinitions(
       continue;
     }
     const connectorId = listedId.slice(CONNECTOR_PREFIX.length);
-    await run.run(connectorId, async () => {
+    await run.run(printable(connectorId), async () => {
       // the library puts the name into the path as it is given
       await deleteConnector(encodeURIComponent(connectorId));
-      printMessage(`Deleted connector definition '${connectorId}'.`);
+      printMessage(`Deleted connector definition '${printable(connectorId)}'.`);
     });
   }
   return run.finish();

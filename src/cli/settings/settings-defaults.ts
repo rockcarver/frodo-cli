@@ -31,7 +31,7 @@ export default function setup() {
     .addOption(
       new Option(
         '--clear <command-path>',
-        'Clear the saved defaults of one command, e.g. "journey list".'
+        'Clear the saved defaults of one command, e.g. "frodo journey list".'
       )
     )
     .action(async (options, command) => {

@@ -31,7 +31,9 @@ Options:
                           notation, for example: -M.pushedAt
                           2026-11-26T00:00:00Z -M.versionInfo.version 1.0
                           --metadata.versionInfo.stable. Without it the metadata
-                          of the tenant is left as it is.
+                          of the tenant is left as it is. A classic deployment
+                          has no metadata step: there the option has no effect,
+                          and the command says so.
   -h, --help              Help
   -hh, --help-more        Help with all options.
   -hhh, --help-all        Help with all options, environment variables, and

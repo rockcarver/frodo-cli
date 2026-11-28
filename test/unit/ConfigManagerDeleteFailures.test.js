@@ -572,7 +572,8 @@ const CASES = [
 ];
 
 // every relative import of the modules under test becomes spies, except the
-// run tracker, the cause helper, the plain-name rule and the modules under test
+// run tracker, the cause helper, the plain-name rule, the path helper (the folder of a
+// realm: delete services asks it for every realm it lists) and the modules under test
 // themselves
 const modulesUnderTest = new Set(
   CASES.map((c) => path.resolve(root, c.file).replace(/\.ts$/, ''))
@@ -589,7 +590,8 @@ for (const file of new Set(CASES.map((c) => c.file))) {
       modulesUnderTest.has(target) ||
       target.endsWith('/utils/OperationRun') ||
       target.endsWith('/utils/ErrorCause') ||
-      target.endsWith('/utils/PlainName')
+      target.endsWith('/utils/PlainName') ||
+      target.endsWith('/utils/ConfigTreePath')
     ) {
       continue;
     }

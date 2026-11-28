@@ -21,8 +21,10 @@ Commands:
                              the objects they own. (formerly: applications)
   connector-mappings         [Experimental] Delete one connector mapping by
                              name, or delete all connector mappings of the sync
-                             configuration. A connector mapping that other
-                             objects still name is not deleted without --force.
+                             configuration. With -i, a connector mapping that
+                             other objects still name is not deleted without
+                             --force. Deleting all does not refuse for what
+                             names them.
   connector-servers          [Experimental] Delete one connector server by name,
                              or delete all of them. A connector server that a
                              server cluster or a connector still names is not

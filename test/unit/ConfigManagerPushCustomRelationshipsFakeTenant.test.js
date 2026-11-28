@@ -140,7 +140,7 @@ suite(
         const child = cp.spawn(
           binaryPath,
           [
-            'config-manager',
+            'config',
             ...args,
             `http://127.0.0.1:${fakeAm.port}/am`,
             'alpha',
@@ -551,6 +551,71 @@ suite(
           ]);
           expect(idmLines().join('\n')).not.toContain('custom');
           expect(idmLines().join('\n')).not.toContain('..');
+        },
+        TIMEOUT
+      );
+    });
+
+    describe('a schema file that holds JSON that is not an object', () => {
+      it(
+        'is one failed operation that names the file: no write carries it, the others are written, and the exit is 1 (0 with --allow-failures)',
+        async () => {
+          write({
+            ...TREE,
+            'managed-objects/alpha_user/schema/alpha_user.schema.broken.json':
+              'null',
+            'managed-objects/alpha_user/schema/alpha_user.schema.list.json':
+              '[1,2]',
+          });
+          await startTenant();
+
+          const { code, output } = await push();
+
+          expect(code).toBe(1);
+          expect(output).toContain('2 of 4 relationship schemas failed:');
+          expect(output).toContain(
+            'alpha_user/schema/alpha_user.schema.broken.json: the file does not hold a JSON object'
+          );
+          expect(output).toContain(
+            'alpha_user/schema/alpha_user.schema.list.json: the file does not hold a JSON object'
+          );
+          // the canary: nothing was sent for the two, the two others were written
+          expect(
+            propertyWrites().map(({ url }) => url.split('/properties/')[1])
+          ).toEqual([
+            'manager?waitForCompletion=true',
+            'reports?waitForCompletion=true',
+          ]);
+
+          fs.rmSync(record, { force: true });
+          const forgiven = await push('--allow-failures');
+          expect(forgiven.code).toBe(0);
+          expect(forgiven.output).toContain(
+            'The exit code stays 0 because --allow-failures was given.'
+          );
+        },
+        TIMEOUT
+      );
+    });
+
+    describe('a folder that holds no managed object', () => {
+      it(
+        'sends nothing to the tenant, says why, and exits 1: an empty list would remove its managed objects',
+        async () => {
+          fs.mkdirSync(path.join(work, 'managed-objects'));
+          await startTenant();
+
+          const { code, output } = await push();
+
+          expect(code).toBe(1);
+          expect(output).toContain(
+            'The managed-objects folder holds no managed object: nothing was sent'
+          );
+          expect(idm()).toEqual([]);
+          // what the tenant holds is what it held
+          expect(
+            (await held()).managed.objects.map(({ name }) => name)
+          ).toEqual(['alpha_group']);
         },
         TIMEOUT
       );

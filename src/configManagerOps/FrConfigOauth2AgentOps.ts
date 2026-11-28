@@ -65,6 +65,12 @@ const { mergeDeep } = frodo.utils.json;
 const { readAgentByTypeAndId, readAgents, importAgent } = frodo.agent;
 
 /**
+ * Why a file of an agent type that holds no `_id` is not pushed: the id of an object is the id that its file holds,
+ * and the name of the file is not one (a pull may shorten it).
+ */
+const NO_ID_REASON = `it has no '_id': the id of an object is the id that its file holds, not the name of the file`;
+
+/**
  * The words of the messages of a command. `both` keeps the words that the old `oauth2-agents`
  * command used, so that its output does not change.
  */
@@ -559,16 +565,18 @@ export async function configManagerImportAgents(
         for (const file of fs
           .readdirSync(agentTypeDir)
           .filter((f) => path.extname(f) === '.json')) {
+          // the id of a client is the id that its file holds: a file that holds none (or cannot be read) names no
+          // client, whatever its own name is, so no application can own it, and the push below reports the file
           const clientId =
             owned && agentType === 'OAuth2Client'
               ? objectNameInFile(
                   path.join(agentTypeDir, file),
                   (content) => content?._id,
-                  path.basename(file, '.json')
+                  ''
                 )
               : undefined;
           const owners =
-            clientId === undefined
+            clientId === undefined || clientId === ''
               ? []
               : owned.ownersInCurrentRealm('oauth2Client', clientId);
           if (owners.length > 0) {
@@ -592,6 +600,10 @@ export async function configManagerImportAgents(
               state
             ) as IdObjectSkeletonInterface;
             const agentId = agent._id;
+            // nothing is sent for a file that holds no id: it would be written to an object named `undefined`
+            if (typeof agentId !== 'string' || agentId === '') {
+              throw new Error(NO_ID_REASON);
+            }
             clearOperationalAttributes(agent);
 
             await importAgent(agentId, { agent: { [agentId]: agent } }, false);

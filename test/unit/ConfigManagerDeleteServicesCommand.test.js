@@ -196,13 +196,27 @@ describe('the options', () => {
     );
     // what the summary counts, what is never sent, and what a restore can and cannot bring back
     expect(help).toContain(
-      'a realm whose services cannot be listed is one operation named realm followed by its name, so the summary counts it as one'
+      'a realm whose services cannot be listed, or that the tenant lists with a name that is not a realm name, is one operation of its own, written as realm and its name (realm alpha), so the summary counts it as one'
     );
     expect(help).toContain(
       'named realm/service (root/service in the root realm)'
     );
     expect(help).toContain(
       'or the type or id of one of its next descendents, is not a plain name'
+    );
+    expect(help).toContain(
+      '(no slash, backslash, question mark, hash, percent sign, double dot, control character, text direction control or invisible separator)'
+    );
+    // only the delete is promised away: the realm is still read, with the ids as it lists them
+    expect(help).toContain(
+      'is never deleted: no delete request is sent for it, and it counts as one failed service'
+    );
+    expect(help).not.toContain('no request is sent for it');
+    expect(help).toContain(
+      'it counts as one failed service, however many of its next descendents are not plain. --allow-failures forgives that in a delete of all services, and never in a delete that names the service with -i.'
+    );
+    expect(help).toContain(
+      'A delete of all services that asks first stops at a plan that shows such an id, before the question, and says so.'
     );
     expect(help).toContain('With -i only the named service counts');
     expect(help).toContain(
@@ -258,6 +272,33 @@ describe('a delete of all services', () => {
       'This permanently deletes all services in the selected realms from https://openam-matrix.example.com/am'
     );
     expect(process.exitCode).toBe(0);
+  });
+
+  test('on a terminal the question names the realm that was given, and for every realm it names none: the plan above it names the realms', async () => {
+    terminal = true;
+
+    await run([], { realm: 'alpha' });
+    const withRealm = messages().find((text) =>
+      text.startsWith('This permanently deletes')
+    );
+    expect(withRealm).toBe(
+      'This permanently deletes all services in the selected realms from https://openam-matrix.example.com/am (realm alpha).'
+    );
+
+    printMessage.mockClear();
+    await run([], { realm: null });
+    const everyRealm = messages().find((text) =>
+      text.startsWith('This permanently deletes')
+    );
+    expect(everyRealm).toBe(
+      'This permanently deletes all services in the selected realms from https://openam-matrix.example.com/am.'
+    );
+    // a realm that is the default is no realm either
+    printMessage.mockClear();
+    await run([], { realm: '__default__realm__' });
+    expect(
+      messages().find((text) => text.startsWith('This permanently deletes'))
+    ).not.toContain('(realm');
   });
 
   test('on a terminal deletes nothing after a no, and fails', async () => {

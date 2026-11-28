@@ -691,6 +691,10 @@ describe('the plan of a delete of all mappings', () => {
       expect(output()).toContain(`Dry run: Deleting mapping: ${name}`);
     }
     expect(output()).toContain('2 of them are named by other objects.');
+    // what a delete of all does with them, in the plan: it does not touch them
+    expect(output()).toContain(
+      '2 of them are named by other objects. Those objects are not changed'
+    );
     expect(output()).toContain(
       "mapA: schedule 'schedule/reconA' (invokeContext.mapping), hard"
     );
