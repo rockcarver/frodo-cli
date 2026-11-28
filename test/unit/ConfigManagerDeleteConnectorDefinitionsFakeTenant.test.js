@@ -935,20 +935,62 @@ suite('config delete connector-definitions (fake tenant)', () => {
     );
 
     test(
-      'a plan lists the plain names, names the others, sends no write, and exits 0',
+      'a dry run lists the plain names, names the others, sends no write, and exits 1 as the real run does',
       async () => {
         const { code, output } = await deleteConnectors(['-d'], {
           tenant: { store: store() },
         });
 
-        expect(code).toBe(0);
+        expect(code).toBe(1);
         expect(changes()).toEqual([]);
         expect(output).toContain(
           'All 4 connector definitions would be deleted: Azure, GoogleApps, salesforce, a.'
         );
         expect(output).toContain('These listed ids are not plain names');
         expect(output).toContain('"provisioner.openicf/../managed"');
+        // the same summary as the real run, which says 7 of 11
+        expect(output).toContain('7 of 11 connectors failed');
         expect(await held('managed')).toBeDefined();
+      },
+      TIMEOUT
+    );
+
+    test(
+      'a dry run with --allow-failures exits 0, as the real run does, and still names them',
+      async () => {
+        const { code, output } = await deleteConnectors(
+          ['-d', '--allow-failures'],
+          { tenant: { store: store() } }
+        );
+
+        expect(code).toBe(0);
+        expect(changes()).toEqual([]);
+        expect(output).toContain('These listed ids are not plain names');
+        expect(output).toContain('7 of 11 connectors failed');
+        expect(output).toContain(
+          'The exit code stays 0 because --allow-failures was given.'
+        );
+      },
+      TIMEOUT
+    );
+
+    test(
+      'a dry run of a tenant with one refused id among the plain ones exits 1, still prints the plan, and sends nothing',
+      async () => {
+        const { code, output } = await deleteConnectors(['-d'], {
+          tenant: {
+            store: {
+              'provisioner.openicf/a': connector('a'),
+              'provisioner.openicf/a#b': { _id: 'provisioner.openicf/a#b' },
+            },
+          },
+        });
+
+        expect(code).toBe(1);
+        expect(changes()).toEqual([]);
+        expect(output).toContain('connector definitions would be deleted:');
+        expect(output).toContain('"provisioner.openicf/a#b"');
+        expect(output).toContain('1 of 5 connectors failed');
       },
       TIMEOUT
     );

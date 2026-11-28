@@ -430,12 +430,15 @@ function bulkPlanLines(
  *
  * Deleting all connector definitions does not look at what names them and never
  * refuses; only a plan (`dryRun`) looks, once for all of them, and lists the
- * holders. A dry run reads and writes nothing else.
+ * holders. A dry run reads and writes nothing else, and says how a real run
+ * would end: a listed id that is not a plain name is a failed delete there, so
+ * it is a failure of the dry run too, which `allowFailures` forgives as it does
+ * a real run. The plan that is shown before a question does not fail for it.
  * @param {string} id Exact id of the connector definition, without the type prefix. An empty id is an error, never "all". Omit it to delete all.
  * @param {boolean} dryRun Show what would be done without doing any of it.
  * @param {boolean} allowFailures Keep the result true when a deletion failed. Neither a named connector definition that does not exist, nor a refusal because something still names it, is a failure that it can turn into success.
  * @param {DeleteConnectorDefinitionsOptions} options `force`, for a named delete, and `plan`.
- * @returns {Promise<boolean>} False if the id is refused, the connector definitions cannot be read, a named connector definition does not exist or is still named (or cannot be checked) and `force` was not given, or, unless failures are allowed, a deletion failed. Nothing to delete is a success.
+ * @returns {Promise<boolean>} False if the id is refused, the connector definitions cannot be read, a named connector definition does not exist or is still named (or cannot be checked) and `force` was not given, or, unless failures are allowed, a deletion failed, or a dry run of a delete of all lists an id that is not a plain name. Nothing to delete is a success.
  */
 export async function configManagerDeleteConnectorDefinitions(
   id?: string,
@@ -626,7 +629,17 @@ async function deleteAllConnectorDefinitions(
       );
     }
     printMessage(lines.join('\n'));
-    return true;
+    // the plan before a question only says what would happen: the question
+    // follows, and the delete itself names what failed
+    if (asPlan) return true;
+    // a dry run says how a real run would end: a listed id that is not a plain
+    // name is a failed delete there, so it is one here
+    const run = new OperationRun({ unit: 'connector', allowFailures });
+    connectorIds.forEach(() => run.recordSuccess());
+    for (const listedId of notPlain) {
+      run.recordFailure(shownId(listedId), 'its id is not a plain name');
+    }
+    return run.finish();
   }
   const run = new OperationRun({ unit: 'connector', allowFailures });
   for (const listedId of listedIds) {

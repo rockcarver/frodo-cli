@@ -545,6 +545,9 @@ look like another one. Any other format character (a joiner or non-joiner, a
 mark, a tag character) is part of a name, as it is of the spelling of many
 languages, and a message writes it as `\uXXXX`. The name of every other
 connector definition is percent-encoded in the path of the request.
+`frodo config delete connector-definitions -d` says how the real run would end:
+it names such an id and exits with code 1, and `--allow-failures` keeps the exit
+code at 0, as it does for the real run.
 
 `--force` (long form only, only with `-i`) deletes the connector definition
 anyway, and **changes nothing else**: every mapping, application, schedule or
